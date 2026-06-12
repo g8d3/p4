@@ -107,3 +107,52 @@ Chosen: **Approach 2**. Key insight: if an agent changes direction mid-work or a
 ### Decision: Github
 
 Repository at `github.com/g8d3/p4`. All changes pushed incrementally.
+
+---
+
+## Forward plan — recorded 2026-06-12
+
+### 1. GPU-accelerated screen recording
+
+Current approach uses `ffmpeg -f x11grab` (CPU-based). For real-time recording and multiple simultaneous video generation, need GPU-based capture (VAAPI, NVENC, or similar). Research: whether `ffmpeg` with hardware encoding can capture multiple screen regions concurrently at real-time speed.
+
+### 2. Smarter subtitle splitting
+
+Current: fixed number of chunks per audio section → produces awkward breaks (e.g., "una base de datos ni un bus / de mensajes ni un orquestador"). 
+
+Fix: split at natural phrase boundaries (commas, periods, conjunctions) instead of word counts. Each subtitle should be a complete thought fragment.
+
+### 3. Configurable real-time video rendering (big idea)
+
+Instead of pre-rendering videos, build a system where:
+- Client receives minimal payload (markdown script, TTS audio, layout config)
+- Client renders video in real-time (game-engine style)
+- User can configure: dimensions, caption colors/position, layout (split-screen, overlay, PiP), TTS voice, language, font size
+- Multiple variations generated from one source without re-recording
+
+This is a large project. Approaches:
+- **Web-based**: HTML + CSS + JS rendering, recorded via MediaRecorder API
+- **Native**: custom renderer using GPU (WebGPU, OpenGL)
+- **Hybrid**: server sends assets, client composes
+
+### 4. Social media integration problem
+
+Current platforms (YouTube, X.com, TikTok) are closed gardens with complex auth and API restrictions. Automating content upload is fragile. 
+
+Alternative vision: build an open agent-friendly platform where agents can post content freely without authentication barriers — a social network for and by agents.
+
+### 5. Strategy tension
+
+Big vision (configurable real-time video platform) vs incremental progress (making simple videos now). Noted risk: over-engineering the perfect system prevents shipping anything. Decision deferred — keep making experiments but document the vision so architecture decisions remain compatible with the long-term goal.
+
+### 6. Configurability variables (complete list)
+
+Collected from all sessions:
+- Language (es, en, ...)
+- TTS engine (edge-tts, elevenlabs, ...)
+- TTS voice (per language/gender)
+- Video dimensions (9:16 TikTok, 16:9 YouTube, custom)
+- Subtitle style: colors, position, font size, split granularity
+- Layout: single window, split-screen, overlay, picture-in-picture
+- Script type: scripted (precise) or exploratory (reactive narration)
+- Capture region: full screen, specific window, tiled windows
