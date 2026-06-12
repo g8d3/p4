@@ -84,6 +84,19 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
   - **Scripted**: agent follows a predefined script and narrates it as written.
   - **Exploratory**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive.
 
+## Launching agents
+
+To launch an agent for a specific task:
+
+1. Open a new tmux window: `tmux new-window -n <name>`
+2. `cd` into the agent's directory (where its `AGENTS.md` lives)
+3. Run opencode with an initial prompt telling it to read its AGENTS.md:
+   ```
+   opencode "Read AGENTS.md and execute the task"
+   ```
+
+The agent's AGENTS.md is its sole context. Do not pass task details in the prompt — the agent reads them from the file. This tests that the directory + AGENTS.md contract is sufficient.
+
 ## Language
 
 - User dictates in Spanish.
