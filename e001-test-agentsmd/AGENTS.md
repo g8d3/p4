@@ -16,7 +16,7 @@ e001-test-agentsmd/
 ├── AGENTS.md      ← this file
 └── ag-01/
     ├── AGENTS.md      ← agent process
-    ├── guion.md       ← narration script
+    ├── script.md       ← narration script
     ├── subtitles.srt  ← TikTok-style captions
     └── video.mp4      ← final output
 ```

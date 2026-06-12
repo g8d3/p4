@@ -9,7 +9,7 @@ Create an explanatory video (9:16 vertical) about the file-based multi-agent sys
 ### 1. Write script
 
 ```
-e001-test-agentsmd/ag-01/guion.md
+e001-test-agentsmd/ag-01/script.md
 ```
 
 Structure: intro (~23s), structure (~37s), comparison (~24s), demo (~14s), closing (~13s).

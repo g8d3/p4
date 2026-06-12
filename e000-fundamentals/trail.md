@@ -78,7 +78,7 @@ p4/
 │   ├── AGENTS.md             ← experiment description
 │   └── ag-01/
 │       ├── AGENTS.md         ← process that worked
-│       ├── guion.md          ← narration script
+│       ├── script.md          ← narration script
 │       ├── subtitles.srt     ← TikTok-style captions
 │       └── video.mp4         ← final output
 └── ...
