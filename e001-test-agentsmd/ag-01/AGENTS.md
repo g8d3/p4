@@ -1,60 +1,31 @@
-# ag-01 — Video creator
+# ag-01 — Subtitle fixer
 
 ## Goal
 
-Create an explanatory video (9:16 vertical) about the file-based multi-agent system.
+Fix the subtitle splitting in the existing video. Current subtitles sometimes break mid-phrase (e.g., "una base de datos ni un bus / de mensajes ni un orquestador").
 
-## Process (what worked)
+## Task
 
-### 1. Write script
+Rewrite `subtitles.srt` so each entry splits at **natural phrase boundaries** (commas, periods, conjunctions) instead of fixed word counts.
 
-```
-e001-test-agentsmd/ag-01/script.md
-```
+### Rules
 
-Structure: intro (~23s), structure (~37s), comparison (~24s), demo (~14s), closing (~13s).
+- Keep the same color cycling pattern (5 colors).
+- Keep the same timing (match audio section durations).
+- Each subtitle must be a complete thought fragment.
+- Verify by reading through the SRT — no orphaned clauses.
 
-### 2. TTS
+### Steps
 
-Use `edge-tts` with Colombian voice, not espeak-ng:
+1. Fix `subtitles.srt` — rewrite with natural phrase boundaries.
+2. Re-render `video.mp4` with the new SRT:
+   ```
+   ffmpeg -i /tmp/screen2.mkv -i /tmp/full_audio_edge.mp3 -vf "subtitles=subtitles.srt:force_style='FontName=Monospace,FontSize=17,MarginV=50,Alignment=2'" -c:v libx264 -preset ultrafast -c:a aac -shortest video.mp4 -y
+   ```
+3. Verify: the video file timestamp should be newer than the SRT file.
 
-```
-edge-tts --voice es-CO-GonzaloNeural --text "..." --write-media audio.mp3
-```
+### Files
 
-### 3. Prepare environment
-
-```
-xset s off && xset -dpms
-xscreensaver-command -exit
-```
-
-### 4. Screen capture
-
-```
-ffmpeg -f x11grab -video_size 608x1080 -i :0.0+656,0 -framerate 15 ... /tmp/screen.mkv
-```
-
-### 5. Open terminal in capture region
-
-```
-xterm -geometry 46x45+656+0 -fa "Monospace" -fs 22 -e "bash demo.sh"
-```
-
-### 6. Generate subtitles (TikTok style)
-
-- 2-4 word chunks.
-- Alternating colors: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF.
-- Bottom position (Alignment=2, MarginV=50).
-
-### 7. Combine
-
-```
-ffmpeg -i video.mkv -i audio.mp3 -vf "subtitles=subs.srt:force_style='FontName=Monospace,FontSize=17,MarginV=50,Alignment=2'" -shortest video.mp4
-```
-
-### 8. Verify
-
-- Check for black frames.
-- Confirm audio is audible and matches the image.
-- Verify subtitles render correctly.
+- `subtitles.srt` — rewrite this file
+- `script.md` — reference for the text
+- `video.mp4` — re-render after fixing SRT
