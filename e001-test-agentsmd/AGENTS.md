@@ -14,14 +14,9 @@ Este experimento produce un video (9:16, vertical) que explica el concepto:
 ```
 e001-test-agentsmd/
 ├── AGENTS.md      ← este archivo
-├── guion.md       ← guion narrativo del video
 └── ag-01/
-    ├── AGENTS.md  ← instrucciones para el agente que graba
-    └── video.mp4  ← resultado final
+    ├── AGENTS.md      ← instrucciones para el agente
+    ├── guion.md       ← guion narrativo
+    ├── subtitles.srt  ← subtítulos del video
+    └── video.mp4      ← resultado final
 ```
-
-## Reglas específicas
-
-1. El guion debe estar en `guion.md` antes de grabar.
-2. El video final se guarda en `ag-01/video.mp4`.
-3. Seguir las instrucciones de grabación de video del AGENTS.md raíz.

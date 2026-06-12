@@ -8,7 +8,7 @@ Crear un video explicativo (9:16 vertical) sobre el sistema multiagente basado e
 
 ### 1. Escribir guion (`guion.md`)
 
-Crear el archivo `guion.md` en `e001-test-agentsmd/` con:
+Crear el archivo `guion.md` dentro de `ag-01/` con:
 
 - **Introducción** (30s): qué es este sistema — agentes que se comunican via archivos, no infraestructura
 - **Estructura** (45s): mostrar `e001-test-agentsmd/AGENTS.md`, `ag-01/AGENTS.md`, cómo se anidan
