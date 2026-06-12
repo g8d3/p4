@@ -84,6 +84,26 @@ p4/
 └── ...
 ```
 
+### Decision: Opaque agent directory names
+
+Two approaches were considered for organizing agent directories:
+
+**Approach 1 — Directory name is metadata**
+```
+e001/es/tiktok/9x16/ag-01/
+e001/en/youtube/16x9/ag-01/
+```
+Variables encoded in the path. Self-documenting, but deep nesting, renaming cascades, and every new variable forces a tree restructure.
+
+**Approach 2 — Directory is opaque, AGENTS.md is the description**
+```
+e001/ag-01/   ← AGENTS.md: "es, TikTok, 9:16, subtitled"
+e001/ag-02/   ← AGENTS.md: "en, YouTube, 16:9, no subtitles"
+```
+Variables live in content, not structure. Agent names are stable handles. Adding a new variable (caption style, voice, etc.) never changes the directory tree.
+
+Chosen: **Approach 2**. Key insight: if an agent changes direction mid-work or another agent references it, having metadata in the path creates cascading renames across multiple files. A single AGENTS.md is the one place to update. Stable names survive the project evolving.
+
 ### Decision: Github
 
 Repository at `github.com/g8d3/p4`. All changes pushed incrementally.
