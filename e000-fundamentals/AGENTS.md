@@ -84,16 +84,23 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
   - **Scripted**: agent follows a predefined script and narrates it as written.
   - **Exploratory**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive.
 
-## Launching agents
+## Launching interactive agents
 
 To launch an agent for a specific task:
 
-1. Open a new tmux window: `tmux new-window -n <name>`
+1. Open a new tmux window: `tmux new-window -n <name> -d`
 2. `cd` into the agent's directory (where its `AGENTS.md` lives)
-3. Run opencode with an initial prompt telling it to read its AGENTS.md:
+3. Start opencode interactively (no arguments):
    ```
-   opencode "Read AGENTS.md and execute the task"
+   tmux send-keys -t <name> "opencode" Enter
    ```
+4. Wait for it to load (~3s), then send the instruction:
+   ```
+   sleep 3
+   tmux send-keys -t <name> "Read AGENTS.md and execute the task" Enter
+   ```
+
+**Important**: `opencode "text"` is NOT interactive — it treats the argument as a directory. Always launch opencode with no arguments, then send the prompt after it loads.
 
 The agent's AGENTS.md is its sole context. Do not pass task details in the prompt — the agent reads them from the file. This tests that the directory + AGENTS.md contract is sufficient.
 
