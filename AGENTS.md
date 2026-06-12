@@ -1,5 +1,13 @@
 # p4
 
-Este directorio contiene experimentos. Cada experimento es independiente y define su propia estructura.
+This directory contains experiments. Each experiment is independent and defines its own structure.
 
-Para convenciones, entorno, y principios compartidos, ver `e000-fundamentos/AGENTS.md`.
+For conventions, environment, and shared principles, see `e000-fundamentos/AGENTS.md`.
+
+Design decisions and session history: `e000-fundamentos/trail.md`.
+
+## Language
+
+- User dictates in Spanish.
+- All files, code, and agent responses are written in English.
+

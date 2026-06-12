@@ -1,85 +1,90 @@
-# e000 — Fundamentos
+# e000 — Fundamentals
 
-Este experimento define las convenciones y configuraciones compartidas que otros experimentos pueden heredar o ignorar.
+This experiment defines shared conventions and configuration that other experiments can inherit or override.
 
-## Convención de directorios
+## Directory naming
 
-Cada experimento vive en un subdirectorio con el formato:
+Each experiment lives in a subdirectory with the format:
 
 ```
-e<NNN>-<nombre-breve>/
+e<NNN>-<short-name>/
 ```
 
-Ejemplo:
+Examples:
 ```
 e000-fundamentos/
 e001-test-agentsmd/
 e002-...
 ```
 
-## Subdirectorios de agentes
+## Agent subdirectories
 
-Dentro de cada experimento, cada agente tiene su propio directorio:
+Within each experiment, each agent has its own directory:
 
 ```
-e001-latencia/
+e001-experiment/
 ├── AGENTS.md
 ├── ag-01/
 ├── ag-02/
 └── ag-03/
 ```
 
-Cada agente define su propia estructura interna y puede tener su propio `AGENTS.md`.
+Each agent defines its own internal structure and may have its own `AGENTS.md`.
 
-Los niveles de abstracción son infinitos. Un experimento puede contener sub-experimentos, y cada agente puede tener sub-agentes. Cada nivel hereda el contexto del nivel superior.
+Abstraction levels are infinite. An experiment may contain sub-experiments, and an agent may contain sub-agents. Each level inherits context from its parent.
 
-## AGENTS.md anidados
+## Nested AGENTS.md
 
-- **`<experimento>/AGENTS.md`**: explica qué hace ese experimento, qué archivos contiene, cómo ejecutarlo.
-- **`<experimento>/ag-<N>/AGENTS.md`**: (opcional) documentación específica de ese agente dentro del experimento.
+- **`<experiment>/AGENTS.md`**: describes what the experiment does, its files, and how to run it.
+- **`<experiment>/ag-<N>/AGENTS.md`**: (optional) agent-specific documentation.
 
-## Entorno de trabajo
+## Working environment
 
-- **Dispositivo**: Android con Termux → SSH a Linux (zsh + tmux).
-- **Entrada**: Google Keyboard (dictado por voz).
-- **Agente**: Open Code CLI.
-- **Proveedor principal**: opencode-go.
-- **Proveedor alternativo**: Z.AI (coding plan Pro, no pay-as-you-go).
-- **Modelos principales**: DeepSeek V4 Flash y MiniMax 2.5 (no Pro). MiniMax 2.5 soporta visión/multimodal, ideal para tareas con video.
-- **tmux**: se usan ventanas, no paneles.
-- **Mobile-first**: toda interfaz (terminal o web) debe ser amigable con móvil.
+- **Device**: Android + Termux → SSH to Linux (zsh + tmux).
+- **Input**: Google Keyboard (voice dictation).
+- **Agent**: Open Code CLI.
+- **Primary provider**: opencode-go.
+- **Secondary provider**: Z.AI (coding plan Pro, not pay-as-you-go).
+- **Models**: DeepSeek V4 Flash, MiniMax 2.5 (non-Pro). MiniMax 2.5 supports vision/multimodal, ideal for video tasks.
+- **tmux**: windows only, no panes.
+- **Mobile-first**: all interfaces (terminal or web) must be mobile-friendly.
 
-### Variables de entorno
+### Environment variables
 
-| Variable | Descripción |
+| Variable | Description |
 |---|---|
-| `OPENCODE_GO_API_KEY` | API key para opencode-go |
-| `OPENCODE_GO_BASE_URL` | Base URL del proveedor opencode-go |
-| `OPENCODE_GO_MODEL` | Modelo activo para opencode-go |
-| `OPENCODE_API_KEY` | Alias que apunta a `OPENCODE_GO_API_KEY` |
-| `ZAI_API_KEY` | API key para Z.AI (coding plan Pro) |
+| `OPENCODE_GO_API_KEY` | API key for opencode-go |
+| `OPENCODE_GO_BASE_URL` | Base URL for opencode-go |
+| `OPENCODE_GO_MODEL` | Active model for opencode-go |
+| `OPENCODE_API_KEY` | Alias pointing to `OPENCODE_GO_API_KEY` |
+| `ZAI_API_KEY` | API key for Z.AI (coding plan Pro) |
 
-## Principios para agentes
+## Agent principles
 
-- **Calidad sobre velocidad**: no se trata solo de terminar rápido. Explora con libertad, pero busca un balance — no agregues código innecesariamente. Prioriza soluciones simples y bien hechas.
-- **No asumas, verifica**: antes de cambiar algo, lee el estado actual. Luego piensa cómo modificarlo, actúa, y finalmente verifica que el resultado sea el esperado. Nunca asumas que algo funciona sin confirmarlo.
-- **Usa tu directorio de trabajo**: no utilices `/tmp` ni directorios externos. Trabaja dentro de tu propio directorio y mantenlo organizado como mejor te parezca.
-- **Timeouts en comandos**: todo comando debe ejecutarse con un timeout estimado. Si no sabes cuánto puede tardar, pon un margen amplio. Nunca dejes un comando sin timeout.
-- **Comandos bloqueantes al fondo**: si un comando está diseñado para bloquear la terminal (servidores, procesos largos), ejecútalo en segundo plano.
+- **Quality over speed**: don't just finish fast. Explore freely but balance it — don't add unnecessary code. Prioritize simple, well-made solutions.
+- **Don't assume, verify**: before changing something, read the current state. Then think how to change it, act, and finally verify the result is as expected. Never assume something works without confirming.
+- **Use your working directory**: don't use `/tmp` or external directories. Work inside your own directory and keep it organized however you see fit.
+- **Command timeouts**: every command must have an estimated timeout. If unsure how long it will take, add a generous margin. Never leave a command without a timeout.
+- **Blocking commands to background**: if a command is designed to block the terminal (servers, long processes), run it in the background.
 
-## Grabación de video
+## Video recording
 
-- **Verifica el resultado**: revisa que el video no esté en negro, que tenga audio, y que la narración coincida con lo que ocurre en pantalla.
-- **Captura de pantalla**: usar el display real (`DISPLAY=:0` o similar), nada de renderizado por CPU.
-- **Sin screen lock**: antes de grabar, desactivar el bloqueo de pantalla para evitar videos en negro. Intentar en orden:
-  1. `xset s off && xset -dpms` (desactivar blanking y ahorro de energía)
-  2. `xscreensaver-command -exit` (detener xscreensaver si está corriendo)
-  3. Si lo anterior no funciona, probar alternativas como `xdg-screensaver suspend` o `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`.
-- **TTS**: voz colombiana (Español Latinoamérica, acento Colombia). Usar `edge-tts` con voz `es-CO-SalomeNeural` o `es-CO-GonzaloNeural`. No usar espeak-ng ni voces genéricas.
-- **Formato móvil**: grabar en aspect ratio vertical (9:16). Para lograrlo:
-  1. Seleccionar solo la ventana o región relevante (no el monitor completo).
-  2. Redimensionar y reubicar las ventanas para que llenen eficientemente el área de grabación, sin dejar espacios vacíos.
-  3. Asegurar que el contenido sea legible en una pantalla vertical.
-- **Tipos de video**:
-  - **Con script**: el agente sigue un guion predefinido y lo narra tal cual.
-  - **Exploratorio**: el agente narra en vivo lo que va haciendo — lo que planea, los problemas que encuentra, cómo los resuelve, sus decisiones en el momento. Sin guion, reactivo.
+- **Verify output**: check that the video is not black, has audio, and narration matches what is on screen.
+- **Screen capture**: use the real display (`DISPLAY=:0` or similar), no CPU rendering.
+- **Disable screen lock**: before recording, prevent screen lock. Try in order:
+  1. `xset s off && xset -dpms`
+  2. `xscreensaver-command -exit`
+  3. Fallbacks: `xdg-screensaver suspend` or `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`
+- **TTS**: Colombian voice. Use `edge-tts` with `es-CO-SalomeNeural` or `es-CO-GonzaloNeural`. Do not use espeak-ng or generic voices.
+- **Mobile format**: record in vertical aspect ratio (9:16). To achieve this:
+  1. Select only the relevant window or region (not full monitor).
+  2. Resize and reposition windows to fill the capture area efficiently, leaving no wasted space.
+  3. Ensure content is readable on a vertical screen.
+- **Video types**:
+  - **Scripted**: agent follows a predefined script and narrates it as written.
+  - **Exploratory**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive.
+
+## Language
+
+- User dictates in Spanish.
+- All files, code, and agent responses are written in English.
