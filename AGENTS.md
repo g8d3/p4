@@ -67,6 +67,10 @@ Cada agente define su propia estructura interna y puede tener su propio `AGENTS.
 
 - **Verifica el resultado**: revisa que el video no esté en negro, que tenga audio, y que la narración coincida con lo que ocurre en pantalla.
 - **Captura de pantalla**: usar el display real (`DISPLAY=:0` o similar), nada de renderizado por CPU.
+- **Sin screen lock**: antes de grabar, desactivar el bloqueo de pantalla para evitar videos en negro. Intentar en orden:
+  1. `xset s off && xset -dpms` (desactivar blanking y ahorro de energía)
+  2. `xscreensaver-command -exit` (detener xscreensaver si está corriendo)
+  3. Si lo anterior no funciona, probar alternativas como `xdg-screensaver suspend` o `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`.
 - **TTS**: voz colombiana (Español Latinoamérica, acento Colombia).
 - **Formato móvil**: grabar en aspect ratio vertical (9:16). Para lograrlo:
   1. Seleccionar solo la ventana o región relevante (no el monitor completo).
