@@ -55,6 +55,27 @@ Cada agente define su propia estructura interna y puede tener su propio `AGENTS.
 - **tmux**: se usan ventanas, no paneles.
 - **Mobile-first**: toda interfaz (terminal o web) debe ser amigable con móvil.
 
+## Principios para agentes
+
+- **Calidad sobre velocidad**: no se trata solo de terminar rápido. Explora con libertad, pero busca un balance — no agregues código innecesariamente. Prioriza soluciones simples y bien hechas.
+- **No asumas, verifica**: antes de cambiar algo, lee el estado actual. Luego piensa cómo modificarlo, actúa, y finalmente verifica que el resultado sea el esperado. Nunca asumas que algo funciona sin confirmarlo.
+- **Usa tu directorio de trabajo**: no utilices `/tmp` ni directorios externos. Trabaja dentro de tu propio directorio y mantenlo organizado como mejor te parezca.
+- **Timeouts en comandos**: todo comando debe ejecutarse con un timeout estimado. Si no sabes cuánto puede tardar, pon un margen amplio. Nunca dejes un comando sin timeout.
+- **Comandos bloqueantes al fondo**: si un comando está diseñado para bloquear la terminal (servidores, procesos largos), ejecútalo en segundo plano.
+
+## Grabación de video
+
+- **Verifica el resultado**: revisa que el video no esté en negro, que tenga audio, y que la narración coincida con lo que ocurre en pantalla.
+- **Captura de pantalla**: usar el display real (`DISPLAY=:0` o similar), nada de renderizado por CPU.
+- **TTS**: voz colombiana (Español Latinoamérica, acento Colombia).
+- **Formato móvil**: grabar en aspect ratio vertical (9:16). Para lograrlo:
+  1. Seleccionar solo la ventana o región relevante (no el monitor completo).
+  2. Redimensionar y reubicar las ventanas para que llenen eficientemente el área de grabación, sin dejar espacios vacíos.
+  3. Asegurar que el contenido sea legible en una pantalla vertical.
+- **Tipos de video**:
+  - **Con script**: el agente sigue un guion predefinido y lo narra tal cual.
+  - **Exploratorio**: el agente narra en vivo lo que va haciendo — lo que planea, los problemas que encuentra, cómo los resuelve, sus decisiones en el momento. Sin guion, reactivo.
+
 ### Variables de entorno
 
 | Variable | Descripción |
