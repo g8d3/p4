@@ -71,7 +71,7 @@ Cada agente define su propia estructura interna y puede tener su propio `AGENTS.
   1. `xset s off && xset -dpms` (desactivar blanking y ahorro de energía)
   2. `xscreensaver-command -exit` (detener xscreensaver si está corriendo)
   3. Si lo anterior no funciona, probar alternativas como `xdg-screensaver suspend` o `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`.
-- **TTS**: voz colombiana (Español Latinoamérica, acento Colombia).
+- **TTS**: voz colombiana (Español Latinoamérica, acento Colombia). Usar `edge-tts` con voz `es-CO-SalomeNeural` o `es-CO-GonzaloNeural`. No usar espeak-ng ni voces genéricas.
 - **Formato móvil**: grabar en aspect ratio vertical (9:16). Para lograrlo:
   1. Seleccionar solo la ventana o región relevante (no el monitor completo).
   2. Redimensionar y reubicar las ventanas para que llenen eficientemente el área de grabación, sin dejar espacios vacíos.
