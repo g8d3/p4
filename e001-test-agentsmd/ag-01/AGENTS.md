@@ -2,32 +2,59 @@
 
 ## Objetivo
 
-Crear un video explicativo (9:16 vertical) sobre el sistema multiagente basado en archivos del directorio `p4/`.
+Crear un video explicativo (9:16 vertical) sobre el sistema multiagente basado en archivos.
 
-## Pasos
+## Proceso (lo que funcionó)
 
-### 1. Escribir guion (`guion.md`)
+### 1. Escribir guion
 
-Crear el archivo `guion.md` dentro de `ag-01/` con:
+```
+e001-test-agentsmd/ag-01/guion.md
+```
 
-- **Introducción** (30s): qué es este sistema — agentes que se comunican via archivos, no infraestructura
-- **Estructura** (45s): mostrar `e001-test-agentsmd/AGENTS.md`, `ag-01/AGENTS.md`, cómo se anidan
-- **Comparación** (30s): antes = DB + message broker + orquestador; ahora = directorios + AGENTS.md
-- **Demo** (30s): mostrar el directorio real, navegar la estructura
-- **Cierre** (15s): ventajas y por qué funciona
+Estructura: introducción (~23s), estructura (~37s), comparación (~24s), demo (~14s), cierre (~13s).
 
-### 2. Preparar entorno
+### 2. TTS
 
-- Desactivar screen lock: `xset s off && xset -dpms`
-- Abrir tmux con el directorio `p4/` listo
-- TTS configurado para voz colombiana
+Usar `edge-tts` con voz colombiana, no espeak-ng:
 
-### 3. Grabar video
+```
+edge-tts --voice es-CO-GonzaloNeural --text "..." --write-media audio.mp3
+```
 
-- Usar display real (`DISPLAY=:0`)
-- Aspect ratio vertical (9:16), seleccionar solo la región relevante
-- Verificar que el video no esté en negro, tenga audio y la narración coincida
+### 3. Preparar entorno
 
-### 4. Guardar
+```
+xset s off && xset -dpms
+xscreensaver-command -exit
+```
 
-El video final en `ag-01/video.mp4`.
+### 4. Captura de pantalla
+
+```
+ffmpeg -f x11grab -video_size 608x1080 -i :0.0+656,0 -framerate 15 ... /tmp/screen.mkv
+```
+
+### 5. Abrir terminal en la zona de grabación
+
+```
+xterm -geometry 46x45+656+0 -fa "Monospace" -fs 22 -e "bash demo.sh"
+```
+
+### 6. Generar subtítulos (estilo TikTok)
+
+- Chunks de 2-4 palabras.
+- Colores alternados: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF.
+- Posición: inferior (Alignment=2, MarginV=50).
+
+### 7. Combinar
+
+```
+ffmpeg -i video.mkv -i audio.mp3 -vf "subtitles=subs.srt:force_style='FontName=Monospace,FontSize=17,MarginV=50,Alignment=2'" -shortest video.mp4
+```
+
+### 8. Verificar
+
+- Revisar que no haya cuadros negros.
+- Confirmar que el audio se escuche y coincida con la imagen.
+- Revisar que los subtítulos se vean correctamente.
