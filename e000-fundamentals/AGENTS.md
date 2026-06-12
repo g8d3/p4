@@ -12,7 +12,7 @@ e<NNN>-<short-name>/
 
 Examples:
 ```
-e000-fundamentos/
+e000-fundamentals/
 e001-test-agentsmd/
 e002-...
 ```

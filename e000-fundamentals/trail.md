@@ -30,7 +30,7 @@ Considered using Open Code's native skill system (`.opencode/skills/<name>/SKILL
 
 ### Decision: No authoritative root
 
-The root `p4/AGENTS.md` is minimal — just an index pointing to `e000-fundamentos/`. There is no single source of truth. `e000-fundamentos/` is just another experiment that happens to define conventions by convention, not by authority. Other experiments can ignore or override it.
+The root `p4/AGENTS.md` is minimal — just an index pointing to `e000-fundamentals/`. There is no single source of truth. `e000-fundamentals/` is just another experiment that happens to define conventions by convention, not by authority. Other experiments can ignore or override it.
 
 ### Discussion: How agents discover context
 
@@ -42,7 +42,7 @@ User dictates in Spanish. All files, code, and agent responses are in English.
 
 ### Decision: trail.md
 
-A `trail.md` file in `e000-fundamentos/` records design conversations and decisions. Referenced from the root AGENTS.md so agents can read it.
+A `trail.md` file in `e000-fundamentals/` records design conversations and decisions. Referenced from the root AGENTS.md so agents can read it.
 
 ### Decision: No /tmp
 
@@ -70,8 +70,8 @@ Agents must work inside their own directory, not `/tmp`. Violated once during e0
 
 ```
 p4/
-├── AGENTS.md                 ← index, points to e000-fundamentos
-├── e000-fundamentos/
+├── AGENTS.md                 ← index, points to e000-fundamentals
+├── e000-fundamentals/
 │   ├── AGENTS.md             ← shared conventions
 │   └── trail.md              ← design decisions
 ├── e001-test-agentsmd/

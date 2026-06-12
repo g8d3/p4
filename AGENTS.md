@@ -2,9 +2,9 @@
 
 This directory contains experiments. Each experiment is independent and defines its own structure.
 
-For conventions, environment, and shared principles, see `e000-fundamentos/AGENTS.md`.
+For conventions, environment, and shared principles, see `e000-fundamentals/AGENTS.md`.
 
-Design decisions and session history: `e000-fundamentos/trail.md`.
+Design decisions and session history: `e000-fundamentals/trail.md`.
 
 ## Language
 
