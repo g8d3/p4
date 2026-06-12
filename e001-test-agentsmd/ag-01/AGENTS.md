@@ -1,60 +1,60 @@
-# ag-01 — Creador de video
+# ag-01 — Video creator
 
-## Objetivo
+## Goal
 
-Crear un video explicativo (9:16 vertical) sobre el sistema multiagente basado en archivos.
+Create an explanatory video (9:16 vertical) about the file-based multi-agent system.
 
-## Proceso (lo que funcionó)
+## Process (what worked)
 
-### 1. Escribir guion
+### 1. Write script
 
 ```
 e001-test-agentsmd/ag-01/guion.md
 ```
 
-Estructura: introducción (~23s), estructura (~37s), comparación (~24s), demo (~14s), cierre (~13s).
+Structure: intro (~23s), structure (~37s), comparison (~24s), demo (~14s), closing (~13s).
 
 ### 2. TTS
 
-Usar `edge-tts` con voz colombiana, no espeak-ng:
+Use `edge-tts` with Colombian voice, not espeak-ng:
 
 ```
 edge-tts --voice es-CO-GonzaloNeural --text "..." --write-media audio.mp3
 ```
 
-### 3. Preparar entorno
+### 3. Prepare environment
 
 ```
 xset s off && xset -dpms
 xscreensaver-command -exit
 ```
 
-### 4. Captura de pantalla
+### 4. Screen capture
 
 ```
 ffmpeg -f x11grab -video_size 608x1080 -i :0.0+656,0 -framerate 15 ... /tmp/screen.mkv
 ```
 
-### 5. Abrir terminal en la zona de grabación
+### 5. Open terminal in capture region
 
 ```
 xterm -geometry 46x45+656+0 -fa "Monospace" -fs 22 -e "bash demo.sh"
 ```
 
-### 6. Generar subtítulos (estilo TikTok)
+### 6. Generate subtitles (TikTok style)
 
-- Chunks de 2-4 palabras.
-- Colores alternados: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF.
-- Posición: inferior (Alignment=2, MarginV=50).
+- 2-4 word chunks.
+- Alternating colors: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF.
+- Bottom position (Alignment=2, MarginV=50).
 
-### 7. Combinar
+### 7. Combine
 
 ```
 ffmpeg -i video.mkv -i audio.mp3 -vf "subtitles=subs.srt:force_style='FontName=Monospace,FontSize=17,MarginV=50,Alignment=2'" -shortest video.mp4
 ```
 
-### 8. Verificar
+### 8. Verify
 
-- Revisar que no haya cuadros negros.
-- Confirmar que el audio se escuche y coincida con la imagen.
-- Revisar que los subtítulos se vean correctamente.
+- Check for black frames.
+- Confirm audio is audible and matches the image.
+- Verify subtitles render correctly.

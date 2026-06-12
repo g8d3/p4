@@ -1,44 +1,44 @@
-# Guion: Sistema multiagente basado en archivos
+# Script: File-based multi-agent system
 
-Duración estimada: ~2 min 30 seg
-
----
-
-## 1. Introducción (30 seg)
-
-"Imagina un sistema multiagente donde los agentes no necesitan una base de datos, ni un bus de mensajes, ni un orquestador central. Solo archivos y directorios.
-
-Eso es exactamente lo que estamos construyendo aquí. Un sistema donde cada agente lee un archivo AGENTS.md, sabe qué hacer, escribe sus resultados, y el siguiente agente retoma desde ahí.
-
-Bienvenidos a P4."
-
-## 2. Estructura (45 seg)
-
-"La estructura es simple. En la raíz tenemos un AGENTS.md que explica las reglas globales. Luego cada experimento vive en su propio directorio con formato e-número-nombre.
-
-Por ejemplo, el experimento actual es e001-test-agentsmd. Dentro, otro AGENTS.md explica qué hace este experimento específico. Y si hay múltiples agentes trabajando, cada uno tiene su subdirectorio: ag-01, ag-02, etcétera.
-
-Cada agente define su propia estructura interna. No hay restricciones. Libertad total para organizarse."
-
-## 3. Comparación (30 seg)
-
-"Antes, un sistema multiagente típico requería una base de datos para persistencia, un bus de mensajes para comunicación, y un orquestador para coordinar.
-
-Aquí eliminamos todo eso. El sistema de archivos es la base de datos. Los directorios son el bus de mensajes. Y el AGENTS.md es el orquestador. Menos infraestructura, menos puntos de fallo, más simple."
-
-## 4. Demo (30 seg)
-
-"Aquí está la estructura en vivo. Voy a navegar por los directorios para mostrarlo. [mostrar tree] Observa cómo cada nivel tiene su propio AGENTS.md. Esto permite que cualquier agente —humano o IA— llegue, lea, y sepa exactamente qué hacer sin contexto externo."
-
-## 5. Cierre (15 seg)
-
-"Esta es la filosofía de P4: sistemas simples que funcionan. Sin sobreingeniería. Sin infra innecesaria. Solo archivos, directorios, y agentes bien informados."
+Estimated duration: ~2 min 30 sec
 
 ---
 
-## Notas técnicas
+## 1. Introduction (30 sec)
 
-- TTS: voz colombiana, español latinoamérica
-- Formato: 9:16 vertical
-- Duración: mantener cada sección en su tiempo estimado
-- Transiciones: pausa de 1.5 seg entre secciones
+"Imagine a multi-agent system where agents don't need a database, a message bus, or a central orchestrator. Just files and directories.
+
+That is exactly what we are building here. A system where each agent reads an AGENTS.md file, knows what to do, writes its results, and the next agent picks up from there.
+
+Welcome to P4."
+
+## 2. Structure (45 sec)
+
+"The structure is simple. At the root we have an AGENTS.md that explains the global rules. Then each experiment lives in its own directory with e-number-name format.
+
+For example, the current experiment is e001-test-agentsmd. Inside, another AGENTS.md explains what this specific experiment does. And if multiple agents are working, each one has its own subdirectory: ag-01, ag-02, and so on.
+
+Each agent defines its own internal structure. No restrictions. Total freedom to organize."
+
+## 3. Comparison (30 sec)
+
+"Before, a typical multi-agent system required a database for persistence, a message bus for communication, and an orchestrator for coordination.
+
+Here we eliminate all of that. The file system is the database. The directories are the message bus. And the AGENTS.md is the orchestrator. Less infrastructure, fewer failure points, simpler."
+
+## 4. Demo (30 sec)
+
+"Here is the live structure. I will navigate through the directories to show it. [show tree] Notice how each level has its own AGENTS.md. This allows any agent — human or AI — to arrive, read, and know exactly what to do without external context."
+
+## 5. Closing (15 sec)
+
+"This is the philosophy of P4: simple systems that work. No over-engineering. No unnecessary infrastructure. Just files, directories, and well-informed agents."
+
+---
+
+## Technical notes
+
+- TTS: Colombian voice, Latin American Spanish
+- Format: 9:16 vertical
+- Duration: keep each section within estimated time
+- Transitions: 1.5 sec pause between sections
