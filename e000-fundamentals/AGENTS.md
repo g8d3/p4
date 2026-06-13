@@ -192,18 +192,21 @@ Do NOT assume an agent is working from a single pane capture. The Build mode int
 
 A single capture showing "Build · ModelName · high" is NOT evidence of activity.
 
-### Detecting and resolving stuck agents
+### Agent state machine
 
-The OpenCode CLI status bar always shows `esc` + `interrupt`. These are not error indicators — they are normal action hints. The signal that the agent is stuck is **`QUEUED`** appearing next to them, meaning messages are queued but not being processed.
+The OpenCode CLI has 4 states:
 
-To resolve:
+| State | Status bar | Tokens | Meaning | Action |
+|---|---|---|---|---|
+| **Listening** | (blank — no bar) | — | Waiting for user input | Type message + Enter |
+| **Working** | `esc interrupt` + spinner | Rising | Agent is processing | Wait. Don't interrupt |
+| **Stuck** | `esc interrupt` | Frozen | Command finished but agent looped. Or a command is running longer than expected | Press Escape → Clean. Then send message |
+| **Stuck + queued** | `esc interrupt QUEUED` | Frozen | Same as stuck, but someone sent messages while it was stuck. Those messages are queued | Press Escape → Clean. Then send message + Enter. Agent consumes queue → Working |
+| **Clean** | (blank) | — | After Escape was pressed. Chat is empty, agent waiting | Send any message + Enter |
 
-1. Press Escape once (or twice if needed). This clears the queued messages.
-2. Verify `QUEUED` disappears from the status bar. Only `esc interrupt` should remain.
-3. Send a fresh message like "Continue." to trigger processing.
-4. Check token count increases within a few seconds. If not, repeat.
+**Detecting stuck without QUEUED**: QUEUED only appears if someone sent extra messages. If no messages were sent, the agent can still be stuck — look for unchanged token count for 10+ seconds while status shows `esc interrupt`. In that case, press Escape and send "Continue."
 
-Note: after clearing queue with Escape, `esc interrupt` reappears — this is normal, not a sign of being stuck again.
+**Why multiple Escape presses**: Sometimes the first Escape doesn't register (agent was busy). Press once, wait 1s, check if bar is gone. If not, press again. Once Clean, you can proceed.
 
 ## Language
 
