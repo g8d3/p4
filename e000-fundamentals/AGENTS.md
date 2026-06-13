@@ -192,6 +192,19 @@ Do NOT assume an agent is working from a single pane capture. The Build mode int
 
 A single capture showing "Build · ModelName · high" is NOT evidence of activity.
 
+### Detecting and resolving stuck agents
+
+The OpenCode CLI status bar always shows `esc` + `interrupt`. These are not error indicators — they are normal action hints. The signal that the agent is stuck is **`QUEUED`** appearing next to them, meaning messages are queued but not being processed.
+
+To resolve:
+
+1. Press Escape once (or twice if needed). This clears the queued messages.
+2. Verify `QUEUED` disappears from the status bar. Only `esc interrupt` should remain.
+3. Send a fresh message like "Continue." to trigger processing.
+4. Check token count increases within a few seconds. If not, repeat.
+
+Note: after clearing queue with Escape, `esc interrupt` reappears — this is normal, not a sign of being stuck again.
+
 ## Language
 
 - User dictates in Spanish.
