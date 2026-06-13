@@ -116,6 +116,27 @@ The agent's AGENTS.md should declare its required model in a `## Model` section.
 
 Available models: `opencode-go/deepseek-v4-flash`, `opencode-go/mimo-v2.5` (has vision), `opencode/mimo-v2.5-free`, `opencode-go/mimo-v2.5-pro` (avoid Pro).
 
+### Video rendering: CPU vs GPU
+
+There are two fundamentally different approaches:
+
+**Composition (CPU, ffmpeg filters)**
+Takes existing assets (images, audio) and joins them with ffmpeg. No screen recording, no display needed. A 4-minute video encodes in seconds — much faster than real time. Ideal for: podcast avatars, slideshows, anything that doesn't need live interaction. Scales to many parallel videos since each is just a CPU process.
+
+**Screen capture (GPU, x11grab / Godot / OBS)**
+Runs a live application (terminal, game engine, browser) and captures its display output. Takes exactly real time — a 4-minute demo takes 4 minutes to capture. Captures authentic interaction: mouse movement, 3D animations, terminal typing. Each capture needs a display.
+
+**Scaling with virtual displays**
+To produce many videos in parallel via screen capture, use `Xvfb` (X virtual framebuffer) to create multiple virtual displays. Each runs its own Godot/terminal scene, captured by a separate ffmpeg instance — all sharing the same GPU:
+
+```
+Xvfb :99 -screen 0 608x1080x24 &
+DISPLAY=:99 godot --headless --script render_scene.gd &
+ffmpeg -f x11grab -video_size 608x1080 -i :99.0 video.mp4
+```
+
+The GPU advantage is not speed per video — it is **parallelism**. One GPU can render 10+ virtual displays simultaneously, while CPU encoding would queue them.
+
 ### Cleanup
 
 When an agent completes its task (or is no longer needed), close its tmux window:
