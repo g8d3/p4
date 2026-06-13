@@ -167,6 +167,18 @@ tmux kill-window -t <name>
 
 The orchestrator should check agent status before launching new ones. Running agents consume tokens and may interfere with new tasks.
 
+### Verification
+
+Do NOT assume an agent is working from a single pane capture. The Build mode interface is always displayed — even when idle. To confirm real activity:
+
+1. Capture the agent's tmux pane **multiple times** with 2-3 second intervals.
+2. Look for **changing content**: token count increasing, progress indicators, new text output.
+3. If the display is identical across 3+ captures, the agent is **idle or stuck** — not working.
+4. To check if it finished: look for output files (videos, scripts, etc.) or `done.txt` if the agent creates one.
+5. If stuck and no output produced: kill the window and relaunch.
+
+A single capture showing "Build · ModelName · high" is NOT evidence of activity.
+
 ## Language
 
 - User dictates in Spanish.

@@ -41,8 +41,11 @@ export LIBVA_DRIVER_NAME=radeonsi
 ffmpeg -vaapi_device /dev/dri/renderD128 -framerate 25 -i frames/frame_%05d.png -i podcast_audio.mp3 -vf "format=nv12,hwupload" -c:v h264_vaapi -c:a aac -shortest video.mp4
 ```
 
-### 4. Subtitles
-TikTok-style: short phrase chunks (2-4 words per subtitle), not full sentences. Alternating colors. Bottom position. Match the audio segment timing.
+### 4. Format
+**9:16 vertical** (608x1080), NOT 16:9 landscape. Previous version failed with 1920x1080.
+
+### 5. Subtitles
+TikTok-style: short phrase chunks (2-4 words per subtitle), not full sentences. Alternating colors: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF. Bottom position (Alignment=2, MarginV=50). Match the audio segment timing.
 
 ### Output
 
