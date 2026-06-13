@@ -141,18 +141,45 @@ Current platforms (YouTube, X.com, TikTok) are closed gardens with complex auth 
 
 Alternative vision: build an open agent-friendly platform where agents can post content freely without authentication barriers — a social network for and by agents.
 
-### 5. Strategy tension
+### 5. Strategy tension — resolved
 
-Big vision (configurable real-time video platform) vs incremental progress (making simple videos now). Noted risk: over-engineering the perfect system prevents shipping anything. Decision deferred — keep making experiments but document the vision so architecture decisions remain compatible with the long-term goal.
+Both approaches are **two phases of the same system**:
 
-### 6. Configurability variables (complete list)
+**Phase 1 — Pre-rendered (agents)**
+Agents produce videos with variations. The human observes how agents plan, what works, what doesn't. This is learning for both human and system. Each video is a data point.
+
+**Phase 2 — Configurable real-time**
+A human (or another agent) takes an existing video and tweaks it: avatar, tone, duration, TTS. Each correction is versioned. The system learns: "for this topic, avatar + casual tone performs best".
+
+Both phases run simultaneously. Pre-rendered videos feed the configurable system with templates. The configurable system provides fast human feedback that improves the next generation of pre-rendered videos.
+
+### 6. Versioned human feedback
+
+Each correction a human makes to a video is a training datum:
+- Original parameters → corrected parameters
+- Over enough corrections, the agent learns which parameters to use for each topic/audience without human intervention
+
+This requires a versioning system for video configurations (not just the video file itself). Storing the config as a JSON/yml alongside the video, tracked in git.
+
+### 7. Avatar and audience variables
+
+Added from user feedback (family review of e001 video):
+- **Comprehensibility**: "too niche, hard to understand" → need variations for different audiences
+- **Avatar**: use a speaking avatar (podcast-style) instead of raw screen capture
+- **Examples**: apply the concept to everyday situations rather than abstract internals
+- **Audience targeting**: define audience before generating (developers vs general public vs investors)
+
+### 8. Configurability variables (complete list — updated)
 
 Collected from all sessions:
 - Language (es, en, ...)
 - TTS engine (edge-tts, elevenlabs, ...)
 - TTS voice (per language/gender)
+- Avatar (yes/no, style, position)
 - Video dimensions (9:16 TikTok, 16:9 YouTube, custom)
 - Subtitle style: colors, position, font size, split granularity
-- Layout: single window, split-screen, overlay, picture-in-picture
+- Layout: single window, split-screen, overlay, PiP, avatar+screen
 - Script type: scripted (precise) or exploratory (reactive narration)
 - Capture region: full screen, specific window, tiled windows
+- Audience level: technical, general, executive
+- Example style: abstract vs real-world vs storytelling
