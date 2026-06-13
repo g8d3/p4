@@ -104,6 +104,18 @@ To launch an agent for a specific task:
 
 The agent's AGENTS.md is its sole context. Do not pass task details in the prompt — the agent reads them from the file. This tests that the directory + AGENTS.md contract is sufficient.
 
+### Model selection
+
+By default agents use DeepSeek V4 Flash. To use a different model, specify it when launching:
+
+```
+opencode -m opencode-go/mimo-v2.5
+```
+
+The agent's AGENTS.md should declare its required model in a `## Model` section. The orchestrator reads this and uses the corresponding `-m` flag.
+
+Available models: `opencode-go/deepseek-v4-flash`, `opencode-go/mimo-v2.5` (has vision), `opencode/mimo-v2.5-free`, `opencode-go/mimo-v2.5-pro` (avoid Pro).
+
 ### Cleanup
 
 When an agent completes its task (or is no longer needed), close its tmux window:
