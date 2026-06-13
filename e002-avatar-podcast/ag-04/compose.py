@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Compose final 9:16 avatar podcast video with properly interleaved dialogue."""
+"""Compose final 9:16 avatar podcast video using Godot GPU rendering."""
 
-import subprocess, os, re, tempfile, shutil
+import subprocess, os, re, tempfile, shutil, json, sys, math, shlex
 
 A_DURATION = 202.056
 B_DURATION = 66.312
@@ -9,15 +9,21 @@ INTRO_DURATION = 4
 OUTRO_DURATION = 4
 W = 608
 H = 1080
-BG_CROP_X = 656
+FPS = 25
+GODOT = os.path.expanduser('~/.local/bin/godot4')
+GODOT_PROJECT = os.path.join(os.path.dirname(__file__), 'godot_project')
+BG_CROP_X = (1920 - W) // 2  # 656
 
 COLOR_A = '&H0000FFFF'
 COLOR_B = '&H00FF00FF'
 COLOR_W = '&H00FFFFFF'
 
+AG02 = os.path.join(os.path.dirname(__file__), '..', 'ag-02')
+AG03 = os.path.join(os.path.dirname(__file__), '..', 'ag-03')
+
 
 def parse_script():
-    path = os.path.join(os.path.dirname(__file__), '..', 'ag-02', 'script.md')
+    path = os.path.join(AG02, 'script.md')
     segments = []
     with open(path) as f:
         for line in f:
@@ -55,6 +61,60 @@ def estimate_timings(segments):
     return timed
 
 
+def build_timing_json(timed, output_dir):
+    segs = []
+    for speaker, text, f_start, f_end, t_start, t_end in timed:
+        segs.append({
+            "speaker": speaker,
+            "start": round(t_start, 3),
+            "end": round(t_end, 3),
+            "text": text
+        })
+
+    godot_dir = GODOT_PROJECT
+    total_dur = timed[-1][5] if timed else 0
+
+    config = {
+        "bg": "res://podcast_bg.png",
+        "avatar_a": "res://persona_a_avatar.png",
+        "avatar_b": "res://persona_b_avatar.png",
+        "w": W,
+        "h": H,
+        "fps": FPS,
+        "duration": round(total_dur, 3),
+        "output_dir": output_dir,
+        "segments": segs
+    }
+    return config
+
+
+def copy_assets_to_godot():
+    src = os.path.dirname(__file__)
+    dst = GODOT_PROJECT
+    for fname in ['podcast_bg.png', 'persona_a_avatar.png', 'persona_b_avatar.png']:
+        shutil.copy2(os.path.join(src, fname), os.path.join(dst, fname))
+
+
+def run_godot_renderer(config_path):
+    cmd = [
+        GODOT,
+        '--path', GODOT_PROJECT,
+        '--display-driver', 'x11',
+        '--rendering-driver', 'opengl3',
+        '--',
+        config_path
+    ]
+    print(f"Running Godot renderer: {' '.join(shlex.quote(a) for a in cmd)}")
+    result = subprocess.run(
+        ['xvfb-run', '-a', '-s', '-screen 0 1920x1080x24'] + cmd,
+        capture_output=True, text=True
+    )
+    print(result.stdout)
+    if result.returncode != 0:
+        print("STDERR:", result.stderr)
+        raise RuntimeError(f"Godot renderer failed with code {result.returncode}")
+
+
 def split_into_phrases(text):
     parts = re.split(r'(?<=[.?!;])\s+', text)
     result = []
@@ -68,7 +128,7 @@ def split_into_phrases(text):
     return result if result else [text]
 
 
-def build_subtitles(segments, tmpdir):
+def build_subtitles(timed, tmpdir):
     header = f"""[Script Info]
 ScriptType: v4.00+
 PlayResX: {W}
@@ -85,7 +145,7 @@ Style: B,Arial,30,{COLOR_B},{COLOR_B},&H80000000,&H00000000,1,0,0,0,100,100,0,0,
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     events = []
-    for speaker, text, f_start, f_end, t_start, t_end in segments:
+    for speaker, text, f_start, f_end, t_start, t_end in timed:
         phrases = split_into_phrases(text)
         phrase_dur = (t_end - t_start) / max(len(phrases), 1)
         style_name = 'A' if speaker == 'A' else 'B'
@@ -112,8 +172,8 @@ def _fmt_ts(seconds):
 
 
 def split_audio_segments(timed, tmpdir):
-    in_a = os.path.join(os.path.dirname(__file__), '..', 'ag-03', 'persona_a.mp3')
-    in_b = os.path.join(os.path.dirname(__file__), '..', 'ag-03', 'persona_b.mp3')
+    in_a = os.path.join(AG03, 'persona_a.mp3')
+    in_b = os.path.join(AG03, 'persona_b.mp3')
     seg_files = []
     for i, (speaker, text, f_start, f_end, t_start, t_end) in enumerate(timed):
         inp = in_a if speaker == 'A' else in_b
@@ -139,69 +199,6 @@ def concat_segments(seg_files, output, tmpdir):
     ], check=True, capture_output=True)
 
 
-def compose_video(segments, ass_path, interleaved_audio, output):
-    bg = 'podcast_bg.png'
-    av_a = 'persona_a_avatar.png'
-    av_b = 'persona_b_avatar.png'
-
-    total_dur = segments[-1][5] if segments else 0
-
-    a_times = []
-    b_times = []
-    for speaker, text, f_start, f_end, t_start, t_end in segments:
-        if speaker == 'A':
-            a_times.append(f"between(t,{t_start:.3f},{t_end:.3f})")
-        else:
-            b_times.append(f"between(t,{t_start:.3f},{t_end:.3f})")
-
-    a_enable = '+'.join(a_times) if a_times else '0'
-    b_enable = '+'.join(b_times) if b_times else '0'
-
-    av_w = 200
-    av_h = 200
-    gap = 24
-    total_av_w = 2 * av_w + gap
-    av_x_offset = (W - total_av_w) // 2
-    a_x = av_x_offset
-    b_x = av_x_offset + av_w + gap
-    av_y = 120
-
-    hl_border = 5
-    a_hl_x = a_x - hl_border
-    b_hl_x = b_x - hl_border
-    hl_y = av_y - hl_border
-    hl_w = av_w + 2 * hl_border
-    hl_h = av_h + 2 * hl_border
-
-    cmd = [
-        'ffmpeg', '-y',
-        '-loop', '1', '-i', bg,
-        '-loop', '1', '-i', av_a,
-        '-loop', '1', '-i', av_b,
-        '-i', interleaved_audio,
-        '-filter_complex', (
-            f"[0:v]crop={W}:{H}:{BG_CROP_X}:0,trim=duration={total_dur:.3f},format=yuv420p[bg];"
-            f"[1:v]scale={av_w}:{av_h},format=rgba,setpts=PTS-STARTPTS[av1];"
-            f"[2:v]scale={av_w}:{av_h},format=rgba,setpts=PTS-STARTPTS[av2];"
-            f"[bg][av1]overlay=x={a_x}:y={av_y}[bg1];"
-            f"[bg1][av2]overlay=x={b_x}:y={av_y}[vbase];"
-            f"[vbase]drawbox=x={a_hl_x}:y={hl_y}:w={hl_w}:h={hl_h}:"
-            f"color=blue@0.35:t=5:enable='{a_enable}'[v1];"
-            f"[v1]drawbox=x={b_hl_x}:y={hl_y}:w={hl_w}:h={hl_h}:"
-            f"color=magenta@0.35:t=5:enable='{b_enable}'[v2];"
-            f"[v2]subtitles={ass_path}[vout]"
-        ),
-        '-map', '[vout]',
-        '-map', '3:a',
-        '-c:v', 'libx264', '-preset', 'medium', '-crf', '23',
-        '-c:a', 'aac', '-b:a', '128k',
-        '-pix_fmt', 'yuv420p',
-        '-t', str(total_dur),
-        output
-    ]
-    return cmd
-
-
 def create_title_card(bg_img, output, duration, fade_out=True, fade_in=False):
     cmd = [
         'ffmpeg', '-y',
@@ -221,15 +218,43 @@ def create_title_card(bg_img, output, duration, fade_out=True, fade_in=False):
     subprocess.run(cmd, check=True, capture_output=True)
 
 
-def main():
-    print("=== Video Composer (ag-04) ===")
+def compose_final_video(frames_dir, num_frames, ass_path, interleaved_audio, total_dur, output):
+    frame_pattern = os.path.join(frames_dir, 'frame_%05d.png')
+    actual_dur = num_frames / FPS
 
+    cmd = [
+        'ffmpeg', '-y',
+        '-framerate', str(FPS),
+        '-i', frame_pattern,
+        '-i', interleaved_audio,
+        '-filter_complex',
+        f"[0:v]subtitles={ass_path}[vout]",
+        '-map', '[vout]',
+        '-map', '1:a',
+        '-c:v', 'libx264', '-preset', 'medium', '-crf', '23',
+        '-c:a', 'aac', '-b:a', '128k',
+        '-pix_fmt', 'yuv420p',
+        '-t', str(total_dur),
+        output
+    ]
+    print(f"Composing final video: {' '.join(shlex.quote(a) for a in cmd)}")
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        print("FFmpeg stderr:", result.stderr)
+        raise RuntimeError(f"FFmpeg failed: {result.returncode}")
+    return output
+
+
+def main():
+    print("=== Video Composer (ag-04) — Godot GPU Render ===")
+
+    # 1. Parse script and build timings
     raw = parse_script()
     print(f"Parsed {len(raw)} dialogue segments from script.md")
 
     timed = estimate_timings(raw)
-    total = timed[-1][5]
-    print(f"Estimated total: {total:.2f}s")
+    total_dur = timed[-1][5]
+    print(f"Estimated total: {total_dur:.2f}s")
     a_count = sum(1 for s in timed if s[0] == 'A')
     b_count = sum(1 for s in timed if s[0] == 'B')
     a_total = sum(s[3]-s[2] for s in timed if s[0] == 'A')
@@ -238,22 +263,48 @@ def main():
     print(f"  A total: {a_total:.2f}s, B total: {b_total:.2f}s")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        print("\nBuilding subtitles...")
+        # 2. Copy assets into Godot project
+        print("\nCopying assets to Godot project...")
+        copy_assets_to_godot()
+
+        # 3. Build timing JSON for Godot
+        print("Building timing JSON for Godot...")
+        frames_dir = os.path.join(tmpdir, 'frames')
+        os.makedirs(frames_dir, exist_ok=True)
+        timing_config = build_timing_json(timed, frames_dir)
+        config_path = os.path.join(tmpdir, 'render_config.json')
+        with open(config_path, 'w') as f:
+            json.dump(timing_config, f, indent=2)
+
+        # 4. Run Godot renderer
+        print("Running Godot GPU renderer...")
+        run_godot_renderer(config_path)
+
+        # Count frames
+        frame_files = sorted([f for f in os.listdir(frames_dir) if f.endswith('.png')])
+        num_frames = len(frame_files)
+        print(f"Godot produced {num_frames} frames")
+        if num_frames == 0:
+            raise RuntimeError("Godot produced no frames!")
+
+        # 5. Build subtitles
+        print("Building subtitles...")
         ass_path = build_subtitles(timed, tmpdir)
 
+        # 6. Split and interleave audio
         print("Splitting audio segments...")
         seg_files = split_audio_segments(timed, tmpdir)
-
         print("Interleaving audio in script order...")
         interleaved_audio = os.path.join(tmpdir, 'interleaved.mp3')
         concat_segments(seg_files, interleaved_audio, tmpdir)
+        print(f"Interleaved audio at {interleaved_audio}")
 
+        # 7. Compose main video from Godot frames + audio + subtitles
         print("Composing main video...")
         main_vid = os.path.join(tmpdir, 'main.mp4')
-        cmd = compose_video(timed, ass_path, interleaved_audio, main_vid)
-        subprocess.run(cmd, check=True, capture_output=True)
-        print("  Main video done")
+        compose_final_video(frames_dir, num_frames, ass_path, interleaved_audio, total_dur, main_vid)
 
+        # 8. Create intro and outro cards
         print("Creating intro card...")
         intro_vid = os.path.join(tmpdir, 'intro.mp4')
         create_title_card('title_intro.png', intro_vid, INTRO_DURATION, fade_out=True)
@@ -262,6 +313,7 @@ def main():
         outro_vid = os.path.join(tmpdir, 'outro.mp4')
         create_title_card('title_outro.png', outro_vid, OUTRO_DURATION, fade_in=True)
 
+        # 9. Concatenate intro + main + outro
         print("Concatenating intro + main + outro...")
         final = os.path.join(tmpdir, 'final.mp4')
         subprocess.run([
@@ -280,7 +332,7 @@ def main():
 
         shutil.move(final, 'video.mp4')
 
-    print(f"\nDone! Output: video.mp4 ({W}x{H}, {total + INTRO_DURATION + OUTRO_DURATION:.1f}s)")
+    print(f"\nDone! Output: video.mp4 ({W}x{H}, {total_dur + INTRO_DURATION + OUTRO_DURATION:.1f}s)")
 
 
 if __name__ == '__main__':

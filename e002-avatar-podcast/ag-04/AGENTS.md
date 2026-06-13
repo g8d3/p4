@@ -1,5 +1,9 @@
 # ag-04 — Video composer
 
+## Inherits
+- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts, blocking to background
+- `../AGENTS.md` — experiment scope
+
 ## Goal
 
 Compose the final avatar podcast video (9:16 vertical) with properly interleaved dialogue.

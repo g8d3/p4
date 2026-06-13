@@ -1,0 +1,14 @@
+; Engine configuration file.
+[application]
+config/name="PodcastRenderer"
+config/features=PackedStringArray("4.0")
+run/main_scene="res://podcast_scene.tscn"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+
+[display]
+window/size/viewport_width=608
+window/size/viewport_height=1080
+window/size/mode=0
+window/dpi/allow_hidpi=false

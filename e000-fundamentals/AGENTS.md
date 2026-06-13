@@ -84,6 +84,26 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
   - **Scripted**: agent follows a predefined script and narrates it as written.
   - **Exploratory**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive.
 
+## Context inheritance
+
+An agent only reads its own `AGENTS.md`. To share rules across agents, use **explicit inheritance**:
+
+Each AGENTS.md declares what it needs from parent levels in an `## Inherits` section:
+
+```markdown
+## Inherits
+- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts
+- `../AGENTS.md` — experiment scope
+```
+
+The launch prompt must tell the agent to read inherited files:
+
+```
+tmux send-keys -t <name> "Read AGENTS.md, then read each file listed in Inherits. Execute the task." Enter
+```
+
+This is opt-in: only agents that declare `## Inherits` receive parent context. Others work in isolation.
+
 ## Launching interactive agents
 
 To launch an agent for a specific task:
@@ -97,12 +117,12 @@ To launch an agent for a specific task:
 4. Wait for it to load (~3s), then send the instruction:
    ```
    sleep 3
-   tmux send-keys -t <name> "Read AGENTS.md and execute the task" Enter
+   tmux send-keys -t <name> "Read AGENTS.md, then read each file listed in Inherits. Execute the task." Enter
    ```
 
 **Important**: `opencode "text"` is NOT interactive — it treats the argument as a directory. Always launch opencode with no arguments, then send the prompt after it loads.
 
-The agent's AGENTS.md is its sole context. Do not pass task details in the prompt — the agent reads them from the file. This tests that the directory + AGENTS.md contract is sufficient.
+The agent's AGENTS.md + inherited files are its context.
 
 ### Model selection
 

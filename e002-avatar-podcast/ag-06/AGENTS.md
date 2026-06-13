@@ -1,5 +1,9 @@
 # ag-06 — Avatar designer
 
+## Inherits
+- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts, blocking to background
+- `../AGENTS.md` — experiment scope
+
 ## Goal
 
 Design visually appealing avatar characters for the podcast video (persona A and B).

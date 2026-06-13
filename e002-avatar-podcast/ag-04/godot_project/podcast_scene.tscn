@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://podcast_scene"]
+
+[ext_resource type="Script" path="res://render_podcast.gd" id="1"]
+
+[node name="Root" type="Node"]
+script = ExtResource("1")
