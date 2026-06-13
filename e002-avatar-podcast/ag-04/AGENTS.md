@@ -32,16 +32,30 @@ ffmpeg -f concat -safe 0 -i <(for f in seg_*.mp3; do echo "file '$PWD/$f'"; done
 ### 2. Render frames (Godot GPU)
 Godot 4 is at `~/.local/bin/godot4`. 
 
-**IMPORTANT**: Do NOT use `--display-driver headless` — it forces Dummy/CPU renderer. Use Xvfb + `--display-driver x11` + `--rendering-driver vulkan`:
+**Use Weston headless + Wayland** — this is the only approach that gives real GPU rendering. Xvfb falls back to llvmpipe/CPU.
+
+First ensure weston is installed (sudo window if needed):
 ```
-xvfb-run --auto-servernum --server-args="-screen 0 608x1080x24" \
-  ~/.local/bin/godot4 \
-  --rendering-driver vulkan \
-  --display-driver x11 \
-  -- /path/to/config.json
+sudo apt install -y weston
 ```
 
-See `../ag-07/pipeline.md` for full working commands and troubleshooting.
+Then:
+```
+# Start Weston on a unique socket
+weston --backend=headless --renderer=gl --socket=wayland-99 &
+sleep 2
+
+# Godot renders with real GPU via Wayland
+WAYLAND_DISPLAY=wayland-99 \
+  ~/.local/bin/godot4 \
+  --display-driver wayland \
+  --rendering-driver vulkan \
+  --path godot_project \
+  -- config.json
+```
+
+See `../ag-07/pipeline-v2.md` for full details.
+
 
 ### 3. Encode video (VAAPI GPU)
 ```
