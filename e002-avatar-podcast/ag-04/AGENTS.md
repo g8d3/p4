@@ -42,7 +42,7 @@ ffmpeg -vaapi_device /dev/dri/renderD128 -framerate 25 -i frames/frame_%05d.png 
 ```
 
 ### 4. Subtitles
-Add TikTok-style subtitles with `drawtext` or SRT overlay.
+TikTok-style: short phrase chunks (2-4 words per subtitle), not full sentences. Alternating colors. Bottom position. Match the audio segment timing.
 
 ### Output
 

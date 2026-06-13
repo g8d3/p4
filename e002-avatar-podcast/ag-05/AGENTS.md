@@ -24,7 +24,7 @@ Review `../ag-04/video.mp4` and write `review.md` with:
 1. Format — is it 9:16 vertical?
 2. Audio — is dialogue a real conversation (A↔B alternating)?
 3. Avatars — are both personas visible? Are they good quality?
-4. Subtitles — present and readable?
+4. Subtitles — present, readable, and in short phrase chunks (2-4 words each, not full sentences or paragraphs)?
 5. Black frames — any?
 6. Duration — reasonable?
 
