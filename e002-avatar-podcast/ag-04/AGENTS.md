@@ -8,17 +8,18 @@
 ## Command execution
 All commands need `timeout <seconds>`. Examples:
 - `timeout 10 ls, cat, grep` — quick checks
-- `timeout 600 weston ...` — Weston server startup
-- `timeout 600 godot4 ...` — Godot frame render (~9 min for full video)
-- `timeout 120 ffmpeg ...` — VAAPI encode
+- `timeout 30 sudo apt install -y weston` — install
+- `timeout 600 weston ...` — Weston server
+- `timeout 600 godot4 ...` — Godot rendering
+- `timeout 600 ffmpeg ...` — capture + encode
 
 ## Goal
 
-Compose the final avatar podcast video with GPU-accelerated pipeline.
+Compose the final avatar podcast video with a pure GPU pipeline: Godot renders to a Weston display, ffmpeg captures it live with VAAPI. No intermediate PNG files.
 
 ## Wait
 
-This agent must wait for ag-03 to finish. Do NOT start until `../ag-03/done.txt` exists.
+Do NOT start until `../ag-03/done.txt` exists.
 
 ## Inputs
 
@@ -28,65 +29,88 @@ This agent must wait for ag-03 to finish. Do NOT start until `../ag-03/done.txt`
 - `../ag-06/avatar_b.png` — persona B avatar
 - `../ag-06/podcast_bg.png` — background
 - `../ag-02/script.md` — script for subtitle text
+- `godot_project/render_podcast.gd` — needs modification
 
-## Task
+## Pipeline (GPU only, no PNGs)
 
-### 1. Audio
-Concatenate segment files in order:
-```
-ffmpeg -f concat -safe 0 -i <(for f in seg_*.mp3; do echo "file '$PWD/$f'"; done) -c copy podcast_audio.mp3
-```
-
-### 2. Render frames (Godot GPU)
-Godot 4 is at `~/.local/bin/godot4`. 
-
-**Use Weston headless + Wayland** — this is the only approach that gives real GPU rendering. Xvfb falls back to llvmpipe/CPU.
-
-First ensure weston is installed (sudo window if needed):
+### 1. Install weston if missing
 ```
 sudo apt install -y weston
 ```
 
-Then:
+### 2. Modify `render_podcast.gd`
+The current version saves every frame as PNG to disk. **Remove all `save_png` calls.** Instead:
+- Use a timer to render frames at 25fps, synchronized to segment timing
+- Each frame renders the scene (avatars, background, speaker highlight)
+- Draw subtitles directly in the scene using Godot's `Label` node (not as separate SRT)
+- Wait for real-time elapsed between frames (or as close as possible)
+- The display output IS the video — ffmpeg captures it
+
+### 3. Start capture pipeline
 ```
-# Start Weston on a unique socket
+# Start Weston (virtual display)
 weston --backend=headless --renderer=gl --socket=wayland-99 &
 sleep 2
 
-# Godot renders with real GPU via Wayland
+# Start ffmpeg capture (GPU → GPU, no intermediate files)
+export LIBVA_DRIVER_NAME=radeonsi
+WAYLAND_DISPLAY=wayland-99 \
+  ffmpeg -f x11grab -video_size 608x1080 -framerate 25 -i :99.0 \
+  -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
+  -c:v h264_vaapi -y video_nosound.mp4 &
+FFPID=$!
+
+# Run Godot (renders to Weston display, captured by ffmpeg)
 WAYLAND_DISPLAY=wayland-99 \
   ~/.local/bin/godot4 \
   --display-driver wayland \
   --rendering-driver vulkan \
   --path godot_project \
   -- config.json
+
+# Stop capture when Godot exits
+kill $FFPID 2>/dev/null; wait $FFPID 2>/dev/null
 ```
 
-See `../ag-07/pipeline-v2.md` for full details.
-
-
-### 3. Encode video (VAAPI GPU)
+### 4. Add audio
 ```
-export LIBVA_DRIVER_NAME=radeonsi
-ffmpeg -vaapi_device /dev/dri/renderD128 -framerate 25 -i frames/frame_%05d.png -i podcast_audio.mp3 -vf "format=nv12,hwupload" -c:v h264_vaapi -c:a aac -shortest video.mp4
+ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest video.mp4
 ```
 
-### 4. Format
-**9:16 vertical** (608x1080), NOT 16:9 landscape. Previous version failed with 1920x1080.
+### 5. Add subtitles (if not rendered in Godot)
+Use SRT with strict formatting rules (see Subtitles section).
 
-### 5. Subtitles
-TikTok-style: short phrase chunks (2-4 words per subtitle), not full sentences. Alternating colors: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF. Bottom position (Alignment=2, MarginV=50). Match the audio segment timing.
+## Format
+**9:16 vertical** (608x1080).
 
-### Output
+## Subtitles
 
-- `video.mp4` — final podcast with GPU-rendered avatars
+### Splitting rules (by word count + timing)
 
-### Completion
+| Words in sentence | Max chunks | Max words per chunk |
+|---|---|---|
+| 1-4 | 1 | 4 |
+| 5-10 | 2 | 5 |
+| 11-15 | 3 | 5 |
+| 16-20 | 4 | 5 |
+| 21+ | 5 | 5 |
 
-When finished, create `done.txt`:
+Split at natural boundaries (commas, periods, conjunctions). Never break a phrase across chunks.
 
-```
-touch done.txt
-```
+### Minimum display time
+Each subtitle must stay on screen for at least 1.2 seconds. If a chunk's audio is shorter, extend its display to 1.2s.
 
-This triggers ag-05 via inotifywait.
+### Maximum display time
+If a chunk would stay on screen longer than 3 seconds, split it further.
+
+### Style
+- Alternating colors: #FFFFFF, #FFD700, #00FF88, #FF6B6B, #6BCBFF
+- Font size: at least 18px (readable on mobile)
+- Bottom position (Alignment=2, MarginV=60)
+- Font: Monospace
+
+## Output
+- `video.mp4` — final podcast, GPU-rendered, no PNGs
+
+## Completion
+When finished, create `done.txt` to trigger ag-05 review.
