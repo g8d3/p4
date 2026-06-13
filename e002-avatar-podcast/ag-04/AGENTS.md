@@ -30,10 +30,18 @@ ffmpeg -f concat -safe 0 -i <(for f in seg_*.mp3; do echo "file '$PWD/$f'"; done
 ```
 
 ### 2. Render frames (Godot GPU)
-Godot 4 is at `~/.local/bin/godot4`. Use Vulkan renderer:
+Godot 4 is at `~/.local/bin/godot4`. 
+
+**IMPORTANT**: Do NOT use `--display-driver headless` — it forces Dummy/CPU renderer. Use Xvfb + `--display-driver x11` + `--rendering-driver vulkan`:
 ```
-godot4 --display-driver headless --script render_podcast.gd
+xvfb-run --auto-servernum --server-args="-screen 0 608x1080x24" \
+  ~/.local/bin/godot4 \
+  --rendering-driver vulkan \
+  --display-driver x11 \
+  -- /path/to/config.json
 ```
+
+See `../ag-07/pipeline.md` for full working commands and troubleshooting.
 
 ### 3. Encode video (VAAPI GPU)
 ```
