@@ -35,7 +35,7 @@ Do NOT start until `../ag-03/done.txt` exists.
 
 ### 1. Install weston if missing
 ```
-sudo apt install -y weston
+timeout 30 sudo apt install -y weston
 ```
 
 ### 2. Modify `render_podcast.gd`
@@ -48,21 +48,21 @@ The current version saves every frame as PNG to disk. **Remove all `save_png` ca
 
 ### 3. Start capture pipeline
 ```
-# Start Weston (virtual display)
-weston --backend=headless --renderer=gl --socket=wayland-99 &
+# Start Weston (virtual display) ← timeout 15 for startup
+timeout 15 weston --backend=headless --renderer=gl --socket=wayland-99 &
 sleep 2
 
-# Start ffmpeg capture (GPU → GPU, no intermediate files)
+# Start ffmpeg capture (GPU → GPU, no intermediate files) ← timeout matches video duration
 export LIBVA_DRIVER_NAME=radeonsi
 WAYLAND_DISPLAY=wayland-99 \
-  ffmpeg -f x11grab -video_size 608x1080 -framerate 25 -i :99.0 \
+  timeout 600 ffmpeg -f x11grab -video_size 608x1080 -framerate 25 -i :99.0 \
   -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
   -c:v h264_vaapi -y video_nosound.mp4 &
 FFPID=$!
 
-# Run Godot (renders to Weston display, captured by ffmpeg)
+# Run Godot (renders to Weston display, captured by ffmpeg) ← timeout matches video
 WAYLAND_DISPLAY=wayland-99 \
-  ~/.local/bin/godot4 \
+  timeout 600 ~/.local/bin/godot4 \
   --display-driver wayland \
   --rendering-driver vulkan \
   --path godot_project \
@@ -72,9 +72,10 @@ WAYLAND_DISPLAY=wayland-99 \
 kill $FFPID 2>/dev/null; wait $FFPID 2>/dev/null
 ```
 
-### 4. Add audio
+### 4. Add audio ← timeout 30 for encoding
 ```
-ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest video.mp4
+export LIBVA_DRIVER_NAME=radeonsi
+timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest -y video.mp4
 ```
 
 ### 5. Add subtitles (if not rendered in Godot)

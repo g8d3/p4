@@ -206,7 +206,23 @@ The OpenCode CLI has 4 states:
 
 **Detecting stuck without QUEUED**: QUEUED only appears if someone sent extra messages. If no messages were sent, the agent can still be stuck — look for unchanged token count for 10+ seconds while status shows `esc interrupt`. In that case, press Escape and send "Continue."
 
-**Why multiple Escape presses**: Sometimes the first Escape doesn't register (agent was busy). Press once, wait 1s, check if bar is gone. If not, press again. Once Clean, you can proceed.
+**Escape timing**: Press Escape rapidly (200-300ms between presses). A slow press may not register because the agent processes input at terminal speed. Two quick Escapes in ~500ms total is the safest rhythm.
+
+**Agent script transparency**: To make stuck detection easier, agents should print progress markers in their scripts:
+
+```bash
+echo "=== STEP 1/4: Starting Weston ==="
+weston ...
+echo "=== STEP 2/4: Starting ffmpeg capture ==="
+ffmpeg ...
+echo "=== STEP 3/4: Running Godot ==="
+godot4 ...
+echo "=== STEP 4/4: Encoding final video ==="
+ffmpeg ...
+echo "=== DONE ==="
+```
+
+This way the orchestrator can see which step is currently executing and estimate if it's taking too long.
 
 ## Language
 
