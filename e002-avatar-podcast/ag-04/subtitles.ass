@@ -1,0 +1,179 @@
+[Script Info]
+Title: Podcast Subtitles
+ScriptType: v4.00+
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+YCbCr Matrix: TV.601
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: TikTok,Arial,28,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,2,1,2,10,10,50,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:01.15,TikTok,,0,0,0,,{\c&H00FFFFFF}¿Has oído hablar de
+Dialogue: 0,0:00:01.15,0:00:02.30,TikTok,,0,0,0,,{\c&H0000D7FF}p4?
+Dialogue: 0,0:00:02.30,0:00:04.04,TikTok,,0,0,0,,{\c&H0088FF00}¿Otro framework más de
+Dialogue: 0,0:00:04.04,0:00:05.78,TikTok,,0,0,0,,{\c&H006B6BFF}inteligencia artificial?
+Dialogue: 0,0:00:05.78,0:00:07.24,TikTok,,0,0,0,,{\c&H00FFCB6B}No, no, nada que
+Dialogue: 0,0:00:07.24,0:00:08.70,TikTok,,0,0,0,,{\c&H00FFFFFF}ver. p4 es un
+Dialogue: 0,0:00:08.70,0:00:10.16,TikTok,,0,0,0,,{\c&H0000D7FF}sistema donde los agentes
+Dialogue: 0,0:00:10.16,0:00:11.61,TikTok,,0,0,0,,{\c&H0088FF00}de IA se comunican
+Dialogue: 0,0:00:11.61,0:00:13.07,TikTok,,0,0,0,,{\c&H006B6BFF}entre sí… usando archivos
+Dialogue: 0,0:00:13.07,0:00:14.53,TikTok,,0,0,0,,{\c&H00FFCB6B}y carpetas. Así como
+Dialogue: 0,0:00:14.53,0:00:15.98,TikTok,,0,0,0,,{\c&H00FFFFFF}suena.
+Dialogue: 0,0:00:15.98,0:00:18.14,TikTok,,0,0,0,,{\c&H0000D7FF}¿Archivos? ¿Como los que
+Dialogue: 0,0:00:18.14,0:00:20.30,TikTok,,0,0,0,,{\c&H0088FF00}tengo en mi computadora?
+Dialogue: 0,0:00:20.30,0:00:21.86,TikTok,,0,0,0,,{\c&H006B6BFF}Exactamente. Imagina agentes que
+Dialogue: 0,0:00:21.86,0:00:23.42,TikTok,,0,0,0,,{\c&H00FFCB6B}dejan mensajes en archivos
+Dialogue: 0,0:00:23.42,0:00:24.98,TikTok,,0,0,0,,{\c&H00FFFFFF}de texto, y otros
+Dialogue: 0,0:00:24.98,0:00:26.54,TikTok,,0,0,0,,{\c&H0000D7FF}agentes los recogen y
+Dialogue: 0,0:00:26.54,0:00:28.10,TikTok,,0,0,0,,{\c&H0088FF00}hacen su trabajo. Como
+Dialogue: 0,0:00:28.10,0:00:29.66,TikTok,,0,0,0,,{\c&H006B6BFF}un equipo donde todos
+Dialogue: 0,0:00:29.66,0:00:31.22,TikTok,,0,0,0,,{\c&H00FFCB6B}pasan notas escritas.
+Dialogue: 0,0:00:31.22,0:00:32.38,TikTok,,0,0,0,,{\c&H00FFFFFF}O sea, ¿cada agente
+Dialogue: 0,0:00:32.38,0:00:33.53,TikTok,,0,0,0,,{\c&H0000D7FF}es como un experto
+Dialogue: 0,0:00:33.53,0:00:34.68,TikTok,,0,0,0,,{\c&H0088FF00}en algo?
+Dialogue: 0,0:00:34.68,0:00:36.50,TikTok,,0,0,0,,{\c&H006B6BFF}¡Exacto! Uno sabe investigar,
+Dialogue: 0,0:00:36.50,0:00:38.32,TikTok,,0,0,0,,{\c&H00FFCB6B}otro sabe escribir, otro
+Dialogue: 0,0:00:38.32,0:00:40.14,TikTok,,0,0,0,,{\c&H00FFFFFF}sabe traducir. Y en
+Dialogue: 0,0:00:40.14,0:00:41.96,TikTok,,0,0,0,,{\c&H0000D7FF}vez de llamarse por
+Dialogue: 0,0:00:41.96,0:00:43.78,TikTok,,0,0,0,,{\c&H0088FF00}APIs complicadas, simplemente escriben
+Dialogue: 0,0:00:43.78,0:00:45.60,TikTok,,0,0,0,,{\c&H006B6BFF}y leen archivos.
+Dialogue: 0,0:00:45.60,0:00:48.35,TikTok,,0,0,0,,{\c&H00FFCB6B}Pero… ¿por qué archivos?
+Dialogue: 0,0:00:48.35,0:00:51.10,TikTok,,0,0,0,,{\c&H00FFFFFF}Suena un poco… ¿rudimentario?
+Dialogue: 0,0:00:51.10,0:00:53.03,TikTok,,0,0,0,,{\c&H0000D7FF}Esa es la belleza.
+Dialogue: 0,0:00:53.03,0:00:54.97,TikTok,,0,0,0,,{\c&H0088FF00}Usar archivos significa que
+Dialogue: 0,0:00:54.97,0:00:56.90,TikTok,,0,0,0,,{\c&H006B6BFF}no necesitas infraestructura compleja.
+Dialogue: 0,0:00:56.90,0:00:58.84,TikTok,,0,0,0,,{\c&H00FFCB6B}No necesitas microservicios, ni
+Dialogue: 0,0:00:58.84,0:01:00.77,TikTok,,0,0,0,,{\c&H00FFFFFF}orquestadores, ni nada. Los
+Dialogue: 0,0:01:00.77,0:01:02.71,TikTok,,0,0,0,,{\c&H0000D7FF}archivos son el mensaje,
+Dialogue: 0,0:01:02.71,0:01:04.64,TikTok,,0,0,0,,{\c&H0088FF00}la memoria, y el
+Dialogue: 0,0:01:04.64,0:01:06.58,TikTok,,0,0,0,,{\c&H006B6BFF}contrato entre agentes.
+Dialogue: 0,0:01:06.58,0:01:07.97,TikTok,,0,0,0,,{\c&H00FFCB6B}Ah, como pasar la
+Dialogue: 0,0:01:07.97,0:01:09.36,TikTok,,0,0,0,,{\c&H00FFFFFF}posta en una carrera
+Dialogue: 0,0:01:09.36,0:01:10.75,TikTok,,0,0,0,,{\c&H0000D7FF}de relevos.
+Dialogue: 0,0:01:10.75,0:01:12.04,TikTok,,0,0,0,,{\c&H0088FF00}¡Esa es la metáfora
+Dialogue: 0,0:01:12.04,0:01:13.32,TikTok,,0,0,0,,{\c&H006B6BFF}perfecta!
+Dialogue: 0,0:01:13.32,0:01:14.84,TikTok,,0,0,0,,{\c&H00FFCB6B}Mira, un ejemplo práctico:
+Dialogue: 0,0:01:14.84,0:01:16.36,TikTok,,0,0,0,,{\c&H00FFFFFF}educación. Con p4 puedes
+Dialogue: 0,0:01:16.36,0:01:17.87,TikTok,,0,0,0,,{\c&H0000D7FF}tener un agente que
+Dialogue: 0,0:01:17.87,0:01:19.39,TikTok,,0,0,0,,{\c&H0088FF00}diseña un plan de
+Dialogue: 0,0:01:19.39,0:01:20.91,TikTok,,0,0,0,,{\c&H006B6BFF}estudios, otro que genera
+Dialogue: 0,0:01:20.91,0:01:22.43,TikTok,,0,0,0,,{\c&H00FFCB6B}explicaciones, otro que crea
+Dialogue: 0,0:01:22.43,0:01:23.95,TikTok,,0,0,0,,{\c&H00FFFFFF}ejercicios, y otro que
+Dialogue: 0,0:01:23.95,0:01:25.46,TikTok,,0,0,0,,{\c&H0000D7FF}responde preguntas.
+Dialogue: 0,0:01:25.46,0:01:27.60,TikTok,,0,0,0,,{\c&H0088FF00}¿Todo automáticamente?
+Dialogue: 0,0:01:27.60,0:01:29.13,TikTok,,0,0,0,,{\c&H006B6BFF}Todo. Le dices "enséñame
+Dialogue: 0,0:01:29.13,0:01:30.65,TikTok,,0,0,0,,{\c&H00FFCB6B}sobre el ciclo del
+Dialogue: 0,0:01:30.65,0:01:32.18,TikTok,,0,0,0,,{\c&H00FFFFFF}agua" y un agente
+Dialogue: 0,0:01:32.18,0:01:33.71,TikTok,,0,0,0,,{\c&H0000D7FF}investiga, otro escribe la
+Dialogue: 0,0:01:33.71,0:01:35.23,TikTok,,0,0,0,,{\c&H0088FF00}lección, otro hace una
+Dialogue: 0,0:01:35.23,0:01:36.76,TikTok,,0,0,0,,{\c&H006B6BFF}trivia, otro genera ejemplos.
+Dialogue: 0,0:01:36.76,0:01:38.29,TikTok,,0,0,0,,{\c&H00FFCB6B}Todo queda en carpetas
+Dialogue: 0,0:01:38.29,0:01:39.82,TikTok,,0,0,0,,{\c&H00FFFFFF}organizadas.
+Dialogue: 0,0:01:39.82,0:01:41.10,TikTok,,0,0,0,,{\c&H0000D7FF}O sea, ¿podría crear
+Dialogue: 0,0:01:41.10,0:01:42.39,TikTok,,0,0,0,,{\c&H0088FF00}un curso entero sin
+Dialogue: 0,0:01:42.39,0:01:43.68,TikTok,,0,0,0,,{\c&H006B6BFF}mover un dedo?
+Dialogue: 0,0:01:43.68,0:01:45.34,TikTok,,0,0,0,,{\c&H00FFCB6B}Sin mover un dedo.
+Dialogue: 0,0:01:45.34,0:01:46.99,TikTok,,0,0,0,,{\c&H00FFFFFF}Y lo mejor: como
+Dialogue: 0,0:01:46.99,0:01:48.65,TikTok,,0,0,0,,{\c&H0000D7FF}son archivos, tú puedes
+Dialogue: 0,0:01:48.65,0:01:50.30,TikTok,,0,0,0,,{\c&H0088FF00}revisar, editar, mejorar cualquier
+Dialogue: 0,0:01:50.30,0:01:51.96,TikTok,,0,0,0,,{\c&H006B6BFF}parte. No es una
+Dialogue: 0,0:01:51.96,0:01:53.62,TikTok,,0,0,0,,{\c&H00FFCB6B}caja negra.
+Dialogue: 0,0:01:53.62,0:01:55.86,TikTok,,0,0,0,,{\c&H00FFFFFF}Eso me gusta. Tengo
+Dialogue: 0,0:01:55.86,0:01:58.10,TikTok,,0,0,0,,{\c&H0000D7FF}control sobre el resultado.
+Dialogue: 0,0:01:58.10,0:01:59.89,TikTok,,0,0,0,,{\c&H0088FF00}Otro caso: creación masiva
+Dialogue: 0,0:01:59.89,0:02:01.68,TikTok,,0,0,0,,{\c&H006B6BFF}de contenido. Imagina que
+Dialogue: 0,0:02:01.68,0:02:03.48,TikTok,,0,0,0,,{\c&H00FFCB6B}necesitas mil imágenes, cien
+Dialogue: 0,0:02:03.48,0:02:05.27,TikTok,,0,0,0,,{\c&H00FFFFFF}videos, y textos para
+Dialogue: 0,0:02:05.27,0:02:07.06,TikTok,,0,0,0,,{\c&H0000D7FF}redes sociales.
+Dialogue: 0,0:02:07.06,0:02:08.71,TikTok,,0,0,0,,{\c&H0088FF00}¿Mil imágenes? ¿En un
+Dialogue: 0,0:02:08.71,0:02:10.37,TikTok,,0,0,0,,{\c&H006B6BFF}día?
+Dialogue: 0,0:02:10.37,0:02:12.27,TikTok,,0,0,0,,{\c&H00FFCB6B}Con p4 sí. Un
+Dialogue: 0,0:02:12.27,0:02:14.18,TikTok,,0,0,0,,{\c&H00FFFFFF}agente genera los guiones,
+Dialogue: 0,0:02:14.18,0:02:16.08,TikTok,,0,0,0,,{\c&H0000D7FF}otro busca imágenes, otro
+Dialogue: 0,0:02:16.08,0:02:17.98,TikTok,,0,0,0,,{\c&H0088FF00}edita video, otro escribe
+Dialogue: 0,0:02:17.98,0:02:19.89,TikTok,,0,0,0,,{\c&H006B6BFF}los copy. Todos trabajando
+Dialogue: 0,0:02:19.89,0:02:21.79,TikTok,,0,0,0,,{\c&H00FFCB6B}en paralelo, pasándose archivos.
+Dialogue: 0,0:02:21.79,0:02:23.62,TikTok,,0,0,0,,{\c&H00FFFFFF}¿Y no se estorban?
+Dialogue: 0,0:02:23.62,0:02:24.90,TikTok,,0,0,0,,{\c&H0000D7FF}No, porque cada uno
+Dialogue: 0,0:02:24.90,0:02:26.19,TikTok,,0,0,0,,{\c&H0088FF00}trabaja en su carpeta.
+Dialogue: 0,0:02:26.19,0:02:27.48,TikTok,,0,0,0,,{\c&H006B6BFF}El agente de video
+Dialogue: 0,0:02:27.48,0:02:28.77,TikTok,,0,0,0,,{\c&H00FFCB6B}sabe que cuando aparece
+Dialogue: 0,0:02:28.77,0:02:30.06,TikTok,,0,0,0,,{\c&H00FFFFFF}un guion nuevo en
+Dialogue: 0,0:02:30.06,0:02:31.34,TikTok,,0,0,0,,{\c&H0000D7FF}la carpeta correcta, tiene
+Dialogue: 0,0:02:31.34,0:02:32.63,TikTok,,0,0,0,,{\c&H0088FF00}que procesarlo. Es como
+Dialogue: 0,0:02:32.63,0:02:33.92,TikTok,,0,0,0,,{\c&H006B6BFF}una línea de montaje
+Dialogue: 0,0:02:33.92,0:02:35.21,TikTok,,0,0,0,,{\c&H00FFCB6B}digital.
+Dialogue: 0,0:02:35.21,0:02:36.69,TikTok,,0,0,0,,{\c&H00FFFFFF}Fascinante. Y me imagino
+Dialogue: 0,0:02:36.69,0:02:38.17,TikTok,,0,0,0,,{\c&H0000D7FF}que esto sirve también
+Dialogue: 0,0:02:38.17,0:02:39.65,TikTok,,0,0,0,,{\c&H0088FF00}para atención al cliente,
+Dialogue: 0,0:02:39.65,0:02:41.14,TikTok,,0,0,0,,{\c&H006B6BFF}¿no?
+Dialogue: 0,0:02:41.14,0:02:43.25,TikTok,,0,0,0,,{\c&H00FFCB6B}¡Claro! Comunicaciones públicas. Un
+Dialogue: 0,0:02:43.25,0:02:45.37,TikTok,,0,0,0,,{\c&H00FFFFFF}agente monitorea noticias, otro
+Dialogue: 0,0:02:45.37,0:02:47.48,TikTok,,0,0,0,,{\c&H0000D7FF}redacta comunicados de prensa,
+Dialogue: 0,0:02:47.48,0:02:49.60,TikTok,,0,0,0,,{\c&H0088FF00}otro prepara respuestas para
+Dialogue: 0,0:02:49.60,0:02:51.72,TikTok,,0,0,0,,{\c&H006B6BFF}redes sociales, otro personaliza
+Dialogue: 0,0:02:51.72,0:02:53.83,TikTok,,0,0,0,,{\c&H00FFCB6B}mensajes para clientes.
+Dialogue: 0,0:02:53.83,0:02:56.02,TikTok,,0,0,0,,{\c&H00FFFFFF}¿Y todo sincronizado?
+Dialogue: 0,0:02:56.02,0:02:57.37,TikTok,,0,0,0,,{\c&H0000D7FF}Todo. Cuando hay una
+Dialogue: 0,0:02:57.37,0:02:58.73,TikTok,,0,0,0,,{\c&H0088FF00}crisis, el agente de
+Dialogue: 0,0:02:58.73,0:03:00.08,TikTok,,0,0,0,,{\c&H006B6BFF}monitoreo detecta la noticia,
+Dialogue: 0,0:03:00.08,0:03:01.43,TikTok,,0,0,0,,{\c&H00FFCB6B}escribe un resumen en
+Dialogue: 0,0:03:01.43,0:03:02.79,TikTok,,0,0,0,,{\c&H00FFFFFF}un archivo, el agente
+Dialogue: 0,0:03:02.79,0:03:04.14,TikTok,,0,0,0,,{\c&H0000D7FF}de comunicados redacta la
+Dialogue: 0,0:03:04.14,0:03:05.50,TikTok,,0,0,0,,{\c&H0088FF00}respuesta, y el de
+Dialogue: 0,0:03:05.50,0:03:06.85,TikTok,,0,0,0,,{\c&H006B6BFF}redes la adapta para
+Dialogue: 0,0:03:06.85,0:03:08.21,TikTok,,0,0,0,,{\c&H00FFCB6B}cada plataforma.
+Dialogue: 0,0:03:08.21,0:03:09.73,TikTok,,0,0,0,,{\c&H00FFFFFF}En minutos, no en
+Dialogue: 0,0:03:09.73,0:03:11.26,TikTok,,0,0,0,,{\c&H0000D7FF}horas.
+Dialogue: 0,0:03:11.26,0:03:12.66,TikTok,,0,0,0,,{\c&H0088FF00}En minutos. Y como
+Dialogue: 0,0:03:12.66,0:03:14.06,TikTok,,0,0,0,,{\c&H006B6BFF}todo está en archivos,
+Dialogue: 0,0:03:14.06,0:03:15.46,TikTok,,0,0,0,,{\c&H00FFCB6B}el equipo humano puede
+Dialogue: 0,0:03:15.46,0:03:16.86,TikTok,,0,0,0,,{\c&H00FFFFFF}revisar y aprobar antes
+Dialogue: 0,0:03:16.86,0:03:18.26,TikTok,,0,0,0,,{\c&H0000D7FF}de publicar.
+Dialogue: 0,0:03:18.26,0:03:20.28,TikTok,,0,0,0,,{\c&H0088FF00}Pero… ¿por qué no
+Dialogue: 0,0:03:20.28,0:03:22.30,TikTok,,0,0,0,,{\c&H006B6BFF}usar algo más moderno?
+Dialogue: 0,0:03:22.30,0:03:23.87,TikTok,,0,0,0,,{\c&H00FFCB6B}Porque lo moderno no
+Dialogue: 0,0:03:23.87,0:03:25.45,TikTok,,0,0,0,,{\c&H00FFFFFF}siempre es mejor. p4
+Dialogue: 0,0:03:25.45,0:03:27.02,TikTok,,0,0,0,,{\c&H0000D7FF}es tan simple que
+Dialogue: 0,0:03:27.02,0:03:28.60,TikTok,,0,0,0,,{\c&H0088FF00}cualquier persona con conocimientos
+Dialogue: 0,0:03:28.60,0:03:30.17,TikTok,,0,0,0,,{\c&H006B6BFF}básicos puede entenderlo. No
+Dialogue: 0,0:03:30.17,0:03:31.75,TikTok,,0,0,0,,{\c&H00FFCB6B}necesitas Kubernetes, ni bases
+Dialogue: 0,0:03:31.75,0:03:33.32,TikTok,,0,0,0,,{\c&H00FFFFFF}de datos distribuidas, ni
+Dialogue: 0,0:03:33.32,0:03:34.90,TikTok,,0,0,0,,{\c&H0000D7FF}nada.
+Dialogue: 0,0:03:34.90,0:03:36.29,TikTok,,0,0,0,,{\c&H0088FF00}O sea, ¿democratiza la
+Dialogue: 0,0:03:36.29,0:03:37.68,TikTok,,0,0,0,,{\c&H006B6BFF}IA?
+Dialogue: 0,0:03:37.68,0:03:39.52,TikTok,,0,0,0,,{\c&H00FFCB6B}Exacto. Cualquier equipo puede
+Dialogue: 0,0:03:39.52,0:03:41.37,TikTok,,0,0,0,,{\c&H00FFFFFF}montar un sistema multi-agente
+Dialogue: 0,0:03:41.37,0:03:43.21,TikTok,,0,0,0,,{\c&H0000D7FF}solo con archivos y
+Dialogue: 0,0:03:43.21,0:03:45.05,TikTok,,0,0,0,,{\c&H0088FF00}carpetas. Es la forma
+Dialogue: 0,0:03:45.05,0:03:46.90,TikTok,,0,0,0,,{\c&H006B6BFF}más natural de trabajar.
+Dialogue: 0,0:03:46.90,0:03:48.67,TikTok,,0,0,0,,{\c&H00FFCB6B}Como tener un equipo
+Dialogue: 0,0:03:48.67,0:03:50.45,TikTok,,0,0,0,,{\c&H00FFFFFF}virtual donde todos hablan
+Dialogue: 0,0:03:50.45,0:03:52.22,TikTok,,0,0,0,,{\c&H0000D7FF}el mismo idioma: archivos.
+Dialogue: 0,0:03:52.22,0:03:53.48,TikTok,,0,0,0,,{\c&H0088FF00}Y lo mejor es
+Dialogue: 0,0:03:53.48,0:03:54.74,TikTok,,0,0,0,,{\c&H006B6BFF}que es completamente abierto.
+Dialogue: 0,0:03:54.74,0:03:56.00,TikTok,,0,0,0,,{\c&H00FFCB6B}El código está en
+Dialogue: 0,0:03:56.00,0:03:57.26,TikTok,,0,0,0,,{\c&H00FFFFFF}GitHub.
+Dialogue: 0,0:03:57.26,0:03:58.92,TikTok,,0,0,0,,{\c&H0000D7FF}¿En qué dirección?
+Dialogue: 0,0:03:58.92,0:04:02.02,TikTok,,0,0,0,,{\c&H0088FF00}github.com/g8d3/p4. Ahí encuentras todo
+Dialogue: 0,0:04:02.02,0:04:05.11,TikTok,,0,0,0,,{\c&H006B6BFF}para empezar.
+Dialogue: 0,0:04:05.11,0:04:07.46,TikTok,,0,0,0,,{\c&H00FFCB6B}¿Y necesita mucho setup?
+Dialogue: 0,0:04:07.46,0:04:09.49,TikTok,,0,0,0,,{\c&H00FFFFFF}Nada. Clonas el repo,
+Dialogue: 0,0:04:09.49,0:04:11.51,TikTok,,0,0,0,,{\c&H0000D7FF}pones tus agentes en
+Dialogue: 0,0:04:11.51,0:04:13.53,TikTok,,0,0,0,,{\c&H0088FF00}carpetas, y empiezan a
+Dialogue: 0,0:04:13.53,0:04:15.55,TikTok,,0,0,0,,{\c&H006B6BFF}trabajar. Así de simple.
+Dialogue: 0,0:04:15.55,0:04:17.10,TikTok,,0,0,0,,{\c&H00FFCB6B}Bueno, ¡ya sé lo
+Dialogue: 0,0:04:17.10,0:04:18.65,TikTok,,0,0,0,,{\c&H00FFFFFF}que haré esta tarde!
+Dialogue: 0,0:04:18.65,0:04:20.00,TikTok,,0,0,0,,{\c&H0000D7FF}¡Exacto! Y cuando veas
+Dialogue: 0,0:04:20.00,0:04:21.35,TikTok,,0,0,0,,{\c&H0088FF00}a tus agentes pasándose
+Dialogue: 0,0:04:21.35,0:04:22.70,TikTok,,0,0,0,,{\c&H006B6BFF}archivos como si fueran
+Dialogue: 0,0:04:22.70,0:04:24.06,TikTok,,0,0,0,,{\c&H00FFCB6B}notas de oficina, entenderás
+Dialogue: 0,0:04:24.06,0:04:25.41,TikTok,,0,0,0,,{\c&H00FFFFFF}por qué esto es
+Dialogue: 0,0:04:25.41,0:04:26.76,TikTok,,0,0,0,,{\c&H0000D7FF}tan poderoso.
+Dialogue: 0,0:04:26.76,0:04:28.30,TikTok,,0,0,0,,{\c&H0088FF00}Eso fue todo por
+Dialogue: 0,0:04:28.30,0:04:29.83,TikTok,,0,0,0,,{\c&H006B6BFF}hoy. Nos vemos en
+Dialogue: 0,0:04:29.83,0:04:31.37,TikTok,,0,0,0,,{\c&H00FFCB6B}el próximo episodio.
+Dialogue: 0,0:04:31.37,0:04:32.78,TikTok,,0,0,0,,{\c&H00FFFFFF}¡Chao!

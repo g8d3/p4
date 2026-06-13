@@ -1,8 +1,11 @@
 # ag-06 — Avatar designer
 
 ## Inherits
-- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts, blocking to background
-- `../AGENTS.md` — experiment scope
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules
+- [../AGENTS.md](../AGENTS.md) — experiment scope
+
+## Command execution
+All commands need `timeout <seconds>`.
 
 ## Goal
 

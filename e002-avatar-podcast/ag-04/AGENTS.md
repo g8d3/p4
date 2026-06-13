@@ -1,8 +1,16 @@
 # ag-04 — Video composer
 
 ## Inherits
-- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts, GPU encoding
-- `../AGENTS.md` — experiment scope
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, GPU encoding
+- [../AGENTS.md](../AGENTS.md) — experiment scope
+- [../ag-07/pipeline-v2.md](../ag-07/pipeline-v2.md) — Weston GPU pipeline
+
+## Command execution
+All commands need `timeout <seconds>`. Examples:
+- `timeout 10 ls, cat, grep` — quick checks
+- `timeout 600 weston ...` — Weston server startup
+- `timeout 600 godot4 ...` — Godot frame render (~9 min for full video)
+- `timeout 120 ffmpeg ...` — VAAPI encode
 
 ## Goal
 

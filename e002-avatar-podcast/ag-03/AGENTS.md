@@ -1,8 +1,11 @@
 # ag-03 — TTS segment generator
 
 ## Inherits
-- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts
-- `../AGENTS.md` — experiment scope
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, GPU encoding
+- [../AGENTS.md](../AGENTS.md) — experiment scope
+
+## Command execution
+All commands need `timeout <seconds>`. Example: `timeout 60 edge-tts --voice ...`
 
 ## Goal
 

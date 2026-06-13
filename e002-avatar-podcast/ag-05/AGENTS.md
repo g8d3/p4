@@ -4,8 +4,11 @@
 `opencode-go/mimo-v2.5` (has vision)
 
 ## Inherits
-- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts
-- `../AGENTS.md` — experiment scope
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules
+- [../AGENTS.md](../AGENTS.md) — experiment scope
+
+## Command execution
+All commands need `timeout <seconds>`.
 
 ## Goal
 

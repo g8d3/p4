@@ -89,15 +89,17 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 
 An agent only reads its own `AGENTS.md`. To share rules across agents, use **explicit inheritance**:
 
-Each AGENTS.md declares what it needs from parent levels in an `## Inherits` section:
+Each AGENTS.md declares what it needs from parent levels in an `## Inherits` section with **real markdown links** (not backticks):
 
 ```markdown
 ## Inherits
-- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts
-- `../AGENTS.md` — experiment scope
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, GPU encoding
+- [../AGENTS.md](../AGENTS.md) — experiment scope
 ```
 
-The launch prompt must tell the agent to read inherited files:
+The Inherits section is the agent's navigation menu. It both documents context for humans and provides clickable links for filex browsing.
+
+The launch prompt must tell the agent to explicitly read each inherited file:
 
 ```
 tmux send-keys -t <name> "Read AGENTS.md, then read each file listed in Inherits. Execute the task." Enter
@@ -167,6 +169,16 @@ tmux kill-window -t <name>
 ```
 
 The orchestrator should check agent status before launching new ones. Running agents consume tokens and may interfere with new tasks.
+
+### Command execution rules
+
+Every agent must apply these to each command they write:
+
+1. **Timeout every command**: `timeout <estimated_seconds> <command>`. If unsure, add a generous margin. Never leave a command without timeout.
+2. **Kill by PID, not pkill**: `kill $PID` instead of `pkill -f pattern`. pkill without extreme precision kills processes across all windows.
+3. **Background blocking commands**: servers, long renders, watches → run with `&` in the background.
+
+Each AGENTS.md should include a concrete `## Command execution` section with examples relevant to that agent's task.
 
 ### Verification
 

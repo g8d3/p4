@@ -1,40 +1,55 @@
-# ag-07 — GPU pipeline engineer
+# ag-07 — GPU pipeline engineer (v2)
 
 ## Inherits
-- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts, GPU encoding, verification
-- `../AGENTS.md` — experiment scope
-- `../ag-04/AGENTS.md` — current video pipeline spec
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, pkill rule
+- [../AGENTS.md](../AGENTS.md) — experiment scope
+
+## Command execution
+All commands need `timeout <seconds>`. Examples:
+- `timeout 30 weston --backend=headless ...` — Weston startup
+- `timeout 60 sudo Xorg :1 -config ...` — Xorg test
+- `timeout 30 xdpyinfo, vainfo, ls` — quick checks
 
 ## Goal
 
-Research, test, and fix the full GPU video pipeline: Godot (Vulkan) + Xvfb + ffmpeg VAAPI capture. No CPU rendering or encoding.
+Make Godot render with real GPU (not CPU/llvmpipe) in a headless/automated setup.
+
+## Context
+
+- **Option A** (real display `:0`): works with GPU. Not the focus here.
+- **Option B** (virtual X server with DRI3): needs research and testing. Xvfb falls back to llvmpipe (CPU) because it has no DRI3 support.
 
 ## Task
 
-The current ag-04 pipeline uses `--display-driver headless` which falls back to the Dummy renderer (CPU). The correct pipeline is:
+Research and test Option B: a virtual X server with DRI3 that allows Vulkan hardware acceleration.
 
-1. **Xvfb** — virtual display (no physical screen needed)
-2. **Godot** — render with Vulkan (`--rendering-driver vulkan --display-driver x11`) to the virtual display
-3. **ffmpeg** — capture the virtual display with `h264_vaapi` (GPU encode)
+### Approaches to test
 
-### Issues to solve
+1. **Xorg with dummy/modesetting driver**: Start a second X server with the AMD GPU driver on a virtual display (e.g., `:1`). Requires configuring an xorg.conf with the amdgpu driver.
+   ```
+   sudo Xorg :1 -configure
+   # Then start with the config
+   sudo Xorg :1 -config ~/xorg.conf.virtual
+   ```
 
-1. `amdgpu_device_initialize failed` — check permissions (`groups`, `/dev/dri/renderD128`). May need `usermod -a -G render`.
-2. Godot with `--display-driver headless` uses Dummy/CPU. Must use `--display-driver x11` with Xvfb.
-3. ffmpeg x11grab must use `-vf "format=nv12,hwupload"` before `-c:v h264_vaapi`.
+2. **Xephyr**: Nested X server that supports DRI3. Runs inside the existing X server but provides its own display with GPU access.
+   ```
+   Xephyr :1 -screen 608x1080 -dri3
+   ```
 
-### Method
-
-1. Test each component individually, then combine.
-2. Use the sudo window (`sudo-vaapi` if still open, or open a new one) for any `usermod` or `apt` commands.
-3. Write findings to `pipeline.md` with working commands.
+3. **Weston/Wayland**: Wayland compositor with DRM backend that could provide a headless GPU-accelerated display.
 
 ### Output
 
-- `pipeline.md` — working full-GPU pipeline commands
-- Must be complete enough that ag-04 can copy-paste the pipeline
+Write `pipeline-v2.md` with:
+- Which approaches work and which don't
+- Exact working commands for each working approach
+- GPU verification: confirm GPU busy > 0% during render
+- Recommendation
 
 ### Rules
 
-- Verify everything with multiple tmux pane captures (do not assume from one capture).
-- If a component fails, document the error and try the next approach.
+- Use the sudo window for any privileged commands.
+- All commands need `timeout`.
+- Never use `pkill` broadly — use `kill $PID`.
+- Verify with multiple captures (don't assume from one).

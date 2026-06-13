@@ -1,0 +1,338 @@
+[
+  {
+    "segment": 1,
+    "file": "seg_001.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "¿Has oído hablar de p4?",
+    "duration": 2.304
+  },
+  {
+    "segment": 2,
+    "file": "seg_002.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Otro framework más de inteligencia artificial?",
+    "duration": 3.48
+  },
+  {
+    "segment": 3,
+    "file": "seg_003.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "No, no, nada que ver. p4 es un sistema donde los agentes de IA se comunican entre sí… usando archivos y carpetas. Así como suena.",
+    "duration": 10.2
+  },
+  {
+    "segment": 4,
+    "file": "seg_004.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Archivos? ¿Como los que tengo en mi computadora?",
+    "duration": 4.32
+  },
+  {
+    "segment": 5,
+    "file": "seg_005.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Exactamente. Imagina agentes que dejan mensajes en archivos de texto, y otros agentes los recogen y hacen su trabajo. Como un equipo donde todos pasan notas escritas.",
+    "duration": 10.92
+  },
+  {
+    "segment": 6,
+    "file": "seg_006.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "O sea, ¿cada agente es como un experto en algo?",
+    "duration": 3.456
+  },
+  {
+    "segment": 7,
+    "file": "seg_007.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "¡Exacto! Uno sabe investigar, otro sabe escribir, otro sabe traducir. Y en vez de llamarse por APIs complicadas, simplemente escriben y leen archivos.",
+    "duration": 10.92
+  },
+  {
+    "segment": 8,
+    "file": "seg_008.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Pero… ¿por qué archivos? Suena un poco… ¿rudimentario?",
+    "duration": 5.496
+  },
+  {
+    "segment": 9,
+    "file": "seg_009.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Esa es la belleza. Usar archivos significa que no necesitas infraestructura compleja. No necesitas microservicios, ni orquestadores, ni nada. Los archivos son el mensaje, la memoria, y el contrato entre agentes.",
+    "duration": 15.48
+  },
+  {
+    "segment": 10,
+    "file": "seg_010.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Ah, como pasar la posta en una carrera de relevos.",
+    "duration": 4.176
+  },
+  {
+    "segment": 11,
+    "file": "seg_011.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "¡Esa es la metáfora perfecta!",
+    "duration": 2.568
+  },
+  {
+    "segment": 12,
+    "file": "seg_012.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Mira, un ejemplo práctico: educación. Con p4 puedes tener un agente que diseña un plan de estudios, otro que genera explicaciones, otro que crea ejercicios, y otro que responde preguntas.",
+    "duration": 12.144
+  },
+  {
+    "segment": 13,
+    "file": "seg_013.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Todo automáticamente?",
+    "duration": 2.136
+  },
+  {
+    "segment": 14,
+    "file": "seg_014.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Todo. Le dices \"enséñame sobre el ciclo del agua\" y un agente investiga, otro escribe la lección, otro hace una trivia, otro genera ejemplos. Todo queda en carpetas organizadas.",
+    "duration": 12.216
+  },
+  {
+    "segment": 15,
+    "file": "seg_015.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "O sea, ¿podría crear un curso entero sin mover un dedo?",
+    "duration": 3.864
+  },
+  {
+    "segment": 16,
+    "file": "seg_016.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Sin mover un dedo. Y lo mejor: como son archivos, tú puedes revisar, editar, mejorar cualquier parte. No es una caja negra.",
+    "duration": 9.936
+  },
+  {
+    "segment": 17,
+    "file": "seg_017.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Eso me gusta. Tengo control sobre el resultado.",
+    "duration": 4.488
+  },
+  {
+    "segment": 18,
+    "file": "seg_018.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Otro caso: creación masiva de contenido. Imagina que necesitas mil imágenes, cien videos, y textos para redes sociales.",
+    "duration": 8.952
+  },
+  {
+    "segment": 19,
+    "file": "seg_019.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Mil imágenes? ¿En un día?",
+    "duration": 3.312
+  },
+  {
+    "segment": 20,
+    "file": "seg_020.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Con p4 sí. Un agente genera los guiones, otro busca imágenes, otro edita video, otro escribe los copy. Todos trabajando en paralelo, pasándose archivos.",
+    "duration": 11.424
+  },
+  {
+    "segment": 21,
+    "file": "seg_021.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Y no se estorban?",
+    "duration": 1.824
+  },
+  {
+    "segment": 22,
+    "file": "seg_022.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "No, porque cada uno trabaja en su carpeta. El agente de video sabe que cuando aparece un guion nuevo en la carpeta correcta, tiene que procesarlo. Es como una línea de montaje digital.",
+    "duration": 11.592
+  },
+  {
+    "segment": 23,
+    "file": "seg_023.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Fascinante. Y me imagino que esto sirve también para atención al cliente, ¿no?",
+    "duration": 5.928
+  },
+  {
+    "segment": 24,
+    "file": "seg_024.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "¡Claro! Comunicaciones públicas. Un agente monitorea noticias, otro redacta comunicados de prensa, otro prepara respuestas para redes sociales, otro personaliza mensajes para clientes.",
+    "duration": 12.696
+  },
+  {
+    "segment": 25,
+    "file": "seg_025.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Y todo sincronizado?",
+    "duration": 2.184
+  },
+  {
+    "segment": 26,
+    "file": "seg_026.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Todo. Cuando hay una crisis, el agente de monitoreo detecta la noticia, escribe un resumen en un archivo, el agente de comunicados redacta la respuesta, y el de redes la adapta para cada plataforma.",
+    "duration": 12.192
+  },
+  {
+    "segment": 27,
+    "file": "seg_027.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "En minutos, no en horas.",
+    "duration": 3.048
+  },
+  {
+    "segment": 28,
+    "file": "seg_028.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "En minutos. Y como todo está en archivos, el equipo humano puede revisar y aprobar antes de publicar.",
+    "duration": 7.008
+  },
+  {
+    "segment": 29,
+    "file": "seg_029.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Pero… ¿por qué no usar algo más moderno?",
+    "duration": 4.032
+  },
+  {
+    "segment": 30,
+    "file": "seg_030.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Porque lo moderno no siempre es mejor. p4 es tan simple que cualquier persona con conocimientos básicos puede entenderlo. No necesitas Kubernetes, ni bases de datos distribuidas, ni nada.",
+    "duration": 12.6
+  },
+  {
+    "segment": 31,
+    "file": "seg_031.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "O sea, ¿democratiza la IA?",
+    "duration": 2.784
+  },
+  {
+    "segment": 32,
+    "file": "seg_032.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Exacto. Cualquier equipo puede montar un sistema multi-agente solo con archivos y carpetas. Es la forma más natural de trabajar.",
+    "duration": 9.216
+  },
+  {
+    "segment": 33,
+    "file": "seg_033.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Como tener un equipo virtual donde todos hablan el mismo idioma: archivos.",
+    "duration": 5.328
+  },
+  {
+    "segment": 34,
+    "file": "seg_034.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Y lo mejor es que es completamente abierto. El código está en GitHub.",
+    "duration": 5.04
+  },
+  {
+    "segment": 35,
+    "file": "seg_035.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿En qué dirección?",
+    "duration": 1.656
+  },
+  {
+    "segment": 36,
+    "file": "seg_036.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "github.com/g8d3/p4. Ahí encuentras todo para empezar.",
+    "duration": 6.192
+  },
+  {
+    "segment": 37,
+    "file": "seg_037.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¿Y necesita mucho setup?",
+    "duration": 2.352
+  },
+  {
+    "segment": 38,
+    "file": "seg_038.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Nada. Clonas el repo, pones tus agentes en carpetas, y empiezan a trabajar. Así de simple.",
+    "duration": 8.088
+  },
+  {
+    "segment": 39,
+    "file": "seg_039.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "Bueno, ¡ya sé lo que haré esta tarde!",
+    "duration": 3.096
+  },
+  {
+    "segment": 40,
+    "file": "seg_040.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "¡Exacto! Y cuando veas a tus agentes pasándose archivos como si fueran notas de oficina, entenderás por qué esto es tan poderoso.",
+    "duration": 8.112
+  },
+  {
+    "segment": 41,
+    "file": "seg_041.mp3",
+    "speaker": "A",
+    "voice": "es-CO-GonzaloNeural",
+    "text": "Eso fue todo por hoy. Nos vemos en el próximo episodio.",
+    "duration": 4.608
+  },
+  {
+    "segment": 42,
+    "file": "seg_042.mp3",
+    "speaker": "B",
+    "voice": "es-CO-SalomeNeural",
+    "text": "¡Chao!",
+    "duration": 1.416
+  }
+]

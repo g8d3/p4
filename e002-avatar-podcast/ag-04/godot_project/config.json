@@ -1,0 +1,264 @@
+{
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.304,
+      "speaker": "A",
+      "text": "\u00bfHas o\u00eddo hablar de p4?"
+    },
+    {
+      "start": 2.304,
+      "end": 5.784,
+      "speaker": "B",
+      "text": "\u00bfOtro framework m\u00e1s de inteligencia artificial?"
+    },
+    {
+      "start": 5.784,
+      "end": 15.984,
+      "speaker": "A",
+      "text": "No, no, nada que ver. p4 es un sistema donde los agentes de IA se comunican entre s\u00ed\u2026 usando archivos y carpetas. As\u00ed como suena."
+    },
+    {
+      "start": 15.984,
+      "end": 20.304,
+      "speaker": "B",
+      "text": "\u00bfArchivos? \u00bfComo los que tengo en mi computadora?"
+    },
+    {
+      "start": 20.304,
+      "end": 31.224,
+      "speaker": "A",
+      "text": "Exactamente. Imagina agentes que dejan mensajes en archivos de texto, y otros agentes los recogen y hacen su trabajo. Como un equipo donde todos pasan notas escritas."
+    },
+    {
+      "start": 31.224,
+      "end": 34.68,
+      "speaker": "B",
+      "text": "O sea, \u00bfcada agente es como un experto en algo?"
+    },
+    {
+      "start": 34.68,
+      "end": 45.6,
+      "speaker": "A",
+      "text": "\u00a1Exacto! Uno sabe investigar, otro sabe escribir, otro sabe traducir. Y en vez de llamarse por APIs complicadas, simplemente escriben y leen archivos."
+    },
+    {
+      "start": 45.6,
+      "end": 51.096,
+      "speaker": "B",
+      "text": "Pero\u2026 \u00bfpor qu\u00e9 archivos? Suena un poco\u2026 \u00bfrudimentario?"
+    },
+    {
+      "start": 51.096,
+      "end": 66.576,
+      "speaker": "A",
+      "text": "Esa es la belleza. Usar archivos significa que no necesitas infraestructura compleja. No necesitas microservicios, ni orquestadores, ni nada. Los archivos son el mensaje, la memoria, y el contrato entre agentes."
+    },
+    {
+      "start": 66.576,
+      "end": 70.752,
+      "speaker": "B",
+      "text": "Ah, como pasar la posta en una carrera de relevos."
+    },
+    {
+      "start": 70.752,
+      "end": 73.32,
+      "speaker": "A",
+      "text": "\u00a1Esa es la met\u00e1fora perfecta!"
+    },
+    {
+      "start": 73.32,
+      "end": 85.464,
+      "speaker": "A",
+      "text": "Mira, un ejemplo pr\u00e1ctico: educaci\u00f3n. Con p4 puedes tener un agente que dise\u00f1a un plan de estudios, otro que genera explicaciones, otro que crea ejercicios, y otro que responde preguntas."
+    },
+    {
+      "start": 85.464,
+      "end": 87.6,
+      "speaker": "B",
+      "text": "\u00bfTodo autom\u00e1ticamente?"
+    },
+    {
+      "start": 87.6,
+      "end": 99.816,
+      "speaker": "A",
+      "text": "Todo. Le dices \"ens\u00e9\u00f1ame sobre el ciclo del agua\" y un agente investiga, otro escribe la lecci\u00f3n, otro hace una trivia, otro genera ejemplos. Todo queda en carpetas organizadas."
+    },
+    {
+      "start": 99.816,
+      "end": 103.68,
+      "speaker": "B",
+      "text": "O sea, \u00bfpodr\u00eda crear un curso entero sin mover un dedo?"
+    },
+    {
+      "start": 103.68,
+      "end": 113.616,
+      "speaker": "A",
+      "text": "Sin mover un dedo. Y lo mejor: como son archivos, t\u00fa puedes revisar, editar, mejorar cualquier parte. No es una caja negra."
+    },
+    {
+      "start": 113.616,
+      "end": 118.104,
+      "speaker": "B",
+      "text": "Eso me gusta. Tengo control sobre el resultado."
+    },
+    {
+      "start": 118.104,
+      "end": 127.056,
+      "speaker": "A",
+      "text": "Otro caso: creaci\u00f3n masiva de contenido. Imagina que necesitas mil im\u00e1genes, cien videos, y textos para redes sociales."
+    },
+    {
+      "start": 127.056,
+      "end": 130.368,
+      "speaker": "B",
+      "text": "\u00bfMil im\u00e1genes? \u00bfEn un d\u00eda?"
+    },
+    {
+      "start": 130.368,
+      "end": 141.792,
+      "speaker": "A",
+      "text": "Con p4 s\u00ed. Un agente genera los guiones, otro busca im\u00e1genes, otro edita video, otro escribe los copy. Todos trabajando en paralelo, pas\u00e1ndose archivos."
+    },
+    {
+      "start": 141.792,
+      "end": 143.616,
+      "speaker": "B",
+      "text": "\u00bfY no se estorban?"
+    },
+    {
+      "start": 143.616,
+      "end": 155.208,
+      "speaker": "A",
+      "text": "No, porque cada uno trabaja en su carpeta. El agente de video sabe que cuando aparece un guion nuevo en la carpeta correcta, tiene que procesarlo. Es como una l\u00ednea de montaje digital."
+    },
+    {
+      "start": 155.208,
+      "end": 161.136,
+      "speaker": "B",
+      "text": "Fascinante. Y me imagino que esto sirve tambi\u00e9n para atenci\u00f3n al cliente, \u00bfno?"
+    },
+    {
+      "start": 161.136,
+      "end": 173.832,
+      "speaker": "A",
+      "text": "\u00a1Claro! Comunicaciones p\u00fablicas. Un agente monitorea noticias, otro redacta comunicados de prensa, otro prepara respuestas para redes sociales, otro personaliza mensajes para clientes."
+    },
+    {
+      "start": 173.832,
+      "end": 176.016,
+      "speaker": "B",
+      "text": "\u00bfY todo sincronizado?"
+    },
+    {
+      "start": 176.016,
+      "end": 188.208,
+      "speaker": "A",
+      "text": "Todo. Cuando hay una crisis, el agente de monitoreo detecta la noticia, escribe un resumen en un archivo, el agente de comunicados redacta la respuesta, y el de redes la adapta para cada plataforma."
+    },
+    {
+      "start": 188.208,
+      "end": 191.256,
+      "speaker": "B",
+      "text": "En minutos, no en horas."
+    },
+    {
+      "start": 191.256,
+      "end": 198.264,
+      "speaker": "A",
+      "text": "En minutos. Y como todo est\u00e1 en archivos, el equipo humano puede revisar y aprobar antes de publicar."
+    },
+    {
+      "start": 198.264,
+      "end": 202.296,
+      "speaker": "B",
+      "text": "Pero\u2026 \u00bfpor qu\u00e9 no usar algo m\u00e1s moderno?"
+    },
+    {
+      "start": 202.296,
+      "end": 214.896,
+      "speaker": "A",
+      "text": "Porque lo moderno no siempre es mejor. p4 es tan simple que cualquier persona con conocimientos b\u00e1sicos puede entenderlo. No necesitas Kubernetes, ni bases de datos distribuidas, ni nada."
+    },
+    {
+      "start": 214.896,
+      "end": 217.68,
+      "speaker": "B",
+      "text": "O sea, \u00bfdemocratiza la IA?"
+    },
+    {
+      "start": 217.68,
+      "end": 226.896,
+      "speaker": "A",
+      "text": "Exacto. Cualquier equipo puede montar un sistema multi-agente solo con archivos y carpetas. Es la forma m\u00e1s natural de trabajar."
+    },
+    {
+      "start": 226.896,
+      "end": 232.224,
+      "speaker": "B",
+      "text": "Como tener un equipo virtual donde todos hablan el mismo idioma: archivos."
+    },
+    {
+      "start": 232.224,
+      "end": 237.264,
+      "speaker": "A",
+      "text": "Y lo mejor es que es completamente abierto. El c\u00f3digo est\u00e1 en GitHub."
+    },
+    {
+      "start": 237.264,
+      "end": 238.92,
+      "speaker": "B",
+      "text": "\u00bfEn qu\u00e9 direcci\u00f3n?"
+    },
+    {
+      "start": 238.92,
+      "end": 245.112,
+      "speaker": "A",
+      "text": "github.com/g8d3/p4. Ah\u00ed encuentras todo para empezar."
+    },
+    {
+      "start": 245.112,
+      "end": 247.464,
+      "speaker": "B",
+      "text": "\u00bfY necesita mucho setup?"
+    },
+    {
+      "start": 247.464,
+      "end": 255.552,
+      "speaker": "A",
+      "text": "Nada. Clonas el repo, pones tus agentes en carpetas, y empiezan a trabajar. As\u00ed de simple."
+    },
+    {
+      "start": 255.552,
+      "end": 258.648,
+      "speaker": "B",
+      "text": "Bueno, \u00a1ya s\u00e9 lo que har\u00e9 esta tarde!"
+    },
+    {
+      "start": 258.648,
+      "end": 266.76,
+      "speaker": "A",
+      "text": "\u00a1Exacto! Y cuando veas a tus agentes pas\u00e1ndose archivos como si fueran notas de oficina, entender\u00e1s por qu\u00e9 esto es tan poderoso."
+    },
+    {
+      "start": 266.76,
+      "end": 271.368,
+      "speaker": "A",
+      "text": "Eso fue todo por hoy. Nos vemos en el pr\u00f3ximo episodio."
+    },
+    {
+      "start": 271.368,
+      "end": 272.784,
+      "speaker": "B",
+      "text": "\u00a1Chao!"
+    }
+  ],
+  "duration": 272.7840000000001,
+  "fps": 25,
+  "w": 608,
+  "h": 1080,
+  "output_dir": "/home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/frames",
+  "bg": "/home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png",
+  "avatar_a": "/home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/avatar_a.png",
+  "avatar_b": "/home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/avatar_b.png"
+}

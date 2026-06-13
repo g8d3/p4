@@ -1,0 +1,168 @@
+1
+00:00:00,000 --> 00:00:02,303
+¿Has oído hablar de p4?
+
+2
+00:00:02,303 --> 00:00:05,783
+¿Otro framework más de inteligencia artificial?
+
+3
+00:00:05,783 --> 00:00:15,983
+No, no, nada que ver. p4 es un sistema donde los agentes de IA se comunican entre sí… usando archivos y carpetas. Así como suena.
+
+4
+00:00:15,983 --> 00:00:20,303
+¿Archivos? ¿Como los que tengo en mi computadora?
+
+5
+00:00:20,303 --> 00:00:31,223
+Exactamente. Imagina agentes que dejan mensajes en archivos de texto, y otros agentes los recogen y hacen su trabajo. Como un equipo donde todos pasan notas escritas.
+
+6
+00:00:31,223 --> 00:00:34,679
+O sea, ¿cada agente es como un experto en algo?
+
+7
+00:00:34,679 --> 00:00:45,600
+¡Exacto! Uno sabe investigar, otro sabe escribir, otro sabe traducir. Y en vez de llamarse por APIs complicadas, simplemente escriben y leen archivos.
+
+8
+00:00:45,600 --> 00:00:51,096
+Pero… ¿por qué archivos? Suena un poco… ¿rudimentario?
+
+9
+00:00:51,096 --> 00:01:06,576
+Esa es la belleza. Usar archivos significa que no necesitas infraestructura compleja. No necesitas microservicios, ni orquestadores, ni nada. Los archivos son el mensaje, la memoria, y el contrato entre agentes.
+
+10
+00:01:06,576 --> 00:01:10,752
+Ah, como pasar la posta en una carrera de relevos.
+
+11
+00:01:10,752 --> 00:01:13,320
+¡Esa es la metáfora perfecta!
+
+12
+00:01:13,320 --> 00:01:25,464
+Mira, un ejemplo práctico: educación. Con p4 puedes tener un agente que diseña un plan de estudios, otro que genera explicaciones, otro que crea ejercicios, y otro que responde preguntas.
+
+13
+00:01:25,464 --> 00:01:27,600
+¿Todo automáticamente?
+
+14
+00:01:27,600 --> 00:01:39,816
+Todo. Le dices "enséñame sobre el ciclo del agua" y un agente investiga, otro escribe la lección, otro hace una trivia, otro genera ejemplos. Todo queda en carpetas organizadas.
+
+15
+00:01:39,816 --> 00:01:43,680
+O sea, ¿podría crear un curso entero sin mover un dedo?
+
+16
+00:01:43,680 --> 00:01:53,616
+Sin mover un dedo. Y lo mejor: como son archivos, tú puedes revisar, editar, mejorar cualquier parte. No es una caja negra.
+
+17
+00:01:53,616 --> 00:01:58,104
+Eso me gusta. Tengo control sobre el resultado.
+
+18
+00:01:58,104 --> 00:02:07,056
+Otro caso: creación masiva de contenido. Imagina que necesitas mil imágenes, cien videos, y textos para redes sociales.
+
+19
+00:02:07,056 --> 00:02:10,368
+¿Mil imágenes? ¿En un día?
+
+20
+00:02:10,368 --> 00:02:21,792
+Con p4 sí. Un agente genera los guiones, otro busca imágenes, otro edita video, otro escribe los copy. Todos trabajando en paralelo, pasándose archivos.
+
+21
+00:02:21,792 --> 00:02:23,616
+¿Y no se estorban?
+
+22
+00:02:23,616 --> 00:02:35,208
+No, porque cada uno trabaja en su carpeta. El agente de video sabe que cuando aparece un guion nuevo en la carpeta correcta, tiene que procesarlo. Es como una línea de montaje digital.
+
+23
+00:02:35,208 --> 00:02:41,136
+Fascinante. Y me imagino que esto sirve también para atención al cliente, ¿no?
+
+24
+00:02:41,136 --> 00:02:53,832
+¡Claro! Comunicaciones públicas. Un agente monitorea noticias, otro redacta comunicados de prensa, otro prepara respuestas para redes sociales, otro personaliza mensajes para clientes.
+
+25
+00:02:53,832 --> 00:02:56,016
+¿Y todo sincronizado?
+
+26
+00:02:56,016 --> 00:03:08,208
+Todo. Cuando hay una crisis, el agente de monitoreo detecta la noticia, escribe un resumen en un archivo, el agente de comunicados redacta la respuesta, y el de redes la adapta para cada plataforma.
+
+27
+00:03:08,208 --> 00:03:11,256
+En minutos, no en horas.
+
+28
+00:03:11,256 --> 00:03:18,264
+En minutos. Y como todo está en archivos, el equipo humano puede revisar y aprobar antes de publicar.
+
+29
+00:03:18,264 --> 00:03:22,296
+Pero… ¿por qué no usar algo más moderno?
+
+30
+00:03:22,296 --> 00:03:34,896
+Porque lo moderno no siempre es mejor. p4 es tan simple que cualquier persona con conocimientos básicos puede entenderlo. No necesitas Kubernetes, ni bases de datos distribuidas, ni nada.
+
+31
+00:03:34,896 --> 00:03:37,680
+O sea, ¿democratiza la IA?
+
+32
+00:03:37,680 --> 00:03:46,896
+Exacto. Cualquier equipo puede montar un sistema multi-agente solo con archivos y carpetas. Es la forma más natural de trabajar.
+
+33
+00:03:46,896 --> 00:03:52,224
+Como tener un equipo virtual donde todos hablan el mismo idioma: archivos.
+
+34
+00:03:52,224 --> 00:03:57,264
+Y lo mejor es que es completamente abierto. El código está en GitHub.
+
+35
+00:03:57,264 --> 00:03:58,920
+¿En qué dirección?
+
+36
+00:03:58,920 --> 00:04:05,112
+github.com/g8d3/p4. Ahí encuentras todo para empezar.
+
+37
+00:04:05,112 --> 00:04:07,464
+¿Y necesita mucho setup?
+
+38
+00:04:07,464 --> 00:04:15,552
+Nada. Clonas el repo, pones tus agentes en carpetas, y empiezan a trabajar. Así de simple.
+
+39
+00:04:15,552 --> 00:04:18,648
+Bueno, ¡ya sé lo que haré esta tarde!
+
+40
+00:04:18,648 --> 00:04:26,760
+¡Exacto! Y cuando veas a tus agentes pasándose archivos como si fueran notas de oficina, entenderás por qué esto es tan poderoso.
+
+41
+00:04:26,760 --> 00:04:31,368
+Eso fue todo por hoy. Nos vemos en el próximo episodio.
+
+42
+00:04:31,368 --> 00:04:32,784
+¡Chao!
+
