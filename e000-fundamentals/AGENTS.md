@@ -45,7 +45,7 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 - **Agent**: Open Code CLI.
 - **Primary provider**: opencode-go.
 - **Secondary provider**: Z.AI (coding plan Pro, not pay-as-you-go).
-- **Models**: DeepSeek V4 Flash, MiniMax 2.5 (non-Pro). MiniMax 2.5 supports vision/multimodal, ideal for video tasks.
+- **Models**: DeepSeek V4 Flash, Mimo 2.5 (non-Pro, Xiaomi). Mimo 2.5 supports vision/multimodal, ideal for video tasks.
 - **tmux**: windows only, no panes.
 - **Mobile-first**: all interfaces (terminal or web) must be mobile-friendly.
 
