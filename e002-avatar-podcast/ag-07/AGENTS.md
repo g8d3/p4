@@ -1,55 +1,46 @@
-# ag-07 — GPU pipeline engineer (v2)
+# ag-07 — GPU pipeline engineer (v3)
 
 ## Inherits
-- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, pkill rule
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules
 - [../AGENTS.md](../AGENTS.md) — experiment scope
+- [../ag-04/AGENTS.md](../ag-04/AGENTS.md) — current pipeline spec
 
 ## Command execution
-All commands need `timeout <seconds>`. Examples:
-- `timeout 30 weston --backend=headless ...` — Weston startup
-- `timeout 60 sudo Xorg :1 -config ...` — Xorg test
-- `timeout 30 xdpyinfo, vainfo, ls` — quick checks
+All commands need `timeout <seconds>`.
 
 ## Goal
 
-Make Godot render with real GPU (not CPU/llvmpipe) in a headless/automated setup.
+Find why x11grab capture fails on Weston headless and determine the correct capture method.
 
-## Context
+## Problem
 
-- **Option A** (real display `:0`): works with GPU. Not the focus here.
-- **Option B** (virtual X server with DRI3): needs research and testing. Xvfb falls back to llvmpipe (CPU) because it has no DRI3 support.
+ag-04 attempted:
+```
+weston --backend=headless --renderer=gl --socket=wayland-99
+ffmpeg -f x11grab -video_size 608x1080 -i :99.0 ...
+```
+ffmpeg x11grab failed because Weston headless is Wayland-only — there is no X11 display `:99.0` to capture.
 
 ## Task
 
-Research and test Option B: a virtual X server with DRI3 that allows Vulkan hardware acceleration.
+Research and recommend the best capture method. Options to investigate:
 
-### Approaches to test
+1. **Godot `--write-movie output.avi`** — built-in movie writer. Check if it works with `--display-driver wayland --rendering-driver vulkan`. Test with a short render.
 
-1. **Xorg with dummy/modesetting driver**: Start a second X server with the AMD GPU driver on a virtual display (e.g., `:1`). Requires configuring an xorg.conf with the amdgpu driver.
-   ```
-   sudo Xorg :1 -configure
-   # Then start with the config
-   sudo Xorg :1 -config ~/xorg.conf.virtual
-   ```
+2. **Weston `--backend=x11`** — Weston runs as an X11 window inside the real display `:0`. This creates both a Wayland socket (for Godot) and a visible X11 window (for x11grab). Test if x11grab can capture it.
 
-2. **Xephyr**: Nested X server that supports DRI3. Runs inside the existing X server but provides its own display with GPU access.
-   ```
-   Xephyr :1 -screen 608x1080 -dri3
-   ```
+3. **Weston with pipewire/wf-recorder** — not installed, would need sudo install.
 
-3. **Weston/Wayland**: Wayland compositor with DRM backend that could provide a headless GPU-accelerated display.
+### Test each option
+
+- Write a short test (2-second render) for each working option
+- Measure: GPU usage, CPU usage, frames captured, speed
+- Verify the output video plays correctly
 
 ### Output
 
-Write `pipeline-v2.md` with:
-- Which approaches work and which don't
-- Exact working commands for each working approach
-- GPU verification: confirm GPU busy > 0% during render
-- Recommendation
-
-### Rules
-
-- Use the sudo window for any privileged commands.
-- All commands need `timeout`.
-- Never use `pkill` broadly — use `kill $PID`.
-- Verify with multiple captures (don't assume from one).
+Write `capture-fix.md` with:
+- Why x11grab failed (explanation)
+- Tested approaches and results
+- Exact working commands for the best approach
+- Update the ag-04 pipeline with the fix if needed
