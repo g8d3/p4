@@ -26,11 +26,11 @@ godot4 --display-driver headless
 
 ### Output
 
-Save avatar assets to `../shared/` so ag-04 can use them:
+Save avatar assets in this directory:
 
-- `../shared/avatar_a.png`
-- `../shared/avatar_b.png`
-- `../shared/podcast_bg.png`
+- `avatar_a.png`
+- `avatar_b.png`
+- `podcast_bg.png`
 
 ### Iteration
 

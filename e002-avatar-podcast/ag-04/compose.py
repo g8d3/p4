@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Compose final 9:16 avatar podcast video using Godot GPU rendering."""
 
-import subprocess, os, re, tempfile, shutil, json, sys, math, shlex
+import subprocess, os, re, tempfile, shutil, json, sys, math, shlex, random, string
 
 A_DURATION = 202.056
 B_DURATION = 66.312
@@ -100,7 +100,6 @@ def run_godot_renderer(config_path):
         GODOT,
         '--path', GODOT_PROJECT,
         '--display-driver', 'x11',
-        '--rendering-driver', 'opengl3',
         '--',
         config_path
     ]
@@ -262,7 +261,10 @@ def main():
     print(f"  A segments: {a_count}, B segments: {b_count}")
     print(f"  A total: {a_total:.2f}s, B total: {b_total:.2f}s")
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    suffix = ''.join(random.choices(string.ascii_lowercase, k=6))
+    tmpdir = os.path.join(os.path.dirname(__file__), f'work_{suffix}')
+    os.makedirs(tmpdir, exist_ok=True)
+    try:
         # 2. Copy assets into Godot project
         print("\nCopying assets to Godot project...")
         copy_assets_to_godot()
@@ -331,6 +333,8 @@ def main():
         ], check=True, capture_output=True)
 
         shutil.move(final, 'video.mp4')
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
     print(f"\nDone! Output: video.mp4 ({W}x{H}, {total_dur + INTRO_DURATION + OUTRO_DURATION:.1f}s)")
 

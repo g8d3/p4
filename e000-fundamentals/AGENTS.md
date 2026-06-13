@@ -171,3 +171,15 @@ The orchestrator should check agent status before launching new ones. Running ag
 
 - User dictates in Spanish.
 - All files, code, and agent responses are written in English.
+
+## GPU encoding (VAAPI)
+
+This AMD GPU supports VAAPI hardware encoding. Use:
+
+```
+export LIBVA_DRIVER_NAME=radeonsi
+ffmpeg -vaapi_device /dev/dri/renderD128 -i input_frames -vf "format=nv12,hwupload" -c:v h264_vaapi output.mp4
+```
+
+Key: `-vf "format=nv12,hwupload"` is required before the VAAPI encoder.
+Speed: ~20× real time for 608×1080 at 25fps.

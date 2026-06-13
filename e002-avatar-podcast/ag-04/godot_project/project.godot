@@ -5,7 +5,7 @@ config/features=PackedStringArray("4.0")
 run/main_scene="res://podcast_scene.tscn"
 
 [rendering]
-renderer/rendering_method="gl_compatibility"
+renderer/rendering_method="forward_plus"
 
 [display]
 window/size/viewport_width=608
