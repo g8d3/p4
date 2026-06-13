@@ -65,6 +65,7 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 - **Don't assume, verify**: before changing something, read the current state. Then think how to change it, act, and finally verify the result is as expected. Never assume something works without confirming.
 - **Use your working directory**: don't use `/tmp` or external directories. Work inside your own directory and keep it organized however you see fit.
 - **Command timeouts**: every command must have an estimated timeout. If unsure how long it will take, add a generous margin. Never leave a command without a timeout.
+- **Never use pkill without extreme precision**: `pkill -f godot4` kills Godot processes across ALL tmux windows, including other agents. Use `kill $PID` with a specific process ID instead. If you must use pkill, scope it tightly (e.g., `pkill -f "Xvfb :99"`).
 - **Blocking commands to background**: if a command is designed to block the terminal (servers, long processes), run it in the background.
 
 ## Video recording
