@@ -104,6 +104,16 @@ To launch an agent for a specific task:
 
 The agent's AGENTS.md is its sole context. Do not pass task details in the prompt — the agent reads them from the file. This tests that the directory + AGENTS.md contract is sufficient.
 
+### Cleanup
+
+When an agent completes its task (or is no longer needed), close its tmux window:
+
+```
+tmux kill-window -t <name>
+```
+
+The orchestrator should check agent status before launching new ones. Running agents consume tokens and may interfere with new tasks.
+
 ## Language
 
 - User dictates in Spanish.
