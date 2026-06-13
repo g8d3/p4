@@ -37,13 +37,19 @@ The script has alternating A↔B↔A↔B dialogue. Your v1 played ALL of persona
 ### 3. Avatars — FAILED in v1
 Both avatars must be visible **at all times**, side by side (split-screen or PiP). When one speaks, they should be highlighted. Persona B appeared only for 5 seconds in v1.
 
-Install Godot 4:
-```
-snap install godot-4
-```
-Create a scene with two avatar figures side by side, each with a name label. Add a speaking indicator (glow/highlight) that switches based on who is speaking.
+**Must use GPU rendering** — Godot 4 is installed at `~/.local/bin/godot4`:
 
-If Godot is too complex, use Chrome headless with HTML+CSS+JS:
+```
+godot4 --display-driver headless --script render_podcast.gd
+```
+
+Create a Godot scene with:
+- Two avatar figures side by side, each with a name label
+- A speaking indicator (glow/highlight) that switches based on who speaks
+- Background podcast-style set
+- Use Godot's GPU renderer (Vulkan), not CPU fallback
+
+If Godot scene creation is too complex, use Chrome headless with HTML+CSS+JS:
 - Two avatar images side by side
 - CSS animation to highlight the active speaker
 - Capture frames with Chrome headless, compose with ffmpeg

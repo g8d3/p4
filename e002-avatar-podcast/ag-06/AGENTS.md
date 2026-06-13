@@ -1,0 +1,33 @@
+# ag-06 — Avatar designer
+
+## Goal
+
+Design visually appealing avatar characters for the podcast video (persona A and B).
+
+## Task
+
+Create avatar images that look like podcast hosts. Iterate until the user approves.
+
+### Approach
+
+Use whatever tool produces the best result:
+- **Godot 4**: create a simple 3D scene with two character models, render to PNG
+- **ImageMagick**: draw cartoon-style avatars with `convert`
+- **Chrome headless**: HTML+CSS+JS animated avatars, capture frame
+
+Godot 4 is installed at `~/.local/bin/godot4`. Run headless:
+```
+godot4 --display-driver headless
+```
+
+### Output
+
+Save avatar assets to `../shared/` so ag-04 can use them:
+
+- `../shared/avatar_a.png`
+- `../shared/avatar_b.png`
+- `../shared/podcast_bg.png`
+
+### Iteration
+
+The user will review your designs. Keep iterating until they say "approve". Each iteration should build on the previous feedback.
