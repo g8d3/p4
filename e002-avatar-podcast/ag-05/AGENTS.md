@@ -1,39 +1,39 @@
 # ag-05 — Video reviewer
 
 ## Model
+`opencode-go/mimo-v2.5` (has vision)
 
-Use `opencode-go/mimo-v2.5` — this model has vision capability for video/image review.
-
-Launch with:
-```
-opencode -m opencode-go/mimo-v2.5
-```
+## Inherits
+- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts
+- `../AGENTS.md` — experiment scope
 
 ## Goal
 
-Review the video produced by ag-04 and provide structured feedback.
+Review the video from ag-04 and detect issues without prior hints.
+
+## Wait
+
+Do NOT start until `../ag-04/done.txt` exists.
 
 ## Task
 
-Wait for ag-04 to finish, then review `../ag-04/video.mp4`.
+Review `../ag-04/video.mp4` and write `review.md` with:
 
-### Checklist
+### Checklist (no hints)
 
-1. **Format**: Is it 9:16 vertical (608x1080)?
-2. **Audio**: Is dialogue interleaved A↔B↔A↔B (not all A then all B)?
-3. **Avatars**: Are both personas visible? Are the visuals acceptable?
-4. **Subtitles**: Are they present? Do they match the dialogue?
-5. **Black frames**: Any sections that are black or blank?
-6. **Duration**: Is it reasonable (~3-4 min)?
+1. Format — is it 9:16 vertical?
+2. Audio — is dialogue a real conversation (A↔B alternating)?
+3. Avatars — are both personas visible? Are they good quality?
+4. Subtitles — present and readable?
+5. Black frames — any?
+6. Duration — reasonable?
 
-### Output
+Be critical. Write specific timestamps for any issue found.
 
-Write `review.md` with:
-- Pass/fail for each check
-- Specific issues found (with timestamps if possible)
-- Recommendations for what to fix
+### Completion
 
-### Rules
+When finished, create `done.txt`:
 
-- If the video fails 2+ checks, ag-04 must be relaunched with the feedback.
-- If it passes, the experiment is complete.
+```
+touch done.txt
+```

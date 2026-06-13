@@ -1,34 +1,42 @@
-# ag-03 — TTS generator
+# ag-03 — TTS segment generator
+
+## Inherits
+- `../../e000-fundamentals/AGENTS.md` — principles, no /tmp, timeouts
+- `../AGENTS.md` — experiment scope
 
 ## Goal
 
-Generate TTS audio for both personas (A and B) using the script from ag-02.
+Generate one MP3 audio file per dialogue line from the script.
 
 ## Task
 
-Read `script.md` from `../ag-02/script.md`. Split the dialogue into two audio files:
-- `persona_a.mp3` — all lines from persona A
-- `persona_b.mp3` — all lines from persona B
-
-Use `edge-tts` with Colombian voices:
+Read `../ag-02/script.md`. For each dialogue line, create a separate MP3:
 
 ```
-edge-tts --voice es-CO-GonzaloNeural --text "..." --write-media persona_a.mp3
-edge-tts --voice es-CO-SalomeNeural --text "..." --write-media persona_b.mp3
+seg_001.mp3  — first line (persona A)
+seg_002.mp3  — second line (persona B)
+seg_003.mp3  — third line (persona A)
+...
 ```
 
-### Rules
+Use Colombian voices matching each persona:
 
-- Generate full audio for each persona in one call (concatenate all A lines together, all B lines together).
-- Keep track of the timing: note the total duration of each persona's audio.
-- Write the timing info to `timing.md` for ag-04 to use.
+```
+edge-tts --voice es-CO-GonzaloNeural --text "..." --write-media seg_001.mp3  # persona A
+edge-tts --voice es-CO-SalomeNeural --text "..." --write-media seg_002.mp3    # persona B
+```
 
-### Files
+### Output
 
-- `persona_a.mp3` — TTS audio for persona A
-- `persona_b.mp3` — TTS audio for persona B
-- `timing.md` — duration and sequence notes
+- `seg_NNN.mp3` files — one per dialogue line
+- `timing.json` — mapping of segment number to speaker, text, and duration
 
-### Dependencies
+### Completion
 
-ag-04 needs your audio files and timing info.
+When finished, create `done.txt`:
+
+```
+touch done.txt
+```
+
+This triggers ag-04 via inotifywait.
