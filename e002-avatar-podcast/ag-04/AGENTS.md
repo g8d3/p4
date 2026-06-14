@@ -41,34 +41,28 @@ rm -f /tmp/render_pipe
 
 ## Pipeline (GPU only, no PNGs)
 
-Use the pipe approach already implemented in `render_podcast.gd` (Godot writes raw frames to a named pipe, ffmpeg reads with VAAPI GPU encoding). No CPU encoding at any step.
+Use the pipe approach already implemented in `render_podcast.gd`. Run the entire pipeline as ONE background script — then poll for completion. This prevents the agent from blocking.
 
-### 1. Create named pipe and start ffmpeg VAAPI capture
-```
+### Write and run the pipeline script
+
+Write `render.sh` with all steps, then run it in background:
+
+```bash
+cat > render.sh << 'SCRIPT'
+#!/bin/bash
+set -e
 export LIBVA_DRIVER_NAME=radeonsi
+START_TS=$(date +%s)
+
 mkfifo /tmp/render_pipe
+
 timeout 600 ffmpeg -f rawvideo -pix_fmt rgba -s 608x1080 -framerate 25 -i /tmp/render_pipe \
   -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
   -c:v h264_vaapi -y video_nosound.mp4 &
 FFPID=$!
-```
 
-### 2. Start resource sampling
-Start a background sampler that records CPU and GPU every 2s during the render:
-```
-START_TS=$(date +%s)
-GODOT_PID=""
-echo "" > /tmp/cpu_samples.txt
-echo "" > /tmp/gpu_samples.txt
-```
-
-### 3. Render with Godot (writes frames to same pipe)
-```
-timeout 600 ~/.local/bin/godot4 \
-  --rendering-driver vulkan \
-  --display-driver headless \
-  --path godot_project \
-  -- config.json &
+timeout 600 ~/.local/bin/godot4 --rendering-driver vulkan --display-driver headless \
+  --path godot_project -- config.json &
 GODOT_PID=$!
 
 # Sample CPU/GPU while Godot runs
@@ -77,40 +71,45 @@ GODOT_PID=$!
   cat /sys/class/drm/card*/device/gpu_busy_percent >> /tmp/gpu_samples.txt 2>/dev/null
   sleep 2
 done) &
-wait $GODOT_PID
-```
 
-### 4. Wait for ffmpeg to finish
-```
+wait $GODOT_PID
 wait $FFPID 2>/dev/null
 rm -f /tmp/render_pipe
 END_TS=$(date +%s)
-```
 
-### 5. Add audio
-```
-timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 \
-  -c:v copy -c:a aac -shortest -y video.mp4
-```
+timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest -y video.mp4
 
-### 6. Log render metrics
-Compute averages from samples and append to `render-log.csv`:
-```
+# Log
 WALL_TIME=$((END_TS - START_TS))
 VIDEO_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 video.mp4)
-FPS_CFG=25
-TOTAL_FRAMES=$(echo "$VIDEO_DUR * $FPS_CFG" | bc | cut -d. -f1)
-RT_FACTOR=$(echo "scale=2; $VIDEO_DUR / $WALL_TIME" | bc)
 FILE_MB=$(stat --format=%s video.mp4 | awk '{printf "%.1f", $1/1024/1024}')
+TOTAL_FRAMES=$(echo "$VIDEO_DUR * 25" | bc | cut -d. -f1)
+RT_FACTOR=$(echo "scale=2; $VIDEO_DUR / $WALL_TIME" | bc)
 CPU_AVG=$(awk '{sum+=$1; n++} END{printf "%.1f", sum/n}' /tmp/cpu_samples.txt 2>/dev/null || echo "0")
 GPU_AVG=$(awk '{sum+=$1; n++} END{printf "%.1f", sum/n}' /tmp/gpu_samples.txt 2>/dev/null || echo "0")
 CPU_PEAK=$(awk 'BEGIN{m=0}{if($1>m)m=$1}END{print m}' /tmp/cpu_samples.txt 2>/dev/null || echo "0")
 GPU_PEAK=$(awk 'BEGIN{m=0}{if($1>m)m=$1}END{print m}' /tmp/gpu_samples.txt 2>/dev/null || echo "0")
 
 echo "pipeline,wall_s,dur_s,fps,rt_factor,mb,frames,cpu_avg,gpu_avg,cpu_peak,gpu_peak,success" > render-log.csv
-echo "pipe,$WALL_TIME,$VIDEO_DUR,$FPS_CFG,$RT_FACTOR,$FILE_MB,$TOTAL_FRAMES,$CPU_AVG,$GPU_AVG,$CPU_PEAK,$GPU_PEAK,1" >> render-log.csv
+echo "pipe,$WALL_TIME,$VIDEO_DUR,25,$RT_FACTOR,$FILE_MB,$TOTAL_FRAMES,$CPU_AVG,$GPU_AVG,$CPU_PEAK,$GPU_PEAK,1" >> render-log.csv
+rm -f /tmp/cpu_samples.txt /tmp/gpu_samples.txt /tmp/render_pipe
+touch done.txt
+echo "RENDER COMPLETE"
+SCRIPT
 
-rm -f /tmp/cpu_samples.txt /tmp/gpu_samples.txt
+chmod +x render.sh
+bash render.sh &
+echo "Render PID: $!"
+```
+
+### Monitor progress
+
+The script runs in background. Check completion by polling `done.txt`:
+
+```
+sleep 10
+ls -la done.txt 2>/dev/null && echo "DONE" || echo "Still rendering..."
+tail -3 render-log.csv 2>/dev/null
 ```
 
 The `render_podcast.gd` script already writes raw RGBA frame data to the pipe at `/tmp/render_pipe` (configured in config.json or hardcoded). If the pipe path differs, update the config or the ffmpeg command accordingly.
