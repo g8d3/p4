@@ -33,49 +33,42 @@ Do NOT start until `../ag-03/done.txt` exists.
 
 ## Pipeline (GPU only, no PNGs)
 
-### 1. Install weston if missing
+### 1. Modify `render_podcast.gd`
+Change the completion condition from time-based to frame-count-based:
+
+```gdscript
+# Replace: if elapsed >= duration:
+# With:
+var target_frames = int(duration * fps)
+if frame_count >= target_frames:
+    get_tree().quit()
 ```
-timeout 30 sudo apt install -y weston
+
+This ensures `--write-movie` captures all frames correctly.
+
+### 2. Render video with Godot `--write-movie`
+No Weston or display server needed. Godot writes video directly:
 ```
-
-### 2. Modify `render_podcast.gd`
-The current version saves every frame as PNG to disk. **Remove all `save_png` calls.** Instead:
-- Use a timer to render frames at 25fps, synchronized to segment timing
-- Each frame renders the scene (avatars, background, speaker highlight)
-- Draw subtitles directly in the scene using Godot's `Label` node (not as separate SRT)
-- Wait for real-time elapsed between frames (or as close as possible)
-- The display output IS the video — ffmpeg captures it
-
-### 3. Start capture pipeline
-```
-# Start Weston (virtual display) ← timeout 15 for startup
-timeout 15 weston --backend=headless --renderer=gl --socket=wayland-99 &
-sleep 2
-
-# Start ffmpeg capture (GPU → GPU, no intermediate files) ← timeout matches video duration
-export LIBVA_DRIVER_NAME=radeonsi
-WAYLAND_DISPLAY=wayland-99 \
-  timeout 600 ffmpeg -f x11grab -video_size 608x1080 -framerate 25 -i :99.0 \
-  -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
-  -c:v h264_vaapi -y video_nosound.mp4 &
-FFPID=$!
-
-# Run Godot (renders to Weston display, captured by ffmpeg) ← timeout matches video
-WAYLAND_DISPLAY=wayland-99 \
-  timeout 600 ~/.local/bin/godot4 \
-  --display-driver wayland \
+DISPLAY=:0 timeout 600 ~/.local/bin/godot4 \
+  --fixed-fps 25 \
   --rendering-driver vulkan \
+  --write-movie video_raw.avi \
   --path godot_project \
   -- config.json
-
-# Stop capture when Godot exits
-kill $FFPID 2>/dev/null; wait $FFPID 2>/dev/null
 ```
 
-### 4. Add audio ← timeout 30 for encoding
+### 3. Convert AVI to H.264 MP4
 ```
-export LIBVA_DRIVER_NAME=radeonsi
-timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest -y video.mp4
+timeout 30 ffmpeg -i video_raw.avi \
+  -c:v libx264 -pix_fmt yuv420p \
+  -y video_nosound.mp4
+```
+
+### 4. Add audio
+```
+timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 \
+  -c:v copy -c:a aac -shortest \
+  -y video.mp4
 ```
 
 ### 5. Add subtitles (if not rendered in Godot)
