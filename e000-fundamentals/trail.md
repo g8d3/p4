@@ -204,7 +204,11 @@ Collected from all sessions:
 - Audience level: technical, general, executive
 - Example style: abstract vs real-world vs storytelling
 
-### 9. Video refinement roadmap (after e002)
+### 9. OpenCode UI note: background commands
+
+When a command is sent to background (`&`), OpenCode's UI still shows a spinner as if the command is active. This is cosmetic — the command is truly in background. When the self-wake message arrives (`(sleep N; tmux send-keys ...) &`), it may show as `QUEUED` briefly (1-3s) before being processed. This is normal OpenCode behavior, not an error.
+
+### 10. Video refinement roadmap (after e002)
 
 Next iterations for the avatar podcast video:
 
