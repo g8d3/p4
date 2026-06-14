@@ -46,6 +46,10 @@ Write `wf-test.md` with:
 - Comparison to previous methods
 - Recommendation for ag-04
 
+## Execute
+
+Read this file entirely. Then follow the steps above in order. Each command in background with &. Self-wake after each step. Never run anything synchronously.
+
 ## Cleanup
 ```
 rm -f test_output.mp4
