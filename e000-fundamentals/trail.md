@@ -204,7 +204,23 @@ Collected from all sessions:
 - Audience level: technical, general, executive
 - Example style: abstract vs real-world vs storytelling
 
-### 9. OpenCode UI note: background commands
+### 9. GPU-direct video capture options (no CPU, no disk)
+
+Ways to go from GPU framebuffer → H.264 MP4 without intermediate CPU or disk writes:
+
+| Method | GPU render | GPU encode | Disk | Status |
+|---|---|---|---|---|
+| Godot `--write-movie` + VAAPI re-encode | ✅ | ✅ | ~200MB AVI | ✅ En uso |
+| Display real `:0` + x11grab + VAAPI | ✅ | ✅ | 0 | ✅ Funciona (e001) |
+| Weston `--backend=x11` + x11grab + VAAPI | ✅ | ✅ | 0 | ✅ Funciona (ag-07) |
+| Weston headless + pipewire + wf-recorder | ✅ | ✅ | 0 | ❌ No instalado |
+| KMS/DRM direct capture + VAAPI | ✅ | ✅ | 0 | ❌ No explorado |
+| Godot + frames.raw + VAAPI | ❌ CPU | ✅ | 17GB | ❌ Descartado |
+| Godot `--write-movie` alone | ✅ | ❌ CPU MJPEG | ~200MB | ✅ Pero CPU |
+
+Optimal: Weston `--backend=x11` or display real → 0 disk, 0 CPU. Next to try: pipewire/wf-recorder.
+
+### 10. OpenCode UI note: background commands
 
 When a command is sent to background (`&`), OpenCode's UI still shows a spinner as if the command is active. This is cosmetic — the command is truly in background. When the self-wake message arrives (`(sleep N; tmux send-keys ...) &`), it may show as `QUEUED` briefly (1-3s) before being processed. This is normal OpenCode behavior, not an error.
 
