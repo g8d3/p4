@@ -110,6 +110,12 @@ Repository at `github.com/g8d3/p4`. All changes pushed incrementally.
 
 ---
 
+### Decision: System name
+
+Chosen: **AgentFS** (Agent File System). Alternative: DirChain, FileBus, FolderNet.
+
+---
+
 ## Forward plan — recorded 2026-06-12
 
 ### 1. GPU-accelerated screen recording
@@ -183,3 +189,13 @@ Collected from all sessions:
 - Capture region: full screen, specific window, tiled windows
 - Audience level: technical, general, executive
 - Example style: abstract vs real-world vs storytelling
+
+### 9. Video refinement roadmap (after e002)
+
+Next iterations for the avatar podcast video:
+
+1. **TTS**: improve Colombian voice quality
+2. **Subtitles**: replicate exact TikTok style (font size, word count per chunk, color timing)
+3. **Avatars**: multiple camera angles (close-up on active speaker, two-shot, split), like a real podcast
+4. **Capture**: fix x11grab on Weston (use `--write-movie` or `--backend=x11`) for PNG-less GPU pipeline
+5. **Scale**: produce many variations from the same source content (different angles, subtitle styles, TTS voices)
