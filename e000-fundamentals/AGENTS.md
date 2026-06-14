@@ -208,7 +208,11 @@ The OpenCode CLI has 4 states:
 
 **Escape timing**: Press Escape rapidly (200-300ms between presses). A slow press may not register because the agent processes input at terminal speed. Two quick Escapes in ~500ms total is the safest rhythm.
 
-**Self-wake pattern**: Every command runs in background. The agent never blocks.
+**Plan mode vs Build mode**: OpenCode has two modes. Plan mode only plans (no commands). Build mode executes. If the agent sees "Plan" in the status bar instead of "Build", it cannot run commands. Press Tab to switch to Build mode before executing. The prompt should always check: "Am I in Build mode?" before starting work.
+
+**Self-wake pattern**: Every command runs in background with `>/dev/null 2>&1 &`. The agent never blocks. A single synchronous command breaks the cycle.
+
+When ALL commands are truly backgrounded and self-wake checks are scheduled, timeouts become redundant. The agent checks progress at each wake and decides based on context (is the output file growing? GPU active? Errors?) whether to wait, kill, or retry. This is smarter than a fixed timeout.
 
 ```bash
 # Bad — agent blocks
