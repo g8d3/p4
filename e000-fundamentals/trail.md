@@ -110,6 +110,20 @@ Repository at `github.com/g8d3/p4`. All changes pushed incrementally.
 
 ---
 
+### Decision: Session recovery
+
+If an agent must be killed (stuck, lost context), recover via OpenCode's built-in session system instead of a fresh launch:
+
+1. Find the last session ID from the DB:
+   ```bash
+   sqlite3 ~/.local/share/opencode/opencode.db \
+     "SELECT id FROM session WHERE directory LIKE '%<agent_dir>%' ORDER BY time_updated DESC LIMIT 1;"
+   ```
+2. Restore: `opencode -s <session_id>` (from the agent's directory)
+3. The agent resumes with all previous context intact.
+
+No custom checkpoint files needed. Also supports forking (`opencode -s <id> --fork`).
+
 ### Decision: System name
 
 Chosen: **AgentFS** (Agent File System). Alternative: DirChain, FileBus, FolderNet.
