@@ -41,11 +41,30 @@ rm -f /tmp/render_pipe
 
 ## Pipeline (GPU only, no PNGs)
 
-Use the pipe approach already implemented in `render_podcast.gd`. Run the entire pipeline as ONE background script — then poll for completion. This prevents the agent from blocking.
+Use Weston + Wayland for Godot rendering with real GPU, pipe raw frames to ffmpeg VAAPI. Write the entire pipeline as a self-waking background script that reports progress.
 
-### Write and run the pipeline script
+### Self-wake pattern
 
-Write `render.sh` with all steps, then run it in background:
+After launching any long command in background, schedule a self-check:
+
+```bash
+# Launch the real work
+(long_command) &
+CMD_PID=$!
+
+# Schedule a self-wake in N seconds
+(sleep N; tmux send-keys -t a4 "Check progress. PID=$CMD_PID. Is it still running? Any errors?" Enter) &
+```
+
+The agent when woken checks:
+- Is the process still running? (`kill -0 $PID`)
+- Any output files growing? (`ls -lh video.mp4 2>/dev/null`)
+- Any errors in logs?
+- Should I wait more, cancel, or proceed?
+
+Each wake-up programs the next one if still needed.
+
+### Write render.sh
 
 ```bash
 cat > render.sh << 'SCRIPT'
@@ -54,32 +73,42 @@ set -e
 export LIBVA_DRIVER_NAME=radeonsi
 START_TS=$(date +%s)
 
+# Clean previous pipe
+rm -f /tmp/render_pipe
 mkfifo /tmp/render_pipe
 
+echo "=== STEP 1/4: ffmpeg VAAPI capture ==="
 timeout 600 ffmpeg -f rawvideo -pix_fmt rgba -s 608x1080 -framerate 25 -i /tmp/render_pipe \
   -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
   -c:v h264_vaapi -y video_nosound.mp4 &
 FFPID=$!
 
-timeout 600 ~/.local/bin/godot4 --rendering-driver vulkan --display-driver headless \
+echo "=== STEP 2/4: Godot render (Weston+Wayland+Vulkan) ==="
+weston --backend=headless --renderer=gl --socket=wayland-render 2>/dev/null &
+sleep 2
+WAYLAND_DISPLAY=wayland-render \
+  timeout 600 ~/.local/bin/godot4 --display-driver wayland --rendering-driver vulkan \
   --path godot_project -- config.json &
 GODOT_PID=$!
 
 # Sample CPU/GPU while Godot runs
 (while kill -0 $GODOT_PID 2>/dev/null; do
+  echo "=== Godot PID $GODOT_PID running... ==="
   ps -p $GODOT_PID -o %cpu= --no-headers >> /tmp/cpu_samples.txt 2>/dev/null
   cat /sys/class/drm/card*/device/gpu_busy_percent >> /tmp/gpu_samples.txt 2>/dev/null
-  sleep 2
+  sleep 5
 done) &
 
-wait $GODOT_PID
+wait $GODOT_PID 2>/dev/null
+echo "=== STEP 3/4: Godot finished, stopping capture ==="
 wait $FFPID 2>/dev/null
 rm -f /tmp/render_pipe
 END_TS=$(date +%s)
 
+echo "=== STEP 4/4: Adding audio ==="
 timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest -y video.mp4
 
-# Log
+echo "=== Logging ==="
 WALL_TIME=$((END_TS - START_TS))
 VIDEO_DUR=$(ffprobe -v error -show_entries format=duration -of csv=p=0 video.mp4)
 FILE_MB=$(stat --format=%s video.mp4 | awk '{printf "%.1f", $1/1024/1024}')
@@ -94,22 +123,18 @@ echo "pipeline,wall_s,dur_s,fps,rt_factor,mb,frames,cpu_avg,gpu_avg,cpu_peak,gpu
 echo "pipe,$WALL_TIME,$VIDEO_DUR,25,$RT_FACTOR,$FILE_MB,$TOTAL_FRAMES,$CPU_AVG,$GPU_AVG,$CPU_PEAK,$GPU_PEAK,1" >> render-log.csv
 rm -f /tmp/cpu_samples.txt /tmp/gpu_samples.txt /tmp/render_pipe
 touch done.txt
-echo "RENDER COMPLETE"
+echo "=== RENDER COMPLETE ==="
+
+# Wake the agent one last time
+tmux send-keys -t a4 "Pipeline complete. done.txt created." Enter
 SCRIPT
 
 chmod +x render.sh
 bash render.sh &
 echo "Render PID: $!"
-```
 
-### Monitor progress
-
-The script runs in background. Check completion by polling `done.txt`:
-
-```
-sleep 10
-ls -la done.txt 2>/dev/null && echo "DONE" || echo "Still rendering..."
-tail -3 render-log.csv 2>/dev/null
+# Schedule first wake in 10s
+(sleep 10; tmux send-keys -t a4 "Check progress. Render PID: $(echo $!). Is Godot running? Any pipe errors?" Enter) &
 ```
 
 The `render_podcast.gd` script already writes raw RGBA frame data to the pipe at `/tmp/render_pipe` (configured in config.json or hardcoded). If the pipe path differs, update the config or the ffmpeg command accordingly.

@@ -208,6 +208,20 @@ The OpenCode CLI has 4 states:
 
 **Escape timing**: Press Escape rapidly (200-300ms between presses). A slow press may not register because the agent processes input at terminal speed. Two quick Escapes in ~500ms total is the safest rhythm.
 
+**Self-wake pattern**: Long commands must run in background with a self-wake timer. The agent programs a wake-up call instead of blocking:
+
+```bash
+# Bad — agent blocks
+timeout 600 godot4 ...
+
+# Good — agent stays responsive
+timeout 600 godot4 ... &
+PID=$!
+(sleep 30; tmux send-keys -t a4 "Check PID $PID. Still running?" Enter) &
+```
+
+When woken, the agent checks progress, decides next step, and schedules the next wake-up.
+
 **Agent script transparency**: To make stuck detection easier, agents should print progress markers in their scripts:
 
 ```bash
