@@ -1,2 +1,0 @@
-pipeline,wall_s,dur_s,fps,rt_factor,mb,frames,cpu_avg,gpu_avg,cpu_peak,gpu_peak,restarts,success
-pipe,370,272.760000,25,.73,6,3,6819,0,0,4,2,0.0,0.0,7,1
