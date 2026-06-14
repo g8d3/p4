@@ -22,9 +22,7 @@ var subtitle_bg: ColorRect
 var w := 608
 var h := 1080
 var fps := 25.0
-var total_frames := 0
 var duration := 0.0
-var output_dir := "."
 var current_speaker := ""
 
 var project_dir := ""
@@ -38,6 +36,13 @@ var sub_colors: Array = [
 	Color(0.42, 0.737, 1),
 ]
 
+var elapsed := 0.0
+var start_time := 0
+var frame_count := 0
+
+var pipe_file: FileAccess
+var pipe_path := "/tmp/render_pipe"
+
 
 func _ready() -> void:
 	project_dir = ProjectSettings.globalize_path("res://")
@@ -50,24 +55,34 @@ func _ready() -> void:
 	build_subtitle_chunks()
 	setup_scene()
 
+	pipe_file = FileAccess.open(pipe_path, FileAccess.READ_WRITE)
+	if pipe_file == null:
+		printerr("Cannot open pipe: ", pipe_path)
+		get_tree().quit(1)
+		return
+	print("Pipe opened: ", pipe_path)
+
 	Engine.max_fps = fps
-	await get_tree().process_frame
-	print("Starting render: ", total_frames, " frames at ", fps, " fps")
+	start_time = Time.get_ticks_msec()
+	print("Starting render: ", duration, "s at ", fps, " fps")
 
-	var t_start = Time.get_ticks_msec()
-	for i in range(total_frames):
-		var t = i / fps
-		update_scene(t)
-		await get_tree().process_frame
-		capture_frame(i)
-		if i % 100 == 0 and i > 0:
-			var elapsed = (Time.get_ticks_msec() - t_start) / 1000.0
-			var rate = i / elapsed if elapsed > 0 else 0
-			print(str(i), "/", total_frames, " frames (", rate, " fps)")
 
-	var elapsed = (Time.get_ticks_msec() - t_start) / 1000.0
-	print("Render complete: ", total_frames, " frames in ", elapsed, "s")
-	get_tree().quit()
+func _process(_delta: float) -> void:
+	elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
+	var target_frames = int(duration * fps)
+	if frame_count >= target_frames:
+		print("Render complete: ", frame_count, " frames")
+		get_tree().quit()
+		return
+
+	update_scene(elapsed)
+
+	var img = get_viewport().get_texture().get_image()
+	if img != null:
+		var data = img.get_data()
+		if data != null:
+			pipe_file.store_buffer(data)
+	frame_count += 1
 
 
 func load_config() -> void:
@@ -94,10 +109,8 @@ func load_config() -> void:
 	fps = config.get("fps", 25.0)
 	w = config.get("w", 608)
 	h = config.get("h", 1080)
-	output_dir = config.get("output_dir", ".")
-	total_frames = int(ceil(duration * fps))
 
-	print("Config loaded: ", w, "x", h, ", ", total_frames, " frames")
+	print("Config loaded: ", w, "x", h, ", ", duration, "s")
 
 
 func load_image_as_texture(path: String) -> Texture2D:
@@ -142,6 +155,54 @@ func load_textures() -> bool:
 	return true
 
 
+func _split_into_chunks(words: Array, max_chunks: int, max_per_chunk: int) -> Array:
+	var result: Array = []
+	var i := 0
+	while i < words.size() and result.size() < max_chunks:
+		var remaining_chunks = max_chunks - result.size()
+		var remaining_words = words.size() - i
+		var target_size = int(ceil(float(remaining_words) / remaining_chunks))
+		target_size = mini(target_size, max_per_chunk)
+
+		var end = i + target_size
+		if end >= words.size():
+			end = words.size()
+		else:
+			for j in range(end, i, -1):
+				var w = words[j - 1]
+				if w.ends_with(",") or w.ends_with(".") or w.ends_with("?") or w.ends_with("!") or w.ends_with(":") or w.ends_with(";"):
+					end = j
+					break
+
+		var chunk = words.slice(i, end)
+		if not chunk.is_empty():
+			result.append(chunk)
+		i = end
+
+	if i < words.size():
+		if result.size() < max_chunks:
+			result.append(words.slice(i))
+		else:
+			result[-1] += words.slice(i)
+
+	return result
+
+
+func _split_into_n_parts(words: Array, n: int) -> Array:
+	var result: Array = []
+	var actual_n = mini(n, words.size())
+	if actual_n <= 0:
+		return [words]
+	var base = words.size() / actual_n
+	var extra = words.size() % actual_n
+	var start := 0
+	for i in range(actual_n):
+		var chunk_size = base + (1 if i < extra else 0)
+		result.append(words.slice(start, start + chunk_size))
+		start += chunk_size
+	return result
+
+
 func build_subtitle_chunks() -> void:
 	sub_chunks.clear()
 	var color_idx := 0
@@ -152,32 +213,60 @@ func build_subtitle_chunks() -> void:
 		var seg_dur = et - st
 		if seg_dur <= 0 or text.is_empty():
 			continue
+
 		var words = text.split(" ", false)
 		if words.is_empty():
 			continue
-		var chunks: Array[Array] = []
-		var i := 0
-		while i < words.size():
-			var n = randi() % 3 + 2
-			if n > words.size() - i:
-				n = words.size() - i
-			var chunk_words = words.slice(i, i + n)
-			chunks.append(chunk_words)
-			i += n
+
+		var num_words = words.size()
+		var max_chunks := 1
+		var max_per_chunk := 5
+		if num_words <= 4:
+			max_chunks = 1
+			max_per_chunk = 4
+		elif num_words <= 10:
+			max_chunks = 2
+		elif num_words <= 15:
+			max_chunks = 3
+		elif num_words <= 20:
+			max_chunks = 4
+		else:
+			max_chunks = 5
+
+		var chunks = _split_into_chunks(words, max_chunks, max_per_chunk)
 		var chunk_dur = seg_dur / chunks.size()
+
 		for j in range(chunks.size()):
-			var chunk_text = ""
-			for w_i in range(chunks[j].size()):
-				if w_i > 0:
-					chunk_text += " "
-				chunk_text += chunks[j][w_i]
-			sub_chunks.append({
-				"start": st + j * chunk_dur,
-				"end": st + (j + 1) * chunk_dur,
-				"text": chunk_text,
-				"color": sub_colors[color_idx % sub_colors.size()],
-			})
-			color_idx += 1
+			var chunk_text = " ".join(chunks[j])
+			var chunk_start = st + j * chunk_dur
+			var chunk_end = st + (j + 1) * chunk_dur
+			var display_dur = chunk_end - chunk_start
+
+			if display_dur < 1.2:
+				chunk_end = chunk_start + 1.2
+				display_dur = 1.2
+
+			if display_dur > 3.0:
+				var num_sub = int(ceil(display_dur / 3.0))
+				var sub_chunk_dur = display_dur / num_sub
+				var sub_words = _split_into_n_parts(chunks[j], num_sub)
+				for k in range(sub_words.size()):
+					var sub_text = " ".join(sub_words[k])
+					sub_chunks.append({
+						"start": chunk_start + k * sub_chunk_dur,
+						"end": chunk_start + (k + 1) * sub_chunk_dur,
+						"text": sub_text,
+						"color": sub_colors[color_idx % sub_colors.size()],
+					})
+					color_idx += 1
+			else:
+				sub_chunks.append({
+					"start": chunk_start,
+					"end": chunk_end,
+					"text": chunk_text,
+					"color": sub_colors[color_idx % sub_colors.size()],
+				})
+				color_idx += 1
 
 
 func setup_scene() -> void:
@@ -255,7 +344,7 @@ func setup_scene() -> void:
 
 	subtitle_bg = ColorRect.new()
 	subtitle_bg.size = Vector2(w - 40, 50)
-	subtitle_bg.position = Vector2(20, h - 50 - 50)
+	subtitle_bg.position = Vector2(20, h - 60 - 50)
 	subtitle_bg.color = Color(0, 0, 0, 0.5)
 	add_child(subtitle_bg)
 
@@ -263,9 +352,10 @@ func setup_scene() -> void:
 	subtitle_label.text = ""
 	subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	subtitle_label.position = Vector2(20, h - 50 - 50)
+	subtitle_label.position = Vector2(20, h - 60 - 50)
 	subtitle_label.size = Vector2(w - 40, 50)
-	subtitle_label.add_theme_font_size_override("font_size", 22)
+	subtitle_label.add_theme_font_size_override("font_size", 18)
+	subtitle_label.add_theme_font_override("font", ThemeDB.fallback_font)
 	add_child(subtitle_label)
 
 	update_scene(0.0)
@@ -321,11 +411,3 @@ func update_scene(t: float) -> void:
 	subtitle_label.text = sub_text
 	subtitle_label.add_theme_color_override("font_color", sub_color)
 	subtitle_bg.visible = not sub_text.is_empty()
-
-
-func capture_frame(i: int) -> void:
-	var img = get_viewport().get_texture().get_image()
-	if img == null:
-		return
-	var path = output_dir.path_join("frame_%05d.png" % i)
-	img.save_png(path)

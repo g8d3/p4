@@ -1,192 +1,159 @@
 1
-00:00:00,000 --> 00:00:02,127
+00:00:00,000 --> 00:00:02,500
 <font color="#FFFFFF">Imagina un sistema multiagente</font>
 
 2
-00:00:02,127 --> 00:00:04,254
-<font color="#FFD700">donde los agentes no necesitan</font>
+00:00:02,500 --> 00:00:05,500
+<font color="#FFD700">donde los agentes no necesitan una base de datos,</font>
 
 3
-00:00:04,254 --> 00:00:06,381
-<font color="#00FF88">una base de datos, ni un bus</font>
+00:00:05,500 --> 00:00:08,000
+<font color="#00FF88">ni un bus de mensajes, ni un orquestador central.</font>
 
 4
-00:00:06,381 --> 00:00:08,509
-<font color="#FF6B6B">de mensajes, ni un orquestador central.</font>
+00:00:08,000 --> 00:00:10,500
+<font color="#FF6B6B">Solo archivos y directorios.</font>
 
 5
-00:00:08,509 --> 00:00:10,636
-<font color="#6BCBFF">Solo archivos y directorios.</font>
+00:00:10,500 --> 00:00:14,000
+<font color="#6BCBFF">Eso es exactamente lo que estamos construyendo aquí.</font>
 
 6
-00:00:10,636 --> 00:00:12,763
-<font color="#FFFFFF">Eso es exactamente lo que</font>
+00:00:14,000 --> 00:00:16,500
+<font color="#FFFFFF">Cada agente lee un archivo AGENTS.md,</font>
 
 7
-00:00:12,763 --> 00:00:14,890
-<font color="#FFD700">estamos construyendo aquí.</font>
+00:00:16,500 --> 00:00:19,000
+<font color="#FFD700">sabe qué hacer, escribe sus resultados,</font>
 
 8
-00:00:14,890 --> 00:00:17,018
-<font color="#00FF88">Cada agente lee un archivo AGENTS.md,</font>
+00:00:19,000 --> 00:00:21,500
+<font color="#00FF88">y el siguiente agente retoma desde ahí.</font>
 
 9
-00:00:17,018 --> 00:00:19,145
-<font color="#FF6B6B">sabe qué hacer, escribe sus resultados,</font>
+00:00:21,500 --> 00:00:23,399
+<font color="#FF6B6B">Bienvenidos a P4.</font>
 
 10
-00:00:19,145 --> 00:00:21,272
-<font color="#6BCBFF">y el siguiente agente retoma desde ahí.</font>
+00:00:24,899 --> 00:00:27,500
+<font color="#6BCBFF">La estructura es simple.</font>
 
 11
-00:00:21,272 --> 00:00:23,399
-<font color="#FFFFFF">Bienvenidos a P4.</font>
+00:00:27,500 --> 00:00:30,500
+<font color="#FFFFFF">En la raíz tenemos un AGENTS.md</font>
 
 12
-00:00:24,899 --> 00:00:27,507
-<font color="#FFFFFF">La estructura es simple.</font>
+00:00:30,500 --> 00:00:33,500
+<font color="#FFD700">que explica las reglas globales.</font>
 
 13
-00:00:27,507 --> 00:00:30,114
-<font color="#FFD700">En la raíz tenemos un AGENTS.md</font>
+00:00:33,500 --> 00:00:36,500
+<font color="#00FF88">Cada experimento vive en su propio directorio</font>
 
 14
-00:00:30,114 --> 00:00:32,721
-<font color="#00FF88">que explica las reglas globales.</font>
+00:00:36,500 --> 00:00:39,000
+<font color="#FF6B6B">con formato e-número-nombre.</font>
 
 15
-00:00:32,721 --> 00:00:35,328
-<font color="#FF6B6B">Cada experimento vive en su propio directorio</font>
+00:00:39,000 --> 00:00:41,500
+<font color="#6BCBFF">Por ejemplo: e001-test-agentsmd.</font>
 
 16
-00:00:35,328 --> 00:00:37,935
-<font color="#6BCBFF">con formato e-número-nombre.</font>
+00:00:41,500 --> 00:00:45,000
+<font color="#FFFFFF">Dentro, otro AGENTS.md explica qué hace este experimento específico.</font>
 
 17
-00:00:37,935 --> 00:00:40,542
-<font color="#FFFFFF">Por ejemplo: e001-test-agentsmd.</font>
+00:00:45,000 --> 00:00:48,000
+<font color="#FFD700">Cada agente tiene su subdirectorio:</font>
 
 18
-00:00:40,542 --> 00:00:43,149
-<font color="#FFD700">Dentro, otro AGENTS.md explica</font>
+00:00:48,000 --> 00:00:51,000
+<font color="#00FF88">ag-01, ag-02, etcétera.</font>
 
 19
-00:00:43,149 --> 00:00:45,757
-<font color="#00FF88">qué hace este experimento específico.</font>
+00:00:51,000 --> 00:00:54,500
+<font color="#FF6B6B">Cada agente define su propia estructura interna.</font>
 
 20
-00:00:45,757 --> 00:00:48,364
-<font color="#FF6B6B">Cada agente tiene su subdirectorio:</font>
+00:00:54,500 --> 00:00:57,500
+<font color="#6BCBFF">No hay restricciones.</font>
 
 21
-00:00:48,364 --> 00:00:50,971
-<font color="#6BCBFF">ag-01, ag-02, etcétera.</font>
+00:00:57,500 --> 00:01:01,399
+<font color="#FFFFFF">Libertad total para organizarse.</font>
 
 22
-00:00:50,971 --> 00:00:53,578
-<font color="#FFFFFF">Cada agente define su propia</font>
+00:01:02,899 --> 00:01:05,500
+<font color="#FFD700">Antes, un sistema multiagente típico requería una base de datos,</font>
 
 23
-00:00:53,578 --> 00:00:56,185
-<font color="#FFD700">estructura interna.</font>
+00:01:05,500 --> 00:01:08,500
+<font color="#00FF88">un bus de mensajes, y un orquestador para coordinar.</font>
 
 24
-00:00:56,185 --> 00:00:58,792
-<font color="#00FF88">No hay restricciones.</font>
+00:01:08,500 --> 00:01:11,000
+<font color="#FF6B6B">Aquí eliminamos todo eso.</font>
 
 25
-00:00:58,792 --> 00:01:01,399
-<font color="#FF6B6B">Libertad total para organizarse.</font>
+00:01:11,000 --> 00:01:14,000
+<font color="#6BCBFF">El sistema de archivos es la base de datos.</font>
 
 26
-00:01:02,899 --> 00:01:04,908
-<font color="#FFFFFF">Antes, un sistema multiagente típico</font>
+00:01:14,000 --> 00:01:17,000
+<font color="#FFFFFF">Los directorios son el bus de mensajes.</font>
 
 27
-00:01:04,908 --> 00:01:06,916
-<font color="#FFD700">requería base de datos,</font>
+00:01:17,000 --> 00:01:20,000
+<font color="#FFD700">Y el AGENTS.md es el orquestador.</font>
 
 28
-00:01:06,916 --> 00:01:08,925
-<font color="#00FF88">bus de mensajes,</font>
+00:01:20,000 --> 00:01:22,500
+<font color="#00FF88">Menos infraestructura,</font>
 
 29
-00:01:08,924 --> 00:01:10,933
-<font color="#FF6B6B">y un orquestador para coordinar.</font>
+00:01:22,500 --> 00:01:25,000
+<font color="#FF6B6B">menos puntos de fallo,</font>
 
 30
-00:01:10,933 --> 00:01:12,941
-<font color="#6BCBFF">Aquí eliminamos todo eso.</font>
+00:01:25,000 --> 00:01:27,000
+<font color="#6BCBFF">más simple.</font>
 
 31
-00:01:12,941 --> 00:01:14,950
-<font color="#FFFFFF">El sistema de archivos</font>
-
-32
-00:01:14,950 --> 00:01:16,958
-<font color="#FFD700">es la base de datos.</font>
-
-33
-00:01:16,958 --> 00:01:18,966
-<font color="#00FF88">Los directorios son el bus de mensajes.</font>
-
-34
-00:01:18,966 --> 00:01:20,975
-<font color="#FF6B6B">Y el AGENTS.md es el orquestador.</font>
-
-35
-00:01:20,974 --> 00:01:22,983
-<font color="#6BCBFF">Menos infraestructura,</font>
-
-36
-00:01:22,983 --> 00:01:24,991
-<font color="#FFFFFF">menos puntos de fallo,</font>
-
-37
-00:01:24,991 --> 00:01:27,000
-<font color="#FFD700">más simple.</font>
-
-38
 00:01:28,500 --> 00:01:31,200
 <font color="#FFFFFF">Aquí está la estructura en vivo.</font>
 
-39
+32
 00:01:31,200 --> 00:01:33,900
 <font color="#FFD700">Cada nivel tiene su propio AGENTS.md.</font>
 
-40
-00:01:33,900 --> 00:01:36,600
-<font color="#00FF88">Cualquier agente, humano o IA,</font>
+33
+00:01:33,900 --> 00:01:37,500
+<font color="#00FF88">Cualquier agente, humano o IA, llega, lee,</font>
 
-41
-00:01:36,599 --> 00:01:39,299
-<font color="#FF6B6B">llega, lee, y sabe exactamente qué hacer.</font>
+34
+00:01:37,500 --> 00:01:40,500
+<font color="#FF6B6B">y sabe exactamente qué hacer.</font>
 
-42
-00:01:39,299 --> 00:01:42,000
+35
+00:01:40,500 --> 00:01:42,000
 <font color="#6BCBFF">Sin contexto externo.</font>
 
-43
-00:01:43,500 --> 00:01:45,583
+36
+00:01:43,500 --> 00:01:46,000
 <font color="#FFFFFF">Esta es la filosofía de P4:</font>
 
-44
-00:01:45,583 --> 00:01:47,666
+37
+00:01:46,000 --> 00:01:48,500
 <font color="#FFD700">sistemas simples que funcionan.</font>
 
-45
-00:01:47,666 --> 00:01:49,750
+38
+00:01:48,500 --> 00:01:50,500
 <font color="#00FF88">Sin sobreingeniería.</font>
 
-46
-00:01:49,750 --> 00:01:51,833
-<font color="#FF6B6B">Sin infra innecesaria.</font>
+39
+00:01:50,500 --> 00:01:52,500
+<font color="#FF6B6B">Sin infraestructura innecesaria.</font>
 
-47
-00:01:51,833 --> 00:01:53,916
-<font color="#6BCBFF">Solo archivos, directorios,</font>
-
-48
-00:01:53,916 --> 00:01:56,000
-<font color="#FFFFFF">y agentes bien informados.</font>
-
+40
+00:01:52,500 --> 00:01:56,000
+<font color="#6BCBFF">Solo archivos, directorios, y agentes bien informados.</font>
