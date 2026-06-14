@@ -17,8 +17,8 @@ Create a minimal 2-second Godot video using the pipe + ffmpeg VAAPI pipeline. Th
 Write a minimal GDScript that renders a colored animation (e.g., a moving square) for 2 seconds at 25fps, writing raw RGBA frames to a pipe.
 
 ```
-mkdir -p /tmp/minimal_test
-cat > /tmp/minimal_test/test.gd << 'EOF'
+mkdir -p minimal_test
+cat > minimal_test/test.gd << 'EOF'
 extends Node
 
 var frame_count = 0
@@ -55,7 +55,7 @@ EOF
 ### 2. Create a minimal project.godot
 
 ```
-cat > /tmp/minimal_test/project.godot << 'EOF'
+cat > minimal_test/project.godot << 'EOF'
 [application]
 config/name="MinimalTest"
 run/main_scene="res://test.gd"
@@ -75,12 +75,12 @@ mkfifo /tmp/test_pipe
 timeout 30 ffmpeg -f rawvideo -pix_fmt rgba -s 608x1080 -framerate 25 \
   -i /tmp/test_pipe \
   -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
-  -c:v h264_vaapi -y /tmp/minimal_output.mp4 &
+  -c:v h264_vaapi -y minimal_output.mp4 &
 FFPID=$!
 
 # Start Godot writer
 timeout 30 ~/.local/bin/godot4 --rendering-driver vulkan --display-driver headless \
-  --path /tmp/minimal_test
+  --path minimal_test
 
 wait $FFPID 2>/dev/null
 rm -f /tmp/test_pipe
