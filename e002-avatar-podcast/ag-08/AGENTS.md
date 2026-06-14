@@ -12,16 +12,16 @@ Test the pure GPU pipeline: Weston headless → wf-recorder with VAAPI → MP4. 
 
 ## Task
 
-### 1. Start Weston headless (background)
+### 1. Start Weston headless (background, NO terminal output)
 ```
-weston --backend=headless --renderer=gl --socket=wayland-test &
+weston --backend=headless --renderer=gl --socket=wayland-test >/dev/null 2>&1 &
 (sleep 3; tmux send-keys -t a8 "Self-wake: check weston socket" Enter) &
 ```
 
-### 2. Record with wf-recorder (VAAPI GPU)
+### 2. Record with wf-recorder (VAAPI GPU, NO terminal output)
 ```
 WAYLAND_DISPLAY=wayland-test timeout 10 wf-recorder -f test_output.mp4 \
-  -c h264_vaapi -x yuv420p -b 2M &
+  -c h264_vaapi -x yuv420p -b 2M >/dev/null 2>&1 &
 REC_PID=$!
 (sleep 2; tmux send-keys -t a8 "Self-wake: PID=$REC_PID recording. Check: ls -lh test_output.mp4" Enter) &
 ```
@@ -48,7 +48,7 @@ Write `wf-test.md` with:
 
 ## Self-command
 
-After reading this file, I MUST execute the steps below immediately. I do NOT wait for confirmation. I schedule my own first self-wake: `(sleep 2; tmux send-keys -t a8 "Begin step 1: start Weston" Enter) &`. Then I begin working. Each step's self-wake triggers the next. This is my only instruction: read and do.
+After reading this file, I MUST execute the steps below immediately. ALL commands get `>/dev/null 2>&1 &` — no exceptions. No output reaches the terminal. I schedule my own first self-wake: `(sleep 2; tmux send-keys -t a8 "Begin step 1: start Weston" Enter) &`. Then I begin working. Each step's self-wake triggers the next. This is my only instruction: read and do.
 
 ## Cleanup
 ```
