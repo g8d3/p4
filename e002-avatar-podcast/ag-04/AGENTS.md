@@ -41,28 +41,20 @@ rm -f /tmp/render_pipe
 
 ## Pipeline (GPU only, no PNGs)
 
-Use Weston + Wayland for Godot rendering with real GPU, pipe raw frames to ffmpeg VAAPI. Write the entire pipeline as a self-waking background script that reports progress.
+**Key finding from ag-08**: Godot's FileAccess does NOT support FIFOs/named pipes. The pipe approach is impossible. Working approach: Godot renders to `frames.raw` (file), then ffmpeg VAAPI encodes it.
 
 ### Self-wake pattern
 
-After launching any long command in background, schedule a self-check:
+After launching ANY command in background, schedule a self-check with context. ALL commands go to background, even quick ones.
 
 ```bash
-# Launch the real work
-(long_command) &
-CMD_PID=$!
+# Every command: background & + self-wake + continue working
+(godot4 ...) &
+PID=$!
+(sleep 30; tmux send-keys -t a4 "Self-wake: PID=$PID, step=1/3 Godot render. Check if running, check frames.raw size." Enter) &
 
-# Schedule a self-wake in N seconds
-(sleep N; tmux send-keys -t a4 "Check progress. PID=$CMD_PID. Is it still running? Any errors?" Enter) &
+# Continue working on other things immediately
 ```
-
-The agent when woken checks:
-- Is the process still running? (`kill -0 $PID`)
-- Any output files growing? (`ls -lh video.mp4 2>/dev/null`)
-- Any errors in logs?
-- Should I wait more, cancel, or proceed?
-
-Each wake-up programs the next one if still needed.
 
 ### Write render.sh
 
@@ -73,25 +65,11 @@ set -e
 export LIBVA_DRIVER_NAME=radeonsi
 START_TS=$(date +%s)
 
-# Clean previous pipe
-rm -f /tmp/render_pipe
-mkfifo /tmp/render_pipe
-
-echo "=== STEP 1/4: ffmpeg VAAPI capture ==="
-timeout 600 ffmpeg -f rawvideo -pix_fmt rgba -s 608x1080 -framerate 25 -i /tmp/render_pipe \
-  -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
-  -c:v h264_vaapi -y video_nosound.mp4 &
-FFPID=$!
-
-echo "=== STEP 2/4: Godot render (Weston+Wayland+Vulkan) ==="
-weston --backend=headless --renderer=gl --socket=wayland-render 2>/dev/null &
-sleep 2
-WAYLAND_DISPLAY=wayland-render \
-  timeout 600 ~/.local/bin/godot4 --display-driver wayland --rendering-driver vulkan \
+echo "=== STEP 1/3: Godot render to frames.raw ==="
+timeout 600 ~/.local/bin/godot4 --rendering-driver vulkan --display-driver headless \
   --path godot_project -- config.json &
 GODOT_PID=$!
 
-# Sample CPU/GPU while Godot runs
 (while kill -0 $GODOT_PID 2>/dev/null; do
   echo "=== Godot PID $GODOT_PID running... ==="
   ps -p $GODOT_PID -o %cpu= --no-headers >> /tmp/cpu_samples.txt 2>/dev/null
@@ -100,13 +78,18 @@ GODOT_PID=$!
 done) &
 
 wait $GODOT_PID 2>/dev/null
-echo "=== STEP 3/4: Godot finished, stopping capture ==="
-wait $FFPID 2>/dev/null
-rm -f /tmp/render_pipe
+
+echo "=== STEP 2/3: VAAPI encode frames.raw ==="
+timeout 120 ffmpeg -f rawvideo -pix_fmt rgba -s 608x1080 -framerate 25 \
+  -i frames.raw \
+  -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
+  -c:v h264_vaapi -y video_nosound.mp4
+rm -f frames.raw
 END_TS=$(date +%s)
 
-echo "=== STEP 4/4: Adding audio ==="
-timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 -c:v copy -c:a aac -shortest -y video.mp4
+echo "=== STEP 3/3: Adding audio ==="
+timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 \
+  -c:v copy -c:a aac -shortest -y video.mp4
 
 echo "=== Logging ==="
 WALL_TIME=$((END_TS - START_TS))
