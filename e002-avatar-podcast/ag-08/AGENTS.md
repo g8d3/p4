@@ -46,9 +46,9 @@ Write `wf-test.md` with:
 - Comparison to previous methods
 - Recommendation for ag-04
 
-## Execute
+## Self-command
 
-Read this file entirely. Then immediately schedule a self-wake: `(sleep 2; tmux send-keys -t a8 "Begin step 1: start Weston" Enter) &`. Do not wait. This self-wake triggers the first step. After each step, schedule the next self-wake. Never run anything synchronously.
+After reading this file, I MUST execute the steps below immediately. I do NOT wait for confirmation. I schedule my own first self-wake: `(sleep 2; tmux send-keys -t a8 "Begin step 1: start Weston" Enter) &`. Then I begin working. Each step's self-wake triggers the next. This is my only instruction: read and do.
 
 ## Cleanup
 ```
