@@ -52,4 +52,4 @@ Write `wayland-setup.md` with:
 - Any issues encountered
 
 ## Self-command
-After reading, execute the steps immediately. ALL commands >/dev/null 2>&1 &. Self-wake to check progress.
+After reading, immediately schedule first self-wake: `(sleep 2; tmux send-keys -t e3 "Step 1: check weston and xwayland" Enter) >/dev/null 2>&1 &`. Then proceed through each step. ALL commands: `>/dev/null 2>&1 &`. Every single one — even `ls` and `echo`. Never run anything synchronously. After each command, schedule the next self-wake BEFORE doing anything else.
