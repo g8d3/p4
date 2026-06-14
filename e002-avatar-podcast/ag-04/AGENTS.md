@@ -21,6 +21,14 @@ Compose the final avatar podcast video with a pure GPU pipeline: Godot renders t
 
 Do NOT start until `../ag-03/done.txt` exists.
 
+## Cleanup
+
+Before starting, remove artifacts from previous runs in this directory:
+```
+rm -f video_raw.avi video_nosound.mp4 video.mp4 done.txt
+rm -f /tmp/render_pipe
+```
+
 ## Inputs
 
 - `../ag-03/seg_*.mp3` — one audio file per dialogue line, in order
@@ -33,43 +41,40 @@ Do NOT start until `../ag-03/done.txt` exists.
 
 ## Pipeline (GPU only, no PNGs)
 
-### 1. Modify `render_podcast.gd`
-Change the completion condition from time-based to frame-count-based:
+Use the pipe approach already implemented in `render_podcast.gd` (Godot writes raw frames to a named pipe, ffmpeg reads with VAAPI GPU encoding). No CPU encoding at any step.
 
-```gdscript
-# Replace: if elapsed >= duration:
-# With:
-var target_frames = int(duration * fps)
-if frame_count >= target_frames:
-    get_tree().quit()
+### 1. Create named pipe and start ffmpeg VAAPI capture
+```
+export LIBVA_DRIVER_NAME=radeonsi
+mkfifo /tmp/render_pipe
+timeout 600 ffmpeg -f rawvideo -pix_fmt rgba -s 608x1080 -framerate 25 -i /tmp/render_pipe \
+  -vf "format=nv12,hwupload" -vaapi_device /dev/dri/renderD128 \
+  -c:v h264_vaapi -y video_nosound.mp4 &
+FFPID=$!
 ```
 
-This ensures `--write-movie` captures all frames correctly.
-
-### 2. Render video with Godot `--write-movie`
-No Weston or display server needed. Godot writes video directly:
+### 2. Render with Godot (writes frames to same pipe)
 ```
-DISPLAY=:0 timeout 600 ~/.local/bin/godot4 \
-  --fixed-fps 25 \
+timeout 600 ~/.local/bin/godot4 \
   --rendering-driver vulkan \
-  --write-movie video_raw.avi \
+  --display-driver headless \
   --path godot_project \
   -- config.json
 ```
 
-### 3. Convert AVI to H.264 MP4
+### 3. Wait for ffmpeg to finish
 ```
-timeout 30 ffmpeg -i video_raw.avi \
-  -c:v libx264 -pix_fmt yuv420p \
-  -y video_nosound.mp4
+wait $FFPID 2>/dev/null
+rm -f /tmp/render_pipe
 ```
 
 ### 4. Add audio
 ```
 timeout 30 ffmpeg -i video_nosound.mp4 -i podcast_audio.mp3 \
-  -c:v copy -c:a aac -shortest \
-  -y video.mp4
+  -c:v copy -c:a aac -shortest -y video.mp4
 ```
+
+The `render_podcast.gd` script already writes raw RGBA frame data to the pipe at `/tmp/render_pipe` (configured in config.json or hardcoded). If the pipe path differs, update the config or the ffmpeg command accordingly.
 
 ### 5. Add subtitles (if not rendered in Godot)
 Use SRT with strict formatting rules (see Subtitles section).
