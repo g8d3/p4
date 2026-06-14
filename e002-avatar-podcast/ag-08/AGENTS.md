@@ -43,11 +43,15 @@ echo "RENDER COMPLETE"
 SCRIPT
 
 chmod +x minimal_test/run.sh
-cd minimal_test && bash run.sh &
+bash minimal_test/run.sh &
 RENDER_PID=$!
-cd ..
 
-(sleep 8; tmux send-keys -t a8 "Check minimal_test. PID=$RENDER_PID. Done? Errors?" Enter) &
+# IMPORTANT: Schedule self-wake, then do NOT run any more commands.
+# The self-wake will handle all checking.
+(sleep 8; tmux send-keys -t a8 "Check minimal_test. PID=$RENDER_PID. Output files?" Enter) &
+
+# STOP here. Do not run ls, cat, or any other command after this.
+# Wait for the self-wake to trigger.
 ```
 
 ### 3. Verify

@@ -218,9 +218,14 @@ timeout 600 godot4 ...
 timeout 600 godot4 ... &
 PID=$!
 (sleep 30; tmux send-keys -t a4 "Check PID $PID. Still running?" Enter) &
+
+# CRITICAL: After scheduling the self-wake, STOP.
+# Do NOT run ls, cat, echo, or any other command.
+# The self-wake message will handle all status checking.
+# Any command run here will block the agent.
 ```
 
-When woken, the agent checks progress, decides next step, and schedules the next wake-up.
+When woken, the agent checks progress, decides next step, and schedules the next wake-up. Between wake-ups the agent must be idle — no commands running.
 
 **Agent script transparency**: To make stuck detection easier, agents should print progress markers in their scripts:
 
