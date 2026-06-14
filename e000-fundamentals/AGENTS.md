@@ -211,19 +211,20 @@ The OpenCode CLI has 4 states:
 **Self-wake pattern**: Every command runs in background. The agent never blocks.
 
 ```bash
-# Bad — agent blocks on this command
+# Bad — agent blocks
 timeout 600 godot4 ...
 
-# Good — background + self-wake + continue working
-timeout 600 godot4 ... &
-PID=$!
-(sleep 30; tmux send-keys -t a4 "Check PID $PID" Enter) &
+# Bad — self-wake without context
+(sleep 30; send-keys "Check progress" Enter) &
+
+# Good — self-wake with full context
+RENDER_PID=$!
+(sleep 30; send-keys "Self-wake: PID=$RENDER_PID, step=2/4 Godot render. Check if running, check for errors in output, check if done.txt exists." Enter) &
 
 # Agent continues working here — read files, write code, plan, launch more background commands.
-# The self-wake is just a checkpoint. The agent never stops.
 ```
 
-When woken, the agent checks progress, decides next step, schedules the next wake-up if needed, and continues working. The agent is never idle — it always has something to do between wake-ups.
+The self-wake message must include enough context for the agent to act immediately: which PID, which step, what to look for, what to do next. Without this, the agent has to re-read previous context to remember what it was doing, wasting time and tokens.
 
 **Agent script transparency**: To make stuck detection easier, agents should print progress markers in their scripts:
 
