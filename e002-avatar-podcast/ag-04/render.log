@@ -1,0 +1,264 @@
+=== STEP 1/3: Weston headless + Godot render to frames.raw ===
+Weston PID: 389242
+Wayland socket ready after 2s
+=== Godot render loop: restart on crash/timeout until 6819 frames ===
+--- frames.raw: 0/6819 frames (6819 remaining) ---
+--- Godot run #1 (frame 0) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:389261): Gdk-CRITICAL **: 09:41:07.031: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 0/6819 (6819 remaining)
+Starting render: 272.784s at 25.0 fps from frame 0
+--- Godot exit code 124 ---
+Truncating partial frame: 2912854016 -> 2910228480
+--- frames.raw: 1108/6819 frames (5711 remaining) ---
+--- Godot run #2 (frame 1108) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:389474): Gdk-CRITICAL **: 09:41:53.183: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 2910228480 bytes = 1108 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 1108/6819 (5711 remaining)
+Starting render: 272.784s at 25.0 fps from frame 1108
+--- Godot exit code 124 ---
+Truncating partial frame: 5825708032 -> 5823083520
+--- frames.raw: 2217/6819 frames (4602 remaining) ---
+--- Godot run #3 (frame 2217) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:389662): Gdk-CRITICAL **: 09:42:39.334: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 5823083520 bytes = 2217 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 2217/6819 (4602 remaining)
+Starting render: 272.784s at 25.0 fps from frame 2217
+--- Godot exit code 124 ---
+Truncating partial frame: 8735937536 -> 8733312000
+--- frames.raw: 3325/6819 frames (3494 remaining) ---
+--- Godot run #4 (frame 3325) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:389876): Gdk-CRITICAL **: 09:43:25.482: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 8733312000 bytes = 3325 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 3325/6819 (3494 remaining)
+Starting render: 272.784s at 25.0 fps from frame 3325
+--- Godot exit code 124 ---
+Truncating partial frame: 11659297792 -> 11656673280
+--- frames.raw: 4438/6819 frames (2381 remaining) ---
+--- Godot run #5 (frame 4438) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:390031): Gdk-CRITICAL **: 09:44:11.627: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 11656673280 bytes = 4438 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 4438/6819 (2381 remaining)
+Starting render: 272.784s at 25.0 fps from frame 4438
+--- Godot exit code 124 ---
+Truncating partial frame: 14561646592 -> 14559022080
+--- frames.raw: 5543/6819 frames (1276 remaining) ---
+--- Godot run #6 (frame 5543) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:390244): Gdk-CRITICAL **: 09:44:57.775: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 14559022080 bytes = 5543 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 5543/6819 (1276 remaining)
+Starting render: 272.784s at 25.0 fps from frame 5543
+--- Godot exit code 124 ---
+Truncating partial frame: 17477127168 -> 17474503680
+--- frames.raw: 6653/6819 frames (166 remaining) ---
+--- Godot run #7 (frame 6653) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:390492): Gdk-CRITICAL **: 09:45:43.935: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 17474503680 bytes = 6653 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 6653/6819 (166 remaining)
+Starting render: 272.784s at 25.0 fps from frame 6653
+Render complete: 6819 frames
+--- Godot exit code 0 ---
+--- frames.raw: 6819/6819 frames (0 remaining) ---
+All frames rendered!
+=== STEP 2/3: VAAPI encode frames.raw ===
+ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 13 (Ubuntu 13.2.0-23ubuntu3)
+  configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+  WARNING: library configuration mismatch
+  avcodec     configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared --enable-version3 --disable-doc --disable-programs --disable-static --enable-libaribb24 --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libtesseract --enable-libvo_amrwbenc --enable-libsmbclient
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+[rawvideo @ 0x5fd97b6a5400] Estimating duration from bitrate, this may be inaccurate
+Input #0, rawvideo, from 'frames.raw':
+  Duration: 00:04:32.76, start: 0.000000, bitrate: 525312 kb/s
+  Stream #0:0: Video: rawvideo (RGBA / 0x41424752), rgba, 608x1080, 525312 kb/s, 25 tbr, 25 tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (rawvideo (native) -> h264 (h264_vaapi))
+Press [q] to stop, [?] for help
+[h264_vaapi @ 0x5fd97b6b0640] No quality level set; using default (20).
+Output #0, mp4, to 'video_nosound.mp4':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Stream #0:0: Video: h264 (High) (avc1 / 0x31637661), vaapi(tv, progressive), 608x1080, q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc60.31.102 h264_vaapi
+frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    frame=   43 fps=0.0 q=-0.0 size=       0kB time=00:00:01.72 bitrate=   0.2kbits/s speed= 3.4x    frame=  142 fps=141 q=-0.0 size=       0kB time=00:00:05.68 bitrate=   0.1kbits/s speed=5.63x    frame=  238 fps=157 q=-0.0 size=       0kB time=00:00:09.52 bitrate=   0.0kbits/s speed=6.28x    frame=  296 fps=147 q=-0.0 size=       0kB time=00:00:11.84 bitrate=   0.0kbits/s speed=5.87x    frame=  337 fps=134 q=-0.0 size=       0kB time=00:00:13.48 bitrate=   0.0kbits/s speed=5.35x    frame=  357 fps=117 q=-0.0 size=       0kB time=00:00:14.28 bitrate=   0.0kbits/s speed=4.67x    frame=  376 fps=105 q=-0.0 size=       0kB time=00:00:15.04 bitrate=   0.0kbits/s speed=4.21x    frame=  394 fps= 96 q=-0.0 size=       0kB time=00:00:15.76 bitrate=   0.0kbits/s speed=3.85x    frame=  414 fps= 90 q=-0.0 size=       0kB time=00:00:16.56 bitrate=   0.0kbits/s speed= 3.6x    frame=  476 fps= 93 q=-0.0 size=     256kB time=00:00:19.04 bitrate= 110.2kbits/s speed=3.73x    frame=  509 fps= 91 q=-0.0 size=     256kB time=00:00:20.36 bitrate= 103.0kbits/s speed=3.63x    frame=  554 fps= 91 q=-0.0 size=     256kB time=00:00:22.16 bitrate=  94.7kbits/s speed=3.62x    frame=  597 fps= 90 q=-0.0 size=     256kB time=00:00:23.88 bitrate=  87.8kbits/s speed=3.61x    frame=  635 fps= 89 q=-0.0 size=     256kB time=00:00:25.40 bitrate=  82.6kbits/s speed=3.56x    frame=  704 fps= 92 q=-0.0 size=     256kB time=00:00:28.16 bitrate=  74.5kbits/s speed=3.68x    frame=  943 fps=116 q=-0.0 size=     512kB time=00:00:37.72 bitrate= 111.2kbits/s speed=4.63x    frame= 1192 fps=138 q=-0.0 size=     512kB time=00:00:47.68 bitrate=  88.0kbits/s speed=5.51x    frame= 1363 fps=149 q=-0.0 size=     768kB time=00:00:54.52 bitrate= 115.4kbits/s speed=5.96x    frame= 1524 fps=158 q=-0.0 size=     768kB time=00:01:00.96 bitrate= 103.2kbits/s speed=6.32x    frame= 1617 fps=159 q=-0.0 size=     768kB time=00:01:04.68 bitrate=  97.3kbits/s speed=6.37x    frame= 1733 fps=163 q=-0.0 size=    1024kB time=00:01:09.32 bitrate= 121.0kbits/s speed=6.51x    frame= 1954 fps=175 q=-0.0 size=    1024kB time=00:01:18.16 bitrate= 107.3kbits/s speed=   7x    frame= 2063 fps=177 q=-0.0 size=    1024kB time=00:01:22.52 bitrate= 101.7kbits/s speed=7.07x    frame= 2186 fps=180 q=-0.0 size=    1280kB time=00:01:27.44 bitrate= 119.9kbits/s speed=7.19x    frame= 2304 fps=182 q=-0.0 size=    1280kB time=00:01:32.16 bitrate= 113.8kbits/s speed=7.27x    frame= 2479 fps=188 q=-0.0 size=    1280kB time=00:01:39.16 bitrate= 105.7kbits/s speed=7.53x    frame= 2607 fps=191 q=-0.0 size=    1536kB time=00:01:44.28 bitrate= 120.7kbits/s speed=7.63x    frame= 2795 fps=197 q=-0.0 size=    1536kB time=00:01:51.80 bitrate= 112.6kbits/s speed=7.89x    frame= 2930 fps=200 q=-0.0 size=    1536kB time=00:01:57.20 bitrate= 107.4kbits/s speed=7.98x    frame= 3061 fps=202 q=-0.0 size=    1792kB time=00:02:02.44 bitrate= 119.9kbits/s speed=8.07x    frame= 3193 fps=204 q=-0.0 size=    1792kB time=00:02:07.72 bitrate= 114.9kbits/s speed=8.14x    frame= 3310 fps=205 q=-0.0 size=    1792kB time=00:02:12.40 bitrate= 110.9kbits/s speed=8.18x    frame= 3429 fps=206 q=-0.0 size=    2048kB time=00:02:17.16 bitrate= 122.3kbits/s speed=8.22x    frame= 3543 fps=206 q=-0.0 size=    2048kB time=00:02:21.72 bitrate= 118.4kbits/s speed=8.25x    frame= 3644 fps=206 q=-0.0 size=    2048kB time=00:02:25.76 bitrate= 115.1kbits/s speed=8.24x    frame= 3751 fps=206 q=-0.0 size=    2048kB time=00:02:30.04 bitrate= 111.8kbits/s speed=8.25x    frame= 3856 fps=206 q=-0.0 size=    2304kB time=00:02:34.24 bitrate= 122.4kbits/s speed=8.25x    frame= 3973 fps=207 q=-0.0 size=    2304kB time=00:02:38.92 bitrate= 118.8kbits/s speed=8.28x    frame= 4091 fps=208 q=-0.0 size=    2304kB time=00:02:43.64 bitrate= 115.3kbits/s speed=8.31x    frame= 4204 fps=208 q=-0.0 size=    2304kB time=00:02:48.16 bitrate= 112.2kbits/s speed=8.33x    frame= 4322 fps=209 q=-0.0 size=    2560kB time=00:02:52.88 bitrate= 121.3kbits/s speed=8.35x    frame= 4436 fps=209 q=-0.0 size=    2560kB time=00:02:57.44 bitrate= 118.2kbits/s speed=8.37x    frame= 4552 fps=210 q=-0.0 size=    2560kB time=00:03:02.08 bitrate= 115.2kbits/s speed=8.39x    frame= 4680 fps=211 q=-0.0 size=    2560kB time=00:03:07.20 bitrate= 112.0kbits/s speed=8.43x    frame= 4808 fps=212 q=-0.0 size=    2816kB time=00:03:12.32 bitrate= 120.0kbits/s speed=8.47x    frame= 4944 fps=213 q=-0.0 size=    2816kB time=00:03:17.76 bitrate= 116.7kbits/s speed=8.52x    frame= 5071 fps=214 q=-0.0 size=    2816kB time=00:03:22.84 bitrate= 113.7kbits/s speed=8.55x    frame= 5202 fps=215 q=-0.0 size=    3072kB time=00:03:28.08 bitrate= 120.9kbits/s speed=8.59x    frame= 5331 fps=216 q=-0.0 size=    3072kB time=00:03:33.24 bitrate= 118.0kbits/s speed=8.63x    frame= 5453 fps=216 q=-0.0 size=    3072kB time=00:03:38.12 bitrate= 115.4kbits/s speed=8.65x    frame= 5574 fps=217 q=-0.0 size=    3328kB time=00:03:42.96 bitrate= 122.3kbits/s speed=8.67x    frame= 5703 fps=217 q=-0.0 size=    3328kB time=00:03:48.12 bitrate= 119.5kbits/s speed= 8.7x    frame= 5842 fps=219 q=-0.0 size=    3328kB time=00:03:53.68 bitrate= 116.7kbits/s speed=8.74x    frame= 5971 fps=219 q=-0.0 size=    3584kB time=00:03:58.84 bitrate= 122.9kbits/s speed=8.77x    frame= 6102 fps=220 q=-0.0 size=    3584kB time=00:04:04.08 bitrate= 120.3kbits/s speed= 8.8x    frame= 6232 fps=221 q=-0.0 size=    3584kB time=00:04:09.28 bitrate= 117.8kbits/s speed=8.83x    frame= 6361 fps=221 q=-0.0 size=    3584kB time=00:04:14.44 bitrate= 115.4kbits/s speed=8.85x    frame= 6491 fps=222 q=-0.0 size=    3840kB time=00:04:19.64 bitrate= 121.2kbits/s speed=8.88x    frame= 6623 fps=223 q=-0.0 size=    3840kB time=00:04:24.92 bitrate= 118.7kbits/s speed=8.91x    frame= 6756 fps=223 q=-0.0 size=    3840kB time=00:04:30.24 bitrate= 116.4kbits/s speed=8.94x    [out#0/mp4 @ 0x5fd97b560980] video:4120kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.673336%
+frame= 6819 fps=224 q=-0.0 Lsize=    4148kB time=00:04:32.72 bitrate= 124.6kbits/s speed=8.95x    
+=== STEP 3/3: Adding audio ===
+ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 13 (Ubuntu 13.2.0-23ubuntu3)
+  configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+  WARNING: library configuration mismatch
+  avcodec     configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared --enable-version3 --disable-doc --disable-programs --disable-static --enable-libaribb24 --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libtesseract --enable-libvo_amrwbenc --enable-libsmbclient
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'video_nosound.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf60.16.100
+  Duration: 00:04:32.76, start: 0.000000, bitrate: 124 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, progressive), 608x1080, 123 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc60.31.102 h264_vaapi
+Input #1, mp3, from 'podcast_audio.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:04:32.78, start: 0.022042, bitrate: 48 kb/s
+  Stream #1:0: Audio: mp3, 24000 Hz, mono, fltp, 48 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #1:0 -> #0:1 (mp3 (mp3float) -> aac (native))
+Press [q] to stop, [?] for help
+Output #0, mp4, to 'video.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf60.16.100
+  Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, progressive), 608x1080, q=2-31, 123 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc60.31.102 h264_vaapi
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 24000 Hz, mono, fltp, 69 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 aac
+size=       0kB time=N/A bitrate=N/A speed=N/A    size=     768kB time=00:00:43.24 bitrate= 145.5kbits/s speed=86.5x    size=    1792kB time=00:01:27.92 bitrate= 167.0kbits/s speed=87.9x    size=    3072kB time=00:02:16.00 bitrate= 185.0kbits/s speed=90.6x    size=    4096kB time=00:02:59.32 bitrate= 187.1kbits/s speed=89.6x    size=    5120kB time=00:03:42.72 bitrate= 188.3kbits/s speed=  89x    size=    6144kB time=00:04:28.00 bitrate= 187.8kbits/s speed=89.3x    [out#0/mp4 @ 0x64d32c9dd680] video:4120kB audio:2204kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.788720%
+size=    6437kB time=00:04:32.72 bitrate= 193.4kbits/s speed=89.3x    
+[aac @ 0x64d32ca07580] Qavg: 15725.261
+=== Logging ===
+=== RENDER COMPLETE (7 Godot runs) ===

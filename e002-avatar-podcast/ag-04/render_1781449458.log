@@ -1,0 +1,264 @@
+=== STEP 1/3: Weston headless + Godot render to frames.raw ===
+Weston PID: 392298
+Wayland socket ready after 2s
+=== Godot render loop: restart on crash/timeout until 6819 frames ===
+--- frames.raw: 0/6819 frames (6819 remaining) ---
+--- Godot run #1 (frame 0) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:392318): Gdk-CRITICAL **: 10:04:19.706: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 0 bytes = 0 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 0/6819 (6819 remaining)
+Starting render: 272.784s at 25.0 fps from frame 0
+--- Godot exit code 124 ---
+Truncating partial frame: 2923360256 -> 2920734720
+--- frames.raw: 1112/6819 frames (5707 remaining) ---
+--- Godot run #2 (frame 1112) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:392826): Gdk-CRITICAL **: 10:05:05.841: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 2920734720 bytes = 1112 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 1112/6819 (5707 remaining)
+Starting render: 272.784s at 25.0 fps from frame 1112
+--- Godot exit code 124 ---
+--- frames.raw: 2220/6819 frames (4599 remaining) ---
+--- Godot run #3 (frame 2220) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:393494): Gdk-CRITICAL **: 10:05:51.985: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 5830963200 bytes = 2220 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 2220/6819 (4599 remaining)
+Starting render: 272.784s at 25.0 fps from frame 2220
+--- Godot exit code 124 ---
+Truncating partial frame: 8754323456 -> 8751697920
+--- frames.raw: 3332/6819 frames (3487 remaining) ---
+--- Godot run #4 (frame 3332) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:393786): Gdk-CRITICAL **: 10:06:38.125: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 8751697920 bytes = 3332 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 3332/6819 (3487 remaining)
+Starting render: 272.784s at 25.0 fps from frame 3332
+--- Godot exit code 124 ---
+Truncating partial frame: 11677683712 -> 11675059200
+--- frames.raw: 4445/6819 frames (2374 remaining) ---
+--- Godot run #5 (frame 4445) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:393947): Gdk-CRITICAL **: 10:07:24.281: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 11675059200 bytes = 4445 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 4445/6819 (2374 remaining)
+Starting render: 272.784s at 25.0 fps from frame 4445
+--- Godot exit code 124 ---
+Truncating partial frame: 14601044992 -> 14598420480
+--- frames.raw: 5558/6819 frames (1261 remaining) ---
+--- Godot run #6 (frame 5558) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:394165): Gdk-CRITICAL **: 10:08:10.426: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 14598420480 bytes = 5558 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 5558/6819 (1261 remaining)
+Starting render: 272.784s at 25.0 fps from frame 5558
+--- Godot exit code 124 ---
+Truncating partial frame: 17519159296 -> 17519155200
+--- frames.raw: 6670/6819 frames (149 remaining) ---
+--- Godot run #7 (frame 6670) ---
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+WARNING: Can't obtain the XDG decoration manager. Libdecor will be used for drawing CSDs, if available.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4850)
+WARNING: xdg-toplevel-icon protocol not found! Cannot set window icon.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4857)
+WARNING: Can't obtain the XDG activation global. Attention requesting won't work!
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4862)
+WARNING: FIFO protocol not found! Frame pacing will be degraded.
+     at: init (platform/linuxbsd/wayland/wayland_thread.cpp:4872)
+
+(godot4:394774): Gdk-CRITICAL **: 10:08:56.597: gdk_seat_get_keyboard: assertion 'GDK_IS_SEAT (seat)' failed
+OpenGL API 4.6 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.1 - Compatibility - Using Device: AMD - AMD Radeon Graphics (radeonsi, renoir, ACO, DRM 3.57, 6.8.0-124-generic)
+
+Project dir: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/
+Config loaded: 608x1080, 272.784s
+Loading bg: /home/vuos/code/p4/e002-avatar-podcast/ag-04/../ag-06/podcast_bg.png
+Textures loaded successfully
+Existing frames.raw: 17519155200 bytes = 6670 frames done
+Output file opened: /home/vuos/code/p4/e002-avatar-podcast/ag-04/godot_project/../frames.raw (608x1080 RGBA @ 25.0 fps, 272.784s = 6819 frames)
+Resuming from frame 6670/6819 (149 remaining)
+Starting render: 272.784s at 25.0 fps from frame 6670
+Render complete: 6819 frames
+--- Godot exit code 0 ---
+--- frames.raw: 6819/6819 frames (0 remaining) ---
+All frames rendered!
+=== STEP 2/3: VAAPI encode frames.raw ===
+ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 13 (Ubuntu 13.2.0-23ubuntu3)
+  configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+  WARNING: library configuration mismatch
+  avcodec     configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared --enable-version3 --disable-doc --disable-programs --disable-static --enable-libaribb24 --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libtesseract --enable-libvo_amrwbenc --enable-libsmbclient
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+[rawvideo @ 0x64a644b40400] Estimating duration from bitrate, this may be inaccurate
+Input #0, rawvideo, from 'frames.raw':
+  Duration: 00:04:32.76, start: 0.000000, bitrate: 525312 kb/s
+  Stream #0:0: Video: rawvideo (RGBA / 0x41424752), rgba, 608x1080, 525312 kb/s, 25 tbr, 25 tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (rawvideo (native) -> h264 (h264_vaapi))
+Press [q] to stop, [?] for help
+[h264_vaapi @ 0x64a644b4b640] No quality level set; using default (20).
+Output #0, mp4, to 'video_nosound.mp4':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Stream #0:0: Video: h264 (High) (avc1 / 0x31637661), vaapi(tv, progressive), 608x1080, q=2-31, 25 fps, 12800 tbn
+    Metadata:
+      encoder         : Lavc60.31.102 h264_vaapi
+frame=    0 fps=0.0 q=0.0 size=       0kB time=N/A bitrate=N/A speed=N/A    frame=   84 fps=0.0 q=-0.0 size=       0kB time=00:00:03.36 bitrate=   0.1kbits/s speed=6.71x    frame=  104 fps=103 q=-0.0 size=       0kB time=00:00:04.16 bitrate=   0.1kbits/s speed=4.13x    frame=  139 fps= 89 q=-0.0 size=       0kB time=00:00:05.56 bitrate=   0.1kbits/s speed=3.58x    frame=  188 fps= 91 q=-0.0 size=       0kB time=00:00:07.52 bitrate=   0.1kbits/s speed=3.64x    frame=  244 fps= 95 q=-0.0 size=       0kB time=00:00:09.76 bitrate=   0.0kbits/s speed= 3.8x    frame=  292 fps= 95 q=-0.0 size=       0kB time=00:00:11.68 bitrate=   0.0kbits/s speed=3.81x    frame=  326 fps= 91 q=-0.0 size=       0kB time=00:00:13.04 bitrate=   0.0kbits/s speed=3.64x    frame=  391 fps= 95 q=-0.0 size=       0kB time=00:00:15.64 bitrate=   0.0kbits/s speed=3.81x    frame=  433 fps= 94 q=-0.0 size=     256kB time=00:00:17.32 bitrate= 121.1kbits/s speed=3.75x    frame=  501 fps= 98 q=-0.0 size=     256kB time=00:00:20.04 bitrate= 104.7kbits/s speed=3.91x    frame=  577 fps=102 q=-0.0 size=     256kB time=00:00:23.08 bitrate=  90.9kbits/s speed=4.09x    frame=  597 fps= 97 q=-0.0 size=     256kB time=00:00:23.88 bitrate=  87.8kbits/s speed=3.89x    frame=  614 fps= 92 q=-0.0 size=     256kB time=00:00:24.56 bitrate=  85.4kbits/s speed= 3.7x    frame=  633 fps= 89 q=-0.0 size=     256kB time=00:00:25.32 bitrate=  82.8kbits/s speed=3.54x    frame=  651 fps= 85 q=-0.0 size=     256kB time=00:00:26.04 bitrate=  80.6kbits/s speed= 3.4x    frame=  702 fps= 86 q=-0.0 size=     256kB time=00:00:28.08 bitrate=  74.7kbits/s speed=3.44x    frame=  735 fps= 85 q=-0.0 size=     256kB time=00:00:29.40 bitrate=  71.3kbits/s speed=3.38x    frame=  816 fps= 89 q=-0.0 size=     256kB time=00:00:32.64 bitrate=  64.3kbits/s speed=3.55x    frame= 1111 fps=115 q=-0.0 size=     512kB time=00:00:44.44 bitrate=  94.4kbits/s speed=4.59x    frame= 1346 fps=132 q=-0.0 size=     768kB time=00:00:53.84 bitrate= 116.9kbits/s speed=5.28x    frame= 1648 fps=154 q=-0.0 size=     768kB time=00:01:05.92 bitrate=  95.4kbits/s speed=6.17x    frame= 1835 fps=164 q=-0.0 size=    1024kB time=00:01:13.40 bitrate= 114.3kbits/s speed=6.56x    frame= 1936 fps=165 q=-0.0 size=    1024kB time=00:01:17.44 bitrate= 108.3kbits/s speed=6.62x    frame= 1958 fps=160 q=-0.0 size=    1024kB time=00:01:18.32 bitrate= 107.1kbits/s speed=6.41x    frame= 1977 fps=155 q=-0.0 size=    1024kB time=00:01:19.08 bitrate= 106.1kbits/s speed=6.21x    frame= 1996 fps=151 q=-0.0 size=    1024kB time=00:01:19.84 bitrate= 105.1kbits/s speed=6.03x    frame= 2010 fps=146 q=-0.0 size=    1024kB time=00:01:20.40 bitrate= 104.3kbits/s speed=5.83x    frame= 2024 fps=142 q=-0.0 size=    1024kB time=00:01:20.96 bitrate= 103.6kbits/s speed=5.66x    frame= 2047 fps=138 q=-0.0 size=    1024kB time=00:01:21.88 bitrate= 102.5kbits/s speed=5.53x    frame= 2066 fps=135 q=-0.0 size=    1024kB time=00:01:22.64 bitrate= 101.5kbits/s speed=5.39x    frame= 2085 fps=132 q=-0.0 size=    1024kB time=00:01:23.40 bitrate= 100.6kbits/s speed=5.27x    frame= 2103 fps=129 q=-0.0 size=    1024kB time=00:01:24.12 bitrate=  99.7kbits/s speed=5.15x    frame= 2123 fps=126 q=-0.0 size=    1024kB time=00:01:24.92 bitrate=  98.8kbits/s speed=5.04x    frame= 2142 fps=123 q=-0.0 size=    1280kB time=00:01:25.68 bitrate= 122.4kbits/s speed=4.94x    frame= 2162 fps=121 q=-0.0 size=    1280kB time=00:01:26.48 bitrate= 121.3kbits/s speed=4.84x    frame= 2181 fps=119 q=-0.0 size=    1280kB time=00:01:27.24 bitrate= 120.2kbits/s speed=4.75x    frame= 2200 fps=116 q=-0.0 size=    1280kB time=00:01:28.00 bitrate= 119.2kbits/s speed=4.66x    frame= 2221 fps=114 q=-0.0 size=    1280kB time=00:01:28.84 bitrate= 118.0kbits/s speed=4.57x    frame= 2238 fps=112 q=-0.0 size=    1280kB time=00:01:29.52 bitrate= 117.1kbits/s speed=4.49x    frame= 2257 fps=110 q=-0.0 size=    1280kB time=00:01:30.28 bitrate= 116.2kbits/s speed=4.42x    frame= 2275 fps=109 q=-0.0 size=    1280kB time=00:01:31.00 bitrate= 115.2kbits/s speed=4.35x    frame= 2293 fps=107 q=-0.0 size=    1280kB time=00:01:31.72 bitrate= 114.3kbits/s speed=4.28x    frame= 2312 fps=105 q=-0.0 size=    1280kB time=00:01:32.48 bitrate= 113.4kbits/s speed=4.21x    frame= 2333 fps=104 q=-0.0 size=    1280kB time=00:01:33.32 bitrate= 112.4kbits/s speed=4.15x    frame= 2356 fps=102 q=-0.0 size=    1280kB time=00:01:34.24 bitrate= 111.3kbits/s speed= 4.1x    frame= 2381 fps=101 q=-0.0 size=    1280kB time=00:01:35.24 bitrate= 110.1kbits/s speed=4.05x    frame= 2469 fps=103 q=-0.0 size=    1280kB time=00:01:38.76 bitrate= 106.2kbits/s speed=4.12x    frame= 2547 fps=104 q=-0.0 size=    1280kB time=00:01:41.88 bitrate= 102.9kbits/s speed=4.16x    frame= 2615 fps=105 q=-0.0 size=    1536kB time=00:01:44.60 bitrate= 120.3kbits/s speed=4.18x    frame= 2645 fps=104 q=-0.0 size=    1536kB time=00:01:45.80 bitrate= 118.9kbits/s speed=4.15x    frame= 2664 fps=102 q=-0.0 size=    1536kB time=00:01:46.56 bitrate= 118.1kbits/s speed=4.09x    frame= 2684 fps=101 q=-0.0 size=    1536kB time=00:01:47.36 bitrate= 117.2kbits/s speed=4.04x    frame= 2706 fps=100 q=-0.0 size=    1536kB time=00:01:48.24 bitrate= 116.3kbits/s speed=   4x    frame= 2725 fps= 99 q=-0.0 size=    1536kB time=00:01:49.00 bitrate= 115.4kbits/s speed=3.95x    frame= 2749 fps= 98 q=-0.0 size=    1536kB time=00:01:49.96 bitrate= 114.4kbits/s speed=3.91x    frame= 2766 fps= 97 q=-0.0 size=    1536kB time=00:01:50.64 bitrate= 113.7kbits/s speed=3.86x    frame= 2786 fps= 96 q=-0.0 size=    1536kB time=00:01:51.44 bitrate= 112.9kbits/s speed=3.82x    frame= 2830 fps= 95 q=-0.0 size=    1536kB time=00:01:53.20 bitrate= 111.2kbits/s speed=3.82x    frame= 2861 fps= 95 q=-0.0 size=    1536kB time=00:01:54.44 bitrate= 110.0kbits/s speed=3.79x    frame= 2903 fps= 95 q=-0.0 size=    1536kB time=00:01:56.12 bitrate= 108.4kbits/s speed=3.79x    frame= 2975 fps= 95 q=-0.0 size=    1536kB time=00:01:59.00 bitrate= 105.7kbits/s speed=3.82x    frame= 2995 fps= 95 q=-0.0 size=    1536kB time=00:01:59.80 bitrate= 105.0kbits/s speed=3.78x    frame= 3066 fps= 95 q=-0.0 size=    1792kB time=00:02:02.64 bitrate= 119.7kbits/s speed=3.81x    frame= 3185 fps= 97 q=-0.0 size=    1792kB time=00:02:07.40 bitrate= 115.2kbits/s speed= 3.9x    frame= 3311 fps=100 q=-0.0 size=    1792kB time=00:02:12.44 bitrate= 110.8kbits/s speed=3.99x    frame= 3436 fps=102 q=-0.0 size=    2048kB time=00:02:17.44 bitrate= 122.1kbits/s speed=4.08x    frame= 3572 fps=104 q=-0.0 size=    2048kB time=00:02:22.88 bitrate= 117.4kbits/s speed=4.18x    frame= 3708 fps=107 q=-0.0 size=    2048kB time=00:02:28.32 bitrate= 113.1kbits/s speed=4.27x    frame= 3845 fps=109 q=-0.0 size=    2304kB time=00:02:33.80 bitrate= 122.7kbits/s speed=4.37x    frame= 3971 fps=111 q=-0.0 size=    2304kB time=00:02:38.84 bitrate= 118.8kbits/s speed=4.45x    frame= 4100 fps=113 q=-0.0 size=    2304kB time=00:02:44.00 bitrate= 115.1kbits/s speed=4.53x    frame= 4144 fps=113 q=-0.0 size=    2304kB time=00:02:45.76 bitrate= 113.9kbits/s speed=4.51x    frame= 4161 fps=112 q=-0.0 size=    2304kB time=00:02:46.44 bitrate= 113.4kbits/s speed=4.47x    frame= 4179 fps=111 q=-0.0 size=    2304kB time=00:02:47.16 bitrate= 112.9kbits/s speed=4.43x    frame= 4198 fps=110 q=-0.0 size=    2304kB time=00:02:47.92 bitrate= 112.4kbits/s speed=4.39x    frame= 4227 fps=109 q=-0.0 size=    2304kB time=00:02:49.08 bitrate= 111.6kbits/s speed=4.36x    frame= 4247 fps=108 q=-0.0 size=    2304kB time=00:02:49.88 bitrate= 111.1kbits/s speed=4.33x    frame= 4272 fps=107 q=-0.0 size=    2304kB time=00:02:50.88 bitrate= 110.5kbits/s speed= 4.3x    frame= 4291 fps=107 q=-0.0 size=    2560kB time=00:02:51.64 bitrate= 122.2kbits/s speed=4.26x    frame= 4310 fps=106 q=-0.0 size=    2560kB time=00:02:52.40 bitrate= 121.6kbits/s speed=4.23x    frame= 4326 fps=105 q=-0.0 size=    2560kB time=00:02:53.04 bitrate= 121.2kbits/s speed=4.19x    frame= 4345 fps=104 q=-0.0 size=    2560kB time=00:02:53.80 bitrate= 120.7kbits/s speed=4.16x    frame= 4365 fps=103 q=-0.0 size=    2560kB time=00:02:54.60 bitrate= 120.1kbits/s speed=4.13x    frame= 4384 fps=102 q=-0.0 size=    2560kB time=00:02:55.36 bitrate= 119.6kbits/s speed=4.09x    frame= 4399 fps=101 q=-0.0 size=    2560kB time=00:02:55.96 bitrate= 119.2kbits/s speed=4.06x    frame= 4417 fps=101 q=-0.0 size=    2560kB time=00:02:56.68 bitrate= 118.7kbits/s speed=4.03x    frame= 4438 fps=100 q=-0.0 size=    2560kB time=00:02:57.52 bitrate= 118.1kbits/s speed=   4x    frame= 4457 fps= 99 q=-0.0 size=    2560kB time=00:02:58.28 bitrate= 117.6kbits/s speed=3.97x    frame= 4475 fps= 98 q=-0.0 size=    2560kB time=00:02:59.00 bitrate= 117.2kbits/s speed=3.94x    frame= 4493 fps= 98 q=-0.0 size=    2560kB time=00:02:59.72 bitrate= 116.7kbits/s speed=3.91x    frame= 4511 fps= 97 q=-0.0 size=    2560kB time=00:03:00.44 bitrate= 116.2kbits/s speed=3.88x    frame= 4531 fps= 96 q=-0.0 size=    2560kB time=00:03:01.24 bitrate= 115.7kbits/s speed=3.86x    frame= 4548 fps= 96 q=-0.0 size=    2560kB time=00:03:01.92 bitrate= 115.3kbits/s speed=3.83x    frame= 4568 fps= 95 q=-0.0 size=    2560kB time=00:03:02.72 bitrate= 114.8kbits/s speed= 3.8x    frame= 4588 fps= 94 q=-0.0 size=    2560kB time=00:03:03.52 bitrate= 114.3kbits/s speed=3.78x    frame= 4608 fps= 94 q=-0.0 size=    2560kB time=00:03:04.32 bitrate= 113.8kbits/s speed=3.76x    frame= 4630 fps= 93 q=-0.0 size=    2560kB time=00:03:05.20 bitrate= 113.2kbits/s speed=3.74x    frame= 4650 fps= 93 q=-0.0 size=    2560kB time=00:03:06.00 bitrate= 112.8kbits/s speed=3.71x    frame= 4669 fps= 92 q=-0.0 size=    2560kB time=00:03:06.76 bitrate= 112.3kbits/s speed=3.69x    frame= 4689 fps= 92 q=-0.0 size=    2816kB time=00:03:07.56 bitrate= 123.0kbits/s speed=3.67x    frame= 4705 fps= 91 q=-0.0 size=    2816kB time=00:03:08.20 bitrate= 122.6kbits/s speed=3.64x    frame= 4764 fps= 91 q=-0.0 size=    2816kB time=00:03:10.56 bitrate= 121.1kbits/s speed=3.65x    frame= 4787 fps= 91 q=-0.0 size=    2816kB time=00:03:11.48 bitrate= 120.5kbits/s speed=3.64x    frame= 4806 fps= 90 q=-0.0 size=    2816kB time=00:03:12.24 bitrate= 120.0kbits/s speed=3.62x    frame= 4824 fps= 90 q=-0.0 size=    2816kB time=00:03:12.96 bitrate= 119.6kbits/s speed=3.59x    frame= 4864 fps= 90 q=-0.0 size=    2816kB time=00:03:14.56 bitrate= 118.6kbits/s speed=3.59x    frame= 4950 fps= 91 q=-0.0 size=    2816kB time=00:03:18.00 bitrate= 116.5kbits/s speed=3.62x    frame= 4970 fps= 90 q=-0.0 size=    2816kB time=00:03:18.80 bitrate= 116.0kbits/s speed= 3.6x    frame= 5005 fps= 90 q=-0.0 size=    2816kB time=00:03:20.20 bitrate= 115.2kbits/s speed=3.59x    frame= 5059 fps= 90 q=-0.0 size=    2816kB time=00:03:22.36 bitrate= 114.0kbits/s speed= 3.6x    frame= 5172 fps= 91 q=-0.0 size=    3072kB time=00:03:26.88 bitrate= 121.6kbits/s speed=3.65x    frame= 5269 fps= 92 q=-0.0 size=    3072kB time=00:03:30.76 bitrate= 119.4kbits/s speed=3.68x    frame= 5310 fps= 92 q=-0.0 size=    3072kB time=00:03:32.40 bitrate= 118.5kbits/s speed=3.68x    frame= 5327 fps= 91 q=-0.0 size=    3072kB time=00:03:33.08 bitrate= 118.1kbits/s speed=3.66x    frame= 5344 fps= 91 q=-0.0 size=    3072kB time=00:03:33.76 bitrate= 117.7kbits/s speed=3.64x    frame= 5363 fps= 90 q=-0.0 size=    3072kB time=00:03:34.52 bitrate= 117.3kbits/s speed=3.62x    frame= 5389 fps= 90 q=-0.0 size=    3072kB time=00:03:35.56 bitrate= 116.7kbits/s speed=3.61x    frame= 5408 fps= 90 q=-0.0 size=    3072kB time=00:03:36.32 bitrate= 116.3kbits/s speed=3.59x    frame= 5430 fps= 89 q=-0.0 size=    3072kB time=00:03:37.20 bitrate= 115.9kbits/s speed=3.57x    frame= 5448 fps= 89 q=-0.0 size=    3072kB time=00:03:37.92 bitrate= 115.5kbits/s speed=3.55x    frame= 5497 fps= 89 q=-0.0 size=    3072kB time=00:03:39.88 bitrate= 114.5kbits/s speed=3.56x    frame= 5516 fps= 88 q=-0.0 size=    3072kB time=00:03:40.64 bitrate= 114.1kbits/s speed=3.54x    frame= 5535 fps= 88 q=-0.0 size=    3328kB time=00:03:41.40 bitrate= 123.1kbits/s speed=3.52x    frame= 5562 fps= 88 q=-0.0 size=    3328kB time=00:03:42.48 bitrate= 122.5kbits/s speed=3.51x    frame= 5616 fps= 88 q=-0.0 size=    3328kB time=00:03:44.64 bitrate= 121.4kbits/s speed=3.52x    frame= 5674 fps= 88 q=-0.0 size=    3328kB time=00:03:46.96 bitrate= 120.1kbits/s speed=3.52x    frame= 5706 fps= 88 q=-0.0 size=    3328kB time=00:03:48.24 bitrate= 119.5kbits/s speed=3.52x    frame= 5748 fps= 88 q=-0.0 size=    3328kB time=00:03:49.92 bitrate= 118.6kbits/s speed=3.51x    frame= 5793 fps= 88 q=-0.0 size=    3328kB time=00:03:51.72 bitrate= 117.7kbits/s speed=3.51x    frame= 5838 fps= 88 q=-0.0 size=    3328kB time=00:03:53.52 bitrate= 116.7kbits/s speed=3.51x    frame= 5869 fps= 88 q=-0.0 size=    3328kB time=00:03:54.76 bitrate= 116.1kbits/s speed=3.51x    frame= 5935 fps= 88 q=-0.0 size=    3328kB time=00:03:57.40 bitrate= 114.8kbits/s speed=3.52x    frame= 5998 fps= 88 q=-0.0 size=    3584kB time=00:03:59.92 bitrate= 122.4kbits/s speed=3.53x    frame= 6020 fps= 88 q=-0.0 size=    3584kB time=00:04:00.80 bitrate= 121.9kbits/s speed=3.52x    frame= 6050 fps= 88 q=-0.0 size=    3584kB time=00:04:02.00 bitrate= 121.3kbits/s speed=3.51x    frame= 6087 fps= 88 q=-0.0 size=    3584kB time=00:04:03.48 bitrate= 120.6kbits/s speed= 3.5x    frame= 6112 fps= 87 q=-0.0 size=    3584kB time=00:04:04.48 bitrate= 120.1kbits/s speed=3.49x    frame= 6147 fps= 87 q=-0.0 size=    3584kB time=00:04:05.88 bitrate= 119.4kbits/s speed=3.49x    frame= 6184 fps= 87 q=-0.0 size=    3584kB time=00:04:07.36 bitrate= 118.7kbits/s speed=3.48x    frame= 6231 fps= 87 q=-0.0 size=    3584kB time=00:04:09.24 bitrate= 117.8kbits/s speed=3.48x    frame= 6305 fps= 88 q=-0.0 size=    3584kB time=00:04:12.20 bitrate= 116.4kbits/s speed= 3.5x    frame= 6344 fps= 87 q=-0.0 size=    3584kB time=00:04:13.76 bitrate= 115.7kbits/s speed= 3.5x    frame= 6372 fps= 87 q=-0.0 size=    3840kB time=00:04:14.88 bitrate= 123.4kbits/s speed=3.49x    frame= 6409 fps= 87 q=-0.0 size=    3840kB time=00:04:16.36 bitrate= 122.7kbits/s speed=3.49x    frame= 6443 fps= 87 q=-0.0 size=    3840kB time=00:04:17.72 bitrate= 122.1kbits/s speed=3.48x    frame= 6465 fps= 87 q=-0.0 size=    3840kB time=00:04:18.60 bitrate= 121.6kbits/s speed=3.47x    frame= 6506 fps= 87 q=-0.0 size=    3840kB time=00:04:20.24 bitrate= 120.9kbits/s speed=3.46x    frame= 6541 fps= 86 q=-0.0 size=    3840kB time=00:04:21.64 bitrate= 120.2kbits/s speed=3.46x    frame= 6582 fps= 86 q=-0.0 size=    3840kB time=00:04:23.28 bitrate= 119.5kbits/s speed=3.46x    frame= 6607 fps= 86 q=-0.0 size=    3840kB time=00:04:24.28 bitrate= 119.0kbits/s speed=3.45x    frame= 6643 fps= 86 q=-0.0 size=    3840kB time=00:04:25.72 bitrate= 118.4kbits/s speed=3.44x    frame= 6689 fps= 86 q=-0.0 size=    3840kB time=00:04:27.56 bitrate= 117.6kbits/s speed=3.44x    frame= 6722 fps= 86 q=-0.0 size=    3840kB time=00:04:28.88 bitrate= 117.0kbits/s speed=3.44x    frame= 6773 fps= 86 q=-0.0 size=    3840kB time=00:04:30.92 bitrate= 116.1kbits/s speed=3.44x    [out#0/mp4 @ 0x64a6449fb880] video:4117kB audio:0kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 0.673855%
+frame= 6819 fps= 86 q=-0.0 Lsize=    4145kB time=00:04:32.72 bitrate= 124.5kbits/s speed=3.45x    
+=== STEP 3/3: Adding audio ===
+ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers
+  built with gcc 13 (Ubuntu 13.2.0-23ubuntu3)
+  configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+  WARNING: library configuration mismatch
+  avcodec     configuration: --prefix=/usr --extra-version=3ubuntu5 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcaca --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --disable-libmfx --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared --enable-version3 --disable-doc --disable-programs --disable-static --enable-libaribb24 --enable-libopencore_amrnb --enable-libopencore_amrwb --enable-libtesseract --enable-libvo_amrwbenc --enable-libsmbclient
+  libavutil      58. 29.100 / 58. 29.100
+  libavcodec     60. 31.102 / 60. 31.102
+  libavformat    60. 16.100 / 60. 16.100
+  libavdevice    60.  3.100 / 60.  3.100
+  libavfilter     9. 12.100 /  9. 12.100
+  libswscale      7.  5.100 /  7.  5.100
+  libswresample   4. 12.100 /  4. 12.100
+  libpostproc    57.  3.100 / 57.  3.100
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'video_nosound.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf60.16.100
+  Duration: 00:04:32.76, start: 0.000000, bitrate: 124 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, progressive), 608x1080, 123 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc60.31.102 h264_vaapi
+Input #1, mp3, from 'podcast_audio.mp3':
+  Metadata:
+    encoder         : Lavf60.16.100
+  Duration: 00:04:32.78, start: 0.022042, bitrate: 48 kb/s
+  Stream #1:0: Audio: mp3, 24000 Hz, mono, fltp, 48 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (copy)
+  Stream #1:0 -> #0:1 (mp3 (mp3float) -> aac (native))
+Press [q] to stop, [?] for help
+Output #0, mp4, to 'video.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf60.16.100
+  Stream #0:0(und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, progressive), 608x1080, q=2-31, 123 kb/s, 25 fps, 25 tbr, 12800 tbn (default)
+    Metadata:
+      handler_name    : VideoHandler
+      vendor_id       : [0][0][0][0]
+      encoder         : Lavc60.31.102 h264_vaapi
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 24000 Hz, mono, fltp, 69 kb/s
+    Metadata:
+      encoder         : Lavc60.31.102 aac
+size=       0kB time=N/A bitrate=N/A speed=N/A    size=     768kB time=00:00:42.08 bitrate= 149.5kbits/s speed=  84x    size=    1792kB time=00:01:25.68 bitrate= 171.3kbits/s speed=85.6x    size=    2816kB time=00:02:11.44 bitrate= 175.5kbits/s speed=87.6x    size=    3840kB time=00:02:50.76 bitrate= 184.2kbits/s speed=85.3x    size=    4864kB time=00:03:35.24 bitrate= 185.1kbits/s speed=86.1x    size=    5888kB time=00:04:15.96 bitrate= 188.4kbits/s speed=85.3x    [out#0/mp4 @ 0x562adc2c3680] video:4117kB audio:2204kB subtitle:0kB other streams:0kB global headers:0kB muxing overhead: 1.789618%
+size=    6434kB time=00:04:32.72 bitrate= 193.3kbits/s speed=85.4x    
+[aac @ 0x562adc2ed580] Qavg: 15725.261
+=== Logging ===
+=== RENDER COMPLETE (7 Godot runs) ===

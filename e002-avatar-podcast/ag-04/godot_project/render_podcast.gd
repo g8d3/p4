@@ -41,7 +41,9 @@ var start_time := 0
 var frame_count := 0
 
 var pipe_file: FileAccess
-var pipe_path := "/tmp/render_pipe"
+var pipe_path := ""
+var raw_path := ""
+var resume_offset := 0.0
 
 
 func _ready() -> void:
@@ -55,20 +57,43 @@ func _ready() -> void:
 	build_subtitle_chunks()
 	setup_scene()
 
-	pipe_file = FileAccess.open(pipe_path, FileAccess.READ_WRITE)
+	raw_path = project_dir + "../frames.raw"
+	var frame_bytes := w * h * 4
+	var resume_frame := 0
+
+	if FileAccess.file_exists(raw_path):
+		var existing = FileAccess.open(raw_path, FileAccess.READ)
+		if existing != null:
+			var fsize = existing.get_length()
+			existing.close()
+			resume_frame = fsize / frame_bytes
+			print("Existing frames.raw: ", fsize, " bytes = ", resume_frame, " frames done")
+
+	if resume_frame > 0:
+		pipe_file = FileAccess.open(raw_path, FileAccess.READ_WRITE)
+		if pipe_file != null:
+			pipe_file.seek_end()
+	else:
+		pipe_file = FileAccess.open(raw_path, FileAccess.WRITE)
 	if pipe_file == null:
-		printerr("Cannot open pipe: ", pipe_path)
+		printerr("Cannot open output file: ", raw_path)
 		get_tree().quit(1)
 		return
-	print("Pipe opened: ", pipe_path)
 
+	var total_frames := int(duration * fps)
+	var remaining := total_frames - resume_frame
+	print("Output file opened: ", raw_path, " (", w, "x", h, " RGBA @ ", fps, " fps, ", duration, "s = ", total_frames, " frames)")
+	print("Resuming from frame ", resume_frame, "/", total_frames, " (", remaining, " remaining)")
+
+	frame_count = resume_frame
+	resume_offset = resume_frame / fps
 	Engine.max_fps = fps
 	start_time = Time.get_ticks_msec()
-	print("Starting render: ", duration, "s at ", fps, " fps")
+	print("Starting render: ", duration, "s at ", fps, " fps from frame ", resume_frame)
 
 
 func _process(_delta: float) -> void:
-	elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
+	elapsed = resume_offset + (Time.get_ticks_msec() - start_time) / 1000.0
 	var target_frames = int(duration * fps)
 	if frame_count >= target_frames:
 		print("Render complete: ", frame_count, " frames")
