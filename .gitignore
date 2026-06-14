@@ -1,0 +1,7 @@
+# TLS certificates (self-signed, contain hostname)
+certs/
+
+# Generated video and frame outputs
+*.mp4
+*.avi
+*.png

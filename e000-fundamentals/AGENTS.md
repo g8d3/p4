@@ -66,7 +66,15 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 - **Use your working directory**: don't use `/tmp` or external directories. Work inside your own directory and keep it organized however you see fit.
 - **Command timeouts**: every command must have an estimated timeout. If unsure how long it will take, add a generous margin. Never leave a command without a timeout.
 - **Never use pkill without extreme precision**: `pkill -f godot4` kills Godot processes across ALL tmux windows, including other agents. Use `kill $PID` with a specific process ID instead. If you must use pkill, scope it tightly (e.g., `pkill -f "Xvfb :99"`).
-- **Blocking commands to background**: if a command is designed to block the terminal (servers, long processes), run it in the background.
+- **Blocking commands to background + self-wake (MANDATORY for all agents)**: every command must run in background with `>/dev/null 2>&1 &`. After each command, schedule a self-wake with `tmux send-keys -t <window> "check status" Enter`. **The `Enter` at the end is REQUIRED** — without it the message sits unsubmitted and the agent never receives it. Agents must NEVER run commands synchronously or block waiting for output.
+- **When I (opencode) create agents, their AGENTS.md MUST include a `## Self-command` section** with the self-wake pattern. This is my responsibility as the agent creator.
+- **sudo in a separate window**: OpenCode blocks `sudo` commands with a permission prompt. Agents must NOT give up when sudo is needed. Instead, open a new tmux window with a **short name** (max 3 chars) and run the sudo command there:
+  1. `tmux new-window -n <short_name> -d` (e.g. `ss`, `sw`, `su`)
+  2. `tmux send-keys -t <short_name> "sudo <command>" Enter`
+  3. The sudo prompt appears in a raw terminal, not blocked by OpenCode
+  4. The agent can check completion with a self-wake after a reasonable delay
+  5. **Clean up**: when the sudo window is no longer needed, close it: `tmux kill-window -t <short_name>`. Agents must not leave temporary windows behind.
+- **Agents must clean up after themselves**: each agent is responsible for closing any tmux windows it creates (sudo windows, test windows, etc.) once they are no longer needed. Before finishing, an agent should verify its windows are cleaned up. Leaving orphan windows clutters the workspace for the user and other agents.
 
 ## Video recording
 

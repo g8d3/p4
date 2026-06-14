@@ -14,6 +14,10 @@ Current system runs Xorg. Weston/wf-recorder requires Wayland. We need to instal
 4. Once in a Weston session, verify: `wf-recorder -f test.mp4 -c h264_vaapi` works
 5. Document the process
 
-## Agent
+## Agents
 
 - **ag-01**: research and execute the migration. Read e000-fundamentals for principles.
+- **ag-02**: diagnose pkill hang issue.
+- **ag-03**: set up VNC access and desktop panel (Waybar/wofi).
+- **ag-04**: visual desktop repair using multimodal model (Mimo 2.5).
+- **ag-05**: migrate from Weston to Sway (wlroots) for wf-recorder + stable VNC.

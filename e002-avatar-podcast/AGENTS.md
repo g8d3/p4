@@ -12,3 +12,4 @@ A video (format TBD by ag-01) showing two avatars in a conversation layout, expl
 - **ag-02**: Write podcast script for 2 personas discussing practical applications
 - **ag-03**: Generate TTS for both personas (depends on ag-02)
 - **ag-04**: Compose final video (depends on ag-01, ag-02, ag-03)
+- **ag-09**: Benchmark wf-recorder live capture pipeline via Weston DRM
