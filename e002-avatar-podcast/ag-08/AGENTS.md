@@ -48,7 +48,7 @@ Write `wf-test.md` with:
 
 ## Execute
 
-Read this file entirely. Then follow the steps above in order. Each command in background with &. Self-wake after each step. Never run anything synchronously.
+Read this file entirely. Then immediately schedule a self-wake: `(sleep 2; tmux send-keys -t a8 "Begin step 1: start Weston" Enter) &`. Do not wait. This self-wake triggers the first step. After each step, schedule the next self-wake. Never run anything synchronously.
 
 ## Cleanup
 ```
