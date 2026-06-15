@@ -1,0 +1,10 @@
+name,language,stars,license,private
+opencode,Go,12000,MIT,false
+filex,Python,3400,Apache-2.0,false
+tabulator,JavaScript,6800,MIT,true
+duckdb,C++,15000,MIT,false
+papaparse,JavaScript,14000,MIT,false
+marked,JavaScript,34000,MIT,false
+highlight.js,JavaScript,24000,BSD-3-Clause,false
+sway,Rust,900,GPL-3.0,true
+godot,C++,8000,MIT,false

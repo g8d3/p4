@@ -1,0 +1,5 @@
+timestamp,agent_id,experiment,step,duration_sec,gpu_busy_pct,output_fps,file_size_mb,resolution,display_type,display_id,notes
+2026-06-15T10:11:06-05:00,ag-02,e004,recording,279,0,0,0,608x1080,drm,wayland-1,wf-recorder capture
+2026-06-15T10:11:30-05:00,ag-02,e004,recording,303,0,0,0,608x1080,drm,wayland-1,wf-recorder capture
+2026-06-15T10:13:46-05:00,ag-02,e004,compose,278.233333,0,60/1,5,608x1080,drm,wayland-1,ffmpeg CPU fallback
+2026-06-15T10:28:56-05:00,ag-01,e004,recording,300,0,0,0,608x1080,drm,wayland-1,wf-recorder capture

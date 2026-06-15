@@ -4,5 +4,8 @@ certs/
 # Generated video and frame outputs
 *.mp4
 *.avi
+*.mkv
 *.png
 *.raw
+*.mp3
+*.wav

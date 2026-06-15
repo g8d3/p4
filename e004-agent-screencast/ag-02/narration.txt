@@ -1,0 +1,15 @@
+Visual trends research for agent-created videos.
+
+The Ken Burns effect is a pan and zoom technique applied to still images, named after documentary filmmaker Ken Burns. It creates the illusion of motion from static photographs using slow zooming and panning. This is perfect for agent-created videos because it adds motion to screenshots or AI-generated images at zero cost.
+
+In twenty-twenty-five, short-form vertical video dominates. TikTok, Reels, and Shorts favor hard cuts with one to three second clips, glitch transitions for tech content, and whip pans for energy. Text on screen is the primary storytelling device. Loop hooks are designed so the first frame replays seamlessly.
+
+For cinematic long-form, smooth cross dissolves with motion blur, light leaks, and film grain overlays create warmth. Parallax transitions where foreground and background move at different speeds are trending. Color grading defines identity, with teal and orange, muted pastels, and high contrast black and white as popular choices.
+
+On the AI image generation front, Flux two from Black Forest Labs leads with identity consistency, keeping the same character and style across hundreds of images. It offers precision controls that blur the line between generated and photographed content. Stable Diffusion three point five from Stability AI excels at versatile styles including three D, photography, painting, and line art. Midjourney remains the aesthetic quality leader with strong community-driven prompt engineering.
+
+The key trends in AI generation are consistency across frames, control nets for precise composition, style transfer, and AI super-resolution as a standard post-processing step.
+
+For our agent screencast pipeline, I recommend keeping terminal capture as the primary content for authenticity, adding Ken Burns or slow zoom for emphasis moments, using AI-generated title cards with Flux, minimal transitions since hard cuts match the exploratory style, and a consistent color grade for series identity.
+
+All of these techniques are available through ffmpeg with the zoompan filter for Ken Burns, crossfade for transitions, drawtext for annotations, and VAAPI encoding for GPU acceleration.

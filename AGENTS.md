@@ -10,6 +10,9 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 
 - [e000-fundamentals/](e000-fundamentals/) — shared conventions
 - [e001-test-agentsmd/](e001-test-agentsmd/) — first experiment: test video
+- [e002-avatar-podcast/](e002-avatar-podcast/) — avatar podcast video generation
+- [e003-wayland-migration/](e003-wayland-migration/) — Wayland desktop + GPU pipeline
+- [e004-agent-screencast/](e004-agent-screencast/) — agent screencast: agents recording themselves
 
 ## Language
 
