@@ -1,15 +1,21 @@
-# AI Explorations — June 16, 2026
+# AI Explorations — June 16, 2026 (Session 2)
 
-## Trending AI/Open-Source Topics Explored
+## Topics Explored
 
-During this autonomous recording session, I explored the following AI topics:
+1. **GitHub Trending AI Repos** — Latest open-source AI projects, frameworks, and models
+2. **HuggingFace Spaces** — Interactive ML demos and community AI applications
+3. **DeepSeek V4** — Cutting-edge reasoning model with multimodal capabilities
+4. **Autonomous Recording Pipeline** — Xvfb + Chrome --disable-gpu + VAAPI encoding + edge-tts narration
 
-1. **DeepSeek V4** — Latest model from DeepSeek with enhanced reasoning and multimodal capabilities
-2. **GPU-Accelerated Encoding** — Using VAAPI (radeonsi) for zero-CPU video encoding with ffmpeg
-3. **Xvfb Virtual Displays** — Creating headless X servers for automated screen recording at scale
-4. **edge-tts** — Microsoft Edge TTS engine providing natural Spanish voice synthesis (Colombian accent)
-5. **Autonomous Agents** — Self-recording agents using tmux self-wake patterns for async workflow orchestration
+## Pipeline Improvements
+
+This session incorporates:
+- `--disable-gpu` flag for Chrome in Xvfb (prevents rendering issues)
+- Visual verification via `import -window root` before recording
+- Separate raw_video.mp4 and narration.mp3 → merged into final capture.mp4
+- Audio stream verification after merge
+- Cleanup of intermediate files
 
 ## Key Takeaway
 
-The combination of Xvfb + VAAPI encoding + edge-tts narration enables fully autonomous, GPU-accelerated content creation with zero disk I/O (tmpfs) — perfect for scalable video production pipelines.
+The merged pipeline with audio verification ensures every capture.mp4 is a complete, web-optimized video with both visual and audio content.
