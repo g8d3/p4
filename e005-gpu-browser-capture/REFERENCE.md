@@ -221,6 +221,34 @@ weston --backend=vnc-backend.so --width=608 --height=1080 --socket=wayland-1
 # Pero wf-recorder NO funciona con weston (solo wlroots)
 ```
 
+### DRM master y virtual displays (relación con TTY)
+
+Los virtual displays no cambian la necesidad de TTY para obtener DRM master. Siguen siendo parte de `card1` (la GPU), y `card1` necesita DRM master igual que antes.
+
+La diferencia es que **nosotros ya podemos obtener DRM master sin TTY físico** ejecutando Sway como root. `sudo` bypass logind y llama directo a `drmSetMaster()`.
+
+Lo que falló en el primer intento exitoso fue la **resolución del monitor HDMI** (dio 0×0 porque estaba en estado inconsistente después de matar sddm). Los virtual displays no tienen ese problema — el driver AMD les asigna 1920×1080 automáticamente.
+
+| Modo | TTY | DRM master? | Sway corre? | Resolución |
+|------|-----|------------|------------|------------|
+| Sway como usuario (no root) | SSH | ❌ logind deniega | ❌ no arranca | — |
+| Sway como root (sudo) | SSH | ✅ drmSetMaster directo | ✅ sí | 0×0 (HDMI sin modo) |
+| Sway como root + virtual displays | SSH | ✅ drmSetMaster directo | ✅ sí | **1920×1080** |
+
+Flujo post-reboot con virtual displays:
+
+```
+SSH → sudo sway (root, bypass logind)
+  → DRM master adquirido (drmSetMaster)
+  → Detecta: HDMI-A-1 (0×0, ignorado), VIRTUAL-1 (1920×1080), VIRTUAL-2, VIRTUAL-3
+  → Crea socket Wayland en /run/sway-recording/
+
+En otra terminal SSH:
+  XDG_RUNTIME_DIR=/run/sway-recording WAYLAND_DISPLAY=wayland-1 \
+  wf-recorder -o VIRTUAL-1 -c h264_vaapi -f video.mp4
+  → DMA-BUF real, 0% CPU, sin sudo
+```
+
 ### AMD Virtual Display (la solución definitiva para grabación headless con DMA-BUF)
 
 El driver AMD tiene un parámetro que crea displays virtuales **en la GPU real**, con scanout buffer en VRAM y DMA-BUF funcional:
