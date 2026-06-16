@@ -221,7 +221,47 @@ weston --backend=vnc-backend.so --width=608 --height=1080 --socket=wayland-1
 # Pero wf-recorder NO funciona con weston (solo wlroots)
 ```
 
-Ejemplo real que funciona en este proyecto:
+### AMD Virtual Display (la solución definitiva para grabación headless con DMA-BUF)
+
+El driver AMD tiene un parámetro que crea displays virtuales **en la GPU real**, con scanout buffer en VRAM y DMA-BUF funcional:
+
+```bash
+# Agregar a GRUB_CMDLINE_LINUX en /etc/default/grub
+amdgpu.virtual_display=0000:05:00.0,3
+
+# Actualizar grub y reiniciar
+sudo update-grub2 && sudo reboot
+```
+
+Después del reinicio aparecen conectores virtuales:
+
+```bash
+ls /sys/class/drm/card1-* | grep VIRTUAL
+# → card1-VIRTUAL-1, card1-VIRTUAL-2, card1-VIRTUAL-3
+```
+
+Beneficios vs Xvfb:
+
+| Aspecto | Xvfb | AMD Virtual Display |
+|---------|------|-------------------|
+| DMA-BUF | ❌ no | ✅ sí |
+| CPU copy | ~5% | 0% |
+| GPU encoding | ✅ VAAPI | ✅ VAAPI sin hwupload |
+| wf-recorder | ❌ no compatible | ✅ funciona directo |
+| Múltiples displays | ✅ ilimitados | ✅ hasta N configurados |
+| Arranque | instantáneo | disponible solo post-reboot |
+
+Con esto, el pipeline pasa a ser:
+
+```bash
+# Arrancar Sway en el display virtual (sin monitor, sin TTY físico)
+# Sway detecta VIRTUAL-1 como output real → DMA-BUF funciona
+
+# Grabar con DMA-BUF (0 CPU)
+wf-recorder -o VIRTUAL-1 -c h264_vaapi -f out.mp4
+```
+
+Ejemplo real que funciona en este proyecto (sin amd virtual display, con Xvfb):
 
 ```bash
 # Desde SSH:
