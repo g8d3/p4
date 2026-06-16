@@ -1,19 +1,26 @@
-# AI Explorations — June 16, 2026 (Session 3)
+# AI Explorations — June 16, 2026 (Session 4)
 
 ## Topics Explored
 
-1. **GitHub Trending AI Repos** — Browsing latest open-source AI projects with xdotool interaction
-2. **xdotool Browser Automation** — Scrolling pages, switching tabs via keyboard simulation
-3. **Resource Monitoring** — GPU busy%, CPU%, disk writes logged per-second to metrics.csv
-4. **Pipeline Logging** — Every step logged to pipeline-log.csv with timestamps and status
+1. **DeepSeek GitHub Search** — Browsing DeepSeek-related repositories on GitHub with scroll interaction
+2. **HuggingFace Spaces via xdotool typing** — Opened a new tab by typing "huggingface.co/spaces" with keyboard automation
+3. **Tab switching** — Navigated between GitHub and HuggingFace tabs for multi-content browsing
+4. **35-second creative video** — Extended duration with varied interactions (scroll, type, new tab, switch tab)
 
-## Pipeline Enhancements
+## Interaction Sequence
 
-- **Browser motion**: xdotool loop scrolls pages and switches tabs during 30s recording
-- **Resource monitor**: Background loop logs per-second GPU/CPU/disk telemetry
-- **Pipeline logging**: All 6 steps (xvfb, browser, narration, recording, merge, verify) logged with run ID
-- **Merge**: Same `-movflags +faststart` web-optimized output
+- 0-5s: GitHub DeepSeek search loaded, narration starts
+- 5-15s: Scrolled through search results (xdotool key Down ×3)
+- 15-20s: Opened new tab (Ctrl+T), typed URL, pressed Enter
+- 20-30s: Switched back to GitHub tab, scrolled more
+- 30-35s: Wrap-up narration, end recording
+
+## Pipeline
+
+- `resources.csv` — per-second resource telemetry (GPU, CPU, disk)
+- `runs.csv` — 6 pipeline steps logged with timestamps and status
+- `-movflags +faststart` verified working (moov atom at file start)
 
 ## Key Takeaway
 
-Combining xdotool interaction with VAAPI recording and resource monitoring produces a complete, verifiable autonomous content capture pipeline with full telemetry.
+Autonomous creative content recording with varied interactions (type, tab, scroll) produces a more engaging vertical video than static scrolling alone.

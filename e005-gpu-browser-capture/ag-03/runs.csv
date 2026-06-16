@@ -1,0 +1,13 @@
+timestamp,run_id,experiment,agent_id,step,tool,action,display_type,display_id,gpu_device,gpu_busy_pct,duration_sec,status,notes
+2026-06-16T11:32:45-05:00,run-1781627565,e005,ag-03,1,xvfb,start,virtual,:99,/dev/dri/renderD128,,0,ok,608x1080
+2026-06-16T11:32:45-05:00,run-1781627565,e005,ag-03,2,chrome,launch,virtual,:99,/dev/dri/renderD128,,0,ok,trending github --disable-gpu
+2026-06-16T11:33:13-05:00,run-1781627565,e005,ag-03,3,edge-tts,generate,virtual,:99,/dev/dri/renderD128,,0,ok,es-CO-GonzaloNeural
+2026-06-16T11:33:52-05:00,run-1781627565,e005,ag-03,4,ffmpeg,record,virtual,:99,/dev/dri/renderD128,,30,ok,x11grab+VAAPI
+2026-06-16T11:34:22-05:00,run-1781627565,e005,ag-03,5,ffmpeg,merge,virtual,:99,/dev/dri/renderD128,,0,ok,-movflags +faststart
+2026-06-16T11:34:22-05:00,run-1781627565,e005,ag-03,6,ffprobe,verify,virtual,:99,/dev/dri/renderD128,,0,ok,608x1080+audio+aac
+2026-06-16T11:44:41-05:00,run-1781628275,e005,ag-03,1,xvfb,start,virtual,:99,/dev/dri/renderD128,,0,ok,608x1080
+2026-06-16T11:44:41-05:00,run-1781628275,e005,ag-03,2,chrome,launch,virtual,:99,/dev/dri/renderD128,,0,ok,github search deepseek
+2026-06-16T11:45:04-05:00,run-1781628275,e005,ag-03,3,edge-tts,generate,virtual,:99,/dev/dri/renderD128,,0,ok,es-CO-GonzaloNeural
+2026-06-16T11:45:39-05:00,run-1781628275,e005,ag-03,4,ffmpeg,record,virtual,:99,/dev/dri/renderD128,,35,ok,x11grab+VAAPI
+2026-06-16T11:46:07-05:00,run-1781628275,e005,ag-03,5,ffmpeg,merge,virtual,:99,/dev/dri/renderD128,,35,ok,-movflags+faststart+shortest
+2026-06-16T11:46:07-05:00,run-1781628275,e005,ag-03,6,ffprobe,verify,virtual,:99,/dev/dri/renderD128,,0,ok,608x1080+audio+aac
