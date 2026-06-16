@@ -258,6 +258,22 @@ Each AGENTS.md should include a concrete `## Command execution` section with exa
 
 **Rule of thumb**: If a command takes more than 2 seconds, it needs `timeout` or background + self-wake. Never run bare `kill`, `sleep`, or long-running commands synchronously.
 
+### Orchestrator workflow: update agent without restart
+
+The orchestrator (a0) edits `AGENTS.md` but does NOT restart the agent. Instead, send a **targeted live message** to the agent's tmux window:
+
+```
+1. Orchestrator edits agent's AGENTS.md  (persistent for future runs)
+2. Orchestrator sends message to agent's window with the delta
+   tmux send-keys -t <window> "Apply this change: <specific instructions>" Enter
+3. Agent continues from current state, applying only the diff
+```
+
+**Pros**: No work lost, no full re-read, fast iteration.
+**Cons**: Agent's conversation history still has old instructions. If the change is fundamental, a restart may be cleaner.
+
+**Rule of thumb**: For small deltas (tool flags, pipeline steps, content ideas), use live message. For complete rewrites or when stuck for >2 minutes, restart.
+
 ### Verification
 
 Do NOT assume an agent is working from a single pane capture. The Build mode interface is always displayed — even when idle. To confirm real activity:
