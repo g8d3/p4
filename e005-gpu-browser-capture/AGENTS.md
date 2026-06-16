@@ -27,6 +27,7 @@ Kill sddm (free DRM master)
 
 - **ag-01**: GPU stress test — WebGL + vkcube + VAAPI encoding benchmark
 - **ag-02**: AI dynamic browsing — agent decides what to browse, interacts via ydotool, narrates in real-time
+- **ag-03**: Autonomous content recording — each agent gets its own Xvfb display, records vertical video with VAAPI, narrates with edge-tts, explores AI topics independently
 
 ## Infrastructure
 
