@@ -7,9 +7,15 @@
 
 ## Goal
 
-Record yourself autonomously exploring AI/open-source topics for 30 seconds. Produce a **single** vertical (608×1080) video with GPU-accelerated encoding, **merged audio+narration**, and web-optimized seeking. Narrate your actions and decisions in real-time using edge-tts.
+Record yourself autonomously exploring AI/open-source topics. Produce a **single** vertical (608×1080) video with GPU-accelerated encoding, **merged audio+narration**, and web-optimized seeking. Narrate your actions and decisions in real-time using edge-tts.
 
-You are an autonomous content creator. Decide what to do, do it, narrate it, record it. Be creative and exploratory.
+You are an autonomous content creator. **You decide**:
+- Duration (10s-60s, whatever fits the content)
+- What to do (browse, code, read, compare, demo)
+- How to make it visually interesting (scroll, click, type, navigate)
+- Your narration style (educational, entertaining, exploratory)
+
+Think about what makes an engaging short video. A 20s screen recording of static text is boring. A 20s demo of scrolling through trending AI repos with commentary is interesting. Be creative.
 
 ## Critical: Browser must render visible MOTION
 
@@ -49,13 +55,13 @@ Your display is 608×1080 vertical (TikTok/Reels format).
 ```
 1. Start Xvfb :99 (virtual display)
 2. Launch browser, load a visual page, verify with screenshot
-3. Start resource monitor (GPU/CPU/disk → metrics.csv)
+3. Start resource monitor (GPU/CPU/disk → resources.csv)
 4. Start edge-tts narration → narration.mp3
 5. Begin ffmpeg recording (x11grab + VAAPI) → raw_video.mp4
-6. INTERACT with browser: scroll, click, type, navigate (20-30s)
+6. INTERACT with browser: scroll, click, type, navigate (duration you decide)
 7. Stop recording, stop narration
 8. Merge audio + video → capture.mp4 (with -movflags +faststart)
-9. Log pipeline metrics to pipeline-log.csv
+9. Log pipeline metrics to runs.csv
 10. Verify the video
 11. Delete intermediate files
 ```
@@ -88,12 +94,12 @@ Your display is 608×1080 vertical (TikTok/Reels format).
   ```
 - **AI topics to explore**: github.com/trending, huggingface.co/models, huggingface.co/spaces, new model releases, AI frameworks, agent systems, memory architectures, RAG, fine-tuning, etc.
 
-## Resource monitor
+## Resource monitor (resources.csv)
 
-Run this in background during recording to log per-second metrics:
+Run this in background during recording to log per-second resource usage:
 
 ```bash
-MON_CSV="metrics.csv"
+MON_CSV="resources.csv"
 echo "timestamp,gpu_busy_pct,cpu_pct,disk_write_kbps,memory_mb" > "$MON_CSV"
 # Run loop in background
 (
@@ -109,18 +115,18 @@ echo "timestamp,gpu_busy_pct,cpu_pct,disk_write_kbps,memory_mb" > "$MON_CSV"
 MON_PID=$!
 ```
 
-## Pipeline metrics
+## Pipeline metrics (runs.csv)
 
-Every run appends to `pipeline-log.csv`:
+Every run appends to `runs.csv` (cumulative log of all recording runs):
 
 ```bash
-if [ ! -f pipeline-log.csv ]; then
-  echo "timestamp,run_id,experiment,agent_id,step,tool,action,display_type,display_id,gpu_device,gpu_busy_pct,duration_sec,status,notes" > pipeline-log.csv
+if [ ! -f runs.csv ]; then
+  echo "timestamp,run_id,experiment,agent_id,step,tool,action,display_type,display_id,gpu_device,gpu_busy_pct,duration_sec,status,notes" > runs.csv
 fi
 
 # Log after each step:
 STEP_NAME="xvfb"
-echo "$(date -Iseconds),$RUN_ID,e005,ag-03,1,xvfb,start,virtual,:99,$GPU,$DURATION,ok,608x1080" >> pipeline-log.csv
+echo "$(date -Iseconds),$RUN_ID,e005,ag-03,1,xvfb,start,virtual,:99,$GPU,$DURATION,ok,608x1080" >> runs.csv
 ```
 
 Required steps to log: xvfb, browser, narration, recording, merge, verify.
@@ -131,8 +137,8 @@ Required steps to log: xvfb, browser, narration, recording, merge, verify.
 - `raw_video.mp4` — video-only (delete after merge)
 - `narration.mp3` — audio (delete after merge)
 - `findings.md` — what you learned
-- `metrics.csv` — per-second resource telemetry
-- `pipeline-log.csv` — cumulative pipeline log (appended each run)
+- `resources.csv` — per-second resource telemetry (GPU, CPU, disk)
+- `runs.csv` — cumulative pipeline log: one row per run, appended each execution
 
 ## Interaction sequence
 
