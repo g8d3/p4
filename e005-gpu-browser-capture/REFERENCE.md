@@ -149,6 +149,46 @@ SCANOUT BUFFER = el framebuffer específico que el controlador HDMI está leyend
 | Formato vertical | 608×1080 | ✅ x11grab captura la región exacta |
 | Sin sudo | Permisos de usuario | ✅ Xvfb + Chrome + ffmpeg no requieren sudo |
 
+## Cómo controlar un TTY físico desde SSH
+
+Aunque no puedas "ver" el TTY físico, podés enviarle comandos:
+
+```bash
+# Cambiar a otro TTY (como cambiar de escritorio virtual en Linux)
+chvt 3          # cambia el monitor a tty3
+chvt 7          # vuelve a tty7 (donde suele estar el escritorio)
+
+# Arrancar un programa en un TTY específico
+openvt -- sway  # abre sway en el próximo TTY libre (tty7, tty8...)
+openvt -c 7 -- sway  # lo abre específicamente en tty7
+
+# Ejecutar algo en un TTY como root (para drm master, etc.)
+sudo openvt -c 7 -- sway -c /ruta/config
+
+# Enviar texto a un TTY (como si alguien escribiera ahí)
+sudo sendkeys /dev/tty7 "comando"
+
+# Ver quién tiene cada TTY
+loginctl list-sessions
+loginctl show-session <id> | grep TTY
+
+# Liberar un TTY (matar el proceso que lo ocupa)
+sudo fgconsole       # muestra el TTY activo actual
+sudo chvt 1          # vuelve a tty1
+```
+
+**Importante:** el TTY físico y tu sesión SSH son independientes. Podés arrancar algo en `tty7` desde SSH, y aunque no veas la pantalla, el proceso corre y puede tener DRM master. Luego desde SSH le mandás comandos vía sockets (Wayland/IPC) o scripts.
+
+Ejemplo real que funciona en este proyecto:
+
+```bash
+# Desde SSH:
+sudo openvt -c 7 -- sway -c /etc/sway-recording-config
+# Sway arranca en tty7, toma DRM master, crea socket Wayland
+# Vuelvo a SSH y me conecto al socket:
+XDG_RUNTIME_DIR=/run/sway-recording WAYLAND_DISPLAY=wayland-1 wf-recorder ...
+```
+
 ## Glosario
 
 | Término | Significado |
