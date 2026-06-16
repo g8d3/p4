@@ -68,13 +68,53 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 - **Never use pkill without extreme precision**: `pkill -f godot4` kills Godot processes across ALL tmux windows, including other agents. Use `kill $PID` with a specific process ID instead. If you must use pkill, scope it tightly (e.g., `pkill -f "Xvfb :99"`).
 - **Blocking commands to background + self-wake (MANDATORY for all agents)**: every command must run in background with `>/dev/null 2>&1 &`. After each command, schedule a self-wake with `tmux send-keys -t <window> "check status" Enter`. **The `Enter` at the end is REQUIRED** — without it the message sits unsubmitted and the agent never receives it. Agents must NEVER run commands synchronously or block waiting for output.
 - **When I (opencode) create agents, their AGENTS.md MUST include a `## Self-command` section** with the self-wake pattern. This is my responsibility as the agent creator.
-- **sudo in a separate window**: OpenCode blocks `sudo` commands with a permission prompt. Agents must NOT give up when sudo is needed. Instead, open a new tmux window with a **short name** (max 3 chars) and run the sudo command there:
-  1. `tmux new-window -n <short_name> -d` (e.g. `ss`, `sw`, `su`)
-  2. `tmux send-keys -t <short_name> "sudo <command>" Enter`
-  3. The sudo prompt appears in a raw terminal, not blocked by OpenCode
-  4. The agent can check completion with a self-wake after a reasonable delay
-  5. **Clean up**: when the sudo window is no longer needed, close it: `tmux kill-window -t <short_name>`. Agents must not leave temporary windows behind.
+- **sudo in a separate window**: OpenCode blocks `sudo` commands with a permission prompt. Agents must NOT give up when sudo is needed. Instead, open a new tmux window and run the sudo command there:
+   1. `tmux new-window -n <sudo_name> -d`
+   2. `tmux send-keys -t <sudo_name> "sudo <command>" Enter`
+   3. The sudo prompt appears in a raw terminal, not blocked by OpenCode
+   4. The agent can check completion with a self-wake after a reasonable delay
+   5. **Clean up**: when the sudo window is no longer needed, close it: `tmux kill-window -t <sudo_name>`. Agents must not leave temporary windows behind.
 - **Agents must clean up after themselves**: each agent is responsible for closing any tmux windows it creates (sudo windows, test windows, etc.) once they are no longer needed. Before finishing, an agent should verify its windows are cleaned up. Leaving orphan windows clutters the workspace for the user and other agents.
+
+## Tmux window naming convention
+
+All agent and sudo windows must follow this standard:
+
+| Window | Pattern | Examples |
+|--------|---------|----------|
+| Root orchestrator agent | `a0` | `a0` |
+| Experiment agent | `{exp}-{agent}` | `5-1`, `5-2`, `4-1` |
+| Sudo window | `{exp}s` | `5s`, `4s` |
+
+For example, in experiment e005:
+- Agent ag-01 → tmux window `5-1`
+- Agent ag-02 → tmux window `5-2`
+- Sudo window for e005 → tmux window `5s`
+
+This makes it easy to identify which experiment and agent a window belongs to, especially when running multiple experiments in parallel.
+
+## Writing AGENTS.md: declarative over imperative
+
+A common mistake is writing AGENTS.md like a recipe — "do step 1, then sleep 3, then do step 2". This makes agents robotic and blind to errors. If something goes wrong, they follow the recipe anyway because the instructions don't ask them to check.
+
+Instead, write **declarative** instructions: describe the goal, the constraints, the tools, and common pitfalls. Let the agent figure out the steps.
+
+| Imperative (bad) | Declarative (good) |
+|---|---|
+| `wf-recorder --geometry "0,0 608x1080"` | "Record the screen at 608×1080 vertical. Verify the output resolution with ffprobe." |
+| `sleep 3` | "Wait until the browser is ready — check with pgrep or swaymsg." |
+| "Step 1: X. Step 2: Y. Step 3: Z." | "Here's what success looks like. Here are the tools. Go explore and iterate." |
+| No error checking | "If the video is < 1 MB, diagnose and retry before proceeding." |
+
+**Key principles:**
+
+1. **Define success criteria**, not steps. Tell the agent what "done" looks like (file size, resolution, visible content).
+2. **List common pitfalls**. The agent will encounter them — help it recognize and fix them.
+3. **Tell the agent to verify**. After any operation, check the result. `stat`, `ffprobe`, `swaymsg`, frame extraction — use them.
+4. **Encourage iteration**. If the first attempt fails, the agent should diagnose, fix, and retry — not proceed with a broken result.
+5. **Describe tools, not commands**. "Use swaymsg to inspect windows" is better than "run `swaymsg -t get_tree | python3 -c ...`". The agent can figure out the exact syntax.
+
+The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and adapting. The AGENTS.md should **enable** that capability, not override it with rigid instructions.
 
 ## Video recording
 

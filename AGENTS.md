@@ -13,6 +13,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e002-avatar-podcast/](e002-avatar-podcast/) — avatar podcast video generation
 - [e003-wayland-migration/](e003-wayland-migration/) — Wayland desktop + GPU pipeline
 - [e004-agent-screencast/](e004-agent-screencast/) — agent screencast: agents recording themselves
+- [e005-gpu-browser-capture/](e005-gpu-browser-capture/) — GPU-stressed browser capture with resource monitoring
 
 ## Language
 

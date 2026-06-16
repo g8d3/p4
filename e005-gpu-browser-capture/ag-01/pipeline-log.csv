@@ -1,0 +1,2 @@
+timestamp,run_id,experiment,agent_id,step,tool,action,display_type,display_id,gpu_device,gpu_busy_pct,duration_sec,status,notes
+2026-06-15T21:24:59-05:00,run-20260615-212459,e005,ag-02,all,ai-browsing,dynamic-session,wayland,wayland-1,/dev/dri/card1,,20,ok,AI-driven browsing - ydotool input failed (ydotoold not running)
