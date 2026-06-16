@@ -228,6 +228,36 @@ Every agent must apply these to each command they write:
 
 Each AGENTS.md should include a concrete `## Command execution` section with examples relevant to that agent's task.
 
+### OpenCode synchronous command trap
+
+**Problem**: OpenCode runs commands synchronously — the agent blocks until the command finishes. A human would notice a command is taking too long and proactively kill it, but the agent can't. This means:
+
+- `sleep 300` blocks the agent for 5 minutes doing nothing
+- `kill $PID` of a zombie/stuck process hangs forever
+- Any command that doesn't exit becomes a deadlock
+
+**Solutions** (in order of preference):
+
+1. **`timeout`**: Always wrap commands that might hang:
+   ```bash
+   timeout 5 kill $PID 2>/dev/null   # instead of plain kill
+   timeout 10 ffmpeg ...              # ffmpeg with hard cap
+   ```
+
+2. **Background + self-wake**: Put the command in background and check with self-wake:
+   ```bash
+   ffmpeg ... &
+   CMD_PID=$!
+   (sleep 5; tmux send-keys -t 5-3 "Self-wake: check CMD_PID=$CMD_PID, if still running after 5s, kill it." Enter) &
+   ```
+
+3. **Check first**: Before running a blocking command, check if it's necessary:
+   ```bash
+   pgrep ffmpeg && echo "already running, skipping" || ffmpeg ...
+   ```
+
+**Rule of thumb**: If a command takes more than 2 seconds, it needs `timeout` or background + self-wake. Never run bare `kill`, `sleep`, or long-running commands synchronously.
+
 ### Verification
 
 Do NOT assume an agent is working from a single pane capture. The Build mode interface is always displayed — even when idle. To confirm real activity:
