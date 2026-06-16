@@ -17,6 +17,24 @@ You are an autonomous content creator. **You decide**:
 
 Think about what makes an engaging short video. A 20s screen recording of static text is boring. A 20s demo of scrolling through trending AI repos with commentary is interesting. Be creative.
 
+## Critical: Must kill leftover Chrome processes
+
+Chrome processes accumulate across sessions (they survive Xvfb restarts). Multiple `--new-window` calls create overlapping windows on the display. **Always** kill all Chrome processes before starting a new session:
+
+```bash
+pkill -9 chrome 2>/dev/null
+sleep 1
+# Verify: pgrep chrome | wc -l should be 0
+```
+
+Then launch Chrome with a single URL (not `--new-window` after the first launch):
+
+```bash
+google-chrome --no-sandbox --disable-gpu --window-size=608,1080 "https://..." &
+```
+
+Use xdotool `ctrl+t` to open new tabs (same window) instead of `--new-window`.
+
 ## Critical: Browser must render visible MOTION
 
 Xvfb shows a blank screen by default. You must **interact** with the browser to create visible motion on screen. Static pages look like a screenshot.
@@ -72,6 +90,10 @@ Your display is 608×1080 vertical (TikTok/Reels format).
   - `--disable-gpu` is required for Xvfb (no GPU acceleration in virtual display)
   - Verify it's running: `pgrep chrome`
   - Screenshot to confirm: `import -window root /tmp/screen.png && file /tmp/screen.png`
+- ⚠️ **Chrome window management**:
+  - Use `--new-window` only for the **first** launch. Subsequent pages: use xdotool `ctrl+t` to open new tabs in the same window.
+  - `pkill -9 chrome` before each session to prevent overlapping windows.
+  - Verify: `pgrep chrome | wc -l` should be < 5 (only one browser instance).
 - **Keyboard/mouse automation** (xdotool):
   ```bash
   # Scroll down
@@ -176,6 +198,8 @@ After merge, check:
 - Resolution: `ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 capture.mp4`
 - Has audio: `ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of csv=p=0 capture.mp4`
 - Not corrupt: `ffprobe -v error capture.mp4`
+- Keyframes every ~1s: `ffprobe -v error -select_streams v -show_entries frame=pict_type,pts_time -of csv=p=0 capture.mp4 | grep "I" | head -5` (should show 0, 1, 2, 3, 4... not 0, 4, 8, 12...)
+- ⚠️ **Test seeking in a real browser**: serve video with `python3 -m http.server` and open in Chrome. Click seek bar at 3 positions — frames should differ.
 - Clean up: `rm -f raw_video.mp4 narration.mp3`
 
 ## Self-command

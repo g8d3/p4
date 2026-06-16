@@ -1,26 +1,28 @@
-# AI Explorations — June 16, 2026 (Session 4)
+# AI Explorations — June 16, 2026
 
-## Topics Explored
+## Problem Diagnosis: Browser Seeking Broken
 
-1. **DeepSeek GitHub Search** — Browsing DeepSeek-related repositories on GitHub with scroll interaction
-2. **HuggingFace Spaces via xdotool typing** — Opened a new tab by typing "huggingface.co/spaces" with keyboard automation
-3. **Tab switching** — Navigated between GitHub and HuggingFace tabs for multi-content browsing
-4. **35-second creative video** — Extended duration with varied interactions (scroll, type, new tab, switch tab)
+### Issue 1: Multiple overlapping Chrome windows
+**Root cause**: Chrome processes accumulated across recording sessions. Each `--new-window` call created a new window on the same Xvfb display. After several sessions, 28+ Chrome processes were running with 4+ overlapping windows.
 
-## Interaction Sequence
+**Fix**: Kill all Chrome processes (`pkill -9 chrome`) before each session. Launch Chrome ONCE with a direct URL (no `--new-window` after first). Use xdotool `ctrl+t` for new tabs instead.
 
-- 0-5s: GitHub DeepSeek search loaded, narration starts
-- 5-15s: Scrolled through search results (xdotool key Down ×3)
-- 15-20s: Opened new tab (Ctrl+T), typed URL, pressed Enter
-- 20-30s: Switched back to GitHub tab, scrolled more
-- 30-35s: Wrap-up narration, end recording
+### Issue 2: Native browser player can't seek
+**Root cause**: Default VAAPI encoder GOP size is 120 frames. At 30fps that's one keyframe every 4 seconds. Browser video players can only seek to keyframe boundaries — between them they must download + decode from the previous keyframe, making scrubbing unresponsive.
 
-## Pipeline
+**Evidence**: capture.mp4 had I-frames only at 0.0, 4.0, 8.0, 12.0, 16.0, 20.0, 24.0s.
 
-- `resources.csv` — per-second resource telemetry (GPU, CPU, disk)
-- `runs.csv` — 6 pipeline steps logged with timestamps and status
-- `-movflags +faststart` verified working (moov atom at file start)
+**Fix**: Added `-g 30 -keyint_min 30` to `ffmpeg` recording, forcing a keyframe every 30 frames (~1 second).
 
-## Key Takeaway
+### Fix Validation
+1. **Keyframe interval**: Verified with `ffprobe` — I-frames at 0, 1, 2, 3... 19s (was 0, 4, 8, 12...)
+2. **FFmpeg seek test**: `time ffmpeg -ss 15 -i capture.mp4 -vframes 1` completes in ~125ms (instant)
+3. **Browser seek test**: Served video via `python3 -m http.server`, opened in Chrome, clicked seek bar at 3 different positions — each click produced a different frame (unique MD5 hashes). **Confirmed seeking works.**
 
-Autonomous creative content recording with varied interactions (type, tab, scroll) produces a more engaging vertical video than static scrolling alone.
+### How to test
+```bash
+# Serve the video
+cd ag-03 && python3 -m http.server 9999
+# Open in Chrome: http://localhost:9999/capture.mp4
+# Click seek bar at multiple positions — video should jump instantly
+```
