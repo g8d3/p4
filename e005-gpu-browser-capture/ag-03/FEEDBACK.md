@@ -91,3 +91,7 @@
 6. **Estructura obligatoria**: gancho → contenido → despedida
 7. **Formato vertical**: aprovechar todo el espacio, texto grande y legible
 8. **Flexibilidad**: los videos no son guiones rígidos — puedo desviarme, reaccionar, enseñar algo que surja en el momento, entretener. Detectar oportunidades para enseñar mientras grabo
+9. **NUNCA quedarme callado**: mantener explicación constante durante TODO el video. Si hay silencio, el viewer se va. Hablar sin parar: qué hago, por qué, qué veo, qué aprendo
+10. **Ventana activa = lo que explico**: si estoy hablando de la terminal, DEBO estar escribiendo en la terminal. Si estoy en el navegador, DEBO estar interactuando. Nunca explicar algo que no se ve en pantalla
+11. **Comparaciones inteligentes**: comparar同类 (texto con texto, imágenes con imágenes). No mezclar categorías. Hacer tabla de pros/contras, mostrarla, explicarla, concluir
+12. **Completar el arco**: intro → desarrollo FULL → conclusión. No quedarme a la mitad. Si empiezo algo, terminarlo
