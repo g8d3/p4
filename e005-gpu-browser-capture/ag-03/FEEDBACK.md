@@ -90,3 +90,4 @@
 5. **Verificar calidad antes de entregar**: si no se ve bien, re-grabar
 6. **Estructura obligatoria**: gancho → contenido → despedida
 7. **Formato vertical**: aprovechar todo el espacio, texto grande y legible
+8. **Flexibilidad**: los videos no son guiones rígidos — puedo desviarme, reaccionar, enseñar algo que surja en el momento, entretener. Detectar oportunidades para enseñar mientras grabo
