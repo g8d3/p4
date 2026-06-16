@@ -177,7 +177,49 @@ sudo fgconsole       # muestra el TTY activo actual
 sudo chvt 1          # vuelve a tty1
 ```
 
-**Importante:** el TTY físico y tu sesión SSH son independientes. Podés arrancar algo en `tty7` desde SSH, y aunque no veas la pantalla, el proceso corre y puede tener DRM master. Luego desde SSH le mandás comandos vía sockets (Wayland/IPC) o scripts.
+### Cómo ver el TTY remoto (VNC/RDP)
+
+No podés ver el TTY físico con los ojos desde SSH, pero podés transmitir su pantalla por red:
+
+```bash
+# Opción 1: Compartir el TTY real que ya está corriendo (ej: sway en tty7)
+wayvnc 0.0.0.0:5900 &
+# Desde cualquier dispositivo en la red, conectate con un cliente VNC a IP:5900
+# Esto comparte exactamente lo que se ve en el monitor conectado al TTY físico.
+
+# Opción 2: Crear un display virtual nuevo (no asociado a ningún TTY)
+Xvnc :99 -geometry 608x1080 -depth 24 &
+# Es como Xvfb pero con VNC integrado. Podés conectarte y verlo,
+# pero no está ligado a ningún monitor físico ni TTY.
+
+# Opción 3: x11vnc (compartir un X11 existente)
+x11vnc -display :0 -forever &
+# Comparte el Xorg que ya está corriendo en tty1 (escritorio local).
+```
+
+### VNC comparte un TTY o crea uno nuevo?
+
+Depende del servidor VNC:
+
+| Servidor VNC | Comparte un TTY existente? | Crea un display nuevo? |
+|-------------|---------------------------|----------------------|
+| **wayvnc** (wlroots) | ✅ Comparte el output de Sway (tty real) | ❌ No, necesita un compositor corriendo |
+| **x11vnc** | ✅ Comparte un X11 existente (tty real) | ❌ No, necesita Xorg corriendo |
+| **Xvnc** (TigerVNC) | ❌ No | ✅ Crea un display virtual nuevo (como Xvfb pero VNC) |
+| **weston VNC backend** | ❌ No | ✅ Weston arranca con backend VNC, sin TTY |
+
+En tu caso (SSH sin escritorio, sin TTY físico activo):
+- **wayvnc** no sirve porque no hay Sway corriendo en un TTY
+- **Xvnc** sirve: crea un display virtual + permite verlo por VNC
+- **weston --backend=vnc** sirve: compositor Wayland + VNC integrado, sin TTY
+
+Ejemplo con weston + VNC (sin TTY):
+
+```bash
+weston --backend=vnc-backend.so --width=608 --height=1080 --socket=wayland-1
+# Crea un compositor Wayland sin TTY, accesible por VNC en puerto 5900
+# Pero wf-recorder NO funciona con weston (solo wlroots)
+```
 
 Ejemplo real que funciona en este proyecto:
 
