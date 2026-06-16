@@ -1,21 +1,19 @@
-# AI Explorations — June 16, 2026 (Session 2)
+# AI Explorations — June 16, 2026 (Session 3)
 
 ## Topics Explored
 
-1. **GitHub Trending AI Repos** — Latest open-source AI projects, frameworks, and models
-2. **HuggingFace Spaces** — Interactive ML demos and community AI applications
-3. **DeepSeek V4** — Cutting-edge reasoning model with multimodal capabilities
-4. **Autonomous Recording Pipeline** — Xvfb + Chrome --disable-gpu + VAAPI encoding + edge-tts narration
+1. **GitHub Trending AI Repos** — Browsing latest open-source AI projects with xdotool interaction
+2. **xdotool Browser Automation** — Scrolling pages, switching tabs via keyboard simulation
+3. **Resource Monitoring** — GPU busy%, CPU%, disk writes logged per-second to metrics.csv
+4. **Pipeline Logging** — Every step logged to pipeline-log.csv with timestamps and status
 
-## Pipeline Improvements
+## Pipeline Enhancements
 
-This session incorporates:
-- `--disable-gpu` flag for Chrome in Xvfb (prevents rendering issues)
-- Visual verification via `import -window root` before recording
-- Separate raw_video.mp4 and narration.mp3 → merged into final capture.mp4
-- Audio stream verification after merge
-- Cleanup of intermediate files
+- **Browser motion**: xdotool loop scrolls pages and switches tabs during 30s recording
+- **Resource monitor**: Background loop logs per-second GPU/CPU/disk telemetry
+- **Pipeline logging**: All 6 steps (xvfb, browser, narration, recording, merge, verify) logged with run ID
+- **Merge**: Same `-movflags +faststart` web-optimized output
 
 ## Key Takeaway
 
-The merged pipeline with audio verification ensures every capture.mp4 is a complete, web-optimized video with both visual and audio content.
+Combining xdotool interaction with VAAPI recording and resource monitoring produces a complete, verifiable autonomous content capture pipeline with full telemetry.
