@@ -354,6 +354,51 @@ Esto ocurre tanto con renderizador GLES2 como pixman, y tanto en recovery como e
 
 **Veredicto**: VKMS no es utilizable para grabación con Sway + wf-recorder en este kernel (6.8.0). Podría funcionar con compositores que no sean wlroots (Weston, Mutter).
 
+## Trabajo futuro
+
+### DMA-BUF con recorte de región
+
+`wf-recorder --geometry` (recorte a formato vertical) **no es compatible con DMA-BUF**. La captura con DMA-BUF solo funciona para outputs completos. Alternativas:
+
+1. **Grabar completo + recortar en post**: `ffmpeg -i full.mp4 -vf "crop=608:1080:0:0" vertical.mp4`. La operación crop es metadata (no decodifica/reencoda si los códecs coinciden).
+2. **Parchear wf-recorder**: añadir soporte para region DMA-BUF. `wlr-screencopy` protocol soporta regiones, pero wf-recorder no las implementa con DMA-BUF.
+3. **Usar múltiples outputs virtuales**: en vez de recortar un output grande, crear outputs más pequeños (608×1080 cada uno) y grabar cada uno completo con DMA-BUF. Esto requiere que el driver AMD soporte resoluciones arbitrarias en displays virtuales.
+
+### Multi-agente con displays virtuales independientes
+
+Arquitectura actual (por implementar):
+
+```
+a0 (orchestrator)
+├── ag-03: recording infra (Xvfb manager, shared resources)
+├── ag-04: content agent 1 (Xvfb :99, Chrome, narration, recording)
+├── ag-05: content agent 2 (Xvfb :100, Chrome, narration, recording)
+├── ag-06: content agent 3 (Xvfb :101, Chrome, narration, recording)
+└── ...
+```
+
+Cada agente corre en su propio `Xvfb` con resolución vertical (608×1080). La grabación usa `ffmpeg x11grab + VAAPI` (~5% CPU por agente, sin dma-buf). Los agentes son autónomos: deciden qué hacer, navegan, narran con edge-tts, y graban su progreso.
+
+### Hacia displays virtuales con DMA-BUF en la misma GPU
+
+La solución ideal (aún no implementada) requiere que un compositor wlroots (Sway) corra en la GPU AMD con múltiples outputs virtuales, cada uno con DMA-BUF funcional. Esto permitiría `wf-recorder` por output con 0% CPU.
+
+Para lograrlo, se necesita:
+1. Una forma de añadir displays virtuales al driver AMD sin perder los físicos (no resuelto en este kernel)
+2. O una implementación de DRM lease que funcione con wlroots
+3. O un parche a VKMS para que wlroots pueda allocar buffers
+
+### Software autónomo de creación de contenido
+
+Visión a largo plazo: un sistema que permite a cualquier persona (sin conocimientos técnicos) generar contenido automáticamente desde su uso diario del computador. El usuario habla con IA, navega, trabaja — y el sistema convierte eso en videos, streams, o artículos sin intervención manual.
+
+Componentes del ecosistema:
+- **Orquestador** (a0): gestiona agentes, asigna recursos, monitorea progreso
+- **Agentes de contenido**: cada uno autónomo, con su display, narración TTS, y grabación
+- **Memoria compartida**: los agentes pueden leer el trabajo de otros y colaborar
+- **Streaming en vivo**: alternativa al video grabado, los agentes pueden transmitir en vivo
+- **Personalización**: el usuario configura qué temas, estilo, y plataformas
+
 ## Glosario
 
 | Término | Significado |
