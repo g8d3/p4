@@ -57,12 +57,16 @@ Cada capa tiene múltiples opciones. Se pueden combinar libremente.
 
 ### 4. Tipos de display
 
-| Display | Dónde está el framebuffer | DMA-BUF? | GPU involucrada? |
-|---------|--------------------------|----------|-----------------|
-| **Monitor real (HDMI/DP)** | VRAM (memoria de GPU) | ✅ sí | ✅ sí |
-| **Xvfb** | RAM del sistema | ❌ no | ❌ no (solo CPU) |
-| **vkms** | RAM del sistema | ❌ no | ❌ no (driver dummy) |
-| **Weston headless** | RAM (EGL offscreen) | ❌ no | ✅ sí (EGL usa GPU para render, pero display es software) |
+| Display | Dónde está el framebuffer | DMA-BUF? | GPU involucrada? | Funciona con Sway? | Vertical video? |
+|---------|--------------------------|----------|-----------------|-------------------|-----------------|
+| **Monitor real (HDMI/DP)** | VRAM (memoria de GPU) | ✅ sí | ✅ sí | ✅ sí | ✅ sí |
+| **`amdgpu.virtual_display`** | VRAM | ✅ sí | ✅ AMD real | ✅ sí | ✅ sí |
+| **VKMS** | RAM del sistema | ❌ no | ❌ software | ❌ no (allocator fail) | ❌ no |
+| **Xvfb** | RAM del sistema | ❌ no | ❌ CPU | ❌ X11 | ✅ sí |
+| **Weston headless** | RAM (EGL offscreen) | ❌ no | ✅ AMD via EGL | ❌ (no wlroots) | ❌ no |
+| **Weston VNC** | RAM (EGL offscreen) | ❌ no | ✅ AMD via EGL | ❌ (no wlroots) | ❌ no |
+| **Xvnc** | RAM del sistema | ❌ no | ❌ CPU | ❌ X11 | ✅ sí |
+| **DRM lease** | VRAM | ✅ sí | ✅ AMD real | ⚠️ experimental | ⚠️ no probado |
 
 ### 5. Programas de grabación
 
@@ -249,9 +253,11 @@ En otra terminal SSH:
   → DMA-BUF real, 0% CPU, sin sudo
 ```
 
-### AMD Virtual Display (la solución definitiva para grabación headless con DMA-BUF)
+### AMD Virtual Display (la solución para grabación headless con DMA-BUF, pero mata el display físico)
 
-El driver AMD tiene un parámetro que crea displays virtuales **en la GPU real**, con scanout buffer en VRAM y DMA-BUF funcional:
+El driver AMD tiene un parámetro que crea displays virtuales **en la GPU real**, con scanout buffer en VRAM y DMA-BUF funcional.
+
+**⚠️ Limitación importante**: este parámetro **reemplaza** todos los displays físicos (HDMI, DP, eDP) por virtuales. No es posible tener ambos. Es un modo exclusivo para servidores/cloud sin monitor.
 
 ```bash
 # Agregar a GRUB_CMDLINE_LINUX en /etc/default/grub
@@ -298,6 +304,55 @@ sudo openvt -c 7 -- sway -c /etc/sway-recording-config
 # Vuelvo a SSH y me conecto al socket:
 XDG_RUNTIME_DIR=/run/sway-recording WAYLAND_DISPLAY=wayland-1 wf-recorder ...
 ```
+
+## Mapa completo: opciones de display virtual
+
+| Display | Framebuffer | DMA-BUF | GPU | wlroots/Sway | wf-recorder | Vertical video | Notas |
+|---------|-------------|---------|-----|-------------|-------------|----------------|-------|
+| **Monitor real (HDMI/DP)** | VRAM | ✅ sí | ✅ AMD real | ✅ funciona | ✅ sí | ✅ sí | Necesita TTY o sudo para DRM master |
+| **`amdgpu.virtual_display`** | VRAM | ✅ sí | ✅ AMD real | ✅ funciona | ✅ sí | ✅ sí | ❌ **Reemplaza displays físicos** (no pueden coexistir) |
+| **VKMS** | RAM sistema | ❌ no importa | ❌ software | ❌ allocator fail | ❌ no | ❌ no | GPU virtual separada, pero wlroots no puede allocar buffers |
+| **Xvfb** | RAM sistema | ❌ no | ❌ CPU | ❌ X11 | ❌ usa x11grab | ✅ sí | Funciona sin TTY, sin sudo, cualquier resolución |
+| **Weston headless** | RAM (EGL) | ❌ no | ✅ AMD via EGL | ❌ no es wlroots | ❌ no | ❌ no | Compositor Wayland sin TTY, pero wf-recorder no lo soporta |
+| **Weston VNC** | RAM (EGL) | ❌ no | ✅ AMD via EGL | ❌ no es wlroots | ❌ no | ❌ no | Igual que headless pero accesible por VNC |
+| **Xvnc** | RAM sistema | ❌ no | ❌ CPU | ❌ X11 | ❌ usa x11grab | ✅ sí | Como Xvfb pero con VNC integrado |
+| **DRM lease (drm-lease)** | VRAM | ✅ sí | ✅ AMD real | ⚠️ experimental | ⚠️ | ⚠️ | Divide la GPU en leases virtuales. No probado. |
+
+### ¿Por qué no se puede tener display físico y virtual simultáneamente en AMD?
+
+El parámetro `amdgpu.virtual_display` fue diseñado para servidores/cloud **sin monitor**. Cuando se activa, el driver AMD entra en modo 100% virtual:
+
+```
+amdgpu detecta physical connectors (HDMI, DP, eDP)
+  → si virtual_display está seteado:
+    → ignora todos los conectores físicos
+    → crea solo conectores virtuales (Virtual-1, Virtual-2, ...)
+```
+
+No es posible tener ambos porque el driver AMD trata `virtual_display` como un modo exclusivo. No hay un parámetro "add virtual displays on top of physical ones".
+
+**Las únicas formas de tener físico + virtual simultáneamente:**
+1. **Dos GPUs diferentes**: una GPU para el display físico, otra para el virtual. Ejemplo: AMD interna + VKMS (pero VKMS no funciona con wlroots).
+2. **DRM lease**: particionar la GPU en leases, cada una con sus propios displays. No probado en este proyecto.
+3. **Entrada GRUB dual** (recomendado): un boot normal con display físico, y otro boot con `amdgpu.virtual_display` para grabación headless con dma-buf.
+
+### VKMS: hallazgos
+
+VKMS (Virtual Kernel Mode Setting) es un módulo del kernel que crea una GPU virtual completamente en software:
+
+```
+vkms.ko → /dev/dri/card1 → Virtual-1 (1024x768)
+```
+
+**Problema**: wlroots/Sway no puede crear un allocator de buffers para VKMS. El error es:
+```
+[ERROR] [wlr] [types/output/swapchain.c:109] Swapchain for output 'Virtual-1' failed test
+[ERROR] [wlr] [render/allocator/allocator.c:146] Failed to create allocator
+```
+
+Esto ocurre tanto con renderizador GLES2 como pixman, y tanto en recovery como en boot normal. La causa probable es que VKMS no soporta los formatos/modifiers que wlroots requiere para el swapchain.
+
+**Veredicto**: VKMS no es utilizable para grabación con Sway + wf-recorder en este kernel (6.8.0). Podría funcionar con compositores que no sean wlroots (Weston, Mutter).
 
 ## Glosario
 

@@ -294,6 +294,13 @@ echo "=== DONE ==="
 
 This way the orchestrator can see which step is currently executing and estimate if it's taking too long.
 
+## Commits
+
+- **Commit frequently** — after each meaningful change, commit. This applies to both agents working in their directories and the orchestrator.
+- **Commit message format**: `<experiment>: <description of change>`
+- **Scope**: commit all files in the working directory. The orchestrator commits at the project root.
+- **No secrets**: never commit API keys, tokens, or passwords.
+
 ## Language
 
 - User dictates in Spanish.
