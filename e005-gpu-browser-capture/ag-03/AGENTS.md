@@ -86,7 +86,13 @@ Your display is 608×1080 vertical (TikTok/Reels format).
   # Switch tab
   xdotool key ctrl+Tab
   ```
-- **Recording**: `ffmpeg -vaapi_device /dev/dri/renderD128 -f x11grab -video_size 608x1080 -i :99.0 -t 30 -vf "format=nv12,hwupload" -c:v h264_vaapi -b:v 4M -y raw_video.mp4`
+- **Recording** (critical: `-g 30` for browser seeking):
+  ```bash
+  ffmpeg -vaapi_device /dev/dri/renderD128 -f x11grab -video_size 608x1080 -i :99.0 \
+    -t 30 -g 30 -keyint_min 30 \
+    -vf "format=nv12,hwupload" -c:v h264_vaapi -b:v 4M -y raw_video.mp4
+  ```
+  Default VAAPI GOP is 120 frames (~4s) — browsers can't seek smoothly. `-g 30` forces keyframe every ~1s.
 - **Narration**: `edge-tts --voice es-CO-GonzaloNeural --text "..." --write-media narration.mp3`
 - **Merge**:
   ```bash
