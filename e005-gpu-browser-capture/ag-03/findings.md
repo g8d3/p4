@@ -26,3 +26,7 @@ cd ag-03 && python3 -m http.server 9999
 # Open in Chrome: http://localhost:9999/capture.mp4
 # Click seek bar at multiple positions — video should jump instantly
 ```
+# Changelog
+
+- Added video recording pipeline
+- Fixed seeking issue with -g 30 flag
