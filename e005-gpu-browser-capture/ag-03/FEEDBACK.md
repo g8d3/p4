@@ -95,3 +95,6 @@
 10. **Ventana activa = lo que explico**: si estoy hablando de la terminal, DEBO estar escribiendo en la terminal. Si estoy en el navegador, DEBO estar interactuando. Nunca explicar algo que no se ve en pantalla
 11. **Comparaciones inteligentes**: comparar同类 (texto con texto, imágenes con imágenes). No mezclar categorías. Hacer tabla de pros/contras, mostrarla, explicarla, concluir
 12. **Completar el arco**: intro → desarrollo FULL → conclusión. No quedarme a la mitad. Si empiezo algo, terminarlo
+13. **Contenido con profundidad**: no bastaaaa con mostrar herramientas. El usuario quiere ANÁLISIS, no demostraciones superficiales. Ejemplo malo: "preguntéle a dos modelos". Ejemplo bueno: "investigué qué proveedor da la mejor velocidad/costo para multi-agentes, aquí están los datos"
+14. **Investigar ANTES de grabar**: usar fuentes como artificialanalysis.ai, tener datos reales, presentar hallazgos
+15. **Tendencias y filosofía**: hablar de hacia dónde va el mercado, qué significa para los usuarios, qué debería cambiar
