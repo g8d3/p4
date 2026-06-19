@@ -233,3 +233,81 @@ Next iterations for the avatar podcast video:
 3. **Avatars**: multiple camera angles (close-up on active speaker, two-shot, split), like a real podcast
 4. **Capture**: fix x11grab on Weston (use `--write-movie` or `--backend=x11`) for PNG-less GPU pipeline
 5. **Scale**: produce many variations from the same source content (different angles, subtitle styles, TTS voices)
+
+---
+
+## 2026-06-17 — e006 live streaming design
+
+### Decision: New experiment (e006) for live streaming
+
+Streaming en vivo es un pipeline distinto a grabación off-line (e003/e004/e005). Requiere:
+- Bitrate constante (CBR) limitado por upload
+- Latencia < 2 segundos
+- Ring buffer para "últimos N segundos"
+- Protocolo de red (RTMP/SRT)
+
+### Decision: Single encoder, dual output
+
+No duplicate VAAPI encoder instances. The Barcelo (8 CU) has limited encoding resources. Use ffmpeg tee muxer or OBS to split one encoded stream to both RTMP and ring buffer.
+
+### Decision: Ring buffer in RAM
+
+"Last N seconds" = circular buffer in RAM. At 1080p60 CBR 6Mbps, 5 minutes = 225 MB. Trivial with 15 GB RAM.
+
+### Open questions for e006
+
+1. Streaming platform (Twitch, YouTube, Owncast)?
+2. Capture method (DMA-BUF via Sway or x11grab via Xvfb)?
+3. Vertical (608x1080) or horizontal (1920x1080)?
+4. Audio source (TTS, mic, system)?
+5. Ring buffer trigger (CLI, hotkey, API)?
+6. OBS or pure CLI (ffmpeg tee)?
+
+---
+
+## 2026-06-17 — e007 agent self-documentation
+
+### Decision: Record all, cut later
+
+Recording is continuous (no pause/resume). Post-production handles:
+- Fast motion for boring segments
+- Narration from log
+- Table/graph overlays
+- Final composition
+
+This keeps the agent simple (just work + log) and the intelligence in the post-production script.
+
+### Decision: Two agents, one pipeline
+
+- ag-01: self-recording agent (records itself researching TTS)
+- ag-2: interaction-to-video agent (converts chat logs to video)
+
+Both share: DMA-BUF capture, VAAPI encoding, edge-tts, 608x1080 vertical, post-production ffmpeg pipeline.
+
+### Decision: Vertical format for TikTok
+
+608x1080 (9:16). This is the format already used in e004/e005.
+
+### Key design insight
+
+The agent does NOT control the recording rhythm. It just works and logs. Post-production decides what's fast, what's normal, what gets narration. This separates concerns cleanly.
+
+### Resources checked
+
+Available on system:
+- edge-tts 7.2.8 (es-CO voices)
+- wf-recorder (DMA-BUF capable)
+- h264_vaapi (AMD VAAPI)
+- ydotool (Wayland input)
+- matplotlib 3.10 + pandas 2.3 (data viz)
+- google-chrome (web research)
+- ffmpeg with drawtext, overlay, concat filters
+
+### Pain point: concurrent agent capacity
+
+The user needs to know how many agents their AI inference provider can handle simultaneously. This is critical for:
+- Running ag-01 + ag-02 in parallel
+- Scaling to multiple content agents
+- Streaming while agents work
+
+There is a proxy in the p3 directory that can help measure this. TODO: investigate and document actual limits before launching multiple agents.

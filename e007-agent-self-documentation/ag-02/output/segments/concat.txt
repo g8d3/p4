@@ -1,0 +1,4 @@
+file '/home/vuos/code/p4/e007-agent-self-documentation/ag-02/output/segments/01_hook.wav'
+file '/home/vuos/code/p4/e007-agent-self-documentation/ag-02/output/segments/02_exploration.wav'
+file '/home/vuos/code/p4/e007-agent-self-documentation/ag-02/output/segments/03_analysis.wav'
+file '/home/vuos/code/p4/e007-agent-self-documentation/ag-02/output/segments/04_conclusion.wav'

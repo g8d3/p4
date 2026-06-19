@@ -258,13 +258,30 @@ Each AGENTS.md should include a concrete `## Command execution` section with exa
 
 **Rule of thumb**: If a command takes more than 2 seconds, it needs `timeout` or background + self-wake. Never run bare `kill`, `sleep`, or long-running commands synchronously.
 
-### Orchestrator workflow: update agent without restart
+### Orchestrator workflow: fix agents without restart (MANDATORY FIRST STEP)
 
-The orchestrator (a0) edits `AGENTS.md` but does NOT restart the agent. Instead, send a **targeted live message** to the agent's tmux window:
+**When an agent is stuck, wrong, or confused: ALWAYS send a corrective message first. NEVER kill and relaunch as first action.**
 
 ```
-1. Orchestrator edits agent's AGENTS.md  (persistent for future runs)
-2. Orchestrator sends message to agent's window with the delta
+FIRST: send a targeted message to fix the issue
+  tmux send-keys -t <window> "Leé tu AGENTS.md / Hacé X / Corregí Y" Enter
+
+ONLY IF the agent doesn't recover after 60 seconds:
+  THEN consider killing and relaunching
+```
+
+**Why**: Killing and relaunching wastes all the agent's work, context, and tokens. A simple message often fixes the problem in seconds.
+
+**Common corrective messages:**
+- Agent didn't read its AGENTS.md: `"Leé tu AGENTS.md: /path/to/AGENTS.md"`
+- Agent is over-thinking: `"Dejá de planificar. Ejecutá un comando ahora."`
+- Agent went off track: `"Tu tarea es X, no Y. Enfocáte en X."`
+- Agent is stuck on a command: `"Si ese comando falló, probá alternativa Z."`
+
+**Live message pattern** (for edits to AGENTS.md):
+```
+1. Orchestrator edits agent's AGENTS.md (persistent for future runs)
+2. Orchestrator sends the delta as a live message
    tmux send-keys -t <window> "Apply this change: <specific instructions>" Enter
 3. Agent continues from current state, applying only the diff
 ```
@@ -272,7 +289,7 @@ The orchestrator (a0) edits `AGENTS.md` but does NOT restart the agent. Instead,
 **Pros**: No work lost, no full re-read, fast iteration.
 **Cons**: Agent's conversation history still has old instructions. If the change is fundamental, a restart may be cleaner.
 
-**Rule of thumb**: For small deltas (tool flags, pipeline steps, content ideas), use live message. For complete rewrites or when stuck for >2 minutes, restart.
+**Rule of thumb**: For small deltas (tool flags, pipeline steps, content ideas), use live message. For complete rewrites or when stuck for >2 minutes after corrective messages, restart.
 
 ### Verification
 

@@ -1,0 +1,37 @@
+[
+  {
+    "index": 0,
+    "label": "hook",
+    "score": 3.375,
+    "display_text": "Buena pregunta. Basándome en tu hardware y software, te explico la diferencia:\n\n---\n\n## Stack tecnológico: Grabar vs. St",
+    "part_count": 24
+  },
+  {
+    "index": 8,
+    "label": "exploration",
+    "score": 4.6,
+    "display_text": "Exacto. Estoy haciendo la exploración inicial para que el agente nuevo arranque con el contexto ya armado, sin tener que",
+    "part_count": 5
+  },
+  {
+    "index": 9,
+    "label": "exploration",
+    "score": 4.6,
+    "display_text": "Buena pregunta. Vamos a desmenuzarlo.\n\n### Formato: vertical + DMA-BUF\n\nPara TikTok el formato es **1080x1920** (9:16). ",
+    "part_count": 5
+  },
+  {
+    "index": 10,
+    "label": "exploration",
+    "score": 4.6,
+    "display_text": "Tenés razón en ambas cosas:\n\n### Formato vertical\n\n608x1080 es correcto — es el que ya usamos en e004/e005 y es el forma",
+    "part_count": 5
+  },
+  {
+    "index": 32,
+    "label": "conclusion",
+    "score": 2.625,
+    "display_text": "$ bash({\"command\": \"sqlite3 ~/.local/share/opencode/opencode.db \\\"S)",
+    "part_count": 8
+  }
+]

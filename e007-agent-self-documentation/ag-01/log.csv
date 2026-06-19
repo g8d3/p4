@@ -1,0 +1,17 @@
+timestamp,action,opinion,finding,segment_type
+2026-06-17T12:00:00,start_recording,,Recording started on HDMI-A-1 608x1080 VAAPI,normal
+2026-06-17T12:00:15,research_edge-tts,good,"edge-tts: Free, no API key, GPL-3.0, 11.3k stars, es-CO voices, streaming capable",normal
+2026-06-17T12:00:45,research_elevenlabs,interesting,"ElevenLabs: WebSocket streaming, ~200ms TTFB, Free tier 10k credits/mo, paid from $6/mo, excellent quality",normal
+2026-06-17T12:01:15,research_cartesia,interesting,"Cartesia: sonic-3/3.5 models, ultra-low latency, emotion control, streaming API, supports es",normal
+2026-06-17T12:01:45,research_deepgram,slow,"Deepgram: aura-2 models, low latency, but max 2000 chars, primarily English focused",normal
+2026-06-17T12:02:15,research_piper,good,"Piper: Fast local neural TTS, GPL-3.0, 4.5k stars (piper1-gpl), very low latency, community voices",normal
+2026-06-17T12:02:45,research_coqui,interesting,"Coqui TTS: XTTS v2 streams <200ms, 16 languages incl Spanish, MPL-2.0, 45.6k stars, company shut down but OSS",normal
+2026-06-17T12:03:15,research_kokoro,good,"Kokoro: 82M params, Apache-2.0, 7.5k stars, very fast, Spanish support (lang_code=e), lightweight",normal
+2026-06-17T12:03:45,research_fish_speech,interesting,"Fish Speech S2: 4B params, SOTA quality, ~100ms TTFA on H200, 80+ languages, but needs heavy GPU",normal
+2026-06-17T12:04:15,research_styletts2,interesting,"StyleTTS2: Human-level quality, MIT license, 6.3k stars, style diffusion, but English-focused, needs training",normal
+2026-06-17T12:04:45,compare_latency,good,"Latency ranking: edge-tts~Kokoro>Piper>Cartesia>ElevenLabs>Coqui XTTS>StyleTTS2>Fish Speech (GPU dependent)",normal
+2026-06-17T12:05:15,compare_cost,good,"Cost ranking: edge-tts(free)>Kokoro(free)>Piper(free)>Coqui(free)>Fish(research)>ElevenLabs($6+/mo)>Cartesia>Deepgram",normal
+2026-06-17T12:05:45,compare_spanish,good,"Spanish support: edge-tts(es-CO)>Kokoro(es)>Coqui(XTTS)>Fish(80+langs)>Cartesia(es)>Piper(community)>ElevenLabs(ml)",normal
+2026-06-17T12:06:15,compare_realtime,good,"Real-time capable: edge-tts(streaming)>Kokoro(fast local)>Piper(fast local)>Cartesia(streaming)>ElevenLabs(ws)>Coqui(XTTS streaming)",normal
+2026-06-17T12:06:45,conclusion,best,"Best for our use case: edge-tts (free, Colombian voices, streaming) + Kokoro (local fallback, Apache-2.0)",normal
+2026-06-17T12:07:00,stop_recording,,"Research complete, findings compiled",normal

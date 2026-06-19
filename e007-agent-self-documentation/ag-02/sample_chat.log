@@ -1,0 +1,8 @@
+[2026-06-17 10:00:00] User: necesitamos un TTS en tiempo real, ¿qué opciones hay?
+[2026-06-17 10:00:15] Agent: déjame revisar qué tenemos disponible en el sistema
+[2026-06-17 10:00:45] Agent: encontré edge-tts version 7.2.8 ya instalado, soporta voces colombianas
+[2026-06-17 10:01:10] Agent: también revisé piper-tts que es local y open source, pero requiere instalación
+[2026-06-17 10:01:45] User: ¿cuál es mejor para nuestro caso de uso?
+[2026-06-17 10:02:00] Agent: comparando: edge-tts es más rápido pero requiere internet, piper es local pero más lento
+[2026-06-17 10:02:30] Agent: para nuestro pipeline de video, edge-tts con voz es-CO-SalomeNeural es la mejor opción
+[2026-06-17 10:03:00] Agent: la conclusión es usar edge-tts para producción rápida, tiene buena calidad y ya está instalado

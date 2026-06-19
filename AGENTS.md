@@ -14,6 +14,8 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e003-wayland-migration/](e003-wayland-migration/) — Wayland desktop + GPU pipeline
 - [e004-agent-screencast/](e004-agent-screencast/) — agent screencast: agents recording themselves
 - [e005-gpu-browser-capture/](e005-gpu-browser-capture/) — GPU-stressed browser capture with resource monitoring
+- [e006-live-streaming/](e006-live-streaming/) — live streaming + replay buffer (record last N seconds)
+- [e007-agent-self-documentation/](e007-agent-self-documentation/) — agents that record themselves and produce videos
 
 ## Language
 
