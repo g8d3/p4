@@ -285,17 +285,21 @@ async function toggleRec() {
       if (e.data.size === 0) return;
       const idx = ++chunkIdx;
       const blob = e.data;
+      document.getElementById("ar").textContent = `Chunk ${idx}: ${(blob.size/1024).toFixed(0)}KB`;
       (async () => {
         try {
           const fd = new FormData(); fd.append("audio", blob, "chunk.webm");
           const r = await fetch("/asr", {method:"POST", body:fd});
-          if (!r.ok) return;
+          if (!r.ok) { const err = await r.text(); document.getElementById("ar").textContent = `Chunk ${idx} ERR: ${err.slice(0,80)}`; return; }
           const data = await r.json();
           if (data.text && data.text.trim()) {
             transText += (transText ? " " : "") + data.text.trim();
             document.getElementById("trans-box").textContent = transText;
+            document.getElementById("ar").textContent = `Chunk ${idx}: "${data.text.trim().slice(0,40)}"`;
+          } else {
+            document.getElementById("ar").textContent = `Chunk ${idx}: no text`;
           }
-        } catch(e) {}
+        } catch(e) { document.getElementById("ar").textContent = `Chunk ${idx} error: ${e.message}`; }
       })();
     };
     rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
