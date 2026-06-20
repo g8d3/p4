@@ -41,7 +41,7 @@ audio{width:100%;margin-top:5px;border-radius:4px}
 .rec-icon.on{background:#f44336;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .tx-box{background:#0d0d1a;border-radius:4px;padding:8px;font-size:12px;color:#ddd;min-height:40px;max-height:120px;overflow-y:auto;white-space:pre-wrap;margin-top:5px}
-.raw-box{display:none;background:#0a0a14;border:1px solid #333;border-radius:4px;padding:8px;margin-top:4px;font-family:monospace;font-size:11px;color:#8ae;white-space:pre;overflow-x:auto;max-height:200px}
+.raw-box{background:#0a0a14;border:1px solid #333;border-radius:4px;padding:8px;margin-top:4px;font-family:monospace;font-size:11px;color:#8ae;white-space:pre;overflow-x:auto;max-height:200px}
 .toggle{font-size:10px;color:#888;cursor:pointer;text-decoration:underline;margin:2px 0 4px;display:inline-block}
 .toggle:hover{color:#aaa}
 </style>
@@ -86,7 +86,7 @@ audio{width:100%;margin-top:5px;border-radius:4px}
 <label>📋 Examples</label>
 <div class="tags" id="examples"></div>
 
-<span class="toggle" id="raw-toggle" onclick="toggleRaw()">📄 Show raw request (cURL)</span>
+<span class="toggle" onclick="const r=document.getElementById('raw-box');r.style.display=r.style.display==='none'?'block':'none'">📄 Toggle raw request (cURL)</span>
 <div class="raw-box" id="raw-box"></div>
 
 <button class="btn-p" onclick="genTTS()">▶ Generate & Listen</button>
@@ -185,7 +185,7 @@ async function genTTS() {
   const sp = document.getElementById("ts"), res = document.getElementById("tr"),
         a = document.getElementById("ta"), st = document.getElementById("tts-stats"),
         rb = document.getElementById("raw-box");
-  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none"; rb.style.display = "block";
+  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none";
   try {
     const body = {text, voice: window.__v(), model, format: fmt};
     if (prompt) body.prompt = prompt;
@@ -211,11 +211,6 @@ async function genTTS() {
     setTimeout(() => { if (st.style.display === "none") { st.innerHTML = statsHTML; st.style.display = "grid"; } }, 2000);
   } catch(e) { res.textContent = "Error: " + e.message; }
   finally { sp.classList.remove("active"); }
-}
-
-function toggleRaw() {
-  const rb = document.getElementById("raw-box");
-  rb.style.display = rb.style.display === "none" ? "block" : "none";
 }
 
 async function toggleRec() {
