@@ -8,11 +8,9 @@ Display virtual vertical con VNC web + audio streaming + API Xiaomi MIMO (TTS/AS
 ## Estructura
 
 ```
-ag-01/    Display virtual + proxy VNC + subtítulos + audio + CLI Xiaomi
-ag-02/    (futuro)
-ag-03/    (futuro)
-ag-04/    (futuro)
-ag-05/    (futuro)
+ag-01/    Display virtual (Xvfb) + VNC + Xiaomi TTS/ASR web
+ag-02/    Agent Studio specs
+ag-03/    Stream MJPEG de HEADLESS-1 (Sway + grim + DMA-BUF)
 ```
 
 Cada agente es independiente. Ver `ag-01/AGENTS.md`.
