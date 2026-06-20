@@ -24,13 +24,13 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 .dot.on{background:#4caf50;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 #screen{flex:1;display:flex;align-items:center;justify-content:center;background:#000;position:relative;overflow:hidden;min-height:0}
-/* noVNC handles scaling internally via scaleViewport */
+/* noVNC handles scaling via scaleViewport=true */
 #subs{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid rgba(233,69,96,.3);padding:8px 12px;font-size:13px;color:#ddd;white-space:pre-wrap;line-height:1.4;max-height:80px;overflow-y:auto;z-index:20;pointer-events:none}
 </style>
 </head>
 <body>
 <div id="top">
-<h1>Display HEADLESS-1 <span style="font-weight:400;color:#666">720x1600</span></h1>
+<h1>Display HEADLESS-1 <span style="font-weight:400;color:#666">720x1280</span></h1>
 <div id="indicator"><span class="dot" id="vncDot"></span><span id="vncLabel">connecting</span></div>
 </div>
 <div id="screen"><canvas id="vnc"></canvas></div>
@@ -41,13 +41,37 @@ if(!crypto.randomUUID){crypto.randomUUID=function(){return 'xxxxxxxx-xxxx-4xxx-y
 import RFB from 'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.7.0/core/rfb.js';
 var dot=document.getElementById('vncDot'), lab=document.getElementById('vncLabel'), au=document.getElementById('audio');
 au.addEventListener('play',function(){});
+function scaleAll(){
+  var c=document.querySelector('#screen div:last-child');
+  if(!c)return;
+  var canvas=c.querySelector('canvas');
+  if(!canvas||canvas.width<=300)return;
+  var vw=window.innerWidth,vh=window.innerHeight-50;
+  var sx=vw/canvas.width,sy=vh/canvas.height;
+  var s=Math.min(sx,sy);
+  c.style.transform='scale('+s+')';
+  c.style.transformOrigin='top left';
+  c.style.width=canvas.width+'px';
+  c.style.height=canvas.height+'px';
+  c.style.overflow='hidden';
+  c.style.position='absolute';
+  c.style.left='0';
+  c.style.top='0';
+}
+var rfb,scaler;
 async function cn(){
 try{
-var rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS');
-rfb.scaleViewport=true;rfb.resizeSession=false;
-rfb.addEventListener('connect',function(){dot.className='dot on';lab.textContent='connected'});
-rfb.addEventListener('disconnect',function(e){dot.className='dot';lab.textContent='disconnected: '+e.detail.reason;setTimeout(cn,5000)});
+rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS');
+rfb.resizeSession=false;
+rfb.addEventListener('connect',function(){
+  dot.className='dot on';lab.textContent='connected';
+  if(scaler)clearInterval(scaler);
+  scaler=setInterval(function(){scaleAll();},200);
+  setTimeout(function(){clearInterval(scaler);scaleAll();},1500);
+});
+rfb.addEventListener('disconnect',function(e){dot.className='dot';lab.textContent='disconnected: '+e.detail.reason;clearInterval(scaler);setTimeout(cn,5000)});
 rfb.addEventListener('securityfailure',function(e){lab.textContent='auth fail: '+e.detail.reason;});
+window.addEventListener('resize',scaleAll);
 }catch(e){lab.textContent='error: '+e.message;setTimeout(cn,5000)}}
 cn();
 </script>
