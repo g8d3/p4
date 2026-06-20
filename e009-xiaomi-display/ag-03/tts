@@ -1,0 +1,158 @@
+#!/bin/bash
+PIPER_DIR="$HOME/.local/share/piper-tts"
+PIPER_MODEL="$PIPER_DIR/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+ENGINE="piper"
+VOICE="en-US-JennyNeural"
+EDGE_VOICE="en-US-JennyNeural"
+
+# --- helpers ---
+
+latency_ms() {
+    local file="$1" start=$2
+    while [ ! -s "$file" ]; do sleep 0.001; done
+    echo $((($(date +%s%N) - start) / 1000000))
+}
+
+resource_usage() {
+    local pid=$1 label=$2
+    [ ! -d "/proc/$pid" ] && return
+    local cpu=$(ps -p "$pid" -o %cpu= 2>/dev/null || echo "?")
+    local mem=$(ps -p "$pid" -o rss= 2>/dev/null | awk '{printf "%.0f", $1/1024}' || echo "?")
+    printf "  [%s] CPU: %5s%%  MEM: %4sM\n" "$label" "$cpu" "$mem"
+}
+
+download_model() {
+    mkdir -p "$PIPER_DIR/en/en_US/lessac/medium"
+    wget -q "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx" -O "$PIPER_MODEL" &
+    wget -q "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json" -O "$PIPER_MODEL.json" &
+    wait
+    echo "Model downloaded (61MB)"
+}
+
+# --- speak functions ---
+
+speak_piper() {
+    local text="$1"
+    local tmp=$(mktemp)
+    echo "$text" | .venv/bin/piper --model "$PIPER_MODEL" --output-raw > "$tmp" 2>/dev/null &
+    local pid=$!
+    local start=$(date +%s%N)
+    local lat=$(latency_ms "$tmp" "$start")
+    resource_usage "$pid" "piper"
+    printf "  latency: %dms\n" "$lat"
+    wait "$pid" 2>/dev/null
+    aplay -r 22050 -f S16_LE -t raw "$tmp" 2>/dev/null
+    rm -f "$tmp"
+}
+
+speak_edge() {
+    local text="$1" voice="$EDGE_VOICE"
+    local tmp=$(mktemp --suffix=.mp3)
+    edge-tts --voice "$voice" --text "$text" > "$tmp" 2>/dev/null &
+    local pid=$!
+    local start=$(date +%s%N)
+    local lat=$(latency_ms "$tmp" "$start")
+    resource_usage "$pid" "edge-tts"
+    printf "  latency: %dms\n" "$lat"
+    wait "$pid" 2>/dev/null
+    ffplay -nodisp -autoexit -i "$tmp" 2>/dev/null
+    rm -f "$tmp"
+}
+
+speak() {
+    local text="$1"
+    [ -z "$text" ] && return
+    printf "\n--- speaking ---\n"
+    [ "$ENGINE" = "piper" ] && [ -f "$PIPER_MODEL" ] && speak_piper "$text" || speak_edge "$text"
+}
+
+# --- interactive menu ---
+
+interactive() {
+    local choice
+    while true; do
+        clear 2>/dev/null || true
+        cat <<MENU
+╔══════════════════════════════════════╗
+║           TTS Interactive            ║
+╠══════════════════════════════════════╣
+║  1  Speak (type text)               ║
+║  2  Voice: ${ENGINE} $( [ "$ENGINE" = piper ] && echo "(en_US-lessac-medium)" || echo "($EDGE_VOICE)" )
+║  3  Preset examples                 ║
+║  4  List edge-tts voices            ║
+║  5  Bench (run 5x timing test)      ║
+║  d  Download piper model (61MB)     ║
+║  q  Quit                            ║
+╚══════════════════════════════════════╝
+MENU
+        read -rp "> " choice
+        case "$choice" in
+            1)
+                read -rp "Text: " text
+                speak "$text"
+                read -rp "Press Enter..."
+                ;;
+            2)
+                echo "1) piper (local, fast)"
+                echo "2) edge-tts (online, many voices)"
+                read -rp "Engine [1/2]: " e
+                if [ "$e" = "2" ]; then
+                    ENGINE="edge"
+                    echo "Current edge voice: $EDGE_VOICE"
+                    read -rp "New voice (Enter to keep): " v
+                    [ -n "$v" ] && EDGE_VOICE="$v"
+                else
+                    ENGINE="piper"
+                fi
+                ;;
+            3)
+                cat <<EXAMPLES
+  1) "hello world, this is a test"
+  2) "the quick brown fox jumps over the lazy dog"
+  3) "This is a slightly longer sentence to test how the voice handles multiple words and natural phrasing."
+  4) "Welcome to the interactive text to speech demo. You can type any text and hear it spoken aloud."
+EXAMPLES
+                read -rp "Example [1-4] or Enter to skip: " ex
+                case "$ex" in
+                    1) speak "hello world, this is a test" ;;
+                    2) speak "the quick brown fox jumps over the lazy dog" ;;
+                    3) speak "This is a slightly longer sentence to test how the voice handles multiple words and natural phrasing." ;;
+                    4) speak "Welcome to the interactive text to speech demo. You can type any text and hear it spoken aloud." ;;
+                esac
+                read -rp "Press Enter..."
+                ;;
+            4)
+                edge-tts --list-voices | head -40
+                read -rp "Press Enter..."
+                ;;
+            5)
+                printf "\nRunning 5x...\n"
+                for i in 1 2 3 4 5; do
+                    local tmp=$(mktemp)
+                    local s=$(date +%s%N)
+                    echo "Benchmark test number $i" | .venv/bin/piper --model "$PIPER_MODEL" --output-raw > "$tmp" 2>/dev/null &
+                    local p=$!
+                    while [ ! -s "$tmp" ]; do sleep 0.001; done
+                    local lat=$((($(date +%s%N) - s) / 1000000))
+                    local rss=$(ps -p "$p" -o rss= 2>/dev/null | awk '{printf "%.0f", $1/1024}')
+                    printf "  run %d: %dms  mem: %sM\n" "$i" "$lat" "$rss"
+                    wait "$p" 2>/dev/null
+                    rm -f "$tmp"
+                done
+                read -rp "Press Enter..."
+                ;;
+            d) download_model; read -rp "Press Enter..." ;;
+            q|Q) break ;;
+        esac
+    done
+}
+
+# --- main ---
+
+case "$1" in
+    -l) shift; edge-tts --list-voices; exit ;;
+    -i) [ -f "$PIPER_MODEL" ] || download_model; interactive; exit ;;
+    -v) VOICE="$2"; shift 2; ENGINE="edge"; EDGE_VOICE="$VOICE" ;;
+    "") [ -t 0 ] && interactive || speak "$(cat)" ;;
+    *) speak "$*" ;;
+esac
