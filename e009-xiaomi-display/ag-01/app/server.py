@@ -11,39 +11,40 @@ ASR_MODELS = ["mimo-v2.5-asr", "mimo-v2-omni"]
 TTS_FORMATS = {"wav": "audio/wav", "mp3": "audio/mpeg", "pcm": "audio/L16", "pcm16": "audio/L16"}
 TTS_VOICES = ["Mia", "Chloe", "Milo", "Dean", "mimo_default", "冰糖", "茉莉", "苏打", "白桃"]
 EXAMPLES = [
-    # Natural language style control
-    {"name": "😊 Alegre", "text": "¡Adivina qué, adivina qué! Acabo de recibir los resultados y aprobé. No solo aprobé, ¡saqué matrícula de honor!", "prompt": "Bright, bouncy, slightly sing-song tone — like you're bursting with good news you can barely hold in. Fast pace, rising pitch at the end."},
-    {"name": "😢 Triste", "text": "Después de todos estos años, cuando volví a caminar por esa calle, sentí un vacío en el pecho.", "prompt": "Melancholic, slow pace, with a hint of nostalgia and sadness. Soft voice, occasional sighs."},
-    {"name": "😡 Enojado", "text": "¡Eres increíble! ¡Ya estoy harta de tus mentiras constantes! ¡FUERA DE AQUÍ!", "prompt": "Angry and explosive, raising voice progressively, trembling with rage at the end."},
-    {"name": "🤫 Susurro", "text": "Oye... ven aquí... tengo un secreto que contarte. Pero tienes que prometer que no se lo dirás a nadie.", "prompt": "Whispering, conspiratorial tone, very close to the microphone like sharing a secret. Slow and deliberate."},
-    {"name": "😴 Perezoso", "text": "Déjame dormir cinco minutos más... solo cinco minutos... en serio, es la última vez.", "prompt": "Lazy, groggy, half-asleep tone. Mumbling, slow speech, trailing off at the end."},
-    {"name": "📰 Noticiero", "text": "En las últimas horas, el mercado financiero global ha experimentado un crecimiento significativo del tres por ciento, según reportes de las principales bolsas de valores.", "prompt": "Formal news anchor tone, clear and authoritative, neutral Spanish. Steady pace, professional delivery."},
-    {"name": "📚 Poema", "text": "La luz que me ilumina, el sol que me abriga, el viento que me guía, la voz que me sigue.", "prompt": "Poetic, slow, with emotional depth. Each line with a slight pause, soft and reflective tone."},
+    # Natural language style control (English)
+    {"name": "😊 Happy news", "text": "Hey boss — guess what, guess what? I just got the results back and I actually passed! Not just passed, I got a distinction!", "prompt": "Bright, bouncy, slightly sing-song tone — like you're bursting with good news you can barely hold in. Fast pace, rising pitch at the end."},
+    {"name": "😢 Melancholic", "text": "After all these years, when I walked down that street again, a part of my heart suddenly felt empty.", "prompt": "Melancholic, slow pace, with a hint of nostalgia and sadness. Soft voice, occasional sighs."},
+    {"name": "😡 Angry", "text": "You are UN-BE-LIEVABLE! I am sooooo done with your constant lies. GET. OUT!", "prompt": "Angry and explosive, raising voice progressively, trembling with rage at the end."},
+    {"name": "🤫 Whisper", "text": "Hey... come here... I have a secret to tell you. But you have to promise not to tell anyone.", "prompt": "Whispering, conspiratorial tone, very close to the microphone like sharing a secret. Slow and deliberate."},
+    {"name": "😴 Lazy", "text": "Let me sleep for five more minutes... just five minutes... really, this is the last time.", "prompt": "Lazy, groggy, half-asleep tone. Mumbling, slow speech, trailing off at the end."},
+    {"name": "📰 News anchor", "text": "Good evening. The Federal Reserve announced today a quarter-point rate cut, the first in over four years, citing cooling inflation.", "prompt": "Formal news anchor tone, clear and authoritative. Steady pace, professional delivery."},
+    {"name": "📚 Poetic", "text": "The light that guides me, the sun that warms me, the wind that carries me, the voice that follows me.", "prompt": "Poetic, slow, with emotional depth. Each line with a slight pause, soft and reflective tone."},
+    {"name": "🇬🇧 British calm", "text": "Good morning everyone, today we'll be exploring the capabilities of this system. Let's begin with an overview.", "prompt": "Calm, authoritative British English. Measured pace, clear enunciation."},
 
     # Audio tag control (tags embedded in text)
-    {"name": "🏷️ Suspiro", "text": "(Sighing)Después de todos estos años, cuando volví a caminar por esa calle, sentí un vacío en el pecho.", "prompt": ""},
-    {"name": "🏷️ Perezoso", "text": "(Lazy)Déjame dormir cinco minutos más... solo cinco minutos, en serio, la última vez.", "prompt": ""},
-    {"name": "🏷️ Magnético", "text": "(Magnetic)La noche ya está profunda, pero la ciudad todavía respira. Soy el que te acompaña esta noche.", "prompt": ""},
-    {"name": "🏷️ Alegre + rápido", "text": "(Happy, fast)¡Hey! ¡Vamos! ¡Que se hace tarde! ¡Todos me están esperando!", "prompt": ""},
-    {"name": "🏷️ Norteño", "text": "(Northeastern dialect)¡Ay madre, hace un frío hoy! Ese viento, mija, corta como navaja.", "prompt": ""},
-    {"name": "🏷️ Cantones", "text": "(Cantonese)Esto está realmente increíble. Una vez que lo pruebas, no lo olvidas.", "prompt": ""},
-    {"name": "🏷️ Asustado", "text": "(Nervous, takes a deep breath) Hoo... Calma, calma. Es solo una entrevista... todo va a salir bien...", "prompt": ""},
-    {"name": "🏷️ Temblor + risa", "text": "Si tan solo... (pauses for a moment) si tan solo hubiera persistido un segundo más, ¿habría sido diferente? (forced smile) Bah, ya no hay 'qué hubiera pasado'.", "prompt": ""},
+    {"name": "🏷️ Sighing", "text": "(Sighing)After all these years, when I walked down that street again, a part of my heart suddenly felt empty.", "prompt": ""},
+    {"name": "🏷️ Lazy", "text": "(Lazy)Let me sleep for five more minutes... just five minutes, really, for the last time.", "prompt": ""},
+    {"name": "🏷️ Magnetic", "text": "(Magnetic)The night is already deep, but the city is still breathing. I'm the one accompanying you tonight.", "prompt": ""},
+    {"name": "🏷️ Happy + fast", "text": "(Happy, fast)Hey! Come on! We're going to be late! Everyone is waiting for me!", "prompt": ""},
+    {"name": "🏷️ Nervous", "text": "(Nervous, takes a deep breath) Hoo... Calm down, calm down. It's just an interview... Everything will be fine...", "prompt": ""},
+    {"name": "🏷️ Trembling + smile", "text": "If I had... (pauses for a moment) even for one more second... would it have been different? (forced smile) Ah, no use wondering now.", "prompt": ""},
 
-    # Director mode - elaborate character + scene + guidance
-    {"name": "🎬 Directora fría", "text": "¿Crees que solo con eso puedes conmoverme? Qué ingenuo. Llevo toda una vida enterrando mis sentimientos.", "prompt": "Role: La actual cabeza de la noble familia Cen. Una mujer fría, calculadora, de voz grave e imponente.\nScene: En las sombras del salón principal, observa a alguien que intentó escapar con ella.\nGuidance: Voz extremadamente lenta, cada palabra pesa. Sin fluctuaciones de tono, pero con una opresión que hiela los huesos. Pausas largas e incómodas entre frases."},
+    # Director mode
+    {"name": "🎬 Cold director", "text": "Do you think that's enough to move me? How naive. I've spent my whole life burying my feelings.", "prompt": "Role: The cold, calculating head of a noble family. Deep, imposing voice.\nScene: In the shadows of the main hall, watching someone who tried to escape.\nGuidance: Extremely slow, every word carries weight. No pitch fluctuation, but bone-chilling oppression."},
 
-    # Voice design examples (for voicedesign model)
-    {"name": "🎨 ASMR femenino", "text": "Hola... respira profundo... siente cómo el aire llena tus pulmones... y suelta muy despacio...", "prompt": "Voz femenina joven, primerísimo plano, estilo ASMR. Se escucha la respiración, trago saliva, labios. Habla muy lento, relajante.", "model": "mimo-v2.5-tts-voicedesign"},
-    {"name": "🎨 Anciano narrador", "text": "Érase una vez, en un pueblo muy lejano, un viejo sabio que conocía todos los secretos del bosque.", "prompt": "Un señor mayor, voz lenta y pausada, ligeramente ronca y curtida, como un abuelo contando historias.", "model": "mimo-v2.5-tts-voicedesign"},
-    {"name": "🎨 Inglés británico", "text": "Good evening, ladies and gentlemen. Tonight's performance promises to be rather exceptional, if I may say so myself.", "prompt": "British elderly gentleman, posh accent, warm and articulate. Slightly formal but welcoming.", "model": "mimo-v2.5-tts-voicedesign"},
-
-    # English examples
-    {"name": "🇺🇸 English excited", "text": "Hey boss — guess what, guess what? I just got the results back and I actually passed! Not just passed, I got a distinction!", "prompt": "Bright, bouncy, slightly sing-song tone. Fast pace, rising pitch at the end."},
-    {"name": "🇬🇧 English calm", "text": "Good morning everyone, today we'll be exploring the capabilities of this system. Let's begin with an overview.", "prompt": "Calm, authoritative British English. Measured pace, clear enunciation."},
+    # Voice design (for voicedesign model)
+    {"name": "🎨 ASMR female", "text": "Hello... take a deep breath... feel the air filling your lungs... and release it very slowly...", "prompt": "Young female, extreme close-up with a binaural, ear-to-ear ASMR feel. Audible breathing, subtle swallowing. She speaks very slowly, deeply relaxing.", "model": "mimo-v2.5-tts-voicedesign"},
+    {"name": "🎨 Old narrator", "text": "Once upon a time, in a village far away, there lived a wise old man who knew all the secrets of the forest.", "prompt": "Elderly gentleman, slow and steady, slightly hoarse and weathered voice, like a grandfather telling stories.", "model": "mimo-v2.5-tts-voicedesign"},
+    {"name": "🎨 British gent", "text": "Good evening, ladies and gentlemen. Tonight's performance promises to be rather exceptional, if I may say so myself.", "prompt": "British elderly gentleman, posh accent, warm and articulate. Slightly formal but welcoming.", "model": "mimo-v2.5-tts-voicedesign"},
+    {"name": "🎨 Russian accent", "text": "Comrades, the plan is simple. We go in, we take what is ours, and we leave before they even know we were there.", "prompt": "Heavy Russian accent, gruff middle-aged male, blunt and matter-of-fact.", "model": "mimo-v2.5-tts-voicedesign"},
 
     # Singing
-    {"name": "🎤 Canto", "text": "(singing)Perdona si no supe amarte como debía, si mi orgullo pudo más que mi amor. Pero ahora entiendo que te necesito aquí, a mi lado, mi sol.", "prompt": "Singing melodically, like a pop ballad. Emotional and heartfelt."},
+    {"name": "🎤 Singing", "text": "(singing)I had the time of my life, and I never felt this way before. Yes I swear, it's the truth, and I owe it all to you.", "prompt": "Singing melodically, like a pop ballad. Emotional and heartfelt."},
+
+    # Chinese
+    {"name": "🇨🇳 Happy (CN)", "text": "(Happy)今天真是一个好日子！阳光明媚，万里无云，心情特别好！", "prompt": ""},
+    {"name": "🇨🇳 Sad (CN)", "text": "(Sighing)这么多年过去了，当我再次走过那条街，心里突然空了一块。", "prompt": ""},
+    {"name": "🇨🇳 Northeast (CN)", "text": "(Northeastern dialect)哎呀妈呀，今天也太冷了吧！这风呼呼的，跟刀子似的！", "prompt": ""},
 ]
 
 async def api_call(data):
@@ -76,14 +77,17 @@ async def handle_tts(request):
     prompt = body.get("prompt", "")
     if not text:
         return web.json_response({"error": "text is required"}, status=400)
-    user_msg = prompt if prompt else f"Di esto: {text}"
-    result = await api_call({
+    user_msg = prompt if prompt else f"Say this: {text}"
+    payload = {
         "model": model, "messages": [
             {"role": "user", "content": user_msg},
             {"role": "assistant", "content": text},
         ], "modalities": ["audio"],
         "audio": {"voice": voice, "format": fmt},
-    })
+    }
+    if body.get("dry_run"):
+        return web.json_response(payload)
+    result = await api_call(payload)
     if not result["ok"]:
         return web.json_response(result["error"], status=result["status"])
     msg = result["data"]["choices"][0]["message"]

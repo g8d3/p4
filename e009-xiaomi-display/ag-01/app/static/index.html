@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,8 +19,6 @@ button{padding:7px;border:none;border-radius:4px;font-size:12px;cursor:pointer;f
 .btn-p{background:#e94560;color:#fff}.btn-p:active{background:#c73a52}
 .btn-s{background:#333;color:#eee}.btn-s:active{background:#444}
 .btn-r{background:#c62828;color:#fff}.btn-g{background:#2e7d32;color:#fff}
-.btn-sm{background:#2a2a3e;color:#aaa;font-size:10px;padding:3px 6px;margin:1px;font-weight:400;border:1px solid #333}
-.btn-sm.act{border-color:#e94560;color:#e94560}
 audio{width:100%;margin-top:5px;border-radius:4px}
 .result{background:#0d0d1a;border-radius:4px;padding:8px;margin-top:5px;font-size:12px;color:#ccc;white-space:pre-wrap;word-break:break-word}
 .result strong{color:#4caf50}
@@ -43,71 +41,75 @@ audio{width:100%;margin-top:5px;border-radius:4px}
 .rec-icon.on{background:#f44336;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .tx-box{background:#0d0d1a;border-radius:4px;padding:8px;font-size:12px;color:#ddd;min-height:40px;max-height:120px;overflow-y:auto;white-space:pre-wrap;margin-top:5px}
-hr{border:none;border-top:1px solid #333;margin:6px 0}
+.raw-box{display:none;background:#0a0a14;border:1px solid #333;border-radius:4px;padding:8px;margin-top:4px;font-family:monospace;font-size:11px;color:#8ae;white-space:pre;overflow-x:auto;max-height:200px}
+.toggle{font-size:10px;color:#888;cursor:pointer;text-decoration:underline;margin:2px 0 4px;display:inline-block}
+.toggle:hover{color:#aaa}
 </style>
 </head>
 <body>
 <h1>Xiaomi MIMO</h1>
-<p class="sub">TTS con control de estilo + ASR en vivo</p>
+<p class="sub">TTS with style control + live ASR</p>
 
 <section>
 <h2>🔊 TTS</h2>
 
 <div class="row">
 <div>
-<label>Modelo</label>
+<label>Model</label>
 <select id="tts-model">
-<option value="mimo-v2.5-tts">v2.5-tts (recomendado)</option>
+<option value="mimo-v2.5-tts">v2.5-tts (recommended)</option>
 <option value="mimo-v2-tts">v2-tts</option>
 <option value="mimo-v2.5-tts-voicedesign">v2.5-voicedesign</option>
 <option value="mimo-v2.5-tts-voiceclone">v2.5-voiceclone</option>
 </select>
 </div>
 <div>
-<label>Formato</label>
+<label>Format</label>
 <select id="tts-format">
 <option value="mp3">MP3</option><option value="wav">WAV</option><option value="pcm">PCM</option><option value="pcm16">PCM16</option>
 </select>
 </div>
 </div>
 
-<label>Voz</label>
+<label>Voice</label>
 <div class="vg" id="vg"></div>
 
-<label>Instrucción de estilo</label>
-<input id="tts-prompt" placeholder='Ej: "Bright and cheerful, fast pace" o descripción de voz para voicedesign'>
+<label>Style instruction (optional)</label>
+<input id="tts-prompt" placeholder='e.g. "Bright and cheerful, fast pace" or voice description for voicedesign'>
 
-<label>Texto a sintetizar</label>
-<textarea id="tts-text" placeholder="Escribe el texto...">Hola, esto es una prueba.</textarea>
+<label>Text to synthesize</label>
+<textarea id="tts-text" placeholder="Type the text to speak...">Hello, this is a test of the Xiaomi text to speech system.</textarea>
 
-<label>🎯 Insertar etiqueta de audio</label>
+<label>🎯 Insert audio tag</label>
 <div class="sticker-bar" id="sticker-bar"></div>
 
-<label>📋 Ejemplos</label>
+<label>📋 Examples</label>
 <div class="tags" id="examples"></div>
 
-<button class="btn-p" onclick="genTTS()">▶ Generar y Escuchar</button>
-<div class="spinner" id="ts">Generando...</div>
+<span class="toggle" id="raw-toggle" onclick="toggleRaw()">📄 Show raw request (cURL)</span>
+<div class="raw-box" id="raw-box"></div>
+
+<button class="btn-p" onclick="genTTS()">▶ Generate & Listen</button>
+<div class="spinner" id="ts">Generating...</div>
 <audio id="ta" controls style="display:none"></audio>
 <div class="result" id="tr"></div>
 <div class="stats" id="tts-stats" style="display:none"></div>
 </section>
 
 <section>
-<h2>🎤 ASR en vivo <span style="font-size:10px;color:#888;font-weight:400">(requiere HTTPS 🔒)</span></h2>
+<h2>🎤 Live ASR <span style="font-size:10px;color:#888;font-weight:400">(requires HTTPS 🔒)</span></h2>
 <div class="row">
-<button class="btn-g" id="rec-btn" onclick="toggleRec()">🎙 Grabar</button>
-<button class="btn-s" onclick="clearTrans()">Limpiar</button>
+<button class="btn-g" id="rec-btn" onclick="toggleRec()">🎙 Record</button>
+<button class="btn-s" onclick="clearTrans()">Clear</button>
 </div>
-<div class="tx-box" id="trans-box">Presiona grabar y habla...</div>
+<div class="tx-box" id="trans-box">Press record and start speaking...</div>
 <div class="result" id="ar"></div>
 </section>
 
 <script>
 const VOICES = ["Mia","Chloe","Milo","Dean","mimo_default","冰糖","茉莉","苏打","白桃"];
-const TAGS = ["(Happy)","(Sad)","(Angry)","(Whisper)","(Lazy)","(Excited)","(Sighing)","(Magnetic)","(Fearful)","(Calm)","(singing)","(Northeastern dialect)","(Cantonese)","[trembling]","[smile]","[cough]","[sigh]","[laugh]","[whisper]","[nervous]","[pauses]","[takes a deep breath]"];
+const TAGS = ["(Happy)","(Sad)","(Angry)","(Whisper)","(Lazy)","(Excited)","(Sighing)","(Magnetic)","(Fearful)","(Calm)","(singing)","[trembling]","[smile]","[cough]","[sigh]","[laugh]","[whisper]","[nervous]","[pauses]","[takes a deep breath]"];
 let rec = null, chunks = [], transText = "";
-let initialTexts = {}; // store default texts for examples
 
 function init() {
   const g = document.getElementById("vg");
@@ -121,7 +123,6 @@ function init() {
   });
   window.__v = () => sel;
 
-  // Sticker bar
   const sb = document.getElementById("sticker-bar");
   TAGS.forEach(t => {
     const b = document.createElement("button");
@@ -134,11 +135,9 @@ function init() {
     sb.appendChild(b);
   });
 
-  // Load examples
   fetch("/models").then(r => r.json()).then(data => {
     const ex = document.getElementById("examples");
-    data.examples.forEach((e, i) => {
-      if (!initialTexts[e.name]) initialTexts[e.name] = e.text;
+    data.examples.forEach(e => {
       const b = document.createElement("button");
       b.textContent = e.name;
       b.onclick = () => {
@@ -161,11 +160,19 @@ async function genTTS() {
   const fmt = document.getElementById("tts-format").value;
   const prompt = document.getElementById("tts-prompt").value.trim();
   const sp = document.getElementById("ts"), res = document.getElementById("tr"),
-        a = document.getElementById("ta"), st = document.getElementById("tts-stats");
-  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none";
+        a = document.getElementById("ta"), st = document.getElementById("tts-stats"),
+        rb = document.getElementById("raw-box");
+  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none"; rb.style.display = "none";
   try {
     const body = {text, voice: window.__v(), model, format: fmt};
     if (prompt) body.prompt = prompt;
+
+    // Show raw request
+    const dry = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({...body, dry_run:true})});
+    const rawPayload = await dry.json();
+    rb.textContent = 'curl -X POST "' + location.origin + '/tts" \\\n  -H "Content-Type: application/json" \\\n  -d \\\n' + JSON.stringify(rawPayload, null, 2);
+    rb.style.display = "block";
+
     const r = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
     if (!r.ok) { const err = await r.text(); try { const j = JSON.parse(err); res.textContent = "Error: " + (j.message || j.error || err); } catch { res.textContent = "Error: " + err; } return; }
     const blob = await r.blob();
@@ -173,15 +180,15 @@ async function genTTS() {
     a.src = url; a.style.display = "block"; a.play();
     res.innerHTML = "<strong>✓</strong> OK";
     const kb = (blob.size / 1024).toFixed(1);
-    let statsHTML = `<div class="stat"><div class="l">Tamaño</div><div class="v">${kb} KB</div></div>`;
-    statsHTML += `<div class="stat"><div class="l">Formato</div><div class="v">${fmt.toUpperCase()}</div></div>`;
-    statsHTML += `<div class="stat"><div class="l">Modelo</div><div class="v">${model}</div></div>`;
-    statsHTML += `<div class="stat"><div class="l">Voz</div><div class="v">${window.__v()}</div></div>`;
+    let statsHTML = `<div class="stat"><div class="l">Size</div><div class="v">${kb} KB</div></div>`;
+    statsHTML += `<div class="stat"><div class="l">Format</div><div class="v">${fmt.toUpperCase()}</div></div>`;
+    statsHTML += `<div class="stat"><div class="l">Model</div><div class="v">${model}</div></div>`;
+    statsHTML += `<div class="stat"><div class="l">Voice</div><div class="v">${window.__v()}</div></div>`;
     a.onloadedmetadata = () => {
       const secs = a.duration;
       if (secs && isFinite(secs)) {
         const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
-        st.innerHTML = statsHTML + `<div class="stat"><div class="l">Duración</div><div class="v">${m}:${s.toString().padStart(2,'0')}</div></div>`;
+        st.innerHTML = statsHTML + `<div class="stat"><div class="l">Duration</div><div class="v">${m}:${s.toString().padStart(2,'0')}</div></div>`;
       } else { st.innerHTML = statsHTML; }
       st.style.display = "grid";
     };
@@ -190,14 +197,19 @@ async function genTTS() {
   finally { sp.classList.remove("active"); }
 }
 
+function toggleRaw() {
+  const rb = document.getElementById("raw-box");
+  rb.style.display = rb.style.display === "none" ? "block" : "none";
+}
+
 async function toggleRec() {
   const btn = document.getElementById("rec-btn");
-  if (rec && rec.state === "recording") { rec.stop(); btn.className = "btn-g"; btn.innerHTML = "🎙 Grabar"; return; }
-  if (!navigator.mediaDevices) { document.getElementById("ar").textContent = "No soporta grabación"; return; }
+  if (rec && rec.state === "recording") { rec.stop(); btn.className = "btn-g"; btn.innerHTML = "🎙 Record"; return; }
+  if (!navigator.mediaDevices) { document.getElementById("ar").textContent = "Recording not supported"; return; }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio: true});
     chunks = []; transText = "";
-    document.getElementById("trans-box").textContent = "Grabando...";
+    document.getElementById("trans-box").textContent = "Recording...";
     document.getElementById("ar").textContent = "";
     rec = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
     rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
@@ -205,7 +217,7 @@ async function toggleRec() {
       stream.getTracks().forEach(t => t.stop());
       if (chunks.length === 0) return;
       const blob = new Blob(chunks, {type: 'audio/webm'});
-      document.getElementById("trans-box").textContent = "Transcribiendo...";
+      document.getElementById("trans-box").textContent = "Transcribing...";
       try {
         const fd = new FormData(); fd.append("audio", blob, "recording.webm");
         const r = await fetch("/asr", {method:"POST", body:fd});
@@ -214,15 +226,15 @@ async function toggleRec() {
         if (data.text) { transText += (transText ? " " : "") + data.text; document.getElementById("trans-box").textContent = transText; }
       } catch(e) { document.getElementById("ar").textContent = "Error: " + e.message; }
     };
-    rec.start(); btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Detener';
+    rec.start(); btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Stop';
   } catch(e) {
     document.getElementById("ar").textContent = e.name === "NotAllowedError"
-      ? "🔒 Permiso denegado. Abre candado → Micrófono → Permitir, recarga."
+      ? "🔒 Permission denied. Open 🔒 in address bar → Microphone → Allow, then reload."
       : "Error: " + e.message;
   }
 }
 
-function clearTrans() { transText = ""; chunks = []; document.getElementById("trans-box").textContent = "Presiona grabar y habla..."; document.getElementById("ar").textContent = ""; }
+function clearTrans() { transText = ""; chunks = []; document.getElementById("trans-box").textContent = "Press record and start speaking..."; document.getElementById("ar").textContent = ""; }
 
 init();
 </script>
