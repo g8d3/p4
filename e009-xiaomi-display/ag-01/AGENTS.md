@@ -29,7 +29,9 @@ XIAOMI_API_KEY=tp-...
 | `bin/speak <texto>` | Subtitle + Edge TTS por stream HTTP |
 | `bin/xiaomi-api` | CLI para TTS/ASR de Xiaomi |
 
-## Servidor Unificado
+## Servidores
+
+### Display + VNC (puerto 8080)
 
 ```
 server/unified-server.py
@@ -40,6 +42,18 @@ Sirve en un solo puerto (8080):
 - Stream de audio MP3 desde PulseAudio
 - Endpoint de subtítulos
 - Proxy WebSocket para VNC
+
+### Xiaomi API Web App (puerto 8081, HTTPS)
+
+```
+app/server.py
+```
+
+Interfaz web para TTS y ASR de Xiaomi:
+- `https://<host>:8081/` — página con selector de voz, prompt opcional
+- `POST /tts` — texto a audio (WAV)
+- `POST /asr` — audio a texto (JSON)
+- HTTPS autofirmado para permitir acceso al micrófono desde el navegador
 
 ## Uso Rápido
 
