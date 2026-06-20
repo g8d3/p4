@@ -104,31 +104,43 @@ async def handle_tts(request):
 SUPPORTED_MIME = {"wav": "audio/wav", "mp3": "audio/mpeg", "mpeg": "audio/mpeg"}
 
 async def convert_to_wav(data, ext):
+    if len(data) < 200:
+        print(f"convert_to_wav: data too small ({len(data)}b), skipping", flush=True)
+        return data, ext
     inp = tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False)
     inp.write(data); inp.close()
     out = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     out.close()
     try:
         proc = await asyncio.create_subprocess_exec(
-            "ffmpeg", "-y", "-i", inp.name, "-acodec", "pcm_s16le",
+            "ffmpeg", "-y", "-f", ext, "-i", inp.name, "-acodec", "pcm_s16le",
             "-ar", "16000", "-ac", "1", out.name,
             stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         _, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
         if proc.returncode != 0:
-            err = stderr.decode()[:200]
-            print(f"ffmpeg convert FAILED ({ext}): {err}", flush=True)
-            return data, ext  # will try original format below
+            err = stderr.decode()[:400]
+            print(f"ffmpeg FAILED ({ext}): {err}", flush=True)
+            # Try without explicit format
+            proc2 = await asyncio.create_subprocess_exec(
+                "ffmpeg", "-y", "-i", inp.name, "-acodec", "pcm_s16le",
+                "-ar", "16000", "-ac", "1", out.name,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            await asyncio.wait_for(proc2.wait(), timeout=10)
+            if proc2.returncode == 0 and os.path.getsize(out.name) > 100:
+                with open(out.name, "rb") as f:
+                    return f.read(), "wav"
+            return data, ext
         with open(out.name, "rb") as f:
             converted = f.read()
         if len(converted) < 100:
-            print(f"ffmpeg output too small: {len(converted)}b", flush=True)
+            print(f"ffmpeg output too small ({len(converted)}b) for {ext} input ({len(data)}b)", flush=True)
             return data, ext
         return converted, "wav"
     except asyncio.TimeoutError:
-        print(f"ffmpeg convert TIMEOUT ({ext})", flush=True)
+        print(f"ffmpeg TIMEOUT ({ext})", flush=True)
         return data, ext
     except Exception as e:
-        print(f"ffmpeg convert EXCEPTION ({ext}): {e}", flush=True)
+        print(f"ffmpeg EXCEPTION ({ext}): {e}", flush=True)
         return data, ext
     finally:
         try: os.unlink(inp.name)
@@ -143,11 +155,14 @@ async def handle_asr(request):
         return web.json_response({"error": "audio file required"}, status=400)
     data = await part.read()
     ext = (part.filename.rsplit(".", 1)[-1] if part.filename else "webm").lower()
+    print(f"ASR received: {ext} {len(data)}b from '{part.filename}'", flush=True)
     # Convert unsupported formats to supported ones (wav)
     if ext not in SUPPORTED_MIME:
         data, ext = await convert_to_wav(data, ext)
     if ext not in SUPPORTED_MIME:
-        return web.json_response({"error": f"unsupported audio format: {ext}, cannot convert"}, status=400)
+        print(f"ASR cannot convert {ext} ({len(data)}b), trying direct send...", flush=True)
+        # Last resort: send original data as wav and let API reject if invalid
+        ext = "wav"
     mime = SUPPORTED_MIME[ext]
     b64 = base64.b64encode(data).decode()
     data_url = f"data:{mime};base64,{b64}"
