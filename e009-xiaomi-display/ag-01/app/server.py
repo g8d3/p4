@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import asyncio, base64, json, os, urllib.request
+import asyncio, base64, json, os, ssl, urllib.request
 from aiohttp import web, MultipartReader
 
 BASE_URL = os.environ.get("XIAOMI_BASE_URL", "https://token-plan-sgp.xiaomimimo.com/v1")
@@ -72,9 +72,21 @@ async def main():
     app.router.add_post("/asr", handle_asr)
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", 8081)
-    await site.start()
-    print("Xiaomi API app: http://0.0.0.0:8081", flush=True)
+
+    cert = "/tmp/server.crt"
+    key = "/tmp/server.key"
+
+    if os.path.exists(cert) and os.path.exists(key):
+        ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+        ctx.load_cert_chain(cert, key)
+        site = web.TCPSite(runner, "0.0.0.0", 8081, ssl_context=ctx)
+        await site.start()
+        print("Xiaomi API app: https://0.0.0.0:8081", flush=True)
+    else:
+        site = web.TCPSite(runner, "0.0.0.0", 8081)
+        await site.start()
+        print("Xiaomi API app: http://0.0.0.0:8081", flush=True)
+
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
