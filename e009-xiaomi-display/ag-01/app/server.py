@@ -11,13 +11,39 @@ ASR_MODELS = ["mimo-v2.5-asr", "mimo-v2-omni"]
 TTS_FORMATS = {"wav": "audio/wav", "mp3": "audio/mpeg", "pcm": "audio/L16", "pcm16": "audio/L16"}
 TTS_VOICES = ["Mia", "Chloe", "Milo", "Dean", "mimo_default", "冰糖", "茉莉", "苏打", "白桃"]
 EXAMPLES = [
-    {"name": "Saludo formal", "text": "Estimados colegas, les doy la más cordial bienvenida a esta presentación.", "prompt": "Speak in a formal professional tone, neutral Spanish"},
-    {"name": "Saludo casual", "text": "¡Qué tal! ¿Cómo va todo? Espero que estén teniendo un excelente día.", "prompt": "Speak casually and friendly, Latin American Spanish"},
-    {"name": "Noticia", "text": "En las últimas horas, el mercado financiero ha experimentado un crecimiento significativo del tres por ciento.", "prompt": "Speak like a news anchor, clear and neutral Spanish"},
-    {"name": "Poema", "text": "La luz que me ilumina, el sol que me abriga, el viento que me guía, la voz que me sigue.", "prompt": "Speak poetically and slowly, emotional Spanish"},
-    {"name": "Instrucción técnica", "text": "Para instalar el paquete, ejecute el comando npm install seguido del nombre del módulo.", "prompt": "Speak clearly and technically, neutral Spanish"},
-    {"name": "Acento inglés", "text": "Hello, welcome to this demonstration of the Xiaomi text to speech system.", "prompt": "Speak in natural American English"},
-    {"name": "Acento inglés UK", "text": "Good morning everyone, today we're going to explore the capabilities of this API.", "prompt": "Speak in British English"},
+    # Natural language style control
+    {"name": "😊 Alegre", "text": "¡Adivina qué, adivina qué! Acabo de recibir los resultados y aprobé. No solo aprobé, ¡saqué matrícula de honor!", "prompt": "Bright, bouncy, slightly sing-song tone — like you're bursting with good news you can barely hold in. Fast pace, rising pitch at the end."},
+    {"name": "😢 Triste", "text": "Después de todos estos años, cuando volví a caminar por esa calle, sentí un vacío en el pecho.", "prompt": "Melancholic, slow pace, with a hint of nostalgia and sadness. Soft voice, occasional sighs."},
+    {"name": "😡 Enojado", "text": "¡Eres increíble! ¡Ya estoy harta de tus mentiras constantes! ¡FUERA DE AQUÍ!", "prompt": "Angry and explosive, raising voice progressively, trembling with rage at the end."},
+    {"name": "🤫 Susurro", "text": "Oye... ven aquí... tengo un secreto que contarte. Pero tienes que prometer que no se lo dirás a nadie.", "prompt": "Whispering, conspiratorial tone, very close to the microphone like sharing a secret. Slow and deliberate."},
+    {"name": "😴 Perezoso", "text": "Déjame dormir cinco minutos más... solo cinco minutos... en serio, es la última vez.", "prompt": "Lazy, groggy, half-asleep tone. Mumbling, slow speech, trailing off at the end."},
+    {"name": "📰 Noticiero", "text": "En las últimas horas, el mercado financiero global ha experimentado un crecimiento significativo del tres por ciento, según reportes de las principales bolsas de valores.", "prompt": "Formal news anchor tone, clear and authoritative, neutral Spanish. Steady pace, professional delivery."},
+    {"name": "📚 Poema", "text": "La luz que me ilumina, el sol que me abriga, el viento que me guía, la voz que me sigue.", "prompt": "Poetic, slow, with emotional depth. Each line with a slight pause, soft and reflective tone."},
+
+    # Audio tag control (tags embedded in text)
+    {"name": "🏷️ Suspiro", "text": "(Sighing)Después de todos estos años, cuando volví a caminar por esa calle, sentí un vacío en el pecho.", "prompt": ""},
+    {"name": "🏷️ Perezoso", "text": "(Lazy)Déjame dormir cinco minutos más... solo cinco minutos, en serio, la última vez.", "prompt": ""},
+    {"name": "🏷️ Magnético", "text": "(Magnetic)La noche ya está profunda, pero la ciudad todavía respira. Soy el que te acompaña esta noche.", "prompt": ""},
+    {"name": "🏷️ Alegre + rápido", "text": "(Happy, fast)¡Hey! ¡Vamos! ¡Que se hace tarde! ¡Todos me están esperando!", "prompt": ""},
+    {"name": "🏷️ Norteño", "text": "(Northeastern dialect)¡Ay madre, hace un frío hoy! Ese viento, mija, corta como navaja.", "prompt": ""},
+    {"name": "🏷️ Cantones", "text": "(Cantonese)Esto está realmente increíble. Una vez que lo pruebas, no lo olvidas.", "prompt": ""},
+    {"name": "🏷️ Asustado", "text": "(Nervous, takes a deep breath) Hoo... Calma, calma. Es solo una entrevista... todo va a salir bien...", "prompt": ""},
+    {"name": "🏷️ Temblor + risa", "text": "Si tan solo... (pauses for a moment) si tan solo hubiera persistido un segundo más, ¿habría sido diferente? (forced smile) Bah, ya no hay 'qué hubiera pasado'.", "prompt": ""},
+
+    # Director mode - elaborate character + scene + guidance
+    {"name": "🎬 Directora fría", "text": "¿Crees que solo con eso puedes conmoverme? Qué ingenuo. Llevo toda una vida enterrando mis sentimientos.", "prompt": "Role: La actual cabeza de la noble familia Cen. Una mujer fría, calculadora, de voz grave e imponente.\nScene: En las sombras del salón principal, observa a alguien que intentó escapar con ella.\nGuidance: Voz extremadamente lenta, cada palabra pesa. Sin fluctuaciones de tono, pero con una opresión que hiela los huesos. Pausas largas e incómodas entre frases."},
+
+    # Voice design examples (for voicedesign model)
+    {"name": "🎨 ASMR femenino", "text": "Hola... respira profundo... siente cómo el aire llena tus pulmones... y suelta muy despacio...", "prompt": "Voz femenina joven, primerísimo plano, estilo ASMR. Se escucha la respiración, trago saliva, labios. Habla muy lento, relajante.", "model": "mimo-v2.5-tts-voicedesign"},
+    {"name": "🎨 Anciano narrador", "text": "Érase una vez, en un pueblo muy lejano, un viejo sabio que conocía todos los secretos del bosque.", "prompt": "Un señor mayor, voz lenta y pausada, ligeramente ronca y curtida, como un abuelo contando historias.", "model": "mimo-v2.5-tts-voicedesign"},
+    {"name": "🎨 Inglés británico", "text": "Good evening, ladies and gentlemen. Tonight's performance promises to be rather exceptional, if I may say so myself.", "prompt": "British elderly gentleman, posh accent, warm and articulate. Slightly formal but welcoming.", "model": "mimo-v2.5-tts-voicedesign"},
+
+    # English examples
+    {"name": "🇺🇸 English excited", "text": "Hey boss — guess what, guess what? I just got the results back and I actually passed! Not just passed, I got a distinction!", "prompt": "Bright, bouncy, slightly sing-song tone. Fast pace, rising pitch at the end."},
+    {"name": "🇬🇧 English calm", "text": "Good morning everyone, today we'll be exploring the capabilities of this system. Let's begin with an overview.", "prompt": "Calm, authoritative British English. Measured pace, clear enunciation."},
+
+    # Singing
+    {"name": "🎤 Canto", "text": "(singing)Perdona si no supe amarte como debía, si mi orgullo pudo más que mi amor. Pero ahora entiendo que te necesito aquí, a mi lado, mi sol.", "prompt": "Singing melodically, like a pop ballad. Emotional and heartfelt."},
 ]
 
 async def api_call(data):
