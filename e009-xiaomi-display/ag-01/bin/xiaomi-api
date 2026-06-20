@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Xiaomi MIMO API CLI — TTS (text→audio) y ASR (audio→text)"""
+import argparse, base64, json, os, sys, urllib.request, urllib.error
+
+BASE_URL = os.environ.get("XIAOMI_BASE_URL", "https://token-plan-sgp.xiaomimimo.com/v1")
+API_KEY = os.environ.get("XIAOMI_API_KEY", "")
+HEADERS = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+
+TTS_VOICES = ["mimo_default", "冰糖", "茉莉", "苏打", "白桃", "Mia", "Chloe", "Milo", "Dean"]
+
+def api(method, path, data=None):
+    url = f"{BASE_URL}/{path.lstrip('/')}"
+    body = json.dumps(data).encode() if data else None
+    req = urllib.request.Request(url, data=body, headers=HEADERS, method=method)
+    try:
+        resp = urllib.request.urlopen(req, timeout=30)
+        return json.loads(resp.read())
+    except urllib.error.HTTPError as e:
+        err = json.loads(e.read().decode())
+        print(f"Error {e.code}: {err.get('error',{}).get('message','?')}", file=sys.stderr)
+        sys.exit(1)
+
+def cmd_models(args):
+    result = api("GET", "models")
+    for m in result.get("data", []):
+        print(f"  {m['id']}")
+
+def cmd_tts(args):
+    text = args.text or sys.stdin.read().strip()
+    if not text:
+        print("Error: proporciona --text o pipea texto", file=sys.stderr); sys.exit(1)
+    model = f"mimo-v2.5-tts" + (f"-{args.style}" if args.style else "")
+    prompt = args.prompt or ""
+    messages = [
+        {"role": "user", "content": prompt or f"Di esto: {text}"},
+        {"role": "assistant", "content": text},
+    ]
+    result = api("POST", "chat/completions", {
+        "model": model, "messages": messages,
+        "modalities": ["audio"],
+        "audio": {"voice": args.voice, "format": args.format},
+    })
+    audio_data = result["choices"][0]["message"].get("audio", {}).get("data")
+    if not audio_data:
+        print("Error: no audio en respuesta", file=sys.stderr); sys.exit(1)
+    audio_bytes = base64.b64decode(audio_data)
+    out_path = args.output or f"output.{args.format}"
+    with open(out_path, "wb") as f:
+        f.write(audio_bytes)
+    if not args.quiet:
+        print(f"Audio guardado: {out_path} ({len(audio_bytes)} bytes)")
+    if args.play:
+        os.system(f"PULSE_SINK=remote-audio paplay {out_path} 2>/dev/null &")
+
+def cmd_asr(args):
+    audio_path = args.audio
+    if not audio_path:
+        print("Error: proporciona --audio <archivo>", file=sys.stderr); sys.exit(1)
+    with open(audio_path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    ext = audio_path.rsplit(".", 1)[-1]
+    data_url = f"data:audio/{ext};base64,{b64}"
+    result = api("POST", "chat/completions", {
+        "model": "mimo-v2.5-asr",
+        "messages": [{"role": "user", "content": [
+            {"type": "input_audio", "input_audio": {"data": data_url, "format": ext}}
+        ]}],
+    })
+    text = result["choices"][0]["message"]["content"]
+    if args.output:
+        with open(args.output, "w") as f:
+            f.write(text)
+        if not args.quiet:
+            print(f"Transcripción guardada: {args.output}")
+    else:
+        print(text)
+
+def main():
+    p = argparse.ArgumentParser(description="Xiaomi MIMO API CLI")
+    p.add_argument("-q", "--quiet", action="store_true", help="Modo silencioso")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    sp = sub.add_parser("models", help="Listar modelos")
+    sp.set_defaults(func=cmd_models)
+
+    sp = sub.add_parser("tts", help="Texto a voz")
+    sp.add_argument("--text", help="Texto a sintetizar")
+    sp.add_argument("--voice", default="Mia", choices=TTS_VOICES, help="Voz")
+    sp.add_argument("--format", default="wav", choices=["wav", "mp3", "opus", "aac", "flac"], help="Formato")
+    sp.add_argument("--style", help="Estilo: voiceclone, voicedesign")
+    sp.add_argument("--prompt", help="Prompt para el assistant")
+    sp.add_argument("-o", "--output", help="Archivo de salida")
+    sp.add_argument("--play", action="store_true", help="Reproducir después de generar")
+    sp.set_defaults(func=cmd_tts)
+
+    sp = sub.add_parser("asr", help="Audio a texto")
+    sp.add_argument("--audio", required=True, help="Archivo de audio")
+    sp.add_argument("-o", "--output", help="Guardar transcripción")
+    sp.set_defaults(func=cmd_asr)
+
+    args = p.parse_args()
+    args.func(args)
+
+if __name__ == "__main__":
+    main()

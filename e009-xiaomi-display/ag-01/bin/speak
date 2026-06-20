@@ -1,0 +1,18 @@
+#!/bin/bash
+# speak <text> [voice]
+# Updates subtitles + plays audio via Edge TTS through the remote stream
+
+VOICE="${2:-es-MX-JorgeNeural}"
+TEXT="$1"
+AUDIO_FILE="/tmp/speak_$$.mp3"
+
+# Update subtitle
+subtitle "$TEXT"
+
+# Generate speech
+edge-tts --text "$TEXT" --voice "$VOICE" --write-media "$AUDIO_FILE" 2>/dev/null
+
+# Play through remote-audio sink (streamed via HTTP)
+PULSE_SINK=remote-audio paplay "$AUDIO_FILE" 2>/dev/null
+
+rm -f "$AUDIO_FILE"

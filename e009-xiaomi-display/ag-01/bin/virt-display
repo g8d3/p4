@@ -1,0 +1,39 @@
+#!/bin/bash
+set -e
+
+DISPLAY_NUM=${1:-99}
+RESOLUTION=${2:-720x1600}
+VNC_PORT=$((5900 + DISPLAY_NUM))
+
+killpid() {
+  local pid
+  pid=$(lsof -ti ":$VNC_PORT" 2>/dev/null || true)
+  [ -n "$pid" ] && kill "$pid" 2>/dev/null || true
+  pid=$(lsof -ti ":$((6000 + DISPLAY_NUM))" 2>/dev/null || true)
+  [ -n "$pid" ] && kill "$pid" 2>/dev/null || true
+}
+
+case "${1:-}" in
+  stop|kill)
+    killpid
+    echo "VNC display :$DISPLAY_NUM stopped"
+    exit 0
+    ;;
+esac
+
+killpid
+sleep 1
+
+Xvfb ":$DISPLAY_NUM" -screen 0 "${RESOLUTION}x24" &
+XVFB_PID=$!
+sleep 1
+
+x11vnc -display ":$DISPLAY_NUM" -forever -shared -bg -nopw -rfbport "$VNC_PORT" -listen 0.0.0.0 >/dev/null 2>&1
+
+echo "VNC running on :$DISPLAY_NUM ($RESOLUTION) port $VNC_PORT"
+echo "  Xvfb PID: $XVFB_PID"
+echo "  Connect: vncviewer <host-ip>:$VNC_PORT"
+echo "  Stop:    virt-display $DISPLAY_NUM stop"
+echo ""
+
+wait $XVFB_PID

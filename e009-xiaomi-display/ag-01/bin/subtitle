@@ -1,0 +1,5 @@
+#!/bin/bash
+LOG="$HOME/.local/share/e009-display/subtitles.log"
+mkdir -p "$HOME/.local/share/e009-display"
+echo "[$(date +%H:%M:%S)] $*" >> "$LOG"
+tail -n 30 "$LOG" > "${LOG}.tmp" && mv "${LOG}.tmp" "$LOG"
