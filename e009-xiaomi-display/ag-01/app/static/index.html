@@ -248,22 +248,28 @@ async function toggleRec() {
     transText = "";
     document.getElementById("trans-box").textContent = "Listening...";
     document.getElementById("ar").textContent = "";
+    let chunkIdx = 0;
     rec = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
     rec.ondataavailable = (e) => {
       if (e.data.size === 0) return;
+      const idx = ++chunkIdx;
       const blob = e.data;
+      document.getElementById("ar").textContent = `Chunk ${idx}: ${(blob.size/1024).toFixed(0)}KB sent`;
       (async () => {
         try {
           const fd = new FormData(); fd.append("audio", blob, "chunk.webm");
           const r = await fetch("/asr", {method:"POST", body:fd});
-          if (!r.ok) return;
+          if (!r.ok) { document.getElementById("ar").textContent = `Chunk ${idx} error: ${await r.text()}`; return; }
           const data = await r.json();
           if (data.text && data.text.trim()) {
             transText += (transText ? " " : "") + data.text.trim();
             document.getElementById("trans-box").textContent = transText;
+            document.getElementById("ar").textContent = `Chunk ${idx}: "${data.text.trim()}"`;
+          } else {
+            document.getElementById("ar").textContent = `Chunk ${idx}: no text detected`;
           }
         } catch(e) {
-          document.getElementById("ar").textContent = "ASR error: " + e.message;
+          document.getElementById("ar").textContent = `Chunk ${idx} error: ${e.message}`;
         }
       })();
     };
