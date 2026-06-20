@@ -46,8 +46,9 @@ try{
 rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS',{wsProtocols:['binary']});
 rfb.scaleViewport=true;rfb.resizeSession=false;
 rfb.addEventListener('connect',function(){dot.className='dot on';lab.textContent='connected'});
-rfb.addEventListener('disconnect',function(){dot.className='dot';lab.textContent='disconnected';setTimeout(cn,3000)});
-}catch(e){setTimeout(cn,3000)}}
+rfb.addEventListener('disconnect',function(e){dot.className='dot';lab.textContent='disconnected: '+e.detail.reason;setTimeout(cn,5000)});
+rfb.addEventListener('securityfailure',function(e){lab.textContent='auth fail: '+e.detail.reason;});
+}catch(e){lab.textContent='error: '+e.message;setTimeout(cn,5000)}}
 cn();
 })();
 </script>
