@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import asyncio, base64, json, os, ssl, urllib.request
+import asyncio, base64, json, os, ssl, subprocess, tempfile, urllib.request
 from aiohttp import web
 
 BASE_URL = os.environ.get("XIAOMI_BASE_URL", "https://token-plan-sgp.xiaomimimo.com/v1")
@@ -93,15 +93,36 @@ async def handle_tts(request):
     content_type = TTS_FORMATS.get(fmt, "audio/wav")
     return web.Response(body=base64.b64decode(audio_data), content_type=content_type)
 
+SUPPORTED_ASR_FORMATS = {"wav", "mp3", "mpeg"}
+
 async def handle_asr(request):
     reader = await request.multipart()
     part = await reader.next()
     if not part:
         return web.json_response({"error": "audio file required"}, status=400)
     data = await part.read()
-    b64 = base64.b64encode(data).decode()
     ext = (part.filename.rsplit(".", 1)[-1] if part.filename else "webm").lower()
-    if ext not in ("wav","mp3","webm","ogg","opus","aac","flac"): ext = "wav"
+    # Convert unsupported formats to wav via ffmpeg
+    if ext not in SUPPORTED_ASR_FORMATS:
+        inp = tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False)
+        inp.write(data); inp.close()
+        out = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+        out.close()
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "ffmpeg", "-y", "-i", inp.name, "-acodec", "pcm_s16le",
+                "-ar", "16000", "-ac", "1", out.name,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            await asyncio.wait_for(proc.wait(), timeout=10)
+            with open(out.name, "rb") as f:
+                data = f.read()
+            ext = "wav"
+        except:
+            pass
+        finally:
+            os.unlink(inp.name)
+            os.unlink(out.name)
+    b64 = base64.b64encode(data).decode()
     result = await api_call({
         "model": "mimo-v2.5-asr",
         "messages": [{"role": "user", "content": [
