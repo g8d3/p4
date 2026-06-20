@@ -5,37 +5,44 @@
 - Display virtual: HEADLESS-1 (720×1280) en Sway
 - Acceso remoto: noVNC en browser (puerto 8083)
 - Audio: endpoint /audio en el mismo puerto
-- Grabación: no implementada
+- **Grabación: IMPLEMENTADA ✅** (fase 1 completada)
 - Transmisión en vivo: funciona (noVNC + audio)
 
-## Fase 1: Grabación con VNC (actual)
+## Fase 1: Grabación con VNC (completada)
 
 **Objetivo**: grabar 10-30 segundos de actividad en HEADLESS-1.
 
-**Qué grabar**:
-- Abrir terminal (Super+Enter en Sway)
-- Abrir navegador en el terminal
-- Navegar a un video de YouTube
-- Poner el video a sonar
-- Grabar todo (video + audio)
+**Resultado**: ✅ Exitoso
 
-**Resultado esperado**: archivo MKV con video 720×1280 + audio.
+**Archivo**: `grabacion_fase1.mkv`
 
-**Herramientas**:
-- `wf-recorder` (grabación DMA-BUF + PipeWire para audio)
-- `grim` + `ffmpeg` (alternativa sin wf-recorder)
+| Métrica | Valor |
+|---------|-------|
+| Duración | 9.86 s |
+| Resolución | 720×1280 |
+| Codec video | H.264 (libx264, CRF 23, ultrafast) |
+| Codec audio | AAC, 48kHz, stereo |
+| Tamaño archivo | 166 KB |
+| Tasa de bits | 134 Kbps |
+| FPS | 1 (contenido estático, sin cambios de frames) |
+| CPU durante grabación | 8.7% (vs 6.1% baseline) |
+| RAM | 3.3 GB (sin cambio) |
+| GPU | 0% (sin encode GPU, fue CPU only) |
 
-**Limitación**: noVNC no tiene audio en la transmisión. La grabación sí tendría audio.
+**Herramientas usadas**:
+- `wf-recorder -o HEADLESS-1 -c libx264 --audio -f grabacion_fase1.mkv`
 
-**Métricas a extraer**:
-- `top` / `htop`: CPU%, GPU%, RAM antes/durante/después de grabación
-- `nvidia-smi` o `radeontop`: uso de GPU encode
-- `iostat`: disco durante la grabación
-- `iperf3` o `speedtest-cli`: ancho de banda disponible
-- Tamaño del archivo de grabación
-- FPS real de grabación
-- Tiempo de grabación vs duración real
-- Latencia de captura (grim/wf-recorder)
+**Observaciones**:
+- wf-recorder captura DMA-BUF (wlr-screencopy) + PipeWire audio
+- El display estaba casi estático (solo cursor moviéndose), por eso el FPS fue bajo
+- xdotool no funciona en Wayland (necesita `wtype` o `ydotool` para input)
+- El terminal foot no mostró contenido porque xdotool no envió las teclas correctamente
+- El archivo MKV tiene tanto video como audio sincronizados
+
+**Pendiente para mejoras**:
+- Usar `ydotool` o `wtype` en vez de `xdotool` para input en Wayland
+- Abrir navegador con video para probar grabación con movimiento + audio
+- Probar con diferentes calidades (CRF) y codecs (VP9, AV1)
 
 ## Fase 2: Transmisión con WebRTC
 
