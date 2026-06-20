@@ -3,66 +3,103 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Xiaomi API — TTS & ASR</title>
+<title>Xiaomi MIMO — TTS & ASR</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#111;color:#eee;font-family:system-ui,sans-serif;padding:16px;max-width:480px;margin:0 auto}
-h1{color:#e94560;font-size:18px;margin-bottom:4px}
-p{color:#888;font-size:13px;margin-bottom:16px}
-section{background:#1a1a2e;border-radius:8px;padding:16px;margin-bottom:16px}
-h2{font-size:15px;margin-bottom:12px;color:#ddd}
-label{display:block;font-size:13px;color:#aaa;margin-bottom:4px}
-textarea,input,select{width:100%;padding:10px;border:1px solid #333;border-radius:6px;background:#0d0d1a;color:#eee;font-size:14px;margin-bottom:12px;font-family:inherit}
-textarea{resize:vertical;min-height:80px}
-button{width:100%;padding:12px;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:600;margin-bottom:8px}
+body{background:#111;color:#eee;font-family:system-ui,sans-serif;padding:12px;max-width:480px;margin:0 auto}
+h1{color:#e94560;font-size:17px;margin-bottom:2px}
+.sub{color:#888;font-size:12px;margin-bottom:12px}
+section{background:#1a1a2e;border-radius:8px;padding:12px;margin-bottom:12px}
+h2{font-size:14px;margin-bottom:8px;color:#ddd}
+label{font-size:12px;color:#aaa;margin-bottom:2px;display:block}
+textarea,input,select{width:100%;padding:8px;border:1px solid #333;border-radius:5px;background:#0d0d1a;color:#eee;font-size:13px;margin-bottom:8px;font-family:inherit}
+textarea{resize:vertical;min-height:60px}
+.row{display:flex;gap:6px}
+.row>*{flex:1}
+button{padding:8px;border:none;border-radius:5px;font-size:13px;cursor:pointer;font-weight:600;margin-bottom:4px}
 .btn-p{background:#e94560;color:#fff}
 .btn-p:active{background:#c73a52}
 .btn-s{background:#333;color:#eee}
 .btn-s:active{background:#444}
 .btn-r{background:#c62828;color:#fff}
-.btn-r:active{background:#b71c1c}
 .btn-g{background:#2e7d32;color:#fff}
-audio{width:100%;margin-top:8px;border-radius:6px}
-.result{background:#0d0d1a;border-radius:6px;padding:12px;margin-top:8px;font-size:14px;color:#ccc;white-space:pre-wrap;word-break:break-word}
+.btn-sm{background:#2a2a3e;color:#aaa;font-size:11px;padding:4px 8px;margin:2px;font-weight:400}
+.btn-sm.act{border:1px solid #e94560;color:#e94560}
+audio{width:100%;margin-top:6px;border-radius:4px}
+.result{background:#0d0d1a;border-radius:5px;padding:10px;margin-top:6px;font-size:12px;color:#ccc;white-space:pre-wrap;word-break:break-word}
 .result strong{color:#4caf50}
-.spinner{display:none;text-align:center;padding:12px;color:#888}
+.spinner{display:none;text-align:center;padding:10px;color:#888;font-size:13px}
 .spinner.active{display:block}
-.vg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
-.vg button{padding:6px;font-size:11px;border:1px solid #333;border-radius:4px;background:#0d0d1a;color:#aaa;cursor:pointer;text-align:center;margin:0}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.tags button{font-size:11px;padding:4px 8px;background:#2a2a3e;color:#aaa;border:1px solid #333;border-radius:4px;font-weight:400}
+.tags button:active{background:#3a3a5e}
+.vg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px}
+.vg button{padding:4px;font-size:10px;border:1px solid #333;border-radius:3px;background:#0d0d1a;color:#aaa;cursor:pointer;text-align:center;margin:0}
 .vg button.act{border-color:#e94560;color:#e94560;background:#1a1a2e}
-.row{display:flex;gap:8px}
-.row button{flex:1}
-.rec-icon{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
+.stat{border-radius:4px;padding:6px 8px;background:#111;font-size:11px}
+.stat .v{color:#eee;font-size:13px;font-weight:600}
+.stat .l{color:#888}
+.rec-icon{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
 .rec-icon.on{background:#f44336;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.tx-box{background:#0d0d1a;border-radius:6px;padding:12px;font-size:14px;color:#ddd;min-height:60px;max-height:200px;overflow-y:auto;white-space:pre-wrap;margin-top:8px}
+.tx-box{background:#0d0d1a;border-radius:5px;padding:10px;font-size:13px;color:#ddd;min-height:50px;max-height:150px;overflow-y:auto;white-space:pre-wrap;margin-top:6px}
 </style>
 </head>
 <body>
 <h1>Xiaomi MIMO</h1>
-<p>TTS y ASR en tiempo real</p>
+<p class="sub">TTS y ASR con modelos de Xiaomi</p>
 
 <section>
-<h2>🔊 TTS</h2>
-<label>Texto</label>
-<textarea id="tts-text" placeholder="Texto a sintetizar...">Hola, esto es una prueba.</textarea>
+<h2>🔊 TTS <span style="font-size:11px;color:#888;font-weight:400">— modelo, voz, formato</span></h2>
+
+<label>Modelo</label>
+<select id="tts-model">
+<option value="mimo-v2.5-tts">mimo-v2.5-tts (recomendado)</option>
+<option value="mimo-v2-tts">mimo-v2-tts</option>
+<option value="mimo-v2.5-tts-voiceclone">mimo-v2.5-tts-voiceclone</option>
+<option value="mimo-v2.5-tts-voicedesign">mimo-v2.5-tts-voicedesign</option>
+</select>
+
+<div class="row">
+<div>
+<label>Formato</label>
+<select id="tts-format">
+<option value="wav">WAV</option>
+<option value="mp3" selected>MP3 (recomendado)</option>
+<option value="pcm">PCM</option>
+<option value="pcm16">PCM16</option>
+</select>
+</div>
+<div>
 <label>Voz</label>
 <div class="vg" id="vg"></div>
+</div>
+</div>
+
 <label>Instrucciones (opcional)</label>
-<input id="tts-prompt" placeholder="Ej: Habla en español neutro, sin acento chino" value="Speak in neutral Spanish, clearly">
-<button class="btn-p" onclick="genTTS()">Generar y Escuchar</button>
+<input id="tts-prompt" placeholder="Ej: Speak in neutral Spanish, clearly" value="Speak in neutral Spanish">
+
+<label>Texto</label>
+<textarea id="tts-text" placeholder="Escribe el texto a sintetizar...">Hola, esto es una prueba del sistema de texto a voz.</textarea>
+
+<label>Ejemplos rápidos</label>
+<div class="tags" id="examples"></div>
+
+<button class="btn-p" onclick="genTTS()">▶ Generar y Escuchar</button>
 <div class="spinner" id="ts">Generando...</div>
 <audio id="ta" controls style="display:none"></audio>
 <div class="result" id="tr"></div>
+<div class="stats" id="tts-stats" style="display:none"></div>
 </section>
 
 <section>
 <h2>🎤 ASR en vivo <span style="font-size:11px;color:#888;font-weight:400">(requiere HTTPS 🔒)</span></h2>
 <div class="row">
-<button class="btn-g" id="rec-btn" onclick="toggleRec()">🎙 Iniciar grabación</button>
+<button class="btn-g" id="rec-btn" onclick="toggleRec()">🎙 Grabar</button>
 <button class="btn-s" onclick="clearTrans()">Limpiar</button>
 </div>
-<div class="tx-box" id="trans-box">Presiona grabar y empieza a hablar...</div>
+<div class="tx-box" id="trans-box">Presiona grabar y habla...</div>
 <div class="result" id="ar"></div>
 </section>
 
@@ -71,16 +108,32 @@ const VOICES = ["Mia","Chloe","Milo","Dean","mimo_default","冰糖","茉莉","�
 let rec = null, chunks = [], transText = "";
 
 function init() {
+  // Voice grid
   const g = document.getElementById("vg");
   let sel = "Mia";
   VOICES.forEach(v => {
     const b = document.createElement("button");
-    b.textContent = v; b.dataset.v = v;
+    b.textContent = v;
     b.onclick = () => { g.querySelectorAll("button").forEach(x => x.classList.remove("act")); b.classList.add("act"); sel = v; };
     if (v === "Mia") b.classList.add("act");
     g.appendChild(b);
   });
   window.__v = () => sel;
+
+  // Load examples from server
+  fetch("/models").then(r => r.json()).then(data => {
+    const ex = document.getElementById("examples");
+    data.examples.forEach((e, i) => {
+      const b = document.createElement("button");
+      b.textContent = e.name;
+      b.onclick = () => {
+        document.getElementById("tts-text").value = e.text;
+        if (e.prompt) document.getElementById("tts-prompt").value = e.prompt;
+      };
+      ex.appendChild(b);
+    });
+  }).catch(() => {});
+
   const a = document.getElementById("ta");
   a.onended = () => a.style.display = "none";
 }
@@ -88,18 +141,40 @@ function init() {
 async function genTTS() {
   const text = document.getElementById("tts-text").value.trim();
   if (!text) return;
+  const model = document.getElementById("tts-model").value;
+  const fmt = document.getElementById("tts-format").value;
   const prompt = document.getElementById("tts-prompt").value.trim();
-  const sp = document.getElementById("ts"), res = document.getElementById("tr"), a = document.getElementById("ta");
-  sp.classList.add("active"); res.textContent = ""; a.style.display = "none";
+  const sp = document.getElementById("ts"), res = document.getElementById("tr"),
+        a = document.getElementById("ta"), st = document.getElementById("tts-stats");
+  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none";
   try {
-    const body = {text, voice: window.__v()};
+    const body = {text, voice: window.__v(), model, format: fmt};
     if (prompt) body.prompt = prompt;
     const r = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-    if (!r.ok) { res.textContent = "Error: " + (await r.text()); return; }
+    if (!r.ok) { const err = await r.text(); res.textContent = "Error: " + err; return; }
     const blob = await r.blob();
-    a.src = URL.createObjectURL(blob); a.style.display = "block";
-    a.play();
-    res.innerHTML = "<strong>✓</strong> " + (blob.size/1024).toFixed(0) + " KB";
+    const url = URL.createObjectURL(blob);
+    a.src = url; a.style.display = "block"; a.play();
+    res.innerHTML = "<strong>✓</strong> Generado";
+    // Stats
+    const kb = (blob.size / 1024).toFixed(1);
+    let statsHTML = `<div class="stat"><div class="l">Tamaño</div><div class="v">${kb} KB</div></div>`;
+    statsHTML += `<div class="stat"><div class="l">Formato</div><div class="v">${fmt.toUpperCase()}</div></div>`;
+    statsHTML += `<div class="stat"><div class="l">Modelo</div><div class="v">${model}</div></div>`;
+    statsHTML += `<div class="stat"><div class="l">Voz</div><div class="v">${window.__v()}</div></div>`;
+    // Try to get duration from audio element
+    a.onloadedmetadata = () => {
+      const secs = a.duration;
+      if (secs && isFinite(secs)) {
+        const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
+        st.innerHTML = statsHTML + `<div class="stat"><div class="l">Duración</div><div class="v">${m}:${s.toString().padStart(2,'0')}</div></div>`;
+      } else {
+        st.innerHTML = statsHTML;
+      }
+      st.style.display = "grid";
+    };
+    // Fallback if metadata doesn't fire
+    setTimeout(() => { if (st.style.display === "none") { st.innerHTML = statsHTML; st.style.display = "grid"; } }, 2000);
   } catch(e) { res.textContent = "Error: " + e.message; }
   finally { sp.classList.remove("active"); }
 }
@@ -108,20 +183,18 @@ async function toggleRec() {
   const btn = document.getElementById("rec-btn");
   if (rec && rec.state === "recording") {
     rec.stop();
-    btn.className = "btn-g"; btn.innerHTML = "🎙 Iniciar grabación";
+    btn.className = "btn-g"; btn.innerHTML = "🎙 Grabar";
     document.querySelector(".rec-icon")?.remove();
     return;
   }
-  if (!navigator.mediaDevices) { document.getElementById("ar").textContent = "Error: tu navegador no soporta grabación"; return; }
+  if (!navigator.mediaDevices) { document.getElementById("ar").textContent = "No soporta grabación"; return; }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio: true});
     chunks = []; transText = "";
     document.getElementById("trans-box").textContent = "Grabando...";
     document.getElementById("ar").textContent = "";
     rec = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
-    rec.ondataavailable = async (e) => {
-      if (e.data.size > 0) chunks.push(e.data);
-    };
+    rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
     rec.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
       if (chunks.length === 0) return;
@@ -131,7 +204,7 @@ async function toggleRec() {
         const fd = new FormData();
         fd.append("audio", blob, "recording.webm");
         const r = await fetch("/asr", {method:"POST", body:fd});
-        if (!r.ok) { const err = await r.text(); document.getElementById("ar").textContent = "Error ASR: " + err; return; }
+        if (!r.ok) { const err = await r.text(); document.getElementById("ar").textContent = "Error: " + err; return; }
         const data = await r.json();
         if (data.text) {
           transText += (transText ? " " : "") + data.text;
@@ -140,18 +213,17 @@ async function toggleRec() {
       } catch(e) { document.getElementById("ar").textContent = "Error: " + e.message; }
     };
     rec.start();
-    btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Detener grabación';
+    btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Detener';
   } catch(e) {
-    const msg = e.name === "NotAllowedError" ? "Permiso denegado. Abre el candado 🔒 en la barra → Micrófono → Permitir, luego recarga." :
-                e.name === "NotFoundError" ? "No se encontró micrófono." :
-                "Error: " + e.message;
-    document.getElementById("ar").textContent = msg;
+    document.getElementById("ar").textContent = e.name === "NotAllowedError"
+      ? "Permiso denegado. Abre 🔒 en la barra → Micrófono → Permitir, recarga."
+      : "Error: " + e.message;
   }
 }
 
 function clearTrans() {
   transText = ""; chunks = [];
-  document.getElementById("trans-box").textContent = "Presiona grabar y empieza a hablar...";
+  document.getElementById("trans-box").textContent = "Presiona grabar y habla...";
   document.getElementById("ar").textContent = "";
 }
 
