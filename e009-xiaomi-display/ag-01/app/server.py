@@ -105,48 +105,21 @@ SUPPORTED_MIME = {"wav": "audio/wav", "mp3": "audio/mpeg", "mpeg": "audio/mpeg"}
 
 async def convert_to_wav(data, ext):
     if len(data) < 200:
-        print(f"convert_to_wav: data too small ({len(data)}b), skipping", flush=True)
+        print(f"convert_to_wav: data too small ({len(data)}b)", flush=True)
         return data, ext
-    inp = tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False)
-    inp.write(data); inp.close()
-    out = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-    out.close()
+    # Use piping through stdin/stdout instead of temp files
     try:
         proc = await asyncio.create_subprocess_exec(
-            "ffmpeg", "-y", "-f", ext, "-i", inp.name, "-acodec", "pcm_s16le",
-            "-ar", "16000", "-ac", "1", out.name,
-            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-        _, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
-        if proc.returncode != 0:
-            err = stderr.decode()[:400]
-            print(f"ffmpeg FAILED ({ext}): {err}", flush=True)
-            # Try without explicit format
-            proc2 = await asyncio.create_subprocess_exec(
-                "ffmpeg", "-y", "-i", inp.name, "-acodec", "pcm_s16le",
-                "-ar", "16000", "-ac", "1", out.name,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            await asyncio.wait_for(proc2.wait(), timeout=10)
-            if proc2.returncode == 0 and os.path.getsize(out.name) > 100:
-                with open(out.name, "rb") as f:
-                    return f.read(), "wav"
-            return data, ext
-        with open(out.name, "rb") as f:
-            converted = f.read()
-        if len(converted) < 100:
-            print(f"ffmpeg output too small ({len(converted)}b) for {ext} input ({len(data)}b)", flush=True)
-            return data, ext
-        return converted, "wav"
-    except asyncio.TimeoutError:
-        print(f"ffmpeg TIMEOUT ({ext})", flush=True)
-        return data, ext
+            "ffmpeg", "-i", "pipe:0", "-f", "wav", "-acodec", "pcm_s16le",
+            "-ar", "16000", "-ac", "1", "pipe:1",
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        out_data, _ = await asyncio.wait_for(proc.communicate(data), timeout=15)
+        if proc.returncode == 0 and len(out_data) > 100:
+            return out_data, "wav"
+        print(f"ffmpeg pipe FAILED ({ext}): rc={proc.returncode} out={len(out_data)}", flush=True)
     except Exception as e:
-        print(f"ffmpeg EXCEPTION ({ext}): {e}", flush=True)
-        return data, ext
-    finally:
-        try: os.unlink(inp.name)
-        except: pass
-        try: os.unlink(out.name)
-        except: pass
+        print(f"ffmpeg pipe EXCEPTION ({ext}): {e}", flush=True)
+    return data, ext
 
 async def handle_asr(request):
     reader = await request.multipart()
