@@ -104,19 +104,42 @@ async def handle_tts(request):
 SUPPORTED_MIME = {"wav": "audio/wav", "mp3": "audio/mpeg", "mpeg": "audio/mpeg"}
 
 async def convert_to_wav(data, ext):
-    if len(data) < 200:
-        print(f"convert_to_wav: data too small ({len(data)}b)", flush=True)
-        return data, ext
+    if len(data) < 500:
+        print(f"convert_to_wav: data too small ({len(data)}b), returning empty wav", flush=True)
+        # Return a minimal valid WAV (0.1s of silence)
+        import struct, io
+        buf = io.BytesIO()
+        sr = 16000; bits = 16; channels = 1; duration_samples = int(sr * 0.1)
+        data_size = duration_samples * channels * (bits // 8)
+        buf.write(b'RIFF')
+        buf.write(struct.pack('<I', 36 + data_size))
+        buf.write(b'WAVE')
+        buf.write(b'fmt ')
+        buf.write(struct.pack('<I', 16))
+        buf.write(struct.pack('<H', 1))
+        buf.write(struct.pack('<H', channels))
+        buf.write(struct.pack('<I', sr))
+        buf.write(struct.pack('<I', sr * channels * (bits // 8)))
+        buf.write(struct.pack('<H', channels * (bits // 8)))
+        buf.write(struct.pack('<H', bits))
+        buf.write(b'data')
+        buf.write(struct.pack('<I', data_size))
+        buf.write(b'\x00' * data_size)
+        return buf.getvalue(), "wav"
     # Use piping through stdin/stdout instead of temp files
     try:
         proc = await asyncio.create_subprocess_exec(
             "ffmpeg", "-i", "pipe:0", "-f", "wav", "-acodec", "pcm_s16le",
             "-ar", "16000", "-ac", "1", "pipe:1",
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-        out_data, _ = await asyncio.wait_for(proc.communicate(data), timeout=15)
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out_data, stderr = await asyncio.wait_for(proc.communicate(data), timeout=20)
         if proc.returncode == 0 and len(out_data) > 100:
             return out_data, "wav"
-        print(f"ffmpeg pipe FAILED ({ext}): rc={proc.returncode} out={len(out_data)}", flush=True)
+        err = stderr.decode()[:500] if stderr else ""
+        print(f"ffmpeg FAILED ({ext}): rc={proc.returncode} out={len(out_data)} err={err}", flush=True)
+        # Save failing data for analysis
+        with open(f"/tmp/failed_chunk_{ext}.webm", "wb") as f:
+            f.write(data)
     except Exception as e:
         print(f"ffmpeg pipe EXCEPTION ({ext}): {e}", flush=True)
     return data, ext
@@ -128,7 +151,12 @@ async def handle_asr(request):
         return web.json_response({"error": "audio file required"}, status=400)
     data = await part.read()
     ext = (part.filename.rsplit(".", 1)[-1] if part.filename else "webm").lower()
-    print(f"ASR received: {ext} {len(data)}b from '{part.filename}'", flush=True)
+    print(f"ASR received: {ext} {len(data)}b", flush=True)
+
+    # Skip empty/tiny chunks
+    if len(data) < 300:
+        return web.json_response({"text": ""})
+
     # Convert unsupported formats to supported ones (wav)
     if ext not in SUPPORTED_MIME:
         data, ext = await convert_to_wav(data, ext)
