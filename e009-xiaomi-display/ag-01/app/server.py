@@ -140,6 +140,44 @@ async def handle_asr(request):
         return web.json_response(result["error"], status=result["status"])
     return web.json_response({"text": result["data"]["choices"][0]["message"]["content"]})
 
+async def handle_tts_clone(request):
+    reader = await request.multipart()
+    parts = {}
+    while True:
+        part = await reader.next()
+        if not part: break
+        parts[part.name] = await part.read()
+    text = parts.get("text", b"").decode()
+    if not text:
+        return web.json_response({"error": "text required"}, status=400)
+    model = parts.get("model", b"mimo-v2.5-tts-voiceclone").decode()
+    fmt = parts.get("format", b"wav").decode()
+    prompt = parts.get("prompt", b"").decode()
+    sample = parts.get("sample")
+    if not sample:
+        return web.json_response({"error": "sample audio required"}, status=400)
+    b64 = base64.b64encode(sample).decode()
+    ext = "mp3"
+    mime = "audio/mpeg"
+    messages = [{"role": "user", "content": prompt or ""}]
+    if not prompt:
+        messages = []
+    messages.append({"role": "assistant", "content": text})
+    payload = {
+        "model": model, "messages": messages,
+        "modalities": ["audio"],
+        "audio": {"format": fmt, "voice": f"data:{mime};base64,{b64}"},
+    }
+    result = await api_call(payload)
+    if not result["ok"]:
+        return web.json_response(result["error"], status=result["status"])
+    msg = result["data"]["choices"][0]["message"]
+    audio_data = msg.get("audio", {}).get("data")
+    if not audio_data:
+        return web.json_response({"error": "no audio"}, status=500)
+    content_type = TTS_FORMATS.get(fmt, "audio/wav")
+    return web.Response(body=base64.b64decode(audio_data), content_type=content_type)
+
 async def index(request):
     path = os.path.join(os.path.dirname(__file__), "static", "index.html")
     with open(path) as f:
@@ -150,6 +188,7 @@ async def main():
     app.router.add_get("/", index)
     app.router.add_get("/models", handle_models)
     app.router.add_post("/tts", handle_tts)
+    app.router.add_post("/tts-clone", handle_tts_clone)
     app.router.add_post("/asr", handle_asr)
     runner = web.AppRunner(app)
     await runner.setup()

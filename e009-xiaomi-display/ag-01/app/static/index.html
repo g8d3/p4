@@ -71,10 +71,17 @@ audio{width:100%;margin-top:5px;border-radius:4px}
 </div>
 </div>
 
+<div id="voice-section">
 <label>Voice</label>
 <div class="vg" id="vg"></div>
+</div>
 
-<label>Style instruction (optional)</label>
+<div id="sample-section" style="display:none">
+<label>Voice sample audio (MP3 or WAV)</label>
+<input type="file" id="sample-file" accept="audio/mpeg,audio/wav">
+</div>
+
+<label id="prompt-label">Style instruction (optional)</label>
 <input id="tts-prompt" placeholder='e.g. "Bright and cheerful, fast pace" or voice description for voicedesign'>
 
 <label>Text to synthesize</label>
@@ -147,6 +154,19 @@ function init() {
       document.getElementById("raw-box").textContent = 'curl -X POST "' + location.origin + '/tts" \\\n  -H "Content-Type: application/json" \\\n  -d \\\n' + JSON.stringify(j, null, 2);
     } catch(e) {}
   }
+  // Model change UI
+  function updateModelUI() {
+    const m = document.getElementById("tts-model").value;
+    const isVD = m.includes("voicedesign");
+    const isVC = m.includes("voiceclone");
+    document.getElementById("voice-section").style.display = (isVD || isVC) ? "none" : "block";
+    document.getElementById("sample-section").style.display = isVC ? "block" : "none";
+    document.getElementById("prompt-label").textContent = isVD ? "Voice description (describe the voice you want)" : "Style instruction (optional)";
+    document.getElementById("tts-prompt").placeholder = isVD ? 'e.g. "Young female, soft ASMR, close to the microphone"' : 'e.g. "Bright and cheerful, fast pace"';
+    updateRaw();
+  }
+  document.getElementById("tts-model").addEventListener("change", updateModelUI);
+
   // Update raw on any change
   ["tts-text","tts-prompt","tts-model","tts-format"].forEach(id => {
     document.getElementById(id).addEventListener("input", updateRaw);
@@ -182,12 +202,31 @@ async function genTTS() {
   const model = document.getElementById("tts-model").value;
   const fmt = document.getElementById("tts-format").value;
   const prompt = document.getElementById("tts-prompt").value.trim();
+  const sampleFile = document.getElementById("sample-file").files[0];
   const sp = document.getElementById("ts"), res = document.getElementById("tr"),
         a = document.getElementById("ta"), st = document.getElementById("tts-stats"),
         rb = document.getElementById("raw-box");
   sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none";
   try {
-    const body = {text, voice: window.__v(), model, format: fmt};
+    let body = {text, model, format: fmt};
+    if (model.includes("voiceclone") && sampleFile) {
+      // Upload sample + TTS text via multipart
+      const fd = new FormData();
+      fd.append("text", text);
+      fd.append("model", model);
+      fd.append("format", fmt);
+      fd.append("sample", sampleFile);
+      if (prompt) fd.append("prompt", prompt);
+      const r = await fetch("/tts-clone", {method:"POST", body:fd});
+      if (!r.ok) { const err = await r.text(); res.textContent = "Error: " + err; return; }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      a.src = url; a.style.display = "block"; a.play();
+      res.innerHTML = "<strong>✓</strong> OK";
+      showStats(blob, fmt, model, "clone");
+      return;
+    }
+    body.voice = window.__v();
     if (prompt) body.prompt = prompt;
     const r = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
     if (!r.ok) { const err = await r.text(); try { const j = JSON.parse(err); const msg = typeof j.error === 'object' ? (j.error.message || j.error.param || JSON.stringify(j.error)) : (j.error || j.message || err); res.textContent = "Error: " + msg; } catch { res.textContent = "Error: " + err; } return; }
@@ -195,20 +234,7 @@ async function genTTS() {
     const url = URL.createObjectURL(blob);
     a.src = url; a.style.display = "block"; a.play();
     res.innerHTML = "<strong>✓</strong> OK";
-    const kb = (blob.size / 1024).toFixed(1);
-    let statsHTML = `<div class="stat"><div class="l">Size</div><div class="v">${kb} KB</div></div>`;
-    statsHTML += `<div class="stat"><div class="l">Format</div><div class="v">${fmt.toUpperCase()}</div></div>`;
-    statsHTML += `<div class="stat"><div class="l">Model</div><div class="v">${model}</div></div>`;
-    statsHTML += `<div class="stat"><div class="l">Voice</div><div class="v">${window.__v()}</div></div>`;
-    a.onloadedmetadata = () => {
-      const secs = a.duration;
-      if (secs && isFinite(secs)) {
-        const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
-        st.innerHTML = statsHTML + `<div class="stat"><div class="l">Duration</div><div class="v">${m}:${s.toString().padStart(2,'0')}</div></div>`;
-      } else { st.innerHTML = statsHTML; }
-      st.style.display = "grid";
-    };
-    setTimeout(() => { if (st.style.display === "none") { st.innerHTML = statsHTML; st.style.display = "grid"; } }, 2000);
+    showStats(blob, fmt, model, window.__v());
   } catch(e) { res.textContent = "Error: " + e.message; }
   finally { sp.classList.remove("active"); }
 }
@@ -243,6 +269,25 @@ async function toggleRec() {
       ? "🔒 Permission denied. Open 🔒 in address bar → Microphone → Allow, then reload."
       : "Error: " + e.message;
   }
+}
+
+function showStats(blob, fmt, model, voice) {
+  const st = document.getElementById("tts-stats");
+  const kb = (blob.size / 1024).toFixed(1);
+  let h = `<div class="stat"><div class="l">Size</div><div class="v">${kb} KB</div></div>`;
+  h += `<div class="stat"><div class="l">Format</div><div class="v">${fmt.toUpperCase()}</div></div>`;
+  h += `<div class="stat"><div class="l">Model</div><div class="v">${model}</div></div>`;
+  h += `<div class="stat"><div class="l">Voice</div><div class="v">${voice}</div></div>`;
+  const a = document.getElementById("ta");
+  a.onloadedmetadata = () => {
+    const secs = a.duration;
+    if (secs && isFinite(secs)) {
+      const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
+      st.innerHTML = h + `<div class="stat"><div class="l">Duration</div><div class="v">${m}:${s.toString().padStart(2,'0')}</div></div>`;
+    } else { st.innerHTML = h; }
+    st.style.display = "grid";
+  };
+  setTimeout(() => { if (st.style.display === "none") { st.innerHTML = h; st.style.display = "grid"; } }, 2000);
 }
 
 function clearTrans() { transText = ""; chunks = []; document.getElementById("trans-box").textContent = "Press record and start speaking..."; document.getElementById("ar").textContent = ""; }
