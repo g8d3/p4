@@ -27,6 +27,16 @@
 
 **Limitación**: noVNC no tiene audio en la transmisión. La grabación sí tendría audio.
 
+**Métricas a extraer**:
+- `top` / `htop`: CPU%, GPU%, RAM antes/durante/después de grabación
+- `nvidia-smi` o `radeontop`: uso de GPU encode
+- `iostat`: disco durante la grabación
+- `iperf3` o `speedtest-cli`: ancho de banda disponible
+- Tamaño del archivo de grabación
+- FPS real de grabación
+- Tiempo de grabación vs duración real
+- Latencia de captura (grim/wf-recorder)
+
 ## Fase 2: Transmisión con WebRTC
 
 **Objetivo**: reemplazar noVNC por WebRTC para transmitir video + audio en vivo.
@@ -47,6 +57,16 @@
 - KasmVNC (VNC con audio nativo)
 - FFmpeg + WebSocket + MSE
 - OBS + WHIP
+
+**Métricas a extraer**:
+- `top` / `htop`: CPU%, GPU%, RAM durante transmisión
+- `radeontop`: uso de VAAPI encode
+- `iperf3`: ancho de banda real de la conexión
+- Tamaño de la trama WebRTC por segundo
+- FPS real de transmisión
+- Latencia de extremo a extremo (timestamp overlay)
+- Tiempo de buffering del browser
+- Calidad subjetiva (comparar frame A/B con Phase 1)
 
 ## Fase 3: Comparación
 
