@@ -24,7 +24,7 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 .dot.on{background:#4caf50;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 #screen{flex:1;display:flex;align-items:center;justify-content:center;background:#000;position:relative;overflow:hidden;min-height:0}
-#screen canvas{width:100vw!important;height:100%!important;object-fit:contain}
+/* noVNC handles scaling internally via scaleViewport */
 #subs{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid rgba(233,69,96,.3);padding:8px 12px;font-size:13px;color:#ddd;white-space:pre-wrap;line-height:1.4;max-height:80px;overflow-y:auto;z-index:20;pointer-events:none}
 </style>
 </head>
@@ -44,7 +44,7 @@ au.addEventListener('play',function(){});
 async function cn(){
 try{
 var rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS');
-rfb.scaleViewport=true;rfb.resizeSession=false;rfb.clipViewport=false;
+rfb.scaleViewport=true;rfb.resizeSession=false;
 rfb.addEventListener('connect',function(){dot.className='dot on';lab.textContent='connected'});
 rfb.addEventListener('disconnect',function(e){dot.className='dot';lab.textContent='disconnected: '+e.detail.reason;setTimeout(cn,5000)});
 rfb.addEventListener('securityfailure',function(e){lab.textContent='auth fail: '+e.detail.reason;});
