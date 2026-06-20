@@ -318,10 +318,21 @@ async function toggleRec() {
       return new Blob([buf2], {type: 'audio/wav'});
     }
 
+    function rms(samples) {
+      let sum = 0;
+      for (let i = 0; i < samples.length; i++) sum += samples[i] * samples[i];
+      return Math.sqrt(sum / samples.length);
+    }
+
     function sendChunk() {
       if (buf.length === 0) return;
       const idx = ++chunkIdx;
       const samples = buf.splice(0, CHUNK_SAMPLES);
+      // Skip silent chunks (RMS threshold)
+      if (rms(samples) < 0.01) {
+        document.getElementById("ar").textContent = `Chunk ${idx}: silence`;
+        return;
+      }
       const blob = float32ToWav(samples);
       document.getElementById("ar").textContent = `Chunk ${idx}: ${(samples.length / SR).toFixed(1)}s`;
       (async () => {
@@ -356,7 +367,20 @@ async function toggleRec() {
       state: "recording",
       stop: () => {
         clearInterval(chunkTimer);
-        if (buf.length > 0) sendChunk(); // send remaining
+        if (buf.length > 0) {
+          // Send final chunk regardless of silence
+          const idx = ++chunkIdx;
+          const samples = buf.splice(0, CHUNK_SAMPLES);
+          const blob = float32ToWav(samples);
+          document.getElementById("ar").textContent = `Final: ${(samples.length / SR).toFixed(1)}s`;
+          (async () => {
+            try {
+              const fd = new FormData(); fd.append("audio", blob, "chunk.wav");
+              const r = await fetch("/asr", {method:"POST", body:fd});
+              if (r.ok) { const data = await r.json(); if (data.text) { transText += (transText ? " " : "") + data.text; document.getElementById("trans-box").textContent = transText; } }
+            } catch(e) {}
+          })();
+        }
         src.disconnect(); processor.disconnect();
         actx.close();
         stream.getTracks().forEach(t => t.stop());
