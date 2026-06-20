@@ -245,25 +245,26 @@ async function toggleRec() {
   if (!navigator.mediaDevices) { document.getElementById("ar").textContent = "Recording not supported"; return; }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-    chunks = []; transText = "";
-    document.getElementById("trans-box").textContent = "Recording...";
+    transText = "";
+    document.getElementById("trans-box").textContent = "Listening...";
     document.getElementById("ar").textContent = "";
+    let transcribing = false;
     rec = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
-    rec.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-    rec.onstop = async () => {
-      stream.getTracks().forEach(t => t.stop());
-      if (chunks.length === 0) return;
-      const blob = new Blob(chunks, {type: 'audio/webm'});
-      document.getElementById("trans-box").textContent = "Transcribing...";
+    rec.ondataavailable = async (e) => {
+      if (e.data.size === 0 || transcribing) return;
+      transcribing = true;
+      const fd = new FormData(); fd.append("audio", e.data, "chunk.webm");
       try {
-        const fd = new FormData(); fd.append("audio", blob, "recording.webm");
         const r = await fetch("/asr", {method:"POST", body:fd});
-        if (!r.ok) { document.getElementById("ar").textContent = "Error: " + await r.text(); return; }
+        if (!r.ok) return;
         const data = await r.json();
         if (data.text) { transText += (transText ? " " : "") + data.text; document.getElementById("trans-box").textContent = transText; }
-      } catch(e) { document.getElementById("ar").textContent = "Error: " + e.message; }
+      } catch(e) {}
+      transcribing = false;
     };
-    rec.start(); btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Stop';
+    rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
+    rec.start(2500); // emit chunk every 2.5s
+    btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Stop';
   } catch(e) {
     document.getElementById("ar").textContent = e.name === "NotAllowedError"
       ? "🔒 Permission denied. Open 🔒 in address bar → Microphone → Allow, then reload."
