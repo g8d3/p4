@@ -133,9 +133,8 @@ async def handle_asr(request):
     if ext not in SUPPORTED_MIME:
         data, ext = await convert_to_wav(data, ext)
     if ext not in SUPPORTED_MIME:
-        print(f"ASR cannot convert {ext} ({len(data)}b), trying direct send...", flush=True)
-        # Last resort: send original data as wav and let API reject if invalid
-        ext = "wav"
+        print(f"ASR cannot convert {ext} ({len(data)}b), rejecting", flush=True)
+        return web.json_response({"error": f"cannot convert {ext} to supported format"}, status=400)
     mime = SUPPORTED_MIME[ext]
     b64 = base64.b64encode(data).decode()
     data_url = f"data:{mime};base64,{b64}"
@@ -150,8 +149,7 @@ async def handle_asr(request):
         ]}],
     })
     if not result["ok"]:
-        print(f"ASR error: {json.dumps(result['error'])[:300]}", flush=True)
-        print(f"  ext={ext} mime={mime} url_len={len(data_url)} data_url_prefix={data_url[:60]}", flush=True)
+        print(f"ASR error: ext={ext} mime={mime}", flush=True)
         return web.json_response(result["error"], status=result["status"])
     return web.json_response({"text": result["data"]["choices"][0]["message"]["content"]})
 
@@ -178,24 +176,17 @@ async def handle_tts_clone(request):
     sample_name = filenames.get("sample", "")
     sample_ext = sample_name.rsplit(".", 1)[-1].lower() if sample_name else "wav"
     if sample_ext not in ("wav", "mp3", "mpeg"):
-        # Convert webm/opus to wav
-        inp = tempfile.NamedTemporaryFile(suffix=f".{sample_ext}", delete=False)
-        inp.write(sample); inp.close()
-        out = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        out.close()
+        # Convert via ffmpeg pipe
         try:
             proc = await asyncio.create_subprocess_exec(
-                "ffmpeg", "-y", "-i", inp.name, "-acodec", "pcm_s16le",
-                "-ar", "24000", "-ac", "1", out.name,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            await asyncio.wait_for(proc.wait(), timeout=10)
-            with open(out.name, "rb") as f:
-                sample = f.read()
-            sample_ext = "wav"
+                "ffmpeg", "-i", "pipe:0", "-f", "wav", "-acodec", "pcm_s16le",
+                "-ar", "24000", "-ac", "1", "pipe:1",
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            sample, _ = await asyncio.wait_for(proc.communicate(sample), timeout=15)
+            if proc.returncode == 0 and len(sample) > 100:
+                sample_ext = "wav"
         except:
             pass
-        finally:
-            os.unlink(inp.name); os.unlink(out.name)
     b64 = base64.b64encode(sample).decode()
     mime = "audio/wav" if sample_ext == "wav" else "audio/mpeg"
     ext = sample_ext
