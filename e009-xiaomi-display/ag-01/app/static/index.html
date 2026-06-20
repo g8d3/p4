@@ -135,6 +135,26 @@ function init() {
     sb.appendChild(b);
   });
 
+  async function updateRaw() {
+    const text = document.getElementById("tts-text").value.trim();
+    if (!text) return;
+    const body = {text, voice: window.__v(), model: document.getElementById("tts-model").value, format: document.getElementById("tts-format").value, dry_run: true};
+    const p = document.getElementById("tts-prompt").value.trim();
+    if (p) body.prompt = p;
+    try {
+      const r = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+      const j = await r.json();
+      document.getElementById("raw-box").textContent = 'curl -X POST "' + location.origin + '/tts" \\\n  -H "Content-Type: application/json" \\\n  -d \\\n' + JSON.stringify(j, null, 2);
+    } catch(e) {}
+  }
+  // Update raw on any change
+  ["tts-text","tts-prompt","tts-model","tts-format"].forEach(id => {
+    document.getElementById(id).addEventListener("input", updateRaw);
+    document.getElementById(id).addEventListener("change", updateRaw);
+  });
+  // Update raw when voice changes
+  document.getElementById("vg").addEventListener("click", () => setTimeout(updateRaw, 50));
+
   fetch("/models").then(r => r.json()).then(data => {
     const ex = document.getElementById("examples");
     data.examples.forEach(e => {
@@ -144,6 +164,7 @@ function init() {
         document.getElementById("tts-text").value = e.text;
         if (e.prompt) document.getElementById("tts-prompt").value = e.prompt;
         if (e.model) document.getElementById("tts-model").value = e.model;
+        updateRaw();
       };
       ex.appendChild(b);
     });
@@ -151,6 +172,8 @@ function init() {
 
   const a = document.getElementById("ta");
   a.onended = () => a.style.display = "none";
+  // Initial raw update
+  setTimeout(updateRaw, 500);
 }
 
 async function genTTS() {
@@ -162,17 +185,10 @@ async function genTTS() {
   const sp = document.getElementById("ts"), res = document.getElementById("tr"),
         a = document.getElementById("ta"), st = document.getElementById("tts-stats"),
         rb = document.getElementById("raw-box");
-  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none"; rb.style.display = "none";
+  sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none"; rb.style.display = "block";
   try {
     const body = {text, voice: window.__v(), model, format: fmt};
     if (prompt) body.prompt = prompt;
-
-    // Show raw request
-    const dry = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({...body, dry_run:true})});
-    const rawPayload = await dry.json();
-    rb.textContent = 'curl -X POST "' + location.origin + '/tts" \\\n  -H "Content-Type: application/json" \\\n  -d \\\n' + JSON.stringify(rawPayload, null, 2);
-    rb.style.display = "block";
-
     const r = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
     if (!r.ok) { const err = await r.text(); try { const j = JSON.parse(err); const msg = typeof j.error === 'object' ? (j.error.message || j.error.param || JSON.stringify(j.error)) : (j.error || j.message || err); res.textContent = "Error: " + msg; } catch { res.textContent = "Error: " + err; } return; }
     const blob = await r.blob();
