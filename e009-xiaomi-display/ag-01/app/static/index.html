@@ -77,8 +77,12 @@ audio{width:100%;margin-top:5px;border-radius:4px}
 </div>
 
 <div id="sample-section" style="display:none">
-<label>Voice sample audio (MP3 or WAV)</label>
-<input type="file" id="sample-file" accept="audio/mpeg,audio/wav">
+<label>Voice sample (MP3, WAV, or record now)</label>
+<div class="row">
+<input type="file" id="sample-file" accept="audio/mpeg,audio/wav" style="flex:2">
+<button class="btn-s" id="sample-rec-btn" onclick="toggleSampleRec()" style="flex:1;font-size:11px">🎙 Record</button>
+</div>
+<div id="sample-status" style="font-size:11px;color:#888;margin-bottom:4px"></div>
 </div>
 
 <label id="prompt-label">Style instruction (optional)</label>
@@ -117,6 +121,7 @@ audio{width:100%;margin-top:5px;border-radius:4px}
 const VOICES = ["Mia","Chloe","Milo","Dean","mimo_default","冰糖","茉莉","苏打","白桃"];
 const TAGS = ["(Happy)","(Sad)","(Angry)","(Whisper)","(Lazy)","(Excited)","(Sighing)","(Magnetic)","(Fearful)","(Calm)","(singing)","[trembling]","[smile]","[cough]","[sigh]","[laugh]","[whisper]","[nervous]","[pauses]","[takes a deep breath]"];
 let rec = null, chunks = [], transText = "";
+let sampleRec = null, sampleChunks = [], sampleBlob = null;
 
 function init() {
   const g = document.getElementById("vg");
@@ -196,6 +201,31 @@ function init() {
   setTimeout(updateRaw, 500);
 }
 
+async function toggleSampleRec() {
+  const btn = document.getElementById("sample-rec-btn");
+  const st = document.getElementById("sample-status");
+  if (sampleRec && sampleRec.state === "recording") {
+    sampleRec.stop(); btn.innerHTML = "🎙 Record"; return;
+  }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({audio: true});
+    sampleRecStream = s; sampleChunks = [];
+    sampleRec = new MediaRecorder(s);
+    sampleRec.ondataavailable = (e) => { if (e.data.size > 0) sampleChunks.push(e.data); };
+    sampleRec.onstop = () => {
+      s.getTracks().forEach(t => t.stop());
+      const blob = new Blob(sampleChunks, {type: 'audio/webm'});
+      sampleBlob = blob;
+      st.textContent = `✅ Recorded ${(blob.size/1024).toFixed(0)}KB — ready for cloning`;
+      btn.innerHTML = "🎙 Re-record";
+    };
+    sampleRec.start(); btn.innerHTML = "⏹ Stop";
+    st.textContent = "Recording... speak now";
+  } catch(e) {
+    st.textContent = "Error: " + e.message;
+  }
+}
+
 async function genTTS() {
   const text = document.getElementById("tts-text").value.trim();
   if (!text) return;
@@ -209,13 +239,14 @@ async function genTTS() {
   sp.classList.add("active"); res.textContent = ""; a.style.display = "none"; st.style.display = "none";
   try {
     let body = {text, model, format: fmt};
-    if (model.includes("voiceclone") && sampleFile) {
-      // Upload sample + TTS text via multipart
+    if (model.includes("voiceclone")) {
+      if (!sampleBlob && !sampleFile) { res.textContent = "Please upload or record a voice sample"; sp.classList.remove("active"); return; }
       const fd = new FormData();
       fd.append("text", text);
       fd.append("model", model);
       fd.append("format", fmt);
-      fd.append("sample", sampleFile);
+      if (sampleBlob) fd.append("sample", sampleBlob, "recording.webm");
+      else fd.append("sample", sampleFile, sampleFile.name);
       if (prompt) fd.append("prompt", prompt);
       const r = await fetch("/tts-clone", {method:"POST", body:fd});
       if (!r.ok) { const err = await r.text(); res.textContent = "Error: " + err; return; }
@@ -254,23 +285,17 @@ async function toggleRec() {
       if (e.data.size === 0) return;
       const idx = ++chunkIdx;
       const blob = e.data;
-      document.getElementById("ar").textContent = `Chunk ${idx}: ${(blob.size/1024).toFixed(0)}KB sent`;
       (async () => {
         try {
           const fd = new FormData(); fd.append("audio", blob, "chunk.webm");
           const r = await fetch("/asr", {method:"POST", body:fd});
-          if (!r.ok) { document.getElementById("ar").textContent = `Chunk ${idx} error: ${await r.text()}`; return; }
+          if (!r.ok) return;
           const data = await r.json();
           if (data.text && data.text.trim()) {
             transText += (transText ? " " : "") + data.text.trim();
             document.getElementById("trans-box").textContent = transText;
-            document.getElementById("ar").textContent = `Chunk ${idx}: "${data.text.trim()}"`;
-          } else {
-            document.getElementById("ar").textContent = `Chunk ${idx}: no text detected`;
           }
-        } catch(e) {
-          document.getElementById("ar").textContent = `Chunk ${idx} error: ${e.message}`;
-        }
+        } catch(e) {}
       })();
     };
     rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
