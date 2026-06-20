@@ -57,7 +57,7 @@ audio{width:100%;margin-top:8px;border-radius:6px}
 </section>
 
 <section>
-<h2>🎤 ASR en vivo</h2>
+<h2>🎤 ASR en vivo <span style="font-size:11px;color:#888;font-weight:400">(requiere HTTPS 🔒)</span></h2>
 <div class="row">
 <button class="btn-g" id="rec-btn" onclick="toggleRec()">🎙 Iniciar grabación</button>
 <button class="btn-s" onclick="clearTrans()">Limpiar</button>
@@ -141,7 +141,10 @@ async function toggleRec() {
     rec.start();
     btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Detener grabación';
   } catch(e) {
-    document.getElementById("ar").textContent = "Error acceso micrófono: " + e.message;
+    const msg = e.name === "NotAllowedError" ? "Permiso denegado. Abre el candado 🔒 en la barra → Micrófono → Permitir, luego recarga." :
+                e.name === "NotFoundError" ? "No se encontró micrófono." :
+                "Error: " + e.message;
+    document.getElementById("ar").textContent = msg;
   }
 }
 
