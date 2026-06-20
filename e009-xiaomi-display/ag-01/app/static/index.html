@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xiaomi API — TTS & ASR</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;color:#eee;font-family:system-ui,sans-serif;padding:16px;max-width:480px;margin:0 auto}
+h1{color:#e94560;font-size:18px;margin-bottom:4px}
+p{color:#888;font-size:13px;margin-bottom:16px}
+section{background:#1a1a2e;border-radius:8px;padding:16px;margin-bottom:16px}
+h2{font-size:15px;margin-bottom:12px;color:#ddd}
+label{display:block;font-size:13px;color:#aaa;margin-bottom:4px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #333;border-radius:6px;background:#0d0d1a;color:#eee;font-size:14px;margin-bottom:12px;font-family:inherit}
+textarea{resize:vertical;min-height:80px}
+button{width:100%;padding:12px;border:none;border-radius:6px;font-size:15px;cursor:pointer;font-weight:600}
+.btn-primary{background:#e94560;color:#fff}
+.btn-primary:active{background:#c73a52}
+.btn-secondary{background:#333;color:#eee}
+.btn-secondary:active{background:#444}
+audio{width:100%;margin-top:12px;border-radius:6px}
+.result{background:#0d0d1a;border-radius:6px;padding:12px;margin-top:12px;font-size:14px;color:#ccc;white-space:pre-wrap;word-break:break-word}
+.result strong{color:#4caf50}
+.spinner{display:none;text-align:center;padding:16px;color:#888}
+.spinner.active{display:block}
+.voice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.voice-grid button{padding:8px;font-size:12px;border:1px solid #333;border-radius:6px;background:#0d0d1a;color:#aaa;cursor:pointer;text-align:center}
+.voice-grid button.active{border-color:#e94560;color:#e94560;background:#1a1a2e}
+input[type="file"]{padding:6px;font-size:13px}
+</style>
+</head>
+<body>
+<h1>Xiaomi API</h1>
+<p>TTS y ASR con modelos MIMO</p>
+
+<section id="tts-section">
+<h2>🔊 TTS — Texto a Voz</h2>
+<label>Texto</label>
+<textarea id="tts-text" placeholder="Escribe lo que quieras escuchar...">Hola, esto es una prueba del sistema de texto a voz de Xiaomi.</textarea>
+<label>Voz</label>
+<div class="voice-grid" id="voice-grid"></div>
+<button class="btn-primary" onclick="generateTTS()">Generar y Escuchar</button>
+<div class="spinner" id="tts-spinner">Generando...</div>
+<audio id="tts-audio" controls style="display:none"></audio>
+<div class="result" id="tts-result"></div>
+</section>
+
+<section id="asr-section">
+<h2>🎤 ASR — Audio a Texto</h2>
+<label>Archivo de audio (wav, mp3, etc.)</label>
+<input type="file" id="asr-file" accept="audio/*">
+<button class="btn-secondary" onclick="transcribe()">Transcribir</button>
+<div class="spinner" id="asr-spinner">Transcribiendo...</div>
+<div class="result" id="asr-result"></div>
+</section>
+
+<script>
+const VOICES = ["Mia","Chloe","Milo","Dean","mimo_default","冰糖","茉莉","苏打","白桃"];
+
+function init() {
+  const grid = document.getElementById("voice-grid");
+  let selected = "Mia";
+  VOICES.forEach(v => {
+    const btn = document.createElement("button");
+    btn.textContent = v;
+    btn.onclick = () => {
+      grid.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selected = v;
+    };
+    if (v === "Mia") btn.classList.add("active");
+    grid.appendChild(btn);
+  });
+
+  const ttsAudio = document.getElementById("tts-audio");
+  ttsAudio.onended = () => { ttsAudio.style.display = "none"; };
+
+  window.__ttsVoice = () => selected;
+}
+
+async function generateTTS() {
+  const text = document.getElementById("tts-text").value.trim();
+  if (!text) return;
+  const sp = document.getElementById("tts-spinner");
+  const res = document.getElementById("tts-result");
+  const audio = document.getElementById("tts-audio");
+  sp.classList.add("active"); res.textContent = ""; audio.style.display = "none";
+  try {
+    const r = await fetch("/tts", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({text, voice: window.__ttsVoice()})
+    });
+    if (!r.ok) { res.textContent = "Error: " + (await r.text()); return; }
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    audio.src = url; audio.style.display = "block";
+    audio.play();
+    res.innerHTML = "<strong>✓</strong> Audio generado (" + (blob.size/1024).toFixed(0) + " KB)";
+  } catch(e) { res.textContent = "Error: " + e.message; }
+  finally { sp.classList.remove("active"); }
+}
+
+async function transcribe() {
+  const file = document.getElementById("asr-file").files[0];
+  if (!file) return;
+  const sp = document.getElementById("asr-spinner");
+  const res = document.getElementById("asr-result");
+  sp.classList.add("active"); res.textContent = "";
+  const form = new FormData();
+  form.append("audio", file);
+  try {
+    const r = await fetch("/asr", { method: "POST", body: form });
+    if (!r.ok) { res.textContent = "Error: " + (await r.text()); return; }
+    const data = await r.json();
+    res.innerHTML = "<strong>✓ Transcripción:</strong>\n" + data.text;
+  } catch(e) { res.textContent = "Error: " + e.message; }
+  finally { sp.classList.remove("active"); }
+}
+
+init();
+</script>
+</body>
+</html>
