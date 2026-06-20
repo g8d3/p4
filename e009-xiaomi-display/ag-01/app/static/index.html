@@ -279,17 +279,57 @@ async function toggleRec() {
     transText = "";
     document.getElementById("trans-box").textContent = "Listening...";
     document.getElementById("ar").textContent = "";
+
+    // Use AudioContext to capture raw PCM, send as WAV chunks
+    const actx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = actx.createMediaStreamSource(stream);
+    const CHUNK_SEC = 3;
+    const SR = actx.sampleRate;
+    const CHUNK_SAMPLES = SR * CHUNK_SEC;
+    let buf = []; // accumulate float32 samples
     let chunkIdx = 0;
 
-    function processChunk(blob) {
+    function float32ToWav(samples) {
+      const numChannels = 1, bitsPerSample = 16, sr = SR;
+      const dataSize = samples.length * (bitsPerSample / 8);
+      const headerSize = 44;
+      const buf2 = new ArrayBuffer(headerSize + dataSize);
+      const view = new DataView(buf2);
+      const writeStr = (off, str) => { for (let i = 0; i < str.length; i++) view.setUint8(off + i, str.charCodeAt(i)); };
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + dataSize, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sr, true);
+      view.setUint32(28, sr * numChannels * (bitsPerSample / 8), true);
+      view.setUint16(32, numChannels * (bitsPerSample / 8), true);
+      view.setUint16(34, bitsPerSample, true);
+      writeStr(36, 'data');
+      view.setUint32(40, dataSize, true);
+      let offset = 44;
+      for (let i = 0; i < samples.length; i++) {
+        const s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        offset += 2;
+      }
+      return new Blob([buf2], {type: 'audio/wav'});
+    }
+
+    function sendChunk() {
+      if (buf.length === 0) return;
       const idx = ++chunkIdx;
-      document.getElementById("ar").textContent = `Chunk ${idx}: ${(blob.size/1024).toFixed(0)}KB`;
+      const samples = buf.splice(0, CHUNK_SAMPLES);
+      const blob = float32ToWav(samples);
+      document.getElementById("ar").textContent = `Chunk ${idx}: ${(samples.length / SR).toFixed(1)}s`;
       (async () => {
         try {
-          const fd = new FormData(); fd.append("audio", blob, "chunk.webm");
-          const r2 = await fetch("/asr", {method:"POST", body:fd});
-          if (!r2.ok) { const err = await r2.text(); document.getElementById("ar").textContent = `Chunk ${idx} ERR: ${err.slice(0,80)}`; return; }
-          const data = await r2.json();
+          const fd = new FormData(); fd.append("audio", blob, "chunk.wav");
+          const r = await fetch("/asr", {method:"POST", body:fd});
+          if (!r.ok) { const err = await r.text(); document.getElementById("ar").textContent = `Chunk ${idx} ERR: ${err.slice(0,80)}`; return; }
+          const data = await r.json();
           if (data.text && data.text.trim()) {
             transText += (transText ? " " : "") + data.text.trim();
             document.getElementById("trans-box").textContent = transText;
@@ -301,11 +341,28 @@ async function toggleRec() {
       })();
     }
 
-    // Use timeslice for regular intervals
-    rec = new MediaRecorder(stream, {mimeType: 'audio/webm;codecs=opus'});
-    rec.ondataavailable = (e) => { if (e.data.size > 0) processChunk(e.data); };
-    rec.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
-    rec.start(2500);
+    // Process node to capture audio
+    const processor = actx.createScriptProcessor(4096, 1, 1);
+    processor.onaudioprocess = (e) => {
+      const input = e.inputBuffer.getChannelData(0);
+      for (let i = 0; i < input.length; i++) buf.push(input[i]);
+    };
+    src.connect(processor);
+    processor.connect(actx.destination);
+
+    const chunkTimer = setInterval(() => { if (buf.length >= CHUNK_SAMPLES / 2) sendChunk(); }, CHUNK_SEC * 1000);
+
+    rec = {
+      state: "recording",
+      stop: () => {
+        clearInterval(chunkTimer);
+        if (buf.length > 0) sendChunk(); // send remaining
+        src.disconnect(); processor.disconnect();
+        actx.close();
+        stream.getTracks().forEach(t => t.stop());
+        rec.state = "inactive";
+      }
+    };
     btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Stop';
     btn.className = "btn-r"; btn.innerHTML = '<span class="rec-icon on"></span>Stop';
   } catch(e) {
