@@ -69,7 +69,21 @@ img{{max-width:100%;max-height:100%;object-fit:contain;image-rendering:auto}}
 </style>
 </head>
 <body>
-<img src="/stream" alt="Stream">
+<img id="stream" src="/stream" alt="Stream">
+<script>
+var img = document.getElementById('stream');
+function reconnect() {{ img.src = '/stream?' + new Date().getTime(); }}
+setInterval(function() {{
+  // Check if image is stale (more than 3s since last update)
+  var rect = img.getBoundingClientRect();
+  if (rect.width > 0 && rect.height > 0) {{
+    var cs = window.getComputedStyle(img);
+    // If naturalWidth is 0, image failed to load
+    if (img.naturalWidth === 0) reconnect();
+  }}
+}}, 2000);
+img.onerror = reconnect;
+</script>
 </body>
 </html>"""
     return web.Response(text=html, content_type="text/html", charset="utf-8")
