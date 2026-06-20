@@ -36,22 +36,20 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 <div id="screen"><canvas id="vnc"></canvas></div>
 <div id="subs">Interactivo: mouse/teclado funcionan</div>
 <audio id="audio" autoplay playsinline style="display:none"><source src="/audio" type="audio/mpeg"></audio>
-<script>if(!crypto.randomUUID){crypto.randomUUID=function(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c=='x'?r:r&3|8;return v.toString(16)})}}</script>
-<script src="https://cdn.jsdelivr.net/npm/@novnc/novnc@1.7.0/core/rfb.min.js"></script>
-<script>
-(function(){
-var rfb, dot=document.getElementById('vncDot'), lab=document.getElementById('vncLabel'), au=document.getElementById('audio');
+<script type="module">
+if(!crypto.randomUUID){crypto.randomUUID=function(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c=='x'?r:r&3|8;return v.toString(16)})}}
+import RFB from 'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.7.0/core/rfb.js';
+var dot=document.getElementById('vncDot'), lab=document.getElementById('vncLabel'), au=document.getElementById('audio');
 au.addEventListener('play',function(){});
 async function cn(){
 try{
-rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS',{wsProtocols:['binary']});
+var rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS');
 rfb.scaleViewport=true;rfb.resizeSession=false;
 rfb.addEventListener('connect',function(){dot.className='dot on';lab.textContent='connected'});
 rfb.addEventListener('disconnect',function(e){dot.className='dot';lab.textContent='disconnected: '+e.detail.reason;setTimeout(cn,5000)});
 rfb.addEventListener('securityfailure',function(e){lab.textContent='auth fail: '+e.detail.reason;});
 }catch(e){lab.textContent='error: '+e.message;setTimeout(cn,5000)}}
 cn();
-})();
 </script>
 </body>
 </html>
