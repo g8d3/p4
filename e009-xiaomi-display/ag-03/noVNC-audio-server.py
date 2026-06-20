@@ -36,6 +36,7 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 <div id="screen"><canvas id="vnc"></canvas></div>
 <div id="subs">Interactivo: mouse/teclado funcionan</div>
 <audio id="audio" autoplay playsinline style="display:none"><source src="/audio" type="audio/mpeg"></audio>
+<script>if(!crypto.randomUUID){crypto.randomUUID=function(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c=='x'?r:r&3|8;return v.toString(16)})}}</script>
 <script src="https://cdn.jsdelivr.net/npm/@novnc/novnc@1.5.0/dist/rfb.min.js"></script>
 <script>
 (function(){
