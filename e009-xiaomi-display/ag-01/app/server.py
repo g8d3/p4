@@ -100,6 +100,7 @@ async def handle_tts(request):
     content_type = TTS_FORMATS.get(fmt, "audio/wav")
     return web.Response(body=base64.b64decode(audio_data), content_type=content_type)
 
+# Only these formats are accepted by the Xiaomi ASR API
 SUPPORTED_MIME = {"wav": "audio/wav", "mp3": "audio/mpeg", "mpeg": "audio/mpeg"}
 
 async def convert_to_wav(data, ext):
@@ -111,11 +112,23 @@ async def convert_to_wav(data, ext):
         proc = await asyncio.create_subprocess_exec(
             "ffmpeg", "-y", "-i", inp.name, "-acodec", "pcm_s16le",
             "-ar", "16000", "-ac", "1", out.name,
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        await asyncio.wait_for(proc.wait(), timeout=10)
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        _, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
+        if proc.returncode != 0:
+            err = stderr.decode()[:200]
+            print(f"ffmpeg convert FAILED ({ext}): {err}", flush=True)
+            return data, ext  # will try original format below
         with open(out.name, "rb") as f:
-            return f.read(), "wav"
-    except:
+            converted = f.read()
+        if len(converted) < 100:
+            print(f"ffmpeg output too small: {len(converted)}b", flush=True)
+            return data, ext
+        return converted, "wav"
+    except asyncio.TimeoutError:
+        print(f"ffmpeg convert TIMEOUT ({ext})", flush=True)
+        return data, ext
+    except Exception as e:
+        print(f"ffmpeg convert EXCEPTION ({ext}): {e}", flush=True)
         return data, ext
     finally:
         try: os.unlink(inp.name)
@@ -130,18 +143,27 @@ async def handle_asr(request):
         return web.json_response({"error": "audio file required"}, status=400)
     data = await part.read()
     ext = (part.filename.rsplit(".", 1)[-1] if part.filename else "webm").lower()
-    # Convert to supported format
+    # Convert unsupported formats to supported ones (wav)
     if ext not in SUPPORTED_MIME:
         data, ext = await convert_to_wav(data, ext)
-    mime = SUPPORTED_MIME.get(ext, "audio/wav")
+    if ext not in SUPPORTED_MIME:
+        return web.json_response({"error": f"unsupported audio format: {ext}, cannot convert"}, status=400)
+    mime = SUPPORTED_MIME[ext]
     b64 = base64.b64encode(data).decode()
+    data_url = f"data:{mime};base64,{b64}"
+    # Validate data URL format
+    if not data_url.startswith("data:audio/"):
+        print(f"BAD data_url: {data_url[:80]}...", flush=True)
+        return web.json_response({"error": f"invalid data_url format for {ext}"}, status=500)
     result = await api_call({
         "model": "mimo-v2.5-asr",
         "messages": [{"role": "user", "content": [
-            {"type": "input_audio", "input_audio": {"data": f"data:{mime};base64,{b64}", "format": ext}}
+            {"type": "input_audio", "input_audio": {"data": data_url, "format": ext}}
         ]}],
     })
     if not result["ok"]:
+        print(f"ASR error: {json.dumps(result['error'])[:300]}", flush=True)
+        print(f"  ext={ext} mime={mime} url_len={len(data_url)} data_url_prefix={data_url[:60]}", flush=True)
         return web.json_response(result["error"], status=result["status"])
     return web.json_response({"text": result["data"]["choices"][0]["message"]["content"]})
 
