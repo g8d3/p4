@@ -21,10 +21,12 @@ async def handle_tts(request):
     body = await request.json()
     text = body.get("text", "")
     voice = body.get("voice", "Mia")
+    prompt = body.get("prompt", "")
     if not text:
         return web.Response(status=400, text="text is required")
+    user_msg = prompt if prompt else f"Di esto: {text}"
     messages = [
-        {"role": "user", "content": f"Di esto: {text}"},
+        {"role": "user", "content": user_msg},
         {"role": "assistant", "content": text},
     ]
     result = await api_call({
@@ -47,7 +49,7 @@ async def handle_asr(request):
         return web.Response(status=400, text="audio file required")
     data = await part.read()
     b64 = base64.b64encode(data).decode()
-    ext = part.filename.rsplit(".", 1)[-1] if part.filename else "wav"
+    ext = part.filename.rsplit(".", 1)[-1] if part.filename else "webm"
     data_url = f"data:audio/{ext};base64,{b64}"
     result = await api_call({
         "model": "mimo-v2.5-asr",
