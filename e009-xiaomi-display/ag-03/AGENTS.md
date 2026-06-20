@@ -115,6 +115,19 @@ container.style.top = '0';
 
 `grim -o HEADLESS-1` funciona correctamente con outputs virtuales de Sway. Captura via wlr-screencopy (DMA-BUF). Tiempo de captura: ~0.001s por frame.
 
+### wf-recorder: bug con headless outputs
+
+**Descubrimiento clave**: `wf-recorder` solo captura cuando hay **damage events** (actualizaciones de pantalla en el output).
+
+- Contenido estático (terminal, fondo) = captura VACÍA (frame de 10KB)
+- Contenido animado (weston-simple-shm) = captura perfecta (frame de 1MB+)
+
+**Causa**: wf-recorder 0.4.1 depende de damage tracking de wlroots. Outputs headless no generan damage events para contenido estático.
+
+**Solución temporal**: usar `weston-simple-shm` como placeholder visual para probar grabación, o usar `grim` en loop + ffmpeg para contenido estático.
+
+**Solución ideal**: usar un compositor con damage tracking completo (Hyprland, o wlroots con patches) o grabar con grim frames.
+
 ### MJPEG stream (grim + ffmpeg)
 
 Para streaming view-only (sin interactividad):
