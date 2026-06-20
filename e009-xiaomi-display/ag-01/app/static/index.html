@@ -174,7 +174,7 @@ async function genTTS() {
     rb.style.display = "block";
 
     const r = await fetch("/tts", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-    if (!r.ok) { const err = await r.text(); try { const j = JSON.parse(err); res.textContent = "Error: " + (j.message || j.error || err); } catch { res.textContent = "Error: " + err; } return; }
+    if (!r.ok) { const err = await r.text(); try { const j = JSON.parse(err); const msg = typeof j.error === 'object' ? (j.error.message || j.error.param || JSON.stringify(j.error)) : (j.error || j.message || err); res.textContent = "Error: " + msg; } catch { res.textContent = "Error: " + err; } return; }
     const blob = await r.blob();
     const url = URL.createObjectURL(blob);
     a.src = url; a.style.display = "block"; a.play();

@@ -78,12 +78,15 @@ async def handle_tts(request):
     if not text:
         return web.json_response({"error": "text is required"}, status=400)
     user_msg = prompt if prompt else f"Say this: {text}"
+    audio_cfg = {"format": fmt}
+    if "voicedesign" not in model and "voiceclone" not in model:
+        audio_cfg["voice"] = voice
     payload = {
         "model": model, "messages": [
             {"role": "user", "content": user_msg},
             {"role": "assistant", "content": text},
         ], "modalities": ["audio"],
-        "audio": {"voice": voice, "format": fmt},
+        "audio": audio_cfg,
     }
     if body.get("dry_run"):
         return web.json_response(payload)
