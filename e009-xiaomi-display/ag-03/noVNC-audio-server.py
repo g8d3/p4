@@ -45,15 +45,15 @@ au.addEventListener('play',function(){});
 function scaleAll(){
   var c=document.querySelector('#screen div:last-child');
   if(!c)return;
-  var canvas=c.querySelector('canvas');
-  if(!canvas||canvas.width<=300)return;
+  canv=c.querySelector('canvas');
+  if(!canv||canv.width<=300)return;
   var vw=window.innerWidth,vh=window.innerHeight-50;
-  var sx=vw/canvas.width,sy=vh/canvas.height;
+  var sx=vw/canv.width,sy=vh/canv.height;
   var s=Math.min(sx,sy);
   c.style.transform='scale('+s+')';
   c.style.transformOrigin='top left';
-  c.style.width=canvas.width+'px';
-  c.style.height=canvas.height+'px';
+  c.style.width=canv.width+'px';
+  c.style.height=canv.height+'px';
   c.style.overflow='hidden';
   c.style.position='absolute';
   c.style.left='0';
@@ -72,53 +72,45 @@ function forwardKey(ev){
 kbd.addEventListener('keydown', forwardKey);
 // Auto-focus on connect
 var rfb,scaler,canv,canvRect;
-// Touchpad mode: tap=click, bottom-zone drag=relative cursor
-var tp={active:false,zone:0.3,startX:0,startY:0,startTime:0,curX:360,curY:640,pad:false};
+// Touchpad: tap=click, drag=move cursor (relative)
+var tp={active:false,startX:0,startY:0,startTime:0,curX:360,curY:640};
 var sc=document.getElementById('screen');
-// Mouse click on screen → focus keyboard
 sc.addEventListener('click',function(){kbd.focus();});
-function touchToRfb(px,py){
-  var r=canvRect||{left:0,top:0,width:1,height:1};
-  return {x:(px-r.left)/r.width*canv.width,y:(py-r.top)/r.height*canv.height};
-}
 sc.addEventListener('touchstart',function(ev){
   ev.preventDefault();
   var t=ev.changedTouches[0];
   tp.startX=t.clientX; tp.startY=t.clientY; tp.startTime=Date.now();
-  tp.active=true; tp.pad=(t.clientY>window.innerHeight*(1-tp.zone));
-  if(!tp.pad){
-    // tap anywhere outside bottom zone: immediate click at position
-    canvRect=canv.getBoundingClientRect();
-    var p=touchToRfb(t.clientX,t.clientY);
-    rfb.sendPointer(p.x,p.y,1);
-    setTimeout(function(){rfb.sendPointer(p.x,p.y,0);},80);
-  }
+  tp.active=true;
 },{passive:false,capture:true});
 sc.addEventListener('touchmove',function(ev){
   ev.preventDefault();
-  if(!tp.active||!tp.pad)return;
+  if(!tp.active||!canv)return;
   var t=ev.changedTouches[0];
   var dx=t.clientX-tp.startX, dy=t.clientY-tp.startY;
   canvRect=canv.getBoundingClientRect();
   var sx=canv.width/canvRect.width, sy=canv.height/canvRect.height;
-  tp.curX=Math.max(0,Math.min(canv.width,tp.curX+dx*sx*1.5));
-  tp.curY=Math.max(0,Math.min(canv.height,tp.curY+dy*sy*1.5));
+  tp.curX=Math.max(0,Math.min(canv.width-1,tp.curX+dx*sx*1.5));
+  tp.curY=Math.max(0,Math.min(canv.height-1,tp.curY+dy*sy*1.5));
   rfb.sendPointer(Math.round(tp.curX),Math.round(tp.curY),0);
   tp.startX=t.clientX; tp.startY=t.clientY;
 },{passive:false,capture:true});
 sc.addEventListener('touchend',function(ev){
   ev.preventDefault();
-  if(!tp.active)return;
+  if(!tp.active||!canv)return;
   var elapsed=Date.now()-tp.startTime;
   var t=ev.changedTouches[0];
   var dist=Math.hypot(t.clientX-tp.startX,t.clientY-tp.startY);
-  if(tp.pad&&elapsed<300&&dist<15){
-    // tap in touchpad zone = click at current cursor position
+  if(elapsed<300&&dist<15){
+    // tap = click at touch position
+    canvRect=canv.getBoundingClientRect();
+    var rx=(t.clientX-canvRect.left)/canvRect.width*canv.width;
+    var ry=(t.clientY-canvRect.top)/canvRect.height*canv.height;
+    tp.curX=Math.max(0,Math.min(canv.width-1,rx));
+    tp.curY=Math.max(0,Math.min(canv.height-1,ry));
     rfb.sendPointer(Math.round(tp.curX),Math.round(tp.curY),1);
     setTimeout(function(){rfb.sendPointer(Math.round(tp.curX),Math.round(tp.curY),0);},80);
   }
   tp.active=false;
-  // Refocus keyboard
   setTimeout(function(){kbd.focus();},50);
 },{passive:false,capture:true});
 async function cn(){
