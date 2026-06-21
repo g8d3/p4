@@ -34,12 +34,13 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 <div id="indicator"><span class="dot" id="vncDot"></span><span id="vncLabel">connecting</span></div>
 </div>
 <div id="screen"><canvas id="vnc"></canvas></div>
-<div id="subs">Interactivo: mouse/teclado funcionan</div>
+<input id="kbd" autofocus style="position:fixed;top:-100px;left:0;width:1px;height:1px;opacity:0" inputmode="text" autocomplete="off">
+<div id="subs">Tap screen to focus, keyboard will appear</div>
 <audio id="audio" autoplay playsinline style="display:none"><source src="/audio" type="audio/mpeg"></audio>
 <script type="module">
 if(!crypto.randomUUID){crypto.randomUUID=function(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c=='x'?r:r&3|8;return v.toString(16)})}}
 import RFB from 'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.7.0/core/rfb.js';
-var dot=document.getElementById('vncDot'), lab=document.getElementById('vncLabel'), au=document.getElementById('audio');
+var dot=document.getElementById('vncDot'), lab=document.getElementById('vncLabel'), au=document.getElementById('audio'), kbd=document.getElementById('kbd');
 au.addEventListener('play',function(){});
 function scaleAll(){
   var c=document.querySelector('#screen div:last-child');
@@ -58,6 +59,21 @@ function scaleAll(){
   c.style.left='0';
   c.style.top='0';
 }
+// Keyboard forwarding: capture input and send to RFB
+function forwardKey(ev){
+  if(!rfb)return;
+  var key=ev.key;
+  if(key==='Unidentified')return;
+  ev.preventDefault();
+  rfb.sendKey(ev.keyCode, key, true);
+  rfb.sendKey(ev.keyCode, key, false);
+  kbd.value='';
+}
+kbd.addEventListener('keydown', forwardKey);
+// Tap on screen → focus input → keyboard pops up
+document.getElementById('screen').addEventListener('click', function(){ kbd.focus(); });
+document.getElementById('screen').addEventListener('touchstart', function(){ kbd.focus(); });
+// Auto-focus on connect
 var rfb,scaler;
 async function cn(){
 try{
@@ -65,6 +81,7 @@ rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS');
 rfb.resizeSession=false;
 rfb.addEventListener('connect',function(){
   dot.className='dot on';lab.textContent='connected';
+  kbd.focus();
   if(scaler)clearInterval(scaler);
   scaler=setInterval(function(){scaleAll();},200);
   setTimeout(function(){clearInterval(scaler);scaleAll();},1500);
@@ -85,8 +102,11 @@ async def audio_proxy(request):
         status=200,
         headers={"Content-Type": "audio/mpeg", "Cache-Control": "no-cache", "Connection": "close"})
     await resp.prepare(request)
+    import subprocess, json
+    default_sink = subprocess.run(["pactl", "get-default-sink"], capture_output=True, text=True).stdout.strip()
+    monitor = f"{default_sink}.monitor"
     proc = await asyncio.create_subprocess_exec(
-        "ffmpeg", "-re", "-f", "pulse", "-i", "remote-audio.monitor",
+        "ffmpeg", "-re", "-f", "pulse", "-i", monitor,
         "-acodec", "libmp3lame", "-ab", "64k", "-f", "mp3", "-",
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
     try:
