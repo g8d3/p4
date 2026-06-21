@@ -26,6 +26,12 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 #screen{flex:1;display:flex;align-items:center;justify-content:center;background:#000;position:relative;overflow:hidden;min-height:0}
 /* noVNC handles scaling via scaleViewport=true */
 #subs{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid rgba(233,69,96,.3);padding:8px 12px;font-size:13px;color:#ddd;white-space:pre-wrap;line-height:1.4;max-height:80px;overflow-y:auto;z-index:20;pointer-events:none}
+#vk{position:fixed;bottom:0;left:0;right:0;z-index:30;background:#1a1a2e;border-top:1px solid #333;padding:4px 2px;display:none;flex-direction:column;gap:4px}
+#vk.show{display:flex}
+.vk-row{display:flex;gap:3px;justify-content:center}
+.vk-row span{background:#2a2a4a;color:#ddd;text-align:center;padding:6px 4px;border-radius:4px;font-size:11px;cursor:pointer;flex:1;min-width:0;user-select:none;-webkit-user-select:none;touch-action:none}
+.vk-row span:active{background:#e94560;color:#fff}
+.vk-hide{background:transparent!important;color:#666!important;flex:0.5!important;font-size:10px!important}
 </style>
 </head>
 <body>
@@ -35,8 +41,13 @@ body{background:#000;color:#eee;font-family:system-ui,sans-serif;height:100dvh;h
 </div>
 <div id="screen"><canvas id="vnc"></canvas></div>
 <input id="kbd" autofocus style="position:fixed;top:-100px;left:0;width:1px;height:1px;opacity:0" inputmode="text" autocomplete="off">
-<div id="subs">Tap screen to focus, keyboard will appear</div>
+<div id="subs">Tap screen, or use virtual keyboard below</div>
 <audio id="audio" autoplay playsinline style="display:none"><source src="/audio" type="audio/mpeg"></audio>
+<div id="vk">
+  <div class="vk-row"><span data-key="Escape" data-code="Escape" data-kc="27">Esc</span><span data-key="Tab" data-code="Tab" data-kc="9">Tab</span><span data-key="Meta" data-code="MetaLeft" data-kc="91">Super</span><span data-key="Control" data-code="ControlLeft" data-kc="17">Ctrl</span><span data-key="Alt" data-code="AltLeft" data-kc="18">Alt</span><span data-key="Shift" data-code="ShiftLeft" data-kc="16">⇧</span><span data-key=" " data-code="Space" data-kc="32">␣</span><span data-key="ArrowLeft" data-code="ArrowLeft" data-kc="37">◀</span><span data-key="ArrowUp" data-code="ArrowUp" data-kc="38">▲</span><span data-key="ArrowDown" data-code="ArrowDown" data-kc="40">▼</span><span data-key="ArrowRight" data-code="ArrowRight" data-kc="39">▶</span></div>
+  <div class="vk-row"><span data-key="F1" data-code="F1" data-kc="112">F1</span><span data-key="F2" data-code="F2" data-kc="113">F2</span><span data-key="F3" data-code="F3" data-kc="114">F3</span><span data-key="F4" data-code="F4" data-kc="115">F4</span><span data-key="F5" data-code="F5" data-kc="116">F5</span><span data-key="F6" data-code="F6" data-kc="117">F6</span><span data-key="F7" data-code="F7" data-kc="118">F7</span><span data-key="F8" data-code="F8" data-kc="119">F8</span><span data-key="F9" data-code="F9" data-kc="120">F9</span><span data-key="F10" data-code="F10" data-kc="121">F10</span><span data-key="F11" data-code="F11" data-kc="122">F11</span><span data-key="F12" data-code="F12" data-kc="123">F12</span></div>
+  <div class="vk-row"><span data-key="Enter" data-code="Enter" data-kc="13">Enter</span><span data-key="Backspace" data-code="Backspace" data-kc="8">⌫</span><span class="vk-hide" id="vk-toggle">⌨</span></div>
+</div>
 <script type="module">
 if(!crypto.randomUUID){crypto.randomUUID=function(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c=='x'?r:r&3|8;return v.toString(16)})}}
 import RFB from 'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.7.0/core/rfb.js';
@@ -70,6 +81,22 @@ function forwardKey(ev){
   kbd.value='';
 }
 kbd.addEventListener('keydown', forwardKey);
+// Virtual keyboard
+document.getElementById('vk').addEventListener('click', function(ev){
+  var el=ev.target;
+  if(!el||!el.dataset.key)return;
+  if(el.id==='vk-toggle'){document.getElementById('vk').classList.toggle('show');return;}
+  var key=el.dataset.key, code=el.dataset.code, kc=parseInt(el.dataset.kc);
+  if(!rfb)return;
+  rfb.sendKey(kc, key, true);
+  rfb.sendKey(kc, key, false);
+  kbd.focus();
+});
+// Long-press toggle: tap #subs to show/hide keyboard
+document.getElementById('subs').addEventListener('click',function(){
+  document.getElementById('vk').classList.toggle('show');
+  kbd.focus();
+});
 // Auto-focus on connect
 var rfb,scaler,canv,canvRect;
 // Touchpad: tap=click, drag=move cursor (relative)
