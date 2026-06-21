@@ -80,6 +80,9 @@ function forwardKey(ev){
   kbd.value='';
 }
 kbd.addEventListener('keydown', forwardKey);
+// Hide virtual keyboard when native keyboard is open
+kbd.addEventListener('focus', function(){document.getElementById('vk').style.display='none';});
+kbd.addEventListener('blur', function(){document.getElementById('vk').style.display='flex';});
 // Virtual keyboard
 document.getElementById('vk').addEventListener('click', function(ev){
   var el=ev.target;
