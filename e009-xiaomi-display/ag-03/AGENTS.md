@@ -157,41 +157,89 @@ ffmpeg return code 183 = "Invalid data found when processing input". Causa: el a
 
 noVNC 1.7.0 es un ES module. Se necesita `<script type="module">` o el browser mostrará este error.
 
+### Touchpad mode: tap=click, drag=moves cursor
+
+We replaced noVNC's built-in touch handling with custom JS:
+- **Tap** (touch + lift <300ms, <15px movement) → left click at touch position
+- **Drag** (touch + move) → relative cursor movement from current position
+- No bottom-zone splitting needed — works uniformly across the screen
+
+Implementation: prevent default noVNC touch events via `capture:true`, then handle `touchstart/touchmove/touchend` manually using `rfb.sendPointer(x, y, mask)`.
+
+### Virtual keyboard always visible
+
+A compact virtual keyboard with Esc, Tab, Super, Ctrl, Alt, Shift, Space, arrows (◀▲▼▶), F1-F12, Enter, Backspace. Always visible at bottom of page. Uses `VisualViewport` API to reposition above the phone's native keyboard when it opens.
+
+### Audio clicks when recording with wf-recorder -a
+
+The `-a` flag in wf-recorder introduces click/pop artifacts. **Solution**: record video and audio as separate processes:
+
+```bash
+wf-recorder -o HEADLESS-1 -f video.mp4 &         # video only
+ffmpeg -f pulse -i <monitor> audio.aac &           # audio via ffmpeg
+# later: ffmpeg -i video.mp4 -i audio.aac -c copy merged.mp4
+```
+
+### edge-tts vs piper-tts
+
+| TTS | Latency | Quality | Dependency |
+|-----|---------|---------|------------|
+| edge-tts | ~3s (network) | Excellent | Internet required |
+| piper-tts | ~1.2s (model load) | Good | 61MB ONNX model |
+
+Piper loads the 61MB model on every invocation. For sub-100ms latency, keep a daemon process with the model preloaded.
+
+### Guacamole connection via SQL injection
+
+The `oznu/guacamole` Docker image bundles PostgreSQL + Tomcat + guacd in one container. The REST API returns 500 errors, but direct SQL injection works:
+
+```bash
+docker exec guac psql -U guacamole -d guacamole_db -c "
+INSERT INTO guacamole_connection (connection_name, protocol) VALUES ('HEADLESS-1', 'vnc');
+INSERT INTO guacamole_connection_parameter (connection_id, parameter_name, parameter_value)
+  SELECT conn.connection_id, 'hostname', '192.168.0.93' FROM guacamole_connection conn WHERE ... ;
+INSERT INTO guacamole_connection_permission (entity_id, connection_id, permission)
+  SELECT e.entity_id, c.connection_id, 'READ'
+  FROM guacamole_entity e, guacamole_connection c WHERE ... ;
+"
+```
+
+### Display virtual sin VKMS
+
+Confirmación: Sway crea outputs virtuales nativos (HEADLESS-1) sin usar VKMS (card1). VKMS se cargaba por `/etc/modules-load.d/vkms.conf` pero no lo usa nadie. Las CRTCs/planes de card1 están todos en null. Se eliminó el archivo de configuración.
+
 ---
 
 ## Limitaciones conocidas
 
 ### Mouse
-- Touch en cualquier parte = click izquierdo (no distingue tap vs drag)
-- Cursor no se mueve al punto de touch
-- Sensibilidad de drag descalibrada (el cursor no sigue al dedo)
-- Sin soporte para scroll wheel
-- Sin click derecho
-- Ideal: touch en zona inferior = mover cursor, tap en cualquier parte = click
+- Touch = click izquierdo (funciona)
+- Touchpad mode: drag = mover cursor (implementado)
+- Sin scroll wheel (gesto de dos dedos pendiente)
+- Sin click derecho (long press pendiente)
 
 ### Teclado
-- No hay teclado virtual en la página
-- Imposible enviar shortcuts como Super+Enter
-- Necesita teclado virtual con teclas especiales (Super, Ctrl, Alt, Tab, etc.)
+- Teclado virtual con Super, Ctrl, Alt, Tab, Esc, F1-F12, arrows (implementado)
+- El teclado se reposiciona sobre el teclado nativo del phone (VisualViewport)
 
 ### Zoom/Pan
-- Sin capacidad de zoom manual
+- Sin pinch-to-zoom
 - El usuario no puede verificar si ve toda la pantalla
-- Ideal: gestos de pinch-to-zoom para encuadrar
 
 ### Escalado
-- Se usa `transform: scale()` en el contenedor de noVNC
-- Funciona pero no es perfecto (márgenes negros posibles)
-- noVNC 1.7.0 tiene bugs con `scaleViewport` en viewport phones
+- `transform: scale()` en el contenedor de noVNC
+- Funciona pero márgenes negros posibles
+- noVNC 1.7.0 bugs con `scaleViewport` en viewport phones
 
 ---
 
 ## Trabajo futuro
 
-1. **Touchpad mode**: implementar modo touchpad (mover dedo = mover cursor, tap = click)
-2. **Virtual keyboard**: teclado con teclas especiales (Super, Ctrl, Alt, Tab, Esc, F1-F12)
-3. **Scroll**: gesto de dos dedos para scroll
-4. **Right click**: long press para click derecho
-5. **Pinch-to-zoom**: gestos nativos del browser
-6. **WebRTC**: reemplazar noVNC por WebRTC (video + audio + data channel para input)
-7. **Audio sincronizado**: integrar audio en el mismo stream de video
+1. ~~**Touchpad mode**: mover dedo = cursor, tap = click~~ ✅ Hecho
+2. ~~**Virtual keyboard**: Super, Ctrl, Alt, Tab, Esc, F1-F12~~ ✅ Hecho
+3. **Scroll**: gesto de dos dedos
+4. **Right click**: long press
+5. **Pinch-to-zoom**: gestos nativos
+6. **WebRTC**: reemplazar noVNC (video + audio + data channel)
+7. **Audio sincronizado**: integrar en el mismo stream
+8. **VNC alternatives**: KasmVNC (ag-04), Apache Guacamole (ag-05) explorados
