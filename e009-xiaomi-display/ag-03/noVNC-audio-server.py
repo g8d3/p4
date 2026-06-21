@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Serves a single HTML page with noVNC + audio. wayvnc runs on 5901 separately."""
-import asyncio, os
+"""Serves a single HTML page with noVNC + audio. wayvnc runs separately."""
+import asyncio, os, sys
 from aiohttp import web
 
-VNC_WS_PORT = 5901
+VNC_WS_PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 5900
 AUDIO_PATH = "/audio.mp3"  # served by ffmpeg on the same port? We'll proxy it.
 HOST_IP = "192.168.0.93"
 
