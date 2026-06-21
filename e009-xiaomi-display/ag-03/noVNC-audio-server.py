@@ -80,9 +80,17 @@ function forwardKey(ev){
   kbd.value='';
 }
 kbd.addEventListener('keydown', forwardKey);
-// Hide virtual keyboard when native keyboard is open
-kbd.addEventListener('focus', function(){document.getElementById('vk').style.display='none';});
-kbd.addEventListener('blur', function(){document.getElementById('vk').style.display='flex';});
+// Keep special keys above native keyboard using VisualViewport API
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', function(){
+    var vk=document.getElementById('vk');
+    var kbHeight=window.innerHeight-window.visualViewport.height;
+    vk.style.bottom=Math.max(0,kbHeight)+'px';
+    vk.style.display='flex';
+    // adjust body padding too
+    document.body.style.paddingBottom=Math.max(70,kbHeight+70)+'px';
+  });
+}
 // Virtual keyboard
 document.getElementById('vk').addEventListener('click', function(ev){
   var el=ev.target;
