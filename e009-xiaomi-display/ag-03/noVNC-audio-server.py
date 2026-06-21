@@ -70,11 +70,57 @@ function forwardKey(ev){
   kbd.value='';
 }
 kbd.addEventListener('keydown', forwardKey);
-// Tap on screen → focus input → keyboard pops up
-document.getElementById('screen').addEventListener('click', function(){ kbd.focus(); });
-document.getElementById('screen').addEventListener('touchstart', function(){ kbd.focus(); });
 // Auto-focus on connect
-var rfb,scaler;
+var rfb,scaler,canv,canvRect;
+// Touchpad mode: tap=click, bottom-zone drag=relative cursor
+var tp={active:false,zone:0.3,startX:0,startY:0,startTime:0,curX:360,curY:640,pad:false};
+var sc=document.getElementById('screen');
+// Mouse click on screen → focus keyboard
+sc.addEventListener('click',function(){kbd.focus();});
+function touchToRfb(px,py){
+  var r=canvRect||{left:0,top:0,width:1,height:1};
+  return {x:(px-r.left)/r.width*canv.width,y:(py-r.top)/r.height*canv.height};
+}
+sc.addEventListener('touchstart',function(ev){
+  ev.preventDefault();
+  var t=ev.changedTouches[0];
+  tp.startX=t.clientX; tp.startY=t.clientY; tp.startTime=Date.now();
+  tp.active=true; tp.pad=(t.clientY>window.innerHeight*(1-tp.zone));
+  if(!tp.pad){
+    // tap anywhere outside bottom zone: immediate click at position
+    canvRect=canv.getBoundingClientRect();
+    var p=touchToRfb(t.clientX,t.clientY);
+    rfb.sendPointer(p.x,p.y,1);
+    setTimeout(function(){rfb.sendPointer(p.x,p.y,0);},80);
+  }
+},{passive:false,capture:true});
+sc.addEventListener('touchmove',function(ev){
+  ev.preventDefault();
+  if(!tp.active||!tp.pad)return;
+  var t=ev.changedTouches[0];
+  var dx=t.clientX-tp.startX, dy=t.clientY-tp.startY;
+  canvRect=canv.getBoundingClientRect();
+  var sx=canv.width/canvRect.width, sy=canv.height/canvRect.height;
+  tp.curX=Math.max(0,Math.min(canv.width,tp.curX+dx*sx*1.5));
+  tp.curY=Math.max(0,Math.min(canv.height,tp.curY+dy*sy*1.5));
+  rfb.sendPointer(Math.round(tp.curX),Math.round(tp.curY),0);
+  tp.startX=t.clientX; tp.startY=t.clientY;
+},{passive:false,capture:true});
+sc.addEventListener('touchend',function(ev){
+  ev.preventDefault();
+  if(!tp.active)return;
+  var elapsed=Date.now()-tp.startTime;
+  var t=ev.changedTouches[0];
+  var dist=Math.hypot(t.clientX-tp.startX,t.clientY-tp.startY);
+  if(tp.pad&&elapsed<300&&dist<15){
+    // tap in touchpad zone = click at current cursor position
+    rfb.sendPointer(Math.round(tp.curX),Math.round(tp.curY),1);
+    setTimeout(function(){rfb.sendPointer(Math.round(tp.curX),Math.round(tp.curY),0);},80);
+  }
+  tp.active=false;
+  // Refocus keyboard
+  setTimeout(function(){kbd.focus();},50);
+},{passive:false,capture:true});
 async function cn(){
 try{
 rfb=new RFB(document.getElementById('screen'),'ws://HOST_IP:VNC_WS');
