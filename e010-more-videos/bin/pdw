@@ -134,22 +134,31 @@ for o in json.load(sys.stdin):
     print(f"  {n:<16} {w}x{h}")
 '
 
+        echo "=== vnc ==="
+        printf "  %-16s %-10s %s\n" "OUTPUT" "PORT" "PID"
+        for p in $(pgrep -x wayvnc 2>/dev/null); do
+            cmdline=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null)
+            port=$(echo "$cmdline" | awk '{print $NF}' | grep -oP '\d+' || echo "5900")
+            out=$(echo "$cmdline" | grep -oP '(?<=--output )\S+' || echo "?")
+            printf "  %-16s %-10s %s\n" "$out" "$port" "$p"
+        done
         echo "=== windows ==="
-        printf "  %-24s %-6s %s\n" "APP" "PID" "OUTPUT"
+        printf "  %-24s %-8s %s\n" "APP" "PID" "OUTPUT"
         SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c '
 import sys,json
-t=json.load(sys.stdin)
+tree=json.load(sys.stdin)
 found=False
-def w(n):
+def find_out(n,cur_out="?"):
     global found
+    t=n.get("type","")
+    if t=="output": cur_out=n.get("name","?")
     a=n.get("app_id","") or ""
-    o=n.get("output","") or ""
     p=n.get("pid",0)
-    if a and o and p>0:
-        print(f"  {a:<24} {p:<6} {o}")
+    if a and p>0:
+        print(f"  {a:<24} {p:<8} {cur_out}")
         found=True
-    for c in n.get("nodes",[])+n.get("floating_nodes",[]): w(c)
-w(t)
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): find_out(c,cur_out)
+find_out(tree)
 if not found: print("  (none)")
 ' 2>/dev/null
     else
@@ -165,11 +174,16 @@ if [ "$CMD" = "ds" ]; then
     A="${1:-ls}"; shift 2>/dev/null
     if [ "$A" = "ls" ]; then
         sway_alive || { echo "sway not running"; exit 0; }
+        printf "  %-16s %s\n" "NAME" "RESOLUTION"
         S=$(sock); SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c '
 import sys,json
 for o in json.load(sys.stdin):
-    if "HEADLESS" in o["name"]: print(o["name"])
-'
+    n=o.get("name","")
+    if "HEADLESS" in n:
+        cm=o.get("current_mode") or o.get("rect") or {}
+        w=cm.get("width","?"); h=cm.get("height","?")
+        print(f"  {n:<16} {w}x{h}")
+' 2>/dev/null
     elif [ "$A" = "new" ]; then
         sway_alive || { echo "start sway: pdw init"; exit 1; }
         S=$(sock); SWAYSOCK="$S" swaymsg create_output >/dev/null 2>&1; sleep 1
@@ -193,30 +207,34 @@ if [ "$CMD" = "w" ]; then
     if [ "$A" = "ls" ]; then
         sway_alive || { echo "sway not running"; exit 0; }
         S=$(sock)
+        [ -z "$S" ] && { echo "  (no socket)"; exit 0; }
+        printf "  %-22s %-8s %s\n" "APP" "PID" "OUTPUT"
         SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c '
 import sys,json
-t=json.load(sys.stdin)
+tree=json.load(sys.stdin)
 found=False
-def w(n):
+def find_out(n,cur_out="?"):
     global found
+    t=n.get("type","")
+    if t=="output": cur_out=n.get("name","?")
     a=n.get("app_id","") or ""
-    o=n.get("output","") or ""
     p=n.get("pid",0)
     if a and p>0:
-        out=f" ({o})" if o else ""
-        print(f"  {a:<20} {p:<8}{out}")
+        print(f"  {a:<22} {p:<8} {cur_out}")
         found=True
-    for c in n.get("nodes",[])+n.get("floating_nodes",[]): w(c)
-w(t)
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): find_out(c,cur_out)
+find_out(tree)
 if not found: print("  (none)")
 ' 2>/dev/null
+        [ $? -ne 0 ] && echo "  (python error)"
     elif [ "$A" = "new" ]; then
         O="${1:?usage: pdw w new <display> <command>}"; shift
         sway_alive || { echo "start sway: pdw init"; exit 1; }
         S=$(sock)
-        SWAYSOCK="$S" swaymsg "workspace $(echo "$O" | tr -cd A-Z0-9-)" >/dev/null 2>&1
+        SWAYSOCK="$S" swaymsg "focus output $O" >/dev/null 2>&1
         echo "open $* on $O..."
-        WAYLAND_DISPLAY="$WLDISPLAY" "$@" &
+        nohup env WAYLAND_DISPLAY="$WLDISPLAY" "$@" >/dev/null 2>&1 &
+        disown
         # Wait for app to appear in sway tree
         for i in 1 2 3 4 5 6 7 8 9 10; do
             found=$(SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c 'import sys,json;want="'"$(basename "$1")"'"
