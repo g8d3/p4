@@ -24,18 +24,18 @@ Usage: pdw <resource> [action] [args]
   ls                show full state
   clean             kill stale sway processes
   ds ls|new|rm      manage virtual displays
+  w  new|ls|mv|rm  manage windows on displays
   rec <disp> [sec]  record a display
   vnc ls|new|rm <disp> [port]  VNC access to any display
 
 Examples:
   pdw init
   pdw ls
-  pdw clean
   pdw ds new
-  pdw ds rm HEADLESS-2
-  pdw vnc new HEADLESS-1 5901
-  pdw vnc ls
-  pdw vnc rm HEADLESS-1
+  pdw w new HEADLESS-1 foot --maximized
+  pdw w new HEADLESS-2 google-chrome --ozone-platform=wayland --new-window https://x.com
+  pdw w ls
+  pdw w rm foot
   pdw rec HEADLESS-1 30
 EOF
     exit 0
@@ -60,9 +60,11 @@ if [ "$1" = "init" ]; then
     SWAYSOCK="$pdw_sock" swaymsg -t get_outputs 2>/dev/null | python3 -c '
 import sys,json
 for o in json.load(sys.stdin):
-    m=o.get("modes",[{}])[0]
-    print(f"  output: {o["name"]} {m.get("width","?")}x{m.get("height","?")}")
-'
+    n=o.get("name","?")
+    cm=o.get("current_mode") or o.get("rect") or {}
+    w=cm.get("width","?"); h=cm.get("height","?")
+    print(f"  output: {n} {w}x{h}")
+' 2>/dev/null
     exit 0
 fi
 
@@ -70,7 +72,7 @@ fi
 if [ "$1" = "ls" ] || [ "$1" = "status" ]; then
     S=$(sock)
     echo "=== drm devices ==="
-    printf "  %-18s %-8s %-22s %s\n" "DEVICE" "TYPE" "USERS" "DRM MASTER"
+    printf "  %-18s %-8s %-22s %s\n" "DEVICE" "TYPE" "OWNER" "MASTER"
     for d in /dev/dri/card* /dev/dri/renderD*; do
         [ -e "$d" ] || continue
         name=$(basename "$d")
@@ -79,8 +81,15 @@ if [ "$1" = "ls" ] || [ "$1" = "status" ]; then
                 path=$(udevadm info "$d" 2>/dev/null | grep -oP 'ID_PATH=\K.+')
                 case "$path" in *vkms*) type="VKMS" ;; *pci-*) type="AMD" ;; *) type="?" ;; esac
                 users=$(fuser "$d" 2>/dev/null | grep -oP '\d+' | tr '\n' ' ' | xargs)
-                master="no"; [ -n "$users" ] && master="yes"
-                printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "${users:--}" "$master"
+                vt=$(cat /sys/class/tty/tty0/active 2>/dev/null)
+                boot=$(cat /sys/class/drm/$name/device/boot_vga 2>/dev/null)
+                if [ -n "$users" ]; then
+                    printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "PID $users" "yes"
+                elif [ "$boot" = "1" ]; then
+                    printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "kernel ($vt)" "yes"
+                else
+                    printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "-" "no"
+                fi
                 ;;
             renderD*)
                 users=$(fuser "$d" 2>/dev/null | grep -oP '\d+' | tr '\n' ' ' | xargs)
@@ -178,6 +187,68 @@ import sys,json; print(json.load(sys.stdin)[-1]["name"])
     exit 0
 fi
 
+# === w (windows) ===
+if [ "$CMD" = "w" ]; then
+    A="${1:-ls}"; shift 2>/dev/null
+    if [ "$A" = "ls" ]; then
+        sway_alive || { echo "sway not running"; exit 0; }
+        S=$(sock)
+        SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c '
+import sys,json
+t=json.load(sys.stdin)
+found=False
+def w(n):
+    global found
+    a=n.get("app_id","") or ""
+    o=n.get("output","") or ""
+    p=n.get("pid",0)
+    if a and p>0:
+        out=f" ({o})" if o else ""
+        print(f"  {a:<20} {p:<8}{out}")
+        found=True
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): w(c)
+w(t)
+if not found: print("  (none)")
+' 2>/dev/null
+    elif [ "$A" = "new" ]; then
+        O="${1:?usage: pdw w new <display> <command>}"; shift
+        sway_alive || { echo "start sway: pdw init"; exit 1; }
+        S=$(sock)
+        SWAYSOCK="$S" swaymsg "workspace $(echo "$O" | tr -cd A-Z0-9-)" >/dev/null 2>&1
+        echo "open $* on $O..."
+        WAYLAND_DISPLAY="$WLDISPLAY" "$@" &
+        # Wait for app to appear in sway tree
+        for i in 1 2 3 4 5 6 7 8 9 10; do
+            found=$(SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c 'import sys,json;want="'"$(basename "$1")"'"
+t=json.load(sys.stdin)
+def w(n):
+    a=n.get("app_id","") or ""; p=n.get("pid",0)
+    if a==want and p: print("yes"); return
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): w(c)
+w(t)' 2>/dev/null)
+            [ -n "$found" ] && echo "ok" && break
+            sleep 0.3
+        done
+        [ -z "$found" ] && echo "?"
+    elif [ "$A" = "mv" ]; then
+        A="${1:?usage: pdw w mv <app> <target_display>}"; D="${2:?}"
+        sway_alive || exit 0
+        S=$(sock); SWAYSOCK="$S" swaymsg "[app_id=$A] move workspace to output $D" >/dev/null 2>&1 && echo "moved $A to $D" || echo "failed"
+    elif [ "$A" = "rm" ]; then
+        A="${1:?usage: pdw w rm <app_name>}"; sway_alive || exit 0
+        PID=$(SWAYSOCK=$(sock) swaymsg -t get_tree 2>/dev/null | python3 -c 'import sys,json;want="'"$A"'"
+t=json.load(sys.stdin)
+def w(n):
+    a=n.get("app_id","") or ""; p=n.get("pid",0)
+    if a==want: print(p)
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): w(c)
+w(t)' 2>/dev/null)
+        kill "$PID" 2>/dev/null && echo "closed $A" || echo "not found"
+    else echo "usage: pdw w ls|new|mv|rm"; exit 1
+    fi
+    exit 0
+fi
+
 # === rec ===
 if [ "$CMD" = "rec" ]; then
     O="${1:?usage: pdw rec <display> [sec]}"; S="${2:-60}" N="${3:-recording}"
@@ -234,7 +305,7 @@ if [ "$CMD" = "vnc" ]; then
         PORT="${2:-5900}"
         sway_alive || { echo "start sway: pdw init"; exit 1; }
         echo "starting VNC for $O on port $PORT..."
-        WAYLAND_DISPLAY="$WLDISPLAY" wayvnc --output "$O" 127.0.0.1 "$PORT" &
+        nohup env WAYLAND_DISPLAY="$WLDISPLAY" wayvnc --output "$O" 0.0.0.0 "$PORT" > /tmp/wayvnc-$O.log 2>&1 &
         sleep 1
         pgrep -f "wayvnc.*$O" >/dev/null && echo "ok" || echo "failed"
     elif [ "$A" = "rm" ]; then
