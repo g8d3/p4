@@ -1,0 +1,18 @@
+{
+  "duration_sec": 53,
+  "resolution": "608x1080",
+  "display": "wayland-sway-headless",
+  "capture_method": "wf-recorder",
+  "encoding": "h264_vaapi",
+  "audio": true,
+  "subtitles": true,
+  "apis_demoed": [
+    "xiaomi-tts",
+    "xiaomi-asr"
+  ],
+  "tts_voice": "es-CO-SalomeNeural",
+  "narration": "es-CO-SalomeNeural",
+  "narration_method": "edge-tts",
+  "recording_start": "2026-06-23T17:06:30Z",
+  "recording_end": "2026-06-23T17:07:26Z"
+}

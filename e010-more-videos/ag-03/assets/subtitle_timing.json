@@ -1,0 +1,56 @@
+[
+  {
+    "id": "01_intro",
+    "text": "Demostracion de la API de Xiaomi MIMO. Sintesis de voz y reconocimiento de audio.",
+    "start": 0.0,
+    "duration": 5.928
+  },
+  {
+    "id": "02_tts_explain",
+    "text": "Usamos el modelo de sintesis de voz para convertir texto en audio. La inteligencia artificial genera una voz natural en espanol.",
+    "start": 5.0,
+    "duration": 8.304
+  },
+  {
+    "id": "03_api_process",
+    "text": "La API procesa nuestra solicitud. El modelo mimo v2.5 genera audio desde el texto en segundos.",
+    "start": 14.489396095275879,
+    "duration": 7.752
+  },
+  {
+    "id": "04_pre_play",
+    "text": "Escuchen el audio generado por inteligencia artificial.",
+    "start": 20.764250993728638,
+    "duration": 3.792
+  },
+  {
+    "id": "05_post_play",
+    "text": "Excelente. Ahora usamos reconocimiento de voz para transcribir el audio.",
+    "start": 33.38472580909729,
+    "duration": 5.64
+  },
+  {
+    "id": "06_asr_process",
+    "text": "La API esta procesando el audio. Reconociendo las palabras con inteligencia artificial.",
+    "start": 39.75515031814575,
+    "duration": 6.288
+  },
+  {
+    "id": "07_asr_result",
+    "text": "La API reconoce las palabras y devuelve la transcripcion.",
+    "start": 44.32126212120056,
+    "duration": 4.008
+  },
+  {
+    "id": "08_outro",
+    "text": "Dos APIs que juntas crean un sistema de voz completo. Gracias por ver.",
+    "start": 47.32408046722412,
+    "duration": 5.448
+  },
+  {
+    "id": "tts_audio",
+    "text": "[TTS Audio Playing]",
+    "start": 22.83593487739563,
+    "duration": 10.56
+  }
+]
