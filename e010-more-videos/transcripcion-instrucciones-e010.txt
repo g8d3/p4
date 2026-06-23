@@ -1,0 +1,92 @@
+
+Speaker 1 00:00:00
+Si necesitáramos hacer un nuevo experimento.
+Y crear varios agentes. ¿Qué ideas sugerirías para ellos?
+Se me hace que 1 de los.
+Necesitamos sacar videos.
+Así sean imperfectos.
+Y se me hace que nuestra línea de producción a veces ha estado mejor, a veces ha estado peor.
+Y hasta es difícil escoger eso, pero me parece a mí.
+Que la manera en la que ya deberíamos escoger es.
+La no sé, en algún momento dije algo como.
+Bueno, primero que todo se necesita una pantalla virtual o pantalla real.
+¿Se necesita medir?
+El uso de recursos.
+¿Se necesita?
+Dentro de esos recursos, pues están los recursos locales de computador, pero también hay recursos, como por ejemplo los tokens por segundo.
+¿Que no son limitados, entonces de eso también se puede hacer un vídeo?
+De todo esto que te estoy hablando se puede hacer video y de esta conversación se puede hacer un video.
+Entonces, necesitamos varios agentes que estén trabajando simultáneamente en todos estos temas que te estoy diciendo.
+Y de pronto, también se puede buscar en todo este directorio todas las cosas que hemos hecho, dándole un poco más de peso a las últimas, tal vez.
+Porque hay mucho trabajo.
+Digamos.
+Apilado.
+Pero entonces, tal vez si tú.
+¿Inicias?
+Varios agentes.
+HM, algunos van a usar una línea de producción, algunos otros.
+Y.
+Otras, perdón y De todos modos, es como que.
+No se va a tener clara la lo fundamental de la línea de producción.
+No puede ser un video.
+En el cual el agente.
+Preplane todo.
+Sino que.
+Tiene que ser un video.
+Humano.
+Sí, y como el agente de inteligencia artificial va a fallar en muchos pasos.
+Esos dos pasos deben ser en fast Motion, pero mira que se necesitan muchos pasos, como por ejemplo la creación del display virtual.
+Y luego, de pronto, hay problemas de.
+Cts, tal vez esos no, casi no han pasado.
+¿El mayor problema? De pronto sí puede ser que sea un video preprogramado y que la gente no esté reaccionando y narrando en tiempo real. ¿Se ha hablado de grabar pantalla? Se necesita también.
+Todo el stock de vídeo de grabación es bastante complejo, hay muchas herramientas.
+Pero creo que se ha definido.
+Mayormente.
+Ya sabemos que debemos usar.
+Weilan.
+Con el Windows Manager Sway.
+Que se debe usar preferiblemente DMA.
+Buf.
+Direct memory Access buffer. No sé exactamente qué signifique, pero espero entiendas.
+Que se debe usar para que los recursos se usen lo más eficientemente posible.
+La grabación de vídeo no permite partir pantallas si digamos se va a grabar un pan un vídeo en la pantalla real.
+Creo que debe grabarse todo sin geometría, por eso se decidió pantallas virtuales que son verticales y de esa manera.
+Se puede grabar contenido para tiktok o short o para todas las plataformas que reciben ese formato.
+¿Qué sigue de esto que te estoy diciendo?
+Pues creería que la prueba que debemos hacer es poner a 3 agentes a hacer diversas tareas, 3 o 2 o 1. Como ves, ya hay tareas y hay unas que son más.
+Bloquean a las otras en cierta forma, pero no totalmente, por ejemplo.
+Si yo quiero poner 5 agentes, los tokens por segundo serán suficientes o harán que el trabajo sea más lento.
+También tenemos que saber y creo que esto se si se agregaría fundamentales y es el hecho de que.
+Tenemos este mes la suscripción de Xiaomi y ya la llave de API está como variable entorno. Entonces recordar utilizarla para también medir los tokens por segundo. Eso también es otro otro video.
+Comparación de Open Code go con.
+Con la.
+Happy de Xiaomi.
+Dependiendo de si esa.
+API de Xiaomi es buena, pues podría pensar en continuar el uso.
+Además que tiene modelos tts muy avanzados que son.
+Gratis. No sé qué tanto tiempo vayan a hacer. Tiene modelo no solo tts, sino asr. Entonces ahí también hay videos por hacer.
+¿Qué más? Ojalá me pudieras recordar si estoy fallando en algo y todo esto.
+Me imagino que entraría en el Archivo de agentes del nuevo experimento.
+Te iba a comentar que en las últimas veces que.
+Que intenté que una gente hiciera algo tan sencillo como abrir una abrir un display virtual, luego abrir una ventana en ese display virtual y luego ponerla a grabar.
+YY como te digo, tiene que ser grabación y tiene que ser registro con Times también de cada una de las cosas que está pagando en la grabación. Luego, con esos dos archivos de video y de texto se puede generar una narración, pero la narración no debe ser.
+El archivo de Timestamps leído y ya, sino que debe ser algo muy humano.
+Y en esos manos entra también lo del fast Motion.
+Aquí acabo de decirte algo de cómo es la pipeline, pero también acabo de decirte de de problemas que tuve en el último experimento.
+El agente no era capaz.
+De abrir una ventana en el display virtual se confundía muchísimo entonces.
+Digamos, ahí hay opciones.
+Y es fueron opciones que que fui implementando.
+Y me doy cuenta que cuando 1 hace scripts se vuelve más deterministico.
+El flujo de trabajo y los scripts pueden estar en diferentes carpetas en este momento. Entonces necesitamos, creo que darle orden a eso de todo esto que te estoy hablando. Como te digo, también se puede hacer un vídeo. Siempre hay que pensar en eso, pensar en hacer un video de todo lo que se está hablando.
+Y bueno.
+Los scripts dan ese comportamiento determinístico, por ejemplo, ahí script de Tts script de transmisión, que sería BNU NC. Pero a la final la transmisión no se puede hacer por VNC porque no escala a muchas.
+¿Y lo otro?
+Bueno, se tendría que hacer web r 3 e para la transmisión, pero a la final es que no necesitamos eso porque porque si vamos a transmitir.
+Simplemente se usa la plataforma de red social que.
+Que permite transmitir y se transmite lo de la gente. Entonces el agente estaría transmitiendo, pero también estaría grabando. Esa es otra de las cosas tareas por hacer para definir scripts y lo otro que hay que tener cuidado que los scripts.
+Pues también son susceptibles a mejoras, pero entonces cada mejora debe también ser transmitida grabada, pero pero siempre usar una base estable.
+Como te decía, la última vez que intenté que un agente abriera una ventana fue tremendamente difícil entonces.
+¿Sería bueno explorar por qué eso también sería un vídeo?
+Y ver qué cosas son susceptibles a scripts que se ha hecho.
+No sé, ya sabes, ojalá con estas instrucciones se pueda armar algo.

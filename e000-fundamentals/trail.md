@@ -311,3 +311,55 @@ The user needs to know how many agents their AI inference provider can handle si
 - Streaming while agents work
 
 There is a proxy in the p3 directory that can help measure this. TODO: investigate and document actual limits before launching multiple agents.
+
+---
+
+## 2026-06-23 — Session: filex CRUD + e010 agent launch
+
+### Decision: Filex PUT, MKCOL, DELETE, MOVE, rename
+
+Added full CRUD to filex (`~/code/filex/serve_md.py`):
+- `do_PUT` — create/overwrite files (with parent dir auto-creation)
+- `do_MKCOL` — WebDAV mkdir
+- `do_DELETE` — delete files (recursive for dirs)
+- `do_MOVE` — WebDAV rename/move (with `Destination` header)
+- `?raw=1` — get raw file content for text/code/md files
+
+GUI buttons in toolbar: +📁 create dir, +📄 upload file, 🗑 delete current. Modal rows have ✏️ rename and 🗑 delete per item.
+
+### Decision: Provider vs model distinction
+
+Three active **provider subscriptions** (not just models):
+
+| Provider | ID prefix | How configured |
+|----------|-----------|----------------|
+| OpenCode Go | `opencode-go/` | `OPENCODE_GO_API_KEY` env var |
+| Xiaomi Token Plan | `xiaomi/` | `XIAOMI_API_KEY` env var |
+| Z.AI Coding Plan | `zai-coding-plan/` | `/connect` credential |
+
+Each provider has its own compute. To maximize token throughput, launch agents with different providers:
+
+```bash
+opencode -m opencode-go/mimo-v2.5          # agent 1
+opencode -m xiaomi/mimo-v2.5               # agent 2
+opencode -m zai-coding-plan/glm-5.1        # agent 3
+```
+
+### Decision: Listing models
+
+Use `opencode models [provider]` to discover available models per provider. This is more reliable than maintaining a static list.
+
+### Decision: CLI model format
+
+The model format is always `provider-id/model-id`. Provider IDs discovered via `opencode providers` and `opencode models`. Examples:
+
+- `opencode-go/deepseek-v4-flash`
+- `opencode-go/mimo-v2.5` (vision)
+- `xiaomi/mimo-v2.5` (vision)
+- `zai-coding-plan/glm-5.1`
+- `zai-coding-plan/glm-5v-turbo` (vision)
+
+### Env vars added
+
+- `XIAOMI_API_KEY` — API key for Xiaomi Token Plan
+- `XIAOMI_BASE_URL` — base URL for Xiaomi Token Plan

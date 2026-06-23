@@ -11,9 +11,10 @@ SEGMENTS = [
     ("02_tts_cmd", "Usamos el modelo de sintesis de voz para convertir texto en audio. Enviamos texto en espanol y recibimos un archivo de voz generada por inteligencia artificial."),
     ("03_tts_result", "Escuchen el audio generado por la IA."),
     ("04_tts_comment", "Esta voz fue sintetizada completamente por el modelo mimo v2.5 de Xiaomi."),
-    ("05_asr_cmd", "Ahora usamos el reconocimiento de voz para transcribir el audio de vuelta a texto."),
-    ("06_asr_result", "La API reconoce las palabras y devuelve la transcripcion. Asi completamos el ciclo."),
-    ("07_outro", "Dos APIs que juntas crean un sistema de voz completo. Gracias por ver."),
+    ("05_tts_play", "Reproduciendo el audio generado. Ocho segundos de voz artificial, creada desde cero."),
+    ("06_asr_cmd", "Ahora usamos el reconocimiento de voz para transcribir el audio de vuelta a texto."),
+    ("07_asr_result", "La API reconoce las palabras y devuelve la transcripcion. Asi completamos el ciclo."),
+    ("08_outro", "Dos APIs que juntas crean un sistema de voz completo. Gracias por ver."),
 ]
 
 async def gen_segment(name, text):

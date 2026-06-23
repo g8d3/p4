@@ -43,9 +43,9 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 - **Device**: Android + Termux → SSH to Linux (zsh + tmux).
 - **Input**: Google Keyboard (voice dictation).
 - **Agent**: Open Code CLI.
-- **Primary provider**: opencode-go.
-- **Secondary provider**: Z.AI (coding plan Pro, not pay-as-you-go).
-- **Models**: DeepSeek V4 Flash, Mimo 2.5 (non-Pro, Xiaomi). Mimo 2.5 supports vision/multimodal, ideal for video tasks.
+- **Provider 1**: opencode-go — subscription via [opencode.ai](https://opencode.ai) (DeepSeek, Mimo, GLM, etc.).
+- **Provider 2**: Xiaomi Token Plan — subscription via Xiaomi Mimo platform (`xiaomi/` prefix).
+- **Provider 3**: Z.AI Coding Plan — subscription via Z.AI (`zai-coding-plan/` prefix).
 - **tmux**: windows only, no panes.
 - **Mobile-first**: all interfaces (terminal or web) must be mobile-friendly.
 
@@ -58,6 +58,8 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 | `OPENCODE_GO_MODEL` | Active model for opencode-go |
 | `OPENCODE_API_KEY` | Alias pointing to `OPENCODE_GO_API_KEY` |
 | `ZAI_API_KEY` | API key for Z.AI (coding plan Pro) |
+| `XIAOMI_API_KEY` | API key for Xiaomi Token Plan (Singapore) |
+| `XIAOMI_BASE_URL` | Base URL for Xiaomi Token Plan |
 
 ## Agent principles
 
@@ -177,15 +179,51 @@ The agent's AGENTS.md + inherited files are its context.
 
 ### Model selection
 
-By default agents use DeepSeek V4 Flash. To use a different model, specify it when launching:
+By default agents use DeepSeek V4 Flash. To use a different model or provider, specify it when launching:
 
 ```
-opencode -m opencode-go/mimo-v2.5
+opencode -m opencode-go/mimo-v2.5         # opencode-go provider
+opencode -m xiaomi/mimo-v2.5              # Xiaomi Token Plan provider
+opencode -m zai-coding-plan/glm-5.1       # Z.AI Coding Plan provider
 ```
 
 The agent's AGENTS.md should declare its required model in a `## Model` section. The orchestrator reads this and uses the corresponding `-m` flag.
 
-Available models: `opencode-go/deepseek-v4-flash`, `opencode-go/mimo-v2.5` (has vision), `opencode/mimo-v2.5-free`, `opencode-go/mimo-v2.5-pro` (avoid Pro).
+### Provider vs model distinction
+
+**Providers** have their own compute/subscription resources. **Models** run on providers. A single provider (e.g. opencode-go) can host many models.
+
+| Provider | Provider ID prefix | Subscription | Typical models |
+|----------|-------------------|-------------|----------------|
+| OpenCode Go | `opencode-go/` | Monthly subscription | deepseek-v4-flash, mimo-v2.5, glm-5.1, kimi-k2.6, minimax-m2.7 |
+| Xiaomi Token Plan | `xiaomi/` | Token-based plan | mimo-v2-flash, mimo-v2.5, mimo-v2-pro |
+| Z.AI Coding Plan | `zai-coding-plan/` | Coding plan Pro | glm-4.7, glm-5.1, glm-5-turbo |
+| OpenCode Zen | `opencode/` | Pay-per-use | All tested models |
+
+### Using multiple providers in parallel
+
+When running multiple agents simultaneously, use different providers to maximize token throughput (each provider has independent compute):
+
+```
+# ag-01 with opencode-go
+opencode -m opencode-go/mimo-v2.5
+
+# ag-02 with Xiaomi Token Plan
+opencode -m xiaomi/mimo-v2.5
+
+# ag-03 with Z.AI Coding Plan
+opencode -m zai-coding-plan/glm-5.1
+```
+
+### Listing available models
+
+```bash
+opencode providers              # list configured providers and credentials
+opencode models                 # list all available models across all providers
+opencode models opencode-go     # list models for a specific provider
+```
+
+Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xiaomi/mimo-v2.5`, `zai-coding-plan/glm-5v-turbo`.
 
 ### Video rendering: CPU vs GPU
 

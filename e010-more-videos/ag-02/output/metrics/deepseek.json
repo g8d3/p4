@@ -1,0 +1,15 @@
+{
+  "provider": "opencode-go",
+  "model": "deepseek-v4-flash",
+  "provider_model": "opencode-go/deepseek-v4-flash",
+  "task": "Write a Python function that implements merge sort. Include docstring and type hints. Keep it concise but complete.",
+  "duration_ms": 8949,
+  "duration_sec": 8.95,
+  "tokens_total": 8996,
+  "tokens_input": 210,
+  "tokens_output": 179,
+  "tokens_reasoning": 31,
+  "tokens_per_sec": 20.0,
+  "cost": 0.0001122128,
+  "output_text": "```python\nfrom typing import List\n\n\ndef merge_sort(arr: List[int]) -> List[int]:\n    \"\"\"Sort a list of integers using merge sort.\n\n    Args:\n        arr: List of integers to sort.\n\n    Returns:\n        A new list containing the sorted integers.\n    \"\"\"\n    if len(arr) <= 1:\n        return arr\n\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n\n    result = "
+}
