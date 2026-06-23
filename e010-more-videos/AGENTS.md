@@ -21,18 +21,45 @@ All agents use `opencode-go/mimo-v2.5` (has vision for self-review).
 
 ## Infrastructure
 
-- Xvfb virtual displays (vertical 608x1080)
-- Wayland (Sway) as window manager
+- Wayland virtual displays (Sway headless, 608x1080 vertical) — no Xvfb
+- DMA buffer for efficiency
+- **Shared recording script**: `bin/record.sh <name> [duration]` — one-command recording. All agents should use this instead of writing custom recording pipelines.
+
+## Shared tools
+
+| Tool | Usage | Description |
+|------|-------|-------------|
+| `bin/record.sh` | `../bin/record.sh <name> <output> <duration>` | Record a specific virtual display. Creates output if missing. Multiple recordings on different outputs run simultaneously. Example: `../bin/record.sh demo HEADLESS-1 30` |
 - DMA buffer for efficiency
 - ffmpeg with VAAPI encoding
 - Xiaomi MIMO API for TTS/ASR
 - Timestamp recording for fast-motion narration
+
+## Core directive: never stop
+
+This experiment has one rule above all others: **agents produce videos forever**.
+
+- Do NOT stop after one video. Each video is an iteration.
+- After each video: review output → review process → update your AGENTS.md → produce the next video with improvements.
+- Your folder should fill with videos over time. Each one should be better than the last.
+- The user will review from newest to oldest to see the improvement trajectory.
 
 ## Instructions from transcription
 
 1. Launch 3 agents simultaneously doing diverse tasks
 2. Agents should produce videos using the pipeline
 3. Agents should self-review their videos (Mimo has vision)
-4. Iterate until acceptable quality
+4. Iterate forever — never stop after one video
 5. Fast-motion for boring/failed steps
 6. Human-like narration (not just reading timestamps)
+
+## Video quality rules (read this to every agent)
+
+Every agent must read and follow these rules before recording:
+
+1. **Be reactive**: You are a human teacher. Interact with the system live. Think, type, read output, react, explain. Do NOT pre-script.
+2. **Narrate with purpose**: Match your words to what's on screen. Explain WHY, not just WHAT.
+3. **Pace for humans**: Slow down. Let the viewer read and process. Machine speed = unwatchable.
+4. **Structure your video**: Intro (what and why) → Body (live work with live thinking) → Conclusion (findings + call to action / cliffhanger).
+5. **Synchronize**: What you say must match what's shown. If you show htop, explain the CPU column.
+6. **Audio**: Leave silence when TTS/demo audio plays. Don't talk over it.

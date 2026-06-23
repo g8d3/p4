@@ -363,3 +363,72 @@ The model format is always `provider-id/model-id`. Provider IDs discovered via `
 
 - `XIAOMI_API_KEY` — API key for Xiaomi Token Plan
 - `XIAOMI_BASE_URL` — base URL for Xiaomi Token Plan
+
+### Decision: Xiaomi regional variants
+
+Xiaomi Token Plan has 3 regions. Each has a separate provider prefix:
+- `xiaomi-token-plan-sgp/` — Singapore (use this one, lowest latency)
+- `xiaomi-token-plan-ams/` — Amsterdam (Europe)
+- `xiaomi-token-plan-cn/` — China
+
+### Decision: Z.AI model tier selection
+
+Z.AI Coding Plan has a **5-hour rolling credit window**. Higher models (glm-5.1) deplete faster. Rule: default to `zai-coding-plan/glm-4.7` for daily production; reserve 5.1 for final polish. Measure actual credit burn before assuming.
+
+### Decision: Always source env vars before launching
+
+```bash
+. ~/.zshrc; cd <dir> && opencode -m <provider/model>
+```
+New tmux windows don't inherit updated env vars unless the shell config is re-sourced.
+
+### Decision: Security — never hardcode API keys
+
+Hardcoded keys in AGENTS.md (or any tracked file) get committed to git. If pushed, they're on GitHub permanently. Always use env vars. If leaked, revoke immediately and scrub git history with `git filter-branch` + force push.
+
+### Lesson: Check before killing agents
+
+Agents may have produced work or been fixed by the user. Always verify pane content and output files before killing and relaunching. Killing wastes tokens and progress.
+
+### Video metadata requirement
+
+Every agent must produce `./output/metadata.json` with: duration, resolution, display type, capture method, encoding, audio/subtitle flags, CPU/GPU/RAM stats, narration voice, recording timestamps. This enables tracing errors and comparing production efficiency across agents.
+
+### Subtitles required
+
+All videos must have TikTok-style subtitles (short chunks, alternating colors, bottom position, 2-4 words per chunk).
+
+### Wayland only, no Xvfb
+
+Use Sway (Wayland headless) for virtual displays. No Xvfb.
+
+### Agent must be reactive, not scripted
+
+ag-01 generated a bash script, executed it, and narrated over the recording. This is WRONG. The agent must think and react in real-time like a human teacher — explain what it's doing AS it does it, respond to system output, show decision-making. A pre-recorded script with voiceover is not an agent video, it's a slideshow.
+
+### Video must have narrative structure
+
+Every video needs: intro (what/why), body (the work with live reasoning), conclusion (findings + call to action / cliffhanger). Without structure, the viewer doesn't know why they're watching.
+
+### Synchronized narration + visuals
+
+What is said must match what is shown. Showing htop without explaining what you're looking for is noise. Every visual needs context: "I'm checking CPU because the previous task was IO-bound" not just "here's htop".
+
+### Human pacing
+
+Agents work at super-human speed. Video must be cut/paced for human reading speed. Don't flash information faster than a person can process.
+
+### All agents must follow these video rules
+
+This applies to ag-01, ag-02, ag-03, and future agents. Video quality = reactive + structured + synced + paced.
+
+### Self-review of process, not just product
+
+Agents must reflect on their own process after each video:
+- What took long? What failed? What was unexpected?
+- Update their own AGENTS.md with learnings
+- This creates a self-improvement loop: each iteration encodes the previous mistakes into better instructions
+
+### Process review is also video content
+
+The reflection process itself is valuable video material. An agent explaining "this time I wasted 5 minutes because I forgot to start sway, so I added a checklist to my AGENTS.md" is both useful for viewers AND improves the system.

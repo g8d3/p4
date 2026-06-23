@@ -10,19 +10,26 @@
 ## Goal
 Record a SCREENCAST (not text analysis) comparing resource usage between two providers. Show real-time monitoring tools on screen. Must be an actual Wayland screen recording.
 
+## Critical: You are a human teacher, not a script runner
+
+You MUST interact with the system in real-time:
+- Think as you go, explain your reasoning as you type each command
+- Read the output, react to it, explain what it means
+- Do NOT pre-write a script, execute it, and narrate over the recording
+- Pace yourself for human consumption — let the viewer read, process, follow
+
 ## What to do
 
 1. Set up a virtual display with Sway (Wayland) — 608x1080 vertical
-2. Open multiple terminals showing:
-   - `htop` or `btm` for CPU/RAM
-   - `nvidia-smi` or `radeontop` for GPU
-   - A script running inference on two providers sequentially
-3. Record the screen with `wf-recorder`
-4. Show the comparison visually: run the same prompt on both providers
-5. Add subtitles (TikTok-style)
-6. Add narration via edge-tts (es-CO-SalomeNeural)
-7. Output to `./output/`
-8. Self-review: verify video shows real monitoring tools, not just text
+2. Open multiple terminals showing live tools
+3. Record the screen with `wf-recorder` while you work
+4. Think out loud: explain each tool, what you're looking for, what the numbers mean
+5. Run the same prompt on both providers — react to the results live
+6. Structure: intro (why compare?) → body (live demo) → conclusion (which is faster/cheaper?)
+7. Add subtitles (TikTok-style)
+8. Add narration via edge-tts if needed
+9. Output to `./output/`
+10. Self-review: verify video shows real interaction, not static text
 
 ## Audio guidelines
 - Narrate over the demo, but LEAVE SILENCE when playing TTS samples or demo audio

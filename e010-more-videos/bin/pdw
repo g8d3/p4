@@ -1,0 +1,249 @@
+#!/bin/bash
+# pdw — Puppet Display Wizard
+set -uo pipefail
+OUTDIR="$(dirname "$0")/../output"; mkdir -p "$OUTDIR"
+SWAY_CONF="$(dirname "$0")/sway-headless.conf"
+RUNDIR="/run/user/$(id -u)"
+WLDISPLAY="wayland-1"
+
+sock() { ls -t "$RUNDIR"/sway-ipc.*.sock 2>/dev/null | head -1; }
+sway_alive() {
+    local s=$(sock) p; [ -z "$s" ] && return 1
+    p=$(echo "$s" | grep -oP '\d+(?=\.sock$)')
+    [ -z "$p" ] && return 1; kill -0 "$p" 2>/dev/null || return 1
+    [ -e "$RUNDIR/$WLDISPLAY" ] || return 1
+    SWAYSOCK="$s" swaymsg -t get_outputs >/dev/null 2>&1
+}
+
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    cat << 'EOF'
+pdw — Puppet Display Wizard
+Usage: pdw <resource> [action] [args]
+
+  init              start sway
+  ls                show full state
+  clean             kill stale sway processes
+  ds ls|new|rm      manage virtual displays
+  rec <disp> [sec]  record a display
+  vnc ls|new|rm <disp> [port]  VNC access to any display
+
+Examples:
+  pdw init
+  pdw ls
+  pdw clean
+  pdw ds new
+  pdw ds rm HEADLESS-2
+  pdw vnc new HEADLESS-1 5901
+  pdw vnc ls
+  pdw vnc rm HEADLESS-1
+  pdw rec HEADLESS-1 30
+EOF
+    exit 0
+fi
+
+# === init ===
+if [ "$1" = "init" ]; then
+    rm -f "$RUNDIR"/sway-ipc.*.sock "$RUNDIR/$WLDISPLAY" "$RUNDIR/$WLDISPLAY.lock" 2>/dev/null
+    sleep 1
+    echo -n "starting sway... "
+    WLR_BACKENDS=headless WLR_RENDERER=vulkan WLR_LIBINPUT_NO_DEVICES=1 \
+        sway --config "$SWAY_CONF" >/dev/null 2>&1 &
+    for i in 1 2 3 4 5; do
+        S=$(ls -t "$RUNDIR"/sway-ipc.*.sock 2>/dev/null | head -1)
+        [ -n "$S" ] && SWAYSOCK="$S" swaymsg -t get_outputs >/dev/null 2>&1 && break
+        sleep 1
+    done
+    if [ -z "$S" ]; then echo "fail"; exit 1; fi
+    echo "ok"
+    pdw_sock="$S"
+    echo "  display: $WLDISPLAY"
+    SWAYSOCK="$pdw_sock" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json
+for o in json.load(sys.stdin):
+    m=o.get("modes",[{}])[0]
+    print(f"  output: {o["name"]} {m.get("width","?")}x{m.get("height","?")}")
+'
+    exit 0
+fi
+
+# === ls ===
+if [ "$1" = "ls" ] || [ "$1" = "status" ]; then
+    S=$(sock)
+    echo "=== drm devices ==="
+    printf "  %-18s %-8s %-22s %s\n" "DEVICE" "TYPE" "USERS" "DRM MASTER"
+    for d in /dev/dri/card* /dev/dri/renderD*; do
+        [ -e "$d" ] || continue
+        name=$(basename "$d")
+        case "$name" in
+            card*)
+                path=$(udevadm info "$d" 2>/dev/null | grep -oP 'ID_PATH=\K.+')
+                case "$path" in *vkms*) type="VKMS" ;; *pci-*) type="AMD" ;; *) type="?" ;; esac
+                users=$(fuser "$d" 2>/dev/null | grep -oP '\d+' | tr '\n' ' ' | xargs)
+                master="no"; [ -n "$users" ] && master="yes"
+                printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "${users:--}" "$master"
+                ;;
+            renderD*)
+                users=$(fuser "$d" 2>/dev/null | grep -oP '\d+' | tr '\n' ' ' | xargs)
+                printf "  %-18s %-8s %-22s %s\n" "$name" "dma" "${users:--}" "n/a"
+                ;;
+        esac
+    done
+
+    echo "=== sessions ==="
+    printf "  %-9s %-8s %-8s %-7s %-8s %s\n" "SESSION" "USER" "SEAT" "TTY" "TYPE" "STATE"
+    loginctl list-sessions 2>/dev/null | awk 'NR>1 && NF>=6 && $1+0>0 {print $1, $3, $4, $5, $6}' | while read s user seat tty state; do
+        type=$(loginctl show-session "$s" 2>/dev/null | grep "^Type=" | cut -d= -f2)
+        [ -z "$type" ] && type="-"
+        printf "  %-9s %-8s %-8s %-7s %-8s %s\n" "$s" "$user" "$seat" "$tty" "$type" "$state"
+    done
+
+    echo "=== compositors ==="
+    printf "  %-6s %-24s %-8s %s\n" "PID" "COMMAND" "TYPE" "DISPLAY"
+    # Xorg
+    for p in $(pgrep -x Xorg 2>/dev/null); do
+        dpy=":0"
+        cmdline=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null)
+        dpy=$(echo "$cmdline" | grep -oP ':[0-9]+' | head -1)
+        printf "  %-6s %-24s %-8s %s\n" "$p" "Xorg" "x11" "${dpy:-:0}"
+    done
+    # sway instances
+    for p in $(pgrep -x sway 2>/dev/null); do
+        cfg=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null | grep -oP '(?<=--config )\S+' || echo "default")
+        case "$cfg" in *headless*) type="wl-hl" ;; *) type="wl" ;; esac
+        printf "  %-6s %-24s %-8s %s\n" "$p" "sway ($cfg)" "$type" "$WLDISPLAY"
+    done
+
+    if sway_alive; then
+        echo "=== displays ==="
+        printf "  %-16s %s\n" "NAME" "RESOLUTION"
+        SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json
+for o in json.load(sys.stdin):
+    n=o.get("name","?")
+    cm=o.get("current_mode") or o.get("rect") or {}
+    w=cm.get("width","?"); h=cm.get("height","?")
+    print(f"  {n:<16} {w}x{h}")
+'
+
+        echo "=== windows ==="
+        printf "  %-24s %-6s %s\n" "APP" "PID" "OUTPUT"
+        SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c '
+import sys,json
+t=json.load(sys.stdin)
+found=False
+def w(n):
+    global found
+    a=n.get("app_id","") or ""
+    o=n.get("output","") or ""
+    p=n.get("pid",0)
+    if a and o and p>0:
+        print(f"  {a:<24} {p:<6} {o}")
+        found=True
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): w(c)
+w(t)
+if not found: print("  (none)")
+' 2>/dev/null
+    else
+        echo "sway not running"
+    fi
+    exit 0
+fi
+
+CMD="$1"; shift
+
+# === ds ===
+if [ "$CMD" = "ds" ]; then
+    A="${1:-ls}"; shift 2>/dev/null
+    if [ "$A" = "ls" ]; then
+        sway_alive || { echo "sway not running"; exit 0; }
+        S=$(sock); SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json
+for o in json.load(sys.stdin):
+    if "HEADLESS" in o["name"]: print(o["name"])
+'
+    elif [ "$A" = "new" ]; then
+        sway_alive || { echo "start sway: pdw init"; exit 1; }
+        S=$(sock); SWAYSOCK="$S" swaymsg create_output >/dev/null 2>&1; sleep 1
+        SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json; print(json.load(sys.stdin)[-1]["name"])
+'
+    elif [ "$A" = "rm" ]; then
+        O="${1:?usage: pdw ds rm <display>}"
+        echo "note: HEADLESS outputs persist until sway restarts. Moving windows away..."
+        sway_alive || exit 0
+        S=$(sock)
+        SWAYSOCK="$S" swaymsg "[output=$O] move workspace to output $(SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c "import sys,json;outs=[o for o in json.load(sys.stdin) if 'HEADLESS' in o['name'] and o['name']!='$O'];print(outs[0]['name'] if outs else '')" 2>/dev/null)" >/dev/null 2>&1
+    else echo "usage: pdw ds ls|new|rm"; exit 1
+    fi
+    exit 0
+fi
+
+# === rec ===
+if [ "$CMD" = "rec" ]; then
+    O="${1:?usage: pdw rec <display> [sec]}"; S="${2:-60}" N="${3:-recording}"
+    sway_alive || { echo "start sway: pdw init"; exit 1; }
+    RAW="$OUTDIR/${N}_raw.mp4" FINAL="$OUTDIR/${N}.mp4" META="$OUTDIR/${N}.metadata.json"
+    echo "recording $O for ${S}s..."
+    START_TS=$(date -Iseconds)
+    WAYLAND_DISPLAY="$WLDISPLAY" wf-recorder -f "$RAW" -o "$O" --no-dmabuf --no-damage -c libx264 -r 25 &
+    R=$!; sleep "$S"; kill "$R" 2>/dev/null; wait 2>/dev/null
+    END_TS=$(date -Iseconds)
+    echo "encoding..."
+    ffmpeg -y -i "$RAW" -vaapi_device /dev/dri/renderD128 \
+        -vf "format=nv12,hwupload" -c:v h264_vaapi -b:v 2M "$FINAL" 2>/dev/null || cp "$RAW" "$FINAL"
+    D=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$FINAL" 2>/dev/null || echo "$S")
+    cat > "$META" << EOF
+{"duration_sec": $D, "output": "$O", "file_size": $(stat -c%s "$FINAL" 2>/dev/null || echo 0),
+ "recording_start": "$START_TS", "recording_end": "$END_TS"}
+EOF
+    rm -f "$RAW"; echo "done: $(ls -lh "$FINAL" | awk '{print $5}')"
+    exit 0
+fi
+
+# === clean ===
+if [ "$CMD" = "clean" ]; then
+    echo -n "cleaning..."
+    for s in "$RUNDIR"/sway-ipc.*.sock; do
+        [ -e "$s" ] || continue
+        p=$(echo "$s" | grep -oP '\d+(?=\.sock$)')
+        kill "$p" 2>/dev/null || true
+    done
+    # Kill sway processes that have our config
+    for p in $(pgrep -x sway 2>/dev/null); do
+        tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null | grep -q "headless" && kill "$p" 2>/dev/null || true
+    done
+    sleep 1
+    rm -f "$RUNDIR"/sway-ipc.*.sock "$RUNDIR/$WLDISPLAY" "$RUNDIR/$WLDISPLAY.lock" 2>/dev/null
+    echo " done"
+    exit 0
+fi
+
+# === vnc ===
+if [ "$CMD" = "vnc" ]; then
+    A="${1:-ls}"; shift 2>/dev/null
+    if [ "$A" = "ls" ]; then
+        printf "  %-16s %-10s %s\n" "OUTPUT" "PORT" "PID"
+        for p in $(pgrep -x wayvnc 2>/dev/null); do
+            cmdline=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null)
+            port=$(echo "$cmdline" | awk '{print $NF}' | grep -oP '\d+' || echo "5900")
+            out=$(echo "$cmdline" | grep -oP '(?<=--output )\S+' || echo "?")
+            printf "  %-16s %-10s %s\n" "$out" "$port" "$p"
+        done
+    elif [ "$A" = "new" ]; then
+        O="${1:?usage: pdw vnc new <output> [port]}"
+        PORT="${2:-5900}"
+        sway_alive || { echo "start sway: pdw init"; exit 1; }
+        echo "starting VNC for $O on port $PORT..."
+        WAYLAND_DISPLAY="$WLDISPLAY" wayvnc --output "$O" 127.0.0.1 "$PORT" &
+        sleep 1
+        pgrep -f "wayvnc.*$O" >/dev/null && echo "ok" || echo "failed"
+    elif [ "$A" = "rm" ]; then
+        O="${1:?usage: pdw vnc rm <output>}"
+        pkill -f "wayvnc.*$O" 2>/dev/null && echo "stopped VNC for $O" || echo "not found"
+    else echo "usage: pdw vnc ls|new|rm"; exit 1
+    fi
+    exit 0
+fi
+
+echo "unknown: pdw $CMD. Try: pdw --help"
+exit 1

@@ -171,3 +171,24 @@ Include `./output/metadata.json`:
   2. Unicode glyph ▶ not found in Arimo-Bold font (falls back, but ugly)
   3. Video bitrate low (214 kbps) — terminal content compresses too well
   4. No visual interest during API calls (just "Calling API..." text)
+
+### v3 (demo.mp4) — 2026-06-23
+- Duration: 50.7s, 608x1080, shared `../bin/record.sh` + VAAPI re-encode.
+- Fixes from v2:
+  1. Spinner animation during API calls (rotating `-\|/` character)
+  2. Progress bar during TTS playback (visual `###` fill)
+  3. Input text displayed before TTS command
+  4. Used shared `../bin/record.sh` instead of custom recording pipeline
+  5. All audio levels above -28.5 dB (was -35.5 dB at transitions in v2)
+  6. Bitrate improved: ~878 kbps raw (was 214 kbps in v2)
+- Process learnings:
+  - Must `rm -f` stale output files before recording — wf-recorder prompts for overwrite
+  - VAAPI re-encode from yuv444p source works if raw file is fresh
+  - Shared script hardcodes `wayland-1` — works reliably
+  - To launch demo: background record.sh, wait 4s, use `swaymsg -t command 'exec foot --maximized bash demo.sh'`
+- Verification: 0 silence gaps (all > -28.5 dB), subtitles cover 0.5-51.7s continuously.
+- Remaining issues for v4:
+  1. Unicode glyph ▶ still in subtitles (need to replace with ASCII)
+  2. ASR result has mixed Chinese/Spanish characters (interesting but messy)
+  3. No color visual interest — mostly green/white text on dark background
+  4. Could add comparison table or quality metrics on screen

@@ -121,6 +121,20 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
 ## Video recording
 
 - **Verify output**: check that the video is not black, has audio, and narration matches what is on screen.
+- **Continuous improvement loop, never stop**: The agent's job is not to produce one video and stop. It's a cycle:
+  1. Produce a video
+  2. Review the output (quality, errors, missing pieces)
+  3. Review the process (what took long, what failed, what to optimize)
+  4. Update your own AGENTS.md with the learnings
+  5. Produce the next video with the improved process
+  6. Repeat indefinitely
+  - Each iteration makes the next one better. The agent gets faster, produces higher quality, and documents its own evolution. Stopping after one video is leaving value on the table.
+- **Review the process, not just the product**: After finishing a video, the agent must reflect on its own process:
+  - What steps took the most time? How much was thinking vs executing vs waiting?
+  - What went wrong? What was surprising? What was harder/easier than expected?
+  - What would you do differently next time?
+  - Update your own `AGENTS.md` with the learnings so future runs improve.
+  - This self-improvement loop is what makes each iteration better than the last. An agent that doesn't learn from its process will make the same mistakes forever.
 - **Screen capture**: use the real display (`DISPLAY=:0` or similar), no CPU rendering.
 - **Disable screen lock**: before recording, prevent screen lock. Try in order:
   1. `xset s off && xset -dpms`
@@ -131,9 +145,20 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
   1. Select only the relevant window or region (not full monitor).
   2. Resize and reposition windows to fill the capture area efficiently, leaving no wasted space.
   3. Ensure content is readable on a vertical screen.
-- **Video types**:
-  - **Scripted**: agent follows a predefined script and narrates it as written.
-  - **Exploratory**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive.
+- **Agent must be reactive, not scripted**: The agent is equivalent to a human teacher. It must interact with the system in real-time, observe, think, and react — NOT pre-write a script, execute it robotically, and narrate over a recording. A scripted recording where the agent just runs commands and then narrates after is unacceptable. The agent must think as it goes, explain its reasoning in the moment, and respond to what it sees on screen.
+- **Narration must match the screen**: What the narrator says must be synchronized with what is shown. If displaying system resources, explain WHY — what you're looking for, what the numbers mean, what conclusion you draw. Showing a dashboard without context is noise.
+- **Human pacing**: Agents operate at machine speed. Videos must be paced for human consumption — allow time to read text, process information, follow the reasoning. Do not flash information faster than a human can read.
+- **Video structure**: Every video needs a clear arc — introduction (what you'll do and why), body (the work), conclusion (what you found, call to action or cliffhanger). A video without structure is confusing.
+- **Resource metadata**: Every video output MUST include a `metadata.json` file in `./output/` listing ALL resources used:
+  - **Hardware**: CPU model/usage, GPU model/usage, RAM, display type (Wayland headless, resolution)
+  - **Software**: OS, window manager, capture tool (wf-recorder/ffmpeg), encoding (h264_vaapi), subtitles tool
+  - **Cloud**: providers used, models used, token count, cost, latency
+  - **Narration**: voice model, TTS engine, language
+  - **Timestamps**: recording start/end, duration
+  - This enables tracing errors, comparing efficiency, and reproducing results.
+- **Video types** (deprecated — only exploratory is valid):
+  - ~~**Scripted**: agent follows a predefined script and narrates it as written.~~ Do not use.
+  - **Exploratory (only valid type)**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive. This is the only acceptable format.
 
 ## Context inheritance
 
@@ -196,9 +221,13 @@ The agent's AGENTS.md should declare its required model in a `## Model` section.
 | Provider | Provider ID prefix | Subscription | Typical models |
 |----------|-------------------|-------------|----------------|
 | OpenCode Go | `opencode-go/` | Monthly subscription | deepseek-v4-flash, mimo-v2.5, glm-5.1, kimi-k2.6, minimax-m2.7 |
-| Xiaomi Token Plan | `xiaomi/` | Token-based plan | mimo-v2-flash, mimo-v2.5, mimo-v2-pro |
-| Z.AI Coding Plan | `zai-coding-plan/` | Coding plan Pro | glm-4.7, glm-5.1, glm-5-turbo |
+| Xiaomi Token Plan (Singapore) | `xiaomi-token-plan-sgp/` | Token-based plan | mimo-v2.5, mimo-v2-tts, mimo-v2-omni |
+| Xiaomi Token Plan (Europe) | `xiaomi-token-plan-ams/` | Token-based plan | mimo-v2.5, mimo-v2-tts, mimo-v2-omni |
+| Xiaomi Token Plan (China) | `xiaomi-token-plan-cn/` | Token-based plan | mimo-v2.5, mimo-v2-tts, mimo-v2-omni |
+| Z.AI Coding Plan | `zai-coding-plan/` | Coding plan Pro (5h rolling window) | glm-4.7, glm-5.1, glm-5-turbo |
 | OpenCode Zen | `opencode/` | Pay-per-use | All tested models |
+
+Note: Xiaomi Token Plan has 3 regional variants. Use `xiaomi-token-plan-sgp/` (Singapore) — lowest latency from our location.
 
 ### Using multiple providers in parallel
 
@@ -223,7 +252,33 @@ opencode models                 # list all available models across all providers
 opencode models opencode-go     # list models for a specific provider
 ```
 
-Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xiaomi/mimo-v2.5`, `zai-coding-plan/glm-5v-turbo`.
+Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xiaomi-token-plan-sgp/mimo-v2.5`, `zai-coding-plan/glm-4.7` (has vision).
+
+### Model cost awareness
+
+Z.AI Coding Plan has a **5-hour rolling credit window**. Higher-tier models (glm-5.1) deplete credits faster:
+- Prefer `zai-coding-plan/glm-4.7` for daily production — balances cost and capability
+- Reserve `zai-coding-plan/glm-5.1` for final polish or complex tasks
+- Track token consumption per session to understand burn rate
+
+This applies to all providers: **consistency over peak quality**. Produce videos even if imperfect, using cheaper models. Iterate on quality with selective use of expensive models.
+
+### Security: API keys and secrets
+
+NEVER hardcode API keys, tokens, or secrets in AGENTS.md or any file that could be committed to git:
+
+```bash
+# WRONG — in AGENTS.md:
+XIAOMI_API_KEY=tp-xxx   # NEVER DO THIS
+
+# RIGHT — reference env vars only:
+export XIAOMI_API_KEY=tp-xxx   # in ~/.zshrc, never in repo
+```
+
+Before launching agents, always source the shell config to make env vars available:
+```bash
+. ~/.zshrc; cd <agent_dir> && opencode -m <provider/model>
+```
 
 ### Video rendering: CPU vs GPU
 
@@ -418,3 +473,37 @@ ffmpeg -vaapi_device /dev/dri/renderD128 -i input_frames -vf "format=nv12,hwuplo
 
 Key: `-vf "format=nv12,hwupload"` is required before the VAAPI encoder.
 Speed: ~20× real time for 608×1080 at 25fps.
+
+## Screen recording (Wayland headless)
+
+For screen recording with a virtual display, use the shared `record.sh` script:
+
+```bash
+../bin/record.sh <name> <duration_sec>
+```
+
+This handles: sway headless startup (Vulkan renderer), foot terminal, wf-recorder capture with tested flags, VAAPI re-encode, and metadata output.
+
+**Tested flags for wf-recorder with Sway headless:**
+- `--no-dmabuf` — required, DMA-BUF produces black frames
+- `--no-damage` — required, headless backend doesn't emit damage events
+- `-c libx264` — use CPU encoding during capture (VAAPI in wf-recorder produces corrupt files from headless)
+- Re-encode with `ffmpeg -vaapi_device /dev/dri/renderD128 -vf "format=nv12,hwupload" -c:v h264_vaapi` afterward
+
+**Sway config for headless:**
+```
+xwayland disable
+output * resolution 608x1080
+output * bg #0d1117 solid_color
+default_border none
+exec_always true
+```
+
+**Multiple virtual displays on one sway**: sway supports multiple headless outputs via `swaymsg create_output`. Each gets a name like `HEADLESS-1`, `HEADLESS-2`, etc. Record a specific output with `wf-recorder -o HEADLESS-1`. Multiple recordings on different outputs run simultaneously without conflict.
+
+**Sway is persistent**: start sway once on boot/first use. Do NOT kill it between recordings. Use `swaymsg` to create/list/delete outputs as needed.
+
+If sway needs to be started:
+```bash
+WLR_BACKENDS=headless WLR_RENDERER=vulkan WLR_LIBINPUT_NO_DEVICES=1 sway --config sway-headless.conf &
+```
