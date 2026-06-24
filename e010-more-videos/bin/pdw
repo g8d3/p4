@@ -319,18 +319,21 @@ if [ "$CMD" = "vnc" ]; then
             printf "  %-16s %-10s %s\n" "$out" "$port" "$p"
         done
     elif [ "$A" = "new" ]; then
-        O="${1:?usage: pdw vnc new <output> [port] [--auth]}"
+        AUTH=""
+        if [ "$1" = "--auth" ]; then AUTH="--auth"; shift; fi
+        O="${1:?usage: pdw vnc new [--auth] <output> [port]}"
         PORT="${2:-5900}"
-        AUTH="${3:-}"
         sway_alive || { echo "start sway: pdw init"; exit 1; }
         AUTH_ARG=""
         if [ "$AUTH" = "--auth" ]; then
             mkdir -p "$HOME/.config/pdw"
             PASS_FILE="$HOME/.config/pdw/vnc-$O.txt"
-            PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c12 || echo "opencode")
+            PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c12)
+            [ -z "$PASSWORD" ] && PASSWORD="opencode"
             echo "$PASSWORD" > "$PASS_FILE"
             cat > /tmp/wayvnc-$O.conf << EOF
 enable_auth=true
+username=opencode
 password=$PASSWORD
 EOF
             AUTH_ARG="-C /tmp/wayvnc-$O.conf"
