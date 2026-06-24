@@ -327,7 +327,11 @@ if [ "$CMD" = "vnc" ]; then
         AUTH_ARG=""
         if [ "$AUTH" = "--auth" ]; then
             mkdir -p "$HOME/.config/pdw"
+            RSA_KEY="$HOME/.config/pdw/vnc-$O-rsa.pem"
             PASS_FILE="$HOME/.config/pdw/vnc-$O.txt"
+            if [ ! -f "$RSA_KEY" ]; then
+                ssh-keygen -q -m pem -f "$RSA_KEY" -t rsa -N "" 2>/dev/null
+            fi
             PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c12)
             [ -z "$PASSWORD" ] && PASSWORD="opencode"
             echo "$PASSWORD" > "$PASS_FILE"
@@ -335,8 +339,10 @@ if [ "$CMD" = "vnc" ]; then
 enable_auth=true
 username=opencode
 password=$PASSWORD
+rsa_private_key_file=$RSA_KEY
 EOF
             AUTH_ARG="-C /tmp/wayvnc-$O.conf"
+            echo "  rsa key: $RSA_KEY"
             echo "  user: opencode"
             echo "  password: $PASSWORD"
             echo "  saved: $PASS_FILE"
