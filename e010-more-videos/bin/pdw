@@ -337,7 +337,9 @@ username=opencode
 password=$PASSWORD
 EOF
             AUTH_ARG="-C /tmp/wayvnc-$O.conf"
-            echo "password: $PASSWORD (saved: $PASS_FILE)"
+            echo "  user: opencode"
+            echo "  password: $PASSWORD"
+            echo "  saved: $PASS_FILE"
         fi
         echo "starting VNC for $O on port $PORT..."
         nohup env WAYLAND_DISPLAY="$WLDISPLAY" wayvnc $AUTH_ARG --output "$O" 0.0.0.0 "$PORT" > /tmp/wayvnc-$O.log 2>&1 &
