@@ -1,0 +1,19 @@
+{
+  "duration_sec": 21.6,
+  "resolution": "608,1080",
+  "display": "wayland-sway-headless",
+  "capture_method": "wf-recorder",
+  "encoding": "h264_vaapi",
+  "audio": true,
+  "subtitles": true,
+  "cpu_usage_avg": 35.0,
+  "ram_mb": 4967,
+  "gpu_usage_avg": 4.9,
+  "providers_compared": [
+    "opencode-go/deepseek-v4-flash",
+    "opencode-go/mimo-v2.5"
+  ],
+  "narration": "es-CO-SalomeNeural",
+  "recording_start": "",
+  "recording_end": "2026-06-23T12:31:58.059335"
+}

@@ -1,0 +1,104 @@
+1
+00:00:00,000 --> 00:00:02,593
+Comparación de recursos entre
+
+2
+00:00:02,693 --> 00:00:04,392
+DeepSeek V4 Flash y
+
+3
+00:00:04,492 --> 00:00:05,208
+Mimo 2.5
+
+4
+00:00:05,307 --> 00:00:07,722
+Ambos modelos ejecutaron la
+
+5
+00:00:07,822 --> 00:00:10,058
+misma tarea: escribir una
+
+6
+00:00:10,158 --> 00:00:12,751
+función de ordenamiento merge
+
+7
+00:00:12,851 --> 00:00:14,103
+sort en Python
+
+8
+00:00:14,203 --> 00:00:16,528
+DeepSeek completó la tarea
+
+9
+00:00:16,628 --> 00:00:18,954
+en 4.7 segundos, generando
+
+10
+00:00:19,054 --> 00:00:20,842
+181 tokens de salida
+
+11
+00:00:20,942 --> 00:00:22,552
+a una velocidad de
+
+12
+00:00:22,652 --> 00:00:24,440
+0 tokens por segundo
+
+13
+00:00:24,540 --> 00:00:26,865
+Costo: 0.000139888 dólares
+
+14
+00:00:26,966 --> 00:00:29,201
+Mimo tardó 2.24 segundos,
+
+15
+00:00:29,301 --> 00:00:31,090
+generó 168 tokens de
+
+16
+00:00:31,190 --> 00:00:32,710
+salida a 0 tokens
+
+17
+00:00:32,810 --> 00:00:33,794
+por segundo
+
+18
+00:00:33,894 --> 00:00:36,308
+Costo: 0.0012039272 dólares
+
+19
+00:00:36,408 --> 00:00:38,465
+DeepSeek fue más rápido
+
+20
+00:00:38,565 --> 00:00:40,980
+en velocidad de generación,
+
+21
+00:00:41,080 --> 00:00:42,779
+pero Mimo usó menos
+
+22
+00:00:42,879 --> 00:00:44,489
+tokens de salida y
+
+23
+00:00:44,589 --> 00:00:46,288
+tuvo un costo menor
+
+24
+00:00:46,388 --> 00:00:48,355
+La elección depende de
+
+25
+00:00:48,455 --> 00:00:50,601
+si priorizas velocidad o
+
+26
+00:00:50,701 --> 00:00:52,579
+eficiencia de tokens.
+

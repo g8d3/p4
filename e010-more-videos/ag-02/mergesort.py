@@ -1,6 +1,6 @@
-from typing import TypeVar, List
+from typing import List, TypeVar
 
-T = TypeVar("T")
+T = TypeVar('T')
 
 
 def merge_sort(arr: List[T]) -> List[T]:
@@ -11,10 +11,10 @@ def merge_sort(arr: List[T]) -> List[T]:
     left = merge_sort(arr[:mid])
     right = merge_sort(arr[mid:])
 
-    return merge(left, right)
+    return _merge(left, right)
 
 
-def merge(left: List[T], right: List[T]) -> List[T]:
+def _merge(left: List[T], right: List[T]) -> List[T]:
     result: List[T] = []
     i = j = 0
 
@@ -29,9 +29,3 @@ def merge(left: List[T], right: List[T]) -> List[T]:
     result.extend(left[i:])
     result.extend(right[j:])
     return result
-
-
-if __name__ == "__main__":
-    print(merge_sort([38, 27, 43, 3, 9, 82, 10]))
-    print(merge_sort(["banana", "apple", "cherry"]))
-    print(merge_sort([5, 3, 8, 4, 2]))

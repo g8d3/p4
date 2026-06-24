@@ -1,0 +1,25 @@
+{
+  "duration_sec": 19.3,
+  "resolution": "608x1080",
+  "display": "wayland-sway-headless",
+  "capture_method": "wf-recorder",
+  "encoding": "h264_vaapi",
+  "audio": true,
+  "subtitles": true,
+  "cpu_usage_avg": 45.2,
+  "ram_mb": 4466,
+  "gpu_usage_avg": 12.5,
+  "narration": "es-CO-SalomeNeural",
+  "narration_method": "edge-tts",
+  "recording_start": "2026-06-23T11:44:56",
+  "recording_end": "2026-06-23T11:46:15",
+  "files": {
+    "raw_capture": "raw_capture.mp4",
+    "encoded": "encoded.mp4",
+    "narration": "narration.mp3",
+    "subtitles": "subs.srt",
+    "final": "final.mp4"
+  },
+  "pipeline": "Sway headless (WLR_BACKENDS=headless, WLR_RENDERER=vulkan) → foot terminal → wf-recorder (--no-dmabuf --no-damage, libx264) → ffmpeg h264_vaapi → edge-tts narration → SRT subtitles burned in",
+  "content": "Terminal demo: neofetch, directory listing, project tree, memory, disk, Python calculations, date, network interfaces"
+}

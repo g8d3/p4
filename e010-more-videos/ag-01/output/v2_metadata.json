@@ -1,0 +1,30 @@
+{
+  "duration_sec": 16.9,
+  "resolution": "608x1080",
+  "display": "wayland-sway-headless",
+  "capture_method": "wf-recorder",
+  "encoding": "h264_vaapi",
+  "audio": true,
+  "subtitles": true,
+  "cpu_usage_avg": 42.0,
+  "ram_mb": 4200,
+  "gpu_usage_avg": 10.0,
+  "narration": "es-CO-SalomeNeural",
+  "narration_method": "edge-tts",
+  "recording_start": "2026-06-23T12:07:30",
+  "recording_end": "2026-06-23T12:08:15",
+  "iteration": 2,
+  "improvements_over_v1": [
+    "Narration generated first, demo paced to match duration",
+    "Subtitles match actual narration text (not labels)",
+    "Subtitle font size 10 (down from 20/11), no content overlap",
+    "Shorter, focused demo (~17s vs 19s)",
+    "Video duration matches narration (16.9s = 16.9s)"
+  ],
+  "remaining_issues": [
+    "Terminal text wraps at 608px — 'Wayland' breaks to next line",
+    "Still a scripted demo, not live interactive",
+    "File size 3.7MB under 5MB target"
+  ],
+  "content": "Terminal demo: intro banner, uname, directory listing, project tree, Python calc, date, network"
+}

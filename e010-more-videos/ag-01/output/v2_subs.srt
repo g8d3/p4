@@ -1,0 +1,31 @@
+1
+00:00:00,500 --> 00:00:03,500
+Bienvenidos al pipeline de Wayland
+
+2
+00:00:04,000 --> 00:00:06,500
+Miremos el sistema
+
+3
+00:00:07,000 --> 00:00:09,500
+Ahora el proyecto
+
+4
+00:00:10,000 --> 00:00:12,500
+La estructura en árbol
+
+5
+00:00:13,000 --> 00:00:15,000
+Memoria y disco
+
+6
+00:00:15,500 --> 00:00:17,500
+Un cálculo con Python
+
+7
+00:00:18,000 --> 00:00:19,500
+Fecha y red
+
+8
+00:00:20,000 --> 00:00:22,500
+Pipeline completo

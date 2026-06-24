@@ -1,0 +1,8 @@
+Comparación de recursos entre DeepSeek V4 Flash y Mimo 2.5.
+Ambos modelos ejecutaron la misma tarea: escribir una función de ordenamiento merge sort en Python.
+
+DeepSeek completó la tarea en 4.7 segundos, generando 181 tokens de salida a una velocidad de 0 tokens por segundo. Costo: 0.000139888 dólares.
+
+Mimo tardó 2.24 segundos, generó 168 tokens de salida a 0 tokens por segundo. Costo: 0.0012039272 dólares.
+
+DeepSeek fue más rápido en velocidad de generación, pero Mimo usó menos tokens de salida y tuvo un costo menor. La elección depende de si priorizas velocidad o eficiencia de tokens.

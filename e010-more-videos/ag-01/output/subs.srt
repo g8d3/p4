@@ -1,0 +1,27 @@
+1
+00:00:00,500 --> 00:00:03,500
+Pipeline de grabación Wayland
+
+2
+00:00:03,500 --> 00:00:06,500
+Sway headless · 608x1080
+
+3
+00:00:06,500 --> 00:00:09,000
+Neofetch: Ubuntu, AMD Ryzen
+
+4
+00:00:09,000 --> 00:00:11,500
+Directorio y árbol del proyecto
+
+5
+00:00:11,500 --> 00:00:14,000
+Memoria y disco
+
+6
+00:00:14,000 --> 00:00:16,000
+Cálculos con Python
+
+7
+00:00:16,000 --> 00:00:19,000
+Grabación completada con VAAPI
