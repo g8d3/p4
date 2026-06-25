@@ -10,6 +10,9 @@ certs/
 *.mp3
 *.wav
 
+# Agent output directories (videos, logs, metadata)
+**/output/
+
 # Python cache
 __pycache__/
 
