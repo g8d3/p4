@@ -173,12 +173,12 @@ Include `./output/metadata.json`:
   4. No visual interest during API calls (just "Calling API..." text)
 
 ### v3 (demo.mp4) — 2026-06-23
-- Duration: 50.7s, 608x1080, shared `../bin/record.sh` + VAAPI re-encode.
+- Duration: 50.7s, 608x1080, shared `../ag-00/bin/record.sh` + VAAPI re-encode.
 - Fixes from v2:
   1. Spinner animation during API calls (rotating `-\|/` character)
   2. Progress bar during TTS playback (visual `###` fill)
   3. Input text displayed before TTS command
-  4. Used shared `../bin/record.sh` instead of custom recording pipeline
+  4. Used shared `../ag-00/bin/record.sh` instead of custom recording pipeline
   5. All audio levels above -28.5 dB (was -35.5 dB at transitions in v2)
   6. Bitrate improved: ~878 kbps raw (was 214 kbps in v2)
 - Process learnings:

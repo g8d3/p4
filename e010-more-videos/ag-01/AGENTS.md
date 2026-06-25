@@ -34,15 +34,15 @@ You MUST interact with the system in real-time:
 ## Recording — use shared tool
 
 ```bash
-../bin/record.sh my_demo 60
+../ag-00/bin/record.sh my_demo 60
 ```
 
 That's it. Starts Sway, opens terminal, records for 60 seconds, saves to `./output/my_demo.mp4`. Do NOT write custom recording scripts. Do NOT configure sway manually. Do NOT use ffmpeg encoding pipelines. The shared script handles everything.
 
 If you need a longer demo, record in segments:
 ```bash
-../bin/record.sh part1_intro 30
-../bin/record.sh part2_body 60
+../ag-00/bin/record.sh part1_intro 30
+../ag-00/bin/record.sh part2_body 60
 ```
 
 ## Critical pipeline notes (learned from video 1 failures)
@@ -135,7 +135,7 @@ Each video must include a `metadata.json` in `./output/` with:
 ### Video 3 (2026-06-23) — using shared record.sh
 - **Duration**: 21s (narration)
 - **Size**: 423KB (under 5MB)
-- **What worked**: Used `../bin/record.sh demo 60` — one command, no custom scripts
+- **What worked**: Used `../ag-00/bin/record.sh demo 60` — one command, no custom scripts
 - **What failed**: record.sh opens empty terminal (`foot --maximized &`), no demo content appears. Terminal shows only zsh prompt with git branch.
 - **Root cause**: Without keyboard simulation (ydotool/wtype), cannot type into Wayland terminal. record.sh is a recording tool, not a content tool.
 - **Fix needed**: record.sh should accept optional script parameter: `record.sh demo 60 my_script.sh` — runs script inside foot instead of empty shell.

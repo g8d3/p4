@@ -8,6 +8,8 @@
 - [ ] **Signal handling**: `wayvnc` processes orphaned if pdw exits uncleanly. Add trap or at least log PIDs for manual cleanup.
 - [ ] **Sway not running detection**: `sway_alive()` called redundantly in every subcommand. Cache result or restructure flow.
 - [ ] **No tests**: critical flows (init, vnc new --auth, w new) have no automated validation.
+- [x] **Multi-display recording verified**: 2026-06-25 — two displays (HEADLESS-1 + HEADLESS-2) recorded simultaneously for 15s, both produced valid video content.
+- [ ] **Bug: `pdw rec` name collision**: cuando dos procesos corren `pdw rec` sin nombre, ambos usan "recording" y pisan el raw. Fix: nombre único automático.
 
 ## filex (`~/code/filex/serve_md.py`)
 

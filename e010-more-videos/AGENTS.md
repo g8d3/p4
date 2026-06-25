@@ -10,9 +10,13 @@ Produce many videos (even imperfect ones) using multiple agents working simultan
 ## Structure
 
 ```
+ag-00/    Infrastructure: pdw, record.sh, launch-agents.sh, sway-headless.conf, shared output/
 ag-01/    Virtual display + recording pipeline (Xvfb + Sway + ffmpeg)
 ag-02/    Resource monitoring (CPU, GPU, tokens/sec comparison)
 ag-03/    TTS/ASR with Xiaomi MIMO + video narration
+ag-04/    Documentation: GUIA.md (unified plan), PENDIENTES.md (future improvements), TODO.md
+ag-05/    Terminal demo: interactive pdw walkthrough + 2 narration versions (self + commentators)
+ag-06/    Browser demo: GitHub/Trendshift/HuggingFace trends + 2 narration versions (self + commentators)
 ```
 
 ## Model
@@ -29,7 +33,8 @@ All agents use `opencode-go/mimo-v2.5` (has vision for self-review).
 
 | Tool | Usage | Description |
 |------|-------|-------------|
-| `bin/record.sh` | `../bin/record.sh <name> <output> <duration>` | Record a specific virtual display. Creates output if missing. Multiple recordings on different outputs run simultaneously. Example: `../bin/record.sh demo HEADLESS-1 30` |
+| `ag-00/bin/record.sh` | `../ag-00/bin/record.sh <name> <output> <duration>` | Record a specific virtual display. Creates output if missing. Multiple recordings on different outputs run simultaneously. Example: `../ag-00/bin/record.sh demo HEADLESS-1 30` |
+| `ag-00/bin/pdw` | `../ag-00/bin/pdw <command>` | Full display manager: init, ds, w, rec, vnc, clean |
 - DMA buffer for efficiency
 - ffmpeg with VAAPI encoding
 - Xiaomi MIMO API for TTS/ASR
