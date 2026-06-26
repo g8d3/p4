@@ -8,6 +8,217 @@ WLDISPLAY="wayland-1"
 PDW_LOCKDIR="/tmp/pdw-locks"
 mkdir -p "$PDW_LOCKDIR"
 MAX_DISPLAYS=8
+DB="$OUTDIR/pdw.db"
+
+# === Database initialization ===
+db_init() {
+    sqlite3 "$DB" << 'SQL'
+CREATE TABLE IF NOT EXISTS config (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  category TEXT
+);
+
+CREATE TABLE IF NOT EXISTS displays (
+  name TEXT PRIMARY KEY,
+  resolution TEXT,
+  owner TEXT,
+  status TEXT DEFAULT 'active',
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS windows (
+  id INTEGER PRIMARY KEY,
+  app_id TEXT,
+  pid INTEGER,
+  display TEXT,
+  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (display) REFERENCES displays(name)
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id INTEGER PRIMARY KEY,
+  inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fin TIMESTAMP,
+  status TEXT DEFAULT 'active',
+  agent TEXT
+);
+
+CREATE TABLE IF NOT EXISTS steps (
+  id INTEGER PRIMARY KEY,
+  session_id INTEGER,
+  tipo TEXT,
+  comando TEXT,
+  parametros TEXT,
+  inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fin TIMESTAMP,
+  duracion_ms INTEGER,
+  exit_code INTEGER,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE TABLE IF NOT EXISTS metrics (
+  id INTEGER PRIMARY KEY,
+  session_id INTEGER,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  cpu_percent REAL,
+  gpu_percent REAL,
+  ram_mb REAL,
+  dma_active INTEGER,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE TABLE IF NOT EXISTS videos (
+  id INTEGER PRIMARY KEY,
+  session_id INTEGER,
+  titulo TEXT,
+  archivo TEXT,
+  duracion_seg REAL,
+  tamanio_bytes INTEGER,
+  resolucion TEXT,
+  codec TEXT,
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE TABLE IF NOT EXISTS chunks (
+  id INTEGER PRIMARY KEY,
+  video_id INTEGER,
+  orden INTEGER,
+  url TEXT,
+  seccion TEXT,
+  duracion_plan INTEGER,
+  duracion_real INTEGER,
+  scroll_px INTEGER,
+  FOREIGN KEY (video_id) REFERENCES videos(id)
+);
+
+CREATE TABLE IF NOT EXISTS ideas (
+  id INTEGER PRIMARY KEY,
+  tema TEXT,
+  urls TEXT,
+  chunks_plan TEXT,
+  narracion_sketch TEXT,
+  tono TEXT,
+  status TEXT DEFAULT 'pending',
+  creado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  procesado TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS commands (
+  id INTEGER PRIMARY KEY,
+  session_id INTEGER,
+  binario TEXT,
+  comando TEXT,
+  duracion_ms INTEGER,
+  exit_code INTEGER,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (session_id) REFERENCES sessions(id)
+);
+
+CREATE TABLE IF NOT EXISTS ast_types (
+  id INTEGER PRIMARY KEY,
+  code TEXT,
+  description TEXT
+);
+
+INSERT OR IGNORE INTO ast_types VALUES
+(1, 'stmt', 'statement type'),
+(2, 'id', 'identifier'),
+(3, 'str', 'string literal'),
+(4, 'param', 'placeholder parameter');
+
+CREATE TABLE IF NOT EXISTS ast_nodes (
+  id INTEGER PRIMARY KEY,
+  preset_id INTEGER,
+  path TEXT,
+  type_id INTEGER,
+  value TEXT,
+  depth INTEGER DEFAULT 0,
+  parent_id INTEGER,
+  FOREIGN KEY (type_id) REFERENCES ast_types(id)
+);
+
+CREATE TABLE IF NOT EXISTS presets (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  verb TEXT,
+  resource TEXT,
+  description TEXT
+);
+
+CREATE VIEW IF NOT EXISTS v_ast_tree AS
+SELECT 
+  n.id,
+  n.preset_id,
+  REPEAT('  ', n.depth) || n.path as indent_path,
+  t.code as type,
+  n.value
+FROM ast_nodes n
+JOIN ast_types t ON n.type_id = t.id
+ORDER BY n.preset_id, n.id;
+SQL
+    echo "Database initialized: $DB"
+}
+
+# === Database helpers ===
+db_exec() { sqlite3 "$DB" "$@" 2>/dev/null; }
+db_query() { sqlite3 -column "$DB" "$@" 2>/dev/null; }
+
+# === Logging helpers ===
+log_step() {
+    local session_id="${1:-1}" tipo="$2" comando="$3" inicio="$4" fin="$5" exit_code="$6"
+    local duracion=$(( (fin - inicio) * 1000 ))
+    db_exec "INSERT INTO steps (session_id, tipo, comando, inicio, fin, duracion_ms, exit_code) VALUES ($session_id, '$tipo', '$comando', '$inicio', '$fin', $duracion, $exit_code)"
+}
+
+log_metric() {
+    local session_id="${1:-1}" cpu="$2" gpu="$3" ram="$4" dma="$5"
+    db_exec "INSERT INTO metrics (session_id, cpu_percent, gpu_percent, ram_mb, dma_active) VALUES ($session_id, $cpu, $gpu, $ram, $dma)"
+}
+
+log_command() {
+    local session_id="${1:-1}" binario="$2" comando="$3" duracion="$4" exit_code="$5"
+    db_exec "INSERT INTO commands (session_id, binario, comando, duracion_ms, exit_code) VALUES ($session_id, '$binario', '$comando', $duracion, $exit_code)"
+}
+
+# === State sync ===
+sync_displays() {
+    sway_alive || return 0
+    local s=$(sock)
+    # Get actual displays from sway
+    local actual=$(SWAYSOCK="$s" swaymsg -t get_outputs 2>/dev/null | python3 -c 'import sys,json; [print(o["name"]) for o in json.load(sys.stdin) if "HEADLESS" in o["name"]]' 2>/dev/null)
+    # Get displays from database
+    local in_db=$(db_query "SELECT name FROM displays WHERE status='active'")
+    # Add missing displays
+    for d in $actual; do
+        echo "$in_db" | grep -q "^$d$" || db_exec "INSERT OR IGNORE INTO displays (name, status) VALUES ('$d', 'active')"
+    done
+    # Mark removed displays
+    for d in $in_db; do
+        echo "$actual" | grep -q "^$d$" || db_exec "UPDATE displays SET status='removed' WHERE name='$d'"
+    done
+}
+
+sync_windows() {
+    sway_alive || return 0
+    local s=$(sock)
+    # Get actual windows from sway
+    SWAYSOCK="$s" swaymsg -t get_tree 2>/dev/null | python3 -c "
+import sys,json
+tree=json.load(sys.stdin)
+def find(n,cur_out='?'):
+    t=n.get('type','')
+    if t=='output': cur_out=n.get('name','?')
+    a=n.get('app_id','') or ''
+    p=n.get('pid',0)
+    if a and p>0:
+        print(f'{a}|{p}|{cur_out}')
+    for c in n.get('nodes',[])+n.get('floating_nodes',[]): find(c,cur_out)
+find(tree)" 2>/dev/null | while IFS='|' read -r app pid display; do
+        db_exec "INSERT OR REPLACE INTO windows (app_id, pid, display) VALUES ('$app', $pid, '$display')"
+    done
+}
 
 sock() { ls -t "$RUNDIR"/sway-ipc.*.sock 2>/dev/null | head -1; }
 sway_pid() { local s=$(sock); [ -n "$s" ] && echo "$s" | grep -oP '\d+(?=\.sock$)' || true; }
@@ -54,6 +265,9 @@ free_displays() {
     done
 }
 
+# Initialize database if not exists
+[ -f "$DB" ] || db_init
+
 if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     cat << 'EOF'
 pdw — Puppet Display Wizard
@@ -68,6 +282,8 @@ Usage: pdw <resource> [action] [args]
   vnc ls|new|rm <disp> [port] [--auth]  VNC access to any display
   claim <disp>      claim a display for this agent
   release <disp>    release a claimed display
+  db init|query|metrics|analytics|export|import  database operations
+  sync [push|pull]  synchronize database with system state
 
 Examples:
   pdw init           # safe to call multiple times
@@ -79,6 +295,8 @@ Examples:
   pdw w rm foot
   pdw release HEADLESS-2
   pdw rec HEADLESS-1 30
+  pdw db query "SELECT * FROM displays"
+  pdw sync pull      # sync system state to database
 EOF
     exit 0
 fi
@@ -464,6 +682,66 @@ EOF
         O="${1:?usage: pdw vnc rm <output>}"
         pkill -f "wayvnc.*$O" 2>/dev/null && echo "stopped VNC for $O" || echo "not found"
     else echo "usage: pdw vnc ls|new|rm"; exit 1
+    fi
+    exit 0
+fi
+
+# === db ===
+if [ "$CMD" = "db" ]; then
+    A="${1:-help}"; shift 2>/dev/null
+    if [ "$A" = "init" ]; then
+        db_init
+    elif [ "$A" = "query" ]; then
+        Q="${1:?usage: pdw db query \"SQL\"}"
+        db_query "$Q"
+    elif [ "$A" = "metrics" ]; then
+        echo "=== Recent metrics ==="
+        db_query "SELECT timestamp, cpu_percent, gpu_percent, ram_mb, dma_active FROM metrics ORDER BY timestamp DESC LIMIT 10"
+    elif [ "$A" = "analytics" ]; then
+        echo "=== Command duration stats ==="
+        db_query "SELECT binario, COUNT(*) as count, AVG(duracion_ms) as avg_ms, MIN(duracion_ms) as min_ms, MAX(duracion_ms) as max_ms FROM commands GROUP BY binario"
+    elif [ "$A" = "export" ]; then
+        F="${1:-$OUTDIR/pdw-export.csv}"
+        echo "id,table_name,rowid,data" > "$F"
+        for t in displays windows sessions steps metrics videos chunks ideas commands; do
+            db_query "SELECT '$t', rowid, * FROM $t" 2>/dev/null | while read -r line; do
+                echo "$t,$line" >> "$F"
+            done
+        done
+        echo "Exported to $F"
+    elif [ "$A" = "import" ]; then
+        F="${1:?usage: pdw db import <file.csv>}"
+        echo "Import from $F not yet implemented"
+    elif [ "$A" = "presets" ]; then
+        echo "=== Presets ==="
+        db_query "SELECT p.id, p.name, p.verb, p.resource, p.description FROM presets p"
+    else
+        echo "usage: pdw db init|query|metrics|analytics|export|import|presets"
+    fi
+    exit 0
+fi
+
+# === sync ===
+if [ "$CMD" = "sync" ]; then
+    A="${1:-pull}"; shift 2>/dev/null
+    if [ "$A" = "pull" ]; then
+        echo "Syncing system state to database..."
+        sync_displays
+        sync_windows
+        echo "Done. Displays:"
+        db_query "SELECT name, status FROM displays"
+        echo "Windows:"
+        db_query "SELECT app_id, pid, display FROM windows"
+    elif [ "$A" = "push" ]; then
+        echo "Push database to system (not yet implemented)"
+    elif [ "$A" = "status" ]; then
+        echo "=== Database state ==="
+        echo "Displays:"
+        db_query "SELECT name, status, owner FROM displays"
+        echo "Windows:"
+        db_query "SELECT app_id, pid, display FROM windows"
+    else
+        echo "usage: pdw sync [pull|push|status]"
     fi
     exit 0
 fi
