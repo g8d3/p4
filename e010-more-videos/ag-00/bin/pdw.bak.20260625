@@ -1,0 +1,472 @@
+#!/bin/bash
+# pdw — Puppet Display Wizard
+set -uo pipefail
+OUTDIR="$(dirname "$0")/../output"; mkdir -p "$OUTDIR"
+SWAY_CONF="$(dirname "$0")/sway-headless.conf"
+RUNDIR="/run/user/$(id -u)"
+WLDISPLAY="wayland-1"
+PDW_LOCKDIR="/tmp/pdw-locks"
+mkdir -p "$PDW_LOCKDIR"
+MAX_DISPLAYS=8
+
+sock() { ls -t "$RUNDIR"/sway-ipc.*.sock 2>/dev/null | head -1; }
+sway_pid() { local s=$(sock); [ -n "$s" ] && echo "$s" | grep -oP '\d+(?=\.sock$)' || true; }
+sway_alive() {
+    local s=$(sock) p; [ -z "$s" ] && return 1
+    p=$(echo "$s" | grep -oP '\d+(?=\.sock$)')
+    [ -z "$p" ] && return 1; kill -0 "$p" 2>/dev/null || return 1
+    [ -e "$RUNDIR/$WLDISPLAY" ] || return 1
+    SWAYSOCK="$s" swaymsg -t get_outputs >/dev/null 2>&1
+}
+# Display ownership: lock files so agents don't step on each other
+claim_file() { echo "$PDW_LOCKDIR/claim-$1.txt"; }
+claim_display() {
+    local d="$1" me="$(basename $0)-$$"
+    local f; f=$(claim_file "$d") || true
+    if [ -e "$f" ]; then
+        local owner; owner=$(cat "$f" 2>/dev/null) || true
+        local opid="${owner##*-}"
+        [ -n "$opid" ] && kill -0 "$opid" 2>/dev/null && return 1  # still alive
+        echo "stale lock for $d from $owner, taking over"
+    fi
+    echo "$me" > "$f"
+    return 0
+}
+release_display() {
+    local d="$1"
+    local f; f=$(claim_file "$d") || true
+    rm -f "$f" 2>/dev/null || true
+}
+owned_displays() {
+    local me="$(basename $0)-$$" f
+    for f in "$PDW_LOCKDIR"/claim-HEADLESS-*.txt; do
+        [ -e "$f" ] || continue
+        [ "$(cat "$f" 2>/dev/null)" = "$me" ] && echo "${f##*claim-}" | sed 's/\.txt$//'
+    done
+}
+free_displays() {
+    sway_alive || return 0
+    local all_hl; all_hl=$(SWAYSOCK=$(sock) swaymsg -t get_outputs 2>/dev/null | python3 -c 'import sys,json; [print(o["name"]) for o in json.load(sys.stdin) if "HEADLESS" in o["name"]]' 2>/dev/null) || return 0
+    local d
+    for d in $all_hl; do
+        [ -e "$(claim_file "$d")" ] && continue
+        echo "$d"
+    done
+}
+
+if [ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    cat << 'EOF'
+pdw — Puppet Display Wizard
+Usage: pdw <resource> [action] [args]
+
+  init              start sway (idempotent)
+  ls                show full state with display ownership
+  clean [--force]   clean claims (default) or kill ALL sway instances (--force)
+  ds ls|new|rm      manage virtual displays (new reuses free displays first)
+  w  new|ls|mv|rm  manage windows on displays
+  rec <disp> [sec]  record a display
+  vnc ls|new|rm <disp> [port] [--auth]  VNC access to any display
+  claim <disp>      claim a display for this agent
+  release <disp>    release a claimed display
+
+Examples:
+  pdw init           # safe to call multiple times
+  pdw ls             # shows owner column
+  pdw ds new         # reuses free display or creates new one
+  pdw claim HEADLESS-2
+  pdw w new HEADLESS-2 google-chrome --ozone-platform=wayland
+  pdw w ls
+  pdw w rm foot
+  pdw release HEADLESS-2
+  pdw rec HEADLESS-1 30
+EOF
+    exit 0
+fi
+
+# === init ===
+if [ "$1" = "init" ]; then
+    if sway_alive; then
+        echo "sway already running (PID $(sway_pid))"
+        echo "  display: $WLDISPLAY"
+        SWAYSOCK=$(sock) swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json
+for o in json.load(sys.stdin):
+    n=o.get("name","?")
+    cm=o.get("current_mode") or o.get("rect") or {}
+    w=cm.get("width","?"); h=cm.get("height","?")
+    print(f"  output: {n} {w}x{h}")
+' 2>/dev/null
+        exit 0
+    fi
+    echo -n "starting sway... "
+    WLR_BACKENDS=headless WLR_RENDERER=vulkan WLR_LIBINPUT_NO_DEVICES=1 \
+        sway --config "$SWAY_CONF" >/dev/null 2>&1 &
+    for i in 1 2 3 4 5; do
+        S=$(ls -t "$RUNDIR"/sway-ipc.*.sock 2>/dev/null | head -1)
+        [ -n "$S" ] && SWAYSOCK="$S" swaymsg -t get_outputs >/dev/null 2>&1 && break
+        sleep 1
+    done
+    if [ -z "$S" ]; then echo "fail"; exit 1; fi
+    echo "ok"
+    pdw_sock="$S"
+    echo "  display: $WLDISPLAY"
+    SWAYSOCK="$pdw_sock" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json
+for o in json.load(sys.stdin):
+    n=o.get("name","?")
+    cm=o.get("current_mode") or o.get("rect") or {}
+    w=cm.get("width","?"); h=cm.get("height","?")
+    print(f"  output: {n} {w}x{h}")
+' 2>/dev/null
+    exit 0
+fi
+
+# === ls ===
+if [ "$1" = "ls" ] || [ "$1" = "status" ]; then
+    S=$(sock)
+    echo "=== drm devices ==="
+    printf "  %-18s %-8s %-22s %s\n" "DEVICE" "TYPE" "OWNER" "MASTER"
+    for d in /dev/dri/card* /dev/dri/renderD*; do
+        [ -e "$d" ] || continue
+        name=$(basename "$d")
+        case "$name" in
+            card*)
+                path=$(udevadm info "$d" 2>/dev/null | grep -oP 'ID_PATH=\K.+')
+                case "$path" in *vkms*) type="VKMS" ;; *pci-*) type="AMD" ;; *) type="?" ;; esac
+                users=$(fuser "$d" 2>/dev/null | grep -oP '\d+' | tr '\n' ' ' | xargs)
+                vt=$(cat /sys/class/tty/tty0/active 2>/dev/null)
+                boot=$(cat /sys/class/drm/$name/device/boot_vga 2>/dev/null)
+                if [ -n "$users" ]; then
+                    printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "PID $users" "yes"
+                elif [ "$boot" = "1" ]; then
+                    printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "kernel ($vt)" "yes"
+                else
+                    printf "  %-18s %-8s %-22s %s\n" "$name" "$type" "-" "no"
+                fi
+                ;;
+            renderD*)
+                users=$(fuser "$d" 2>/dev/null | grep -oP '\d+' | tr '\n' ' ' | xargs)
+                printf "  %-18s %-8s %-22s %s\n" "$name" "dma" "${users:--}" "n/a"
+                ;;
+        esac
+    done
+
+    echo "=== sessions ==="
+    printf "  %-9s %-8s %-8s %-7s %-8s %s\n" "SESSION" "USER" "SEAT" "TTY" "TYPE" "STATE"
+    loginctl list-sessions 2>/dev/null | awk 'NR>1 && NF>=6 && $1+0>0 {print $1, $3, $4, $5, $6}' | while read s user seat tty state; do
+        type=$(loginctl show-session "$s" 2>/dev/null | grep "^Type=" | cut -d= -f2)
+        [ -z "$type" ] && type="-"
+        printf "  %-9s %-8s %-8s %-7s %-8s %s\n" "$s" "$user" "$seat" "$tty" "$type" "$state"
+    done
+
+    echo "=== compositors ==="
+    printf "  %-6s %-24s %-8s %s\n" "PID" "COMMAND" "TYPE" "DISPLAY"
+    # Xorg
+    for p in $(pgrep -x Xorg 2>/dev/null); do
+        dpy=":0"
+        cmdline=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null)
+        dpy=$(echo "$cmdline" | grep -oP ':[0-9]+' | head -1)
+        printf "  %-6s %-24s %-8s %s\n" "$p" "Xorg" "x11" "${dpy:-:0}"
+    done
+    # sway instances
+    for p in $(pgrep -x sway 2>/dev/null); do
+        cfg=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null | grep -oP '(?<=--config )\S+' || echo "default")
+        case "$cfg" in *headless*) type="wl-hl" ;; *) type="wl" ;; esac
+        printf "  %-6s %-24s %-8s %s\n" "$p" "sway ($cfg)" "$type" "$WLDISPLAY"
+    done
+
+    if sway_alive; then
+        echo "=== displays ==="
+        printf "  %-16s %-10s %s\n" "NAME" "RESOLUTION" "OWNER"
+        SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json,os
+lockdir="/tmp/pdw-locks"
+for o in json.load(sys.stdin):
+    n=o.get("name","?")
+    cm=o.get("current_mode") or o.get("rect") or {}
+    w=cm.get("width","?"); h=cm.get("height","?")
+    owner="free"
+    lf=f"{lockdir}/claim-{n}.txt"
+    if os.path.exists(lf):
+        owner=open(lf).read().strip()
+    print(f"  {n:<16} {w}x{h}  {owner}")
+' 2>/dev/null
+
+        echo "=== vnc ==="
+        printf "  %-16s %-10s %s\n" "OUTPUT" "PORT" "PID"
+        for p in $(pgrep -x wayvnc 2>/dev/null); do
+            cmdline=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null)
+            port=$(echo "$cmdline" | awk '{print $NF}' | grep -oP '\d+' || echo "5900")
+            out=$(echo "$cmdline" | grep -oP '(?<=--output )\S+' || echo "?")
+            printf "  %-16s %-10s %s\n" "$out" "$port" "$p"
+        done
+        echo "=== windows ==="
+        printf "  %-24s %-8s %s\n" "APP" "PID" "OUTPUT"
+        SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c '
+import sys,json
+tree=json.load(sys.stdin)
+found=False
+def find_out(n,cur_out="?"):
+    global found
+    t=n.get("type","")
+    if t=="output": cur_out=n.get("name","?")
+    a=n.get("app_id","") or ""
+    p=n.get("pid",0)
+    if a and p>0:
+        print(f"  {a:<24} {p:<8} {cur_out}")
+        found=True
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): find_out(c,cur_out)
+find_out(tree)
+if not found: print("  (none)")
+' 2>/dev/null
+    else
+        echo "sway not running"
+    fi
+    exit 0
+fi
+
+CMD="$1"; shift
+
+# === ds ===
+if [ "$CMD" = "ds" ]; then
+    A="${1:-ls}"; shift 2>/dev/null
+    if [ "$A" = "ls" ]; then
+        sway_alive || { echo "sway not running"; exit 0; }
+        printf "  %-16s %-10s %s\n" "NAME" "RESOLUTION" "OWNER"
+        S=$(sock); SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c '
+import sys,json,os
+lockdir="/tmp/pdw-locks"
+for o in json.load(sys.stdin):
+    n=o.get("name","")
+    if "HEADLESS" in n:
+        cm=o.get("current_mode") or o.get("rect") or {}
+        w=cm.get("width","?"); h=cm.get("height","?")
+        owner="free"
+        lf=f"{lockdir}/claim-{n}.txt"
+        if os.path.exists(lf):
+            owner=open(lf).read().strip()
+        print(f"  {n:<16} {w}x{h}  {owner}")
+' 2>/dev/null
+    elif [ "$A" = "new" ]; then
+        sway_alive || { echo "start sway: pdw init"; exit 1; }
+        S=$(sock)
+        # Try to use a free (unclaimed) display first
+        free=$(free_displays)
+        if [ -n "$free" ]; then
+            d=$(echo "$free" | head -1)
+            claim_display "$d" && echo "$d (reused)" || echo "$d (claimed by another)"
+            exit 0
+        fi
+        n_hl=$(SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c 'import sys,json; print(sum(1 for o in json.load(sys.stdin) if "HEADLESS" in o["name"]))' 2>/dev/null) || n_hl=0
+        [ "$n_hl" -ge "$MAX_DISPLAYS" ] && { echo "max displays ($MAX_DISPLAYS) reached"; exit 1; }
+        SWAYSOCK="$S" swaymsg create_output >/dev/null 2>&1; sleep 1
+        d=$(SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c 'import sys,json; print(json.load(sys.stdin)[-1]["name"])' 2>/dev/null)
+        claim_display "$d"
+        echo "$d"
+    elif [ "$A" = "rm" ]; then
+        O="${1:?usage: pdw ds rm <display>}"
+        sway_alive || exit 0
+        S=$(sock)
+        # Release claim if owned
+        release_display "$O"
+        SWAYSOCK="$S" swaymsg "[output=$O] move workspace to output $(SWAYSOCK="$S" swaymsg -t get_outputs 2>/dev/null | python3 -c "import sys,json;outs=[o for o in json.load(sys.stdin) if 'HEADLESS' in o['name'] and o['name']!='$O'];print(outs[0]['name'] if outs else '')" 2>/dev/null)" >/dev/null 2>&1
+    else echo "usage: pdw ds ls|new|rm"; exit 1
+    fi
+    exit 0
+fi
+
+# === w (windows) ===
+if [ "$CMD" = "w" ]; then
+    A="${1:-ls}"; shift 2>/dev/null
+    if [ "$A" = "ls" ]; then
+        sway_alive || { echo "sway not running"; exit 0; }
+        S=$(sock)
+        [ -z "$S" ] && { echo "  (no socket)"; exit 0; }
+        printf "  %-22s %-8s %s\n" "APP" "PID" "OUTPUT"
+        SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c '
+import sys,json
+tree=json.load(sys.stdin)
+found=False
+def find_out(n,cur_out="?"):
+    global found
+    t=n.get("type","")
+    if t=="output": cur_out=n.get("name","?")
+    a=n.get("app_id","") or ""
+    p=n.get("pid",0)
+    if a and p>0:
+        print(f"  {a:<22} {p:<8} {cur_out}")
+        found=True
+    for c in n.get("nodes",[])+n.get("floating_nodes",[]): find_out(c,cur_out)
+find_out(tree)
+if not found: print("  (none)")
+' 2>/dev/null
+        [ $? -ne 0 ] && echo "  (python error)"
+    elif [ "$A" = "new" ]; then
+        O="${1:?usage: pdw w new <display> <command>}"; shift
+        sway_alive || { echo "start sway: pdw init"; exit 1; }
+        S=$(sock)
+        SWAYSOCK="$S" swaymsg "focus output $O" >/dev/null 2>&1
+        echo "open $* on $O..."
+        nohup env WAYLAND_DISPLAY="$WLDISPLAY" "$@" >/dev/null 2>&1 &
+        CPID=$!
+        disown
+        # Wait for app to appear in sway tree (up to 30s for slow apps like Chrome)
+        WANT_APP="$(basename "$1")"
+        for i in 1 2 3 4 5 6 7 8 9 10 15 20 25 30; do
+            found=$(SWAYSOCK="$S" swaymsg -t get_tree 2>/dev/null | python3 -c "
+import sys,json
+want='$WANT_APP'
+cpid=$CPID
+t=json.load(sys.stdin)
+def w(n):
+    a=n.get('app_id','') or ''; p=n.get('pid',0)
+    if (a==want or a.startswith(want)) and p>0 and p!=1: print('yes'); return
+    if p==cpid: print('yes'); return
+    for c in n.get('nodes',[])+n.get('floating_nodes',[]): w(c)
+w(t)" 2>/dev/null)
+            [ -n "$found" ] && echo "ok" && break
+            sleep 1
+        done
+        [ -z "$found" ] && echo "?"
+    elif [ "$A" = "mv" ]; then
+        WANT_APP="${1:?usage: pdw w mv <app> <target_display>}"; D="${2:?}"
+        sway_alive || exit 0
+        S=$(sock); SWAYSOCK="$S" swaymsg "[app_id=$WANT_APP] move workspace to output $D" >/dev/null 2>&1 && echo "moved $WANT_APP to $D" || echo "failed"
+    elif [ "$A" = "rm" ]; then
+        WANT_APP="${1:?usage: pdw w rm <app_name>}"; sway_alive || exit 0
+        PID=$(SWAYSOCK=$(sock) swaymsg -t get_tree 2>/dev/null | python3 -c "
+import sys,json;want='$WANT_APP'
+t=json.load(sys.stdin)
+def w(n):
+    a=n.get('app_id','') or ''; p=n.get('pid',0)
+    if a==want: print(p)
+    for c in n.get('nodes',[])+n.get('floating_nodes',[]): w(c)
+w(t)" 2>/dev/null)
+        kill "$PID" 2>/dev/null && echo "closed $A" || echo "not found"
+    else echo "usage: pdw w ls|new|mv|rm"; exit 1
+    fi
+    exit 0
+fi
+
+# === rec ===
+if [ "$CMD" = "rec" ]; then
+    O="${1:?usage: pdw rec <display> [sec]}"; S="${2:-60}" N="${3:-recording}"
+    sway_alive || { echo "start sway: pdw init"; exit 1; }
+    RAW="$OUTDIR/${N}_raw.mp4" FINAL="$OUTDIR/${N}.mp4" META="$OUTDIR/${N}.metadata.json"
+    echo "recording $O for ${S}s..."
+    START_TS=$(date -Iseconds)
+    WAYLAND_DISPLAY="$WLDISPLAY" wf-recorder -f "$RAW" -o "$O" --no-dmabuf --no-damage -c libx264 -r 25 &
+    R=$!; timeout "$S" sleep "$S" 2>/dev/null; kill "$R" 2>/dev/null; wait 2>/dev/null
+    END_TS=$(date -Iseconds)
+    echo "encoding..."
+    timeout 30 ffmpeg -y -i "$RAW" -vaapi_device /dev/dri/renderD128 \
+        -vf "format=nv12,hwupload" -c:v h264_vaapi -b:v 2M "$FINAL" 2>/dev/null || cp "$RAW" "$FINAL"
+    D=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$FINAL" 2>/dev/null || echo "$S")
+    cat > "$META" << EOF
+{"duration_sec": $D, "output": "$O", "file_size": $(stat -c%s "$FINAL" 2>/dev/null || echo 0),
+ "recording_start": "$START_TS", "recording_end": "$END_TS"}
+EOF
+    rm -f "$RAW"; echo "done: $(ls -lh "$FINAL" | awk '{print $5}')"
+    exit 0
+fi
+
+# === clean ===
+if [ "$CMD" = "clean" ]; then
+    if [ "${1:---soft}" = "--force" ]; then
+        echo -n "force-cleaning all sway instances..."
+        for p in $(pgrep -x sway 2>/dev/null); do
+            tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null | grep -q "headless" && kill "$p" 2>/dev/null || true
+        done
+        sleep 1
+        rm -f "$RUNDIR"/sway-ipc.*.sock "$RUNDIR/$WLDISPLAY" "$RUNDIR/$WLDISPLAY.lock" 2>/dev/null
+        rm -f "$PDW_LOCKDIR"/claim-*.txt 2>/dev/null
+        echo " done"
+    else
+        # Soft clean: only clean our own claim locks and orphaned ones
+        me="$(basename $0)-$$"
+        for f in "$PDW_LOCKDIR"/claim-*.txt; do
+            [ -e "$f" ] || continue
+            owner=$(cat "$f" 2>/dev/null) || true
+            if [ "$owner" = "$me" ]; then
+                rm -f "$f"
+            else
+                pid="${owner##*-}"
+                [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || rm -f "$f"  # orphan
+            fi
+        done
+        echo "cleaned claims for $me"
+    fi
+    exit 0
+fi
+
+# === claim/release ===
+if [ "$CMD" = "claim" ]; then
+    O="${1:?usage: pdw claim <display>}"
+    sway_alive || { echo "start sway: pdw init"; exit 1; }
+    # Verify display exists
+    exists=$(SWAYSOCK=$(sock) swaymsg -t get_outputs 2>/dev/null | python3 -c 'import sys,json; print(any("'"$O"'"==o["name"] for o in json.load(sys.stdin)))' 2>/dev/null) || true
+    [ "$exists" = "True" ] || { echo "display $O not found"; exit 1; }
+    if claim_display "$O"; then echo "claimed $O"; else echo "$O owned by $(cat "$(claim_file "$O")")"; exit 1; fi
+    exit 0
+fi
+if [ "$CMD" = "release" ]; then
+    O="${1:?usage: pdw release <display>}"
+    release_display "$O"
+    echo "released $O"
+    exit 0
+fi
+
+# === vnc ===
+if [ "$CMD" = "vnc" ]; then
+    A="${1:-ls}"; shift 2>/dev/null
+    if [ "$A" = "ls" ]; then
+        printf "  %-16s %-10s %s\n" "OUTPUT" "PORT" "PID"
+        for p in $(pgrep -x wayvnc 2>/dev/null); do
+            cmdline=$(tr '\0' ' ' < /proc/$p/cmdline 2>/dev/null)
+            port=$(echo "$cmdline" | awk '{print $NF}' | grep -oP '\d+' || echo "5900")
+            out=$(echo "$cmdline" | grep -oP '(?<=--output )\S+' || echo "?")
+            printf "  %-16s %-10s %s\n" "$out" "$port" "$p"
+        done
+    elif [ "$A" = "new" ]; then
+        AUTH=""
+        if [ "$1" = "--auth" ]; then AUTH="--auth"; shift; fi
+        O="${1:?usage: pdw vnc new [--auth] <output> [port]}"
+        PORT="${2:-5900}"
+        sway_alive || { echo "start sway: pdw init"; exit 1; }
+        AUTH_ARG=""
+        if [ "$AUTH" = "--auth" ]; then
+            mkdir -p "$HOME/.config/pdw"
+            RSA_KEY="$HOME/.config/pdw/vnc-$O-rsa.pem"
+            PASS_FILE="$HOME/.config/pdw/vnc-$O.txt"
+            if [ ! -f "$RSA_KEY" ]; then
+                ssh-keygen -q -m pem -f "$RSA_KEY" -t rsa -N "" 2>/dev/null
+            fi
+            PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom 2>/dev/null | head -c12)
+            [ -z "$PASSWORD" ] && PASSWORD="opencode"
+            echo "$PASSWORD" > "$PASS_FILE"
+            cat > /tmp/wayvnc-$O.conf << EOF
+enable_auth=true
+username=opencode
+password=$PASSWORD
+rsa_private_key_file=$RSA_KEY
+EOF
+            AUTH_ARG="-C /tmp/wayvnc-$O.conf"
+            echo "  rsa key: $RSA_KEY"
+            echo "  user: opencode"
+            echo "  password: $PASSWORD"
+            echo "  saved: $PASS_FILE"
+        fi
+        echo "starting VNC for $O on port $PORT..."
+        nohup env WAYLAND_DISPLAY="$WLDISPLAY" wayvnc $AUTH_ARG --output "$O" 0.0.0.0 "$PORT" > /tmp/wayvnc-$O.log 2>&1 &
+        sleep 1
+        pgrep -f "wayvnc.*$O" >/dev/null && echo "ok" || echo "failed"
+    elif [ "$A" = "rm" ]; then
+        O="${1:?usage: pdw vnc rm <output>}"
+        pkill -f "wayvnc.*$O" 2>/dev/null && echo "stopped VNC for $O" || echo "not found"
+    else echo "usage: pdw vnc ls|new|rm"; exit 1
+    fi
+    exit 0
+fi
+
+echo "unknown: pdw $CMD. Try: pdw --help"
+exit 1
