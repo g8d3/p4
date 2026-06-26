@@ -17,6 +17,7 @@ ag-03/    TTS/ASR with Xiaomi MIMO + video narration
 ag-04/    Documentation: GUIA.md (unified plan), PENDIENTES.md (future improvements), TODO.md
 ag-05/    Terminal demo: interactive pdw walkthrough + 2 narration versions (self + commentators)
 ag-06/    Browser demo: GitHub/Trendshift/HuggingFace trends + 2 narration versions (self + commentators)
+ag-07/    On-demand thinking partner: read code, generate ideas, record videos on the fly
 ```
 
 ## Model

@@ -31,6 +31,7 @@ launch_agent "10-2" "$P4_DIR/ag-02"
 launch_agent "10-3" "$P4_DIR/ag-03"
 launch_agent "10-5" "$P4_DIR/ag-05"
 launch_agent "10-6" "$P4_DIR/ag-06"
+launch_agent "10-7" "$P4_DIR/ag-07"
 
 echo "=== All agents launched ==="
 echo "Check status: tmux list-windows"
