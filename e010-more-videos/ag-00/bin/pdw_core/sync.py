@@ -61,7 +61,12 @@ def pull(db: DB):
     in_db = {d["name"] for d in db.q("SELECT name FROM displays WHERE status='active'")}
     
     for name in actual - in_db:
-        db.x("INSERT OR IGNORE INTO displays (name, status) VALUES (?, 'active')", (name,))
+        # If display exists but is removed, reactivate it
+        existing = db.q("SELECT name FROM displays WHERE name=?", (name,))
+        if existing:
+            db.x("UPDATE displays SET status='active' WHERE name=?", (name,))
+        else:
+            db.x("INSERT INTO displays (name, status) VALUES (?, 'active')", (name,))
     for name in in_db - actual:
         db.x("UPDATE displays SET status='removed' WHERE name=?", (name,))
     
