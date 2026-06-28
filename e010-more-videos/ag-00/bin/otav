@@ -119,13 +119,12 @@ case "$CMD" in
             case "$1" in
                 --timeout) TIMEOUT="$2"; shift 2 ;;
                 --thought) THOUGHT="$2"; shift 2 ;;
-                --wake) WAKE=1; shift ;;
                 *) CMD_ARGS+=("$1"); shift ;;
             esac
         done
 
         if [[ ${#CMD_ARGS[@]} -eq 0 ]]; then
-            echo "Usage: otav run [--timeout N] [--thought <reason>] [--wake] <command...>" >&2
+            echo "Usage: otav run [--timeout N] [--thought <reason>] <command...>" >&2
             exit 1
         fi
 
@@ -187,10 +186,7 @@ case "$CMD" in
         echo "=== CYCLE $CYCLE ==="
         if [[ -n "$BG_PID" ]]; then echo "bg_pid: $BG_PID"; fi
         echo "Run 'otav verify true|false [reason]' to close this cycle."
-        if [[ -n "${WAKE:-}" ]]; then
-            _wake "otav: cycle $CYCLE done (exit=$EXIT_CODE). State: $RESULT. Run 'otav verify true|false' then next command."
-        fi
-        ;;
+        _wake "otav: cycle $CYCLE done (exit=$EXIT_CODE). State: $RESULT. Run 'otav verify true|false' then next command."
 
     verify)
         _load_session
@@ -384,7 +380,7 @@ PYEOF
         echo "  otav record <topic> <disp>   Start recording (init + wf-recorder + sampler)"
         echo "  otav stop                    Stop recording and finalize"
         echo "  otav think                   Capture state and prompt agent for action"
-        echo "  otav run [--wake] [--thought <reason>] [--timeout N] <cmd>"
+        echo "  otav run [--thought <reason>] [--timeout N] <cmd>"
         echo "  otav verify true|false [reason]  Verify last cycle"
         echo "  otav narrate <raw.mp4> <text>  Produce final video (TTS + subs + VAAPI)"
         echo ""
