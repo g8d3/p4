@@ -5,7 +5,9 @@
 #   otav run [--timeout N] <cmd>   Run command with OTAV logging
 #   otav verify true|false [reason]  Mark last cycle verified/failed
 export LC_NUMERIC=C
-set -euo pipefail
+set -uo pipefail
+# Add pdw to PATH
+PATH="$(dirname "$0"):$PATH"
 
 CMD=${1:-help}
 : "${OTAV_DIR:=}"
@@ -48,18 +50,21 @@ _capture_state() {
     {
         echo "=== $label ==="
         echo ""
-        echo "displays:"
-        pdw w ls 2>/dev/null | head -20 || echo "(no pdw)"
+        echo "--- windows (pdw w ls) ---"
+        pdw w ls 2>/dev/null || echo "(no pdw or no windows)"
         echo ""
-        echo "windows:"
-        pdw w ls 2>/dev/null | head -20 || echo "(none)"
+        echo "--- displays (pdw ds ls) ---"
+        pdw ds ls 2>/dev/null || echo "(no pdw or no displays)"
         echo ""
-        echo "processes:"
-        ps aux | grep -E 'sway|chrome|foot|wf-recorder|ffmpeg|python' | grep -v grep | head -20 || echo "(none)"
+        echo "--- key processes ---"
+        for p in sway foot google-chrome wf-recorder ffmpeg python3 edge-tts pdw; do
+            pid=$(pgrep -x "$p" 2>/dev/null | head -1)
+            [[ -n "$pid" ]] && echo "$p: PID $pid" || true
+        done
         echo ""
         if [[ -n "$thought" ]]; then
-            echo "thought:"
-            echo "  $thought"
+            echo "--- thought ---"
+            echo "$thought"
             echo ""
         fi
     } > "$f"
@@ -67,11 +72,13 @@ _capture_state() {
 }
 
 _log_csv() {
-    local t="$1" cycle="$2" cmd="$3" exit_code="$4" verified="$5" state_file="$6"
-    # Escape commas in command
-    local cmd_esc
-    cmd_esc=$(echo "$cmd" | sed 's/"/""/g')
-    echo "$t,$cycle,\"$cmd_esc\",${exit_code:-},${verified:-},$state_file" >> "$CSV"
+    local t="$1" obs="$2" thought="$3" action="$4" result="$5" verified="$6" state_file="$7"
+    # Escape double quotes in fields
+    local o=$(echo "$obs" | sed 's/"/""/g')
+    local t_=$(echo "$thought" | sed 's/"/""/g')
+    local a=$(echo "$action" | sed 's/"/""/g')
+    local r=$(echo "$result" | sed 's/"/""/g')
+    echo "$t,\"$o\",\"$t_\",\"$a\",\"$r\",$verified,$state_file" >> "$CSV"
 }
 
 case "$CMD" in
@@ -90,36 +97,39 @@ case "$CMD" in
         # Initial state
         _capture_state "INITIAL STATE" "000" "Session started"
         # CSV header
-        echo "t,cycle,command,exit_code,verified,state_file" > "$DIR/interaction-log.csv"
+        echo "t,observation,thought,action,result,verified,state_file" > "$DIR/interaction-log.csv"
         echo "SESSION_DIR=$DIR"
         ;;
 
     run)
         _load_session
         TIMEOUT=30
+        THOUGHT=""
         shift
         CMD_ARGS=()
 
         while [[ $# -gt 0 ]]; do
             case "$1" in
                 --timeout) TIMEOUT="$2"; shift 2 ;;
+                --thought) THOUGHT="$2"; shift 2 ;;
                 *) CMD_ARGS+=("$1"); shift ;;
             esac
         done
 
         if [[ ${#CMD_ARGS[@]} -eq 0 ]]; then
-            echo "Usage: otav run [--timeout N] <command...>" >&2
+            echo "Usage: otav run [--timeout N] [--thought <reason>] <command...>" >&2
             exit 1
         fi
 
         CYCLE=$(_next_cycle)
         T=$(_timestamp)
 
-        # OBSERVATION: capture pre-state
-        STATE_FILE=$(_capture_state "OBSERVATION (O) t=$T" "$CYCLE" "")
-        _log_csv "$T" "O" "" "" "" "state/$CYCLE.txt"
+        # Pre-state: capture and extract observation summary
+        PRE_FILE=$(_capture_state "PRE" "$CYCLE" "$THOUGHT")
+        OBS=$(grep -E "^(windows|processes):" "$PRE_FILE" 2>/dev/null | head -3 | tr '\n' ' ' | sed 's/  /; /g')
+        [[ -z "$OBS" ]] && OBS="state captured"
 
-        # ACTION: execute command
+        # Execute command
         echo ">>> ${CMD_ARGS[*]}"
         set +e
         EXIT_CODE=0
@@ -127,26 +137,18 @@ case "$CMD" in
         if [[ ${#CMD_ARGS[@]} -eq 1 ]]; then
             CMD_STR="${CMD_ARGS[0]}"
             if [[ "$CMD_STR" == *\& ]]; then
-                # Background command
                 CMD_STR="${CMD_STR%&}"
-
-                # Auto-redirect to /dev/null to keep terminal clean
                 CMD_STR="$CMD_STR >/dev/null 2>&1"
-
-                # Pre-recording check: warn if display already recording
                 if [[ "$CMD_STR" == *wf-recorder* ]]; then
                     DISP=$(echo "$CMD_STR" | grep -oP 'HEADLESS-\d+' || echo "")
                     if [[ -n "$DISP" ]] && pgrep -f "wf-recorder.*$DISP" >/dev/null 2>&1; then
                         echo "WARNING: $DISP already recording!"
                     fi
                 fi
-
-                # Run in a new session with setsid to survive parent timeouts
                 setsid sh -c "$CMD_STR" &
                 BG_PID=$!
                 echo "$BG_PID" > "$SESSION_DIR/.bg-pid"
                 OUTPUT="Started in background (PID: $BG_PID)"
-                # Schedule self-wake for verification reminder
                 MY_WIN=$(tmux display-message -p '#{window_name}' 2>/dev/null || echo "")
                 if [[ -n "$MY_WIN" ]]; then
                     (
@@ -163,25 +165,19 @@ case "$CMD" in
         set -e
         echo "$OUTPUT"
 
-        # State summary for observability
-        WIN_COUNT=$(echo "$OUTPUT" | grep -c "HEADLESS-" 2>/dev/null || true)
-        if [[ "$WIN_COUNT" -gt 0 ]]; then
-            echo "→ $WIN_COUNT window(s) on display"
-        fi
+        # Post-state: capture and extract result summary
+        POST_FILE=$(_capture_state "POST" "${CYCLE}a" "")
+        RESULT=$(grep -E "^(windows|processes):" "$POST_FILE" 2>/dev/null | head -3 | tr '\n' ' ' | sed 's/  /; /g')
+        [[ -z "$RESULT" ]] && RESULT="exit=$EXIT_CODE"
+        RESULT="$RESULT (exit=$EXIT_CODE)"
 
-        # Capture post-execution state
-        T=$(_timestamp)
-        STATE_FILE=$(_capture_state "ACTION (A) t=$T" "${CYCLE}a" "")
-        _log_csv "$T" "A" "${CMD_ARGS[*]}" "$EXIT_CODE" "pending" "state/${CYCLE}a.txt"
+        # Write single OTAV row
+        _log_csv "$T" "$OBS" "$THOUGHT" "${CMD_ARGS[*]}" "$RESULT" "pending" "state/$CYCLE.txt"
 
-        # Print summary for the agent
+        # Print summary
         echo ""
-        echo "=== OTAV CYCLE $CYCLE ==="
-        echo "exit_code: $EXIT_CODE"
-        echo "state_file: $STATE_FILE"
-        if [[ -n "$BG_PID" ]]; then
-            echo "bg_pid: $BG_PID"
-        fi
+        echo "=== CYCLE $CYCLE ==="
+        if [[ -n "$BG_PID" ]]; then echo "bg_pid: $BG_PID"; fi
         echo "Run 'otav verify true|false [reason]' to close this cycle."
         ;;
 
@@ -194,12 +190,18 @@ case "$CMD" in
             exit 1
         fi
 
-        # Find last A row and update verification
-        # We append a V row
-        CYCLE=$(_next_cycle)
-        T=$(_timestamp)
-        _capture_state "VERIFICATION (V) t=$T - $STATUS: $REASON" "$CYCLE" "$REASON"
-        _log_csv "$T" "V" "" "" "$STATUS" "state/$CYCLE.txt"
+        # Update the last row's verified field (last row that has "pending" in verified column)
+        local tmp=$(mktemp)
+        awk -F',' -v s="$STATUS" '{
+            if ($6 == "pending") {
+                $6 = s
+                # Rebuild line
+                for(i=1;i<=NF;i++) printf "%s%s", $i, (i==NF?"":",")
+                printf "\n"
+            } else {
+                print
+            }
+        }' "$CSV" | sed '$s/pending/'"$STATUS"'/' > "$tmp" && mv "$tmp" "$CSV"
 
         echo "Cycle verified: $STATUS${REASON:+ ($REASON)}"
         ;;
@@ -317,8 +319,9 @@ PYEOF
                 sleep 5
                 N=$(_next_cycle)
                 T=$(_timestamp)
-                _capture_state "SAMPLE (S) t=$T" "$N" "State sampler" >/dev/null
-                echo "$T,S,auto-sample,,,state/$N.txt" >> "$OUTDIR/interaction-log.csv"
+                PRE=$(_capture_state "SAMPLE PRE" "$N" "auto" >/dev/null)
+                OBS=$(grep -E "^(windows|processes):" "$PRE" 2>/dev/null | head -2 | tr '\n' ' ')
+                echo "$T,\"$OBS\",\"auto-sample\",,,,\"state/$N.txt\"" >> "$SESSION_DIR/interaction-log.csv"
             done
         ) >/dev/null 2>&1 &
         echo "Recording started. Run 'otav stop' to finish."
