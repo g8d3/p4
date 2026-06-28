@@ -73,12 +73,19 @@ _capture_state() {
 
 _log_csv() {
     local t="$1" obs="$2" thought="$3" action="$4" result="$5" verified="$6" state_file="$7"
-    # Escape double quotes in fields
     local o=$(echo "$obs" | sed 's/"/""/g')
     local t_=$(echo "$thought" | sed 's/"/""/g')
     local a=$(echo "$action" | sed 's/"/""/g')
     local r=$(echo "$result" | sed 's/"/""/g')
     echo "$t,\"$o\",\"$t_\",\"$a\",\"$r\",$verified,$state_file" >> "$CSV"
+}
+
+# Send a message to the current tmux window (agent's own window)
+_wake() {
+    local msg="$1"
+    local win
+    win=$(tmux display-message -p '#{window_name}' 2>/dev/null || echo "")
+    [[ -n "$win" ]] && tmux send-keys -t "$win" "$msg" Enter 2>/dev/null || true
 }
 
 case "$CMD" in
@@ -112,12 +119,13 @@ case "$CMD" in
             case "$1" in
                 --timeout) TIMEOUT="$2"; shift 2 ;;
                 --thought) THOUGHT="$2"; shift 2 ;;
+                --wake) WAKE=1; shift ;;
                 *) CMD_ARGS+=("$1"); shift ;;
             esac
         done
 
         if [[ ${#CMD_ARGS[@]} -eq 0 ]]; then
-            echo "Usage: otav run [--timeout N] [--thought <reason>] <command...>" >&2
+            echo "Usage: otav run [--timeout N] [--thought <reason>] [--wake] <command...>" >&2
             exit 1
         fi
 
@@ -179,6 +187,9 @@ case "$CMD" in
         echo "=== CYCLE $CYCLE ==="
         if [[ -n "$BG_PID" ]]; then echo "bg_pid: $BG_PID"; fi
         echo "Run 'otav verify true|false [reason]' to close this cycle."
+        if [[ -n "${WAKE:-}" ]]; then
+            _wake "otav: cycle $CYCLE done (exit=$EXIT_CODE). State: $RESULT. Run 'otav verify true|false' then next command."
+        fi
         ;;
 
     verify)
@@ -325,6 +336,7 @@ PYEOF
             done
         ) >/dev/null 2>&1 &
         echo "Recording started. Run 'otav stop' to finish."
+        _wake "otav: recording started on $DISP. $(pdw w ls 2>/dev/null | tail +2 | tr '\n' ' '). Run 'otav think' to capture initial state."
         ;;
 
     stop)
@@ -353,14 +365,26 @@ PYEOF
         echo "CSV: $(wc -l < "$SESSION_DIR/interaction-log.csv") entries"
         echo "State: $(ls "$SESSION_DIR/state/" 2>/dev/null | wc -l) files"
         echo "Session: $SESSION_DIR"
+        _wake "otav: recording stopped. Video ready for narration. Run 'otav narrate final.mp4 narracion.txt'"
+        ;;
+
+    think)
+        _load_session
+        CYCLE=$(_next_cycle)
+        T=$(_timestamp)
+        _capture_state "THINK" "$CYCLE" ""
+        OBS=$(grep -E "^(windows|processes:)" "$STATE_DIR/$CYCLE.txt" 2>/dev/null | head -2 | tr '\n' ' ')
+        echo "State captured. Current context: $OBS"
+        _wake "otav: [$OBS] Analyze state and decide next action. Run 'otav run --thought <reason> --wake <command>'"
         ;;
 
     *)
         echo "Usage:"
         echo "  otav init <dir>              Start session"
-        echo "  otav record <topic> <disp>   Start recording session (init + wf-recorder + sampler)"
+        echo "  otav record <topic> <disp>   Start recording (init + wf-recorder + sampler)"
         echo "  otav stop                    Stop recording and finalize"
-        echo "  otav run [--timeout N] <cmd> Run command with OTAV logging"
+        echo "  otav think                   Capture state and prompt agent for action"
+        echo "  otav run [--wake] [--thought <reason>] [--timeout N] <cmd>"
         echo "  otav verify true|false [reason]  Verify last cycle"
         echo "  otav narrate <raw.mp4> <text>  Produce final video (TTS + subs + VAAPI)"
         echo ""
