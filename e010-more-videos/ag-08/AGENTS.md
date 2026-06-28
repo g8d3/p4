@@ -496,8 +496,7 @@ A future "idea hunter" agent could scan all AGENTS.md and trail.md files across 
 ```
 otav init output/<topic>/
 # ANTES de grabar: verificar que no haya otra grabación activa
-pgrep -a wf-recorder && echo "YA HAY GRABACION" || echo "ok, libre"
-# Si hay una grabación activa, matarla o esperar
+pgrep -f "wf-recorder.*HEADLESS-1" && echo "Este display ya está grabando" || echo "HEADLESS-1 libre"
 otav run "pdw rec HEADLESS-1 120 <topic> >/dev/null 2>&1 &"
 otav verify true "recording started"
 otav run "pdw w new HEADLESS-1 foot --maximized"
