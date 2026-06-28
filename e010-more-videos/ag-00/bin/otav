@@ -1,0 +1,281 @@
+#!/bin/bash
+# otav — OTAV cycle wrapper: enforces Observation → Action → Verification logging
+# Usage:
+#   otav init <output_dir>         Start a new session
+#   otav run [--timeout N] <cmd>   Run command with OTAV logging
+#   otav verify true|false [reason]  Mark last cycle verified/failed
+export LC_NUMERIC=C
+set -euo pipefail
+
+CMD=${1:-help}
+: "${OTAV_DIR:=}"
+
+_load_session() {
+    if [[ -n "$OTAV_DIR" ]]; then
+        SESSION_DIR="$OTAV_DIR"
+    elif [[ -f .otav-current ]]; then
+        SESSION_DIR=$(cat .otav-current)
+    else
+        echo "No session. Run 'otav init <dir>' or set OTAV_DIR." >&2
+        exit 1
+    fi
+    CSV="$SESSION_DIR/interaction-log.csv"
+    STATE_DIR="$SESSION_DIR/state"
+    mkdir -p "$STATE_DIR"
+}
+
+_next_cycle() {
+    local n=1
+    while [[ -f "$STATE_DIR/$(printf '%03d' $n).txt" ]]; do
+        n=$((n + 1))
+    done
+    printf '%03d' "$n"
+}
+
+_timestamp() {
+    if [[ -f "$SESSION_DIR/.start" ]]; then
+        local start
+        start=$(cat "$SESSION_DIR/.start")
+        echo "$(date +%s.%N) - $start" | bc -l 2>/dev/null | awk '{printf "%.1f", $1}'
+        return
+    fi
+    echo "0.0"
+}
+
+_capture_state() {
+    local label="$1" cycle="$2" thought="${3:-}"
+    local f="$STATE_DIR/$cycle.txt"
+    {
+        echo "=== $label ==="
+        echo ""
+        echo "displays:"
+        pdw w ls 2>/dev/null | head -20 || echo "(no pdw)"
+        echo ""
+        echo "windows:"
+        pdw w ls 2>/dev/null | head -20 || echo "(none)"
+        echo ""
+        echo "processes:"
+        ps aux | grep -E 'sway|chrome|foot|wf-recorder|ffmpeg|python' | grep -v grep | head -20 || echo "(none)"
+        echo ""
+        if [[ -n "$thought" ]]; then
+            echo "thought:"
+            echo "  $thought"
+            echo ""
+        fi
+    } > "$f"
+    echo "$f"
+}
+
+_log_csv() {
+    local t="$1" cycle="$2" cmd="$3" exit_code="$4" verified="$5" state_file="$6"
+    # Escape commas in command
+    local cmd_esc
+    cmd_esc=$(echo "$cmd" | sed 's/"/""/g')
+    echo "$t,$cycle,\"$cmd_esc\",${exit_code:-},${verified:-},$state_file" >> "$CSV"
+}
+
+case "$CMD" in
+    init)
+        DIR="${2:-}"
+        if [[ -z "$DIR" ]]; then
+            echo "Usage: otav init <output_dir>" >&2
+            exit 1
+        fi
+        mkdir -p "$DIR/state"
+        echo "$DIR" > .otav-current
+        SESSION_DIR="$DIR"
+        STATE_DIR="$DIR/state"
+        # Record start timestamp
+        date +%s > "$DIR/.start"
+        # Initial state
+        _capture_state "INITIAL STATE" "000" "Session started"
+        # CSV header
+        echo "t,cycle,command,exit_code,verified,state_file" > "$DIR/interaction-log.csv"
+        echo "SESSION_DIR=$DIR"
+        ;;
+
+    run)
+        _load_session
+        TIMEOUT=30
+        shift
+        CMD_ARGS=()
+
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                --timeout) TIMEOUT="$2"; shift 2 ;;
+                *) CMD_ARGS+=("$1"); shift ;;
+            esac
+        done
+
+        if [[ ${#CMD_ARGS[@]} -eq 0 ]]; then
+            echo "Usage: otav run [--timeout N] <command...>" >&2
+            exit 1
+        fi
+
+        CYCLE=$(_next_cycle)
+        T=$(_timestamp)
+
+        # OBSERVATION: capture pre-state
+        STATE_FILE=$(_capture_state "OBSERVATION (O) t=$T" "$CYCLE" "")
+        _log_csv "$T" "O" "" "" "" "state/$CYCLE.txt"
+
+        # ACTION: execute command
+        echo ">>> ${CMD_ARGS[*]}"
+        set +e
+        EXIT_CODE=0
+        BG_PID=""
+        if [[ ${#CMD_ARGS[@]} -eq 1 ]]; then
+            CMD_STR="${CMD_ARGS[0]}"
+            if [[ "$CMD_STR" == *\& ]]; then
+                # Background command: strip &, eval in background, capture PID with $!
+                CMD_STR="${CMD_STR%&}"
+                eval "$CMD_STR" &
+                BG_PID=$!
+                echo "$BG_PID" > "$SESSION_DIR/.bg-pid"
+                OUTPUT="Started in background (PID: $BG_PID)"
+                # Schedule self-wake for verification reminder
+                MY_WIN=$(tmux display-message -p '#{window_name}' 2>/dev/null || echo "")
+                if [[ -n "$MY_WIN" ]]; then
+                    (
+                        sleep "$TIMEOUT"
+                        tmux send-keys -t "$MY_WIN" "otav: bg PID $BG_PID timed out after ${TIMEOUT}s. Run 'otav verify true|false' to close cycle, or check if still running with pgrep." Enter
+                    ) &
+                fi
+            else
+                OUTPUT=$(timeout "$TIMEOUT" sh -c "$CMD_STR" 2>&1) || EXIT_CODE=$?
+            fi
+        else
+            OUTPUT=$(timeout "$TIMEOUT" "${CMD_ARGS[@]}" 2>&1) || EXIT_CODE=$?
+        fi
+        set -e
+        echo "$OUTPUT"
+
+        # Capture post-execution state
+        T=$(_timestamp)
+        STATE_FILE=$(_capture_state "ACTION (A) t=$T" "${CYCLE}a" "")
+        _log_csv "$T" "A" "${CMD_ARGS[*]}" "$EXIT_CODE" "pending" "state/${CYCLE}a.txt"
+
+        # Print summary for the agent
+        echo ""
+        echo "=== OTAV CYCLE $CYCLE ==="
+        echo "exit_code: $EXIT_CODE"
+        echo "state_file: $STATE_FILE"
+        if [[ -n "$BG_PID" ]]; then
+            echo "bg_pid: $BG_PID"
+        fi
+        echo "Run 'otav verify true|false [reason]' to close this cycle."
+        ;;
+
+    verify)
+        _load_session
+        STATUS="${2:-}"
+        REASON="${3:-}"
+        if [[ "$STATUS" != "true" && "$STATUS" != "false" ]]; then
+            echo "Usage: otav verify true|false [reason]" >&2
+            exit 1
+        fi
+
+        # Find last A row and update verification
+        # We append a V row
+        CYCLE=$(_next_cycle)
+        T=$(_timestamp)
+        _capture_state "VERIFICATION (V) t=$T - $STATUS: $REASON" "$CYCLE" "$REASON"
+        _log_csv "$T" "V" "" "" "$STATUS" "state/$CYCLE.txt"
+
+        echo "Cycle verified: $STATUS${REASON:+ ($REASON)}"
+        ;;
+
+    narrate)
+        RAW="${2:-}"
+        TEXT="${3:-}"
+        VOICE="es-CO-SalomeNeural"
+        # Parse optional --voice after positional args
+        # Usage: otav narrate <raw.mp4> <text> [--voice <name>]
+        # Extract raw and text first, then check for --voice
+        RAW="$2"
+        TEXT="$3"
+        shift 3 2>/dev/null || true
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                --voice) VOICE="$2"; shift 2 ;;
+                *) shift ;;
+            esac
+        done
+        if [[ -z "$RAW" || -z "$TEXT" ]]; then
+            echo "Usage: otav narrate <raw.mp4> <narracion.txt> [--voice <edge-tts-voice>]" >&2
+            exit 1
+        fi
+        DIR=$(dirname "$RAW")
+        BASE=$(basename "$RAW" .mp4)
+
+        echo "=== Generating TTS ($VOICE) ==="
+        edge-tts --voice "$VOICE" --text "$(cat "$TEXT")" --write-media "$DIR/$BASE-audio.mp3" 2>/dev/null
+
+        # Get audio duration for subtitle timing
+        AUDIO_DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "$DIR/$BASE-audio.mp3" 2>/dev/null || echo 10)
+        AUDIO_DUR=${AUDIO_DUR%.*}
+        [[ "$AUDIO_DUR" -lt 1 ]] && AUDIO_DUR=10
+
+        echo "=== Generating subtitles ==="
+        # Write subtitle generator to temp file to avoid bash escaping issues
+        cat > "$DIR/gen_srt.py" << 'PYEOF'
+import sys, math
+text_path = sys.argv[1]
+out_path = sys.argv[2]
+audio_dur = float(sys.argv[3])
+
+text = open(text_path).read().strip()
+words = text.split()
+groups = []
+i = 0
+while i < len(words):
+    n = min(4, len(words) - i)
+    groups.append(' '.join(words[i:i+n]))
+    i += n
+
+total = audio_dur
+per_group = total / max(len(groups), 1)
+colors = ['&H00FFFF&', '&H00FFFFFF&', '&H00FFCC66&']
+lines = []
+for idx, g in enumerate(groups):
+    start = idx * per_group
+    end = min((idx + 1) * per_group, total)
+    if end - start < 0.5:
+        end = start + 0.5
+    if end > total: end = total
+    col = colors[idx % len(colors)]
+    def ts(t):
+        h = int(t // 3600)
+        m = int((t % 3600) // 60)
+        s = t % 60
+        return f"{h:02d}:{m:02d}:{s:06.3f}"
+    lines.append(str(idx + 1))
+    lines.append(f"{ts(start)} --> {ts(end)}")
+    lines.append(r"{\c" + col + "}" + g)
+    lines.append("")
+open(out_path, 'w').write('\n'.join(lines))
+print(f'{len(groups)} subtitle chunks')
+PYEOF
+        python3 "$DIR/gen_srt.py" "$TEXT" "$DIR/$BASE.srt" "$AUDIO_DUR"
+        echo "=== Composing final video ==="
+        # VAAPI encode with audio + subtitles (CPU filter before hwupload)
+        ffmpeg -y -i "$RAW" -i "$DIR/$BASE-audio.mp3" \
+            -vaapi_device /dev/dri/renderD128 \
+            -vf "subtitles=$DIR/$BASE.srt:force_style='FontName=monospace\\,FontSize=20\\,BorderStyle=1\\,Outline=2\\,Shadow=1\\,MarginV=40',format=nv12,hwupload" \
+            -c:v h264_vaapi -b:v 2M -c:a aac -map 0:v:0 -map 1:a:0 -shortest \
+            "$DIR/$BASE-narrated.mp4" 2>&1 | tail -3
+
+        ls -lh "$DIR/$BASE-narrated.mp4"
+        echo "Output: $DIR/$BASE-narrated.mp4"
+        ;;
+
+    *)
+        echo "Usage:"
+        echo "  otav init <dir>              Start session"
+        echo "  otav run [--timeout N] <cmd> Run command with OTAV logging"
+        echo "  otav verify true|false [reason]  Verify last cycle"
+        echo "  otav narrate <raw.mp4> <text>  Produce final video (TTS + subs + VAAPI)"
+        echo ""
+        echo "Environment: OTAV_DIR (overrides .otav-current)"
+        ;;
+esac

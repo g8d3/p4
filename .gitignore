@@ -18,3 +18,4 @@ __pycache__/
 
 # Experiment 8 - excluded from repo
 e008-asistente-ht/
+*.otav-current
