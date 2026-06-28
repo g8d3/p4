@@ -133,7 +133,7 @@ case "$CMD" in
 
         # Pre-state: capture and extract observation summary
         PRE_FILE=$(_capture_state "PRE" "$CYCLE" "$THOUGHT")
-        OBS=$(grep -E "^(windows|processes):" "$PRE_FILE" 2>/dev/null | head -3 | tr '\n' ' ' | sed 's/  /; /g')
+        OBS=$(grep -E "^--- windows|--- displays" "$PRE_FILE" 2>/dev/null | head -3 | tr '\n' ' ' | sed 's/  /; /g')
         [[ -z "$OBS" ]] && OBS="state captured"
 
         # Execute command
@@ -174,7 +174,7 @@ case "$CMD" in
 
         # Post-state: capture and extract result summary
         POST_FILE=$(_capture_state "POST" "${CYCLE}a" "")
-        RESULT=$(grep -E "^(windows|processes):" "$POST_FILE" 2>/dev/null | head -3 | tr '\n' ' ' | sed 's/  /; /g')
+        RESULT=$(grep -E "^--- windows|--- displays" "$POST_FILE" 2>/dev/null | head -3 | tr '\n' ' ' | sed 's/  /; /g')
         [[ -z "$RESULT" ]] && RESULT="exit=$EXIT_CODE"
         RESULT="$RESULT (exit=$EXIT_CODE)"
 
@@ -187,6 +187,7 @@ case "$CMD" in
         if [[ -n "$BG_PID" ]]; then echo "bg_pid: $BG_PID"; fi
         echo "Run 'otav verify true|false [reason]' to close this cycle."
         _wake "otav: cycle $CYCLE done (exit=$EXIT_CODE). State: $RESULT. Run 'otav verify true|false' then next command."
+        ;;
 
     verify)
         _load_session
@@ -327,7 +328,7 @@ PYEOF
                 N=$(_next_cycle)
                 T=$(_timestamp)
                 PRE=$(_capture_state "SAMPLE PRE" "$N" "auto" >/dev/null)
-                OBS=$(grep -E "^(windows|processes):" "$PRE" 2>/dev/null | head -2 | tr '\n' ' ')
+                OBS=$(grep -E "^--- windows|--- displays" "$PRE" 2>/dev/null | head -2 | tr '\n' ' ')
                 echo "$T,\"$OBS\",\"auto-sample\",,,,\"state/$N.txt\"" >> "$SESSION_DIR/interaction-log.csv"
             done
         ) >/dev/null 2>&1 &
@@ -369,7 +370,7 @@ PYEOF
         CYCLE=$(_next_cycle)
         T=$(_timestamp)
         _capture_state "THINK" "$CYCLE" ""
-        OBS=$(grep -E "^(windows|processes:)" "$STATE_DIR/$CYCLE.txt" 2>/dev/null | head -2 | tr '\n' ' ')
+        OBS=$(grep -E "^--- windows|--- displays" "$STATE_DIR/$CYCLE.txt" 2>/dev/null | head -2 | tr '\n' ' ')
         echo "State captured. Current context: $OBS"
         _wake "otav: [$OBS] Analyze state and decide next action. Run 'otav run --thought <reason> --wake <command>'"
         ;;
