@@ -198,18 +198,17 @@ case "$CMD" in
             exit 1
         fi
 
-        # Update the last row's verified field (last row that has "pending" in verified column)
-        local tmp=$(mktemp)
+        # Update the last row's verified field
+        TMP=$(mktemp)
         awk -F',' -v s="$STATUS" '{
             if ($6 == "pending") {
                 $6 = s
-                # Rebuild line
                 for(i=1;i<=NF;i++) printf "%s%s", $i, (i==NF?"":",")
                 printf "\n"
             } else {
                 print
             }
-        }' "$CSV" | sed '$s/pending/'"$STATUS"'/' > "$tmp" && mv "$tmp" "$CSV"
+        }' "$CSV" | sed '$s/pending/'"$STATUS"'/' > "$TMP" && mv "$TMP" "$CSV"
 
         echo "Cycle verified: $STATUS${REASON:+ ($REASON)}"
         ;;
