@@ -60,9 +60,33 @@ Every operation MUST follow this cycle. No exceptions.
 ```
 Observation → Thought → Action → Verification
 ```
-
 ### Observation
+
 Check actual state BEFORE assuming. What is on screen? What files exist? What processes are running? Do NOT rely on memory or assumption.
+
+**CRITICAL**: Observation is the most important step. A shallow observation makes verification worthless. When you observe, you must:
+
+1. **Collect ALL state data** — run `pdw w ls`, `pdw ds ls`, `pgrep`, check file sizes
+2. **PROCESS the data** — don't just check exit codes. Read the actual output. How many windows? PIDs? Are there stale processes from previous sessions?
+3. **Compare with expected state** — does the actual state match what you expected? If not, investigate before acting.
+
+Example of SHALLOW observation (wrong):
+```bash
+otav run "pdw w ls"
+# → exit_code: 0
+otav verify true "display OK"
+# → MISSED: there were 2 terminals + 1 stale Chrome
+```
+
+Example of DEEP observation (correct):
+```bash
+otav run "pdw w ls"
+# → sees: foot x2 (PIDs 24063, 25525), chrome (PID 24489)
+# → thought: "There are 2 terminals and a stale Chrome. 
+#   One terminal and Chrome are from previous sessions. 
+#   Should close them before continuing."
+otav verify true "state captured: 3 windows found, 2 stale"
+```
 
 Examples:
 - `pdw w ls` to check if a window actually opened
@@ -451,7 +475,36 @@ A future "idea hunter" agent could scan all AGENTS.md and trail.md files across 
 - [HuggingFace trending](https://huggingface.co/models?sort=trending&search=Tts) — replace `Tts` with any keyword (e.g. `video`, `agent`, `voice`)
 - [Trendshift](https://trendshift.io) — dev tools rankings
 
-## Pitfalls
+## Session learnings (2026-06-28)
+
+### Process failures observed in this session
+
+1. **Shallow observation** — I checked `pdw w ls` exit code but didn't process the output. Had 2 terminals + stale Chrome and didn't notice. Verification was meaningless because observation was incomplete.
+
+2. **Commands without otav** — I ran `pdw rec`, `kill`, `pdw w new` directly instead of `otav run`. Violated the core directive.
+
+3. **Narration before recording** — I wrote the TTS script BEFORE recording, assuming what would happen. Wrong. Narration must be AFTER, based on what actually happened.
+
+4. **`pdw rec` saves flat files** — fixed. Now saves to `output/<name>/` subdirectory, consistent with `otav init`.
+
+5. **Variables don't persist across `otav run` calls** — each call is a new shell. Always use full paths or set vars inside the command string.
+
+6. **Background output leaks** — `pdw rec ... &` still prints to terminal. Must redirect: `pdw rec ... >/dev/null 2>&1 &`.
+
+### Correct flow (verified working)
+
+```
+otav init output/<topic>/
+otav run "pdw rec HEADLESS-1 120 <topic> >/dev/null 2>&1 &"
+otav verify true "recording started"
+otav run "pdw w new HEADLESS-1 foot --maximized"
+otav verify true "terminal opened"
+otav run "WAYLAND_DISPLAY=wayland-1 wtype 'comando'"
+otav run "WAYLAND_DISPLAY=wayland-1 wtype -k Return"
+otav verify true "command executed"
+```
+
+Every command uses `otav run`. Every step is verified. Observation is deep, not superficial.
 
 - **Screen drifts**: After a long recording, the screen may have changed. Re-observe before each action.
 - **Chrome is slow**: After `pdw w new`, wait and verify with `pdw w ls`. Chrome can take 10s+.
