@@ -127,9 +127,22 @@ case "$CMD" in
         if [[ ${#CMD_ARGS[@]} -eq 1 ]]; then
             CMD_STR="${CMD_ARGS[0]}"
             if [[ "$CMD_STR" == *\& ]]; then
-                # Background command: strip &, eval in background, capture PID with $!
+                # Background command
                 CMD_STR="${CMD_STR%&}"
-                eval "$CMD_STR" &
+
+                # Auto-redirect to /dev/null to keep terminal clean
+                CMD_STR="$CMD_STR >/dev/null 2>&1"
+
+                # Pre-recording check: warn if display already recording
+                if [[ "$CMD_STR" == *wf-recorder* ]]; then
+                    DISP=$(echo "$CMD_STR" | grep -oP 'HEADLESS-\d+' || echo "")
+                    if [[ -n "$DISP" ]] && pgrep -f "wf-recorder.*$DISP" >/dev/null 2>&1; then
+                        echo "WARNING: $DISP already recording!"
+                    fi
+                fi
+
+                # Run in a new session with setsid to survive parent timeouts
+                setsid sh -c "$CMD_STR" &
                 BG_PID=$!
                 echo "$BG_PID" > "$SESSION_DIR/.bg-pid"
                 OUTPUT="Started in background (PID: $BG_PID)"
@@ -149,6 +162,12 @@ case "$CMD" in
         fi
         set -e
         echo "$OUTPUT"
+
+        # State summary for observability
+        WIN_COUNT=$(echo "$OUTPUT" | grep -c "HEADLESS-" 2>/dev/null || true)
+        if [[ "$WIN_COUNT" -gt 0 ]]; then
+            echo "→ $WIN_COUNT window(s) on display"
+        fi
 
         # Capture post-execution state
         T=$(_timestamp)
@@ -269,9 +288,75 @@ PYEOF
         echo "Output: $DIR/$BASE-narrated.mp4"
         ;;
 
+    record)
+        TOPIC="${2:?usage: otav record <topic_dir> <display>}"
+        DISP="${3:?usage: otav record <topic_dir> <display>}"
+        OUTDIR="$TOPIC"
+        if pgrep -f "wf-recorder.*$DISP" >/dev/null 2>&1; then
+            echo "ERROR: $DISP already recording"; exit 1
+        fi
+        mkdir -p "$OUTDIR/state"
+        echo "$OUTDIR" > .otav-current
+        SESSION_DIR="$OUTDIR"
+        STATE_DIR="$OUTDIR/state"
+        date +%s > "$OUTDIR/.start"
+        _capture_state "SESSION START" "000" "Recording session started"
+        echo "t,cycle,command,exit_code,verified,state_file" > "$OUTDIR/interaction-log.csv"
+        echo "SESSION_DIR=$OUTDIR"
+
+        # Start wf-recorder directly (no pdw rec, to avoid path conflicts)
+        setsid sh -c "WAYLAND_DISPLAY=wayland-1 wf-recorder -f $OUTDIR/raw.mp4 -o $DISP --no-dmabuf --no-damage -c libx264 -r 25 >/dev/null 2>&1 & echo \$! > $OUTDIR/.wf-pid" &
+        sleep 0.5
+        RECPID=$(cat "$OUTDIR/.wf-pid" 2>/dev/null || echo "$!")
+        echo "$RECPID" > "$OUTDIR/.rec-pid"
+        echo "Recording PID: $RECPID"
+
+        # Start state sampler every 5s (fully silenced)
+        (
+            while kill -0 "$RECPID" 2>/dev/null; do
+                sleep 5
+                N=$(_next_cycle)
+                T=$(_timestamp)
+                _capture_state "SAMPLE (S) t=$T" "$N" "State sampler" >/dev/null
+                echo "$T,S,auto-sample,,,state/$N.txt" >> "$OUTDIR/interaction-log.csv"
+            done
+        ) >/dev/null 2>&1 &
+        echo "Recording started. Run 'otav stop' to finish."
+        ;;
+
+    stop)
+        _load_session
+        RECPID=$(cat "$SESSION_DIR/.rec-pid" 2>/dev/null || echo "")
+        SAMPLER_PID=$(cat "$SESSION_DIR/.sampler-pid" 2>/dev/null || echo "")
+        if [[ -n "$SAMPLER_PID" ]]; then
+            kill "$SAMPLER_PID" 2>/dev/null || true
+        fi
+        if [[ -n "$RECPID" ]]; then
+            echo "Stopping recording (PID $RECPID)..."
+            kill "$RECPID" 2>/dev/null
+            sleep 1
+        fi
+        # VAAPI encode
+        RAW="$SESSION_DIR/raw.mp4"
+        FINAL="$SESSION_DIR/final.mp4"
+        if [[ -f "$RAW" ]]; then
+            echo "Encoding with VAAPI..."
+            timeout 30 ffmpeg -y -i "$RAW" -vaapi_device /dev/dri/renderD128 \
+                -vf "format=nv12,hwupload" -c:v h264_vaapi -b:v 2M "$FINAL" 2>/dev/null || cp "$RAW" "$FINAL"
+            D=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$FINAL" 2>/dev/null || echo "?")
+            echo "Video: ${D}s, $(ls -lh "$FINAL" | awk '{print $5}')"
+            rm -f "$RAW"
+        fi
+        echo "CSV: $(wc -l < "$SESSION_DIR/interaction-log.csv") entries"
+        echo "State: $(ls "$SESSION_DIR/state/" 2>/dev/null | wc -l) files"
+        echo "Session: $SESSION_DIR"
+        ;;
+
     *)
         echo "Usage:"
         echo "  otav init <dir>              Start session"
+        echo "  otav record <topic> <disp>   Start recording session (init + wf-recorder + sampler)"
+        echo "  otav stop                    Stop recording and finalize"
         echo "  otav run [--timeout N] <cmd> Run command with OTAV logging"
         echo "  otav verify true|false [reason]  Verify last cycle"
         echo "  otav narrate <raw.mp4> <text>  Produce final video (TTS + subs + VAAPI)"
