@@ -352,7 +352,9 @@ fi
 if [ "$CMD" = "rec" ]; then
     O="${1:?usage: pdw rec <display> [sec]}"; S="${2:-60}" N="${3:-recording}"
     sway_alive || { echo "start sway: pdw init"; exit 1; }
-    RAW="$OUTDIR/${N}_raw.mp4" FINAL="$OUTDIR/${N}.mp4" META="$OUTDIR/${N}.metadata.json"
+    DIR="$OUTDIR/$N"
+    mkdir -p "$DIR"
+    RAW="$DIR/raw.mp4" FINAL="$DIR/final.mp4" META="$DIR/metadata.json"
     echo "recording $O for ${S}s..."
     START_TS=$(date -Iseconds)
     WAYLAND_DISPLAY="$WLDISPLAY" wf-recorder -f "$RAW" -o "$O" --no-dmabuf --no-damage -c libx264 -r 25 &
@@ -366,7 +368,7 @@ if [ "$CMD" = "rec" ]; then
 {"duration_sec": $D, "output": "$O", "file_size": $(stat -c%s "$FINAL" 2>/dev/null || echo 0),
  "recording_start": "$START_TS", "recording_end": "$END_TS"}
 EOF
-    rm -f "$RAW"; echo "done: $(ls -lh "$FINAL" | awk '{print $5}')"
+    rm -f "$RAW"; echo "done: $DIR/ ($(ls -lh "$FINAL" | awk '{print $5}'))"
     exit 0
 fi
 
