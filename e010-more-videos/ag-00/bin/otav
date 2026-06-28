@@ -314,7 +314,7 @@ PYEOF
         STATE_DIR="$OUTDIR/state"
         date +%s > "$OUTDIR/.start"
         _capture_state "SESSION START" "000" "Recording session started"
-        echo "t,cycle,command,exit_code,verified,state_file" > "$OUTDIR/interaction-log.csv"
+        echo "t,observation,thought,action,result,verified,state_file" > "$OUTDIR/interaction-log.csv"
         echo "SESSION_DIR=$OUTDIR"
 
         # Start wf-recorder directly (no pdw rec, to avoid path conflicts)
