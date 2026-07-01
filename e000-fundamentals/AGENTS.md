@@ -574,49 +574,40 @@ DISPLAY=:0 google-chrome \
 
 #### Using agent-browser
 
-`agent-browser` is installed globally via npm (Rust binary, Vercel Labs):
+`agent-browser` is installed globally via npm (Rust binary, Vercel Labs).
+
+**Always use `--auto-connect` instead of `--cdp <port>`.** Reason: `--cdp <port>` still spawns a
+second hidden Chrome instance that agent-browser uses internally, causing confusion (blank VNC
+tabs, stale sessions). `--auto-connect` discovers the running Chrome and reuses it directly.
 
 ```bash
-# Connect to existing Chrome via CDP:
-agent-browser --cdp 9222 snapshot                   # see DOM accessibility tree
-agent-browser --cdp 9222 search "query"              # search on Google
-agent-browser --cdp 9222 click "button"              # click elements
-agent-browser --cdp 9222 screenshot screenshot.png   # take screenshot
-
-# Or auto-connect to any running Chrome:
-agent-browser --auto-connect open "https://x.com/i/bookmarks"
+# Connect to existing Chrome (discover automatically):
+agent-browser --auto-connect open "https://target.com"
+agent-browser --auto-connect snapshot -i -c   # accessibility tree (interactive, compact)
+agent-browser --auto-connect click @e1        # click by ref from snapshot
+agent-browser --auto-connect fill @e2 "text"  # clear and fill input
+agent-browser --auto-connect type @e2 "text"  # type without clearing
+agent-browser --auto-connect press Enter
+agent-browser --auto-connect upload "#css-selector" file.txt  # upload file
+agent-browser --auto-connect wait --text "..."     # wait for text to appear
+agent-browser --auto-connect wait @e1              # wait for element
+agent-browser --auto-connect find text "..." click # click by text (no snapshot needed)
+agent-browser --auto-connect tab list              # list all tabs
+agent-browser --auto-connect tab 2                 # switch to tab 2
+agent-browser --auto-connect eval 'JS code'        # run JavaScript
+agent-browser --auto-connect screenshot file.png   # take screenshot
+agent-browser --auto-connect scroll down 500       # scroll page
+agent-browser --auto-connect close --all           # close all sessions
 ```
 
 Key capabilities:
 - No captchas: uses the real Chrome with cookies from the main profile
 - Full session access: X.com, Google, GitHub, etc.
-- Deterministic extraction: CDP commands are precise and reproducible
-- Accessible snapshot: returns clean DOM tree (not raw HTML)
+- Deterministic extraction: `@eN` refs from snapshots are precise and reproducible
+- Snapshot with `-i` (interactive only) and `-c` (compact) reduces token usage significantly
 
 **Always verify Chrome is running with CDP before using agent-browser:**
 ```bash
 ss -tlnp | grep 9222   # should show chrome listening
+pgrep -a chrome | grep -v crashpad | head -1  # verify only ONE Chrome
 ```
-
-#### Pitfall: agent-browser "open" vs Chrome startup URL
-
-When agent-browser's `open` command navigates a Chrome tab that started with `about:blank`,
-the page loads in CDP but may **not render on the Wayland display** (VNC shows a blank tab).
-
-**Fix**: pass the target URL directly when starting Chrome, rather than navigating via CDP:
-
-```bash
-# WRONG — page loads in CDP but display stays blank:
-pdw w new HEADLESS-1 google-chrome ... "about:blank"
-agent-browser --cdp 9222 open "https://target.com"  # display stays blank
-
-# RIGHT — page renders on display:
-pdw w new HEADLESS-1 google-chrome ... "https://target.com"
-```
-
-If you already started Chrome with `about:blank` and the display is blank:
-1. Close Chrome completely (`kill $PID`)
-2. Restart with the target URL as the startup argument
-3. CDP on port 9222 still works for subsequent navigation
-
-This applies to both X11 (`DISPLAY=:0`) and Wayland headless displays.
