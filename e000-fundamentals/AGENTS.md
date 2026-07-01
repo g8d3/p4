@@ -507,3 +507,116 @@ If sway needs to be started:
 ```bash
 WLR_BACKENDS=headless WLR_RENDERER=vulkan WLR_LIBINPUT_NO_DEVICES=1 sway --config sway-headless.conf &
 ```
+
+## Display and window management
+
+Display state is managed by **Sway headless** (runs persistently). Use `pdw` (Puppet Display Wizard) to inspect and control displays and windows.
+
+### Checking state
+
+```bash
+pdw ls                   # full state: displays, windows, compositors, drm
+# Look for:
+#   "free" under HEADLESS-N → display available for new windows
+#   Windows listed by PID  → what's currently running where
+```
+
+Common `pdw` operations:
+
+```bash
+pdw w new HEADLESS-1 <command>   # launch command on a display
+pdw w rm <pid>                   # kill window by PID
+pdw ds claim HEADLESS-1          # mark display as claimed
+pdw ds release HEADLESS-1        # release display
+```
+
+### Browser automation (CDP)
+
+There are three layers:
+
+| Tool | What | When to use |
+|------|------|-------------|
+| `nova-chrome` | **Chrome launcher** — opens Chrome on any display with the main profile (has X.com, Google, GitHub sessions) | Starting Chrome for manual use |
+| `agent-browser` | **CDP CLI** (Rust binary, Vercel Labs) — controls Chrome programmatically via CDP | Automated browsing, searching, scraping |
+| Playwright / raw CDP | **Full control** via Python/Node | Complex extraction scripts |
+
+#### Chrome profile
+
+The persistent Chrome profile with all sessions is at:
+```
+$HOME/profiles/chrome-main/Profile 1
+```
+
+This profile has X.com, Google, GitHub, and other sessions already logged in. **Never use a fresh/default profile** — always use this one to avoid captchas and re-login.
+
+#### Starting Chrome with CDP
+
+`nova-chrome` does **NOT** enable CDP by default. For agent-controlled browsing, start Chrome manually with `--remote-debugging-port`:
+
+```bash
+# On Wayland headless display:
+pdw w new HEADLESS-1 google-chrome \
+  --ozone-platform=wayland \
+  --user-data-dir="$HOME/profiles/chrome-main" \
+  --profile-directory="Profile 1" \
+  --remote-debugging-port=9222 \
+  --no-first-run --no-default-browser-check \
+  "about:blank"
+
+# On real display (:0):
+DISPLAY=:0 google-chrome \
+  --user-data-dir="$HOME/profiles/chrome-main" \
+  --profile-directory="Profile 1" \
+  --remote-debugging-port=9222 \
+  --no-first-run --no-default-browser-check \
+  "about:blank"
+```
+
+#### Using agent-browser
+
+`agent-browser` is installed globally via npm (Rust binary, Vercel Labs):
+
+```bash
+# Connect to existing Chrome via CDP:
+agent-browser --cdp 9222 snapshot                   # see DOM accessibility tree
+agent-browser --cdp 9222 search "query"              # search on Google
+agent-browser --cdp 9222 click "button"              # click elements
+agent-browser --cdp 9222 screenshot screenshot.png   # take screenshot
+
+# Or auto-connect to any running Chrome:
+agent-browser --auto-connect open "https://x.com/i/bookmarks"
+```
+
+Key capabilities:
+- No captchas: uses the real Chrome with cookies from the main profile
+- Full session access: X.com, Google, GitHub, etc.
+- Deterministic extraction: CDP commands are precise and reproducible
+- Accessible snapshot: returns clean DOM tree (not raw HTML)
+
+**Always verify Chrome is running with CDP before using agent-browser:**
+```bash
+ss -tlnp | grep 9222   # should show chrome listening
+```
+
+#### Pitfall: agent-browser "open" vs Chrome startup URL
+
+When agent-browser's `open` command navigates a Chrome tab that started with `about:blank`,
+the page loads in CDP but may **not render on the Wayland display** (VNC shows a blank tab).
+
+**Fix**: pass the target URL directly when starting Chrome, rather than navigating via CDP:
+
+```bash
+# WRONG — page loads in CDP but display stays blank:
+pdw w new HEADLESS-1 google-chrome ... "about:blank"
+agent-browser --cdp 9222 open "https://target.com"  # display stays blank
+
+# RIGHT — page renders on display:
+pdw w new HEADLESS-1 google-chrome ... "https://target.com"
+```
+
+If you already started Chrome with `about:blank` and the display is blank:
+1. Close Chrome completely (`kill $PID`)
+2. Restart with the target URL as the startup argument
+3. CDP on port 9222 still works for subsequent navigation
+
+This applies to both X11 (`DISPLAY=:0`) and Wayland headless displays.
