@@ -21,10 +21,10 @@
 
 ## Output
 
-Each agent produces structured output in its own directory:
-- `bookmarks.txt` or `repos.csv` — list of repositories found
-- `table.md` — comparative analysis table
-- `evaluation.json` — structured evaluation data
+Each agent produces output in its own directory:
+- `ag-01/bookmarks.txt` — list of bookmark URLs
+- `ag-02/video-repos.md` — comparative analysis of AI video repos
+- `ag-03/social-repos.md` — comparative analysis of social media automation repos
 
 ## Shared tools
 
