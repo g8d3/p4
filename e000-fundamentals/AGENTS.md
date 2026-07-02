@@ -256,9 +256,9 @@ The agent's AGENTS.md + inherited files are its context.
 By default agents use DeepSeek V4 Flash. To use a different model or provider, specify it when launching:
 
 ```
-opencode -m opencode-go/mimo-v2.5         # opencode-go provider
-opencode -m xiaomi/mimo-v2.5              # Xiaomi Token Plan provider
-opencode -m zai-coding-plan/glm-5.1       # Z.AI Coding Plan provider
+opencode -m opencode-go/mimo-v2.5             # opencode-go provider
+opencode -m xiaomi-token-plan-sgp/mimo-v2.5   # Xiaomi Token Plan Singapore
+opencode -m zai-coding-plan/glm-5.1           # Z.AI Coding Plan provider
 ```
 
 The agent's AGENTS.md should declare its required model in a `## Model` section. The orchestrator reads this and uses the corresponding `-m` flag.
@@ -286,8 +286,8 @@ When running multiple agents simultaneously, use different providers to maximize
 # ag-01 with opencode-go
 opencode -m opencode-go/mimo-v2.5
 
-# ag-02 with Xiaomi Token Plan
-opencode -m xiaomi/mimo-v2.5
+# ag-02 with Xiaomi Token Plan (Singapore)
+opencode -m xiaomi-token-plan-sgp/mimo-v2.5
 
 # ag-03 with Z.AI Coding Plan
 opencode -m zai-coding-plan/glm-5.1

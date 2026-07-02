@@ -41,6 +41,6 @@ Each agent produces structured output in its own directory:
 ## Model selection
 
 Each agent uses a different provider to maximize parallel throughput:
-- ag-01: `xiaomi/mimo-v2.5`
+- ag-01: `xiaomi-token-plan-sgp/mimo-v2.5`
 - ag-02: `opencode-go/deepseek-v4-flash`
 - ag-03: `zai-coding-plan/glm-4.7`
