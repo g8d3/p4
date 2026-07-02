@@ -95,6 +95,55 @@ For example, in experiment e005:
 
 This makes it easy to identify which experiment and agent a window belongs to, especially when running multiple experiments in parallel.
 
+## Learning a new tool: read, verify, don't assume
+
+Agents frequently fail at tools because they **assume** how the tool works instead of
+**reading its documentation**.  This was the root cause of the agent-browser session:
+
+| Mistake | What to do instead |
+|---------|-------------------|
+| Skim `--help`, infer syntax | Read the full docs: `tool skills get core --full` or `man tool` |
+| Assume `--flag X` behaves like a similar tool | Verify with a simple test before relying on it |
+| When it fails, switch to a workaround | Pause, re-read the docs, find the correct usage |
+| Keep adding complexity (CDP websockets, Python scripts) | Simplify: `agent-browser close --all && pgrep chrome` to check state |
+
+### The correct learning loop
+
+1. **Read the full documentation** before running any commands. For tools with
+   a skill system (`agent-browser skills list`), load the full skill:
+   ```bash
+   agent-browser skills get core --full
+   ```
+   For CLI tools, read `--help` completely and check for sub-commands like
+   `tool <subcommand> --help`.
+
+2. **Verify your understanding** with a minimal test:
+   ```bash
+   # Does --cdp spawn a second Chrome? Check process count:
+   pgrep -a chrome | grep -c chrome   # before command
+   agent-browser --cdp 9222 snapshot
+   pgrep -a chrome | grep -c chrome   # after → if count grew, it spawned
+   ```
+
+3. **When something doesn't work, re-read the docs** — don't invent workarounds.
+   The answer is usually in the documentation you skipped.
+
+4. **Simplify before adding complexity**. If you're writing Python scripts to
+   control a CLI tool, you're doing something wrong. The CLI tool has a
+   command for it — find it.
+
+5. **Document pitfalls as you discover them**. The next agent (or your future
+   self) will benefit from what you learned.
+
+### Common assumption traps
+
+| Assumption | Reality |
+|-----------|---------|
+| `--cdp <port>` connects agent to that Chrome | `--cdp` still spawns a hidden Chrome; use `--auto-connect` instead |
+| `ref=e1` syntax works | agent-browser uses `@e1` (with `@`) |
+| `sleep 2` is a valid wait | Use `wait @ref`, `wait --text "..."`, `wait --load networkidle` |
+| If one flag works, the tool works as expected | Always verify with `pgrep`, `ss`, or tool-specific state commands |
+
 ## Writing AGENTS.md: declarative over imperative
 
 A common mistake is writing AGENTS.md like a recipe — "do step 1, then sleep 3, then do step 2". This makes agents robotic and blind to errors. If something goes wrong, they follow the recipe anyway because the instructions don't ask them to check.
