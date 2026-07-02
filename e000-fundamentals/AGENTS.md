@@ -696,3 +696,22 @@ Key capabilities:
 ss -tlnp | grep 9222   # should show chrome listening
 pgrep -a chrome | grep -v crashpad | head -1  # verify only ONE Chrome
 ```
+
+#### Known pitfall: `snapshot -i` on complex SPAs
+
+`snapshot -i` (interactive-only) can return **empty** on complex SPAs like X.com
+because interactive elements are nested many layers deep inside non-interactive
+containers. The filter is too aggressive.
+
+**Fix**: drop `-i` and use the full snapshot, or use `eval` for targeted queries:
+```bash
+# Instead of:
+agent-browser snapshot -i         # may return empty on X.com
+
+# Use:
+agent-browser snapshot             # full tree (works, but verbose)
+agent-browser snapshot --json      # machine-parseable
+agent-browser eval 'JS code'       # direct JS query (most reliable)
+```
+
+`screenshot` and `eval` always work regardless of page complexity.
