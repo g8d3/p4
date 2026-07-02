@@ -432,3 +432,17 @@ Agents must reflect on their own process after each video:
 ### Process review is also video content
 
 The reflection process itself is valuable video material. An agent explaining "this time I wasted 5 minutes because I forgot to start sway, so I added a checklist to my AGENTS.md" is both useful for viewers AND improves the system.
+
+---
+
+## 2026-07-01 — AGENTS.md compression consideration
+
+AGENTS.md is 662 lines and growing. Future thought: extract procedural sections
+(Chrome/CDP setup, pdw commands, VAAPI encoding) into standalone deterministic
+scripts (e.g. `scripts/chrome-cdp.sh`, `scripts/agent-browser.sh`) and reference
+them from AGENTS.md. Benefits:
+- Reduces token consumption (agents run a script instead of reading prose)
+- Deterministic: script behavior is fixed, not reinterpreted
+- Testable: scripts can have their own tests
+
+Not urgent now but worth tracking. Threshold for action: ~800+ lines.
