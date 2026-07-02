@@ -61,6 +61,42 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 | `XIAOMI_API_KEY` | API key for Xiaomi Token Plan (Singapore) |
 | `XIAOMI_BASE_URL` | Base URL for Xiaomi Token Plan |
 
+## AgentFS: the filesystem is the orchestrator
+
+The directory structure IS the orchestration layer. Agents communicate through
+files, not through messages or APIs.
+
+### Pattern: shared `output/` directory
+
+Each experiment has a shared `output/` directory. Agents write their results
+there, and other agents read them as input. This eliminates the need for an
+external orchestrator — the filesystem is the message bus.
+
+```
+e011-gh-repo-analysis/
+├── ag-01/         # produces output/bookmarks.txt
+├── ag-02/         # consumes output/bookmarks.txt, produces output/video-repos.md
+├── ag-03/         # consumes output/bookmarks.txt, produces output/social-repos.md
+└── output/        # shared orchestration layer
+    ├── bookmarks.txt
+    ├── video-repos.md
+    └── social-repos.md
+```
+
+**Rules:**
+1. Each agent writes to `output/<type>.ext` — one file per deliverable
+2. An agent that needs another agent's output reads from `../output/<file>`
+3. No direct inter-agent communication — agents don't talk, files do
+4. The experiment's `AGENTS.md` defines the expected files and their producers/consumers
+
+### Why this works
+
+- **Pure functions**: each agent is `read(file) → process → write(file)`
+- **No coordination code**: no message broker, no queue, no shared state
+- **Auditable**: `git diff` shows what each agent produced
+- **Resumable**: if an agent fails, the next agent can still read its partial output
+- **Language-agnostic**: agents can be any tool (opencode, Python script, bash)
+
 ## Agent principles
 
 - **Quality over speed**: don't just finish fast. Explore freely but balance it — don't add unnecessary code. Prioritize simple, well-made solutions.
