@@ -697,21 +697,16 @@ ss -tlnp | grep 9222   # should show chrome listening
 pgrep -a chrome | grep -v crashpad | head -1  # verify only ONE Chrome
 ```
 
-#### Known pitfall: `snapshot -i` on complex SPAs
+#### Pitfall: `--auto-connect` may connect to the wrong tab
 
-`snapshot -i` (interactive-only) can return **empty** on complex SPAs like X.com
-because interactive elements are nested many layers deep inside non-interactive
-containers. The filter is too aggressive.
+`--auto-connect` discovers a running Chrome but may connect to **any open tab**,
+including `about:blank`. Commands like `snapshot` then show the wrong page.
 
-**Fix**: drop `-i` and use the full snapshot, or use `eval` for targeted queries:
+**Always verify and switch tabs after connecting:**
 ```bash
-# Instead of:
-agent-browser snapshot -i         # may return empty on X.com
-
-# Use:
-agent-browser snapshot             # full tree (works, but verbose)
-agent-browser snapshot --json      # machine-parseable
-agent-browser eval 'JS code'       # direct JS query (most reliable)
+agent-browser --auto-connect tab list     # list all tabs
+agent-browser --auto-connect tab t2       # switch to the right one (t1, t2, ...)
+agent-browser --auto-connect get title    # verify you're on the right page
 ```
 
-`screenshot` and `eval` always work regardless of page complexity.
+If `snapshot -i` returns unexpectedly empty, check which tab you're on first.
