@@ -16,6 +16,11 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e005-gpu-browser-capture/](e005-gpu-browser-capture/) — GPU-stressed browser capture with resource monitoring
 - [e006-live-streaming/](e006-live-streaming/) — live streaming + replay buffer (record last N seconds)
 - [e007-agent-self-documentation/](e007-agent-self-documentation/) — agents that record themselves and produce videos
+- [e008-asistente-ht/](e008-asistente-ht/) — HT Coach: emotional intelligence assistant
+- [e009-xiaomi-display/](e009-xiaomi-display/) — Xiaomi display integration
+- [e010-more-videos/](e010-more-videos/) — additional video experiments
+- [e011-gh-repo-analysis/](e011-gh-repo-analysis/) — GitHub repo analysis by multiple agents
+- [e012-p3-project-agents/](e012-p3-project-agents/) — agents that own, improve, and post about p3 projects
 
 ## Language
 
