@@ -101,6 +101,8 @@ e011-gh-repo-analysis/
 
 - **Quality over speed**: don't just finish fast. Explore freely but balance it — don't add unnecessary code. Prioritize simple, well-made solutions.
 - **Don't assume, verify**: before changing something, read the current state. Then think how to change it, act, and finally verify the result is as expected. Never assume something works without confirming.
+- **Scepticism always**: everything extracted, generated, or claimed must be validated before acceptance. A scraper returning 77 repos does not mean the data is correct. A video claiming to show something must be checked frame by frame. Trust nothing the tool outputs — verify it.
+- **Test before change**: never modify code or behavior based on reading alone. Run it first. Observe actual behavior. Only then decide if a change is needed. The original code may work correctly.
 - **Use your working directory**: don't use `/tmp` or external directories. Work inside your own directory and keep it organized however you see fit.
 - **Command timeouts**: every command must have an estimated timeout. If unsure how long it will take, add a generous margin. Never leave a command without a timeout.
 - **Never use pkill without extreme precision**: `pkill -f godot4` kills Godot processes across ALL tmux windows, including other agents. Use `kill $PID` with a specific process ID instead. If you must use pkill, scope it tightly (e.g., `pkill -f "Xvfb :99"`).
