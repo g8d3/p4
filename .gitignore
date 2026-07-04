@@ -22,3 +22,9 @@ e008-asistente-ht/
 
 # Experiment 11 - cloned repos
 e011-gh-repo-analysis/ag-*/
+
+# Tool configuration
+.commandcode/
+
+# Generated experiment projects
+e012-p3-project-agents/video-v5/
