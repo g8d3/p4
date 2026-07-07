@@ -117,6 +117,21 @@ Created `video-plan.md` — a structured 3-act video script (6 min) covering:
 
 Includes: scene breakdown, timing, screenshots to capture, audio notes, technical specs.
 
+### 2026-07-08 — Session 4: test generation attempt
+
+Tried generating first test clip via web UI:
+- Selected Kling 3.0 Turbo
+- Filled prompt ("mountain landscape")
+- Clicked Generate → showed "Generating" but got stuck
+- Issue: image-to-video requires an image first (upload or generate via "generate it")
+- Clicking "generate it" navigated to the image page, cancelling the video job
+
+**Learnings**:
+- Video tab is image-to-video by default: upload/generate image → describe motion → generate
+- Text-to-video (pure prompt) may not be available for all models
+- Best flow: first generate image → then animate with video model
+- For the actual video, we'll need to plan what images + motion prompts = usable clips
+
 ### Models research
 
 Created `models.md` — comprehensive reference of all Higgsfield models:
