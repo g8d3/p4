@@ -63,3 +63,4 @@ Relevant pages:
 ## Agents
 
 - `ag-01/` — owns the `generate_video.py` script
+- `models.md` — comprehensive reference of all Higgsfield models, credit costs, quality tiers

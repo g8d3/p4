@@ -144,12 +144,14 @@
 
 ## Clips a generar con Higgsfield
 
-| # | Modelo | Prompt | Duración | Propósito |
-|---|--------|--------|----------|-----------|
-| 1 | Seedance 2.0 | "A cinematic mountain landscape at golden hour, mist rolling between peaks, smooth camera pan from left to right" | 5-8s | Mostrar calidad Seedance |
-| 2 | Kling 3.0 | "Futuristic city with flying cars, neon lights reflecting on wet streets, cinematic dolly shot" | 5-8s | Mostrar calidad Kling |
-| 3 | Seedance 2.0 | "A close-up of a human face, soft natural lighting, subtle micro-expressions, photorealistic" | 5-8s | Mostrar capacidad humana (opcional) |
-| 4 | Mejor resultado | TBD (el que salga mejor de los anteriores) | 10-15s | Clip de cierre |
+Ver [models.md](../models.md) para costos de créditos por modelo.
+
+| # | Modelo | Resolución | Créditos | Prompt | Duración | Propósito |
+|---|--------|-----------|---------|--------|----------|-----------|
+| 1 | Kling 3.0 | 720p | 7 | "A cinematic mountain landscape at golden hour, mist rolling between peaks, smooth camera pan" | 5s | Demo calidad/price balance |
+| 2 | Seedance 2.0 | 720p | 22 | "Futuristic city with flying cars, neon lights reflecting on wet streets, cinematic dolly shot" | 5s | Demo flagship quality |
+| 3 | MiniMax Hailuo 2.3 Fast | 768p | 4 | "A close-up of a human face, soft natural lighting, subtle micro-expressions" | 6s | Demo budget option |
+| 4 | Mejor resultado | - | - | TBD (el mejor de los anteriores) | 10-15s | Clip de cierre |
 
 ## Screenshots a capturar
 

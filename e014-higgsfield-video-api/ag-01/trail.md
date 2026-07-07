@@ -117,6 +117,20 @@ Created `video-plan.md` — a structured 3-act video script (6 min) covering:
 
 Includes: scene breakdown, timing, screenshots to capture, audio notes, technical specs.
 
+### Models research
+
+Created `models.md` — comprehensive reference of all Higgsfield models:
+- 40+ video model variants with credit costs per resolution
+- 20+ image models with credit costs
+- 5 audio/voice TTS models (ElevenLabs, MiniMax, VibeVoice, Seed Speech, Seed Audio 1.0)
+- 3 plans (Starter $15, Plus $39, Ultra $99/mo)
+- Cost-benefit recommendations (Kling 3.0 720p = best quality/price at 7cr/5s)
+- Specific recommendations for our video project
+
+Confirmed Higgsfield has ElevenLabs Eleven v3 for TTS — best quality available.
+
+Updated `video-plan.md` to reference models.md and use cost-optimized model selection.
+
 ### Ideas for full autonomy (verification code)
 
 Since the web login requires a verification code sent to email, documented 6 approaches

@@ -187,5 +187,9 @@ with `pyotp` or similar. No email access needed at all.
 ## Trail
 - [trail.md](trail.md) — session history
 
+## Reference
+- [../models.md](../models.md) — full models reference with credit costs
+- [video-plan.md](video-plan.md) — video production plan
+
 ## Inherits
 - [../AGENTS.md](../AGENTS.md) — experiment context, endpoints, auth
