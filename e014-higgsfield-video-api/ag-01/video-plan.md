@@ -1,167 +1,192 @@
 # Video plan: How an agent beat an AI (and left the treasure map)
 
-**Duration**: ~6 min
-**Style**: exploratory (screen recording + live narration)
-**Tools**: wf-recorder + VAAPI re-encode, edge-tts narration
-**Aspect ratio**: 9:16 (vertical, mobile-first)
+**Formato**: screencast contado + clips generados con Higgsfield como demo
+**Duración**: ~6 min
+**Herramientas**: wf-recorder + VAAPI, edge-tts para narración, Higgsfield para los clips demo
+**Aspecto**: 9:16 vertical
 
 ---
 
-## Act 1 — La pesadilla del agente (~2 min)
+## Estructura
 
-### Scene 1.1 — The confident start (15s)
-- **Screen**: open `generate_video.py`, show the simple code
-- **Narration**: "I had a simple task: generate a video using the Higgsfield API.
-  Python SDK installed, credentials ready, one function call. What could go wrong?"
-- **Capture**: VS Code with the script, then run it
-
-### Scene 1.2 — `not_enough_credits` (15s)
-- **Screen**: terminal output showing the error
-- **Narration**: "not_enough_credits. The API endpoint exists, the auth works,
-  but no credits. Classic."
-- **Capture**: terminal with the error highlighted
-
-### Scene 1.3 — Enter agent-browser (15s)
-- **Screen**: switching to agent-browser approach
-- **Narration**: "OK, new plan. I'll use agent-browser to automate the web UI directly.
-  The website might have its own credit system. Let me log in."
-- **Capture**: `agent-browser open https://higgsfield.ai/ai/video`
-
-### Scene 1.4 — The $f bug (20s)
-- **Screen**: showing the fill command and the wrong password
-- **Narration**: "First attempt: `agent-browser fill @e11 $HF_PASS`. But the password
-  contains `$f` which bash interprets as a variable. `$fENNy` becomes empty.
-  I'm typing `YXnqj4ENNy#4` instead of the real password. Genius."
-- **Capture**: show the bash expansion, then show the Python subprocess fix
-
-### Scene 1.5 — CPU on fire (25s)
-- **Screen**: htop showing 160% CPU, fan noise metaphor
-- **Narration**: "Chrome headless uses SwiftShader — software GPU emulation.
-  160% CPU. The fan sounds like a jet engine. Higgsfield isn't even open yet
-  and my computer is melting."
-- **Capture**: htop with Chrome processes highlighted, then show the fix
-  with `--use-gl=angle --use-angle=gl-egl` dropping to 4%
-
-### Scene 1.6 — Headless detection (20s)
-- **Screen**: "Too many requests" error, then the UA check
-- **Narration**: "After fixing the password and the CPU, I try again.
-  'Too many requests.' But the user can log in from their phone just fine.
-  It's not a rate limit — it's automation detection. The User-Agent says
-  `HeadlessChrome/149.0.0.0`. Dead giveaway."
-- **Capture**: show `navigator.userAgent` with HeadlessChrome, then the fix
-  with custom `--user-agent`
+| Acto | Tema | Duración |
+|------|------|----------|
+| 1 | La pesadilla del agente | ~2 min |
+| 2 | Cómo domar al browser | ~2.5 min |
+| 3 | Un agente que enseña a otros | ~1.5 min |
 
 ---
 
-## Act 2 — Cómo domar al browser (~2.5 min)
+## Acto 1 — La pesadilla del agente (~2 min)
 
-### Scene 2.1 — The full launch recipe (30s)
-- **Screen**: the complete Chrome launch command
-- **Narration**: "This is what it takes to make headless Chrome undetectable:
-  real GPU, real user profile, stealth user agent, AMD acceleration.
-  Four flags that turn a suspicious browser into a normal one."
-- **Capture**: the full `google-chrome` command in the terminal with all flags
+**Narración**: frustrada pero cómica — "qué podría salir mal?"
 
-### Scene 2.2 — Logging in (30s)
-- **Screen**: agent-browser opening the page, clicking Login, filling fields
-- **Narration**: "With Chrome properly configured, the login works.
-  Email, password... and then: 'Verify your email'. A code sent to the inbox.
-  I need human help — for now."
-- **Capture**: the snapshot showing "Verify your email" dialog
+### Escena 1.1 — El agente confiado (20s)
+- **Qué se ve**: terminal + `generate_video.py`
+- **Narración**: "Tenía que generar un video con la API de Higgsfield. SDK instalado,
+  credenciales listas, una llamada a `hf.subscribe()`. ¿Qué podría salir mal?"
+- **Higgsfield clip**: no, es pantalla de código
 
-### Scene 2.3 — The verify code dance (20s)
-- **Screen**: entering the verification code
-- **Narration**: "The user reads the code from their phone, types it here.
-  It works. We're in. 96 credits available. The form is visible."
-- **Capture**: code entered, login success, credits shown
+### Escena 1.2 — `not_enough_credits` (20s)
+- **Qué se ve**: terminal con el error
+- **Narración**: "not_enough_credits. El endpoint funciona, la auth funciona,
+  pero no hay créditos. Clásico."
+- **Higgsfield clip**: no, es terminal
 
-### Scene 2.4 — Viewport plot twist (20s)
-- **Screen**: the mobile layout vs desktop layout comparison
-- **Narration**: "But wait — where's the form? At 800x600 viewport, Higgsfield
-  shows a mobile layout. No upload area, no prompt, no Generate button.
-  `agent-browser set viewport 1280 800` — problem solved."
-- **Capture**: side-by-side or quick switch between viewports
+### Escena 1.3 — El bug del `$f` (25s)
+- **Qué se ve**: comando fallando por shell expansion, luego el fix con Python
+- **Narración**: "El password tiene `$fENNy`. Bash interpreta `$f` como variable
+  y lo deja vacío. Estaba mandando `YXnqj4ENNy#4` en vez del password real."
+- **Higgsfield clip**: no, es terminal
 
-### Scene 2.5 — React inputs (20s)
-- **Screen**: showing inserttext failing, then fill working
-- **Narration**: "Another trap: React controlled inputs. `keyboard inserttext`
-  sets the DOM value but doesn't fire events. React overwrites it on re-render.
-  `fill` does it properly. Every web automation tool has this bug."
-- **Capture**: show value being cleared, then fix with fill
+### Escena 1.4 — La CPU en llamas (25s)
+- **Qué se ve**: htop con 160% CPU, luego el fix GPU baja a 4%
+- **Narración**: "Chrome headless usa SwiftShader, un emulador de GPU por software.
+  160% de CPU. El ventilador sonaba a turbina. La solución: usar la GPU AMD real
+  con `--use-gl=angle --use-angle=gl-egl`."
+- **Higgsfield clip**: no, es htop
 
-### Scene 2.6 — The form is ready (20s)
-- **Screen**: the full form with prompt filled, Generate button waiting
-- **Narration**: "Now everything works. Prompt written, model selected,
-  credits available. One click away from generating a video."
-- **Capture**: the full video creation form
+### Escena 1.5 — Detección de automation (20s)
+- **Qué se ve**: "Too many requests", luego `navigator.userAgent` mostrando
+  "HeadlessChrome", luego el fix con `--user-agent` personalizado
+- **Narración**: " 'Too many requests'. Pero el usuario entra desde el móvil
+  sin problemas. No es rate limit: es detección de automation. El User-Agent
+  dice `HeadlessChrome`. Un flag lo resuelve."
+- **Higgsfield clip**: no, es browser
 
 ---
 
-## Act 3 — Un agente que enseña a otros agentes (~1.5 min)
+## Acto 2 — Cómo domar al browser (~2.5 min)
 
-### Scene 3.1 — The documentation (30s)
-- **Screen**: showing AGENTS.md with the 7 learnings
-- **Narration**: "But the real achievement isn't the login. It's what I left behind.
-  AGENTS.md documents 7 hard-won learnings so no future agent wastes hours
-  rediscovering them. Shell expansion, SwiftShader, HeadlessChrome, React inputs —
-  all captured."
-- **Capture**: scrolling through AGENTS.md sections
+**Narración**: enfocada, instructiva
 
-### Scene 3.2 — The script (25s)
-- **Screen**: showing browser_video.py
-- **Narration**: "And a deterministic script, `browser_video.py`, that encodes
-  every fix. Next time, one command: `python browser_video.py`. Enter the code,
-  and it generates the video. No debugging, no surprises."
-- **Capture**: running the script successfully
+### Escena 2.1 — La receta completa (25s)
+- **Qué se ve**: comando completo de Chrome con todos los flags
+- **Narración**: "Esto es lo que necesita Chrome headless para ser indetectable:
+  GPU real, perfil de usuario real, User-Agent sin HeadlessChrome. Cuatro flags
+  que convierten un browser sospechoso en uno normal."
+- **Higgsfield clip**: no, es terminal
 
-### Scene 3.3 — The road to full autonomy (25s)
-- **Screen**: the 6 approaches table in AGENTS.md
-- **Narration**: "The only remaining manual step is the verification code.
-  Six solutions are documented: IMAP, session persistence, API credits, TOTP.
-  The simplest is session persistence — log in once, save the state, never
-  log in again."
-- **Capture**: highlighting each option
+### Escena 2.2 — Login exitoso + Demo de Higgsfield 1 (30s)
+- **Qué se ve**: agent-browser haciendo login, y luego MOSTRAR UN CLIP CORTO
+  generado con Higgsfield como demo
+- **Narración**: "Con Chrome bien configurado, el login funciona. Y acá un clip
+  generado con Seedance 2.0 para mostrar de qué estamos hablando."
+- **Higgsfield clip**: clip de 5-10s generado con Seedance 2.0 o Kling,
+  prompt tipo "a cinematic mountain landscape at sunset, smooth camera pan"
 
-### Scene 3.4 — This is the real product (15s)
-- **Screen**: trail.md showing the full history
-- **Narration**: "The video generation itself? That's secondary. The real product
-  of this session is a self-documenting system where agents learn, record,
-  and improve. Next time, it takes 30 seconds instead of 3 hours."
-- **Capture**: git log showing the commits
+### Escena 2.3 — El código de verificación (20s)
+- **Qué se ve**: diálogo "Verify your email", el usuario pasa el código
+- **Narración**: "Aparece 'Verify your email'. El usuario me pasa el código.
+  96 créditos disponibles. Estamos adentro."
+- **Higgsfield clip**: no, es browser
+
+### Escena 2.4 — Viewport (20s)
+- **Qué se ve**: layout mobile vs desktop side by side
+- **Narración**: "¿Y el formulario? A 800×600 Higgsfield muestra layout mobile.
+  Sin upload, sin prompt, sin Generate. `set viewport 1280 800` — listo."
+- **Higgsfield clip**: no, es browser
+
+### Escena 2.5 — Inputs de React (15s)
+- **Qué se ve**: inserttext fallando vs fill funcionando
+- **Narración**: "React: `inserttext` no dispara eventos, React lo borra.
+  `fill` funciona. Un clásico de automation."
+- **Higgsfield clip**: no, es browser
+
+### Escena 2.6 — Demo de Higgsfield 2 (25s)
+- **Qué se ve**: formulario listo + SEGUNDO CLIP generado con Higgsfield
+- **Narración**: "Formulario listo, prompt escrito, modelo seleccionado.
+  Y acá otro clip, este con Kling 3.0, para mostrar la diferencia entre modelos."
+- **Higgsfield clip**: clip de 5-10s con Kling 3.0,
+  prompt tipo "a futuristic city with flying cars, cinematic lighting"
 
 ---
 
-## Screenshots / captures to take
+## Acto 3 — Un agente que enseña a otros (~1.5 min)
 
-| Scene | What to capture | How |
-|-------|----------------|-----|
-| 1.1 | Python script + run | Terminal + code editor |
-| 1.2 | Error output | Terminal with error |
-| 1.4 | Wrong password vs correct | Terminal side-by-side |
-| 1.5 | htop before/after GPU fix | htop + command |
-| 1.6 | UA before/after | Browser eval |
+**Narración**: reflexiva, orgullosa del sistema
+
+### Escena 3.1 — La documentación (25s)
+- **Qué se ve**: AGENTS.md con los 7 aprendizajes
+- **Narración**: "Pero el logro real no es el login. Es lo que quedó documentado.
+  7 lecciones para que ningún agente futuro pierda horas redescubriéndolas."
+- **Higgsfield clip**: no, es archivo de texto
+
+### Escena 3.2 — El script (20s)
+- **Qué se ve**: `browser_video.py`
+- **Narración**: "Y un script determinista que codifica todas las soluciones.
+  Próxima vez: `python browser_video.py`, un código, y el video se genera solo."
+- **Higgsfield clip**: no, es terminal
+
+### Escena 3.3 — Ruta a la autonomía (20s)
+- **Qué se ve**: las 6 opciones documentadas
+- **Narración**: "El único paso manual es el código de verificación. 6 soluciones
+  documentadas: IMAP, session persistence, créditos en API, TOTP..."
+- **Higgsfield clip**: no, es archivo de texto
+
+### Escena 3.4 — Demo final Higgsfield 3 (20s)
+- **Qué se ve**: clip más largo o impresionante generado con Higgsfield
+- **Narración**: "Este es el tipo de video que Higgsfield puede generar.
+  La próxima vez que un agente necesite hacerlo, será cuestión de segundos."
+- **Higgsfield clip**: clip de 10-15s con el mejor resultado que logremos,
+  prompt elaborado, cámara cinemática
+
+---
+
+## Qué genera Higgsfield vs qué se graba con wf-recorder
+
+| Contenido | Quién lo genera | Cómo |
+|-----------|----------------|------|
+| Clips demo de AI (3-4) | **Higgsfield** (Seedance 2.0 / Kling 3.0) | Prompt + image-to-video |
+| Terminal, código, browser, htop | **wf-recorder** (screencast) | Captura de pantalla + narración |
+| Todo el video final | **wf-recorder** + VAAPI (o ffmpeg si juntamos clips) | Edición lineal / ensamblaje |
+| Narración | **Higgsfield TTS** o edge-tts | Si Higgsfield tiene TTS, esto también sería generado por la plataforma |
+
+## Clips a generar con Higgsfield
+
+| # | Modelo | Prompt | Duración | Propósito |
+|---|--------|--------|----------|-----------|
+| 1 | Seedance 2.0 | "A cinematic mountain landscape at golden hour, mist rolling between peaks, smooth camera pan from left to right" | 5-8s | Mostrar calidad Seedance |
+| 2 | Kling 3.0 | "Futuristic city with flying cars, neon lights reflecting on wet streets, cinematic dolly shot" | 5-8s | Mostrar calidad Kling |
+| 3 | Seedance 2.0 | "A close-up of a human face, soft natural lighting, subtle micro-expressions, photorealistic" | 5-8s | Mostrar capacidad humana (opcional) |
+| 4 | Mejor resultado | TBD (el que salga mejor de los anteriores) | 10-15s | Clip de cierre |
+
+## Screenshots a capturar
+
+| Escena | Qué capturar | Método |
+|--------|-------------|--------|
+| 1.1 | Script + run | Terminal |
+| 1.2 | Error output | Terminal |
+| 1.3 | Password bug vs fix | Terminal side-by-side |
+| 1.4 | htop before/after GPU | htop + comando |
+| 1.5 | UA antes/después | Browser eval |
 | 2.1 | Chrome launch command | Terminal |
-| 2.2 | Login dialog + fields | agent-browser snapshot |
-| 2.3 | Verify dialog + success | Snapshot |
-| 2.4 | Mobile vs desktop viewport | Two snapshots |
-| 2.5 | Failing inserttext vs fill | Eval output |
-| 2.6 | Full form ready | Snapshot |
-| 3.1 | AGENTS.md sections | File view |
-| 3.2 | browser_video.py run | Terminal |
-| 3.3 | Future approaches | AGENTS.md |
-| 3.4 | git log | Terminal |
+| 2.2 | Login dialog + campos + clip demo | Browser + Higgsfield output |
+| 2.3 | Verify dialog + éxito | Snapshot |
+| 2.4 | Mobile vs desktop | Snapshots |
+| 2.5 | Error vs fix | Terminal |
+| 2.6 | Form listo + clip demo | Browser + Higgsfield output |
+| 3.1 | AGENTS.md | File view |
+| 3.2 | browser_video.py | Terminal |
+| 3.3 | Opciones de autonomía | AGENTS.md |
+| 3.4 | Clip final | Higgsfield output |
 
-## Audio notes
+## Audio
 
-- **Voice**: edge-tts, English, `en-US-JennyNeural` (female, clear)
-- **Pacing**: allow 2-3s between scenes for the viewer to process
-- **Tone Act 1**: frustrated but comedic — "what could go wrong?" energy
-- **Tone Act 2**: focused, instructive — "this is how you fix it"
-- **Tone Act 3**: reflective, proud — "this matters more than the video"
+- **Voz candidata 1**: Higgsfield TTS (si tiene modelo de voz) — investigar endpoint
+- **Voz candidata 2**: edge-tts `en-US-JennyNeural` (fallback, funciona siempre)
+- **Pacing**: 2-3s entre escenas para procesar
+- **Tono Acto 1**: frustrado pero cómico
+- **Tono Acto 2**: enfocado, instructivo
+- **Tono Acto 3**: reflexivo, orgulloso
 
-## Technical
+> **Pendiente**: verificar si Higgsfield tiene TTS y cómo se compara con edge-tts.
+> Si tiene, el video podría generarse casi 100% con Higgsfield (clips video + narración).
+> Faltaría solo el ensamblaje final (unir clips + sincronizar audio).
 
-- **Resolution**: 608×1080 (vertical 9:16)
-- **Encoding**: h264_vaapi (AMD GPU)
+## Técnico
+
+- **Resolución**: 608×1080 vertical
+- **Encoding**: h264_vaapi (GPU AMD)
 - **FPS**: 30
-- **Total estimated**: 5-7 minutes
+- **Total estimado**: 5-7 min
