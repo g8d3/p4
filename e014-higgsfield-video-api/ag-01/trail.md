@@ -82,6 +82,32 @@ The user confirmed logging in from a mobile browser works fine.
 - Launch with `--headed` on the real display (not headless)
 - Update the Chrome profile by logging in from a real browser first
 
+## 2026-07-07 — Session 3: login success 🎉
+
+### What worked
+
+1. **Custom user agent** without "HeadlessChrome" — Higgsfield stopped blocking
+2. **Real Chrome profile** (`~/profiles/chrome-main/Profile 1`) — avoids fresh-profile fingerprint
+3. **1280x800 viewport** — desktop layout shows the full video creation form
+4. **Python subprocess for fill** — avoids bash `$` expansion in password
+5. **Verification code** — Clerk 2FA code sent to email, entered successfully
+
+### What we have now
+
+- Logged into Higgsfield via web UI
+- 96 credits visible on the Generate button
+- Full video creation form accessible at `https://higgsfield.ai/ai/video`
+- Plan shows "Nano Banana Pro & 2, Kling 3.0 Unlimited"
+
+### Script created
+
+`browser_video.py` — automates: Chrome launch → login → verification code → prompt fill → generate.
+Handles all the hard-won learnings (UA, profile, viewport, Python subprocess).
+
+### Learnings documentation
+
+Updated `AGENTS.md` with 7 hard-won learnings so no future agent wastes time rediscovering them.
+
 ### Pending
 
 - Get credits on the Higgsfield account to actually generate a video
