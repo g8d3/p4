@@ -30,6 +30,11 @@ User asked to generate a test video using the Higgsfield API from https://github
 - Video generation requires sufficient credits on the account
 - `agent-browser` is a powerful CLI tool for web automation available in this environment
 
+### Performance: Chrome + SwiftShader CPU drain
+
+`agent-browser` headless Chrome uses SwiftShader (software GPU), consuming ~160% CPU.
+Fix: always run `agent-browser close --all` when the browser is not actively needed.
+
 ### Pending
 
 - Get credits on the Higgsfield account to actually generate a video
