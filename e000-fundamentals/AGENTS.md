@@ -234,7 +234,7 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
   1. `xset s off && xset -dpms`
   2. `xscreensaver-command -exit`
   3. Fallbacks: `xdg-screensaver suspend` or `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`
-- **TTS**: Colombian voice. Use `edge-tts` with `es-CO-SalomeNeural` or `es-CO-GonzaloNeural`. Do not use espeak-ng or generic voices.
+- **TTS**: English voice. Use `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male). Do not use espeak-ng or generic voices.
 - **Mobile format**: record in vertical aspect ratio (9:16). To achieve this:
   1. Select only the relevant window or region (not full monitor).
   2. Resize and reposition windows to fill the capture area efficiently, leaving no wasted space.

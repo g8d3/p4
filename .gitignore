@@ -26,5 +26,10 @@ e011-gh-repo-analysis/ag-*/
 # Tool configuration
 .commandcode/
 
+# Node.js
+node_modules/
+.remotion-cache/
+chromium-*-headless-shell/
+
 # Generated experiment projects
 e012-p3-project-agents/video-v5/
