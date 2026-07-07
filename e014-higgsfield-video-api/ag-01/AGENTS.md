@@ -3,6 +3,7 @@
 Owns two scripts:
 - `generate_video.py` — uses the Python SDK (API key, needs credits)
 - `browser_video.py` — uses agent-browser automation (web UI, interactive)
+- `webui_generate.py` — robust script that encapsulates all web UI pitfalls
 - `video-plan.md` — detailed production plan for a video about this experiment
 
 ## Scripts
@@ -82,6 +83,48 @@ Login with email requires a verification code sent to the email. The script
 prompts the user for it interactively.
 
 ### 7. Rate limiting is automation detection
+
+## Web UI automation learnings (Higgsfield React app)
+
+### File input is hidden and dynamic
+
+The `<input type=file>` has class `sr-only` (screen-reader only, invisible).
+Its `id` changes based on the selected model (e.g., `kling3-turbo-imageUrl`).
+**Don't rely on the id** — use `querySelector('input[type=file]')`.
+
+Setting the file requires JavaScript's File API + DataTransfer, NOT agent-browser's `upload` command:
+
+```python
+inp = document.querySelector('input[type=file]')
+resp = await fetch(image_url)
+blob = await resp.blob()
+file = new File([blob], 'image.webp', {type: 'image/webp'})
+dt = new DataTransfer(); dt.items.add(file)
+inp.files = dt.files
+inp.dispatchEvent(new Event('change', {bubbles: true}))
+```
+
+### React re-renders invalidate refs
+
+After every action (click, fill, eval), Higgsfield's React SPA re-renders
+and changes element IDs. **All refs from one snapshot are invalid for the next command.**
+Solution: re-find elements with every snapshot.
+
+### Media upload agreement dialog
+
+After uploading an image, a "Media upload agreement" dialog appears once.
+Look for `button "I agree, continue"` and click it. The dialog won't appear
+for subsequent uploads in the same session.
+
+### History is the only way to verify generation
+
+The "History" tab shows past generations with model, prompt, resolution,
+and duration. There's no explicit "Download" button in the history —
+the generated video URLs are loaded dynamically via JavaScript.
+
+### Best practice for generation
+
+Use `webui_generate.py` which handles all these pitfalls automatically.
 
 The "Too many requests" error is NOT a real rate limit — it's Higgsfield/Clerk
 detecting automation (HeadlessChrome UA). The account works fine from a normal

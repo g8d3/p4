@@ -146,6 +146,26 @@ Tried generating first test clip via web UI:
 - Best flow: first generate image → then animate with video model
 - For the actual video, we'll need to plan what images + motion prompts = usable clips
 
+### 2026-07-08 — Session 6: clip generation — SUCCESS
+
+Generated 2 videos via web UI (confirmed in History tab):
+1. **Robot idle** — Kling 3.0 Turbo, 720p, 5s, 7.5 credits (July 7)
+2. **Mountain landscape** — Kling 3.0 Turbo, 720p, 5s, 7.5 credits (July 6)
+
+**What worked**:
+- Using `querySelector('input[type=file]')` instead of `getElementById` (id changes per model)
+- File API + DataTransfer to inject image into hidden `sr-only` input
+- Accepting the "Media upload agreement" dialog (`button "I agree, continue"`)
+- The prompt textbox and Generate button refs, despite React re-renders
+
+**What was learned about the web UI**:
+See AGENTS.md section "Web UI automation learnings" for full documentation.
+
+**Created script**: `webui_generate.py` — encapsulates all pitfalls, generates 4 clips.
+
+**Remaining**: Need to find how to download generated videos from the History tab
+(the video URLs are loaded dynamically via JavaScript, not in static DOM).
+
 ### 2026-07-08 — Session 6: clip generation attempt (SDK + web UI)
 
 **SDK approach**:
