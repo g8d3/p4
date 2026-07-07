@@ -29,7 +29,10 @@ e011-gh-repo-analysis/ag-*/
 # Node.js
 node_modules/
 .remotion-cache/
+.remotion/
+.cache/
 chromium-*-headless-shell/
+*.tsbuildinfo
 
 # Generated experiment projects
 e012-p3-project-agents/video-v5/

@@ -13,7 +13,6 @@ const EVENTS = [
 export const Timeline: React.FC = () => {
   const frame = useCurrentFrame();
   const duration = 20 * 30;
-
   const progress = frame / duration;
 
   return (
@@ -22,11 +21,11 @@ export const Timeline: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 60,
+          top: 50,
           left: 0,
           right: 0,
           textAlign: "center",
-          fontSize: 36,
+          fontSize: 28,
           fontWeight: 700,
           color: "#f1f5f9",
           fontFamily: "Inter, sans-serif",
@@ -35,22 +34,22 @@ export const Timeline: React.FC = () => {
         The 36-Minute Journey
       </div>
 
-      {/* Timeline line */}
+      {/* Vertical timeline line */}
       <div
         style={{
           position: "absolute",
-          top: "50%",
-          left: "10%",
-          right: "10%",
-          height: 4,
+          left: 80,
+          top: 140,
+          bottom: 100,
+          width: 3,
           backgroundColor: "#1e293b",
           borderRadius: 2,
         }}
       >
         <div
           style={{
-            height: "100%",
-            width: `${progress * 100}%`,
+            width: "100%",
+            height: `${progress * 100}%`,
             backgroundColor: "#60a5fa",
             borderRadius: 2,
           }}
@@ -60,56 +59,58 @@ export const Timeline: React.FC = () => {
       {/* Events */}
       {EVENTS.map((event, i) => {
         const pos = i / (EVENTS.length - 1);
-        const eventReveal = interpolate(frame - 30 - i * 20, [0, 30], [0, 1]);
-        const isAbove = i % 2 === 0;
+        const topPos = 140 + pos * (1920 - 140 - 200);
+        const eventReveal = interpolate(frame - 30 - i * 20, [0, 25], [0, 1]);
 
         return (
           <div
             key={i}
             style={{
               position: "absolute",
-              left: `${10 + pos * 80}%`,
-              top: isAbove ? "30%" : "58%",
-              transform: "translateX(-50%)",
+              left: 110,
+              top: topPos,
               opacity: eventReveal,
-              textAlign: "center",
-              maxWidth: 160,
+              transform: `translateX(${interpolate(eventReveal, [0, 1], [-10, 0])}px)`,
             }}
           >
             {/* Dot */}
             <div
               style={{
-                width: 16,
-                height: 16,
-                borderRadius: 8,
-                backgroundColor: pos <= progress ? "#60a5fa" : "#334155",
                 position: "absolute",
-                left: "50%",
-                marginLeft: -8,
-                top: isAbove ? 40 : -24,
-                zIndex: 2,
+                left: -35,
+                top: 12,
+                width: 14,
+                height: 14,
+                borderRadius: 7,
+                backgroundColor: pos <= progress ? "#60a5fa" : "#334155",
                 border: "2px solid #0f172a",
+                zIndex: 2,
               }}
             />
 
             {/* Card */}
             <div
               style={{
-                padding: "12px 16px",
+                padding: "10px 16px",
                 backgroundColor: `${pos <= progress ? "#1e293b" : "#0f172a"}ee`,
-                borderRadius: 12,
+                borderRadius: 10,
                 border: `1px solid ${pos <= progress ? "#60a5fa44" : "#1e293b"}`,
+                minWidth: 200,
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: 4 }}>{event.icon}</div>
-              <div style={{ fontSize: 12, color: "#64748b", fontFamily: "Inter, sans-serif", marginBottom: 2 }}>
-                {event.time}
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#e2e8f0", fontFamily: "Inter, sans-serif" }}>
-                {event.label}
-              </div>
-              <div style={{ fontSize: 11, color: "#94a3b8", fontFamily: "Inter, sans-serif", marginTop: 2 }}>
-                {event.detail}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 20 }}>{event.icon}</span>
+                <div>
+                  <div style={{ fontSize: 11, color: "#64748b", fontFamily: "Inter, sans-serif" }}>
+                    {event.time}
+                  </div>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: "#e2e8f0", fontFamily: "Inter, sans-serif" }}>
+                    {event.label}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#94a3b8", fontFamily: "Inter, sans-serif" }}>
+                    {event.detail}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

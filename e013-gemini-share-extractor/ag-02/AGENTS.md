@@ -21,6 +21,17 @@ Generates video variations from the extracted Gemini conversation.
 ## Output
 
 Videos in `./output/<name>.mp4` with audio narration (English TTS).
+Format: 1080×1920 vertical (9:16), 30fps, h264 + AAC.
+
+## Timing (actual benchmark)
+
+| Composition | Duration | Resolution | Render time | Size |
+|---|---|---|---|---|
+| talking-head | 30s | 1080×1920 | 31.1s | 1.2 MB |
+| podcast | 45s | 1080×1920 | 66.8s | 1.1 MB |
+| code-review | 25s | 1080×1920 | 19.7s | 0.5 MB |
+| timeline | 20s | 1080×1920 | 16.3s | 3.3 MB |
+| **Total** | **120s** | | **~2.3 min** | **6.1 MB** |
 
 ## Timing (actual benchmark)
 

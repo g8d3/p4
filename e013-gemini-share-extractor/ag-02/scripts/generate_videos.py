@@ -124,17 +124,15 @@ def concat_audio(audio_files, output_path):
 
 
 def render_composition(comp_id, duration, audio_path=None):
-    """Render a single composition with optional audio."""
-    output = OUTPUT / f"{comp_id}.mp4"
+    """Render a single composition, then mux audio with ffmpeg."""
+    raw_output = OUTPUT / f"{comp_id}_raw.mp4"
+    final_output = OUTPUT / f"{comp_id}.mp4"
     
     cmd = [
         "remotion", "render", str(SRC / "index.ts"), comp_id,
-        str(output),
+        str(raw_output),
         "--overwrite",
     ]
-    
-    if audio_path:
-        cmd.extend(["--audio", audio_path])
     
     t0 = time.time()
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
@@ -144,7 +142,25 @@ def render_composition(comp_id, duration, audio_path=None):
         print(f"Render error for {comp_id}: {result.stderr[:300]}", file=sys.stderr)
         return None
     
-    return str(output), t
+    # Mux audio with ffmpeg
+    if audio_path and os.path.exists(audio_path):
+        mux_cmd = [
+            "ffmpeg", "-y",
+            "-i", str(raw_output),
+            "-i", audio_path,
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-map", "0:v:0",
+            "-map", "1:a:0",
+            "-shortest",
+            str(final_output),
+        ]
+        subprocess.run(mux_cmd, capture_output=True, check=True, timeout=60)
+        raw_output.unlink()
+    else:
+        raw_output.rename(final_output)
+    
+    return str(final_output), t
 
 
 def main():

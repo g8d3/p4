@@ -1,4 +1,4 @@
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, interpolate, spring, Audio } from "remotion";
+import { AbsoluteFill, useVideoConfig, useCurrentFrame, interpolate, spring } from "remotion";
 
 type SceneLine = {
   text: string;
@@ -46,10 +46,9 @@ export const TalkingHead: React.FC<{ title: string }> = ({ title }) => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#0f172a" }}>
-      {/* Background gradient */}
       <AbsoluteFill
         style={{
-          background: `radial-gradient(circle at 50% 50%, ${bgColor}44 0%, transparent 70%)`,
+          background: `radial-gradient(circle at 50% 30%, ${bgColor}44 0%, transparent 70%)`,
         }}
       />
 
@@ -62,42 +61,42 @@ export const TalkingHead: React.FC<{ title: string }> = ({ title }) => {
           height: 4,
           width: `${(frame / (SCENES[SCENES.length - 1].startFrame + SCENES[SCENES.length - 1].duration)) * 100}%`,
           backgroundColor: "#60a5fa",
-          transition: "width 0.1s",
         }}
       />
 
-      {/* Title bar */}
+      {/* Title at top */}
       <div
         style={{
           position: "absolute",
-          top: 40,
-          left: 80,
-          right: 80,
-          fontSize: 28,
+          top: 60,
+          left: 40,
+          right: 40,
+          fontSize: 22,
           fontWeight: 700,
           color: "#94a3b8",
           fontFamily: "Inter, system-ui, sans-serif",
+          textAlign: "center",
         }}
       >
         {title}
       </div>
 
-      {/* Speaker avatar circle */}
+      {/* Avatar */}
       <div
         style={{
           position: "absolute",
-          top: 140,
+          top: 160,
           left: "50%",
-          marginLeft: -60,
-          width: 120,
-          height: 120,
-          borderRadius: 60,
+          marginLeft: -50,
+          width: 100,
+          height: 100,
+          borderRadius: 50,
           backgroundColor: `${bgColor}88`,
           border: "3px solid #60a5fa",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontSize: 48,
+          fontSize: 42,
           opacity: fadeOut,
         }}
       >
@@ -108,39 +107,45 @@ export const TalkingHead: React.FC<{ title: string }> = ({ title }) => {
       <div
         style={{
           position: "absolute",
-          top: 300,
-          left: 120,
-          right: 120,
-          padding: "40px 60px",
+          top: 320,
+          left: 40,
+          right: 40,
+          padding: "30px 36px",
           backgroundColor: "rgba(30, 41, 59, 0.9)",
-          borderRadius: 24,
+          borderRadius: 20,
           border: "1px solid rgba(96, 165, 250, 0.3)",
-          transform: `translateY(${interpolate(slideIn, [0, 1], [40, 0])}px)`,
+          transform: `translateY(${interpolate(slideIn, [0, 1], [30, 0])}px)`,
           opacity: slideIn * fadeOut,
+          minHeight: 200,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <p
           style={{
-            fontSize: 36,
+            fontSize: 28,
             fontWeight: 400,
             color: "#e2e8f0",
             lineHeight: 1.5,
             margin: 0,
             fontFamily: "Inter, system-ui, sans-serif",
+            textAlign: "center",
           }}
         >
           {scene.text}
         </p>
       </div>
 
-      {/* Scene counter */}
+      {/* Dots */}
       <div
         style={{
           position: "absolute",
-          bottom: 40,
-          left: "50%",
-          transform: "translateX(-50%)",
+          bottom: 60,
+          left: 0,
+          right: 0,
           display: "flex",
+          justifyContent: "center",
           gap: 8,
         }}
       >
@@ -148,11 +153,10 @@ export const TalkingHead: React.FC<{ title: string }> = ({ title }) => {
           <div
             key={i}
             style={{
-              width: 10,
-              height: 10,
-              borderRadius: 5,
+              width: 8,
+              height: 8,
+              borderRadius: 4,
               backgroundColor: i === currentScene ? "#60a5fa" : "#334155",
-              transition: "background-color 0.3s",
             }}
           />
         ))}
