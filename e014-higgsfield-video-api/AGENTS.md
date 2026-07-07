@@ -62,4 +62,4 @@ Relevant pages:
 
 ## Agents
 
-- `ag-01/` — owns the generate_video.py script
+- `ag-01/` — owns the `generate_video.py` script

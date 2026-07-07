@@ -10,6 +10,13 @@ export HF_API_SECRET="your-api-secret"
 python generate_video.py
 ```
 
+### With the project venv
+
+```bash
+source ../../.venv/bin/activate
+python generate_video.py
+```
+
 ## Dependencies
 
 - `higgsfield-client` (v0.1.0) — Python SDK for Higgsfield API
