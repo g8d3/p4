@@ -146,6 +146,30 @@ Tried generating first test clip via web UI:
 - Best flow: first generate image → then animate with video model
 - For the actual video, we'll need to plan what images + motion prompts = usable clips
 
+### 2026-07-08 — Session 6: clip generation attempt (SDK + web UI)
+
+**SDK approach**:
+- `higgsfield_client.upload_file()` works — received public URL
+- `higgsfield_client.submit('kling-video/v2.1/pro/image-to-video', ...)` → `not_enough_credits`
+- SDK auth works but uses separate credit pool from web UI
+
+**Web UI approach**:
+- Successfully generated robot image via image page (Nano Banana Pro, 2 credits)
+- Image URL obtained, downloaded locally (896x1200, ~20KB)
+- SDK used to re-upload image with public URL
+- Tried to inject image into video form via JavaScript (file input `kling3-turbo-imageUrl`)
+- Faced "Media upload agreement" dialog (clicked "I agree, continue")
+- Faced constant React re-renders that change element IDs
+- `agent-browser` refs become invalid between commands
+
+**Conclusion**: Web UI automation is too fragile for reliable clip generation.
+The React SPA re-renders aggressively, invalidating all element references.
+
+**Recommendation for next session**:
+- Option A: Get credits on the API key → use SDK only (deterministic)
+- Option B: Use `agent-browser --session-name` to persist login + manual once
+- Option C: Write a more robust Python script that uses JS eval + retry loops
+
 ### Models research
 
 Created `models.md` — comprehensive reference of all Higgsfield models:
