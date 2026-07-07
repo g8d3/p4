@@ -3,6 +3,7 @@
 Owns two scripts:
 - `generate_video.py` — uses the Python SDK (API key, needs credits)
 - `browser_video.py` — uses agent-browser automation (web UI, interactive)
+- `video-plan.md` — detailed production plan for a video about this experiment
 
 ## Scripts
 

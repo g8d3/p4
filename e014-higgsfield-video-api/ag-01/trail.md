@@ -108,6 +108,15 @@ Handles all the hard-won learnings (UA, profile, viewport, Python subprocess).
 
 Updated `AGENTS.md` with 7 hard-won learnings so no future agent wastes time rediscovering them.
 
+### Video production plan
+
+Created `video-plan.md` — a structured 3-act video script (6 min) covering:
+- Act 1: debugging story (shell expansion, SwiftShader, headless detection)
+- Act 2: tutorial (Chrome launch recipe, login, viewport, React inputs)
+- Act 3: meta (documentation, script, autonomy roadmap)
+
+Includes: scene breakdown, timing, screenshots to capture, audio notes, technical specs.
+
 ### Ideas for full autonomy (verification code)
 
 Since the web login requires a verification code sent to email, documented 6 approaches
