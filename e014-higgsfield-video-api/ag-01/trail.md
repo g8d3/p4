@@ -108,6 +108,19 @@ Handles all the hard-won learnings (UA, profile, viewport, Python subprocess).
 
 Updated `AGENTS.md` with 7 hard-won learnings so no future agent wastes time rediscovering them.
 
+### Ideas for full autonomy (verification code)
+
+Since the web login requires a verification code sent to email, documented 6 approaches
+in AGENTS.md under "Future: full autonomy":
+- **A**: Email forwarding to novaisabuilder + IMAP read
+- **B**: Direct IMAP on pastasjuan with App Password
+- **C**: Session persistence (agent-browser `--session-name`) — one-time manual login
+- **D**: Upgrade API key credits (simplest, skips web UI entirely)
+- **E**: Gmail API (OAuth)
+- **F**: TOTP authenticator app
+
+Recommended next step: **try session persistence (C)** first — zero code, just flags.
+
 ### Pending
 
 - Get credits on the Higgsfield account to actually generate a video

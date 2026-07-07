@@ -104,6 +104,79 @@ google-chrome \
   "about:blank" >/dev/null 2>&1 &
 ```
 
+## Future: full autonomy (verification code)
+
+Currently `browser_video.py` asks the user for the verification code sent to
+`pastasjuan@gmail.com`. For full autonomy, ideas:
+
+### A. Email forwarding + IMAP (low effort)
+
+Create a forwarding rule in `pastasjuan@gmail.com` → `novaisabuilder@gmail.com`.
+Then the script reads `novaisabuilder@gmail.com` via IMAP to extract the code.
+
+```python
+import imaplib, re
+# Connect to novaisabuilder@gmail.com
+# Search for "Higgsfield" verification email
+# Extract 6-digit code with regex
+```
+
+**Pros**: Simple, no API setup. **Cons**: Requires forwarding rule + IMAP credentials for novaisabuilder.
+
+### B. Direct IMAP on pastasjuan (medium effort)
+
+Read the verification code directly from `pastasjuan@gmail.com` via IMAP.
+Requires an [App Password](https://myaccount.google.com/apppasswords) since Gmail
+blocks regular passwords for IMAP with 2FA.
+
+```python
+import imaplib, re
+mail = imaplib.IMAP4_SSL("imap.gmail.com")
+mail.login("pastasjuan@gmail.com", app_password)
+# Search INBOX for "Higgsfield verification code"
+# Extract digits from email body
+```
+
+**Pros**: No forwarding needed. **Cons**: App password needed (user creates once).
+
+### C. Session persistence (no code needed after first login)
+
+agent-browser supports saving/restoring sessions via `--session-name` or `--state`:
+
+```bash
+# First run: log in manually once, save state
+agent-browser --session-name higgsfield open "https://higgsfield.ai/ai/video"
+# ... log in manually via dashboard ...
+agent-browser close --all  # state auto-saved
+
+# Future runs: restore saved session (already logged in)
+agent-browser --session-name higgsfield open "https://higgsfield.ai/ai/video"
+```
+
+**Pros**: Zero code. One-time manual login. **Cons**: Session expires after some time.
+
+### D. Upgrade API key credits (simplest, no web UI needed)
+
+The Python SDK already works (auth passes). It just needs credits.
+If we buy/recharge credits on the API key, `generate_video.py` works directly
+without any browser automation or verification codes.
+
+**This is the most deterministic and maintainable path.**
+
+### E. Gmail API (medium effort)
+
+Use Google's Gmail API (OAuth) to read verification emails programmatically.
+More reliable than IMAP but requires OAuth setup.
+
+**Best for production**. Overkill for experiments.
+
+### F. TOTP / authenticator app
+
+If Clerk supports TOTP 2FA instead of email codes, generate the code locally
+with `pyotp` or similar. No email access needed at all.
+
+**Pros**: Fully deterministic. **Cons**: Requires account TOTP setup.
+
 ## Dependencies
 
 - `higgsfield-client` (v0.1.0) — Python SDK
