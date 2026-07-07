@@ -15,20 +15,18 @@
 
 | Window | Agent | Provider | Task |
 |--------|-------|----------|------|
-| `11-1` | ag-01 | Xiaomi | Extract x.com bookmarks → `output/bookmarks.txt` |
-| `11-2` | ag-02 | OpenCode Go | Research AI video creation repos → `output/video-repos.md` |
-| `11-3` | ag-03 | Z.AI | Research social media automation repos → `output/social-repos.md` |
+| `11-1` | ag-01 | Xiaomi | Extract x.com bookmarks → `ag-01/output/bookmarks.txt` |
+| `11-2` | ag-02 | OpenCode Go | Research AI video creation repos → `ag-02/output/video-repos.md` |
+| `11-3` | ag-03 | Z.AI | Research social media automation repos → `ag-03/output/social-repos.md` |
 
 ## Output
 
-Shared `output/` directory serves as the orchestration layer:
-- `output/bookmarks.txt` — produced by ag-01, consumed by ag-02/ag-03
-- `output/video-repos.md` — produced by ag-02
-- `output/social-repos.md` — produced by ag-03
+Each agent writes to its own `output/` directory:
+- `ag-01/output/bookmarks.txt` — produced by ag-01, consumed by ag-02/ag-03
+- `ag-02/output/video-repos.md` — produced by ag-02
+- `ag-03/output/social-repos.md` — produced by ag-03
 
-Agents read from and write to `output/`. The filesystem IS the orchestrator — no
-message broker, no coordination code. Each agent is a pure function: read input,
-produce output.
+Agents read from `../<agent>/output/` and write to their own `output/`. The filesystem IS the orchestrator — no message broker, no coordination code. Each agent is a pure function: read input, produce output.
 
 ## Shared tools
 

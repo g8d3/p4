@@ -21,6 +21,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e010-more-videos/](e010-more-videos/) — additional video experiments
 - [e011-gh-repo-analysis/](e011-gh-repo-analysis/) — GitHub repo analysis by multiple agents
 - [e012-p3-project-agents/](e012-p3-project-agents/) — agents that own, improve, and post about p3 projects
+- [e013-gemini-share-extractor/](e013-gemini-share-extractor/) — extract text from Gemini share links
 
 ## Language
 

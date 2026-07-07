@@ -66,26 +66,32 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 The directory structure IS the orchestration layer. Agents communicate through
 files, not through messages or APIs.
 
-### Pattern: shared `output/` directory
+### Pattern: agent-owned `output/` directory
 
-Each experiment has a shared `output/` directory. Agents write their results
-there, and other agents read them as input. This eliminates the need for an
-external orchestrator — the filesystem is the message bus.
+Each agent has its own `output/` directory inside its agent directory. Agents
+write their results there. Other agents read from `../<agent>/output/` when
+they need another agent's output. This eliminates the need for an external
+orchestrator — the filesystem is the message bus.
 
 ```
 e011-gh-repo-analysis/
-├── ag-01/         # produces output/bookmarks.txt
-├── ag-02/         # consumes output/bookmarks.txt, produces output/video-repos.md
-├── ag-03/         # consumes output/bookmarks.txt, produces output/social-repos.md
-└── output/        # shared orchestration layer
-    ├── bookmarks.txt
-    ├── video-repos.md
-    └── social-repos.md
+├── ag-01/
+│   ├── bin/
+│   └── output/       # produced by ag-01
+│       └── bookmarks.txt
+├── ag-02/
+│   ├── bin/
+│   └── output/       # produced by ag-02, reads from ../ag-01/output/
+│       └── video-repos.md
+└── ag-03/
+    ├── bin/
+    └── output/       # produced by ag-03, reads from ../ag-01/output/
+        └── social-repos.md
 ```
 
 **Rules:**
-1. Each agent writes to `output/<type>.ext` — one file per deliverable
-2. An agent that needs another agent's output reads from `../output/<file>`
+1. Each agent writes to its own `output/<type>.ext` — one file per deliverable
+2. An agent that needs another agent's output reads from `../<agent>/output/<file>`
 3. No direct inter-agent communication — agents don't talk, files do
 4. The experiment's `AGENTS.md` defines the expected files and their producers/consumers
 
@@ -93,6 +99,7 @@ e011-gh-repo-analysis/
 
 - **Pure functions**: each agent is `read(file) → process → write(file)`
 - **No coordination code**: no message broker, no queue, no shared state
+- **Self-contained**: each agent's directory has everything it produces
 - **Auditable**: `git diff` shows what each agent produced
 - **Resumable**: if an agent fails, the next agent can still read its partial output
 - **Language-agnostic**: agents can be any tool (opencode, Python script, bash)
@@ -536,6 +543,15 @@ echo "=== DONE ==="
 ```
 
 This way the orchestrator can see which step is currently executing and estimate if it's taking too long.
+
+## Data formats
+
+- **Prefer CSV over JSON for tabular data.** JSON repeats field names on every
+  row — wasteful, redundant, and harder to diff. CSV is lean, diffable, and
+  universally readable.
+- **JSON is acceptable only for non-tabular structured metadata** (e.g.
+  `metadata.json` for video resources) where the structure is heterogeneous and
+  a schema is needed.
 
 ## Commits
 
