@@ -173,16 +173,20 @@
 
 ## Audio
 
-- **Voz candidata 1**: Higgsfield TTS (si tiene modelo de voz) — investigar endpoint
-- **Voz candidata 2**: edge-tts `en-US-JennyNeural` (fallback, funciona siempre)
+- **Voz principal**: Higgsfield Voiceover con **ElevenLabs Eleven v3** — superior a edge-tts
+  - Control de emociones vía tags inline
+  - Voice Preset disponible: "Tallulah" (y otros)
+  - Se accede desde `https://higgsfield.ai/audio` → pestaña "Voiceover"
+- **Fallback**: edge-tts `en-US-JennyNeural` (si no podemos acceder a Voiceover vía API)
 - **Pacing**: 2-3s entre escenas para procesar
 - **Tono Acto 1**: frustrado pero cómico
 - **Tono Acto 2**: enfocado, instructivo
 - **Tono Acto 3**: reflexivo, orgulloso
 
-> **Pendiente**: verificar si Higgsfield tiene TTS y cómo se compara con edge-tts.
-> Si tiene, el video podría generarse casi 100% con Higgsfield (clips video + narración).
-> Faltaría solo el ensamblaje final (unir clips + sincronizar audio).
+> **Confirmado**: Higgsfield tiene ElevenLabs Eleven v3, MiniMax Speech 2.8 HD,
+> VibeVoice, Seed Speech, y Seed Audio 1.0. La narración del video podría
+> generarse completamente con Higgsfield Voiceover. Solo faltaría el ensamblaje
+> final (unir clips de video + sincronizar audio de narración).
 
 ## Técnico
 
