@@ -126,6 +126,49 @@ the generated video URLs are loaded dynamically via JavaScript.
 
 Use `webui_generate.py` which handles all these pitfalls automatically.
 
+### Snapshot flags matter
+
+`snapshot -c` (compact) removes structural elements — useful for tokens but
+**hides information**. Use full `snapshot` (no flags) to capture everything,
+including `alt` attributes, data attributes, and nested element structure that
+may contain video UUIDs and other metadata.
+
+### Video UUIDs from history items
+
+Each generated video in the History tab has a hidden UUID visible in the
+full snapshot as an `alt` attribute:
+
+```
+image "media asset by id of 21cadde4-6593-4a32-afed-b673c9179433"
+```
+
+These UUIDs are the keys to the library detail pages and download URLs.
+
+### Downloading generated videos
+
+Once you have the UUID, the download flow is:
+
+1. Open `https://higgsfield.ai/library/video/{uuid}`
+2. Wait for React to render the video player
+3. Extract `<video>` src URL
+4. Download via `httpx`
+
+```python
+# Get video src from detail page
+agent-browser --cdp PORT open f"https://higgsfield.ai/library/video/{uuid}"
+# wait for page
+video_url = agent-browser eval "document.querySelector('video')?.src"
+
+# Download with httpx
+import httpx
+r = httpx.get(video_url, timeout=120)
+```
+
+The CDN URL format is:
+```
+https://d8j0ntlcm91z4.cloudfront.net/user_{userId}/hf_{timestamp}_{uuid}.mp4
+```
+
 The "Too many requests" error is NOT a real rate limit — it's Higgsfield/Clerk
 detecting automation (HeadlessChrome UA). The account works fine from a normal
 browser. Fix with item #2 above.

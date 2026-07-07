@@ -186,9 +186,26 @@ Opens a full player with Download button.
 3. Download with Python httpx
 
 **Victory clip downloaded**: 3.5MB, 720p, 720x1280 portrait.
-**Remaining 5 clips**: IDs unknown — the history items don't expose navigation to library.
 
-**Added `download_video()` function to `webui_generate.py`**.
+### 2026-07-08 — Session 9: downloaded all clips + snapshot lesson
+
+**Key lesson**: `snapshot -c` was hiding UUIDs in `alt` attributes.
+Full `snapshot` (no flags) revealed `media asset by id of {uuid}` for each video.
+
+**UUIDs discovered** (from History tab full snapshot):
+- `21cadde4-6593-4a32-afed-b673c9179433` → victory
+- `9e2bfa1c-e12f-41d1-9a22-765018b50b98` → error
+- `13d1533c-3a62-49eb-9357-67103478fa3b` → thinking
+- `ce606f7b-d4d6-4c1f-b416-a1b3889fda50` → idle
+- `c4979e59-42c7-4c52-9fa7-e57085f1f49e` → mountain
+
+**Download flow**:
+1. Open `https://higgsfield.ai/library/video/{uuid}`
+2. Extract `<video>` src via JS
+3. Download with httpx
+
+**Script updated**: `webui_generate.py` now has `download_all_clips()`.
+**AGENTS.md updated**: added sections on snapshot flags, UUIDs, and download.
 
 **Remaining**: Need to find how to download generated videos from the History tab
 (the video URLs are loaded dynamically via JavaScript, not in static DOM).

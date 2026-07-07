@@ -26,6 +26,8 @@ import sys
 import time
 import os
 import json
+import re
+import httpx
 
 CDP_PORT = os.environ.get("HF_CDP_PORT", "9222")
 CDP = ["--cdp", CDP_PORT]
@@ -216,14 +218,64 @@ def generate_clip(clip_name, prompt, image_url=None):
 
 def download_video(url, output_path):
     """Download a video from a Higgsfield CDN URL."""
-    import httpx
     r = httpx.get(url, timeout=120, follow_redirects=True)
     with open(output_path, "wb") as f:
         f.write(r.content)
     return len(r.content)
 
 
-def main():
+def get_video_url(uuid):
+    """Get the video download URL from the library detail page.
+
+    Opens https://higgsfield.ai/library/video/{uuid}, waits for React
+    to render the video player, and extracts the <video> src.
+    """
+    ab("open", f"https://higgsfield.ai/library/video/{uuid}")
+    time.sleep(4)
+    return ab_eval("document.querySelector('video')?.src || 'NOVIDEO'")
+
+
+def extract_uuids_from_history():
+    """Parse the full snapshot of the video page to find all video UUIDs.
+
+    UUIDs appear in alt attributes: 'media asset by id of {uuid}'.
+    Requires full snapshot (no -c flag) to capture alt text.
+    """
+    ab("open", "https://higgsfield.ai/ai/video")
+    time.sleep(3)
+    ab("set", "viewport", "1280", "800")
+    time.sleep(2)
+    snap = ab("snapshot", timeout=10)
+    uuids = re.findall(r'media asset by id of ([a-f0-9-]+)', snap)
+    return list(dict.fromkeys(uuids))  # deduplicate preserving order
+
+
+def download_all_clips(output_dir="output"):
+    """Find all video UUIDs from history and download each one."""
+    os.makedirs(output_dir, exist_ok=True)
+
+    print("Finding video UUIDs from history...")
+    uuids = extract_uuids_from_history()
+    print(f"Found {len(uuids)} videos")
+
+    if not uuids:
+        print("No videos found. Make sure you're logged in and have history.")
+        return
+
+    for uuid in uuids:
+        short_id = uuid[:8]
+        path = os.path.join(output_dir, f"{short_id}.mp4")
+        if os.path.exists(path):
+            print(f"  {short_id} already downloaded, skipping")
+            continue
+
+        print(f"  Getting URL for {short_id}...")
+        video_url = get_video_url(uuid)
+        if video_url and video_url != "NOVIDEO":
+            size = download_video(video_url, path)
+            print(f"  Downloaded {short_id}: {size} bytes")
+        else:
+            print(f"  Failed to get video URL for {short_id}")
 
 
 def main():
