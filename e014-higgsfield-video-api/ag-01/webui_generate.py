@@ -54,8 +54,11 @@ def ab(*args, timeout=30):
 
 
 def ab_eval(js, timeout=15):
-    """Run JavaScript via agent-browser eval."""
-    return ab("eval", js, timeout=timeout)
+    """Run JavaScript via agent-browser eval. Strip surrounding quotes."""
+    out = ab("eval", js, timeout=timeout)
+    if out.startswith('"') and out.endswith('"'):
+        out = out[1:-1]
+    return out
 
 
 def find_ref(snapshot, pattern):
@@ -209,6 +212,18 @@ def generate_clip(clip_name, prompt, image_url=None):
     else:
         print(f"   ✗ Generation timed out or failed")
         return False
+
+
+def download_video(url, output_path):
+    """Download a video from a Higgsfield CDN URL."""
+    import httpx
+    r = httpx.get(url, timeout=120, follow_redirects=True)
+    with open(output_path, "wb") as f:
+        f.write(r.content)
+    return len(r.content)
+
+
+def main():
 
 
 def main():

@@ -163,6 +163,33 @@ See AGENTS.md section "Web UI automation learnings" for full documentation.
 
 **Created script**: `webui_generate.py` — encapsulates all pitfalls, generates 4 clips.
 
+### 2026-07-08 — Session 7: script test — ALL 4 CLIPS GENERATED 🎉
+
+`webui_generate.py` tested successfully:
+- **thinking** — generated ✓
+- **error** — generated ✓
+- **victory** — generated ✓
+- Plus all 3 from earlier (idle + thinking + mountain) = 6 total clips
+
+**Fix needed**: `ab_eval` returns JSON-quoted strings. Added quote stripping.
+**Total credits spent**: ~45 credits (6 clips × 7.5cr each).
+**Remaining credits**: ~51 (from 96 initial).
+
+### 2026-07-08 — Session 8: download discovery
+
+User discovered: video detail page is at `https://higgsfield.ai/library/video/{uuid}`.
+Opens a full player with Download button.
+
+**Download flow**:
+1. Go to `https://higgsfield.ai/library/video/{uuid}`
+2. Video URL is in `<video src>`: `https://d8j0ntlcm91z4.cloudfront.net/user_.../{uuid}.mp4`
+3. Download with Python httpx
+
+**Victory clip downloaded**: 3.5MB, 720p, 720x1280 portrait.
+**Remaining 5 clips**: IDs unknown — the history items don't expose navigation to library.
+
+**Added `download_video()` function to `webui_generate.py`**.
+
 **Remaining**: Need to find how to download generated videos from the History tab
 (the video URLs are loaded dynamically via JavaScript, not in static DOM).
 
