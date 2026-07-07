@@ -22,5 +22,8 @@ python generate_video.py
 - `higgsfield-client` (v0.1.0) — Python SDK for Higgsfield API
 - `httpx` — HTTP client (dependency of higgsfield-client)
 
+## Trail
+- [trail.md](trail.md) — session history
+
 ## Inherits
 - [../AGENTS.md](../AGENTS.md) — experiment context, endpoints, auth
