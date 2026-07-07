@@ -1,198 +1,113 @@
-# Video plan: How an agent beat an AI (and left the treasure map)
+# Video plan: Creador vs Agente
 
-**Formato**: screencast contado + clips generados con Higgsfield como demo
-**Duración**: ~6 min
-**Herramientas**: wf-recorder + VAAPI, edge-tts para narración, Higgsfield para los clips demo
-**Aspecto**: 9:16 vertical
-
----
-
-## Estructura
-
-| Acto | Tema | Duración |
-|------|------|----------|
-| 1 | La pesadilla del agente | ~2 min |
-| 2 | Cómo domar al browser | ~2.5 min |
-| 3 | Un agente que enseña a otros | ~1.5 min |
+**Formato**: conversación en pantalla dividida (humano vs IA)
+**Duración**: ~2-3 min
+**Herramientas**: 
+  - wf-recorder (screencast terminal/código/browser)
+  - Higgsfield (4 clips de avatar robot de 3s + TTS ElevenLabs)
+  - ffmpeg (composición split-screen, transiciones)
+**Aspecto**: 16:9 horizontal
 
 ---
 
-## Acto 1 — La pesadilla del agente (~2 min)
+## Concepto
 
-**Narración**: frustrada pero cómica — "qué podría salir mal?"
-
-### Escena 1.1 — El agente confiado (20s)
-- **Qué se ve**: terminal + `generate_video.py`
-- **Narración**: "Tenía que generar un video con la API de Higgsfield. SDK instalado,
-  credenciales listas, una llamada a `hf.subscribe()`. ¿Qué podría salir mal?"
-- **Higgsfield clip**: no, es pantalla de código
-
-### Escena 1.2 — `not_enough_credits` (20s)
-- **Qué se ve**: terminal con el error
-- **Narración**: "not_enough_credits. El endpoint funciona, la auth funciona,
-  pero no hay créditos. Clásico."
-- **Higgsfield clip**: no, es terminal
-
-### Escena 1.3 — El bug del `$f` (25s)
-- **Qué se ve**: comando fallando por shell expansion, luego el fix con Python
-- **Narración**: "El password tiene `$fENNy`. Bash interpreta `$f` como variable
-  y lo deja vacío. Estaba mandando `YXnqj4ENNy#4` en vez del password real."
-- **Higgsfield clip**: no, es terminal
-
-### Escena 1.4 — La CPU en llamas (25s)
-- **Qué se ve**: htop con 160% CPU, luego el fix GPU baja a 4%
-- **Narración**: "Chrome headless usa SwiftShader, un emulador de GPU por software.
-  160% de CPU. El ventilador sonaba a turbina. La solución: usar la GPU AMD real
-  con `--use-gl=angle --use-angle=gl-egl`."
-- **Higgsfield clip**: no, es htop
-
-### Escena 1.5 — Detección de automation (20s)
-- **Qué se ve**: "Too many requests", luego `navigator.userAgent` mostrando
-  "HeadlessChrome", luego el fix con `--user-agent` personalizado
-- **Narración**: " 'Too many requests'. Pero el usuario entra desde el móvil
-  sin problemas. No es rate limit: es detección de automation. El User-Agent
-  dice `HeadlessChrome`. Un flag lo resuelve."
-- **Higgsfield clip**: no, es browser
+El video muestra una conversación entre el humano (vos) y el agente AI.
+- **Humano**: se ve su pantalla (terminal, código, browser) — grabado con wf-recorder
+- **IA**: un avatar robot generado con Higgsfield que reacciona y narra con TTS
 
 ---
 
-## Acto 2 — Cómo domar al browser (~2.5 min)
+## Los 4 clips de Higgsfield
 
-**Narración**: enfocada, instructiva
+Solo 4 clips cortos (3s c/u). ~18-30 créditos total.
 
-### Escena 2.1 — La receta completa (25s)
-- **Qué se ve**: comando completo de Chrome con todos los flags
-- **Narración**: "Esto es lo que necesita Chrome headless para ser indetectable:
-  GPU real, perfil de usuario real, User-Agent sin HeadlessChrome. Cuatro flags
-  que convierten un browser sospechoso en uno normal."
-- **Higgsfield clip**: no, es terminal
+| # | Emoción | Prompt para Higgsfield | Modelo | Créditos |
+|---|---------|----------------------|--------|----------|
+| 1 | **Espera/idle** | "Minimalist sleek cybernetic robot assistant, idle animation, dark background, looping video, 3s" | Kling 3.0 720p | ~7 |
+| 2 | **Pensando/procesando** | "Robot avatar with neon lights blinking rapidly, data streams on screen, thinking expression, 3s" | Kling 3.0 720p | ~7 |
+| 3 | **Error/pánico** | "Robot face short-circuiting, sparks, screen glitch, error animation, 3s" | Kling 3.0 720p | ~7 |
+| 4 | **Victoria/celebración** | "Futuristic robot doing a subtle victory gesture, digital eyes smiling, neon green lights, 3s" | Kling 3.0 720p | ~7 |
 
-### Escena 2.2 — Login exitoso + Demo de Higgsfield 1 (30s)
-- **Qué se ve**: agent-browser haciendo login, y luego MOSTRAR UN CLIP CORTO
-  generado con Higgsfield como demo
-- **Narración**: "Con Chrome bien configurado, el login funciona. Y acá un clip
-  generado con Seedance 2.0 para mostrar de qué estamos hablando."
-- **Higgsfield clip**: clip de 5-10s generado con Seedance 2.0 o Kling,
-  prompt tipo "a cinematic mountain landscape at sunset, smooth camera pan"
-
-### Escena 2.3 — El código de verificación (20s)
-- **Qué se ve**: diálogo "Verify your email", el usuario pasa el código
-- **Narración**: "Aparece 'Verify your email'. El usuario me pasa el código.
-  96 créditos disponibles. Estamos adentro."
-- **Higgsfield clip**: no, es browser
-
-### Escena 2.4 — Viewport (20s)
-- **Qué se ve**: layout mobile vs desktop side by side
-- **Narración**: "¿Y el formulario? A 800×600 Higgsfield muestra layout mobile.
-  Sin upload, sin prompt, sin Generate. `set viewport 1280 800` — listo."
-- **Higgsfield clip**: no, es browser
-
-### Escena 2.5 — Inputs de React (15s)
-- **Qué se ve**: inserttext fallando vs fill funcionando
-- **Narración**: "React: `inserttext` no dispara eventos, React lo borra.
-  `fill` funciona. Un clásico de automation."
-- **Higgsfield clip**: no, es browser
-
-### Escena 2.6 — Demo de Higgsfield 2 (25s)
-- **Qué se ve**: formulario listo + SEGUNDO CLIP generado con Higgsfield
-- **Narración**: "Formulario listo, prompt escrito, modelo seleccionado.
-  Y acá otro clip, este con Kling 3.0, para mostrar la diferencia entre modelos."
-- **Higgsfield clip**: clip de 5-10s con Kling 3.0,
-  prompt tipo "a futuristic city with flying cars, cinematic lighting"
+**Total estimado**: ~28 créditos.
 
 ---
 
-## Acto 3 — Un agente que enseña a otros (~1.5 min)
+## Estructura del video
 
-**Narración**: reflexiva, orgullosa del sistema
+### Escena 1 — Apertura (15s)
+- **Split**: izquierda = humano (terminal), derecha = robot idle (clip 1)
+- **TTS IA**: "Mi humano me ordenó automatizar su navegador porque no quería pagar la API."
+- **Humano**: escribe `hf.subscribe(...)` en la terminal
 
-### Escena 3.1 — La documentación (25s)
-- **Qué se ve**: AGENTS.md con los 7 aprendizajes
-- **Narración**: "Pero el logro real no es el login. Es lo que quedó documentado.
-  7 lecciones para que ningún agente futuro pierda horas redescubriéndolas."
-- **Higgsfield clip**: no, es archivo de texto
+### Escena 2 — El problema (20s)
+- **Split**: izquierda = humano (terminal con error), derecha = robot error (clip 3)
+- **TTS IA**: "Error. not_enough_credits. La API no acepta deudas."
+- **Humano**: googlea "browser automation agent-browser"
 
-### Escena 3.2 — El script (20s)
-- **Qué se ve**: `browser_video.py`
-- **Narración**: "Y un script determinista que codifica todas las soluciones.
-  Próxima vez: `python browser_video.py`, un código, y el video se genera solo."
-- **Higgsfield clip**: no, es terminal
+### Escena 3 — El plan (15s)
+- **Split**: izquierda = humano (código Python), derecha = robot pensando (clip 2)
+- **TTS IA**: "Voy a usar agent-browser. Headless Chrome. Pero hay trampas."
+- **Humano**: escribe el script
 
-### Escena 3.3 — Ruta a la autonomía (20s)
-- **Qué se ve**: las 6 opciones documentadas
-- **Narración**: "El único paso manual es el código de verificación. 6 soluciones
-  documentadas: IMAP, session persistence, créditos en API, TOTP..."
-- **Higgsfield clip**: no, es archivo de texto
+### Escena 4 — El debugging (30s)
+- **Split**: izquierda = humano (terminal con errores), derecha = robot error (clip 3)
+- **TTS IA**: "El password tiene $f y bash lo come. SwiftShader quema la CPU."
+- **Humano**: muestra htop al 160%, luego el fix GPU
+- **TTS IA**: "Y encima HeadlessChrome me delata. User-Agent fix."
 
-### Escena 3.4 — Demo final Higgsfield 3 (20s)
-- **Qué se ve**: clip más largo o impresionante generado con Higgsfield
-- **Narración**: "Este es el tipo de video que Higgsfield puede generar.
-  La próxima vez que un agente necesite hacerlo, será cuestión de segundos."
-- **Higgsfield clip**: clip de 10-15s con el mejor resultado que logremos,
-  prompt elaborado, cámara cinemática
+### Escena 5 — El login (20s)
+- **Split**: izquierda = humano (browser), derecha = robot procesando (clip 2)
+- **TTS IA**: "Login... código de verificación... ¡Estamos dentro!"
+- **Humano**: muestra el "Account menu"
+
+### Escena 6 — Cierre (20s)
+- **Split**: izquierda = humano (formulario listo), derecha = robot victoria (clip 4)
+- **TTS IA**: "62 líneas de Python. 7 lecciones aprendidas. Y vos (el humano) solo tuviste que copiar el código de verificación. Soy un buen agente."
+- **Humano**: sonríe, cierra la laptop
+
+### Total: ~2 min
 
 ---
-
-## Qué genera Higgsfield vs qué se graba con wf-recorder
-
-| Contenido | Quién lo genera | Cómo |
-|-----------|----------------|------|
-| Clips demo de AI (3-4) | **Higgsfield** (Seedance 2.0 / Kling 3.0) | Prompt + image-to-video |
-| Terminal, código, browser, htop | **wf-recorder** (screencast) | Captura de pantalla + narración |
-| Todo el video final | **wf-recorder** + VAAPI (o ffmpeg si juntamos clips) | Edición lineal / ensamblaje |
-| Narración | **Higgsfield TTS** o edge-tts | Si Higgsfield tiene TTS, esto también sería generado por la plataforma |
-
-## Clips a generar con Higgsfield
-
-Ver [models.md](../models.md) para costos de créditos por modelo.
-
-| # | Modelo | Resolución | Créditos | Prompt | Duración | Propósito |
-|---|--------|-----------|---------|--------|----------|-----------|
-| 1 | Kling 3.0 | 720p | 7 | "A cinematic mountain landscape at golden hour, mist rolling between peaks, smooth camera pan" | 5s | Demo calidad/price balance |
-| 2 | Seedance 2.0 | 720p | 22 | "Futuristic city with flying cars, neon lights reflecting on wet streets, cinematic dolly shot" | 5s | Demo flagship quality |
-| 3 | MiniMax Hailuo 2.3 Fast | 768p | 4 | "A close-up of a human face, soft natural lighting, subtle micro-expressions" | 6s | Demo budget option |
-| 4 | Mejor resultado | - | - | TBD (el mejor de los anteriores) | 10-15s | Clip de cierre |
-
-## Screenshots a capturar
-
-| Escena | Qué capturar | Método |
-|--------|-------------|--------|
-| 1.1 | Script + run | Terminal |
-| 1.2 | Error output | Terminal |
-| 1.3 | Password bug vs fix | Terminal side-by-side |
-| 1.4 | htop before/after GPU | htop + comando |
-| 1.5 | UA antes/después | Browser eval |
-| 2.1 | Chrome launch command | Terminal |
-| 2.2 | Login dialog + campos + clip demo | Browser + Higgsfield output |
-| 2.3 | Verify dialog + éxito | Snapshot |
-| 2.4 | Mobile vs desktop | Snapshots |
-| 2.5 | Error vs fix | Terminal |
-| 2.6 | Form listo + clip demo | Browser + Higgsfield output |
-| 3.1 | AGENTS.md | File view |
-| 3.2 | browser_video.py | Terminal |
-| 3.3 | Opciones de autonomía | AGENTS.md |
-| 3.4 | Clip final | Higgsfield output |
 
 ## Audio
 
-- **Voz principal**: Higgsfield Voiceover con **ElevenLabs Eleven v3** — superior a edge-tts
-  - Control de emociones vía tags inline
-  - Voice Preset disponible: "Tallulah" (y otros)
-  - Se accede desde `https://higgsfield.ai/audio` → pestaña "Voiceover"
-- **Fallback**: edge-tts `en-US-JennyNeural` (si no podemos acceder a Voiceover vía API)
-- **Pacing**: 2-3s entre escenas para procesar
-- **Tono Acto 1**: frustrado pero cómico
-- **Tono Acto 2**: enfocado, instructivo
-- **Tono Acto 3**: reflexivo, orgulloso
+- **Voz IA**: Higgsfield Voiceover con ElevenLabs Eleven v3
+- **Voz humana**: grabación real con micrófono o texto en pantalla
 
-> **Confirmado**: Higgsfield tiene ElevenLabs Eleven v3, MiniMax Speech 2.8 HD,
-> VibeVoice, Seed Speech, y Seed Audio 1.0. La narración del video podría
-> generarse completamente con Higgsfield Voiceover. Solo faltaría el ensamblaje
-> final (unir clips de video + sincronizar audio de narración).
+## Screencasts a grabar con wf-recorder
 
-## Técnico
+| Toma | Qué se ve | Duración |
+|------|----------|----------|
+| 1 | Terminal con `hf.subscribe()` y error | ~15s |
+| 2 | Código Python en VS Code | ~15s |
+| 3 | htop con 160% CPU | ~10s |
+| 4 | Browser haciendo login | ~20s |
+| 5 | Formulario de Higgsfield listo | ~10s |
 
-- **Resolución**: 608×1080 vertical
-- **Encoding**: h264_vaapi (GPU AMD)
-- **FPS**: 30
-- **Total estimado**: 5-7 min
+## Créditos necesarios
+
+| Concepto | Créditos |
+|----------|----------|
+| 4 clips robot (Kling 3.0 720p) | ~28 |
+| TTS ElevenLabs (voz IA ~2 min) | TBD |
+| **Total** | ~30-40 |
+
+Con ~600 créditos disponibles, sobran más de 500 para otros experimentos.
+
+## Archivos de salida
+
+```
+output/
+├── clip-01-idle.mp4
+├── clip-02-thinking.mp4
+├── clip-03-error.mp4
+├── clip-04-victory.mp4
+├── voiceover.mp3
+├── screencast-01-terminal.mp4
+├── screencast-02-code.mp4
+├── screencast-03-htop.mp4
+├── screencast-04-login.mp4
+├── screencast-05-form.mp4
+└── final.mp4
+```

@@ -117,6 +117,20 @@ Created `video-plan.md` — a structured 3-act video script (6 min) covering:
 
 Includes: scene breakdown, timing, screenshots to capture, audio notes, technical specs.
 
+### 2026-07-08 — Session 5: new video plan (Creador vs Agente)
+
+User added Gemini.md with a complete video concept: **Creador vs Agente**.
+The plan changed from a 3-act screencast to a split-screen conversation:
+- Left side: real screencasts (terminal, code, browser)
+- Right side: Higgsfield-generated robot avatar reacting (4 clips of 3s each)
+- TTS: ElevenLabs for AI voice
+
+Rewrote `video-plan.md` with new structure:
+- 6 scenes, ~2 min total
+- Only 4 Higgsfield clips needed (~28 credits)
+- Real screencasts for the rest
+- ffmpeg for assembly (no Remotion complexity)
+
 ### 2026-07-08 — Session 4: test generation attempt
 
 Tried generating first test clip via web UI:
