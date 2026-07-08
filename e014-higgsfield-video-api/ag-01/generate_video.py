@@ -86,29 +86,46 @@ def parse_vtt(path):
     return phrases
 
 
-# --- Adaptive word timing ---
-def estimate_word_timing(phrases):
-    """Generate per-word timings using weighted duration (longer words = more time)."""
-    words = []
+# --- Adaptive chunk timing ---
+def estimate_chunk_timing(phrases, chunk_size=3):
+    """Group words into chunks of N words with flat timing division.
+    
+    Short chunks (3-5 words, ~0.5-2s) are more accurate than individual words
+    because the flat division within a chunk has less relative error.
+    """
+    chunks = []
     for p in phrases:
         word_list = p["text"].split()
         phrase_dur = p["end"] - p["start"]
-        # Weight by character count (longer words take more time)
         total_chars = sum(len(w) for w in word_list)
         if total_chars == 0:
             continue
         char_time = phrase_dur / total_chars
         ws = p["start"]
+        # Group into chunks of chunk_size words
+        group = []
+        group_chars = 0
         for w in word_list:
-            wd = len(w) * char_time
+            group.append(w)
+            group_chars += len(w)
+            if len(group) >= chunk_size:
+                wd = group_chars * char_time
+                we = min(ws + wd, p["end"])
+                chunks.append({"text": " ".join(group), "start": ws, "end": we, "phrase": p["text"]})
+                ws = we
+                group = []
+                group_chars = 0
+        
+        # Remaining words
+        if group:
+            wd = group_chars * char_time
             we = min(ws + wd, p["end"])
-            words.append({"word": w, "start": ws, "end": we, "phrase": p["text"]})
-            ws = we
+            chunks.append({"text": " ".join(group), "start": ws, "end": we, "phrase": p["text"]})
 
-    # Fix: ensure last word ends at phrase end
-    if words and phrases:
-        words[-1]["end"] = phrases[-1]["end"]
-    return words
+    # Fix: ensure last chunk ends at phrase end
+    if chunks and phrases:
+        chunks[-1]["end"] = phrases[-1]["end"]
+    return chunks
 
 
 # --- Adaptive font sizing ---
@@ -225,8 +242,12 @@ def render_visual(seg, sd, accent, outpath):
 
 
 # --- ASS subtitle generation ---
-def generate_ass(words, font_size=48, ass_path="subtitles.ass"):
-    """Generate ASS with per-word highlighting (current word yellow)."""
+def generate_ass(chunks, font_size=48, ass_path="subtitles.ass"):
+    """Generate ASS with per-chunk highlighting (current chunk yellow).
+    
+    Each chunk is 2-4 words. The full phrase is shown with the current chunk
+    highlighted in yellow, past chunks in gray, future chunks in white.
+    """
     YELLOW = "{\\c&H00CCFF&}"
     WHITE = "{\\c&HFFFFFF&}"
     GRAY = "{\\c&H888888&}"
@@ -246,20 +267,26 @@ def generate_ass(words, font_size=48, ass_path="subtitles.ass"):
         f.write("[Events]\n")
         f.write("Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n")
 
-        # Group by phrase for context
+        # Group by phrase
         phrase_groups = {}
-        for w in words:
-            key = w["phrase"]
-            phrase_groups.setdefault(key, []).append(w)
+        for c in chunks:
+            phrase_groups.setdefault(c["phrase"], []).append(c)
 
         for phrase_text, group in phrase_groups.items():
-            word_list = phrase_text.split()
-            for i, wd in enumerate(group):
+            phrase_words = phrase_text.split()
+            # Build word-to-chunk mapping
+            chunk_word_counts = [len(c["text"].split()) for c in group]
+            
+            for i, ch in enumerate(group):
+                # Determine word boundaries for this chunk
+                words_before = sum(chunk_word_counts[:i])
+                words_up_to = words_before + chunk_word_counts[i]
+                
                 parts = []
-                for j, w in enumerate(word_list):
-                    if j < i:
+                for j, w in enumerate(phrase_words):
+                    if j < words_before:
                         parts.append(f"{GRAY}{w}{WHITE}")
-                    elif j == i:
+                    elif j < words_up_to:
                         parts.append(f"{YELLOW}{w}{WHITE}")
                     else:
                         parts.append(w)
@@ -270,7 +297,7 @@ def generate_ass(words, font_size=48, ass_path="subtitles.ass"):
                     m = int(sec % 3600 // 60)
                     s = sec % 60
                     return f"{h:01d}:{m:02d}:{s:06.2f}".replace(".", ":")
-                f.write(f"Dialogue: 0,{ts(wd['start'])},{ts(wd['end'])},Default,,0,0,0,,{line}\n")
+                f.write(f"Dialogue: 0,{ts(ch['start'])},{ts(ch['end'])},Default,,0,0,0,,{line}\n")
 
 
 # --- Main pipeline ---
@@ -292,15 +319,20 @@ def generate_video(text, title="Chapter", output="output/video.mp4", voice="en-U
         return False
     print(f"   {len(phrases)} phrases, {phrases[-1]['end']:.1f}s total")
 
-    # 3. Word timing
-    words = estimate_word_timing(phrases)
-    print(f"   {len(words)} words")
+    # 3. Chunk timing (groups of 3 words for accuracy)
+    chunks = estimate_chunk_timing(phrases, chunk_size=3)
+    print(f"   {len(chunks)} chunks from {sum(len(p['text'].split()) for p in phrases)} words")
 
     # 4. Adaptive font size
     font_size = calc_font_size(phrases)
     print(f"   Font size: {font_size}")
 
-    # 5. Visual segments
+    # 5. Generate ASS
+    ass_path = f"{base}.ass"
+    generate_ass(chunks, font_size, ass_path)
+    print(f"   ASS subtitles: {ass_path}")
+
+    # 6. Visual segments
     segments = build_visual_segments(phrases, title)
     print(f"   {len(segments)} visual segments")
 
@@ -323,18 +355,14 @@ def generate_video(text, title="Chapter", output="output/video.mp4", voice="en-U
         "-i", f"{base}_concat.txt", "-c", "copy", f"{base}_visuals.mp4"],
         check=True, capture_output=True)
 
-    # 8. Generate ASS
-    ass_path = f"{base}.ass"
-    generate_ass(words, font_size, ass_path)
-
-    # 9. Burn subtitles
+    # 7. Burn subtitles
     subprocess.run(["ffmpeg", "-y",
         "-i", f"{base}_visuals.mp4",
         "-filter_complex", f"subtitles={ass_path}[outv]",
         "-map", "[outv]", "-c:v", "libx264", "-b:v", "1500k",
         "-an", f"{base}_sub.mp4"], check=True, capture_output=True)
 
-    # 10. Add audio
+    # 8. Add audio
     subprocess.run(["ffmpeg", "-y",
         "-i", f"{base}_sub.mp4", "-i", f"{base}.mp3",
         "-c:v", "copy", "-c:a", "aac",
