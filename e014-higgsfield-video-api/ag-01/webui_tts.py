@@ -62,30 +62,17 @@ def generate_tts(text, voice="HARPER", model="Eleven v3", output_path="output/tt
     ab("click", f"@{vo_ref}")
     time.sleep(2)
 
-    # Find the textbox and fill it
+    # Find the textbox and fill it using agent-browser's fill command
+    # (handles React controlled inputs correctly via proper events)
     snap = ab("snapshot", "-i", timeout=10)
     tb_ref = find_ref(snap, 'textbox "Describe the sound you imagine')
     if not tb_ref:
         print("ERROR: Textbox not found")
         return False
 
-    # Clear and fill text
     ab("click", f"@{tb_ref}")
-    ab("eval", f"document.querySelector('textarea, input[type=text], [contenteditable]').value = ''")
     time.sleep(0.5)
-    ab("eval", f"""
-        var inputs = document.querySelectorAll('textarea, input[type=text], [contenteditable]');
-        for (var inp of inputs) {{
-            if (inp.offsetParent !== null) {{
-                var nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                    window.HTMLTextAreaElement.prototype, 'value'
-                ).set;
-                nativeInputValueSetter.call(inp, '{text}');
-                inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                break;
-            }}
-        }}
-    """)
+    ab("fill", f"@{tb_ref}", text)
     time.sleep(1)
 
     # Find and click GENERATE
