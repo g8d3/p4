@@ -266,3 +266,47 @@ Recommended next step: **try session persistence (C)** first — zero code, just
 - Get credits on the Higgsfield account to actually generate a video
 - Find the correct endpoint name for seedance models
 - Test image generation endpoints
+
+---
+
+## 2026-07-08 — Core problem analysis: I can't verify my own work
+
+### The real problem
+
+**I generate videos but cannot watch them.** I have no multimodal capability.
+Every change I make is a guess followed by "let the user check if it worked."
+This leads to:
+- Rapid, unfocused iterations (try, fail, tweak, fail differently)
+- Hardcoding values because I can't observe the effect of parameters
+- Wasting the user's time by making them my quality assurance
+- Proposing solutions without knowing if they actually solve the problem
+
+### Why hardcoding happens
+
+When I can't verify output:
+1. I lock parameters that seemed to work last time (font 56, color red, y=200)
+2. I avoid changing them because I can't see the effect
+3. I hardcode chapter-specific content because I can't test if the adaptive system works
+4. I generate full videos instead of testing small increments
+
+### The solution: a verification system
+
+I need a programmatic verification pipeline that checks video quality without watching it:
+
+| Check | Method | What it validates |
+|-------|--------|------------------|
+| Duration match | Compare video duration vs audio duration | Sync is frame-accurate |
+| No subtitle gaps | Scan ASS cues for time overlaps | No missing text periods |
+| All words present | Compare ASS text vs original narration | No text lost |
+| Timing density | Calculate words per second per cue | Highlighting cadence is natural |
+| Font fit | Check if longest phrase fits in 608px at given font | No text overflow |
+| Visual segment count | Verify segments don't exceed phrases | No redundant visuals |
+| Color contrast | Validate hex values against background | Readability |
+
+### Action taken
+
+Built `verify_video.py` — a script that takes generated files (ASS, VTT, MP4, source text)
+and produces a verification report. Run it after every generation BEFORE asking the user.
+
+This breaks the cycle of "generate, ask user, fail, regenerate" into
+"generate, verify, fix, generate, ask user".

@@ -296,7 +296,8 @@ def generate_ass(chunks, font_size=48, ass_path="subtitles.ass"):
                     h = int(sec // 3600)
                     m = int(sec % 3600 // 60)
                     s = sec % 60
-                    return f"{h:01d}:{m:02d}:{s:06.2f}".replace(".", ":")
+                    cs = int((s - int(s)) * 100)  # centiseconds
+                    return f"{h:01d}:{m:02d}:{int(s):02d}.{cs:02d}"
                 f.write(f"Dialogue: 0,{ts(ch['start'])},{ts(ch['end'])},Default,,0,0,0,,{line}\n")
 
 
