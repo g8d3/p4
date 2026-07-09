@@ -4,39 +4,63 @@ Preferred sources for content discovery and keywords for searching.
 
 ## Sources
 
-| Source | What for |
-|--------|----------|
-| X.com home feed | Trending topics, discussions |
-| X.com bookmarks | Curated links saved by the user |
-| X.com search | Targeted discovery via keywords |
-| GitHub trending | Trending repos by language/category |
-| Hugging Face | Models, datasets, Spaces |
-| artificialanalysis.ai | Model benchmarks, cost-efficiency comparisons |
-| trendshift.io | Trending repos and dev tools |
+| Source | What for | Access |
+|--------|----------|--------|
+| X.com bookmarks | Curated links saved by the user | ✅ AI can use |
+| X.com search | Targeted discovery via keywords | ✅ AI can use |
+| GitHub trending | Trending repos by language/category | ✅ AI can use |
+| Hugging Face | Models, datasets, Spaces | ✅ AI can use |
+| artificialanalysis.ai | Model benchmarks, cost-efficiency comparisons | ✅ AI can use |
+| trendshift.io | Trending repos and dev tools | ✅ AI can use |
+| X.com home feed | Trending topics, discussions | ❌ User only |
 
 ## Search keywords (X.com, GitHub, general)
 
-Concrete terms, not semantic intent. Search engines don't do semantic search.
+Extracted from 100 user bookmarks (2026-07-09). Use these for content discovery.
 
-- tts
-- asr
-- ocr
-- whisper
+### High frequency (use often)
+- open source
+- agent
+- claude code
+- coding agent
 - voice cloning
-- open source tts
-- speech recognition
-- cost per token
-- latency benchmark
-- model benchmark
-- stt (speech to text)
-- edge tts
+- tts
+- self hosted
+- api
+- github
+- model
+
+### Medium frequency
+- cursor
+- mcp
+- skill
+- linux
+- terminal
+- rust
+- android
+- voice arena
 - realtime tts
+- deepseek
+- china
+- free api
+
+### Specific tools/projects
+- codex
+- anthropic
+- openai
+- cartesia sonic
+- elevenlabs
+- hermes agent
+
+### General categories (for broad search)
+- ai coding
+- open source model
+- voice ai
+- chinese ai
+- agent memory
 - video generation
 - screen recording
 - browser automation
-- web scraper
-- api wrapper
-- cost-efficient (test if it works, may not)
 
 ## Output formats
 

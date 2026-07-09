@@ -235,6 +235,7 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
   2. `xscreensaver-command -exit`
   3. Fallbacks: `xdg-screensaver suspend` or `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`
 - **TTS**: English voice. Use `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male). Do not use espeak-ng or generic voices.
+- **TTS alternatives**: Xiaomi `mimo-v2.5-tts` via API (higher quality, requires API key). See `e009-xiaomi-display/ag-01/bin/xiaomi-api` for CLI usage.
 - **Mobile format**: record in vertical aspect ratio (9:16). To achieve this:
   1. Select only the relevant window or region (not full monitor).
   2. Resize and reposition windows to fill the capture area efficiently, leaving no wasted space.
@@ -322,6 +323,72 @@ The agent's AGENTS.md should declare its required model in a `## Model` section.
 | OpenCode Zen | `opencode/` | Pay-per-use | All tested models |
 
 Note: Xiaomi Token Plan has 3 regional variants. Use `xiaomi-token-plan-sgp/` (Singapore) — lowest latency from our location.
+
+### Command Code Go (separate binary: `cmd`)
+
+**Command Code** is a completely separate CLI tool (not opencode) with its own subscription system and 37+ models.
+
+```bash
+# List all models:
+cmd --list-models
+
+# Use a model:
+cmd -m <model-id>
+
+# Examples:
+cmd -m deepseek/deepseek-v4-pro
+cmd -m xiaomi/mimo-v2.5
+cmd -m tencent/Hy3
+```
+
+#### Command Code Plans
+
+| Plan | Price/mo | Credits/mo | 5h Limit | Weekly Limit | Models |
+|------|----------|------------|----------|--------------|--------|
+| Go | $1 | $10 | $3 | $6 | Open-source only |
+| Pro | $15 | $30 | $9 | $18 | Open-source + premium |
+| Max 10× | $100 | $150 | $45 | $90 | All |
+| Max 20× | $200 | $300 | $90 | $180 | All |
+
+#### Command Code Deals (Active Promotions)
+
+**Permanent Deals:**
+
+| Model | Discount | Input (was→now) | Output (was→now) | Multiplier |
+|-------|----------|-----------------|------------------|------------|
+| DeepSeek V4 Pro | 75% off | $1.74→$0.435 | $3.48→$0.87 | 4× |
+| MiniMax M3 | 62.5% off | $0.60→$0.225 | $2.40→$0.90 | 2.7× |
+| MiMo V2.5 Pro | 86-99% off | $2.00→$0.435 | $6.00→$0.87 | 7× |
+| MiMo V2.5 | 83-98% off | $0.80→$0.14 | $4.00→$0.28 | 14× |
+
+**Temporary Deal:**
+
+| Model | Discount | Expires | Notes |
+|-------|----------|---------|-------|
+| Tencent Hy3 | **100% FREE** | July 21, 2026 | All tokens at $0 |
+
+**Best Value Models (with deals):**
+1. **Tencent Hy3** — FREE (limited time) → Use aggressively before July 21
+2. **MiMo V2.5** — 14× multiplier → Best bang for buck
+3. **MiMo V2.5 Pro** — 7× multiplier → High capability + great value
+4. **DeepSeek V4 Pro** — 4× multiplier → Strong reasoning tasks
+
+#### Command Code Models with Vision
+
+These models can "see" images and videos (useful for reviewing video output):
+
+| Model | cmd ID | Has Vision |
+|-------|--------|------------|
+| Kimi K2.7 Code | moonshotai/Kimi-K2.7-Code | ✅ Yes |
+| Kimi K2.7 Code HighSpeed | moonshotai/Kimi-K2.7-Code-Highspeed | ✅ Yes |
+| Kimi K2.6 | moonshotai/Kimi-K2.6 | ✅ Yes |
+| Kimi K2.5 | moonshotai/Kimi-K2.5 | ✅ Yes |
+| MiMo V2.5 | xiaomi/mimo-v2.5 | ✅ Yes |
+| MiMo V2.5 Pro | xiaomi/mimo-v2.5-pro | ✅ Yes |
+| GLM-5.2 | zai-org/GLM-5.2 | ❌ No (text only) |
+| GLM-5.1 | zai-org/GLM-5.1 | ❌ No (text only) |
+
+### Using multiple providers in parallel
 
 ### Using multiple providers in parallel
 
