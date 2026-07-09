@@ -1,0 +1,19 @@
+AI News Roundup - July 2026
+
+Create a video that lists the top 10-15 AI news from the past week. Format: quick-fire news items, each with a 1-2 sentence summary. Keep it energetic and fast-paced.
+
+Topics to cover:
+1. Tencent Hy3 - free 295B MoE model (until July 21)
+2. DeepSeek V4 Pro - 4x deal on Command Code
+3. MiMo V2.5 - 14x multiplier deal
+4. Gepard 1.0 - open source streaming TTS
+5. Voice Arena - TTS model leaderboard
+6. LongCat-Avatar - photo + audio → talking video
+7. VideoRC - open source recording studio
+8. Archon - AI coding harness builder
+9. TencentDB Agent Memory - local vector DB
+10. OfficeCLI - Office suite for AI agents
+11. Huawei Ascend dominates China AI chip market
+12. tinbase - Supabase in a single binary
+13. Karakeep - AI-powered bookmark manager
+14. LongCat-2.0 - 1.6T MoE for agentic coding
