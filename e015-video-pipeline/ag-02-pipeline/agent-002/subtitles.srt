@@ -1,0 +1,76 @@
+1
+00:00:00,000 --> 00:00:03,728
+Open source voice AI just hit a major milestone.
+
+2
+00:00:03,828 --> 00:00:11,810
+Three groundbreaking tools have been released this month that together make the entire voice AI stack completely open source.
+
+3
+00:00:11,910 --> 00:00:14,363
+Let's dive into what this means.
+
+4
+00:00:14,463 --> 00:00:21,169
+First up is Jeopard 1.0, a 600 million parameter streaming text-to-speech model released under Apache 2.0.
+
+5
+00:00:21,269 --> 00:00:25,848
+What makes Jeopard special is that it speaks as text arrives.
+
+6
+00:00:25,948 --> 00:00:28,826
+No more waiting for the full sentence.
+
+7
+00:00:28,926 --> 00:00:32,654
+It's built for real-time dialogue with incredibly low latency.
+
+8
+00:00:32,754 --> 00:00:39,885
+This makes it perfect for voice assistants, live captioning, and interactive applications where natural conversation flow matters.
+
+9
+00:00:39,985 --> 00:00:42,863
+And it's completely free and open source.
+
+10
+00:00:42,963 --> 00:00:50,095
+The team behind Voice Arena launched VoiceArena.com, a public leaderboard that compares speech-to-text and text-to-speech models head-to-head.
+
+11
+00:00:50,195 --> 00:00:56,475
+This is huge for developers trying to pick the right model for their use case.
+
+12
+00:00:56,575 --> 00:01:02,431
+You can see word error rates, latency, and naturalness scores across dozens of models.
+
+13
+00:01:02,531 --> 00:01:06,685
+It brings transparency and competition to the voice AI space.
+
+14
+00:01:06,785 --> 00:01:15,192
+Longcat Avatar is an open source tool that turns a single photo and an audio file into a talking video.
+
+15
+00:01:15,292 --> 00:01:20,297
+It generates realistic lip sync and head movements. The implications are massive.
+
+16
+00:01:20,397 --> 00:01:27,954
+Content creators, educators, and businesses can now generate talking head videos without expensive studio equipment or proprietary software.
+
+17
+00:01:28,054 --> 00:01:34,334
+Jeopard for voice generation, Voice Arena for model comparison, and Longcat Avatar for video creation.
+
+18
+00:01:34,434 --> 00:01:41,141
+The full voice AI stack is now open, accessible, and ready for you to build with.
+
+19
+00:01:41,241 --> 00:01:43,268
+The tipping point is here.
+

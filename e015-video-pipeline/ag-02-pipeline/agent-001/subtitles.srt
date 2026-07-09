@@ -1,0 +1,27 @@
+1
+00:00:00,000 --> 00:00:14,600
+Welcome to the AI model price war. July 2026 is the cheapest time ever to run inference. Chinese providers are slashing prices and competing for global market share, and you can take advantage right now.
+
+2
+00:00:14,600 --> 00:00:29,200
+First up, Tencent Hi3 is a massive 295 billion parameter Mo model with only 21 billion active parameters. It is completely free on OpenRouter until July 21st. That is frontier-level intelligence at zero cost.
+
+3
+00:00:29,200 --> 00:00:46,600
+Then there is DeepSeek V4 Pro, available on Command Code at a 4x multiplier. And Mimo version 2.5 from Xiaomi is running at a 14x multiplier, delivering competitive performance at a fraction of what you would pay for GPT or Claude.
+
+4
+00:00:46,600 --> 00:00:59,800
+The key insight is that Chinese AI labs are investing heavily to capture market share, burning cash to win users. For developers and businesses, this means you can deploy production AI workloads cheaper than ever before.
+
+5
+00:00:59,800 --> 00:01:07,300
+Whether you are building chatbots, agents, or automated workflows, now is the time to experiment with these models.
+
+6
+00:01:07,300 --> 00:01:15,800
+The takeaway is simple: the AI price war is real, it is benefiting users, and it is not slowing down.
+
+7
+00:01:15,800 --> 00:01:28,872
+Start testing Tencent Hi3 while it is free, compare DeepSeek V4 Pro for your production stack, and keep an eye on Mimo for specialized tasks. The cheapest AI has ever been is right now.

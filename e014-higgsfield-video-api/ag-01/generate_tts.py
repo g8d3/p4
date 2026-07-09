@@ -1,8 +1,10 @@
 """
-Generate TTS narration via Higgsfield Voiceover (ElevenLabs).
+WEB UI AUTOMATION - Generate TTS narration via Higgsfield Voiceover (ElevenLabs).
+
+Uses browser automation (agent-browser), NOT API credits.
 
 Usage:
-    python webui_tts.py "<text>" [--voice HARPER] [--model "Eleven v3"] [--output file.mp3]
+    python generate_tts.py "<text>" [--voice HARPER] [--model "Eleven v3"] [--output file.mp3]
 
 Requires:
     - agent-browser CLI

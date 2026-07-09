@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 """
-Verify a generated video against its source files.
+Verify video quality against source files.
 
-Reads the VTT, ASS, and original text to validate:
-- Timing: no gaps, no overlaps, total duration matches
-- Content: all words from source appear in subtitles
-- Cadence: chunks per second is within natural range
-- Font fit: text fits within frame width
+Checks timing, content, cadence, and font fit.
 
 Usage:
-    python verify_video.py output/ch1.mp4 --source "original text" --ass output/ch1.ass --vtt output/ch1.vtt
+    python verify_video_quality.py output/ch1.mp4 --source "original text" --ass output/ch1.ass --vtt output/ch1.vtt
 """
 
 import sys, os, re, json, math
