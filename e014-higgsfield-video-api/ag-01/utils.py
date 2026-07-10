@@ -1,12 +1,14 @@
 """
 Shared utilities for Higgsfield web UI automation.
 
-Provides ensure_chrome_ready() which each script calls before doing work.
+Self-contained: sources ~/.secrets/.env, starts Chrome if needed,
+handles login (with verification code via env var), all automatically.
 """
 
 import os
 import subprocess
 import time
+import re
 
 CHROME_PID_FILE = "/tmp/hf-chrome-pid"
 PROFILE_DIR = os.path.expanduser("~/profiles/chrome-main")
@@ -15,16 +17,30 @@ UA = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
 )
+PORT = 9222
 
 
-def sh(*args, **kwargs):
+def load_secrets():
+    """Load env vars from ~/.secrets/.env if not already set."""
+    secrets_path = os.path.expanduser("~/.secrets/.env")
+    if not os.path.exists(secrets_path):
+        return
+    with open(secrets_path) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith("export "):
+                parts = line[7:].split("=", 1)
+                if len(parts) == 2:
+                    key, val = parts
+                    val = val.strip("'\"")
+                    if key not in os.environ:
+                        os.environ[key] = val
+
+
+def sh(cmd, **kwargs):
     """Run a command, return (returncode, stdout, stderr)."""
-    cmd = []
-    for arg in args:
-        if isinstance(arg, str):
-            cmd.extend(arg.split())
-        else:
-            cmd.extend(arg)
+    if isinstance(cmd, str):
+        cmd = cmd.split()
     r = subprocess.run(cmd, capture_output=True, text=True, **kwargs)
     return r.returncode, r.stdout.strip(), r.stderr.strip()
 
@@ -35,7 +51,7 @@ def ab(*args, timeout=30):
 
 
 def ab_eval(js, timeout=15):
-    """Run JavaScript via agent-browser eval."""
+    """Run JavaScript via agent-browser eval and return the result string."""
     _, out, _ = ab("eval", js, timeout=timeout)
     if out.startswith('"') and out.endswith('"'):
         out = out[1:-1]
@@ -50,29 +66,57 @@ def find_ref(snapshot, pattern):
     return None
 
 
+def find_all_refs(snapshot, pattern):
+    """Find all refs matching a pattern."""
+    refs = []
+    for line in snapshot.split("\n"):
+        if pattern in line and "ref=" in line:
+            ref = line.split("ref=")[1].split("]")[0]
+            refs.append(ref)
+    return refs
+
+
+def port_listens(port):
+    """Check if a TCP port is in LISTEN state."""
+    code, out, _ = sh(["ss", "-tlnp"])
+    return f":{port}" in out
+
+
+def wait_for_port(port, timeout=10):
+    """Wait until a port is listening (or timeout)."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if port_listens(port):
+            return True
+        time.sleep(0.5)
+    return False
+
+
 def is_chrome_running():
-    """Check if Chrome is running on port 9222."""
-    code, out, _ = sh("ss", "-tlnp")
-    return "9222" in out
+    """Check if Chrome is running on the expected port."""
+    return port_listens(PORT)
 
 
 def is_user_agent_ok():
-    """Check if Chrome has correct User-Agent (no HeadlessChrome)."""
-    code, out, _ = ab("eval", "navigator.userAgent")
-    return "HeadlessChrome" not in out and "Chrome/149" in out
+    """Check that Chrome's UA doesn't expose headless mode."""
+    if not is_chrome_running():
+        return False
+    code, out, _ = ab("eval", "navigator.userAgent", timeout=5)
+    return "HeadlessChrome" not in out
 
 
 def is_logged_in():
-    """Check if logged into Higgsfield."""
+    """Check if logged into Higgsfield by visiting and looking for account menu."""
+    if not is_chrome_running():
+        return False
     code, snap, _ = ab("snapshot", "-i", timeout=10)
     return "Account menu" in snap
 
 
 def start_chrome():
-    """Launch Chrome headless with correct flags."""
-    # Close existing sessions
+    """Launch Chrome headless with stealth flags. Returns True if successful."""
     ab("close", "--all")
-    time.sleep(1)
+    time.sleep(0.5)
 
     cmd = [
         "google-chrome",
@@ -82,7 +126,7 @@ def start_chrome():
         "--use-angle=gl-egl",
         "--enable-gpu",
         "--disable-software-rasterizer",
-        "--remote-debugging-port=9222",
+        f"--remote-debugging-port={PORT}",
         f"--user-data-dir={PROFILE_DIR}",
         f"--profile-directory={PROFILE_NAME}",
         f"--user-agent={UA}",
@@ -94,34 +138,39 @@ def start_chrome():
     with open(CHROME_PID_FILE, "w") as f:
         f.write(str(proc.pid))
     print(f"[chrome] started PID {proc.pid}")
-    time.sleep(4)
-    return proc
+
+    if not wait_for_port(PORT, timeout=10):
+        print("[chrome] ERROR: Chrome didn't start listening on port 9222 within 10s")
+        return False
+    print("[chrome] listening on port 9222")
+    return True
 
 
 def login():
-    """Login to Higgsfield via web UI."""
+    """Login to Higgsfield via web UI. Returns True if successful."""
     user = os.environ.get("HF_USER")
     passwd = os.environ.get("HF_PASS")
     if not user or not passwd:
-        print("[error] Set HF_USER and HF_PASS in ~/.secrets/.env")
+        print("[login] ERROR: HF_USER and HF_PASS not set in ~/.secrets/.env")
         return False
 
-    ab("open", "https://higgsfield.ai/ai/video")
+    # Go to page and check login state
+    ab("open", "https://higgsfield.ai/ai/image", timeout=15)
     time.sleep(3)
     ab("set", "viewport", "1280", "800")
     time.sleep(2)
 
-    # Check if already logged in
     if is_logged_in():
         print("[login] already logged in")
         return True
 
-    # Click Login
-    ab("open", "https://higgsfield.ai/login")
+    # Navigate to login page
+    print("[login] logging in...")
+    ab("open", "https://higgsfield.ai/login", timeout=15)
     time.sleep(3)
 
-    # Find and fill form
-    _, snap, _ = ab("snapshot", "-i")
+    # Find form fields
+    _, snap, _ = ab("snapshot", "-i", timeout=10)
     email_ref = pass_ref = login_ref = None
     for line in snap.split("\n"):
         if 'textbox "Email"' in line and "[ref=" in line:
@@ -132,7 +181,7 @@ def login():
             login_ref = line.split("[ref=")[1].split("]")[0]
 
     if not email_ref or not pass_ref or not login_ref:
-        print("[error] could not find login form")
+        print("[login] ERROR: could not find login form fields")
         return False
 
     subprocess.run(["agent-browser", "--auto-connect", "fill", f"@{email_ref}", user])
@@ -143,17 +192,18 @@ def login():
     time.sleep(5)
 
     # Handle verification code if needed
-    _, snap, _ = ab("snapshot", "-i")
+    _, snap, _ = ab("snapshot", "-i", timeout=10)
     if "Verify your email" in snap:
-        code = os.environ.get("HF_VERIFY_CODE") or input(
-            "Verification code sent to email. Enter code: "
-        ).strip()
+        code = os.environ.get("HF_VERIFY_CODE")
+        if not code:
+            print("[login] ERROR: verification code required. Set HF_VERIFY_CODE in ~/.secrets/.env")
+            return False
         for line in snap.split("\n"):
             if 'textbox "Code"' in line and "[ref=" in line:
                 code_ref = line.split("[ref=")[1].split("]")[0]
                 break
         else:
-            print("[error] could not find code input")
+            print("[login] ERROR: could not find code input field")
             return False
         subprocess.run(["agent-browser", "--auto-connect", "fill", f"@{code_ref}", code])
         time.sleep(0.5)
@@ -164,34 +214,42 @@ def login():
         print("[login] success!")
         return True
     else:
-        print("[error] login failed")
+        print("[login] ERROR: login failed (wrong credentials or blocked)")
         return False
 
 
 def ensure_chrome_ready():
     """Ensure Chrome is running with correct flags and logged in.
-
     Returns True if ready, False if failed.
     """
-    print("[check] verifying Chrome setup...")
+    print("--- Chrome check ---")
 
-    # Check if Chrome is running
     if not is_chrome_running():
-        print("[check] Chrome not running, starting...")
-        start_chrome()
+        print("[check] Chrome not running on port 9222, starting...")
+        if not start_chrome():
+            print("[check] FAILED to start Chrome")
+            return False
+        # After fresh start, wait a moment for the browser to settle
+        time.sleep(2)
     else:
         print("[check] Chrome is running")
 
-    # Check User-Agent
     if not is_user_agent_ok():
-        print("[check] Bad User-Agent, restarting Chrome...")
-        start_chrome()
+        print("[check] Bad User-Agent (headless detected), restarting Chrome...")
+        if not start_chrome():
+            return False
+        time.sleep(2)
     else:
         print("[check] User-Agent is correct")
 
-    # Check login
+    # Navigate to Higgsfield first so snapshots work
+    ab("open", "https://higgsfield.ai/ai/image", timeout=15)
+    time.sleep(2)
+    ab("set", "viewport", "1280", "800")
+    time.sleep(1)
+
     if not is_logged_in():
-        print("[check] Not logged in, logging in...")
+        print("[check] Not logged in, attempting login...")
         if not login():
             return False
     else:
