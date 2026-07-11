@@ -1,28 +1,51 @@
 #!/bin/bash
+# google-chrome wrapper — Smart defaults for headless automation.
+# Detects display environment and configures Chrome accordingly.
+
 REAL_CHROME="/opt/google/chrome/chrome"
 
-add_ozone=1; add_swiftshader=1; add_ext=1; add_sw=1
-add_cdp=1; add_origins=1; add_profile=1
+# Flags to add (unless user already set them)
+add_headless=1; add_ozone=1; add_gl=1; add_ext=1; add_sw=1
+add_cdp=1; add_origins=1; add_profile=1; add_ua=1; add_nosandbox=1
 
 for arg in "$@"; do
     case "$arg" in
+        --headless*)             add_headless=0 ;;
         --ozone-platform=*)      add_ozone=0 ;;
-        --use-gl=*)              add_swiftshader=0 ;;
+        --use-gl=*)              add_gl=0 ;;
         --disable-extensions)    add_ext=0 ;;
         --disable-service-worker) add_sw=0 ;;
         --remote-debugging-port=*) add_cdp=0 ;;
         --remote-allow-origins=*)  add_origins=0 ;;
         --user-data-dir=*)       add_profile=0 ;;
+        --user-agent=*)          add_ua=0 ;;
+        --no-sandbox)            add_nosandbox=0 ;;
     esac
 done
 
 extra=()
-[ "$add_ozone" -eq 1 ]    && extra+=("--ozone-platform=headless")
-[ "$add_swiftshader" -eq 1 ] && extra+=("--use-gl=swiftshader")
+
+# Detect display environment
+if [ -n "$WAYLAND_DISPLAY" ]; then
+    # Wayland mode — real GPU, no headless
+    [ "$add_ozone" -eq 1 ]    && extra+=("--ozone-platform=wayland")
+    [ "$add_headless" -eq 1 ] && extra+=("--headless=new")
+elif [ -n "$DISPLAY" ]; then
+    # X11 mode — real GPU, no headless
+    [ "$add_ozone" -eq 1 ]    && extra+=("--ozone-platform=x11")
+else
+    # No display — headless with SwiftShader
+    [ "$add_headless" -eq 1 ] && extra+=("--headless=new")
+    [ "$add_ozone" -eq 1 ]    && extra+=("--ozone-platform=headless")
+    [ "$add_gl" -eq 1 ]       && extra+=("--use-gl=swiftshader")
+fi
+
 [ "$add_ext" -eq 1 ]      && extra+=("--disable-extensions")
 [ "$add_sw" -eq 1 ]       && extra+=("--disable-service-worker")
 [ "$add_cdp" -eq 1 ]      && extra+=("--remote-debugging-port=9222")
 [ "$add_origins" -eq 1 ]  && extra+=("--remote-allow-origins=*")
 [ "$add_profile" -eq 1 ]  && extra+=("--user-data-dir=$HOME/profiles/chrome-main" "--profile-directory=Profile 1")
+[ "$add_ua" -eq 1 ]       && extra+=("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36")
+[ "$add_nosandbox" -eq 1 ] && extra+=("--no-sandbox")
 
 exec "$REAL_CHROME" "$@" "${extra[@]}"
