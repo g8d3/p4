@@ -4,32 +4,49 @@
 
 Chrome headless on this system (AMD Barcelo GPU, Ubuntu 24.04) consumes high CPU and gets detected by DataDome.
 
-## What We Tried
+## What We Tried — Full Results
 
 ### 1. Default headless (`--headless=new`)
 - CPU: ~256% total
 - GPU process: `--use-gl=disabled` (software rendering)
+- WebGL: No
 - DataDome: Detects "HeadlessChrome" in User-Agent
 
 ### 2. ANGLE/EGL (`--use-gl=angle --use-angle=gl-egl`)
 - CPU: ~262% total
 - GPU process: Still `--use-gl=disabled`
+- WebGL: No
 - Chrome can't initialize EGL without display server
 
 ### 3. Vulkan (`--use-angle=vulkan --disable-vulkan-surface`)
 - CPU: ~100%+ (worse)
 - GPU process: `--use-gl=disabled` despite Vulkan flags
+- WebGL: No
 - vulkaninfo shows AMD GPU available, but Chrome doesn't use it
 
-### 4. SwiftShader (`--use-gl=swiftshader`)
+### 4. Vulkan + SkiaGraphite (Gemini's suggestion)
+- Flags: `--enable-features=Vulkan,VulkanFromANGLE,SkiaGraphite --use-angle=vulkan --disable-vulkan-surface`
+- GPU process: Shows `--use-angle=vulkan` and `--enable-features=SkiaGraphite`
+- BUT: `--use-gl=disabled` still present
+- WebGL: No
+- WebGPU: `navigator.gpu` exists but `requestAdapter()` returns null
+- **Conclusion**: Chrome claims Vulkan but doesn't actually use GPU
+
+### 5. SwiftShader (`--use-gl=swiftshader`)
 - CPU: ~19% (much better!)
 - Software GL rendering, not real GPU
 - Stable, no crashes
 
-### 5. With extensions disabled (`--disable-extensions --disable-service-worker`)
+### 6. With extensions disabled (`--disable-extensions --disable-service-worker`)
 - CPU: ~18% (best result!)
 - Extensions (Adblock, Bitwarden) were running Service Workers in background
 - Service Worker cache was 451MB
+
+### 7. Xvfb + Chrome (Gemini's "lightest" suggestion)
+- Xvfb started with `-shmem` flag
+- **AMD GPU driver failed**: `amdgpu_device_initialize failed (-13)`
+- Chrome started but WebGL: No
+- **Conclusion**: AMD driver can't initialize without real display hardware
 
 ## Current Solution
 
