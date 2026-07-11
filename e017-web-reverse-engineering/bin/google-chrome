@@ -7,6 +7,7 @@ REAL_CHROME="/opt/google/chrome/chrome"
 # Flags to add (unless user already set them)
 add_headless=1; add_ozone=1; add_gl=1; add_ext=1; add_sw=1
 add_cdp=1; add_origins=1; add_profile=1; add_ua=1; add_nosandbox=1
+add_gpu=1; add_gpu_blocklist=1
 
 for arg in "$@"; do
     case "$arg" in
@@ -20,6 +21,8 @@ for arg in "$@"; do
         --user-data-dir=*)       add_profile=0 ;;
         --user-agent=*)          add_ua=0 ;;
         --no-sandbox)            add_nosandbox=0 ;;
+        --enable-gpu)            add_gpu=0 ;;
+        --ignore-gpu-blocklist)  add_gpu_blocklist=0 ;;
     esac
 done
 
@@ -27,12 +30,15 @@ extra=()
 
 # Detect display environment
 if [ -n "$WAYLAND_DISPLAY" ]; then
-    # Wayland mode — real GPU, no headless
-    [ "$add_ozone" -eq 1 ]    && extra+=("--ozone-platform=wayland")
-    [ "$add_headless" -eq 1 ] && extra+=("--headless=new")
+    # Wayland mode — real GPU with compositor
+    [ "$add_ozone" -eq 1 ]       && extra+=("--ozone-platform=wayland")
+    [ "$add_gpu" -eq 1 ]         && extra+=("--enable-gpu")
+    [ "$add_gpu_blocklist" -eq 1 ] && extra+=("--ignore-gpu-blocklist")
 elif [ -n "$DISPLAY" ]; then
-    # X11 mode — real GPU, no headless
-    [ "$add_ozone" -eq 1 ]    && extra+=("--ozone-platform=x11")
+    # X11 mode — real GPU with compositor
+    [ "$add_ozone" -eq 1 ]       && extra+=("--ozone-platform=x11")
+    [ "$add_gpu" -eq 1 ]         && extra+=("--enable-gpu")
+    [ "$add_gpu_blocklist" -eq 1 ] && extra+=("--ignore-gpu-blocklist")
 else
     # No display — headless with SwiftShader
     [ "$add_headless" -eq 1 ] && extra+=("--headless=new")
