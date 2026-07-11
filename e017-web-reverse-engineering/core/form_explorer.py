@@ -16,16 +16,23 @@ WHAT IT DOESN'T DO (LIMITATIONS):
 - Does NOT handle authentication walls
 - Only explores buttons, not all clickable elements (links, icons, etc.)
 
-TESTED ON:
-- higgsfield.ai: Finds aspect ratio dropdown, misses model selector (custom React)
-- x.com (Twitter): Finds buttons, misses all dropdowns (custom React components)
-- Static HTML sites: Works well with standard <select> elements
+HOW IT ACTUALLY WORKS (tested on higgsfield.ai):
+The model selector is NOT a <select> with <option> tags. It's a button
+("Nano Banana Pro") that, when clicked, opens a panel with other buttons.
+agent-browser snapshot shows all elements in the panel once it's open.
+
+So the approach is: click → snapshot → read everything that appeared.
+
+This is how I found 27 models on higgsfield:
+1. Click "Nano Banana Pro" button
+2. Panel opens with all models as buttons
+3. Snapshot shows: "Higgsfield Soul 2.0", "GPT Image 2 NEW", etc.
+4. Each button has badges (NEW, UNLIMITED, TOP) in its text
 
 TO IMPROVE:
-- Use MutationObserver to detect ANY new elements after click
-- Capture DOM diff before/after click
-- Detect overlay/popup elements
-- Handle iframes
+- Compare snapshot BEFORE and AFTER click (DOM diff)
+- Any new elements = dropdown/modal opened
+- This would detect ANY type of UI pattern, not just standard HTML
 """
 
 import subprocess
