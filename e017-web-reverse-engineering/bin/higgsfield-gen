@@ -1,13 +1,21 @@
 #!/bin/bash
 # higgsfield-gen — Generate AI images on Higgsfield via agent-browser.
-# Usage: higgsfield-gen "<prompt>" [model]
+# Captures HAR + auth tokens for API replication without browser.
+# Usage: higgsfield-gen "<prompt>" [model] [--har <file>]
 #   model defaults to seedream_v4_5
 
 PROMPT="${1:-A frustrated developer staring at a glowing screen filled with console errors}"
 MODEL="${2:-seedream_v4_5}"
+HAR_FILE=""
+
+# Parse optional --har flag
+for arg in "$@"; do
+    case "$arg" in --har) HAR_FILE="$2";; --har=*) HAR_FILE="${arg#*=}";; esac
+done
+[ -z "$HAR_FILE" ] && HAR_FILE="/tmp/higgsfield-$(date +%s).har"
+
 URL="https://higgsfield.ai/mobile/image/$MODEL"
 
-# Verify Chrome running
 if ! curl -sf http://localhost:9222/json/version > /dev/null 2>&1; then
     echo "Chrome not running on port 9222 — start sway-chrome first" >&2
     exit 1
@@ -20,24 +28,50 @@ ab open "$URL"
 sleep 4
 
 echo "Setting prompt..."
-# Clear textarea via JS (bypass React refs)
+# Clear textarea via input event (React-friendly)
 ab eval "
   const ta = document.querySelector('textarea');
   if (ta) { ta.value = ''; ta.dispatchEvent(new Event('input', {bubbles: true})); }
 "
 sleep 2
-
-# Focus + type via keyboard (reliable even with React re-renders)
 ab eval "document.querySelector('textarea')?.focus()"
 sleep 1
 ab keyboard type "$PROMPT"
 sleep 2
 
+echo "Enabling Unlimited..."
+# Native click on role=switch (agent-browser click unreliable here)
+ab eval "
+  const sw = document.querySelector('[role=switch]');
+  if (sw && sw.getAttribute('aria-checked') !== 'true') sw.click();
+"
+sleep 2
+
+echo "Recording HAR to $HAR_FILE..."
+ab network har start "$HAR_FILE"
+sleep 1
+
 echo "Generating..."
-# Native JS click — agent-browser click hangs on this button
-result=$(ab eval "
-  const btn = document.getElementById('image-submit-button');
-  if (btn) { btn.click(); 'ok'; } else 'button not found';
-")
-echo "Result: $result"
-echo "Check Library tab for generation status."
+ab eval "document.getElementById('image-submit-button')?.click()"
+echo "Waiting for requests... (30s)"
+sleep 30
+ab network har stop "$HAR_FILE"
+
+# Extract auth info for API replication
+echo ""
+echo "=== Auth tokens for API replication ==="
+python3 -c "
+import json
+with open('$HAR_FILE') as f:
+    har = json.load(f)
+for e in har['log']['entries']:
+    if '/fnf/jobs/' in e['request']['url'] and e['request']['method'] == 'POST':
+        h = {x['name'].lower(): x['value'] for x in e['request']['headers']}
+        body = json.loads(e['request']['postData']['text'])
+        print(f'POST {e[\"request\"][\"url\"]}')
+        print(f'Authorization: {h.get(\"authorization\", \"\")[:50]}...')
+        print(f'x-datadome-clientid: {h.get(\"x-datadome-clientid\", \"\")}')
+        print(f'Body: {json.dumps(body, indent=2)}')
+        break
+print(f'\nHAR saved: $HAR_FILE (full request/response log)')
+"
