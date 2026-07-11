@@ -1,0 +1,27 @@
+#!/bin/bash
+# ab-dashboard — Start agent-browser dashboard with network access.
+
+PORT=4848
+FORWARD_PORT=4849
+
+# Stop existing
+agent-browser dashboard stop 2>/dev/null
+pkill -f "socat.*4848" 2>/dev/null
+pkill -f "socat.*4849" 2>/dev/null
+sleep 1
+
+# Start dashboard
+agent-browser dashboard start --port $PORT &>/dev/null &
+sleep 2
+
+# Forward to all interfaces (background, nohup)
+nohup socat TCP-LISTEN:$FORWARD_PORT,fork,bind=0.0.0.0 TCP:127.0.0.1:$PORT &>/dev/null &
+sleep 1
+
+# Verify
+if ss -tlnp | grep -q ":$FORWARD_PORT"; then
+    IP=$(hostname -I | awk '{print $1}')
+    echo "Dashboard: http://$IP:$FORWARD_PORT"
+else
+    echo "[error] Forward failed"
+fi
