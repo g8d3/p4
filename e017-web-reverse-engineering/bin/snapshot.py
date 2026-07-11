@@ -20,7 +20,7 @@ document.querySelectorAll('button, [role=button], a, input, select, textarea, [r
     var rect = el.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    var text = el.textContent.trim().substring(0, 40);
+    var text = el.textContent.trim().substring(0, 50);
     var aria = el.getAttribute('aria-label') || '';
     var title = el.getAttribute('title') || '';
     var placeholder = el.getAttribute('placeholder') || '';
@@ -29,47 +29,36 @@ document.querySelectorAll('button, [role=button], a, input, select, textarea, [r
     var checked = el.getAttribute('aria-checked');
     var disabled = el.disabled ? ' [disabled]' : '';
     var value = el.value || '';
+    var type = el.getAttribute('type') || '';
 
+    // Build label from all available sources
     var label = text || aria || title || placeholder || '';
     if (!label) {
         var prev = el.previousElementSibling;
-        if (prev) label = prev.textContent.trim().substring(0, 30);
+        if (prev) label = prev.textContent.trim().substring(0, 40);
     }
-
-    // Context from parent/siblings
-    if (!label || label === '(button)' || label === '(unknown)') {
+    if (!label) {
         var parent = el.parentElement;
         if (parent) {
-            var sibs = parent.querySelectorAll('span, label, p, div');
+            var sibs = parent.querySelectorAll('span, label, p');
             for (var s of sibs) {
                 var t = s.textContent.trim();
-                if (t && t.length < 30 && t !== text) { label = t; break; }
+                if (t && t.length < 40 && t !== text) { label = t; break; }
             }
         }
     }
-    if (!label) label = '(element)';
+    if (!label) label = '(no label)';
 
-    // Detect function
-    var func = '';
-    if (role === 'switch') func = 'Unlimited';
-    else if (role === 'slider') func = 'Slider';
-    else if (text.includes('Decrement')) func = 'Decrement';
-    else if (text.includes('Increment')) func = 'Increment';
-    else if (text.includes('Generate')) func = 'Submit';
-    else if (/^\\d+:\\d+$/.test(text)) func = 'Aspect ratio';
-    else if (/^\\d+K$/.test(text)) func = 'Resolution';
-    else if (/^\\d+\\/\\d+$/.test(text)) func = 'Count';
-    else if (role === 'textbox' || role === 'textarea') func = 'Input';
-
+    // Build attributes
     var attrs = [];
     if (expanded !== null) attrs.push('expanded=' + expanded);
     if (checked !== null) attrs.push('checked=' + checked);
     if (disabled) attrs.push('disabled');
-    if (value && role === 'slider') attrs.push('value=' + value);
+    if (value && (role === 'slider' || role === 'textbox' || role === 'textarea')) attrs.push('value=' + value.substring(0, 30));
+    if (type && !['button','submit'].includes(type)) attrs.push('type=' + type);
 
     var attrStr = attrs.length ? ' [' + attrs.join(', ') + ']' : '';
-    var funcStr = func ? ' (' + func + ')' : '';
-    lines.push(role + ' \"' + label + '\"' + funcStr + attrStr);
+    lines.push(role + ' \"' + label + '\"' + attrStr);
 });
 lines.join('\\n');
 """
