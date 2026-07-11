@@ -1,0 +1,39 @@
+#!/bin/bash
+# sway-chrome — Start headless Sway + Chrome with GPU acceleration.
+# Defaults to 600x1024 (iPad-like portrait). Pass a custom resolution as
+# the first argument (e.g. "390x844") or set SWAY_RESOLUTION env var.
+
+RESOLUTION="${SWAY_RESOLUTION:-${1:-600x1024}}"
+[ -n "$1" ] && shift
+
+export WLR_BACKENDS=headless
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/xdg-runtime-$USER}"
+
+mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+
+# Start sway if not already running
+if ! pgrep -xu "$USER" sway > /dev/null 2>&1; then
+    sway --unsupported-gpu > /dev/null 2>&1 &
+    # Wait for the Wayland socket to appear
+    for i in $(seq 1 10); do
+        ls "$XDG_RUNTIME_DIR"/wayland-* > /dev/null 2>&1 && break
+        sleep 0.5
+    done
+fi
+
+# Detect Wayland socket
+WAYLAND_SOCK=$(ls "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | head -1)
+if [ -z "$WAYLAND_SOCK" ]; then
+    echo "Error: No Wayland socket found" >&2
+    exit 1
+fi
+export WAYLAND_DISPLAY=$(basename "$WAYLAND_SOCK")
+
+# Set output resolution
+SWAY_SOCK=$(ls "$XDG_RUNTIME_DIR"/sway-ipc.*.sock 2>/dev/null | head -1)
+if [ -n "$SWAY_SOCK" ]; then
+    export SWAYSOCK="$SWAY_SOCK"
+    swaymsg output HEADLESS-1 resolution "$RESOLUTION" > /dev/null 2>&1
+fi
+
+exec google-chrome "$@"

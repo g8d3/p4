@@ -1,0 +1,66 @@
+#!/bin/bash
+# sway-vnc-chrome — Start headless Sway + VNC server + Chrome with GPU accel.
+# Usage: sway-vnc-chrome [resolution] [-- chrome-args...]
+#
+# Resolution defaults to 600x1024. Everything after -- is passed to Chrome.
+# VNC listens on 0.0.0.0:5900. Set SWAY_VNC_PORT to change.
+
+set -e
+
+RESOLUTION="${SWAY_RESOLUTION:-600x1024}"
+VNC_PORT="${SWAY_VNC_PORT:-5900}"
+
+# Parse -- separator for Chrome args
+CHROME_ARGS=()
+if [[ "$*" == *--* ]]; then
+    before="${*%%--*}"
+    after="${*#*-- }"
+    RESOLUTION="${SWAY_RESOLUTION:-${before%% *}}"
+    [ -z "$RESOLUTION" ] && RESOLUTION="${SWAY_RESOLUTION:-600x1024}"
+    # shellcheck disable=SC2206
+    CHROME_ARGS=($after)
+elif [ -n "$1" ] && [[ "$1" != -* ]]; then
+    RESOLUTION="$1"
+    shift
+    CHROME_ARGS=("$@")
+else
+    CHROME_ARGS=("$@")
+fi
+
+export WLR_BACKENDS=headless
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/xdg-runtime-$USER}"
+
+mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
+
+# Start sway if not already running
+if ! pgrep -xu "$USER" sway > /dev/null 2>&1; then
+    sway --unsupported-gpu > /dev/null 2>&1 &
+    for i in $(seq 1 10); do
+        ls "$XDG_RUNTIME_DIR"/wayland-* > /dev/null 2>&1 && break
+        sleep 0.5
+    done
+fi
+
+# Detect Wayland socket
+WAYLAND_SOCK=$(ls "$XDG_RUNTIME_DIR"/wayland-* 2>/dev/null | head -1)
+if [ -z "$WAYLAND_SOCK" ]; then
+    echo "Error: No Wayland socket found" >&2
+    exit 1
+fi
+export WAYLAND_DISPLAY=$(basename "$WAYLAND_SOCK")
+
+# Set output resolution
+SWAY_SOCK=$(ls "$XDG_RUNTIME_DIR"/sway-ipc.*.sock 2>/dev/null | head -1)
+if [ -n "$SWAY_SOCK" ]; then
+    export SWAYSOCK="$SWAY_SOCK"
+    swaymsg output HEADLESS-1 resolution "$RESOLUTION" > /dev/null 2>&1
+fi
+
+# Start wayvnc if not already running
+if ! pgrep -xu "$USER" wayvnc > /dev/null 2>&1; then
+    wayvnc 0.0.0.0 "$VNC_PORT" > /dev/null 2>&1 &
+    echo "VNC listening on 0.0.0.0:$VNC_PORT"
+fi
+
+# Start Chrome
+exec google-chrome "${CHROME_ARGS[@]}"
