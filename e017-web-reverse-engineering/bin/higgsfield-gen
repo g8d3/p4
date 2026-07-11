@@ -1,0 +1,43 @@
+#!/bin/bash
+# higgsfield-gen — Generate AI images on Higgsfield via agent-browser.
+# Usage: higgsfield-gen "<prompt>" [model]
+#   model defaults to seedream_v4_5
+
+PROMPT="${1:-A frustrated developer staring at a glowing screen filled with console errors}"
+MODEL="${2:-seedream_v4_5}"
+URL="https://higgsfield.ai/mobile/image/$MODEL"
+
+# Verify Chrome running
+if ! curl -sf http://localhost:9222/json/version > /dev/null 2>&1; then
+    echo "Chrome not running on port 9222 — start sway-chrome first" >&2
+    exit 1
+fi
+
+ab() { agent-browser --auto-connect "$@" > /dev/null 2>&1; }
+
+echo "Navigating..."
+ab open "$URL"
+sleep 4
+
+echo "Setting prompt..."
+# Clear textarea via JS (bypass React refs)
+ab eval "
+  const ta = document.querySelector('textarea');
+  if (ta) { ta.value = ''; ta.dispatchEvent(new Event('input', {bubbles: true})); }
+"
+sleep 2
+
+# Focus + type via keyboard (reliable even with React re-renders)
+ab eval "document.querySelector('textarea')?.focus()"
+sleep 1
+ab keyboard type "$PROMPT"
+sleep 2
+
+echo "Generating..."
+# Native JS click — agent-browser click hangs on this button
+result=$(ab eval "
+  const btn = document.getElementById('image-submit-button');
+  if (btn) { btn.click(); 'ok'; } else 'button not found';
+")
+echo "Result: $result"
+echo "Check Library tab for generation status."
