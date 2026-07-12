@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+"""hf-stress — Stress test: generate all story images until CAPTCHA or completion.
+
+Usage:
+  hf-stress                                    # use default story (automation-journey)
+  hf-stress --story ../stories/my-story.yaml   # custom story
+  hf-stress --dry-run                          # print prompts without generating
+"""
+
+import argparse, json, os, sys, time, pathlib, subprocess, re
+from datetime import datetime
+
+HERE = pathlib.Path(__file__).resolve().parent
+DEFAULT_STORY = HERE / "../stories/automation-journey.yaml"
+
+def load_story(path: pathlib.Path) -> list:
+    """Load prompts from YAML story file."""
+    import yaml
+    with open(path) as f:
+        data = yaml.safe_load(f)
+    scenes = []
+    for ch in data.get("chapters", []):
+        for sc in ch.get("scenes", []):
+            scenes.append({
+                "chapter": ch["title"],
+                "prompt": sc["prompt"].strip().replace("\n", " "),
+            })
+    return scenes, data
+
+def check_captcha(log: str) -> bool:
+    """Return True if CAPTCHA detected in output."""
+    indicators = ["captcha", "verify you're human", "blocked", "denied", "403"]
+    return any(i in log.lower() for i in indicators)
+
+def run_stress(scenes: list, story_cfg: dict, dry_run: bool = False):
+    results = []
+    start_time = time.time()
+
+    print(f"Stress test: {len(scenes)} images")
+    print(f"Model: {story_cfg.get('model', 'default')}")
+    print(f"Aspect: {story_cfg.get('aspect', '9:16')}")
+    print(f"Unlimited: {story_cfg.get('use_unlim', True)}")
+    print(f"{'='*60}\n")
+
+    for i, sc in enumerate(scenes, 1):
+        chap = sc["chapter"]
+        prompt = sc["prompt"]
+        prompt_short = prompt[:60] + "..." if len(prompt) > 60 else prompt
+
+        if dry_run:
+            print(f"[{i:02d}] {chap}: {prompt_short}")
+            continue
+
+        print(f"[{i:02d}/{len(scenes)}] {chap}... ", end="", flush=True)
+        t0 = time.time()
+
+        try:
+            result = subprocess.run(
+                ["higgsfield-gen", prompt],
+                capture_output=True, text=True, timeout=60
+            )
+            elapsed = time.time() - t0
+            output = result.stdout + result.stderr
+
+            captcha = check_captcha(output)
+            success = "Done" in output or "ms ===" in output
+
+            results.append({
+                "scene": i,
+                "chapter": chap,
+                "elapsed": round(elapsed, 2),
+                "success": success,
+                "captcha": captcha,
+                "output": output.strip().split("\n")[-1] if output else "",
+            })
+
+            if captcha:
+                print(f"⛔ CAPTCHA! ({elapsed:.1f}s)")
+                print(output[:200])
+                break
+            elif success:
+                print(f"✅ ({elapsed:.1f}s)")
+            else:
+                print(f"❌ FAIL ({elapsed:.1f}s)")
+                print(output[:200])
+                # Continue despite failure
+
+        except subprocess.TimeoutExpired:
+            elapsed = time.time() - t0
+            print(f"⏰ TIMEOUT ({elapsed:.1f}s)")
+            results.append({
+                "scene": i, "chapter": chap, "elapsed": round(elapsed, 2),
+                "success": False, "captcha": False, "output": "timeout"
+            })
+
+        except Exception as e:
+            print(f"💥 ERROR ({e})")
+            results.append({
+                "scene": i, "chapter": chap, "elapsed": 0,
+                "success": False, "captcha": False, "output": str(e)
+            })
+
+        # Small delay between runs
+        time.sleep(2)
+
+    # Summary
+    total = time.time() - start_time
+    success_count = sum(1 for r in results if r.get("success"))
+    fail_count = sum(1 for r in results if not r.get("success"))
+    captcha_count = sum(1 for r in results if r.get("captcha"))
+    avg_time = sum(r["elapsed"] for r in results) / len(results) if results else 0
+
+    print(f"\n{'='*60}")
+    print(f"Results: {success_count} success, {fail_count} failed, {captcha_count} captcha")
+    print(f"Total: {total:.0f}s | Avg: {avg_time:.1f}s per image")
+    if captcha_count > 0:
+        first = next((r for r in results if r.get("captcha")), None)
+        if first:
+            print(f"CAPTCHA appeared at scene {first['scene']} ({first['chapter']})")
+
+    # Save report
+    report = {
+        "date": datetime.now().isoformat(),
+        "story": str(DEFAULT_STORY),
+        "config": {"model": story_cfg.get("model"), "aspect": story_cfg.get("aspect")},
+        "total_scenes": len(scenes),
+        "results": results,
+        "summary": {
+            "success": success_count,
+            "failed": fail_count,
+            "captcha": captcha_count,
+            "total_time_s": round(total, 1),
+            "avg_time_s": round(avg_time, 1),
+        }
+    }
+    report_file = HERE / f"../output/stress-{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    report_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_file, "w") as f:
+        json.dump(report, f, indent=2)
+    print(f"Report saved: {report_file}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Higgsfield stress test")
+    parser.add_argument("--story", "-s", default=str(DEFAULT_STORY), help="Story YAML file")
+    parser.add_argument("--dry-run", "-n", action="store_true", help="Print prompts only")
+    args = parser.parse_args()
+
+    story_path = pathlib.Path(args.story)
+    if not story_path.exists():
+        print(f"Story not found: {story_path}")
+        sys.exit(1)
+
+    scenes, config = load_story(story_path)
+    run_stress(scenes, config, dry_run=args.dry_run)
+
+if __name__ == "__main__":
+    main()

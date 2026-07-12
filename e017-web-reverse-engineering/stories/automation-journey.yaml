@@ -1,0 +1,88 @@
+title: "The Automation Journey — From Software Rendering to AI Generation"
+fps: 0.33  # 3 seconds per image
+model: seedream_v4_5
+aspect: 9:16
+quality: basic
+use_unlim: true
+
+# Each chapter has 4-6 micro-scenes. Each micro-scene yields one image.
+# Slight variations in angle, lighting, detail for smooth transitions.
+
+chapters:
+  - title: "The GPU Chase"
+    scenes:
+      - prompt: "A developer staring at a chrome://gpu page on a large monitor. All features show 'Software only, hardware acceleration unavailable' in red. Frustrated expression, blue screen glow. 3D digital art, cinematic lighting, high detail"
+
+      - prompt: "Close-up of chrome://gpu feature list. Canvas: Software only, Compositing: Software only, Rasterization: Software only. Red warning text. Dark room, monitor glow. 3D illustration"
+
+      - prompt: "Wide shot of developer's desk. Multiple sticky notes on monitor bezel with Chrome flags written: --enable-gpu, --ignore-gpu-blocklist, --use-gl=swiftshader. Coffee cup, dim lighting, late night coding atmosphere"
+
+      - prompt: "Split screen comparison. Left side: 'Software only' in red. Right side: same page after flags showing 'Hardware accelerated' in green. Dramatic contrast, cinematic split lighting"
+
+  - title: "Sway in the Dark"
+    scenes:
+      - prompt: "A terminal window floating in dark space. Commands being typed: sway --unsupported-gpu. Green text on black background, retro terminal aesthetic. Glowing matrix-like code rain in background. Cyberpunk vibe"
+
+      - prompt: "Close-up of terminal showing WLR_BACKENDS=headless and WAYLAND_DISPLAY=wayland-1. Neon green text, blurred code in background. Tech aesthetic, dark cyberpunk"
+
+      - prompt: "A translucent diagram of wlroots compositor architecture floating above a laptop. DRM, render nodes, Wayland protocol layers glowing in blue. Developer inspecting it. Tech visualization, 3D digital art"
+
+      - prompt: "The sway headless display running. A floating monitor showing a bare Sway desktop with terminal and Chrome icon. Purple and blue neon glow. Minimalist, vaporwave aesthetic"
+
+  - title: "The Wrapper Hack"
+    scenes:
+      - prompt: "A bash script open in VS Code showing the google-chrome wrapper. Lines with --enable-gpu and --ignore-gpu-blocklist highlighted in yellow. Dark code editor theme, blue accent"
+
+      - prompt: "Split screen: left side code editor with wrapper script, right side terminal showing diff output. Green added lines for GPU flags. Clean coding aesthetic, blue and green color scheme"
+
+      - prompt: "Close-up of a glowing GPU chip floating above a keyboard. The chip has 'AMD Radeon' engraved. Magenta and blue neon lighting. Macro photography style, 3D render"
+
+      - prompt: "A developer's hands typing on a mechanical keyboard. The monitor shows chrome://gpu now with all features green 'Hardware accelerated'. Satisfied mood, warm lighting, cinematic shot"
+
+      - prompt: "Before and after comparison of chrome://gpu. Dramatic transition from red 'Software only' to green 'Hardware accelerated'. Split frame, high contrast, triumphant mood"
+
+  - title: "The Wall of Errors"
+    scenes:
+      - prompt: "A web browser console overflowing with red error messages. ChunkLoadError, Failed to fetch, Amplitude network error. Errors cascade like digital rain. Small developer silhouette at bottom. Dystopian tech aesthetic"
+
+      - prompt: "Close-up of a single error: 'ChunkLoadError: Loading chunk 92432 failed'. Red text on dark background. Glowing red borders. Horror/tech fusion aesthetic"
+
+      - prompt: "Wide shot of developer surrounded by floating error messages in 3D space. Red and black color scheme. Errors as physical objects floating around them. Surreal, dystopian"
+
+      - prompt: "The Amplitude network errors repeating like a glitch. Console log scrolling infinitely. Green text on black, matrix-style, but with error messages instead of code rain. Cyberpunk aesthetic"
+
+      - prompt: "A developer silhouette facing a giant wall of cascading errors. The errors form a barrier. Small light at the top suggesting hope. Cinematic wide shot, dark blue and red lighting"
+
+  - title: "The Native Click Epiphany"
+    scenes:
+      - prompt: "Chrome DevTools Elements panel open, inspecting a button with id='image-submit-button'. Detailed view of HTML structure. Blue highlight on the button element. Tech workspace aesthetic"
+
+      - prompt: "Close-up of Chrome DevTools console tab. A command typed: document.getElementById('image-submit-button').click(). Glowing cursor at end. Light bulb icon in corner suggesting idea. Warm yellow breakthrough lighting"
+
+      - prompt: "A light bulb moment visualized. Developer's face illuminated by a glowing idea above their head. The light bulb contains a JS code snippet. Warm golden light, cinematic portrait"
+
+      - prompt: "Split scene: left side showing failed agent-browser click attempts, right side showing successful native JS click. Contrast between red X marks and green checkmarks. Instructional diagram style"
+
+      - prompt: "Close-up of the image-submit-button in the actual page. A glowing cursor hovering over it. The button says 'Generate Unlimited'. Anticipation, before-click tension, cinematic close-up"
+
+  - title: "Generating at Last"
+    scenes:
+      - prompt: "Higgsfield Library page showing a card with 'Generating' badge. Animated progress indicator spinning. Warm golden glow from the card. Feeling of triumph. 3D digital art"
+
+      - prompt: "GPU utilization graphs spiking in background. Multiple monitors showing GPU activity. The AMD GPU finally working. Technical dashboard aesthetic, green graphs on dark background"
+
+      - prompt: "The generated image appearing gradually like a Polaroid developing. Corner rising, revealing the AI-created scene. Magical moment, warm light emanating from the image. Cinematic"
+
+      - prompt: "Developer leaning back in chair, looking at the successful generation on screen. Tired but satisfied expression. Morning light coming through window (all-nighter success). Emotional, warm"
+
+      - prompt: "Montage of all 6 generated images from the story appearing as polaroid photos arranged on a desk. Each tells a chapter of the journey. Top-down view, warm lighting, nostalgic. Victory moment"
+
+  - title: "Epilogue — The Automated Pipeline"
+    scenes:
+      - prompt: "A terminal showing the higgsfield-gen script running successfully. Multiple generations completing in sequence. Clean output, timing stats. Automated efficiency, green checkmarks"
+
+      - prompt: "A pipeline diagram showing the flow: sway → Chrome → CDP → agent-browser → Higgsfield → image out. Clean tech diagram, connected nodes glowing blue. Systems architecture aesthetic"
+
+      - prompt: "A VNC viewer window showing the virtual mobile display with Higgsfield page. The display is 600x1024. Small 'GPU Accelerated' badge visible. Remote desktop aesthetic, retro window frames"
+
+      - prompt: "Final wide shot: a developer's complete automated setup. Sway headless, VNC server, Chrome with GPU, agent-browser script all running as a cohesive system. Morning light, organized desk, proud moment"

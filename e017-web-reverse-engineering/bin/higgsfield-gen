@@ -36,6 +36,7 @@ ab eval "
   const sw = document.querySelector('[role=switch]');
   if (sw && sw.getAttribute('aria-checked') !== 'true') sw.click();
 "
+
 step "Generating..."
 har_file="/tmp/higgsfield-$(date +%s).har"
 ab network har start "$har_file"
