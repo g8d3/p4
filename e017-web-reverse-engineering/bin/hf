@@ -1,204 +1,117 @@
 #!/usr/bin/env python3
-"""hf — Higgsfield CLI. API calls via Chrome CDP (uses browser's auth).
+"""hf — Higgsfield CLI.
 
-Usage:
-  hf create image "<prompt>"                          # generate image
-  hf create image "<prompt>" --model seedream_v4_5    # different model
-  hf create image "<prompt>" --aspect 16:9 --quality hd --batch 4
-  hf tokens                                            # save auth token for offline use
+Commands:
+  hf read images          Scan Library, export all images to CSV
+  hf create image <prompt>  Generate image (alias for higgsfield-gen)
 """
 
-import argparse, json, os, sys, time, random, pathlib, http.client
-from dataclasses import dataclass
-from typing import Optional
+import subprocess, sys, json, os, re, csv, time, pathlib, datetime
 
-import yaml
-import websocket
-
-# ── paths ──────────────────────────────────────────────────────────
 HERE = pathlib.Path(__file__).resolve().parent
-DEFAULTS_FILE = HERE / "../sites/higgsfield/hf-defaults.yaml"
-CDP_PORT = int(os.environ.get("HF_CDP", "9222"))
-API_BASE = "https://fnf-api-gw.higgsfield.ai/fnf"
+CSV = pathlib.Path(os.environ.get("CSV", HERE.parent / "sites/higgsfield/output/images.csv"))
+CSV.parent.mkdir(parents=True, exist_ok=True)
 
-# ── CDP helpers ────────────────────────────────────────────────────
-def cdp_connect():
-    conn = http.client.HTTPConnection(f"localhost:{CDP_PORT}")
-    conn.request("GET", "/json/version")
-    ws_url = json.loads(conn.getresponse().read())["webSocketDebuggerUrl"]
-    conn.close()
-    ws = websocket.create_connection(ws_url)
-    ws.send(json.dumps({"id": 1, "method": "Target.getTargets"}))
-    while True:
-        msg = json.loads(ws.recv())
-        if msg.get("id") == 1:
-            pages = [t for t in msg["result"]["targetInfos"]
-                     if t["type"] == "page" and t.get("url", "").startswith("http")
-                     and "higgsfield" in t["url"]]
-            target_id = pages[0]["targetId"] if pages else None
-            break
-    if not target_id:
-        ws.close()
-        raise RuntimeError("No Higgsfield page open in Chrome")
-    ws.send(json.dumps({"id": 2, "method": "Target.attachToTarget",
-                        "params": {"targetId": target_id, "flatten": True}}))
-    while True:
-        msg = json.loads(ws.recv())
-        if msg.get("id") == 2:
-            return ws, msg["result"]["sessionId"]
+def ab(*args):
+    r = subprocess.run(["agent-browser", "--auto-connect"] + list(args),
+                       capture_output=True, text=True, timeout=60)
+    return r.stdout.strip(), r.stderr.strip()
 
-def cdp_eval(ws, session_id, js, await_promise=False):
-    req = {"id": 3, "sessionId": session_id, "method": "Runtime.evaluate",
-           "params": {"expression": js, "returnByValue": True}}
-    if await_promise:
-        req["params"]["awaitPromise"] = True
-    ws.send(json.dumps(req))
-    while True:
-        msg = json.loads(ws.recv())
-        if msg.get("id") == 3:
-            err = msg.get("error")
-            if err:
-                raise RuntimeError(f"CDP error: {err['message']}")
-            return msg["result"]["result"]["value"]
-
-# ── params ─────────────────────────────────────────────────────────
-@dataclass
-class GenParams:
-    prompt: str
-    model: str = "seedream_v4_5"
-    aspect_ratio: str = "9:16"
-    quality: str = "basic"
-    batch_size: int = 1
-    use_unlim: bool = True
-    width: Optional[int] = None
-    height: Optional[int] = None
-    seed: Optional[int] = None
-    input_images: list = None
-
-    def resolve(self):
-        if pathlib.Path(DEFAULTS_FILE).exists():
-            with open(DEFAULTS_FILE) as f:
-                cfg = yaml.safe_load(f) or {}
-            for k, v in cfg.items():
-                if k != "prompt" and getattr(self, k, None) is None:
-                    setattr(self, k, v)
-        if self.width is None or self.height is None:
-            w, h = map(int, self.aspect_ratio.split(":"))
-            scale = 1024 // max(w, h)
-            self.width = w * scale
-            self.height = h * scale
-        return self
-
-    def body(self) -> dict:
-        return {
-            "params": {
-                "model": self.model,
-                "prompt": self.prompt,
-                "input_images": self.input_images or [],
-                "width": self.width,
-                "height": self.height,
-                "quality": self.quality,
-                "batch_size": self.batch_size,
-                "aspect_ratio": self.aspect_ratio,
-                "use_unlim": self.use_unlim,
-                "seed": self.seed if self.seed is not None else random.randint(1, 999999),
-            },
-            "use_unlim": self.use_unlim,
-        }
-
-# ── API via CDP fetch (uses browser auth) ─────────────────────────
-def api_fetch(ws, session_id, method: str, url: str, body: dict = None) -> dict:
-    js = f"""
-    (async () => {{
-        const resp = await fetch({json.dumps(url)}, {{
-            method: {json.dumps(method)},
-            headers: {{ "Content-Type": "application/json" }},
-            {f'body: {json.dumps(json.dumps(body))},' if body else ''}
-        }});
-        const text = await resp.text();
-        try {{ return {{ ok: resp.ok, status: resp.status, data: JSON.parse(text) }}; }}
-        catch {{ return {{ ok: resp.ok, status: resp.status, data: text }}; }}
-    }})()
-    """
-    return cdp_eval(ws, session_id, js, await_promise=True)
-
-# ── CLI ────────────────────────────────────────────────────────────
-def cmd_tokens(args):
-    ws, sid = cdp_connect()
+def parse_result(out):
+    if not out or out.strip() == "null":
+        return {"found": False}
     try:
-        # Get auth headers from an actual fetch
-        result = api_fetch(ws, sid, "GET", f"{API_BASE}/jobs?limit=1")
-        print(f"API test: status={result.get('status')}")
-        # Get cookies
-        cookies = cdp_eval(ws, sid, "document.cookie")
-        print(f"Cookies: {cookies[:200]}")
-    finally:
-        ws.close()
+        raw = json.loads(out)
+    except json.JSONDecodeError:
+        return {"found": False}
+    if raw is None:
+        return {"found": False}
+    if isinstance(raw, list):
+        if not raw:
+            return {"found": False}
+        inner = raw[0]
+        if isinstance(inner, str):
+            try:
+                return json.loads(inner)
+            except json.JSONDecodeError:
+                return {"found": False}
+        return inner if isinstance(inner, dict) else {"found": False}
+    if isinstance(raw, str):
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            return {"found": False}
+    return raw if isinstance(raw, dict) else {"found": False}
+
+def cmd_read_images():
+    print("Scanning Library...")
+    ab("open", "https://higgsfield.ai/library/image")
+    time.sleep(5)
+
+    # Get all cards with their data
+    out, _ = ab("eval", """
+    (() => {
+        const els = document.querySelectorAll('button, [onclick], [class*=clickable]');
+        const results = [];
+        for (const el of els) {
+            const text = el.textContent || '';
+            const html = el.outerHTML || '';
+            const jobId = (html.match(/[a-f0-9-]{36}/) || [''])[0];
+            const img = el.querySelector('img');
+            const imgUrl = img?.src || '';
+            const imgAlt = img?.alt || '';
+            const status = imgAlt.includes('media asset') ? 'completed' : 'pending';
+            // Extract prompt: first meaningful text before 'Seedream' or similar
+            const prompt = text.replace(/\\s*Seedream.*$/, '').replace(/\\s*\\d+/g, '').trim();
+            if (jobId || prompt.length > 10) {
+                results.push({jobId, prompt: prompt.substring(0, 200), imageUrl: imgUrl, status, model: 'seedream_v4_5'});
+            }
+        }
+        return JSON.stringify(results.slice(0, 50));
+    })()
+    """)
+    cards = parse_result(out)
+    if not cards or not isinstance(cards, list):
+        print(f"No cards found: {cards}")
+        return
+
+    # Write CSV (replace)
+    cols = ["datetime", "story", "chapter", "scene", "prompt", "job_id", "image_url", "status", "model", "aspect", "duration_ms"]
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(CSV, "w", newline="") as f:
+        w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+        w.writerow(cols)
+        for c in cards:
+            if c.get("jobId") or len(c.get("prompt", "")) > 10:
+                w.writerow([now, "", "", "", c.get("prompt", ""),
+                          c.get("jobId", ""), c.get("imageUrl", ""),
+                          c.get("status", "completed"),
+                          c.get("model", "seedream_v4_5"), "", ""])
+    print(f"Written {len(cards)} cards to {CSV}")
 
 def cmd_create(args):
-    params = GenParams(prompt=args.prompt)
-    if args.model: params.model = args.model
-    if args.aspect: params.aspect_ratio = args.aspect
-    if args.quality: params.quality = args.quality
-    if args.batch: params.batch_size = args.batch
-    if args.no_unlimited: params.use_unlim = False
-    params.resolve()
-
-    ws, sid = cdp_connect()
-    try:
-        print(f"Creating {params.model} job...")
-        result = api_fetch(ws, sid, "POST",
-                           f"{API_BASE}/jobs/{params.model.replace('.', '-')}",
-                           params.body())
-        if not result.get("ok"):
-            print(f"API error ({result.get('status')}): {json.dumps(result.get('data'), indent=2)[:300]}")
-            sys.exit(1)
-
-        data = result["data"]
-        job_id = data.get("id") or data.get("job_id") or data.get("data", {}).get("id")
-        if not job_id:
-            print(f"Unexpected response: {json.dumps(data, indent=2)[:300]}")
-            sys.exit(1)
-        print(f"Job ID: {job_id}")
-
-        # Poll status
-        print("Waiting...", end="", flush=True)
-        while True:
-            time.sleep(2)
-            status = api_fetch(ws, sid, "GET", f"{API_BASE}/jobs/{job_id}/status")
-            s = status.get("data", {}).get("status", "unknown")
-            print(f" {s}", end="", flush=True)
-            if s in ("completed", "failed", "cancelled"):
-                print()
-                if s == "completed":
-                    print("\nDone! Use hf-download to get the images.")
-                else:
-                    print(f"\nJob {s}")
-                break
-    finally:
-        ws.close()
+    prompt = args[0] if args else "default"
+    model = args[1] if len(args) > 1 else "seedream_v4_5"
+    env = os.environ.copy()
+    env["CSV"] = str(CSV)
+    r = subprocess.run([sys.argv[0].replace("hf", "higgsfield-gen"), prompt, model],
+                       capture_output=True, text=True, timeout=120, env=env)
+    print(r.stdout)
+    if r.stderr:
+        print(r.stderr, file=sys.stderr)
 
 def main():
-    parser = argparse.ArgumentParser(prog="hf")
-    sub = parser.add_subparsers(dest="command")
-
-    p_tokens = sub.add_parser("tokens", help="Test auth and show cookies")
-    p_create = sub.add_parser("create", help="Create image/video")
-    p_create.add_argument("type", choices=["image", "video"])
-    p_create.add_argument("prompt")
-    p_create.add_argument("--model", "-m")
-    p_create.add_argument("--aspect", "-a")
-    p_create.add_argument("--quality", "-q")
-    p_create.add_argument("--batch", "-b", type=int, default=1)
-    p_create.add_argument("--no-unlimited", action="store_true")
-
-    args = parser.parse_args()
-    if args.command == "tokens":
-        cmd_tokens(args)
-    elif args.command == "create":
-        cmd_create(args)
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return
+    cmd = sys.argv[1]
+    if cmd == "read" and len(sys.argv) > 2 and sys.argv[2] == "images":
+        cmd_read_images()
+    elif cmd == "create" and len(sys.argv) > 3 and sys.argv[2] == "image":
+        cmd_create(sys.argv[3:])
     else:
-        parser.print_help()
+        print(f"Unknown command: {' '.join(sys.argv[1:])}")
+        print(__doc__)
 
 if __name__ == "__main__":
     main()
