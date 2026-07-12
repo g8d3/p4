@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""hf-download — download generated images from Higgsfield jobs.
+Usage:
+  hf-download <job-id>                    # download to output/<job-id>/
+  hf-download <job-id> --dir ./my-images   # custom directory
+  hf-download list                         # list recent jobs from library
+"""
+
+import argparse, json, os, sys, time, pathlib, re
+from typing import Optional
+
+import requests
+
+CDP_PORT = int(os.environ.get("HF_CDP", "9222"))
+API_BASE = "https://fnf-api-gw.higgsfield.ai/fnf"
+HERE = pathlib.Path(__file__).resolve().parent
+OUTPUT_DIR = pathlib.Path(os.environ.get("HF_OUTPUT", HERE / "../output"))
+
+def get_auth_from_browser() -> dict:
+    import http.client, websocket
+    conn = http.client.HTTPConnection(f"localhost:{CDP_PORT}")
+    conn.request("GET", "/json/version")
+    ws_url = json.loads(conn.getresponse().read())["webSocketDebuggerUrl"]
+    conn.close()
+    ws = websocket.create_connection(ws_url)
+    ws.send(json.dumps({"id": 1, "method": "Target.getTargets"}))
+    while True:
+        msg = json.loads(ws.recv())
+        if msg.get("id") == 1:
+            pages = [t for t in msg["result"]["targetInfos"] if "higgsfield" in t.get("url", "")]
+            target_id = pages[0]["targetId"] if pages else None
+            break
+    if not target_id:
+        ws.close()
+        raise RuntimeError("No Higgsfield page found")
+    ws.send(json.dumps({"id": 2, "method": "Target.attachToTarget", "params": {"targetId": target_id}}))
+    session_id = None
+    while session_id is None:
+        msg = json.loads(ws.recv())
+        if msg.get("method") == "Target.attachedToTarget":
+            session_id = msg["params"]["sessionId"]
+    ws.send(json.dumps({"id": 3, "sessionId": session_id, "method": "Runtime.evaluate", "params": {
+        "expression": """
+        (() => {
+            try {
+                const a = JSON.parse(localStorage.getItem('hf:auth') || '{}');
+                return JSON.stringify({ authorization: a.accessToken || '' });
+            } catch { return '{}'; }
+        })()
+        """,
+        "returnByValue": True
+    }}))
+    while True:
+        msg = json.loads(ws.recv())
+        if msg.get("id") == 3:
+            val = json.loads(msg.get("result", {}).get("result", {}).get("value", "{}"))
+            ws.close()
+            return val
+
+def get_headers(auth: dict) -> dict:
+    h = {
+        "Content-Type": "application/json",
+        "Origin": "https://higgsfield.ai",
+        "Referer": "https://higgsfield.ai/",
+    }
+    if auth.get("authorization"):
+        h["authorization"] = f"Bearer {auth['authorization']}"
+    return h
+
+def download_job_images(job_id: str, output_dir: pathlib.Path, auth: dict):
+    headers = get_headers(auth)
+    resp = requests.get(f"{API_BASE}/jobs/{job_id}/status", headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
+    images = []
+    outputs = data.get("outputs") or data.get("data", {}).get("outputs", []) or data.get("result", {}).get("images", [])
+    if not outputs and "image_url" in data:
+        outputs = [{"url": data["image_url"]}]
+    if not outputs:
+        # Try direct URLs in response
+        for key in ("images", "urls", "gallery"):
+            if isinstance(data.get(key), list):
+                outputs = data[key]
+                break
+    if not outputs:
+        print(f"No images found in response. Keys: {list(data.keys())}")
+        return
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for i, img in enumerate(outputs):
+        url = img.get("url") or img.get("image_url") or (img if isinstance(img, str) else None)
+        if not url:
+            continue
+        ext = url.split("?")[0].rsplit(".", 1)[-1] if "." in url.split("?")[0] else "jpg"
+        fname = output_dir / f"{job_id}_{i+1}.{ext}"
+        print(f"Downloading {url[:60]}...")
+        r = requests.get(url)
+        r.raise_for_status()
+        with open(fname, "wb") as f:
+            f.write(r.content)
+        print(f"  -> {fname} ({len(r.content)} bytes)")
+
+def main():
+    parser = argparse.ArgumentParser(description="Download Higgsfield generated images")
+    parser.add_argument("job_id", help="Job ID or 'list' to see recent jobs")
+    parser.add_argument("--dir", "-d", default=None, help="Output directory")
+    args = parser.parse_args()
+    out_dir = pathlib.Path(args.dir) if args.dir else OUTPUT_DIR / args.job_id
+    auth = get_auth_from_browser()
+    if not auth.get("authorization"):
+        print("No auth token found")
+        sys.exit(1)
+    download_job_images(args.job_id, out_dir, auth)
+
+if __name__ == "__main__":
+    main()

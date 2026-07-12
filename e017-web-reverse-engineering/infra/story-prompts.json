@@ -1,0 +1,32 @@
+[
+  {
+    "scene": 1,
+    "title": "The GPU Chase",
+    "prompt": "A developer staring at a chrome://gpu page on a large monitor. All features show 'Software only, hardware acceleration unavailable' in red. The developer's face shows frustration and determination. Dark room, blue glow from the screen reflecting on glasses. Sticky notes on the monitor bezel with flags written: --enable-gpu, --ignore-gpu-blocklist. 3D digital art, cinematic lighting, tech struggle aesthetic, high detail"
+  },
+  {
+    "scene": 2,
+    "title": "Sway in the Dark",
+    "prompt": "A terminal window floating in dark space, showing commands being typed: 'sway --unsupported-gpu', 'WLR_BACKENDS=headless', 'WAYLAND_DISPLAY=wayland-1'. The terminal has a green-on-black retro aesthetic. In the background, a translucent outline of a wlroots compositor architecture diagram. Cyberpunk vibe, neon green text, dark matrix-like background, 3D illustration style"
+  },
+  {
+    "scene": 3,
+    "title": "The Wrapper Hack",
+    "prompt": "A bash script file open in a code editor showing the google-chrome wrapper. Lines with --enable-gpu and --ignore-gpu-blocklist are highlighted in yellow. A glowing GPU chip icon floats above the editor. Split screen showing before/after of chrome://gpu changing from 'Software only' to 'Hardware accelerated'. Dramatic coding scene, blue and orange color scheme, digital art"
+  },
+  {
+    "scene": 4,
+    "title": "The Wall of Errors",
+    "prompt": "A web browser console overflowing with red error messages: 'ChunkLoadError: Loading chunk 92432 failed', 'Failed to fetch', 'Amplitude network error', 'FedCM get() rejects with NetworkError'. The errors cascade down the screen like digital rain. A small developer silhouette at the bottom looking up at the wall of errors. Dystopian tech aesthetic, red and black color scheme, high contrast 3D render"
+  },
+  {
+    "scene": 5,
+    "title": "The Native Click Epiphany",
+    "prompt": "A close-up of Chrome DevTools Elements panel inspecting a button with id='image-submit-button'. A glowing cursor hovers over the console where 'document.getElementById(\"image-submit-button\").click()' is typed. Light bulb icon above suggesting a breakthrough moment. Split lighting: warm yellow from the breakthrough, cool blue from the monitor. 3D illustration, detailed UI elements"
+  },
+  {
+    "scene": 6,
+    "title": "Generating at Last",
+    "prompt": "A Higgsfield Library page showing a card with a 'Generating' badge and animated progress indicator. The background shows GPU utilization graphs spiking. A small 'Hardware accelerated' badge visible. Feeling of triumph and relief. Warm golden lighting, particles floating celebrating the success. 3D cinematic render, high detail, storybook ending atmosphere"
+  }
+]

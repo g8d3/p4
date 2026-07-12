@@ -1,0 +1,13 @@
+# Higgsfield API parameters
+# Used by: hf create image, hf create video
+# Override any value via env var HF_<KEY> (e.g. HF_MODEL=seedream_v5)
+
+model: seedream_v4_5
+aspect_ratio: 9:16       # 1:1, 4:3, 3:4, 16:9, 9:16, 2:3, 3:2, 21:9
+quality: basic            # basic, standard, hd, 2k, 4k (depends on model)
+batch_size: 1             # 1-4 (or more, depends on plan)
+use_unlim: true           # true = unlimited queue, false = priority queue
+width: 1024               # auto-derived from aspect_ratio if not set
+height: 1024              # auto-derived from aspect_ratio if not set
+seed: null                # null = random, or integer for reproducible results
+input_images: []          # list of file paths or URLs for img2img
