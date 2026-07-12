@@ -19,9 +19,12 @@ check() {
     return 1
 }
 
-# 1. Count current cards
+# 1. Navigate to Library if not already there
 step "Counting library images..."
-ab open "$LIBRARY_URL"
+current_url=$(agent-browser --auto-connect eval "location.href" 2>/dev/null)
+if [[ "$current_url" != */library/* ]]; then
+    ab open "$LIBRARY_URL"
+fi
 # Wait for RSC to render cards
 for i in 1 2 3 4 5; do
     c=$(agent-browser --auto-connect eval "
@@ -33,10 +36,13 @@ done
 before="$c"
 echo "  $before items in library" >&2
 
-# 2. Navigate to generation page
+# 2. Navigate to generation page if not already there
 step "Clearing draft + navigating..."
-ab eval "localStorage.removeItem('hf:image-form-upd')"
-ab open "$GEN_URL"
+current_url=$(agent-browser --auto-connect eval "location.href" 2>/dev/null)
+if [[ "$current_url" != */mobile/image/* ]]; then
+    ab eval "localStorage.removeItem('hf:image-form-upd')"
+    ab open "$GEN_URL"
+fi
 
 # 3. Set prompt
 step "Setting prompt..."
@@ -67,34 +73,48 @@ step "Generating..."
 ab eval "document.getElementById('image-submit-button')?.click()"
 ab snapshot
 
-# 6. Wait for Library and count again
+# 6. Wait for Library + find the card by prompt text
 step "Waiting for result..."
+card_json="null"
 for i in 1 2 3 4 5; do
-    after=$(agent-browser --auto-connect eval "
-        document.querySelectorAll('img[alt*=media]').length
+    card_json=$(agent-browser --auto-connect eval "
+        (() => {
+            const els = [...document.querySelectorAll('button, [onclick], [class*=clickable]')];
+            const match = els.find(e => e.textContent.includes('${PROMPT:0:40}'));
+            if (!match) return 'null';
+            const matchText = match.outerHTML || '';
+            const id = matchText.match(/[a-f0-9-]{36}/)?.[0] || '';
+            const img = match.querySelector('img');
+            return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});
+        })()
     " 2>/dev/null)
-    [ "${after:-0}" -gt "${before:-0}" ] && break
+    [ "$card_json" != "null" ] && break
     sleep 2
 done
 
-if [ "${after:-0}" -gt "${before:-0}" ]; then
-    # Find the new card by our prompt text
-    card=$(agent-browser --auto-connect eval "
-        const els = [...document.querySelectorAll('button, [class*=clickable], [onclick]')];
+# One final check with longer wait
+if [ "$card_json" = "null" ]; then
+    sleep 5
+    card_json=$(agent-browser --auto-connect eval "
+        const els = [...document.querySelectorAll('button, [onclick], [class*=clickable]')];
         const match = els.find(e => e.textContent.includes('${PROMPT:0:40}'));
-        if (match) {
-            const img = match.querySelector('img');
-            const id = (img?.alt || '').match(/[a-f0-9-]{36}/)?.[0] || '';
-            JSON.stringify({jobId: id, imageUrl: img?.src || ''});
-        } else 'null';
+        if (!match) return 'null';
+        const matchText = match.outerHTML || '';
+        const id = matchText.match(/[a-f0-9-]{36}/)?.[0] || '';
+        const img = match.querySelector('img');
+        return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});
     " 2>/dev/null)
-    job_id=$(echo "$card" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(d.get('jobId','') if isinstance(d,dict) else '')" 2>/dev/null)
-    image_url=$(echo "$card" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(d.get('imageUrl','') if isinstance(d,dict) else '')" 2>/dev/null)
-    [ -z "$job_id" ] && job_id="unknown"
+fi
+
+found=$(echo "$card_json" | python3 -c "import sys,json; d=json.loads(sys.stdin); print(d.get('found','false'))" 2>/dev/null)
+if [ "$found" = "True" ]; then
+    job_id=$(echo "$card_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('jobId',''))" 2>/dev/null)
+    image_url=$(echo "$card_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('imageUrl',''))" 2>/dev/null)
+    [ -z "$job_id" ] && job_id="pending"
     echo "  ✅ $job_id" >&2
-    echo "$(date +%s),,,,\"${PROMPT//\"/\"\"}\",$job_id,$image_url,completed,$MODEL,9:16,$(( $(date +%s%3N) - t0 ))" >> "$CSV"
+    echo "$(date +%s),,,,\"${PROMPT//\"/\"\"}\",$job_id,$image_url,pending,$MODEL,9:16,$(( $(date +%s%3N) - t0 ))" >> "$CSV"
 else
-    echo "  ❌ count unchanged ($before -> $after)" >&2
+    echo "  ❌ card not found" >&2
 fi
 
 total_ms=$(( $(date +%s%3N) - t0 ))
