@@ -3,6 +3,9 @@ PROMPT="${1:-default prompt}"
 MODEL="${2:-seedream_v4_5}"
 LIBRARY_URL="https://higgsfield.ai/library/image"
 GEN_URL="https://higgsfield.ai/mobile/image/$MODEL"
+CSV="${CSV:-./sites/higgsfield/output/images.csv}"
+mkdir -p "$(dirname "$CSV")"
+[ -f "$CSV" ] || echo "ts,story,chapter,scene,prompt,job_id,image_url,status,model,aspect,duration_ms" > "$CSV"
 
 ab() { agent-browser --auto-connect "$@" > /dev/null 2>&1; }
 step() { local n="$1" now=$(date +%s%3N); echo "$(( now - t_step ))ms  $n" >&2; t_step=$now; }
@@ -16,69 +19,43 @@ check() {
     return 1
 }
 
-# 1. Count current cards (wait for RSC to render them)
+# 1. Count current cards
 step "Counting library images..."
 ab open "$LIBRARY_URL"
-before=$(python3 -c "
-import http.client, json, websocket, time
-conn = http.client.HTTPConnection('localhost:9222')
-conn.request('GET', '/json/version')
-ws_url = json.loads(conn.getresponse().read())['webSocketDebuggerUrl']
-conn.close()
-ws = websocket.create_connection(ws_url)
-ws.send(json.dumps({'id': 1, 'method': 'Target.getTargets'}))
-while True:
-    msg = json.loads(ws.recv())
-    if msg.get('id') == 1:
-        pages = [t for t in msg['result']['targetInfos']
-                 if t['type'] == 'page' and 'higgsfield' in t.get('url','')]
-        target_id = pages[0]['targetId'] if pages else None
-        break
-ws.send(json.dumps({'id': 2, 'method': 'Target.attachToTarget',
-                    'params': {'targetId': target_id, 'flatten': True}}))
-while True:
-    msg = json.loads(ws.recv())
-    if msg.get('id') == 2:
-        session_id = msg['result']['sessionId']
-        break
-ws.send(json.dumps({'id': 3, 'sessionId': session_id, 'method': 'Runtime.evaluate', 'params': {
-    'expression': '''
-    new Promise(resolve => {
-        function check() {
-            const c = document.querySelectorAll('button>figure').length;
-            if (c > 0) resolve(c);
-            else requestAnimationFrame(check);
-        }
-        check();
-    })
-    ''',
-    'awaitPromise': True, 'returnByValue': True
-}}))
-ws.settimeout(10)
-try:
-    while True:
-        msg = json.loads(ws.recv())
-        if msg.get('id') == 3:
-            print(msg.get('result',{}).get('result',{}).get('value', 0))
-            break
-except: print(0)
-ws.close()
-" 2>/dev/null)
-echo "  $before images in library" >&2
+# Wait for RSC to render cards
+for i in 1 2 3 4 5; do
+    c=$(agent-browser --auto-connect eval "
+        document.querySelectorAll('img[alt*=media]').length
+    " 2>/dev/null)
+    [ "${c:-0}" -gt 0 ] && break
+    sleep 2
+done
+before="$c"
+echo "  $before items in library" >&2
 
 # 2. Navigate to generation page
 step "Clearing draft + navigating..."
 ab eval "localStorage.removeItem('hf:image-form-upd')"
 ab open "$GEN_URL"
 
-# 3. Wait for page + set prompt
+# 3. Set prompt
 step "Setting prompt..."
-ab snapshot
 ab click "[placeholder*='Describe']"
-ab keyboard type "$PROMPT"
 sleep 2
-check "prompt not empty" "document.querySelector('textarea')?.value?.length > 10" || { step "ABORT"; exit 1; }
-echo "  prompt: ${PROMPT:0:40}..." >&2
+ab keyboard type "$PROMPT"
+sleep 3
+pval=$(agent-browser --auto-connect eval "document.querySelector('textarea')?.value?.length || 0" 2>/dev/null)
+if [ "${pval:-0}" -gt 5 ]; then
+    echo "  prompt: ${PROMPT:0:40}..." >&2
+else
+    echo "  ❌ prompt empty (len=$pval), retrying..." >&2
+    ab click "[placeholder*='Describe']"
+    sleep 1
+    ab keyboard type "$PROMPT"
+    sleep 3
+    pval2=$(agent-browser --auto-connect eval "document.querySelector('textarea')?.value?.length || 0" 2>/dev/null)
+    [ "${pval2:-0}" -le 5 ] && { echo "  ABORT (prompt not set)"; exit 1; }
+fi
 
 # 4. Enable unlimited
 step "Enabling Unlimited..."
@@ -88,98 +65,36 @@ check "unlimited enabled" "document.querySelector('[role=switch]')?.getAttribute
 # 5. Click generate
 step "Generating..."
 ab eval "document.getElementById('image-submit-button')?.click()"
+ab snapshot
 
-# 6. Wait for result via CDP
+# 6. Wait for Library and count again
 step "Waiting for result..."
-result=$(python3 -c "
-import http.client, json, websocket, time
-conn = http.client.HTTPConnection('localhost:9222')
-conn.request('GET', '/json/version')
-ws_url = json.loads(conn.getresponse().read())['webSocketDebuggerUrl']
-conn.close()
-ws = websocket.create_connection(ws_url)
-ws.send(json.dumps({'id': 1, 'method': 'Target.getTargets'}))
-while True:
-    msg = json.loads(ws.recv())
-    if msg.get('id') == 1:
-        # Find any Higgsfield page (may be blob URL from service worker)
-        pages = [t for t in msg['result']['targetInfos']
-                 if t['type'] == 'page' and 'higgsfield' in t.get('url','')]
-        target_id = pages[0]['targetId'] if pages else None
-        break
-if not target_id: print('no higgsfield page'); exit()
-ws.send(json.dumps({'id': 2, 'method': 'Target.attachToTarget',
-                    'params': {'targetId': target_id, 'flatten': True}}))
-while True:
-    msg = json.loads(ws.recv())
-    if msg.get('id') == 2:
-        session_id = msg['result']['sessionId']
-        break
-# Check for real system errors (not prompt text)
-ws.send(json.dumps({'id': 3, 'sessionId': session_id, 'method': 'Runtime.evaluate', 'params': {
-    'expression': '''
-    (() => {
-        const text = (document.body?.innerText || '').toLowerCase();
-        if (text.includes('prompt cannot be empty') || text.includes('something went wrong') || text.includes('try again')) {
-            return JSON.stringify({error: text.substring(0,200)});
-        }
-        return null;
-    })()
-    ''',
-    'returnByValue': True
-}}))
-ws.settimeout(5)
-while True:
-    msg = json.loads(ws.recv())
-    if msg.get('id') == 3:
-        err = msg.get('result',{}).get('result',{}).get('value')
-        if err:
-            print(err)
-            ws.close(); exit()
-        break
-# Wait for new card
-ws.send(json.dumps({'id': 4, 'sessionId': session_id, 'method': 'Runtime.evaluate', 'params': {
-    'expression': f'''
-    new Promise(resolve => {{
-        const target = ${before};
-        function check() {{
-            const count = document.querySelectorAll('button>figure').length;
-            if (count > target) {{
-                const cards = [...document.querySelectorAll('button:has(figure)')];
-                const first = cards[0] || {{}};
-                resolve(JSON.stringify({{count, jobId: (first.querySelector('img')?.alt || '').match(/[a-f0-9-]{{36}}/)?.[0] || ''}}));
-            }} else {{
-                const text = (document.body?.innerText || '').toLowerCase();
-                if (text.includes('prompt cannot be empty')) resolve(JSON.stringify({{error:'prompt empty'}}));
-                else requestAnimationFrame(() => check());
-            }}
-        }}
-        check();
-    }})
-    ''',
-    'awaitPromise': True, 'returnByValue': True
-}}))
-ws.settimeout(30)
-while True:
-    msg = json.loads(ws.recv())
-    if msg.get('id') == 4:
-        print(msg.get('result',{}).get('result',{}).get('value',''))
-        break
-    elif msg.get('error'):
-        print('{{\"error\":\"{msg[\"error\"][\"message\"]}\"}}')
-        break
-ws.close()
-" 2>/dev/null)
+for i in 1 2 3 4 5; do
+    after=$(agent-browser --auto-connect eval "
+        document.querySelectorAll('img[alt*=media]').length
+    " 2>/dev/null)
+    [ "${after:-0}" -gt "${before:-0}" ] && break
+    sleep 2
+done
 
-job_id=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('jobId',''))" 2>/dev/null)
-error=$(echo "$result" | python3 -c "import sys,json; print(json.load(sys.stdin).get('error',''))" 2>/dev/null)
-
-if [ -n "$job_id" ]; then
+if [ "${after:-0}" -gt "${before:-0}" ]; then
+    # Find the new card by our prompt text
+    card=$(agent-browser --auto-connect eval "
+        const els = [...document.querySelectorAll('button, [class*=clickable], [onclick]')];
+        const match = els.find(e => e.textContent.includes('${PROMPT:0:40}'));
+        if (match) {
+            const img = match.querySelector('img');
+            const id = (img?.alt || '').match(/[a-f0-9-]{36}/)?.[0] || '';
+            JSON.stringify({jobId: id, imageUrl: img?.src || ''});
+        } else 'null';
+    " 2>/dev/null)
+    job_id=$(echo "$card" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(d.get('jobId','') if isinstance(d,dict) else '')" 2>/dev/null)
+    image_url=$(echo "$card" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print(d.get('imageUrl','') if isinstance(d,dict) else '')" 2>/dev/null)
+    [ -z "$job_id" ] && job_id="unknown"
     echo "  ✅ $job_id" >&2
-elif [ -n "$error" ]; then
-    echo "  ❌ $error" >&2
+    echo "$(date +%s),,,,\"${PROMPT//\"/\"\"}\",$job_id,$image_url,completed,$MODEL,9:16,$(( $(date +%s%3N) - t0 ))" >> "$CSV"
 else
-    echo "  ⚠️ $result" >&2
+    echo "  ❌ count unchanged ($before -> $after)" >&2
 fi
 
 total_ms=$(( $(date +%s%3N) - t0 ))
