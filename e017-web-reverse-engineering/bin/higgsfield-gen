@@ -1,113 +1,117 @@
-#!/bin/bash
-PROMPT="${1:-default prompt}"
-MODEL="${2:-seedream_v4_5}"
-STORY="${STORY:-}"
-CHAPTER="${CHAPTER:-}"
-SCENE="${SCENE:-}"
-LIBRARY_URL="https://higgsfield.ai/library/image"
-GEN_URL="https://higgsfield.ai/mobile/image/$MODEL"
-CSV="${CSV:-./sites/higgsfield/output/images.csv}"
-mkdir -p "$(dirname "$CSV")"
-[ -f "$CSV" ] || echo "ts,story,chapter,scene,prompt,job_id,image_url,status,model,aspect,duration_ms" > "$CSV"
+#!/usr/bin/env python3
+"""higgsfield-gen — Generate AI images on Higgsfield.
 
-ab() { agent-browser --auto-connect "$@" > /dev/null 2>&1; }
-step() { local n="$1" now=$(date +%s%3N); echo "$(( now - t_step ))ms  $n" >&2; t_step=$now; }
-t0=$(date +%s%3N); t_step=$t0
+Usage:
+  higgsfield-gen "<prompt>" [model]
+  STORY=auto CHAPTER=scene1 SCENE=1 higgsfield-gen "<prompt>"
+"""
 
-check() {
-    local label="$1" js="$2"
-    local result=$(agent-browser --auto-connect eval "$js" 2>/dev/null)
-    [ "$result" = "true" ] && return 0
-    echo "  ❌ $label: $result" >&2
-    return 1
-}
+import subprocess, sys, json, os, re, csv, time, pathlib, datetime
 
-# 1. Navigate to Library if not already there
-step "Counting library images..."
-current_url=$(agent-browser --auto-connect eval "location.href" 2>/dev/null)
-if [[ "$current_url" != */library/* ]]; then
-    ab open "$LIBRARY_URL"
-fi
-# Wait for RSC to render cards
-for i in 1 2 3 4 5; do
-    c=$(agent-browser --auto-connect eval "
-        document.querySelectorAll('img[alt*=media]').length
-    " 2>/dev/null)
-    [ "${c:-0}" -gt 0 ] && break
-    sleep 2
-done
-before="$c"
-echo "  $before items in library" >&2
+HERE = pathlib.Path(__file__).resolve().parent
+CSV = pathlib.Path(os.environ.get("CSV", HERE / "../sites/higgsfield/output/images.csv"))
+CSV.parent.mkdir(parents=True, exist_ok=True)
+if not CSV.exists():
+    CSV.write_text("datetime,story,chapter,scene,prompt,job_id,image_url,status,model,aspect,duration_ms\n")
 
-# 2. Navigate to generation page if not already there
-step "Clearing draft + navigating..."
-current_url=$(agent-browser --auto-connect eval "location.href" 2>/dev/null)
-if [[ "$current_url" != */mobile/image/* ]]; then
-    ab eval "localStorage.removeItem('hf:image-form-upd')"
-    ab open "$GEN_URL"
-fi
+def ab(*args):
+    r = subprocess.run(["agent-browser", "--auto-connect"] + list(args),
+                       capture_output=True, text=True, timeout=60)
+    return r.stdout.strip(), r.stderr.strip()
 
-# 3. Set prompt
-step "Setting prompt..."
-ab click "[placeholder*='Describe']"
-sleep 2
-ab keyboard type "$PROMPT"
-sleep 3
-pval=$(agent-browser --auto-connect eval "document.querySelector('textarea')?.value?.length || 0" 2>/dev/null)
-if [ "${pval:-0}" -gt 5 ]; then
-    echo "  prompt: ${PROMPT:0:40}..." >&2
-else
-    echo "  ❌ prompt empty (len=$pval), retrying..." >&2
-    ab click "[placeholder*='Describe']"
-    sleep 1
-    ab keyboard type "$PROMPT"
-    sleep 3
-    pval2=$(agent-browser --auto-connect eval "document.querySelector('textarea')?.value?.length || 0" 2>/dev/null)
-    [ "${pval2:-0}" -le 5 ] && { echo "  ABORT (prompt not set)"; exit 1; }
-fi
+def ab_eval(js):
+    out, _ = ab("eval", js)
+    return out.strip('"') if out else ""
 
-# 4. Enable unlimited
-step "Enabling Unlimited..."
-ab eval "document.querySelector('[role=switch]')?.click()"
-check "unlimited enabled" "document.querySelector('[role=switch]')?.getAttribute('aria-checked') === 'true'" || echo "  ⚠️ unlimited may not be active" >&2
+def now_fmt():
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# 5. Click generate
-step "Generating..."
-ab eval "document.getElementById('image-submit-button')?.click()"
-ab snapshot
+def main():
+    prompt = sys.argv[1] if len(sys.argv) > 1 else "default prompt"
+    model = sys.argv[2] if len(sys.argv) > 2 else "seedream_v4_5"
+    story = os.environ.get("STORY", "")
+    chapter = os.environ.get("CHAPTER", "")
+    scene = os.environ.get("SCENE", "")
+    gen_url = f"https://higgsfield.ai/mobile/image/{model}"
+    prefix = prompt[:40]
+    t0 = time.time()
 
-# 6. Wait for Library + find the card by prompt text
-step "Waiting for result..."
-card_json="null"
-for i in $(seq 1 30); do
-    card_json=$(agent-browser --auto-connect eval "
-        (() => {
+    def step(label):
+        print(f"{int((time.time()-t0)*1000)}ms  {label}")
+
+    # Navigate to generation page
+    step("Navigating...")
+    cur = ab_eval("location.href")
+    if "/mobile/image" not in cur and "/ai/image" not in cur:
+        ab_eval("localStorage.removeItem('hf:image-form-upd')")
+        ab("open", gen_url)
+
+    # Set prompt
+    step("Setting prompt...")
+    ab("click", "[placeholder*='Describe']")
+    time.sleep(1)
+    ab("keyboard", "type", prompt)
+    time.sleep(2)
+    val = ab_eval("document.querySelector('textarea')?.value?.length || 0")
+    if int(val or 0) <= 5:
+        ab("click", "[placeholder*='Describe']")
+        time.sleep(1)
+        ab("keyboard", "type", prompt)
+        time.sleep(2)
+        val = ab_eval("document.querySelector('textarea')?.value?.length || 0")
+        if int(val or 0) <= 5:
+            print("  ABORT")
+            sys.exit(1)
+    print(f"  prompt: {prompt[:40]}...")
+
+    # Unlimited
+    step("Unlimited...")
+    ab_eval("document.querySelector('[role=switch]')?.click()")
+
+    # Click generate
+    step("Generating...")
+    ab_eval("document.getElementById('image-submit-button')?.click()")
+
+    # Find card by prompt
+    step("Finding card...")
+    card = "null"
+    for _ in range(30):
+        out, _ = ab("eval", f"""
+        (() => {{
             const els = document.querySelectorAll('button, [onclick], [class*=clickable]');
-            for (const el of els) {
-                if (el.textContent.includes('${PROMPT:0:40}')) {
-                    const text = el.outerHTML || '';
-                    const id = text.match(/[a-f0-9-]{36}/)?.[0] || '';
+            for (const el of els) {{
+                if (el.textContent.includes({json.dumps(prefix)})) {{
+                    const html = el.outerHTML || '';
+                    const id = html.match(/[a-f0-9-]{{36}}/)?.[0] || '';
                     const img = el.querySelector('img');
-                    return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});
-                }
-            }
+                    return JSON.stringify({{found: true, jobId: id, imageUrl: img?.src || ''}});
+                }}
+            }}
             return 'null';
-        })()
-    " 2>/dev/null)
-    [ "$card_json" != "null" ] && break
-    sleep 2
-done
+        }})()
+        """)
+        card = out.strip()
+        if card != "null":
+            break
+        time.sleep(2)
 
-found=$(echo "$card_json" | python3 -c "import sys,json; d=json.loads(sys.stdin); print(d.get('found','false'))" 2>/dev/null)
-if [ "$found" = "True" ]; then
-    job_id=$(echo "$card_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('jobId',''))" 2>/dev/null)
-    image_url=$(echo "$card_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('imageUrl',''))" 2>/dev/null)
-    [ -z "$job_id" ] && job_id="pending"
-    echo "  ✅ $job_id" >&2
-    echo "$(date +%s),$STORY,$CHAPTER,$SCENE,\"${PROMPT//\"/\"\"}\",$job_id,$image_url,pending,$MODEL,9:16,$(( $(date +%s%3N) - t0 ))" >> "$CSV"
-else
-    echo "  ❌ card not found" >&2
-fi
+    print(f"  raw card=[{card[:80]}]", file=sys.stderr)
+    if card and card not in ("null", '"null"', '[]'):
+        raw = json.loads(card)
+        inner = raw[0] if isinstance(raw, list) else raw
+        data = json.loads(inner) if isinstance(inner, str) else inner
+        job_id = data.get("jobId", "pending")
+        img_url = data.get("imageUrl", "")
+        print(f"  ✅ {job_id}")
+        ms = int((time.time() - t0) * 1000)
+        with open(CSV, "a", newline="") as f:
+            w = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
+            w.writerow([now_fmt(), story, chapter, scene, prompt,
+                       job_id, img_url, "pending", model, "9:16", ms])
+    else:
+        print("  ❌ card not found")
 
-total_ms=$(( $(date +%s%3N) - t0 ))
-echo "=== ${total_ms}ms ===" >&2
+    print(f"=== {int((time.time()-t0)*1000)}ms ===")
+
+if __name__ == "__main__":
+    main()
