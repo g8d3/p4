@@ -21,7 +21,34 @@ def ab(*args):
 
 def ab_eval(js):
     out, _ = ab("eval", js)
-    return out.strip('"') if out else ""
+    return out.strip() if out else ""
+
+def parse_result(out):
+    """Parse agent-browser eval result into dict."""
+    if not out or out.strip() == "null":
+        return {"found": False}
+    try:
+        raw = json.loads(out)
+    except json.JSONDecodeError:
+        return {"found": False}
+    if raw is None:
+        return {"found": False}
+    if isinstance(raw, list):
+        if not raw:
+            return {"found": False}
+        inner = raw[0]
+        if isinstance(inner, str):
+            try:
+                return json.loads(inner)
+            except json.JSONDecodeError:
+                return {"found": False}
+        return inner if isinstance(inner, dict) else {"found": False}
+    if isinstance(raw, str):
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            return {"found": False}
+    return raw if isinstance(raw, dict) else {"found": False}
 
 def now_fmt():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -74,32 +101,29 @@ def main():
 
     # Find card by prompt
     step("Finding card...")
-    card = "null"
+    card_json = "null"
     for _ in range(30):
-        out, _ = ab("eval", f"""
-        (() => {{
-            const els = document.querySelectorAll('button, [onclick], [class*=clickable]');
-            for (const el of els) {{
-                if (el.textContent.includes({json.dumps(prefix)})) {{
-                    const html = el.outerHTML || '';
-                    const id = html.match(/[a-f0-9-]{{36}}/)?.[0] || '';
-                    const img = el.querySelector('img');
-                    return JSON.stringify({{found: true, jobId: id, imageUrl: img?.src || ''}});
-                }}
-            }}
-            return 'null';
-        }})()
-        """)
-        card = out.strip()
-        if card != "null":
+        js = (
+            "(() => {"
+            "const els = document.querySelectorAll('button, [onclick], [class*=clickable]');"
+            "for (const el of els) {"
+            "if (el.textContent.includes(" + json.dumps(prefix) + ")) {"
+            "const html = el.outerHTML || '';"
+            "const id = html.match(/[a-f0-9-]{36}/)?.[0] || '';"
+            "const img = el.querySelector('img');"
+            "return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});"
+            "}}"
+            "return 'null';"
+            "})()"
+        )
+        out, _ = ab("eval", js)
+        card_json = out.strip()
+        if card_json != "null" and card_json not in ('"null"', '["null"]'):
             break
         time.sleep(2)
 
-    print(f"  raw card=[{card[:80]}]", file=sys.stderr)
-    if card and card not in ("null", '"null"', '[]'):
-        raw = json.loads(card)
-        inner = raw[0] if isinstance(raw, list) else raw
-        data = json.loads(inner) if isinstance(inner, str) else inner
+    data = parse_result(card_json)
+    if data and data.get("found"):
         job_id = data.get("jobId", "pending")
         img_url = data.get("imageUrl", "")
         print(f"  ✅ {job_id}")
@@ -109,7 +133,7 @@ def main():
             w.writerow([now_fmt(), story, chapter, scene, prompt,
                        job_id, img_url, "pending", model, "9:16", ms])
     else:
-        print("  ❌ card not found")
+        print(f"  ❌ card not found (raw={card_json[:60]})")
 
     print(f"=== {int((time.time()-t0)*1000)}ms ===")
 
