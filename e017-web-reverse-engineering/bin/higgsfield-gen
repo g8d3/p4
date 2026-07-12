@@ -1,6 +1,9 @@
 #!/bin/bash
 PROMPT="${1:-default prompt}"
 MODEL="${2:-seedream_v4_5}"
+STORY="${STORY:-}"
+CHAPTER="${CHAPTER:-}"
+SCENE="${SCENE:-}"
 LIBRARY_URL="https://higgsfield.ai/library/image"
 GEN_URL="https://higgsfield.ai/mobile/image/$MODEL"
 CSV="${CSV:-./sites/higgsfield/output/images.csv}"
@@ -76,35 +79,24 @@ ab snapshot
 # 6. Wait for Library + find the card by prompt text
 step "Waiting for result..."
 card_json="null"
-for i in 1 2 3 4 5; do
+for i in $(seq 1 30); do
     card_json=$(agent-browser --auto-connect eval "
         (() => {
-            const els = [...document.querySelectorAll('button, [onclick], [class*=clickable]')];
-            const match = els.find(e => e.textContent.includes('${PROMPT:0:40}'));
-            if (!match) return 'null';
-            const matchText = match.outerHTML || '';
-            const id = matchText.match(/[a-f0-9-]{36}/)?.[0] || '';
-            const img = match.querySelector('img');
-            return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});
+            const els = document.querySelectorAll('button, [onclick], [class*=clickable]');
+            for (const el of els) {
+                if (el.textContent.includes('${PROMPT:0:40}')) {
+                    const text = el.outerHTML || '';
+                    const id = text.match(/[a-f0-9-]{36}/)?.[0] || '';
+                    const img = el.querySelector('img');
+                    return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});
+                }
+            }
+            return 'null';
         })()
     " 2>/dev/null)
     [ "$card_json" != "null" ] && break
     sleep 2
 done
-
-# One final check with longer wait
-if [ "$card_json" = "null" ]; then
-    sleep 5
-    card_json=$(agent-browser --auto-connect eval "
-        const els = [...document.querySelectorAll('button, [onclick], [class*=clickable]')];
-        const match = els.find(e => e.textContent.includes('${PROMPT:0:40}'));
-        if (!match) return 'null';
-        const matchText = match.outerHTML || '';
-        const id = matchText.match(/[a-f0-9-]{36}/)?.[0] || '';
-        const img = match.querySelector('img');
-        return JSON.stringify({found: true, jobId: id, imageUrl: img?.src || ''});
-    " 2>/dev/null)
-fi
 
 found=$(echo "$card_json" | python3 -c "import sys,json; d=json.loads(sys.stdin); print(d.get('found','false'))" 2>/dev/null)
 if [ "$found" = "True" ]; then
@@ -112,7 +104,7 @@ if [ "$found" = "True" ]; then
     image_url=$(echo "$card_json" | python3 -c "import sys,json; print(json.load(sys.stdin).get('imageUrl',''))" 2>/dev/null)
     [ -z "$job_id" ] && job_id="pending"
     echo "  ✅ $job_id" >&2
-    echo "$(date +%s),,,,\"${PROMPT//\"/\"\"}\",$job_id,$image_url,pending,$MODEL,9:16,$(( $(date +%s%3N) - t0 ))" >> "$CSV"
+    echo "$(date +%s),$STORY,$CHAPTER,$SCENE,\"${PROMPT//\"/\"\"}\",$job_id,$image_url,pending,$MODEL,9:16,$(( $(date +%s%3N) - t0 ))" >> "$CSV"
 else
     echo "  ❌ card not found" >&2
 fi
