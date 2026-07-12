@@ -8,8 +8,7 @@ Usage:
 
 import subprocess, sys, json, os, re, csv, time, pathlib, datetime
 
-HERE = pathlib.Path(__file__).resolve().parent
-CSV = pathlib.Path(os.environ.get("CSV", HERE / "../sites/higgsfield/output/images.csv"))
+CSV = pathlib.Path(os.environ.get("CSV", "./sites/higgsfield/output/images.csv"))
 CSV.parent.mkdir(parents=True, exist_ok=True)
 if not CSV.exists():
     CSV.write_text("datetime,story,chapter,scene,prompt,job_id,image_url,status,model,aspect,duration_ms\n")
