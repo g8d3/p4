@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+      body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: #fff; }
+      code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+      .scene { width: 1080px; height: 1920px; position: absolute; top: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px; }
+      .scene-bg { position: absolute; top: 0; left: 0; width: 1080px; height: 1920px; }
+
+      .title-lg { font-size: 72px; font-weight: 800; line-height: 1.15; text-align: center; }
+      .title-md { font-size: 52px; font-weight: 700; line-height: 1.2; text-align: center; }
+      .title-sm { font-size: 38px; font-weight: 600; line-height: 1.25; }
+      .body-text { font-size: 30px; font-weight: 400; line-height: 1.4; text-align: center; max-width: 920px; }
+      .body-sm { font-size: 24px; font-weight: 400; line-height: 1.35; text-align: center; max-width: 850px; }
+      .highlight { color: #00ff88; }
+      .highlight-cyan { color: #00d4ff; }
+      .highlight-red { color: #ff4466; }
+      .highlight-yellow { color: #ffcc00; }
+
+      .fingerprint-svg { width: 200px; height: 200px; margin-bottom: 30px; }
+      .terminal-box { background: #0a0a0a; border: 2px solid #333; border-radius: 16px; padding: 30px 40px; font-family: 'JetBrains Mono', monospace; font-size: 22px; color: #00ff88; max-width: 800px; width: 100%; }
+      .terminal-prompt::before { content: '$ '; color: #00ff88; }
+      .terminal-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+      .terminal-dot { width: 14px; height: 14px; border-radius: 50%; }
+      .terminal-dot:nth-child(1) { background: #ff5f57; }
+      .terminal-dot:nth-child(2) { background: #febc2e; }
+      .terminal-dot:nth-child(3) { background: #28c840; }
+
+      .badge { display: inline-block; padding: 12px 28px; border-radius: 50px; font-size: 24px; font-weight: 700; border: 2px solid; }
+      .badge-green { border-color: #00ff88; color: #00ff88; }
+      .badge-red { border-color: #ff4466; color: #ff4466; }
+
+      .glass-panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; backdrop-filter: blur(20px); padding: 40px; }
+
+      .grid-split { display: flex; gap: 20px; width: 100%; max-width: 920px; }
+      .grid-2 { flex: 1; }
+
+      .glow-green { text-shadow: 0 0 40px rgba(0,255,136,0.3); }
+      .glow-cyan { text-shadow: 0 0 40px rgba(0,212,255,0.3); }
+
+      .shield-icon { width: 80px; height: 80px; display: inline-flex; align-items: center; justify-content: center; border-radius: 20px; font-size: 36px; }
+      .shield-green { background: rgba(0,255,136,0.12); color: #00ff88; }
+      .shield-cyan { background: rgba(0,212,255,0.12); color: #00d4ff; }
+
+      .data-row { display: flex; align-items: center; gap: 16px; font-size: 22px; font-family: 'JetBrains Mono', monospace; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .data-key { color: #888; min-width: 260px; }
+      .data-arrow { color: #555; }
+      .data-val-true { color: #ff4466; }
+      .data-val-false { color: #00ff88; }
+
+      .watermark { position: absolute; bottom: 40px; right: 40px; font-size: 16px; color: rgba(255,255,255,0.2); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="305" data-width="1080" data-height="1920">
+
+      <!-- SCENE 1: Hook — The Incognito Myth (0-25s) -->
+      <section id="scene-1" class="clip scene" data-start="0" data-duration="25" data-track-index="1">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0a0f 0%, #1a0a0a 50%, #0a0a0f 100%);"></div>
+        <div id="s1-incognito" style="position:relative; margin-bottom: 40px;">
+          <div style="width: 120px; height: 120px; border: 3px solid #444; border-radius: 16px; display:flex; align-items:center; justify-content:center; font-size: 60px; background: #111; margin: 0 auto; position:relative; z-index:2;">🕶️</div>
+          <div id="s1-crack" style="position:absolute; top:0; left:50%; margin-left:-60px; width:120px; height:120px; z-index:3; font-size: 120px; line-height:120px; text-align:center; color:#ff4466; opacity:0;">💔</div>
+        </div>
+        <div id="s1-title" class="title-lg glow-green" style="margin-bottom: 30px; opacity:0;">Think Incognito Makes You Anonymous?</div>
+        <div id="s1-sub" class="body-text" style="color: #aaa; max-width: 800px; opacity:0;">Every website can identify your browser with shocking accuracy — even without cookies.</div>
+        <div id="s1-reveal" class="badge badge-red title-sm" style="margin-top: 40px; opacity:0;">BROWSER FINGERPRINTING</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 2: What Is Browser Fingerprinting (25-55s) -->
+      <section id="scene-2" class="clip scene" data-start="25" data-duration="30" data-track-index="2">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #001a0a 50%, #0a0a1a 100%);"></div>
+        <div class="title-lg highlight-cyan glow-cyan" style="margin-bottom: 40px; opacity:0;" id="s2-title">What Is Browser Fingerprinting?</div>
+        <div class="glass-panel" style="width:100%; max-width:880px; opacity:0;" id="s2-panel">
+          <div class="data-row"><span class="data-key">Screen Resolution</span><span class="data-arrow">→</span><span style="color:#fff;">1920 × 1080</span></div>
+          <div class="data-row"><span class="data-key">Installed Fonts</span><span class="data-arrow">→</span><span style="color:#fff;">342 unique fonts</span></div>
+          <div class="data-row"><span class="data-key">GPU Model</span><span class="data-arrow">→</span><span style="color:#fff;">AMD Radeon RX 6800 XT</span></div>
+          <div class="data-row"><span class="data-key">Timezone</span><span class="data-arrow">→</span><span style="color:#fff;">America/New_York (UTC-5)</span></div>
+          <div class="data-row"><span class="data-key">User Agent</span><span class="data-arrow">→</span><span style="color:#fff; font-size:18px;">Mozilla/5.0 ... Chrome/120...</span></div>
+          <div class="data-row"><span class="data-key">Canvas Fingerprint</span><span class="data-arrow">→</span><span style="color:#fff;">a7d3f9... (unique hash)</span></div>
+        </div>
+        <div id="s2-accuracy" class="badge badge-green" style="margin-top: 30px; font-size: 36px; opacity:0;">99% ACCURACY</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 3: The Commercial Wall (55-85s) -->
+      <section id="scene-3" class="clip scene" data-start="55" data-duration="30" data-track-index="3">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0f0a0a 0%, #1a0a0a 50%, #0f0a0a 100%);"></div>
+        <div id="s3-title" class="title-md" style="margin-bottom: 50px; opacity:0;">The Commercial Wall</div>
+        <div class="grid-split" style="flex-wrap:wrap; justify-content:center; gap:16px; opacity:0;" id="s3-grid">
+          <div class="glass-panel" style="width:200px; text-align:center; padding:24px 16px;"><div style="font-size:28px; margin-bottom:8px;">🔒</div><div style="font-size:18px; font-weight:600;">GoLogin</div></div>
+          <div class="glass-panel" style="width:200px; text-align:center; padding:24px 16px;"><div style="font-size:28px; margin-bottom:8px;">🔒</div><div style="font-size:18px; font-weight:600;">Multilogin</div></div>
+          <div class="glass-panel" style="width:200px; text-align:center; padding:24px 16px;"><div style="font-size:28px; margin-bottom:8px;">🔒</div><div style="font-size:18px; font-weight:600;">Indigo</div></div>
+          <div class="glass-panel" style="width:200px; text-align:center; padding:24px 16px;"><div style="font-size:28px; margin-bottom:8px;">🔒</div><div style="font-size:18px; font-weight:600;">Dolphin Anty</div></div>
+        </div>
+        <div id="s3-dollar" style="margin: 16px 0; font-size: 40px; opacity:0;">💰 Monthly Subscriptions</div>
+        <div id="s3-closed" class="badge badge-red" style="opacity:0;">CLOSED SOURCE</div>
+        <div id="s3-text" class="body-sm" style="margin-top: 30px; color: #aaa; opacity:0;">You don't own the tool — you rent it.</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 4: Enter Open Source (85-120s) -->
+      <section id="scene-4" class="clip scene" data-start="85" data-duration="35" data-track-index="4">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0f0a 0%, #001a0a 50%, #0a0f0a 100%);"></div>
+        <div id="s4-terminal" class="terminal-box" style="opacity:0;">
+          <div class="terminal-bar"><div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div></div>
+          <div><span class="terminal-prompt"></span>pip install undetected-chromedriver</div>
+          <div style="color:#555;">Collecting undetected-chromedriver...</div>
+          <div style="color:#555;">Downloading package... ████████████ 100%</div>
+          <div style="color:#00ff88;">Successfully installed undetected-chromedriver</div>
+        </div>
+        <div id="s4-title" class="title-lg highlight glow-green" style="margin-top: 30px; opacity:0;">Open Source Alternative</div>
+        <div id="s4-text" class="body-text" style="margin-top: 20px; color: #aaa; opacity:0;">Free. Transparent. Community-driven. Thousands of contributors on GitHub.</div>
+        <div id="s4-badge" class="badge badge-green" style="margin-top: 30px; opacity:0;">OPEN SOURCE</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 5: undetected-chromedriver (120-155s) -->
+      <section id="scene-5" class="clip scene" data-start="120" data-duration="35" data-track-index="5">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #0a1a1a 50%, #0a0a1a 100%);"></div>
+        <div id="s5-title" class="title-md highlight-cyan" style="margin-bottom: 30px; opacity:0;">undetected-chromedriver</div>
+        <div class="grid-split" style="gap: 16px; opacity:0;" id="s5-split">
+          <div class="glass-panel" style="flex:1; padding:20px;">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:18px; line-height:1.6;">
+              <span style="color:#569cd6;">import</span> <span style="color:#ddd;">undetected_chromedriver</span> <span style="color:#569cd6;">as</span> <span style="color:#ddd;">uc</span><br>
+              <span style="color:#ddd;">driver = uc.Chrome()</span><br>
+              <span style="color:#ddd;">driver.get(</span><span style="color:#ce9178;">"https://target.com"</span><span style="color:#ddd;">)</span>
+            </div>
+          </div>
+          <div class="glass-panel" style="flex:1; padding:20px; text-align:center;">
+            <div style="font-size:60px; margin-bottom:10px;">🛡️</div>
+            <div style="color:#00ff88; font-size:20px; font-weight:600;">Cloudflare ✓</div>
+            <div style="color:#00ff88; font-size:20px; font-weight:600;">DataDome ✓</div>
+            <div style="color:#00ff88; font-size:20px; font-weight:600;">PerimeterX ✓</div>
+          </div>
+        </div>
+        <div id="s5-detail" class="data-row" style="margin-top: 20px; opacity:0;">
+          <span class="data-key">navigator.webdriver</span>
+          <span class="data-arrow">→</span>
+          <span class="data-val-false">undefined (spoofed)</span>
+        </div>
+        <div id="s5-badge" class="badge badge-green" style="margin-top: 20px; opacity:0;">✦ 9k GitHub Stars</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 6: Puppeteer Extra Stealth (155-190s) -->
+      <section id="scene-6" class="clip scene" data-start="155" data-duration="35" data-track-index="6">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0f1a 0%, #0a1a2a 50%, #0a0f1a 100%);"></div>
+        <div id="s6-title" class="title-md highlight-cyan" style="margin-bottom: 30px; opacity:0;">Puppeteer Extra Stealth</div>
+        <div class="terminal-box" style="opacity:0;" id="s6-terminal">
+          <div class="terminal-bar"><div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div></div>
+          <div><span class="terminal-prompt"></span>npm install puppeteer-extra puppeteer-extra-plugin-stealth</div>
+          <div style="color:#555;">+ puppeteer-extra@3.3.6</div>
+          <div style="color:#555;">+ puppeteer-extra-plugin-stealth@2.11.2</div>
+          <div style="color:#00ff88;">✓ 16 evasion patches applied</div>
+        </div>
+        <div class="grid-split" style="margin-top: 20px; flex-wrap:wrap; justify-content:center; gap:12px; opacity:0;" id="s6-shields">
+          <div class="shield-icon shield-green">🛡️</div>
+          <div class="shield-icon shield-green">🔷</div>
+          <div class="shield-icon shield-green">🎨</div>
+          <div class="shield-icon shield-green">🔊</div>
+          <div class="shield-icon shield-green">🔤</div>
+        </div>
+        <div id="s6-badge" class="badge badge-green" style="margin-top: 20px; opacity:0;">Real Browser: YES ✓</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 7: Playwright Stealth & Botright (190-225s) -->
+      <section id="scene-7" class="clip scene" data-start="190" data-duration="35" data-track-index="7">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a1a0a 0%, #0a0a1a 50%, #0a1a0a 100%);"></div>
+        <div id="s7-title" class="title-md highlight" style="margin-bottom: 30px; opacity:0;">Playwright Stealth</div>
+        <div class="terminal-box" style="opacity:0;" id="s7-code">
+          <div class="terminal-bar"><div class="terminal-dot"></div><div class="terminal-dot"></div><div class="terminal-dot"></div></div>
+          <div style="font-size:20px;">
+            <span style="color:#569cd6;">from</span> playwright_stealth <span style="color:#569cd6;">import</span> stealth_sync<br>
+            <span style="color:#ddd;">page = browser.new_page()</span><br>
+            <span style="color:#ddd;">stealth_sync(page)</span><br>
+            <span style="color:#ddd;">page.goto(</span><span style="color:#ce9178;">"https://example.com"</span><span style="color:#ddd;">)</span>
+          </div>
+        </div>
+        <div class="grid-split" style="margin-top:20px; justify-content:center; gap:12px; opacity:0;" id="s7-browsers">
+          <div class="glass-panel" style="padding:12px 24px;"><span style="font-size:20px;">🌐 Chrome</span></div>
+          <div class="glass-panel" style="padding:12px 24px;"><span style="font-size:20px;">🦊 Firefox</span></div>
+          <div class="glass-panel" style="padding:12px 24px;"><span style="font-size:20px;">🧭 WebKit</span></div>
+        </div>
+        <div id="s7-badge" class="badge badge-green" style="margin-top:20px; opacity:0;">MULTI-BROWSER SUPPORT</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 8: Technical Deep Dive (225-260s) -->
+      <section id="scene-8" class="clip scene" data-start="225" data-duration="35" data-track-index="8">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2a 50%, #0a0a1a 100%);"></div>
+        <div id="s8-title" class="title-md highlight-cyan glow-cyan" style="margin-bottom: 30px; opacity:0;">How Stealth Works</div>
+        <div id="s8-diagram" class="glass-panel" style="width:100%; max-width:880px; opacity:0;">
+          <div class="data-row"><span class="data-key">navigator.webdriver</span><span class="data-arrow">→</span><span><span class="data-val-true">true</span> → <span class="data-val-false">undefined</span></span></div>
+          <div class="data-row"><span class="data-key">navigator.plugins</span><span class="data-arrow">→</span><span><span class="data-val-true">[]</span> → <span class="data-val-false">[Chrome PDF Plugin, ...]</span></span></div>
+          <div class="data-row"><span class="data-key">canvas.toDataURL()</span><span class="data-arrow">→</span><span><span class="data-val-true">[hash]</span> → <span class="data-val-false">[normalized hash]</span></span></div>
+          <div class="data-row"><span class="data-key">WebGL Vendor</span><span class="data-arrow">→</span><span><span class="data-val-true">Google Inc.</span> → <span class="data-val-false">Intel Inc.</span></span></div>
+          <div class="data-row"><span class="data-key">WebRTC IP</span><span class="data-arrow">→</span><span><span class="data-val-true">Local IP</span> → <span class="data-val-false">Hidden</span></span></div>
+        </div>
+        <div id="s8-explanation" class="body-sm" style="margin-top: 20px; color: #aaa; opacity:0;">Every detectable surface is intercepted and spoofed before scripts can read them.</div>
+        <div id="s8-badge" class="badge badge-green" style="margin-top: 20px; opacity:0;">INTERCEPTION LAYER</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 9: Choosing the Right Tool (260-285s) -->
+      <section id="scene-9" class="clip scene" data-start="260" data-duration="25" data-track-index="9">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #0a0f0a 0%, #0a1a0a 50%, #0a0f0a 100%);"></div>
+        <div id="s9-title" class="title-md highlight" style="margin-bottom: 40px; opacity:0;">Choose Your Weapon</div>
+        <div id="s9-tree" style="width:100%; max-width:880px; opacity:0;">
+          <div class="grid-split" style="gap:16px;">
+            <div class="glass-panel" style="flex:1; padding:24px; text-align:center;">
+              <div style="font-size:30px; margin-bottom:8px;">🐍</div>
+              <div style="font-size:22px; font-weight:600;">Python</div>
+              <div style="font-size:18px; color:#00ff88;">undetected-chromedriver</div>
+              <div style="font-size:14px; color:#888;">selenium-stealth</div>
+            </div>
+            <div class="glass-panel" style="flex:1; padding:24px; text-align:center;">
+              <div style="font-size:30px; margin-bottom:8px;">⬡</div>
+              <div style="font-size:22px; font-weight:600;">Node.js</div>
+              <div style="font-size:18px; color:#00d4ff;">puppeteer-extra-stealth</div>
+            </div>
+            <div class="glass-panel" style="flex:1; padding:24px; text-align:center;">
+              <div style="font-size:30px; margin-bottom:8px;">🌐</div>
+              <div style="font-size:22px; font-weight:600;">Multi-Browser</div>
+              <div style="font-size:18px; color:#ffcc00;">playwright-stealth</div>
+              <div style="font-size:14px; color:#888;">botright</div>
+            </div>
+          </div>
+        </div>
+        <div id="s9-badge" class="badge badge-green" style="margin-top: 30px; opacity:0;">FREE. OPEN. BATTLE-TESTED.</div>
+        <div class="watermark">Made with HyperFrames</div>
+      </section>
+
+      <!-- SCENE 10: Outro (285-300s) -->
+      <section id="scene-10" class="clip scene" data-start="285" data-duration="15" data-track-index="10">
+        <div class="scene-bg" style="background: linear-gradient(135deg, #050505 0%, #0a1a0a 50%, #050505 100%);"></div>
+        <div id="s10-title" class="title-lg highlight glow-green" style="opacity:0;">Undetectable Open-Source Browsers</div>
+        <div id="s10-sub" class="body-text" style="margin-top: 20px; color: #aaa; opacity:0;">Own your automation stack — transparent, auditable, and free.</div>
+        <div id="s10-repos" style="margin-top: 30px; display:flex; gap:12px; font-size:22px; color:#888; opacity:0;">
+          <span>🐙 undetected-chromedriver</span>
+          <span>·</span>
+          <span>puppeteer-extra-stealth</span>
+          <span>·</span>
+          <span>playwright-stealth</span>
+        </div>
+        <div id="s10-cta" class="title-sm highlight-cyan" style="margin-top: 40px; opacity:0;">Go build something undetectable.</div>
+        <div class="watermark" style="color: rgba(255,255,255,0.15); font-size: 18px;">Made with HyperFrames</div>
+      </section>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1: Hook
+      tl.fromTo("#s1-crack", {opacity:0, scale:0.3}, {opacity:1, scale:1, duration:0.8, ease:"back.out(2)"}, 1.5);
+      tl.fromTo("#s1-title", {opacity:0, y:40}, {opacity:1, y:0, duration:0.8}, 2.5);
+      tl.fromTo("#s1-sub", {opacity:0, y:30}, {opacity:1, y:0, duration:0.6}, 4);
+      tl.fromTo("#s1-reveal", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.6, ease:"back.out(2)"}, 6);
+
+      // Scene 2: Fingerprinting
+      tl.fromTo("#s2-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 25.5);
+      tl.fromTo("#s2-panel", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 27);
+      tl.fromTo("#s2-accuracy", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 42);
+
+      // Scene 3: Commercial
+      tl.fromTo("#s3-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 55.5);
+      tl.fromTo("#s3-grid", {opacity:0, scale:0.9}, {opacity:1, scale:1, duration:0.6}, 57);
+      tl.fromTo("#s3-dollar", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 65);
+      tl.fromTo("#s3-closed", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 72);
+      tl.fromTo("#s3-text", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 78);
+
+      // Scene 4: Open Source
+      tl.fromTo("#s4-terminal", {opacity:0, y:20}, {opacity:1, y:0, duration:0.7}, 85.5);
+      tl.fromTo("#s4-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.6}, 93);
+      tl.fromTo("#s4-text", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 97);
+      tl.fromTo("#s4-badge", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 105);
+
+      // Scene 5: undetected-chromedriver
+      tl.fromTo("#s5-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 120.5);
+      tl.fromTo("#s5-split", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 122);
+      tl.fromTo("#s5-detail", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 135);
+      tl.fromTo("#s5-badge", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 145);
+
+      // Scene 6: Puppeteer Stealth
+      tl.fromTo("#s6-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 155.5);
+      tl.fromTo("#s6-terminal", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 157);
+      tl.fromTo("#s6-shields", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 172);
+      tl.fromTo("#s6-badge", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 182);
+
+      // Scene 7: Playwright Stealth
+      tl.fromTo("#s7-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 190.5);
+      tl.fromTo("#s7-code", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 192);
+      tl.fromTo("#s7-browsers", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 208);
+      tl.fromTo("#s7-badge", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 218);
+
+      // Scene 8: Technical Deep Dive
+      tl.fromTo("#s8-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 225.5);
+      tl.fromTo("#s8-diagram", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 227);
+      tl.fromTo("#s8-explanation", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 248);
+      tl.fromTo("#s8-badge", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 254);
+
+      // Scene 9: Choosing Tools
+      tl.fromTo("#s9-title", {opacity:0, y:30}, {opacity:1, y:0, duration:0.7}, 260.5);
+      tl.fromTo("#s9-tree", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 262);
+      tl.fromTo("#s9-badge", {opacity:0, scale:0.5}, {opacity:1, scale:1, duration:0.5, ease:"back.out(2)"}, 277);
+
+      // Scene 10: Outro
+      tl.fromTo("#s10-title", {opacity:0, scale:0.8}, {opacity:1, scale:1, duration:0.8, ease:"back.out(2)"}, 285.5);
+      tl.fromTo("#s10-sub", {opacity:0, y:20}, {opacity:1, y:0, duration:0.6}, 289);
+      tl.fromTo("#s10-repos", {opacity:0, y:20}, {opacity:1, y:0, duration:0.5}, 292);
+      tl.fromTo("#s10-cta", {opacity:0, y:20, color:"#00d4ff"}, {opacity:1, y:0, duration:0.6, color:"#00d4ff"}, 295);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

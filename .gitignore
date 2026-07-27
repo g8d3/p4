@@ -36,3 +36,6 @@ chromium-*-headless-shell/
 
 # Generated experiment projects
 e012-p3-project-agents/video-v5/
+*.webm
+*.bak
+node_modules/
