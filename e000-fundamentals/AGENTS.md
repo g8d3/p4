@@ -417,6 +417,42 @@ opencode models opencode-go     # list models for a specific provider
 
 Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xiaomi-token-plan-sgp/mimo-v2.5`, `zai-coding-plan/glm-4.7` (has vision).
 
+## Media generation APIs
+
+These are REST APIs (not opencode models) that agents can call directly via curl/scripts for image, video, and audio generation.
+
+### KIE API (images, video, audio)
+
+- **Base URL**: `https://api.kie.ai`
+- **Auth**: `Authorization: Bearer <KIE_API_KEY>`
+- **Env var**: `KIE_API_KEY`
+- **Docs**: https://docs.kie.ai
+- **Pricing**: https://kie.ai/pricing (1 credit ≈ $0.005)
+- **Pattern**: async (POST `/api/v1/jobs/createTask` → GET `/api/v1/jobs/recordInfo?taskId=<id>`)
+
+Available models:
+
+| Category | Model ID | Status |
+|---|---|---|
+| Image | `seedream/4.5-text-to-image` | Tested, works |
+| Image | `seedream/4.5-edit` | Not tested |
+| Image | `seedream/5-lite-text-to-image` | Not tested |
+| Image | `seedream/5-lite-image-to-image` | Not tested |
+| Image | `seedream/5-pro-text-to-image` | Not tested |
+| Image | `seedream/5-pro-image-to-image` | Not tested |
+| TTS | `google/gemini-3-1-flash-tts` | Tested, works |
+| TTS | `google/gemini-2-5-pro-tts` | Not tested |
+| TTS | `elevenlabs/text-to-speech-turbo-2-5` | Fails (internal error) |
+| TTS | `elevenlabs/text-to-speech-multilingual-v2` | Not tested |
+| TTS | `elevenlabs/text-to-dialogue-v3` | Not tested |
+| Audio | `elevenlabs/audio-isolation` | Not tested |
+
+**Notes**:
+- 1 credit ≈ $0.005 USD
+- Generated files expire after ~20 minutes at `tempfile.aiquickdraw.com` / `file.aiquickdraw.com`
+- Rate limit: 20 requests per 10 seconds
+- Experiment: `e019-kie-image-api/` has scripts `kie-image.sh` and `kie-tts.sh`
+
 ### Model cost awareness
 
 Z.AI Coding Plan has a **5-hour rolling credit window**. Higher-tier models (glm-5.1) deplete credits faster:

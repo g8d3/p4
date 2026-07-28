@@ -1,5 +1,8 @@
 # e019 — KIE Image API (Seedream 4.5)
 
+## Inherits
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, media generation APIs
+
 Experiments with the [KIE API](https://kie.ai) for image generation (Seedream) and text-to-speech (ElevenLabs, Gemini).
 
 ## Environment
