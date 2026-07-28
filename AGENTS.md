@@ -23,6 +23,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e012-p3-project-agents/](e012-p3-project-agents/) — agents that own, improve, and post about p3 projects
 - [e013-gemini-share-extractor/](e013-gemini-share-extractor/) — extract text from Gemini share links
 - [e018-hyprframes-browser-video/](e018-hyprframes-browser-video/) — HyperFrames video about undetectable open-source browsers
+- [e019-kie-image-api/](e019-kie-image-api/) — KIE Seedream 4.5 text-to-image API wrapper
 
 ## Language
 

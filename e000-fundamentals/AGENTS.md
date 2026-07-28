@@ -60,6 +60,8 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 | `ZAI_API_KEY` | API key for Z.AI (coding plan Pro) |
 | `XIAOMI_API_KEY` | API key for Xiaomi Token Plan (Singapore) |
 | `XIAOMI_BASE_URL` | Base URL for Xiaomi Token Plan |
+| `KIE_API_KEY` | API key for KIE (Seedream, GPT-Image, etc.) |
+| `KIE_API_BASE_URL` | Base URL for KIE API (default: `https://api.kie.ai`) |
 
 ## AgentFS: the filesystem is the orchestrator
 
