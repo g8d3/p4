@@ -237,7 +237,10 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
   2. `xscreensaver-command -exit`
   3. Fallbacks: `xdg-screensaver suspend` or `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`
 - **TTS**: English voice. Use `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male). Do not use espeak-ng or generic voices.
-- **TTS alternatives**: Xiaomi `mimo-v2.5-tts` via API (higher quality, requires API key). See `e009-xiaomi-display/ag-01/bin/xiaomi-api` for CLI usage.
+- **TTS alternatives**:
+  - Xiaomi `mimo-v2.5-tts` via API (higher quality, requires `XIAOMI_API_KEY`). See `e009-xiaomi-display/ag-01/bin/xiaomi-api` for CLI usage.
+  - KIE Gemini TTS (`google/gemini-3-1-flash-tts`) — tested, works, cheap (~0.6 credits per short sentence). Requires `KIE_API_KEY`.
+  - ElevenLabs via KIE (`elevenlabs/text-to-speech-turbo-2-5`) — not working on KIE (internal error).
 - **Mobile format**: record in vertical aspect ratio (9:16). To achieve this:
   1. Select only the relevant window or region (not full monitor).
   2. Resize and reposition windows to fill the capture area efficiently, leaving no wasted space.
@@ -421,7 +424,7 @@ Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xia
 
 These are REST APIs (not opencode models) that agents can call directly via curl/scripts for image, video, and audio generation.
 
-### KIE API (images, video, audio)
+### KIE API (images, video, audio, music)
 
 - **Base URL**: `https://api.kie.ai`
 - **Auth**: `Authorization: Bearer <KIE_API_KEY>`
@@ -434,24 +437,32 @@ Available models:
 
 | Category | Model ID | Status |
 |---|---|---|
-| Image | `seedream/4.5-text-to-image` | Tested, works |
+| **Image** | `seedream/4.5-text-to-image` | Tested, works |
 | Image | `seedream/4.5-edit` | Not tested |
 | Image | `seedream/5-lite-text-to-image` | Not tested |
 | Image | `seedream/5-lite-image-to-image` | Not tested |
 | Image | `seedream/5-pro-text-to-image` | Not tested |
 | Image | `seedream/5-pro-image-to-image` | Not tested |
-| TTS | `google/gemini-3-1-flash-tts` | Tested, works |
+| **Video** | `kling/*` (multiple variants) | Not tested |
+| Video | `bytedance/seedance/*` | Not tested |
+| Video | `hailuo/*` | Not tested |
+| Video | `wan/*` | Not tested |
+| Video | `runway/*` | Not tested |
+| Video | `pixverse/*` | Not tested |
+| Video | `veo3/*` (Google) | Not tested |
+| **TTS** | `google/gemini-3-1-flash-tts` | Tested, works |
 | TTS | `google/gemini-2-5-pro-tts` | Not tested |
 | TTS | `elevenlabs/text-to-speech-turbo-2-5` | Fails (internal error) |
 | TTS | `elevenlabs/text-to-speech-multilingual-v2` | Not tested |
 | TTS | `elevenlabs/text-to-dialogue-v3` | Not tested |
-| Audio | `elevenlabs/audio-isolation` | Not tested |
+| **Music** | `suno/*` (V3_5, V4, V4_5, V5, V5_5) | Not tested |
+| **Audio** | `elevenlabs/audio-isolation` | Not tested |
 
 **Notes**:
 - 1 credit ≈ $0.005 USD
 - Generated files expire after ~20 minutes at `tempfile.aiquickdraw.com` / `file.aiquickdraw.com`
 - Rate limit: 20 requests per 10 seconds
-- Experiment: `e019-kie-image-api/` has scripts `kie-image.sh` and `kie-tts.sh`
+- Experiment `e019-kie-image-api/` has scripts `kie-image.sh` (Seedream) and `kie-tts.sh` (Gemini / ElevenLabs)
 
 ### Model cost awareness
 
@@ -485,6 +496,11 @@ There are two fundamentally different approaches:
 
 **Composition (CPU, ffmpeg filters)**
 Takes existing assets (images, audio) and joins them with ffmpeg. No screen recording, no display needed. A 4-minute video encodes in seconds — much faster than real time. Ideal for: podcast avatars, slideshows, anything that doesn't need live interaction. Scales to many parallel videos since each is just a CPU process.
+
+For composition videos, KIE can generate all assets:
+- **Images**: `seedream/*` models — generate background scenes, illustrations
+- **Music**: `suno/*` models — generate background music / soundtrack
+- **TTS**: `google/gemini-*-flash-tts` — narration voiceover (cheap, ~0.6 credits)
 
 **Screen capture (GPU, x11grab / Godot / OBS)**
 Runs a live application (terminal, game engine, browser) and captures its display output. Takes exactly real time — a 4-minute demo takes 4 minutes to capture. Captures authentic interaction: mouse movement, 3D animations, terminal typing. Each capture needs a display.
