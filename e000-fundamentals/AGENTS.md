@@ -260,6 +260,21 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
   - ~~**Scripted**: agent follows a predefined script and narrates it as written.~~ Do not use.
   - **Exploratory (only valid type)**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive. This is the only acceptable format.
 
+### Pre-production: storyboards & character sheets
+
+Before recording or composing a video, create visual references to plan the narrative:
+
+1. **Character sheets**: Generate consistent character designs with an image model (e.g. Seedream via KIE). Each character gets a sheet showing appearance, expressions, poses. Use the same seed/style for consistency.
+2. **Storyboard**: Generate key scenes (thumbnail images) that represent each major story beat. Arrange them in sequence with text captions describing action, narration, and transitions.
+3. **Review & decide**: With storyboard images + captions, evaluate the narrative flow before investing in full production. Iterate on the storyboard until the direction is clear.
+
+Tools:
+- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for generating character sheets and storyboard frames
+- **KIE Gemini TTS** (`e019-kie-image-api/ag-01/bin/kie-tts.sh`) for prototyping narration
+- ffmpeg for assembling storyboard into a rough-cut preview
+
+Output files go in the agent's `output/` directory. The storyboard becomes the plan that the agent follows during production.
+
 ## Context inheritance
 
 An agent only reads its own `AGENTS.md`. To share rules across agents, use **explicit inheritance**:

@@ -210,3 +210,46 @@ Gemini TTS supports:
 
 - `ag-01/` — owns `bin/kie-image.sh` and `bin/kie-tts.sh`
 - Agent output dir: `ag-01/output/` (by convention)
+
+## Storyboard & character sheet workflow
+
+This experiment provides the tools for the pre-production phase defined in fundamentals.
+
+### 1. Character sheet
+
+```bash
+./ag-01/bin/kie-image.sh "A friendly robot assistant, Pixie, front view, clean design, white and blue, glowing eyes, character design sheet style" "3:4" "basic"
+./ag-01/bin/kie-image.sh "Pixie the robot, side view, same design consistency" "3:4" "basic"
+./ag-01/bin/kie-image.sh "Pixie the robot, happy expression, waving" "3:4" "basic"
+```
+
+Save outputs to `ag-01/output/`. Use a consistent prompt prefix for character consistency.
+
+### 2. Storyboard frames
+
+Generate one image per scene with a text caption:
+
+```bash
+./ag-01/bin/kie-image.sh "Scene 1: Pixie wakes up in a cozy workshop, morning light" "16:9" "basic"
+./ag-01/bin/kie-image.sh "Scene 2: Pixie discovers a mysterious glowing device" "16:9" "basic"
+./ag-01/bin/kie-image.sh "Scene 3: Pixie fixes the device with her tools" "16:9" "basic"
+```
+
+### 3. Prototype narration
+
+```bash
+./ag-01/bin/kie-tts.sh "Pixie woke up to the smell of coffee and soldering flux." google/gemini-3-1-flash-tts
+./ag-01/bin/kie-tts.sh "Wait... what's this glowing thing? I've never seen anything like it before." google/gemini-3-1-flash-tts
+```
+
+### 4. Storyboard output
+
+Each scene gets a markdown file in `output/` linking the image + narration:
+
+```markdown
+## Scene 1
+![scene1](output/kie_1745000000_scene1.jpg)
+> Narration: "Pixie woke up to the smell of coffee and soldering flux."
+- Duration: 5s
+- Transition: fade in
+```
