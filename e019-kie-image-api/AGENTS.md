@@ -12,11 +12,40 @@ Experiments with the [KIE API](https://kie.ai) for image generation (Seedream) a
 | `KIE_API_KEY` | API key for KIE (Bearer token) |
 | `KIE_API_BASE_URL` | Base URL (default: `https://api.kie.ai`) |
 
+## Quick start — from zero to video
+
+A new agent follows these steps:
+
+```bash
+# 1. Generate character images (portrait, 3:4)
+./ag-01/bin/kie-image.sh --tag "julia" "Mexican nurse, portrait, white background" "3:4" "basic"
+
+# 2. Upload them to KIE for image-to-image use
+JULIA_URL=$(./ag-01/bin/kie-upload.sh output/kie_*_julia.jpg)
+
+# 3. Generate scene images with consistent characters (image-to-image)
+./ag-01/bin/kie-image.sh --quiet --tag "scene_julia" --image-url "$JULIA_URL" \
+  "Nurse on subway platform, Mexico City" "16:9" "basic"
+
+# 4. Generate TTS narration with proper voice + style
+./ag-01/bin/kie-tts.sh --voice Kore --scene "Subway platform" \
+  --context "Tired after night shift" --style Whisper --pace Natural \
+  "Diecisiete minutos de metro..."
+
+# 5. Assemble video from config
+cat > config.json << JSON
+{"intro":{"image":"output/character_sheet.jpg","duration":2},
+ "intro_text":{"line1":"TITLE","line2":"Subtitle"},
+ "scenes":[
+   {"image":"output/scene1.jpg","audio":"output/tts/1.mp3","label":"Location"}
+ ],
+ "output":"output/final.mp4",
+ "resolution":"608x1080"}
+JSON
+./ag-01/bin/kie-video.sh config.json
+```
+
 ## Scripts
-
-### `ag-01/bin/kie-image.sh` — Text-to-image
-
-CLI wrapper for Seedream 4.5 text-to-image API.
 
 ```bash
 export KIE_API_KEY="your-key"
@@ -76,6 +105,41 @@ Poll response fields:
 
 Older models (v3, v4) use `bytedance/seedream-v4-*` naming with params: `image_size`, `image_resolution`, `max_images`, `seed`.
 
+### `ag-01/bin/kie-upload.sh` — Image upload
+
+Uploads a local image to KIE's temp storage for use as `--image-url` input.
+
+```bash
+URL=$(./ag-01/bin/kie-upload.sh path/to/image.jpg [tag])
+echo "$URL"  # https://tempfile.redpandaai.co/...
+```
+
+### `ag-01/bin/kie-video.sh` — Video assembly
+
+Assembles images + audio into a vertical 9:16 video using ffmpeg. No API calls.
+
+```bash
+./ag-01/bin/kie-video.sh config.json
+```
+
+Config format:
+```json
+{
+    "intro": {"image": "title.jpg", "duration": 2},
+    "intro_text": {"line1": "Title", "line2": "Subtitle"},
+    "scenes": [
+        {"image": "scene1.jpg", "audio": "nar1.mp3", "label": "Location"},
+        {"image": "scene2.jpg", "audio": "nar2.mp3", "label": "Location"}
+    ],
+    "output": "final.mp4",
+    "resolution": "608x1080"
+}
+```
+
+- Audio duration auto-detected
+- Images cropped center to 9:16 (no black bars)
+- Silence generated via `anullsrc` (no temp files)
+
 ### Request (4.5 text-to-image)
 
 ```json
@@ -105,25 +169,52 @@ Older models (v3, v4) use `bytedance/seedream-v4-*` naming with params: `image_s
 }
 ```
 
-## TTS models
+## Script: `kie-tts.sh` (TTS)
 
-### ElevenLabs
+Full-featured TTS wrapper for Gemini & ElevenLabs.
 
-| Model ID | Type | Status |
+```bash
+./ag-01/bin/kie-tts.sh [options] "<text>"
+
+Options:
+  --voice, -v       Voice name (30 options, default Fenrir)
+  --scene, -s       Environment description, e.g. "A quiet library"
+  --context, -c     Style/tone prompt, e.g. "Calm and reflective"
+  --style           Vocal Smile, Newscaster, Whisper, Empathetic, Promo/Hype, Deadpan
+  --accent          Neutral, American (Gen/Valley/South), British (RP/Brixton), ...
+  --pace            Natural, Rapid Fire, The Drift, Staccato
+  --profile         Character description, e.g. "A young student"
+  --model, -m       Model override (default: google/gemini-3-1-flash-tts)
+  --quiet, -q       Machine-readable output (MP3 path only)
+  --tag, -t         Output filename tag
+```
+
+The **three levers** for natural speech:
+1. `--context` — overall emotional tone
+2. `--scene` — environmental audio context
+3. Markup tags in text — `[sigh]`, `[short pause]`, `[laughing]`, `[whispering]`, etc.
+
+Output: MP3 file with silence trimmed, saved to `ag-01/output/`.
+
+### ElevenLabs (via KIE)
+
+| Model ID | Status |
+|---|---|
+| `elevenlabs/text-to-speech-turbo-2-5` | **Fails on KIE** (internal error) |
+| `elevenlabs/text-to-speech-multilingual-v2` | Not tested |
+| `elevenlabs/text-to-dialogue-v3` | Not tested |
+| `elevenlabs/audio-isolation` | Audio isolation (not TTS) |
+
+ElevenLabs voices: sample IDs like `N2lVS1w4EtoT3dr4eOWO` (Callum). Preview at `https://static.aiquickdraw.com/elevenlabs/voice/<voice_id>.mp3`.
+
+### Gemini (recommended)
+
+| Model ID | Cost/test | Status |
 |---|---|---|
-| `elevenlabs/text-to-speech-turbo-2-5` | TTS, 60+ voices | **Fails on KIE** (internal error) |
-| `elevenlabs/text-to-speech-multilingual-v2` | TTS multilingual | Not tested |
-| `elevenlabs/text-to-dialogue-v3` | Dialogue TTS (array of `{text, voice}`) | Not tested |
-| `elevenlabs/audio-isolation` | Audio isolation (not TTS) | Not tested |
+| `google/gemini-3-1-flash-tts` | ~1 credit | **Tested, recommended** |
+| `google/gemini-2-5-pro-tts` | ~2 credits | Not tested |
 
-ElevenLabs voices (sample IDs): `N2lVS1w4EtoT3dr4eOWO` (Callum), `EkK5I93UQWFDigLMpZcX` (James), `Z3R5wn05IrDiVCyEkUrK` (Arabella), and 60+ more. Preview at `https://static.aiquickdraw.com/elevenlabs/voice/<voice_id>.mp3`.
-
-### Gemini
-
-| Model ID | Type | Status |
-|---|---|---|
-| `google/gemini-3-1-flash-tts` | Multi-speaker TTS | **Tested, works** |
-| `google/gemini-2-5-pro-tts` | Multi-speaker TTS | Not tested |
+Pros: Cheap (~1 credit/short sentence), fast (~5s), full voice/style/accent control, works reliably.
 
 #### Parameters
 
@@ -298,10 +389,13 @@ curl -sS "https://api.kie.ai/api/v1/jobs/createTask" \
 
 ### 4. Output
 
-- Character images → `output/kie_TIMESTAMP_TAG.jpg`
-- Scene images → `output/kie_TIMESTAMP_sceneN_NAME.jpg`  
-- TTS → `output/tts_v2/NAME.mp3`
-- Final video → `output/storyboard_v2.mp4`
+All files go to `ag-01/output/`:
+- Images: `kie_TIMESTAMP_TAG.jpg`
+- TTS: `kie-tts_TAG_TIMESTAMP.mp3`  
+- Uploaded URLs: stored in variables for `--image-url`
+- Final video: defined in config, typically `output/final.mp4`
+
+To assemble, use `kie-video.sh` with a JSON config — no manual ffmpeg needed.
 
 ## Learnings — Gemini TTS from Google Cloud docs
 

@@ -1,186 +1,156 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# KIE TTS API wrapper (ElevenLabs & Gemini)
-# Requires: KIE_API_KEY environment variable
+# KIE TTS API wrapper — Gemini & ElevenLabs
+# Requires: KIE_API_KEY
 #
 # Usage:
-#   ./kie-tts.sh "<text>" [model] [voice]
+#   ./kie-tts.sh [options] "<text>"
 #
-# Models:
-#   elevenlabs/text-to-speech-turbo-2-5  (default, 6.0 credits)
-#   elevenlabs/text-to-speech-multilingual-v2
-#   elevenlabs/text-to-dialogue-v3
-#   google/gemini-3-1-flash-tts            (0.42 credits, multi-speaker)
-#   google/gemini-2-5-pro-tts
+# Options (Gemini):
+#   --voice, -v     Voice name (default: Fenrir). 30 options: Achernar..Zubenelgenubi
+#   --scene, -s     Environment description, e.g. "A quiet library at night"
+#   --context, -c   Style/tone prompt, e.g. "Calm and reflective"
+#   --style         Emotional style: Vocal Smile, Newscaster, Whisper, Empathetic, Promo/Hype, Deadpan
+#   --accent        Accent: Neutral, American (Gen/Valley/South), British (RP/Brixton), Transatlantic, Australian
+#   --pace          Pace: Natural, Rapid Fire, The Drift, Staccato
+#   --profile       Character description, e.g. "A young engineering student"
+#   --model, -m     Model (default: google/gemini-3-1-flash-tts)
+#   --quiet, -q     Machine-readable output (MP3 path only)
+#   --tag, -t       Output filename tag
 #
 # Examples:
 #   ./kie-tts.sh "Hello world"
-#   ./kie-tts.sh "Hello world" elevenlabs/text-to-speech-turbo-2-5
-#   ./kie-tts.sh "Hello world" google/gemini-3-1-flash-tts
+#   ./kie-tts.sh --voice Kore --scene "Subway station" --context "Tired and nostalgic" "Diecisiete minutos..."
+#   ./kie-tts.sh --voice Iapetus --accent "American (South)" --pace Natural "Howdy partner"
 
 API_BASE="${KIE_API_BASE_URL:-https://api.kie.ai}"
-TEXT="${1:?Usage: kie-tts.sh <text> [model] [voice]}"
-MODEL="${2:-elevenlabs/text-to-speech-turbo-2-5}"
-VOICE="${3:-}"
+QUIET=false
+TAG=""
+MODEL="google/gemini-3-1-flash-tts"
+VOICE="Fenrir"
+SCENE=""
+CONTEXT=""
+STYLE=""
+ACCENT="Neutral"
+PACE="Natural"
+PROFILE="Narrator"
+
+# Parse args: flags first, then bare text
+FLAGS=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --quiet|-q) QUIET=true; shift ;;
+        --tag|-t) TAG="$2"; shift 2 ;;
+        --model|-m) MODEL="$2"; shift 2 ;;
+        --voice|-v) VOICE="$2"; shift 2 ;;
+        --scene|-s) SCENE="$2"; shift 2 ;;
+        --context|-c) CONTEXT="$2"; shift 2 ;;
+        --style) STYLE="$2"; shift 2 ;;
+        --accent) ACCENT="$2"; shift 2 ;;
+        --pace) PACE="$2"; shift 2 ;;
+        --profile) PROFILE="$2"; shift 2 ;;
+        --help|-h)
+            echo "Usage: kie-tts.sh [options] \"<text>\""
+            echo "  --voice, -v       Voice name (default: Fenrir)"
+            echo "  --scene, -s       Environment description"
+            echo "  --context, -c     Style/tone prompt"
+            echo "  --style           Vocal Smile, Newscaster, Whisper, Empathetic, Promo/Hype, Deadpan"
+            echo "  --accent          Neutral, American (Gen/Valley/South), British (RP/Brixton)..."
+            echo "  --pace            Natural, Rapid Fire, The Drift, Staccato"
+            echo "  --profile         Character description"
+            echo "  --model, -m       Model override"
+            echo "  --quiet, -q       Machine-readable output"
+            echo "  --tag, -t         Output filename tag"
+            exit 0 ;;
+        *) TEXT="$1"; shift ;;
+    esac
+done
+
+: "${TEXT:?Usage: kie-tts.sh [options] \"<text>\"}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/output}"
 
 call_api() {
-    local endpoint="$1"
-    local data="${2:-}"
-    local method="${3:-POST}"
-
+    local endpoint="$1" data="${2:-}" method="${3:-POST}"
     if [ "$method" = "GET" ]; then
-        curl -sS "$API_BASE$endpoint" \
-            -H "Authorization: Bearer $KIE_API_KEY"
+        curl -sS "$API_BASE$endpoint" -H "Authorization: Bearer $KIE_API_KEY"
     else
         printf '%s' "$data" | curl -sS "$API_BASE$endpoint" \
             -H "Authorization: Bearer $KIE_API_KEY" \
-            -H "Content-Type: application/json" \
-            -X "$method" \
-            -d @-
+            -H "Content-Type: application/json" -X "$method" -d @-
     fi
 }
 
-build_payload() {
-    case "$MODEL" in
-        elevenlabs/*)
-            local voice_arg
-            if [ -n "$VOICE" ]; then
-                voice_arg="$VOICE"
-            else
-                voice_arg="N2lVS1w4EtoT3dr4eOWO"
-            fi
-            cat <<ENDJSON
-{
-    "model": "$MODEL",
-    "input": {
-        "text": "$TEXT",
-        "voice": "$voice_arg",
-        "stability": 0.5,
-        "similarity_boost": 0.75
-    }
-}
+# Build JSON payload
+if [[ "$MODEL" == elevenlabs/* ]]; then
+    JSON_DATA=$(cat <<ENDJSON
+{"model":"$MODEL","input":{"text":"$TEXT","voice":"$VOICE","stability":0.5,"similarity_boost":0.75}}
 ENDJSON
-            ;;
-        google/*)
-            cat <<ENDJSON
-{
-    "model": "$MODEL",
-    "input": {
-        "temperature": 1,
-        "scene": "",
-        "speakers": [
-            {
-                "speaker_id": "Speaker 1",
-                "voice_name": "${VOICE:-Fenrir}",
-                "audio_profile": "Narrator",
-                "accent": "American (Gen)",
-                "pace": "Natural"
-            }
-        ],
-        "dialogue_turns": [
-            {
-                "speaker_id": "Speaker 1",
-                "text": "$TEXT"
-            }
-        ]
-    }
-}
+)
+else
+    JSON_DATA=$(cat <<ENDJSON
+{"model":"$MODEL","input":{"temperature":1,"scene":"$SCENE","sample_context":"$CONTEXT","speakers":[{"speaker_id":"Speaker 1","voice_name":"$VOICE","audio_profile":"$PROFILE","accent":"$ACCENT","style":"$STYLE","pace":"$PACE"}],"dialogue_turns":[{"speaker_id":"Speaker 1","text":"$TEXT"}]}}
 ENDJSON
-            ;;
-        *)
-            echo "Unknown model: $MODEL" >&2
-            exit 1
-            ;;
-    esac
-}
+)
+fi
 
-echo "=== Creating TTS task ==="
-echo "Model: $MODEL"
-echo "Text: $TEXT"
-echo ""
+$QUIET || echo "=== KIE TTS ==="
+$QUIET || echo "Model: $MODEL | Voice: $VOICE | Style: ${STYLE:-none} | Accent: $ACCENT | Pace: $PACE"
+$QUIET || echo ""
 
-JSON_DATA=$(build_payload)
-RESPONSE=$(call_api "/api/v1/jobs/createTask" "$JSON_DATA")
-
-echo "Response: $RESPONSE"
-echo ""
-
-TASK_ID=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('data', {}).get('taskId', ''))" 2>/dev/null || echo "")
+RESPONSE=$(call_api "/api/v1/jobs/createTask" "$JSON_DATA" 2>/dev/null)
+TASK_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('taskId',''))" 2>/dev/null || echo "")
 
 if [ -z "$TASK_ID" ]; then
-    echo "Error: no taskId in response"
+    echo "Error: no taskId. Response: $RESPONSE" >&2
     exit 1
 fi
 
-echo "Task ID: $TASK_ID"
-echo "Polling for result..."
-echo ""
+$QUIET || echo "Task ID: $TASK_ID | Polling..."
 
 for i in $(seq 1 60); do
-    sleep 5
-
+    sleep 3
     RESULT=$(call_api "/api/v1/jobs/recordInfo?taskId=$TASK_ID" "" "GET" 2>/dev/null || echo "")
 
-    if [ -z "$RESULT" ]; then
-        echo "Query failed, retrying..."
-        continue
-    fi
-
-    STATE=$(echo "$RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin).get('data', {}).get('state', ''))" 2>/dev/null || echo "unknown")
-
-    echo "[$i] State: $STATE"
+    STATE=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('data',{}).get('state',''))" 2>/dev/null || echo "unknown")
+    $QUIET || echo "[$i] $STATE"
 
     if [ "$STATE" = "success" ]; then
-        echo ""
-        echo "=== Result ==="
-        echo "$RESULT" | python3 -m json.tool 2>/dev/null || echo "$RESULT"
-
         AUDIO_URLS=$(echo "$RESULT" | python3 -c "
 import sys, json
-data = json.load(sys.stdin).get('data', {})
-result_json = data.get('resultJson', '{}')
-if isinstance(result_json, str):
-    result = json.loads(result_json)
-else:
-    result = result_json
-for url in result.get('resultUrls', []):
-    print(url)
+d = json.load(sys.stdin).get('data', {})
+rj = d.get('resultJson', '{}')
+if isinstance(rj, str):
+    import json as j2; r = j2.loads(rj)
+else: r = rj
+for u in r.get('resultUrls', []): print(u)
 " 2>/dev/null || echo "")
 
-        if [ -n "$AUDIO_URLS" ]; then
-            echo ""
-            echo "Audio URLs:"
-            echo "$AUDIO_URLS"
-            echo ""
-
-            mkdir -p "$OUTPUT_DIR"
-            TIMESTAMP=$(date +%s%3N)
-            while IFS= read -r url; do
-                if [ -n "$url" ]; then
-                    local_file="$OUTPUT_DIR/kie-tts_${TIMESTAMP}"
-                    echo "Downloading: $url"
-                    curl -sS -o "${local_file}_raw.wav" "$url"
-
-                    echo "Converting to MP3..."
-                    ffmpeg -y -i "${local_file}_raw.wav" -codec:a libmp3lame -qscale:a 2 "${local_file}.mp3" 2>/dev/null
-                    rm -f "${local_file}_raw.wav"
-                    echo "Saved: ${local_file}.mp3"
-                fi
-            done <<< "$AUDIO_URLS"
+        if [ -z "$AUDIO_URLS" ]; then
+            echo "Error: no audio URL" >&2; exit 1
         fi
 
+        mkdir -p "$OUTPUT_DIR"
+        TS=$(date +%s%3N)
+        local_file="$OUTPUT_DIR/kie-tts${TAG:+_$TAG}_$TS"
+
+        for url in $AUDIO_URLS; do
+            $QUIET || echo "Downloading..."
+            curl -sS -o "${local_file}_raw.wav" "$url"
+            ffmpeg -y -i "${local_file}_raw.wav" \
+                -af "silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB,areverse" \
+                -codec:a libmp3lame -qscale:a 2 "${local_file}.mp3" 2>/dev/null
+            rm -f "${local_file}_raw.wav"
+            DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${local_file}.mp3" 2>/dev/null)
+            $QUIET || echo "Saved: $(basename ${local_file}.mp3) (${DUR}s)"
+            $QUIET && echo "${local_file}.mp3"
+        done
         exit 0
-    elif [ "$STATE" = "fail" ] || [ "$STATE" = "failed" ]; then
-        echo ""
-        echo "=== Task failed ==="
-        echo "$RESULT" | python3 -m json.tool 2>/dev/null || echo "$RESULT"
-        exit 1
+    elif [ "$STATE" = "fail" ]; then
+        echo "Task failed: $RESULT" >&2; exit 1
     fi
 done
 
-echo "Timeout waiting for task $TASK_ID"
-exit 1
+echo "Timeout" >&2; exit 1
