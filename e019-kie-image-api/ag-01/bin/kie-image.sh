@@ -13,7 +13,29 @@ set -euo pipefail
 #   ./kie-image.sh "a cat wearing a hat" "1:1" "basic"
 
 API_BASE="${KIE_API_BASE_URL:-https://api.kie.ai}"
-PROMPT="${1:?Usage: kie-image.sh <prompt> [aspect_ratio] [quality]}"
+QUIET=false
+TAG=""
+IMAGE_URL=""
+MODEL="seedream/4.5-text-to-image"
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --quiet|-q) QUIET=true; shift ;;
+        --tag|-t) TAG="$2"; shift 2 ;;
+        --image-url|-i) IMAGE_URL="$2"; MODEL="seedream/5-pro-image-to-image"; shift 2 ;;
+        --model|-m) MODEL="$2"; shift 2 ;;
+        --help|-h)
+            echo "Usage: kie-image.sh [options] <prompt> [aspect_ratio] [quality]"
+            echo "  --quiet, -q       Machine-readable output (only URL on success)"
+            echo "  --tag, -t         Tag for output filename"
+            echo "  --image-url, -i   Input image URL (image-to-image mode)"
+            echo "  --model, -m       Model override (default: seedream/4.5-text-to-image)"
+            exit 0 ;;
+        *) break ;;
+    esac
+done
+
+PROMPT="${1:?Usage: kie-image.sh [options] <prompt> [aspect_ratio] [quality]}"
 ASPECT_RATIO="${2:-1:1}"
 QUALITY="${3:-basic}"
 
@@ -21,28 +43,60 @@ call_api() {
     local endpoint="$1"
     local data="${2:-}"
     local method="${3:-POST}"
+    local response
+    local http_code
 
     if [ "$method" = "GET" ]; then
-        curl -sS "$API_BASE$endpoint" \
-            -H "Authorization: Bearer $KIE_API_KEY"
+        response=$(curl -sS -w "\n%{http_code}" "$API_BASE$endpoint" \
+            -H "Authorization: Bearer $KIE_API_KEY")
     else
-        printf '%s' "$data" | curl -sS "$API_BASE$endpoint" \
+        response=$(printf '%s' "$data" | curl -sS -w "\n%{http_code}" "$API_BASE$endpoint" \
             -H "Authorization: Bearer $KIE_API_KEY" \
             -H "Content-Type: application/json" \
             -X "$method" \
-            -d @-
+            -d @-)
     fi
+
+    http_code=$(echo "$response" | tail -1)
+    local body
+    body=$(echo "$response" | sed '$d')
+
+    # Rate limit (433) — wait and retry once
+    if [ "$http_code" = "433" ]; then
+        echo "[RATE LIMITED] Hourly credit limit exceeded. Waiting 60s..." >&2
+        sleep 60
+        call_api "$endpoint" "$data" "$method"
+        return $?
+    fi
+
+    echo "$body"
 }
 
-echo "=== Creating image task ==="
-echo "Prompt: $PROMPT"
-echo "Aspect ratio: $ASPECT_RATIO"
-echo "Quality: $QUALITY"
-echo ""
+$QUIET || echo "=== KIE Image ==="
+$QUIET || echo "Prompt: $PROMPT"
+$QUIET || echo "Model: $MODEL"
+$QUIET || echo "Aspect: $ASPECT_RATIO | Quality: $QUALITY"
+[ -n "$IMAGE_URL" ] && $QUIET || echo "Input image: $IMAGE_URL"
+$QUIET || echo ""
 
-JSON_DATA=$(cat <<ENDJSON
+if [ -n "$IMAGE_URL" ]; then
+    JSON_DATA=$(cat <<ENDJSON
 {
-    "model": "seedream/4.5-text-to-image",
+    "model": "$MODEL",
+    "input": {
+        "prompt": "$PROMPT",
+        "image_urls": ["$IMAGE_URL"],
+        "aspect_ratio": "$ASPECT_RATIO",
+        "quality": "$QUALITY",
+        "nsfw_checker": false
+    }
+}
+ENDJSON
+)
+else
+    JSON_DATA=$(cat <<ENDJSON
+{
+    "model": "$MODEL",
     "input": {
         "prompt": "$PROMPT",
         "aspect_ratio": "$ASPECT_RATIO",
@@ -52,24 +106,28 @@ JSON_DATA=$(cat <<ENDJSON
 }
 ENDJSON
 )
+fi
 
 RESPONSE=$(call_api "/api/v1/jobs/createTask" "$JSON_DATA")
-
-echo "Response: $RESPONSE"
-echo ""
 
 TASK_ID=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.load(sys.stdin).get('data', {}).get('taskId', ''))" 2>/dev/null || echo "")
 
 if [ -z "$TASK_ID" ]; then
-    echo "Error: no taskId in response"
+    echo "Error: no taskId. Response: $RESPONSE" >&2
     exit 1
 fi
 
-echo "Task ID: $TASK_ID"
-echo "Polling for result..."
-echo ""
+$QUIET || echo "Task ID: $TASK_ID"
+$QUIET || echo "Polling..."
+$QUIET || echo ""
 
-for i in $(seq 1 60); do
+# Image-to-image can take 5+ minutes, so extend timeout
+MAX_POLLS=120
+if [ -n "$IMAGE_URL" ]; then
+    MAX_POLLS=200
+fi
+
+for i in $(seq 1 $MAX_POLLS); do
     sleep 5
 
     RESULT=$(call_api "/api/v1/jobs/recordInfo?taskId=$TASK_ID" "" "GET" 2>/dev/null || echo "")
@@ -81,12 +139,10 @@ for i in $(seq 1 60); do
 
     STATE=$(echo "$RESULT" | python3 -c "import sys, json; print(json.load(sys.stdin).get('data', {}).get('state', ''))" 2>/dev/null || echo "unknown")
 
-    echo "[$i] State: $STATE"
+    $QUIET || echo "[$i] State: $STATE"
 
     if [ "$STATE" = "success" ]; then
-        echo ""
-        echo "=== Result ==="
-        echo "$RESULT" | python3 -m json.tool 2>/dev/null || echo "$RESULT"
+        $QUIET || echo ""
 
         IMAGE_URLS=$(echo "$RESULT" | python3 -c "
 import sys, json
@@ -101,30 +157,26 @@ for url in result.get('resultUrls', []):
 " 2>/dev/null || echo "")
 
         if [ -n "$IMAGE_URLS" ]; then
-            echo ""
-            echo "Image URLs:"
-            echo "$IMAGE_URLS"
-            echo ""
-
             SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/output}"
+            OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/output}"
             mkdir -p "$OUTPUT_DIR"
-            TIMESTAMP=$(date +%s)
+            TIMESTAMP=$(date +%s%3N)
             while IFS= read -r url; do
                 if [ -n "$url" ]; then
-                    echo "Downloading: $url"
-                    curl -sS -o "$OUTPUT_DIR/kie_${TIMESTAMP}_$(basename "$url" | cut -d? -f1)" "$url" &
+                    local_file="$OUTPUT_DIR/kie_${TIMESTAMP}"
+                    [ -n "$TAG" ] && local_file="${local_file}_${TAG}"
+                    local_file="${local_file}.jpg"
+                    $QUIET || echo "Download: $local_file"
+                    curl -sS -o "$local_file" "$url"
+                    $QUIET || echo "Saved: $(basename "$local_file") ($(stat -c%s "$local_file")B)"
                 fi
             done <<< "$IMAGE_URLS"
-            wait
-            echo "Saved to $OUTPUT_DIR/"
+            $QUIET && echo "$IMAGE_URLS"
         fi
 
         exit 0
-    elif [ "$STATE" = "failed" ]; then
-        echo ""
-        echo "=== Task failed ==="
-        echo "$RESULT" | python3 -m json.tool 2>/dev/null || echo "$RESULT"
+    elif [ "$STATE" = "fail" ] || [ "$STATE" = "failed" ]; then
+        echo "Task failed: $RESULT" >&2
         exit 1
     fi
 done

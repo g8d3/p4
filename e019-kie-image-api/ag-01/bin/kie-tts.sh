@@ -158,7 +158,7 @@ for url in result.get('resultUrls', []):
             echo ""
 
             mkdir -p "$OUTPUT_DIR"
-            TIMESTAMP=$(date +%s)
+            TIMESTAMP=$(date +%s%3N)
             while IFS= read -r url; do
                 if [ -n "$url" ]; then
                     local_file="$OUTPUT_DIR/kie-tts_${TIMESTAMP}"

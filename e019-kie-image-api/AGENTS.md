@@ -125,11 +125,53 @@ ElevenLabs voices (sample IDs): `N2lVS1w4EtoT3dr4eOWO` (Callum), `EkK5I93UQWFDig
 | `google/gemini-3-1-flash-tts` | Multi-speaker TTS | **Tested, works** |
 | `google/gemini-2-5-pro-tts` | Multi-speaker TTS | Not tested |
 
-Gemini TTS supports:
-- Multiple speakers with distinct `voice_name`, `accent`, `pace`, `style`
-- `scene` description for audio environment
-- `dialogue_turns` array for multi-turn conversations
-- Auto-inserts `dialogue_mode: "single"` for single speaker
+#### Parameters
+
+| Parameter | Description |
+|---|---|
+| `temperature` | Sampling temperature (0–2, default 1) |
+| `scene` | Audio environment description, e.g. "A quiet warm room with a fireplace" |
+| `sample_context` | Overall tone/style prompt, e.g. "Audiobook style narration. Tone is gentle and inviting." |
+| `speakers[]` | Array of speaker configs (see below) |
+| `dialogue_turns[]` | Array of `{speaker_id, text}` — the dialogue lines |
+
+#### Per-speaker parameters
+
+| Parameter | Options | Description |
+|---|---|---|
+| `voice_name` | 30 voices (see below) | Voice identity |
+| `accent` | Neutral, American (Gen/Valley/South), British (RP/Brixton), Transatlantic, Australian | Accent |
+| `style` | Vocal Smile, Newscaster, Whisper, Empathetic, Promo/Hype, Deadpan | Emotional delivery |
+| `pace` | Natural, Rapid Fire, The Drift, Staccato | Speaking speed/rhythm |
+| `audio_profile` | Free text | Character description, e.g. "A stern and weary gatekeeper" |
+
+#### Available voices (30)
+
+Achernar, Achird, Algenib, Algieba, Alnilam, Aoede, Autonoe, Callirrhoe, Charon, Despina, Enceladus, Erinome, Fenrir, Gacrux, Iapetus, Kore, Laomedeia, Leda, Orus, Puck, Pulcherrima, Rasalgethi, Sadachbia, Sadaltager, Schedar, Sulafat, Umbriel, Vindemiatrix, Zephyr, Zubenelgenubi
+
+#### Markup tags (inline in dialogue text)
+
+| Tag | Effect |
+|---|---|
+| `[sigh]` | Inserts a sigh sound |
+| `[laughing]` | Inserts a laugh |
+| `[uhm]` | Inserts hesitation |
+| `[sarcasm]` | Sarcastic tone on subsequent phrase |
+| `[whispering]` | Lowers volume |
+| `[shouting]` | Increases volume |
+| `[robotic]` | Robotic delivery |
+| `[short pause]` | ~250ms pause |
+| `[medium pause]` | ~500ms pause |
+| `[long pause]` | ~1000ms+ pause |
+
+#### Three levers for best results
+
+Google Cloud docs recommend aligning all three for natural output:
+1. **sample_context** (style prompt) — sets overall emotional tone
+2. **Text content** — use emotionally rich text, not neutral
+3. **Markup tags** — for local effects (sighs, pauses, laughter)
+
+A neutral text like "The meeting is at 4 PM" with a scared prompt produces ambiguous results. Use evocative text.
 
 ### Request (ElevenLabs)
 
@@ -145,14 +187,15 @@ Gemini TTS supports:
 }
 ```
 
-### Request (Gemini multi-speaker)
+### Request (Gemini — optimized with all levers)
 
 ```json
 {
     "model": "google/gemini-3-1-flash-tts",
     "input": {
         "temperature": 1,
-        "scene": "A dark dungeon",
+        "scene": "A quiet warm room with a fireplace crackling softly",
+        "sample_context": "Audiobook style narration. Tone is gentle and inviting.",
         "speakers": [
             {
                 "speaker_id": "Speaker 1",
@@ -218,38 +261,93 @@ This experiment provides the tools for the pre-production phase defined in funda
 ### 1. Character sheet
 
 ```bash
-./ag-01/bin/kie-image.sh "A friendly robot assistant, Pixie, front view, clean design, white and blue, glowing eyes, character design sheet style" "3:4" "basic"
-./ag-01/bin/kie-image.sh "Pixie the robot, side view, same design consistency" "3:4" "basic"
-./ag-01/bin/kie-image.sh "Pixie the robot, happy expression, waving" "3:4" "basic"
+./ag-01/bin/kie-image.sh "Character description, front view, full body, white background" "3:4" "basic"
 ```
-
-Save outputs to `ag-01/output/`. Use a consistent prompt prefix for character consistency.
 
 ### 2. Storyboard frames
 
-Generate one image per scene with a text caption:
+```bash
+./ag-01/bin/kie-image.sh --image-url <char_url> "Scene description with character in environment" "16:9" "basic"
+```
+
+Use `--image-url` with the character portrait for consistent characters across scenes.
+
+### 3. Narration (optimized with Gemini TTS levers)
+
+For best results, use all three levers: `sample_context` (tone), `scene` (environment), and markup tags:
 
 ```bash
-./ag-01/bin/kie-image.sh "Scene 1: Pixie wakes up in a cozy workshop, morning light" "16:9" "basic"
-./ag-01/bin/kie-image.sh "Scene 2: Pixie discovers a mysterious glowing device" "16:9" "basic"
-./ag-01/bin/kie-image.sh "Scene 3: Pixie fixes the device with her tools" "16:9" "basic"
+# Generate a JSON payload instead of using the simple script:
+cat > /tmp/narration.json << 'JSON'
+{
+    "model": "google/gemini-3-1-flash-tts",
+    "input": {
+        "temperature": 1,
+        "scene": "Environment description, e.g. A quiet library at night",
+        "sample_context": "Tone/style prompt, e.g. Excited but whispering",
+        "speakers": [{"speaker_id": "Speaker 1", "voice_name": "Zephyr", "audio_profile": "Character description", "accent": "Neutral", "style": "Whisper", "pace": "Rapid Fire"}],
+        "dialogue_turns": [{"speaker_id": "Speaker 1", "text": "Use markup tags like [short pause] [sigh] [laughing] for natural delivery."}]
+    }
+}
+JSON
+curl -sS "https://api.kie.ai/api/v1/jobs/createTask" \
+  -H "Authorization: Bearer $KIE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -X POST -d @/tmp/narration.json
 ```
 
-### 3. Prototype narration
+### 4. Output
 
-```bash
-./ag-01/bin/kie-tts.sh "Pixie woke up to the smell of coffee and soldering flux." google/gemini-3-1-flash-tts
-./ag-01/bin/kie-tts.sh "Wait... what's this glowing thing? I've never seen anything like it before." google/gemini-3-1-flash-tts
-```
+- Character images → `output/kie_TIMESTAMP_TAG.jpg`
+- Scene images → `output/kie_TIMESTAMP_sceneN_NAME.jpg`  
+- TTS → `output/tts_v2/NAME.mp3`
+- Final video → `output/storyboard_v2.mp4`
 
-### 4. Storyboard output
+## Learnings — Gemini TTS from Google Cloud docs
 
-Each scene gets a markdown file in `output/` linking the image + narration:
+Source: https://docs.cloud.google.com/text-to-speech/docs/gemini-tts
 
-```markdown
-## Scene 1
-![scene1](output/kie_1745000000_scene1.jpg)
-> Narration: "Pixie woke up to the smell of coffee and soldering flux."
-- Duration: 5s
-- Transition: fade in
-```
+### Three levers of speech control
+
+For predictable, natural results, all three must be aligned:
+
+| Lever | Our field | What we did wrong |
+|---|---|---|
+| Style Prompt | `sample_context` | Left empty. Should describe tone/emotion. |
+| Text Content | `dialogue_turns[].text` | Used neutral text. Should use emotionally evocative phrasing. |
+| Markup Tags | Inline in text | Not used. Should add `[sigh]`, `[short pause]`, `[laughing]`, etc. |
+
+### What we fixed in v2
+
+| Aspect | v1 (bad) | v2 (good) |
+|---|---|---|
+| Voice | All "Fenrir" | Charon, Iapetus, Kore, Aoede, Zephyr |
+| Accent | None | American (South) for Carl, Neutral for others |
+| Style | None | Whisper, Deadpan, Empathetic, Vocal Smile |
+| Pace | None | The Drift, Natural, Rapid Fire |
+| Scene | `""` (empty) | Described subway, workshop, apartment, patio, library |
+| sample_context | `""` (empty) | Described emotional tone per character |
+| Markup tags | None | `[sigh]`, `[short pause]`, `[medium pause]`, `[laughing]` |
+
+### Available voices (30)
+
+Achernar, Achird, Algenib, Algieba, Alnilam, Aoede, Autonoe, Callirrhoe, Charon, Despina, Enceladus, Erinome, Fenrir, Gacrux, Iapetus, Kore, Laomedeia, Leda, Orus, Puck, Pulcherrima, Rasalgethi, Sadachbia, Sadaltager, Schedar, Sulafat, Umbriel, Vindemiatrix, Zephyr, Zubenelgenubi
+
+### Available styles
+
+Vocal Smile, Newscaster, Whisper, Empathetic, Promo/Hype, Deadpan
+
+### Available accents
+
+Neutral, American (Gen), American (Valley), American (South), British (RP), British (Brixton), Transatlantic, Australian
+
+### Available paces
+
+Natural, Rapid Fire, The Drift, Staccato
+
+### Known limitations
+
+- Temperature, top_k, top_p generation config params are **ignored** by the API (per Google Cloud docs)
+- Max 8,000 bytes total for prompt + text fields
+- Max 10,000 characters per dialogue turn (per KIE docs)
+- Audio truncated at ~655 seconds
