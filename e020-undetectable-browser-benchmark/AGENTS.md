@@ -26,6 +26,15 @@ Benchmark undetectable browsers against Google search with an authenticated sess
 
 All tests used **fresh profiles** (no authenticated Google session). To test with authentication, use the main Chrome profile at `$HOME/profiles/chrome-main/Profile 1` with `--user-data-dir`.
 
+## Automation Protocols
+
+| Protocol | Browsers | Used by | Notes |
+|----------|----------|---------|-------|
+| **CDP** (Chrome DevTools Protocol) | Chrome, Chromium, Edge, Firefox | Puppeteer, Playwright (Chrome), CDP clients | Native to Chrome; Firefox implements a subset for compatibility |
+| **Marionette** | Firefox | GeckoDriver, Selenium | Firefox's WebDriver protocol; GeckoDriver translates W3C WebDriver commands to Marionette |
+| **Juggler** | Firefox | Playwright (Firefox) | Custom protocol developed by Puppeteer team before Firefox had CDP; Camoufox patches it to sandbox Playwright's interactions |
+| **WebDriver BiDi** (BiDirectional) | Chrome, Firefox (partial) | Emerging standard | W3C standard designed to replace CDP; bidirectional communication |
+
 ## Methodology
 
 1. Launch browser with fresh profile (or authenticated if testing profile-based)
