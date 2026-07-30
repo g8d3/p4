@@ -321,7 +321,7 @@ For predictable, natural results, all three must be aligned:
 
 | Aspect | v1 (bad) | v2 (good) |
 |---|---|---|
-| Voice | All "Fenrir" | Charon, Iapetus, Kore, Aoede, Zephyr |
+| Voice | All "Fenrir" | Kore, Iapetus, Leda, Aoede, Zephyr |
 | Accent | None | American (South) for Carl, Neutral for others |
 | Style | None | Whisper, Deadpan, Empathetic, Vocal Smile |
 | Pace | None | The Drift, Natural, Rapid Fire |
