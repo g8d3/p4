@@ -163,10 +163,11 @@ for url in result.get('resultUrls', []):
                 if [ -n "$url" ]; then
                     local_file="$OUTPUT_DIR/kie-tts_${TIMESTAMP}"
                     echo "Downloading: $url"
-                    curl -sS -o "${local_file}.wav" "$url"
+                    curl -sS -o "${local_file}_raw.wav" "$url"
 
                     echo "Converting to MP3..."
-                    ffmpeg -y -i "${local_file}.wav" -codec:a libmp3lame -qscale:a 2 "${local_file}.mp3" 2>/dev/null
+                    ffmpeg -y -i "${local_file}_raw.wav" -codec:a libmp3lame -qscale:a 2 "${local_file}.mp3" 2>/dev/null
+                    rm -f "${local_file}_raw.wav"
                     echo "Saved: ${local_file}.mp3"
                 fi
             done <<< "$AUDIO_URLS"
