@@ -47,11 +47,9 @@ try:
     else:
         result["captcha"] = False
 
-    # Authenticated check
-    if "sign out" in body_text or "signout" in body_text:
-        result["authenticated"] = True
-    else:
-        result["authenticated"] = False
+    # Authenticated check via cookies
+    auth_cookies = [c["name"] for c in driver.get_cookies() if c["name"] in ("SID","SAPISID","HSID","SIDCC","SSID","APISID","__Secure-1PSID","__Secure-3PSID")]
+    result["authenticated"] = bool(auth_cookies)
 
     # Try search
     try:

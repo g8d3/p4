@@ -1,21 +1,20 @@
 #!/bin/bash
-# Test: Chrome (baseline) with authenticated profile
+# Test: Chrome with the main authenticated profile ($HOME/profiles/chrome-main)
 set -euo pipefail
 
-BROWSER="Chrome"
-RESULT_FILE="output/chrome-result.json"
+BROWSER="Chrome (authenticated profile)"
+RESULT_FILE="output/chrome-authenticated-result.json"
 mkdir -p output
 
 echo "=== $BROWSER: starting test ==="
 
-if ! command -v google-chrome &>/dev/null; then
-  echo '{"browser":"Chrome","captcha":null,"search":null,"authenticated":null,"error":"google-chrome not found"}' > "$RESULT_FILE"
+if [ ! -d "$HOME/profiles/chrome-main/Profile 1" ]; then
+  echo '{"browser":"Chrome (authenticated profile)","captcha":null,"search":null,"authenticated":null,"error":"Main profile not found"}' > "$RESULT_FILE"
   exit 1
 fi
 
-# Test via undetected-chromedriver with Chrome + profile
-timeout 60 python3 -c "
-import json, time, sys, os
+timeout 90 python3 -c "
+import json, time, sys
 
 RESULT_FILE = '$RESULT_FILE'
 result = {'browser': '$BROWSER', 'captcha': None, 'search': None, 'authenticated': None, 'error': None}
@@ -32,6 +31,9 @@ except ImportError as e:
 driver = None
 try:
     options = uc.ChromeOptions()
+    options.binary_location = '/opt/google/chrome/chrome'
+    options.user_data_dir = '$HOME/profiles/chrome-main'
+    options.add_argument('--profile-directory=Profile 1')
     options.add_argument('--no-first-run')
     options.add_argument('--no-default-browser-check')
     options.add_argument('--window-size=1280,720')
@@ -39,7 +41,7 @@ try:
 
     driver = uc.Chrome(options=options, version_main=150)
     driver.get('https://www.google.com')
-    time.sleep(5)
+    time.sleep(8)
 
     body_text = driver.find_element(By.TAG_NAME, 'body').text.lower()
     page_url = driver.current_url.lower()
@@ -51,12 +53,13 @@ try:
 
     auth_cookies = [c['name'] for c in driver.get_cookies() if c['name'] in ('SID','SAPISID','HSID','SIDCC','SSID','APISID','__Secure-1PSID','__Secure-3PSID')]
     result['authenticated'] = bool(auth_cookies)
+    result['auth_cookies'] = auth_cookies
 
     try:
         search_box = driver.find_element(By.NAME, 'q')
         search_box.send_keys('test search')
         search_box.send_keys(Keys.RETURN)
-        time.sleep(5)
+        time.sleep(8)
         results_text = driver.find_element(By.TAG_NAME, 'body').text.lower()
         if 'resultados' in results_text or 'results' in results_text or 'about' in results_text:
             result['search'] = True
@@ -72,6 +75,7 @@ finally:
         try: driver.quit()
         except: pass
     json.dump(result, open(RESULT_FILE, 'w'))
+    print(json.dumps(result))
 " 2>&1
 
 echo "=== $BROWSER: done ==="

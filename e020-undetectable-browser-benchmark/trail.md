@@ -20,3 +20,12 @@ All 6 browsers tested successfully (no captcha for any):
 
 ### Key finding
 All undetectable browsers bypassed Google's captcha in headless mode with fresh profiles. Only Puppeteer Extra failed the actual search (Google may detect the automation layer despite stealth plugin).
+
+## 2026-07-31 — Session 2
+
+Retested with the **main authenticated Chrome profile** (`$HOME/profiles/chrome-main/Profile 1`):
+- Confirmed the profile IS logged into Google (auth cookies SID/APISID/HSID/SAPISID/SSID/SIDCC present; accounts.google.com redirects to myaccount.google.com, not ServiceLogin)
+- Chrome + main profile: no captcha, search OK, authenticated ✅
+- Fixed auth detection in all scripts: now cookie-based instead of text-based ("sign out" text is unreliable)
+- Fixed false positives: **NID cookie excluded** (set for every Google visitor, not just logged-in users)
+- Added dedicated `test-chrome-authenticated.sh` script

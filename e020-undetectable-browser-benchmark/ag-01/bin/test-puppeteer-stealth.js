@@ -58,12 +58,10 @@ async function main() {
       result.captcha = false;
     }
 
-    // Authenticated check
-    if (bodyText.includes('sign out') || bodyText.includes('signout')) {
-      result.authenticated = true;
-    } else {
-      result.authenticated = false;
-    }
+    // Authenticated check via cookies
+    const cookies = await page.cookies('https://www.google.com');
+    const authCookieNames = ['SID','SAPISID','HSID','SIDCC','SSID','APISID','__Secure-1PSID','__Secure-3PSID'];
+    result.authenticated = cookies.some(c => authCookieNames.includes(c.name));
 
     // Try search
     try {

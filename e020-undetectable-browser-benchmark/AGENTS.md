@@ -17,14 +17,17 @@ Benchmark undetectable browsers against Google search with an authenticated sess
 
 | Browser | Captcha | Search | Authenticated | Notes |
 |---------|---------|--------|---------------|-------|
+| Chrome (main profile) | No | ✅ | ✅ | `$HOME/profiles/chrome-main/Profile 1` |
 | Camoufox | No | ✅ | No | Firefox fork, Playwright |
-| Chrome | No | ✅ | No | Headless via undetected-chromedriver |
+| Chrome | No | ✅ | No | Fresh profile via undetected-chromedriver |
 | Firefox | No | ✅ | No | Playwright's bundled Firefox |
 | Playwright + stealth | No | ✅ | No | `playwright-stealth` not found as separate pkg |
 | Puppeteer Extra + stealth | No | ❌ | No | Search failed, possible bot detection |
 | undetected-chromedriver | No | ✅ | No | Chrome 150, headless |
 
-All tests used **fresh profiles** (no authenticated Google session). To test with authentication, use the main Chrome profile at `$HOME/profiles/chrome-main/Profile 1` with `--user-data-dir`.
+Auth detection is **cookie-based** (SID/SAPISID/HSID/APISID/SSID/SIDCC/`__Secure-1PSID`/`__Secure-3PSID`). **NID is excluded** — Google sets it for every visitor, logged in or not.
+
+**Key finding**: Chrome with the main authenticated profile works without captcha and searches successfully. All undetectable browsers also bypass captcha with fresh profiles. Only Puppeteer Extra failed the actual search (possible bot detection despite stealth plugin).
 
 ## Automation Protocols
 
@@ -52,3 +55,16 @@ All tests used **fresh profiles** (no authenticated Google session). To test wit
 
 - `ag-01/output/results.csv` — comparison table
 - `ag-01/output/summary.md` — human-readable summary
+- `ag-01/output/*-result.json` — raw per-browser results
+
+## Test scripts (`ag-01/bin/`)
+
+- `test-chrome-authenticated.sh` — Chrome with the main authenticated profile
+- `test-chrome.sh` — Chrome with fresh profile (undetected-chromedriver)
+- `test-firefox.sh` — Playwright's bundled Firefox
+- `test-camoufox.sh` — Camoufox via Playwright (Firefox channel)
+- `test-undetected-chromedriver.py` — undetected-chromedriver
+- `test-playwright-stealth.py` — Playwright (+ stealth if available)
+- `test-puppeteer-stealth.js` — Puppeteer Extra + stealth plugin
+- `run-all.sh` — run the full suite
+- `compile-results.py` — aggregate results into table

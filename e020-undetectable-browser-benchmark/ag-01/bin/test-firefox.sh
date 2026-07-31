@@ -41,10 +41,8 @@ try:
     else:
         result["captcha"] = False
 
-    if "sign out" in body_text or "signout" in body_text:
-        result["authenticated"] = True
-    else:
-        result["authenticated"] = False
+    auth_cookies = [c["name"] for c in context.cookies() if c["name"] in ("SID","SAPISID","HSID","SIDCC","SSID","APISID","__Secure-1PSID","__Secure-3PSID")]
+    result["authenticated"] = bool(auth_cookies)
 
     try:
         search_box = page.query_selector("textarea[name='q']") or page.query_selector("input[name='q']")
