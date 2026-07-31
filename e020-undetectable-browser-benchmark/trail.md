@@ -29,3 +29,4 @@ Retested with the **main authenticated Chrome profile** (`$HOME/profiles/chrome-
 - Fixed auth detection in all scripts: now cookie-based instead of text-based ("sign out" text is unreliable)
 - Fixed false positives: **NID cookie excluded** (set for every Google visitor, not just logged-in users)
 - Added dedicated `test-chrome-authenticated.sh` script
+- Documented the "Authenticated" column meaning and the risk warning: copying real-profile cookies into other browsers can be flagged by Google as session theft. Only the real profile should carry real credentials; other browsers tested with fresh profiles.

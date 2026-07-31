@@ -25,9 +25,22 @@ Benchmark undetectable browsers against Google search with an authenticated sess
 | Puppeteer Extra + stealth | No | ❌ | No | Search failed, possible bot detection |
 | undetected-chromedriver | No | ✅ | No | Chrome 150, headless |
 
+### What the "Authenticated" column means
+
+`Authenticated` tells whether the browser is **logged into a Google account** during the test.
+
+- **Chrome (main profile) = YES**: it used the real profile `chrome-main/Profile 1`, which contains the Google session cookies (SID, APISID, etc.), so it was logged in.
+- **All others = NO**: they used **fresh/temporary profiles** (empty), so there was no Google session — they are not failing, they simply start from zero.
+
+This matters because Google is more likely to show captchas to anonymous or unusual sessions. The finding: even logged out (fresh profiles), no browser hit a captcha. Only the real profile was actually authenticated.
+
 Auth detection is **cookie-based** (SID/SAPISID/HSID/APISID/SSID/SIDCC/`__Secure-1PSID`/`__Secure-3PSID`). **NID is excluded** — Google sets it for every visitor, logged in or not.
 
 **Key finding**: Chrome with the main authenticated profile works without captcha and searches successfully. All undetectable browsers also bypass captcha with fresh profiles. Only Puppeteer Extra failed the actual search (possible bot detection despite stealth plugin).
+
+### ⚠️ Risk: reusing the real profile's cookies in other browsers
+
+**Do NOT copy the real profile's cookies into other browsers (Camoufox, Playwright, etc.) to test authentication.** The session cookies would not match the new browser's fingerprint, which Google can interpret as **session theft** and flag the account (bot-marked, possibly locked). If authenticated tests in other browsers are ever needed, use a **throwaway test account**, never the real one.
 
 ## Automation Protocols
 
