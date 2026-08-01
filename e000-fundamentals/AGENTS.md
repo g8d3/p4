@@ -273,12 +273,24 @@ Before recording or composing a video, create visual references to plan the narr
 2. **Storyboard**: Generate key scenes (thumbnail images) that represent each major story beat. Arrange them in sequence with text captions describing action, narration, and transitions.
 3. **Review & decide**: With storyboard images + captions, evaluate the narrative flow before investing in full production. Iterate on the storyboard until the direction is clear.
 
+#### The storyboard is ONE artifact with TWO construction modes
+
+A storyboard is a **single image grid** containing all key frames of the video — it gives a person or an AI agent the complete picture of what will happen (or what happened) in the video. The file format is the same in both modes; only **who builds it and when** differs:
+
+| Mode | When | How it is built | Used for |
+|------|------|-----------------|----------|
+| **Pre-generated** | Before the video | An image model generates the key frames | Composition videos: the grid cells ARE the video's final frames (feed them into `kie-video.sh`) |
+| **Reactive** | During the video | The agent captures screenshots step by step as it interacts with programs, then assembles them into the grid | Exploratory/live videos: the grid becomes the visual recap of what actually happened |
+
+For **reactive** videos the storyboard is NOT written in advance with dialog and timestamps (that would force scripted behavior). Instead the agent collects a screenshot per key step while working and assembles the grid at the end. This stays fully reactive and produces a free visual index of the session.
+
 **Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic, duration, and aspect ratio into that prompt.
 
 Tools:
-- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for generating character sheets and storyboard frames
+- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for generating character sheets and storyboard frames (pre-generated mode)
+- **Screenshots** (`agent-browser screenshot`, `grim`, `scrot`) for the reactive mode
 - **KIE Gemini TTS** (`e019-kie-image-api/ag-01/bin/kie-tts.sh`) for prototyping narration
-- ffmpeg for assembling storyboard into a rough-cut preview
+- ffmpeg / ImageMagick (`montage`) for assembling screenshots into a grid
 
 Output files go in the agent's `output/` directory. The storyboard becomes the plan that the agent follows during production.
 
