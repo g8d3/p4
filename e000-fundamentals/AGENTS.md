@@ -236,11 +236,12 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
   1. `xset s off && xset -dpms`
   2. `xscreensaver-command -exit`
   3. Fallbacks: `xdg-screensaver suspend` or `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`
-- **TTS**: English voice. Use `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male). Do not use espeak-ng or generic voices.
-- **TTS alternatives**:
+- **TTS (primary)**: English voice, use **KIE Gemini TTS** (`google/gemini-3-1-flash-tts`) via `e019-kie-image-api/ag-01/bin/kie-tts.sh`. Tested, works, cheap (~0.6 credits per short sentence), full voice/style/accent control. Requires `KIE_API_KEY`.
+- **TTS fallbacks** (only if KIE is unavailable):
+  - `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male).
   - Xiaomi `mimo-v2.5-tts` via API (higher quality, requires `XIAOMI_API_KEY`). See `e009-xiaomi-display/ag-01/bin/xiaomi-api` for CLI usage.
-  - KIE Gemini TTS (`google/gemini-3-1-flash-tts`) — tested, works, cheap (~0.6 credits per short sentence). Requires `KIE_API_KEY`.
   - ElevenLabs via KIE (`elevenlabs/text-to-speech-turbo-2-5`) — not working on KIE (internal error).
+- Do not use espeak-ng or generic voices.
 - **Mobile format**: record in vertical aspect ratio (9:16). To achieve this:
   1. Select only the relevant window or region (not full monitor).
   2. Resize and reposition windows to fill the capture area efficiently, leaving no wasted space.
