@@ -6,7 +6,10 @@ from pathlib import Path
 from statistics import mean, stdev
 
 LOG = Path(__file__).parent.parent / 'output' / 'transcribe_log.csv'
-MODEL_PATH = '/home/vuos/parakeet-ctc-0.6b.nemo'
+MODEL_PATH = os.environ.get(
+    'PARAKEET_MODEL',
+    str(Path.home() / 'models' / 'parakeet-ctc-0.6b.nemo')
+)
 
 # Track load time per session
 LOAD_SEC = None

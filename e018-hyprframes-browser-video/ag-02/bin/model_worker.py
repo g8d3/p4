@@ -5,7 +5,10 @@ import time, json, os, sys, socket, struct, signal
 from pathlib import Path
 from statistics import mean, stdev
 
-MODEL_PATH = '/home/vuos/parakeet-ctc-0.6b.nemo'
+MODEL_PATH = os.environ.get(
+    'PARAKEET_MODEL',
+    str(Path.home() / 'models' / 'parakeet-ctc-0.6b.nemo')
+)
 SOCKET_PATH = '/tmp/transcribe-worker.sock'
 
 def fmt_time(sec):

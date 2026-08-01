@@ -279,6 +279,36 @@ Every video — regardless of type — follows the same five-step pipeline. Vide
   - ~~**Scripted**: agent follows a predefined script and narrates it as written.~~ Do not use.
   - **Exploratory (only valid type)**: agent narrates live what it is doing — what it plans, problems it finds, how it solves them, its decisions in the moment. No script, reactive. This is the only acceptable format.
 
+### Transcribe (Step 4): Parakeet ASR worker + server
+
+Transcription is done with the **Parakeet ASR** toolset from [`e018-hyprframes-browser-video/ag-02/bin/`](../e018-hyprframes-browser-video/ag-02/bin/). It produces word-level timestamps, an `.srt` subtitle file, and a `.txt` transcript next to the audio.
+
+**Model location (portable)**: the Parakeet model must live at `~/models/parakeet-ctc-0.6b.nemo`. The workers resolve it via the `PARAKEET_MODEL` env var, defaulting to `~/models/parakeet-ctc-0.6b.nemo` — never hardcode a machine path.
+
+**Architecture (two persistent services):**
+1. `model_worker.py` — loads the model into RAM once (~20s), serves via Unix socket `/tmp/transcribe-worker.sock`
+2. `transcribe_server.py` — HTTP server on `127.0.0.1:9877`, delegates to the worker, saves `.srt` + `.txt`
+
+**Start the services (background, once per session):**
+```bash
+python3 e018-hyprframes-browser-video/ag-02/bin/model_worker.py &
+python3 e018-hyprframes-browser-video/ag-02/bin/transcribe_server.py &
+```
+
+**Transcribe an audio file:**
+```bash
+curl -s -X POST http://127.0.0.1:9877 -H 'Content-Type: application/json' \
+  -d '{"path":"/absolute/path/to/narration.mp3"}' | python3 -m json.tool
+```
+Or use the CLI wrapper: `e018-hyprframes-browser-video/ag-02/bin/transcribe.sh <audio.mp3>`
+
+The response contains `text` (full transcript), `srt`, and `words_raw` (word-level timestamps). Health check: `curl http://127.0.0.1:9877/health`.
+
+**Pitfalls:**
+- Input audio must be **mono** (stereo raises a TypeError) — convert first with `ffmpeg -i in.mp3 -ac 1 out.mp3`
+- The worker takes ~20s to load; keep it running, do not restart per file
+- Parakeet writes numbers as words ("five point six") — post-process to digits if needed
+
 ### Pre-production: storyboards & character sheets
 
 Before recording or composing a video, create visual references to plan the narrative:
