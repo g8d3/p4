@@ -250,6 +250,10 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
 - **Narration must match the screen**: What the narrator says must be synchronized with what is shown. If displaying system resources, explain WHY — what you're looking for, what the numbers mean, what conclusion you draw. Showing a dashboard without context is noise.
 - **Human pacing**: Agents operate at machine speed. Videos must be paced for human consumption — allow time to read text, process information, follow the reasoning. Do not flash information faster than a human can read.
 - **Video structure**: Every video needs a clear arc — introduction (what you'll do and why), body (the work), conclusion (what you found, call to action or cliffhanger). A video without structure is confusing.
+- **Video inputs**: Every video requires three inputs before production: **topic, duration, and aspect ratio**. These drive every downstream asset (script, storyboard, images, video). Do not start production without them.
+- **Script default style**: If the user does not specify a script style, default to **entertaining, educational, and preferably quantitative**. Each scene should be at least one of these — ideally all three.
+- **Presenter consistency**: Videos usually have a presenter. If the user does not provide one, propose one and keep it **consistent across all frames** (same appearance, expressions, poses) throughout the storyboard and production.
+- **Aspect ratio consistency**: The parent asset and all derived assets (frames, scene images, final video) must use the **same aspect ratio** the user specified. No margin, no mixed ratios.
 - **Resource metadata**: Every video output MUST include a `metadata.json` file in `./output/` listing ALL resources used:
   - **Hardware**: CPU model/usage, GPU model/usage, RAM, display type (Wayland headless, resolution)
   - **Software**: OS, window manager, capture tool (wf-recorder/ffmpeg), encoding (h264_vaapi), subtitles tool
