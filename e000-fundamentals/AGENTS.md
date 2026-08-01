@@ -216,6 +216,20 @@ The agent's model (Mimo 2.5, DeepSeek) is capable of reasoning, debugging, and a
 
 ## Video recording
 
+### Generic video production pipeline (all video types)
+
+Every video — regardless of type — follows the same five-step pipeline. Video types differ only in **how step 1 (Gather) and step 5 (Assemble) are executed**. There are not two separate processes, just one generic process with two execution styles.
+
+| # | Step | Pre-generated (composition) | Reactive (exploratory) |
+|---|------|------------------------------|------------------------|
+| **1** | **Gather** — collect all raw material | Web research (queries) + notes | Interact with programs + web research; **capture** screenshots/footage of each interaction |
+| **2** | **Script** — write what will be said | Written before production, scene by scene | Written **after** Gather, describing what actually happened |
+| **3** | **TTS audio** — generate narration | KIE Gemini TTS from the script | Same |
+| **4** | **Transcribe** — transcribe the audio for precise timestamps | Same | Same |
+| **5** | **Assemble** — build the video from audio + transcription + storyboard + gathered material | Visuals = generated images (grid cells become frames) | Visuals = real captures from the session |
+
+**Key principle**: reactivity lives in **Step 1**. Gathering happens live and the content is discovered while interacting. The script in Step 2 (reactive) is written *about what happened*, not to force behavior — this reconciles the pipeline with the "reactive, not scripted" rule below.
+
 - **Verify output**: check that the video is not black, has audio, and narration matches what is on screen.
 - **Continuous improvement loop, never stop**: The agent's job is not to produce one video and stop. It's a cycle:
   1. Produce a video
