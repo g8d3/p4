@@ -268,6 +268,8 @@ Before recording or composing a video, create visual references to plan the narr
 2. **Storyboard**: Generate key scenes (thumbnail images) that represent each major story beat. Arrange them in sequence with text captions describing action, narration, and transitions.
 3. **Review & decide**: With storyboard images + captions, evaluate the narrative flow before investing in full production. Iterate on the storyboard until the direction is clear.
 
+**Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic, duration, and aspect ratio into that prompt.
+
 Tools:
 - **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for generating character sheets and storyboard frames
 - **KIE Gemini TTS** (`e019-kie-image-api/ag-01/bin/kie-tts.sh`) for prototyping narration

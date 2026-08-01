@@ -347,7 +347,7 @@ A neutral text like "The meeting is at 4 PM" with a scared prompt produces ambig
 
 ## Storyboard & character sheet workflow
 
-This experiment provides the tools for the pre-production phase defined in fundamentals.
+This experiment provides the tools for the pre-production phase defined in fundamentals. The storyboard prompt template lives in fundamentals at [`../../e000-fundamentals/prompts/storyboard.md`](../../e000-fundamentals/prompts/storyboard.md) — agents must follow it when generating storyboards.
 
 ### 1. Character sheet
 
