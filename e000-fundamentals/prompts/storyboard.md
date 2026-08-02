@@ -1,14 +1,13 @@
 En una sola imagen genera varias que van a servir como storyboard para un video, el usuario da esta información del video:
 
 - tema
-- duración
 - relación de aspecto
 
 Con el tema del video investigas en la web para crear un guión. Si el usuario no especifica ningún estilo para el guión entonces crea un guión que sea entretenido, educativo, y preferiblemente cuantitativo.
 
 La imagen padre es una grilla, por defecto de 4 columnas y 4 filas (16 escenas), a menos que el usuario quiera otras dimensiones. Con la relación de aspecto que el usuario especificó. La imagen padre debe utilizar al máximo el espacio posible para cada imagen con su diálogo y timestamp, sin márgenes ni en la imagen padre ni en las hijas.
 
-Cada escena dura de 2 a 4 segundos. Para un video de ~40-60 segundos se necesitan ~16 escenas; ajustar el número de escenas según la duración objetivo. El storyboard mezcla distintos tipos de media, no solo imágenes generadas:
+El storyboard mezcla distintos tipos de media, no solo imágenes generadas:
 
 - **Imágenes generadas por IA** para momentos temáticos (portada, metáforas visuales, transiciones)
 - **Slides / texto** para datos, listas, títulos de sección y puntos clave

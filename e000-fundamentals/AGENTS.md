@@ -264,7 +264,7 @@ Every video — regardless of type — follows the same five-step pipeline. Vide
 - **Narration must match the screen**: What the narrator says must be synchronized with what is shown. If displaying system resources, explain WHY — what you're looking for, what the numbers mean, what conclusion you draw. Showing a dashboard without context is noise.
 - **Human pacing**: Agents operate at machine speed. Videos must be paced for human consumption — allow time to read text, process information, follow the reasoning. Do not flash information faster than a human can read.
 - **Video structure**: Every video needs a clear arc — introduction (what you'll do and why), body (the work), conclusion (what you found, call to action or cliffhanger). A video without structure is confusing.
-- **Video inputs**: Every video requires three inputs before production: **topic, duration, and aspect ratio**. These drive every downstream asset (script, storyboard, images, video). Do not start production without them.
+- **Video inputs**: A video needs **topic and aspect ratio** defined up front; **duration is NOT predefined** — it results from the audio transcription. These inputs drive every downstream asset (script, storyboard, images, video). Do not start production without them.
 - **Script default style**: If the user does not specify a script style, default to **entertaining, educational, and preferably quantitative**. Each scene should be at least one of these — ideally all three.
 - **Presenter consistency**: Videos usually have a presenter. If the user does not provide one, propose one and keep it **consistent across all frames** (same appearance, expressions, poses) throughout the storyboard and production.
 - **Aspect ratio consistency**: The parent asset and all derived assets (frames, scene images, final video) must use the **same aspect ratio** the user specified. No margin, no mixed ratios.
@@ -330,7 +330,7 @@ For **reactive** videos the storyboard is NOT written in advance with dialog and
 
 #### Storyboard scenes mix media types
 
-Each scene lasts **2–4 seconds**. A ~40–60s video needs ~16 scenes (4×4 grid); scale the count to the target duration. A storyboard **mixes media types**, not just generated images:
+A storyboard **mixes media types**, not just generated images. Scene duration is NOT set by the storyboard — it comes later from the audio transcription:
 
 | Media type | When to use | Examples |
 |------------|-------------|----------|
@@ -345,7 +345,7 @@ Every grid cell should indicate its media type next to the dialog.
 
 The default storyboard is produced in **one KIE request** — the whole 16-cell grid is a single generated image (no separate slides needed; the cells cover the entire video). It is delivered with a `script.md` containing the narration **without timestamps** (timestamps come later, from the transcription step). If the video must show real computer events, replace the relevant grid cells with real screen captures / photos.
 
-**Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic, duration, and aspect ratio into that prompt.
+**Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic and aspect ratio into that prompt — **not duration**, which comes from the audio transcription.
 
 Tools:
 - **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for the single-request storyboard grid and AI scene images
