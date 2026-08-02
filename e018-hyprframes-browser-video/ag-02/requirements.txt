@@ -1,0 +1,3 @@
+# Parakeet ASR transcription environment (pinned)
+# core = lightning/hydra/torchmetrics; asr = full ASR runtime deps
+nemo_toolkit[core,asr]==2.7.3

@@ -56,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
                 csv.writer(f).writerow(['file','audio_sec','transcribe_sec','words','segments'])
         with open(LOG, 'a', newline='') as f:
             csv.writer(f).writerow([path, audio_sec, result['transcribe_sec'],
-                result['words'], result['segments']])
+                result['word_count'], result['segments']])
 
         srt_path = Path(path).with_suffix('.srt')
         srt_path.write_text(result['srt'])

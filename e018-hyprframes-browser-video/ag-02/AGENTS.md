@@ -9,15 +9,15 @@ Genera videos automáticos estilo "AI news briefing" a partir de un script con e
 
 ## Environment (transcription venv)
 
-The Parakeet ASR scripts (`bin/model_worker.py`, `bin/transcriber.py`) require **NeMo**, which must run in its own virtualenv — it is NOT in the system Python. The venv lives at `.venv/` in this directory (relative, portable). Recreate it with `uv` (the tool originally used — nemo 2.7.3):
+The Parakeet ASR scripts (`bin/model_worker.py`, `bin/transcriber.py`) require **NeMo**, which must run in its own virtualenv — it is NOT in the system Python. The venv lives at `.venv/` in this directory (relative, portable).
 
+**Setup (any machine):**
 ```bash
 cd e018-hyprframes-browser-video/ag-02
-uv venv --python 3.11 .venv
-uv pip install --python .venv/bin/python "nemo_toolkit==2.7.3"
+./setup-venv.sh
 ```
 
-Then always `source .venv/bin/activate` before using the ASR scripts. The model is resolved via `PARAKEET_MODEL` env var (default `~/models/parakeet-ctc-0.6b.nemo`), never hardcoded.
+`setup-venv.sh` creates `.venv` (uv, python 3.11), installs `requirements.txt` (`nemo_toolkit[core,asr]==2.7.3`), verifies NeMo imports, and checks the model at `~/models/parakeet-ctc-0.6b.nemo`. Always `source .venv/bin/activate` before using the ASR scripts. The model is resolved via `PARAKEET_MODEL` env var (default `~/models/parakeet-ctc-0.6b.nemo`), never hardcoded.
 
 ## Pipeline real (verificado)
 
