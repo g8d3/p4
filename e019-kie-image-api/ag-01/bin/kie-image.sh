@@ -79,33 +79,31 @@ $QUIET || echo "Aspect: $ASPECT_RATIO | Quality: $QUALITY"
 [ -n "$IMAGE_URL" ] && $QUIET || echo "Input image: $IMAGE_URL"
 $QUIET || echo ""
 
+# Build JSON safely (escapes quotes/newlines in the prompt) via Python
+build_json() {
+    local img_url="${1:-}"
+    python3 - "$MODEL" "$PROMPT" "$ASPECT_RATIO" "$QUALITY" "$img_url" << 'PYEOF'
+import json, sys
+model, prompt, aspect, quality, img_url = sys.argv[1:6]
+payload = {
+    "model": model,
+    "input": {
+        "prompt": prompt,
+        "aspect_ratio": aspect,
+        "quality": quality,
+        "nsfw_checker": False,
+    },
+}
+if img_url:
+    payload["input"]["image_urls"] = [img_url]
+print(json.dumps(payload, ensure_ascii=False))
+PYEOF
+}
+
 if [ -n "$IMAGE_URL" ]; then
-    JSON_DATA=$(cat <<ENDJSON
-{
-    "model": "$MODEL",
-    "input": {
-        "prompt": "$PROMPT",
-        "image_urls": ["$IMAGE_URL"],
-        "aspect_ratio": "$ASPECT_RATIO",
-        "quality": "$QUALITY",
-        "nsfw_checker": false
-    }
-}
-ENDJSON
-)
+    JSON_DATA=$(build_json "$IMAGE_URL")
 else
-    JSON_DATA=$(cat <<ENDJSON
-{
-    "model": "$MODEL",
-    "input": {
-        "prompt": "$PROMPT",
-        "aspect_ratio": "$ASPECT_RATIO",
-        "quality": "$QUALITY",
-        "nsfw_checker": false
-    }
-}
-ENDJSON
-)
+    JSON_DATA=$(build_json "")
 fi
 
 RESPONSE=$(call_api "/api/v1/jobs/createTask" "$JSON_DATA")

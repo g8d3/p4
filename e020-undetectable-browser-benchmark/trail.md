@@ -78,3 +78,14 @@ Decided and documented the **default storyboard workflow** (fundamentals):
   - Wrote `script.md` (16 scenes, no timestamps; single continuous narration for one TTS call)
   - Generated the whole 16-cell grid with **one KIE Seedream request** (`storyboard.jpg`, 1440×2560, 9:16) and compressed to `storyboard.webp` (283KB, same resolution)
   - Pitfall: prompt with double quotes breaks the KIE JSON (syntax error at position 56) — avoid quotes in prompts
+
+## 2026-08-02 — Session 6: template fix + model comparison
+
+- Condensed `prompts/storyboard.md` to 1050 chars (was 3034) — **KIE Seedream limit is ~3000 chars**, the old template alone exceeded it.
+- Combined prompt = template + config = ~2400 chars, under the limit.
+- **Fixed `kie-image.sh`**: it built JSON with a raw heredoc that broke on quotes/newlines (syntax error at position 56). Now builds JSON via Python (`json.dumps`) — any prompt works.
+- Generated the AI-news storyboard from scratch with the condensed template on 3 models:
+  - `v2-4.5.jpg` (seedream/4.5-text-to-image): 1600×2848, 1.67MB
+  - `v2-5pro.jpg` (seedream/5-pro-text-to-image): 768×1376 PNG, 2.22MB
+  - `v2-5lite.jpg` (seedream/5-lite-text-to-image): 1440×2560, 693KB
+- Comparison files in `output/ai-news-weekly/`. Visual review by user (model has no vision).
