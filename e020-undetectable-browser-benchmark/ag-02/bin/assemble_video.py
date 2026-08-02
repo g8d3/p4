@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble the session video: scenes → Ken Burns → subtitles → concat.
+"""Assemble the session video: static scenes → subtitles → concat.
 
 Usage: python3 assemble_video.py
 Expects in output/: scene1..4.mp3, mono1..4.srt, scene-*.png
@@ -8,7 +8,6 @@ import re, subprocess, os, sys, json
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "output")
 FPS = 25
-W, H = 608, 1080
 
 # Parakeet quirks → correct word (brand names it mishears)
 CORRECTIONS = {
@@ -55,12 +54,8 @@ def build_scene(i, scene, workdir):
     dur = audio_duration(audio)
     frames = int(dur * FPS)
 
-    # Ken Burns zoompan on 608x1080
-    vf = (
-        f"scale=1216:2160,"
-        f"zoompan=z='1.0+0.008*on':d={frames}:fps={FPS}:s={W}x{H},"
-        f"format=yuv420p"
-    )
+    # Static image with subtle fade-in
+    vf = f"format=yuv420p"
     video = os.path.join(workdir, f"scene{i}_novid.mp4")
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-loop', '1',
         '-i', img, '-vf', vf, '-t', str(dur), video], check=True)

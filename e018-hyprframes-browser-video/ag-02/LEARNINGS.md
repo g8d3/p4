@@ -32,21 +32,14 @@ The final pipeline for AI news videos:
 - Se deben convertir a dígitos ("5.6", "64 billion") con un post-proceso
 - Usar `enhance_srt.py` o similar
 
-### Fuentes de imágenes para Ken Burns
+### Fuentes de imágenes
 - **Wikipedia/Wikimedia**: SVG vectorial (logos) y fotos. URLs predecibles, sin captcha. Resolución limitada (~250px thumbs, originales hasta 2000px)
 - **Unsplash vía Google Images**: Fotos de alta calidad (1920px+). Sin captcha. Hay que navegar a Unsplash para descargar
 - **Freepnglogo**: Logos PNG con transparencia hasta 2000x2000. Buenos para logos técnicos
-- PNGs con transparencia (alpha) necesitan fondo blanco antes de aplicar zoompan
-
-### Ken Burns effect (zoompan)
-- ffmpeg filter: `zoompan=z='1.0+0.008*on':d=frames:fps=30:s=1080x1920`
-- El zoom máximo debe ser limitado a ~1.3x para que no se salga del cuadro
-- Variar efectos: zoom lento, zoom rápido, zoom out, paneo arriba, paneo izquierda, estático
-- Para PNGs con alpha: primero overlay sobre fondo blanco, luego zoompan
+- PNGs con transparencia (alpha) necesitan fondo blanco antes de usarse
 
 ### Concatenación de videos
 - Todos los segmentos deben estar en el mismo codec/formato para concat demuxer
-- Stock videos de Pixabay (WebM) + Ken Burns (WebM) = se concatenan con `-f concat`
 - El concat final recodifica a H.264 + AAC
 - Si todos fueran MP4, el concat podría ser copia directa (más rápido)
 
@@ -70,7 +63,7 @@ The final pipeline for AI news videos:
 | Carga del modelo | ~20s | Una vez, proceso persistente |
 | Transcripción | ~14s/138s | 9.8x realtime |
 | Descarga de imágenes | ~3-5min | 11 búsquedas Google + curl |
-| Ken Burns (11 clips) | ~40s | ffmpeg zoompan |
+| Ken Burns (11 clips) | ~40s | ffmpeg |
 | Concat final | ~3-5min | ffmpeg |
 | **Total** | **~10min** | Sin contar TTS externo |
 
@@ -80,7 +73,6 @@ The final pipeline for AI news videos:
 2. **NUNCA poner archivos en /tmp** — usar siempre `output/`
 3. **El worker DEBE ser persistente** — no reiniciar entre transcripciones
 4. **Audio mono** — convertir a mono antes de transcribir
-5. **PNGs con alpha** — agregar fondo blanco antes de Ken Burns
-6. **Cada segmento = imagen única** — no reutilizar imágenes
-7. **Documentar timestamps** — saber cuánto tarda cada etapa
-8. **Verificar descargas** — archivos <200 bytes son corruptos
+5. **Cada segmento = imagen única** — no reutilizar imágenes
+6. **Documentar timestamps** — saber cuánto tarda cada etapa
+7. **Verificar descargas** — archivos <200 bytes son corruptos

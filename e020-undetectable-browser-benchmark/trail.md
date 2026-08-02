@@ -43,6 +43,6 @@ Tested the **generic video production pipeline** from fundamentals on this sessi
   2. Script → `script.md`
   3. TTS → KIE Gemini (voice Kore), 4 scenes
   4. Transcribe → Parakeet worker+server (mono input), SRT per scene
-  5. Assemble → `assemble_video.py` (Ken Burns zoompan + subtitles + concat + audio)
+  5. Assemble → `assemble_video.py` (static scenes + subtitles + concat + audio)
 - **Result**: `FINAL.mp4` — 49.3s, 608×1080, h264+aac. Verified not black (YAVG ~47). Subtitles corrected for Parakeet quirks (captcha, Camoufox, Puppeteer).
 - **Learned**: Parakeet mishears brand names (captcha→"capture", Camoufox→"camofox") — corrected via a word map in `assemble_video.py`.
