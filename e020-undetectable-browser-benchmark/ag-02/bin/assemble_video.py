@@ -1,104 +1,131 @@
 #!/usr/bin/env python3
-"""Assemble the session video: static scenes → subtitles → concat.
+"""Assemble the session video from the 16-scene storyboard.
 
-Usage: python3 assemble_video.py
-Expects in output/: scene1..4.mp3, mono1..4.srt, scene-*.png
+Each scene shows its image for a fixed duration; the full narration audio plays
+underneath with combined subtitles. Usage: python3 assemble_video.py
 """
-import re, subprocess, os, sys, json
+import re, subprocess, os, json
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "output")
 FPS = 25
 
-# Parakeet quirks → correct word (brand names it mishears)
-CORRECTIONS = {
-    "capture": "captcha",
-    "capta": "captcha",
-    "camofox": "Camoufox",
-    "camuflaje": "Camoufox",
-    "puppeter": "Puppeteer",
-    "google": "Google",
-    "chrome": "Chrome",
-    "firefox": "Firefox",
-    "playwright": "Playwright",
-    "juggler": "Juggler",
-    "marionette": "Marionette",
-    "cdp": "CDP",
-    "cdp.": "CDP",
-}
-
+# 16 scenes (storyboard order). Duration per scene in seconds.
 SCENES = [
-    {"img": "scene-title.png",    "audio": "mono1.mp3", "srt": "mono1.srt"},
-    {"img": "scene-protocols.png", "audio": "mono2.mp3", "srt": "mono2.srt"},
-    {"img": "scene-results.png",  "audio": "mono3.mp3", "srt": "mono3.srt"},
-    {"img": "scene-findings.png", "audio": "mono4.mp3", "srt": "mono4.srt"},
+    ("sb-ai-title.jpg",           3.0),
+    ("sb-slide-hook.png",         3.0),
+    ("sb-slide-browsers.png",     3.0),
+    ("scene-results.png",         3.0),
+    ("sb-slide-cdp.png",          3.0),
+    ("sb-slide-marionette.png",   3.0),
+    ("sb-slide-juggler.png",      3.0),
+    ("sb-slide-bidi.png",         3.0),
+    ("sb-shot-search.png",        3.0),
+    ("sb-ai-nocaptcha.jpg",       3.0),
+    ("sb-shot-auth.png",          3.0),
+    ("sb-slide-keyfinding.png",   3.0),
+    ("sb-slide-puppeteer.png",    3.0),
+    ("sb-ai-theft.jpg",           3.0),
+    ("sb-slide-recommend.png",    3.0),
+    ("sb-ai-outro.jpg",           3.0),
 ]
 
+# Narration audio (concatenated, in order)
+NARRATION = ["scene1.mp3", "scene2.mp3", "scene3.mp3", "scene4.mp3"]
+# Per-narration-part SRTs (for subtitles)
+NARR_SRT = ["mono1.srt", "mono2.srt", "mono3.srt", "mono4.srt"]
+
+# Parakeet quirks → correct word (brand names it mishears)
+CORRECTIONS = {
+    "capture": "captcha", "capta": "captcha", "camofox": "Camoufox",
+    "puppeter": "Puppeteer", "google": "Google", "chrome": "Chrome",
+    "firefox": "Firefox", "playwright": "Playwright", "juggler": "Juggler",
+    "marionette": "Marionette", "cdp": "CDP", "cdp.": "CDP",
+}
+
 def fix_srt(path):
-    """Apply word corrections in-place to an SRT."""
     content = open(path).read()
     for wrong, right in CORRECTIONS.items():
         content = re.sub(r'\b' + re.escape(wrong) + r'\b', right, content, flags=re.IGNORECASE)
     open(path, 'w').write(content)
 
-def audio_duration(path):
-    r = subprocess.run(['ffprobe', '-v', 'quiet', '-print_format', 'json',
-        '-show_entries', 'format=duration', path], capture_output=True, text=True)
-    return float(json.loads(r.stdout)['format']['duration'])
+def srt_shift(srt_in, srt_out, offset_sec):
+    """Shift an SRT by offset_sec seconds."""
+    def fmt(t):
+        h = int(t // 3600); m = int((t % 3600) // 60); s = t % 60
+        return f"{h:02d}:{m:02d}:{int(s):02d},{int((s - int(s)) * 1000):03d}"
+    out = []
+    for line in open(srt_in).read().splitlines():
+        m = re.match(r"(\d{2}):(\d{2}):(\d{2}),(\d{3}) --> (\d{2}):(\d{2}):(\d{2}),(\d{3})", line)
+        if m:
+            a = int(m[1])*3600 + int(m[2])*60 + int(m[3]) + int(m[4])/1000 + offset_sec
+            b = int(m[5])*3600 + int(m[6])*60 + int(m[7]) + int(m[8])/1000 + offset_sec
+            out.append(f"{fmt(a)} --> {fmt(b)}")
+        else:
+            out.append(line)
+    open(srt_out, 'w').write('\n'.join(out))
 
-def build_scene(i, scene, workdir):
-    img = os.path.join(OUT, scene["img"])
-    audio = os.path.join(OUT, scene["audio"])
-    srt = os.path.join(OUT, scene["srt"])
-    fix_srt(srt)
-
-    dur = audio_duration(audio)
-    frames = int(dur * FPS)
-
-    # Static image with subtle fade-in
-    vf = f"format=yuv420p"
-    video = os.path.join(workdir, f"scene{i}_novid.mp4")
+def build_scene(i, img, dur, workdir):
+    vf = "scale=608:1080,format=yuv420p"
+    out = os.path.join(workdir, f"sc{i}.mp4")
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-loop', '1',
-        '-i', img, '-vf', vf, '-t', str(dur), video], check=True)
-
-    # Burn subtitles
-    subs = os.path.join(workdir, f"scene{i}.mp4")
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', video,
-        '-vf', f"subtitles={srt}:force_style='FontSize=14,FontName=Inter,Alignment=2,MarginV=40'",
-        subs], check=True)
-    return subs
+        '-i', os.path.join(OUT, img), '-vf', vf, '-t', str(dur), '-r', str(FPS), out], check=True)
+    return out
 
 def main():
-    workdir = os.path.join(OUT, "parts")
+    workdir = os.path.join(OUT, "parts16")
     os.makedirs(workdir, exist_ok=True)
 
-    parts = []
-    for i, scene in enumerate(SCENES, 1):
-        print(f"Building scene {i}...", flush=True)
-        parts.append(build_scene(i, scene, workdir))
+    # 1. Build each scene clip
+    clips = []
+    for i, (img, dur) in enumerate(SCENES):
+        clips.append(build_scene(i, img, dur, workdir))
 
-    print("Concatenating...", flush=True)
-    concat_file = os.path.join(workdir, "list.txt")
-    with open(concat_file, 'w') as f:
-        for p in parts:
-            f.write(f"file '{p}'\n")
-
-    final_novid = os.path.join(OUT, "final_novid.mp4")
+    # 2. Concat clips
+    lst = os.path.join(workdir, "list.txt")
+    with open(lst, 'w') as f:
+        for c in clips:
+            f.write(f"file '{c}'\n")
+    video = os.path.join(workdir, "video_novid.mp4")
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat',
-        '-safe', '0', '-i', concat_file, '-c', 'copy', final_novid], check=True)
+        '-safe', '0', '-i', lst, '-c', 'copy', video], check=True)
 
-    print("Muxing audio...", flush=True)
-    # Concatenate scene audio
-    audio_concat = os.path.join(workdir, "audio_list.txt")
-    with open(audio_concat, 'w') as f:
-        for scene in SCENES:
-            f.write(f"file '{os.path.join(OUT, scene['audio'])}'\n")
-    full_audio = os.path.join(workdir, "full_audio.mp3")
+    # 3. Concatenate narration audio
+    alst = os.path.join(workdir, "alist.txt")
+    with open(alst, 'w') as f:
+        for n in NARRATION:
+            f.write(f"file '{os.path.join(OUT, n)}'\n")
+    audio = os.path.join(workdir, "full_audio.mp3")
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat',
-        '-safe', '0', '-i', audio_concat, '-c', 'copy', full_audio], check=True)
+        '-safe', '0', '-i', alst, '-c', 'copy', audio], check=True)
+
+    # 4. Combine SRTs with offsets (narration part durations)
+    combined2 = os.path.join(workdir, "combined2.srt")
+    with open(combined2, 'w') as f:
+        idx = 1
+        total = 0.0
+        for n, srt in zip(NARRATION, NARR_SRT):
+            fix_srt(os.path.join(OUT, srt))
+            shifted = os.path.join(workdir, f"shift_{n}.srt")
+            srt_shift(os.path.join(OUT, srt), shifted, total)
+            dur = float(json.loads(subprocess.run(['ffprobe', '-v', 'quiet', '-print_format', 'json',
+                '-show_entries', 'format=duration', os.path.join(OUT, n)],
+                capture_output=True, text=True).stdout)['format']['duration'])
+            for line in open(shifted):
+                if re.match(r'^\d+$', line.strip()):
+                    f.write(str(idx) + '\n'); idx += 1
+                else:
+                    f.write(line)
+            total += float(dur)
+
+    # 5. Burn subtitles + mux audio
+    subs = os.path.join(workdir, "video_sub.mp4")
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', video,
+        '-vf', f"subtitles={combined2}:force_style='FontSize=14,FontName=Inter,Alignment=2,MarginV=40'",
+        '-c:v', 'libx264', subs], check=True)
 
     final = os.path.join(OUT, "FINAL.mp4")
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', final_novid,
-        '-i', full_audio, '-c:v', 'copy', '-c:a', 'aac', '-shortest', final], check=True)
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', subs,
+        '-i', audio, '-c:v', 'copy', '-c:a', 'aac', '-shortest', final], check=True)
     print(f"DONE: {final}")
 
 if __name__ == '__main__':

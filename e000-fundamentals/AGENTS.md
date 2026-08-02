@@ -328,13 +328,27 @@ A storyboard is a **single image grid** containing all key frames of the video �
 
 For **reactive** videos the storyboard is NOT written in advance with dialog and timestamps (that would force scripted behavior). Instead the agent collects a screenshot per key step while working and assembles the grid at the end. This stays fully reactive and produces a free visual index of the session.
 
+#### Storyboard scenes mix media types
+
+Each scene lasts **2–4 seconds**. A ~40–60s video needs ~16 scenes (4×4 grid); scale the count to the target duration. A storyboard **mixes media types**, not just generated images:
+
+| Media type | When to use | Examples |
+|------------|-------------|----------|
+| **AI-generated image** | Thematic moments, cover, visual metaphors, transitions | KIE Seedream via `kie-image.sh` |
+| **Slide / text** | Data, lists, section titles, key points | HTML rendered to PNG via headless Chrome |
+| **Screen capture** | Real content: results, tables, interfaces, terminals | `grim`, `scrot`, `agent-browser screenshot` |
+| **Photo / recording** | Real demonstrations or visual proof | screen recordings, phone photos |
+
+Every grid cell should indicate its media type next to the dialog and timestamp.
+
 **Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic, duration, and aspect ratio into that prompt.
 
 Tools:
-- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for generating character sheets and storyboard frames (pre-generated mode)
-- **Screenshots** (`agent-browser screenshot`, `grim`, `scrot`) for the reactive mode
+- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for AI-generated scene images (both modes)
+- **Screenshots** (`agent-browser screenshot`, `grim`, `scrot`) for real-content captures (reactive mode)
+- **Headless Chrome** (`google-chrome --headless --screenshot`) to render HTML slides to scene PNGs
 - **KIE Gemini TTS** (`e019-kie-image-api/ag-01/bin/kie-tts.sh`) for prototyping narration
-- ffmpeg / ImageMagick (`montage`) for assembling screenshots into a grid
+- ffmpeg for assembling screenshots into a grid and for the final video assembly
 
 Output files go in the agent's `output/` directory. The storyboard becomes the plan that the agent follows during production.
 

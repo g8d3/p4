@@ -46,3 +46,15 @@ Tested the **generic video production pipeline** from fundamentals on this sessi
   5. Assemble → `assemble_video.py` (static scenes + subtitles + concat + audio)
 - **Result**: `FINAL.mp4` — 49.3s, 608×1080, h264+aac. Verified not black (YAVG ~47). Subtitles corrected for Parakeet quirks (captcha, Camoufox, Puppeteer).
 - **Learned**: Parakeet mishears brand names (captcha→"capture", Camoufox→"camofox") — corrected via a word map in `assemble_video.py`.
+
+## 2026-08-02 — Session 4: enriched storyboard
+
+Expanded the storyboard concept in fundamentals: scenes of 2-4s, ~16 scenes for a 40-60s video, and media mixing (AI images + slides + screen captures + photos/recordings).
+
+- Updated `e000-fundamentals/prompts/storyboard.md` and the AGENTS.md storyboard section with the media-type table.
+- Regenerated the e020 storyboard: **16 scenes** (4×4 grid, `storyboard.md` + `storyboard.png`), mixing:
+  - 4 AI images (KIE Seedream): title, no-captcha shield, session-theft warning, outro
+  - 9 slides (HTML → headless Chrome): hook, browsers list, 4 protocols, key findings, recommendation
+  - 3 screen-capture-style scenes (terminal HTML): search test, auth cookies, results
+- Regenerated `FINAL.mp4` with all 16 scenes (48s, 608×1080), narration subtitles synced to the 4 narration parts.
+- New helpers: `bin/gen_slides.py`, `bin/gen_screenshots.py`.
