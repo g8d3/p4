@@ -66,3 +66,15 @@ Decided and documented the **default storyboard workflow** (fundamentals):
 - Delivered with `script.md` containing narration **without timestamps** (timestamps come later from transcription).
 - If the video must show real computer events, replace relevant grid cells with real screen captures/photos.
 - storyboard image is stored as WebP (same resolution, ~17x smaller) like WhatsApp compression.
+
+## 2026-08-02 — Session 5: AI News weekly storyboard + output structure
+
+- Reorganized `ag-02/output/` into **per-video folders**:
+  - `output/<video-name>/` with `assets/` (scene images + HTML sources), `audio/` (mp3, mono, srt, txt), `parts/` (ffmpeg intermediates)
+  - Moved the undetectable-browsers video into `undetectable-browsers-google/`
+  - Updated `assemble_video.py` to reference the video folder + assets/audio subdirs
+- Tested the **single-request storyboard workflow** for a new video: "AI News of the Week (Jul 25–Aug 1, 2026)"
+  - Researched real weekly AI news via Google News RSS (GPT-5.6 Sol, open-source boom, Kimi K3 on AWS, NIST evaluation, AI safety/scheming, Amazon Claude blunder, federal oversight, creator pushback, academic access)
+  - Wrote `script.md` (16 scenes, no timestamps; single continuous narration for one TTS call)
+  - Generated the whole 16-cell grid with **one KIE Seedream request** (`storyboard.jpg`, 1440×2560, 9:16) and compressed to `storyboard.webp` (283KB, same resolution)
+  - Pitfall: prompt with double quotes breaks the KIE JSON (syntax error at position 56) — avoid quotes in prompts

@@ -6,7 +6,9 @@ underneath with combined subtitles. Usage: python3 assemble_video.py
 """
 import re, subprocess, os, json
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "output")
+OUT = os.path.join(os.path.dirname(__file__), "..", "output", "undetectable-browsers-google")
+ASSETS = os.path.join(OUT, "assets")
+AUDIO = os.path.join(OUT, "audio")
 FPS = 25
 
 # 16 scenes (storyboard order). Duration per scene in seconds.
@@ -68,11 +70,11 @@ def build_scene(i, img, dur, workdir):
     vf = "scale=608:1080,format=yuv420p"
     out = os.path.join(workdir, f"sc{i}.mp4")
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-loop', '1',
-        '-i', os.path.join(OUT, img), '-vf', vf, '-t', str(dur), '-r', str(FPS), out], check=True)
+        '-i', os.path.join(ASSETS, img), '-vf', vf, '-t', str(dur), '-r', str(FPS), out], check=True)
     return out
 
 def main():
-    workdir = os.path.join(OUT, "parts16")
+    workdir = os.path.join(OUT, "parts")
     os.makedirs(workdir, exist_ok=True)
 
     # 1. Build each scene clip
@@ -93,7 +95,7 @@ def main():
     alst = os.path.join(workdir, "alist.txt")
     with open(alst, 'w') as f:
         for n in NARRATION:
-            f.write(f"file '{os.path.join(OUT, n)}'\n")
+            f.write(f"file '{os.path.join(AUDIO, n)}'\n")
     audio = os.path.join(workdir, "full_audio.mp3")
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat',
         '-safe', '0', '-i', alst, '-c', 'copy', audio], check=True)
@@ -104,11 +106,11 @@ def main():
         idx = 1
         total = 0.0
         for n, srt in zip(NARRATION, NARR_SRT):
-            fix_srt(os.path.join(OUT, srt))
+            fix_srt(os.path.join(AUDIO, srt))
             shifted = os.path.join(workdir, f"shift_{n}.srt")
-            srt_shift(os.path.join(OUT, srt), shifted, total)
+            srt_shift(os.path.join(AUDIO, srt), shifted, total)
             dur = float(json.loads(subprocess.run(['ffprobe', '-v', 'quiet', '-print_format', 'json',
-                '-show_entries', 'format=duration', os.path.join(OUT, n)],
+                '-show_entries', 'format=duration', os.path.join(AUDIO, n)],
                 capture_output=True, text=True).stdout)['format']['duration'])
             for line in open(shifted):
                 if re.match(r'^\d+$', line.strip()):
