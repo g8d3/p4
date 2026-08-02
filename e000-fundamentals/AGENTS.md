@@ -345,6 +345,8 @@ Every grid cell should indicate its media type next to the dialog.
 
 The default storyboard is produced in **one KIE request** — the whole 16-cell grid is a single generated image (no separate slides needed; the cells cover the entire video). It is delivered with a `script.md` containing the narration **without timestamps** (timestamps come later, from the transcription step). If the video must show real computer events, replace the relevant grid cells with real screen captures / photos.
 
+**The prompt IS the template — never copy it.** To generate a storyboard, use the template at [`prompts/storyboard.md`](prompts/storyboard.md) verbatim as the prompt. Video-specific data (topic, aspect ratio, scene list) goes in a small `storyboard_config.md` next to the video, holding ONLY the configurable parts — do NOT re-write the full prompt or create a `storyboard_prompt.txt`. Combine: send the template text + the video config.
+
 **Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic and aspect ratio into that prompt — **not duration**, which comes from the audio transcription.
 
 Tools:
