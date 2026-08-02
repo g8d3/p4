@@ -339,16 +339,20 @@ Each scene lasts **2–4 seconds**. A ~40–60s video needs ~16 scenes (4×4 gri
 | **Screen capture** | Real content: results, tables, interfaces, terminals | `grim`, `scrot`, `agent-browser screenshot` |
 | **Photo / recording** | Real demonstrations or visual proof | screen recordings, phone photos |
 
-Every grid cell should indicate its media type next to the dialog and timestamp.
+Every grid cell should indicate its media type next to the dialog.
+
+#### Default storyboard workflow (single KIE request)
+
+The default storyboard is produced in **one KIE request** — the whole 16-cell grid is a single generated image (no separate slides needed; the cells cover the entire video). It is delivered with a `script.md` containing the narration **without timestamps** (timestamps come later, from the transcription step). If the video must show real computer events, replace the relevant grid cells with real screen captures / photos.
 
 **Every agent that generates a storyboard MUST follow the storyboard prompt template** at [`prompts/storyboard.md`](prompts/storyboard.md). It defines the grid layout, cell order, aspect ratio handling, and default style (realistic, not obviously AI-generated). Feed the video's topic, duration, and aspect ratio into that prompt.
 
 Tools:
-- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for AI-generated scene images (both modes)
-- **Screenshots** (`agent-browser screenshot`, `grim`, `scrot`) for real-content captures (reactive mode)
-- **Headless Chrome** (`google-chrome --headless --screenshot`) to render HTML slides to scene PNGs
-- **KIE Gemini TTS** (`e019-kie-image-api/ag-01/bin/kie-tts.sh`) for prototyping narration
-- ffmpeg for assembling screenshots into a grid and for the final video assembly
+- **KIE Seedream** (`e019-kie-image-api/ag-01/bin/kie-image.sh`) for the single-request storyboard grid and AI scene images
+- **Screenshots** (`agent-browser screenshot`, `grim`, `scrot`) for real-content captures replacing grid cells
+- **Headless Chrome** (`google-chrome --headless --screenshot`) to render HTML slides to scene PNGs (only when slides are needed separately)
+- **KIE Gemini TTS** (`e019-kie-image-api/ag-01/bin/kie-tts.sh`) for narration audio
+- ffmpeg for assembling a grid and for the final video assembly
 
 Output files go in the agent's `output/` directory. The storyboard becomes the plan that the agent follows during production.
 

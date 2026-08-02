@@ -58,3 +58,11 @@ Expanded the storyboard concept in fundamentals: scenes of 2-4s, ~16 scenes for 
   - 3 screen-capture-style scenes (terminal HTML): search test, auth cookies, results
 - Regenerated `FINAL.mp4` with all 16 scenes (48s, 608×1080), narration subtitles synced to the 4 narration parts.
 - New helpers: `bin/gen_slides.py`, `bin/gen_screenshots.py`.
+
+## 2026-08-02 — Session 4b: storyboard workflow decision
+
+Decided and documented the **default storyboard workflow** (fundamentals):
+- One KIE request generates the whole 16-cell grid as a single image — no separate slides needed.
+- Delivered with `script.md` containing narration **without timestamps** (timestamps come later from transcription).
+- If the video must show real computer events, replace relevant grid cells with real screen captures/photos.
+- storyboard image is stored as WebP (same resolution, ~17x smaller) like WhatsApp compression.

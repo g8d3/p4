@@ -15,11 +15,15 @@ Cada escena dura de 2 a 4 segundos. Para un video de ~40-60 segundos se necesita
 - **Capturas de pantalla** para contenido real: resultados, tablas, interfaces, terminales
 - **Fotos / grabaciones** para demostraciones reales o pruebas visuales
 
-Cada celda indica el tipo de media que corresponde, además del diálogo y el timestamp.
+Cada celda indica el tipo de media que corresponde, además del diálogo.
 
 El usuario puede cambiar el estilo de cada frame. Pero si no lo hace, el estilo por defecto de las imágenes generadas es realista, como fotos, incluso mejor si no parecen generadas por IA, por ejemplo si pones un rostro humano o un set o lo que sea, no debería lucir tan perfecto.
 
 Usualmente un video tiene un presentador, a menos que el usuario no quiera. Así que el usuario puede darte el presentador que quiera usar en una imagen o tú puedes proponer uno para usar y debes tener consistencia en el personaje que propones.
+
+El storyboard se genera con **una sola petición al modelo de imagen** (Seedream via KIE): la grilla completa de 16 escenas en una sola imagen. Esto ahorra generar slides/texto por separado — las celdas cubren todo el video. Después, si el video necesita mostrar eventos reales del computador (resultados, interfaces, terminales), se reemplazan las celdas correspondientes de la grilla con fotos o grabaciones de pantalla reales.
+
+El storyboard viene acompañado de un `script.md` con la narración del video, **sin timestamps** (los timestamps se obtienen después, al transcribir el audio TTS).
 
 El storyboard debe tener este formato:
 
