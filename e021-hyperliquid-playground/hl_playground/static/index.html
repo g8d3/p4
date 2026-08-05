@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hyperliquid Playground</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c2129; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --green:#3fb950;
+    --red:#f85149; --yellow:#d29922;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{max-width:760px;margin:0 auto;padding:10px 12px 60px}
+  a{color:var(--accent)}
+  h1{font-size:20px;margin:4px 0 2px}
+  h2{font-size:14px;margin:0;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .sub{color:var(--muted);font-size:12px;margin:0 0 10px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;
+    padding:12px;margin-bottom:14px}
+  .card > header{display:flex;align-items:center;justify-content:space-between;
+    gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{background:var(--panel2);color:var(--text);border:1px solid var(--border);
+    border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:#1f6feb;border-color:#1f6feb}
+  button.danger{background:#3d1516;border-color:#5c1a1d}
+  button.small{padding:3px 8px;font-size:12px;border-radius:6px}
+  button:disabled{opacity:.5;cursor:default}
+  select,input[type=text],input[type=number],textarea{
+    background:var(--panel2);color:var(--text);border:1px solid var(--border);
+    border-radius:8px;padding:8px;font-size:14px;width:100%}
+  textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;line-height:1.5}
+  label{font-size:12px;color:var(--muted);display:block;margin:8px 0 3px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .status{font-size:12px;color:var(--muted)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;
+    vertical-align:middle}
+  .ok{color:var(--green)} .err{color:var(--red)} .warn{color:var(--yellow)}
+  .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);
+    border-radius:8px;max-height:60vh;overflow-y:auto}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;font-family:ui-monospace,
+    SFMono-Regular,Menlo,Consolas,monospace}
+  thead th{position:sticky;top:0;background:#0a0e14;color:var(--muted);
+    text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);
+    white-space:nowrap;font-weight:600}
+  tbody td{padding:5px 8px;border-bottom:1px solid #21262d;white-space:nowrap;
+    max-width:340px;overflow:hidden;text-overflow:ellipsis}
+  tbody tr:hover{background:var(--panel2)}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+  .pill{display:inline-block;background:#161b22;border:1px solid var(--border);
+    border-radius:999px;padding:2px 9px;font-size:11px;color:var(--muted);
+    margin:2px 4px 0 0;cursor:pointer}
+  .pill:hover{border-color:var(--accent);color:var(--text)}
+  .meta{font-size:12px;color:var(--muted)}
+  .error{background:#3d1516;border:1px solid #5c1a1d;color:#ffa198;
+    padding:8px 10px;border-radius:8px;font-size:13px;white-space:pre-wrap;
+    word-break:break-word}
+  .empty{color:var(--muted);text-align:center;padding:16px;font-size:13px}
+  #toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+    background:#1f6feb;color:#fff;padding:8px 16px;border-radius:999px;
+    font-size:13px;z-index:99;display:none}
+  details summary{cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>Hyperliquid Playground</h1>
+<p class="sub" id="statusline">loading…</p>
+
+<!-- ================= CALLS ================= -->
+<div class="card" id="callsCard">
+  <header>
+    <h2>Calls &amp; configs</h2>
+    <div class="row">
+      <button class="small" id="btnRefresh">Refresh</button>
+      <button class="small" id="btnRunAll">Run all now</button>
+      <button class="small primary" id="btnNewCall">+ New call</button>
+    </div>
+  </header>
+  <div id="callFormWrap" style="display:none"></div>
+  <div class="tblwrap" id="callsTable"></div>
+</div>
+
+<!-- ================= PLAYGROUND ================= -->
+<div class="card">
+  <header>
+    <h2>SQL playground</h2>
+    <div class="row">
+      <span class="meta" id="queryInfo"></span>
+      <label style="margin:0;display:flex;align-items:center;gap:4px">
+        <input type="checkbox" id="liveChk" style="width:auto"> Live
+      </label>
+      <input type="number" id="liveSec" value="5" min="1" style="width:64px"
+        title="refresh seconds">
+      <button class="primary" id="btnRun">Run</button>
+    </div>
+  </header>
+  <div class="row" style="margin-bottom:6px">
+    <select id="tableSel" style="flex:1"></select>
+    <select id="exampleSel" style="flex:1"><option value="">Examples…</option></select>
+  </div>
+  <textarea id="sqlBox" rows="3" spellcheck="false"
+    placeholder="SELECT * FROM r_1 ORDER BY _ts DESC LIMIT 100"></textarea>
+  <div class="tblwrap" id="result" style="margin-top:8px"></div>
+</div>
+
+<!-- ================= LOGS ================= -->
+<div class="card">
+  <header>
+    <h2>Logs</h2>
+    <button class="small" id="btnReloadLogs">Reload</button>
+  </header>
+  <div class="tblwrap" id="logsTable"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+let state = {tables: [], calls: [], lastSql: "", liveTimer: null};
+
+async function api(path, opts={}) {
+  const res = await fetch(path, {
+    headers: {"Content-Type": "application/json"},
+    ...opts
+  });
+  let data = null;
+  try { data = await res.json(); } catch(_) {}
+  if (!res.ok) throw new Error(data && data.detail ? data.detail : ("HTTP " + res.status));
+  return data;
+}
+
+function toast(msg, ms=2200) {
+  const t = $("toast"); t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = "none", ms);
+}
+
+/* ---------- generic table renderer (ONE base for all tables) ---------- */
+function renderTable(container, result, extraCol) {
+  container.innerHTML = "";
+  if (!result || !result.ok) {
+    if (result && result.error) {
+      const d = document.createElement("div"); d.className = "error";
+      d.textContent = result.error; container.appendChild(d);
+    } else {
+      container.innerHTML = '<div class="empty">no data</div>';
+    }
+    return;
+  }
+  const cols = result.columns || [];
+  if (!cols.length) {
+    container.innerHTML = '<div class="empty">empty result set</div>'; return;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "tblwrap";
+  const tbl = document.createElement("table");
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  cols.forEach(c => { const th = document.createElement("th"); th.textContent = c; hr.appendChild(th); });
+  if (extraCol) { const th = document.createElement("th"); th.textContent = extraCol.title; hr.appendChild(th); }
+  thead.appendChild(hr); tbl.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  result.rows.forEach(row => {
+    const tr = document.createElement("tr");
+    cols.forEach((c, i) => {
+      const td = document.createElement("td");
+      const v = row[i];
+      td.title = v === null || v === undefined ? "" : String(v);
+      td.textContent = v === null || v === undefined ? "∅" : String(v);
+      if (v === null || v === undefined) td.style.color = "var(--muted)";
+      tr.appendChild(td);
+    });
+    if (extraCol) tr.appendChild(extraCol.render(row));
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody); wrap.appendChild(tbl); container.appendChild(wrap);
+}
+
+/* ---------- status ---------- */
+async function refreshStatus() {
+  try {
+    const s = await api("/api/status");
+    $("statusline").textContent =
+      `${s.calls_enabled}/${s.calls_total} calls · ${s.tables} tables · ` +
+      `scheduler ${s.scheduler} · ${new Date(s.server_time).toLocaleTimeString()}`;
+  } catch(e) { $("statusline").textContent = "status: " + e.message; }
+}
+
+/* ---------- tables & examples ---------- */
+async function refreshTables() {
+  const d = await api("/api/tables");
+  state.tables = d.tables;
+  const sel = $("tableSel");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  const group = kind => {
+    const og = document.createElement("optgroup");
+    og.label = kind === "result" ? "Results (per call)" : "System";
+    state.tables.filter(t => t.kind === kind).forEach(t => {
+      const o = document.createElement("option");
+      o.value = t.name;
+      o.textContent = `${t.name} (${t.rows})`;
+      og.appendChild(o);
+    });
+    if (og.children.length) sel.appendChild(og);
+  };
+  group("result"); group("system");
+  if (prev && sel.querySelector(`option[value="${prev}"]`)) sel.value = prev;
+  buildExamples();
+}
+
+function buildExamples() {
+  const sel = $("exampleSel");
+  const cur = sel.value;
+  const t = (name, sql) => { const o = document.createElement("option"); o.value = sql; o.textContent = name; return o; };
+  const ctxs = state.tables.find(t => /metaAndAssetCtxs/.test(t.name) || /r_/.test(t.name));
+  const mids = state.tables.filter(t => t.name.startsWith("r_"))[0];
+  const byPayload = {};
+  state.calls.forEach(c => {
+    try { const p = JSON.parse(c.payload); if (p.type) byPayload[p.type] = "r_" + c.id; } catch(_) {}
+  });
+  sel.innerHTML = '<option value="">Examples…</option>';
+  const put = (name, sql) => sel.appendChild(t(name, sql));
+  if (byPayload.metaAndAssetCtxs) {
+    const tb = byPayload.metaAndAssetCtxs;
+    put("Market overview (markPx, funding, OI) — order by notional",
+      `SELECT name, markPx, midPx, prevDayPx, funding, openInterest, dayNtlVlm, oraclePx FROM ${tb} ORDER BY dayNtlVlm DESC LIMIT 25`);
+    put("Top gainers today",
+      `SELECT name, prevDayPx, midPx, ROUND((midPx/prevDayPx-1)*100,2) AS chg_pct FROM ${tb} ORDER BY chg_pct DESC LIMIT 15`);
+  }
+  if (byPayload.allMids) {
+    const tb = byPayload.allMids;
+    put("All mids — biggest by value",
+      `SELECT * FROM ${tb} ORDER BY value DESC LIMIT 25`);
+  }
+  if (byPayload.l2Book) {
+    const tb = byPayload.l2Book;
+    put("Order book spread (group by side)",
+      `SELECT side, COUNT(*) AS levels, MAX(px) AS best, MIN(px) AS worst FROM ${tb} GROUP BY side`);
+  }
+  put("Latest rows of selected table", `SELECT * FROM {{T}} ORDER BY _ts DESC LIMIT 100`);
+  put("First 100 rows", `SELECT * FROM {{T}} LIMIT 100`);
+  put("Row count", `SELECT COUNT(*) AS n FROM {{T}}`);
+  put("Distinct values of a column", `SELECT {{COL}}, COUNT(*) AS n FROM {{T}} GROUP BY {{COL}} ORDER BY n DESC LIMIT 20`);
+  put("Recent call logs", `SELECT call_id, ts, status, http_status, latency_ms, row_count FROM logs ORDER BY id DESC LIMIT 50`);
+  put("Calls & configs", `SELECT id, name, path, interval_sec, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
+  if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
+}
+
+function applyExample() {
+  const v = $("exampleSel").value; if (!v) return;
+  const t = $("tableSel").value;
+  $("sqlBox").value = v.split("{{T}}").join(t || "calls");
+  $("exampleSel").value = "";
+}
+
+/* ---------- SQL execution ---------- */
+async function runQuery(sql, container, silent) {
+  if (!sql) return;
+  state.lastSql = sql;
+  const info = $("queryInfo");
+  try {
+    const r = await api("/api/query", {method: "POST", body: JSON.stringify({sql, limit: 2000})});
+    renderTable(container, r);
+    if (!silent) {
+      info.textContent = r.ok
+        ? `${r.rowcount} rows${r.truncated ? " (truncated at 2000)" : ""} · ${r.elapsed_ms}ms`
+        : "error";
+    }
+    return r;
+  } catch(e) {
+    const d = document.createElement("div"); d.className = "error"; d.textContent = e.message;
+    container.innerHTML = ""; container.appendChild(d);
+    info.textContent = "error";
+  }
+}
+
+function runCurrent(silent) {
+  runQuery($("sqlBox").value, $("result"), silent);
+}
+
+/* ---------- calls CRUD UI ---------- */
+function renderCalls() {
+  const cols = ["id", "name", "path", "payload", "interval_sec", "enabled", "last_run_at", "last_status", "last_row_count"];
+  const rows = state.calls.map(c => cols.map(k => c[k]));
+  const result = {ok: true, columns: cols, rows};
+  renderTable($("callsTable"), result, {
+    title: "actions",
+    render: row => {
+      const id = row[0];
+      const td = document.createElement("td");
+      const mk = (txt, cls, fn) => {
+        const b = document.createElement("button");
+        b.textContent = txt; b.className = "small " + cls;
+        b.onclick = async e => { e.stopPropagation(); await fn(); };
+        td.appendChild(b);
+      };
+      mk("run", "", () => runCall(id));
+      mk("edit", "", () => openCallForm(id));
+      mk("clr", "danger", () => clearCall(id));
+      mk("del", "danger", () => delCall(id));
+      return td;
+    }
+  });
+}
+
+async function runCall(id) {
+  const d = await api(`/api/calls/${id}/run`, {method: "POST"});
+  toast(d.ok ? `${d.call}: ok, ${d.row_count} rows` : `${d.call}: ${d.error}`);
+  await refreshAll();
+}
+
+async function clearCall(id) {
+  await api(`/api/calls/${id}/clear`, {method: "POST"});
+  toast("cleared");
+  await refreshAll();
+}
+
+async function delCall(id) {
+  if (!confirm("Delete call and its data?")) return;
+  await api(`/api/calls/${id}`, {method: "DELETE"});
+  toast("deleted");
+  await refreshAll();
+}
+
+function fillTemplate() {
+  const sel = $("epSel"); if (!sel.value) return;
+  const ep = state.endpoints.find(e => e.label === sel.value);
+  if (!ep) return;
+  $("fPayload").value = JSON.stringify(ep.payload, null, 2);
+  $("fPath").value = "/info";
+}
+
+async function openCallForm(id) {
+  const wrap = $("callFormWrap");
+  const editing = id ? state.calls.find(c => c.id === id) : null;
+  if (id === state._formId && wrap.style.display !== "none") { wrap.style.display = "none"; return; }
+  state._formId = id;
+  const b = document.createElement("div");
+  b.className = "card"; b.style.margin = "0 0 10px"; b.style.background = "var(--panel2)";
+  const epOpts = (state.endpoints || []).map(e => `<option>${e.label}</option>`).join("");
+  b.innerHTML = `
+    <div class="grid">
+      <div><label>Name</label><input type="text" id="fName" value="${editing ? editing.name : ""}"></div>
+      <div><label>Endpoint template</label>
+        <select id="epSel"><option value="">custom…</option>${epOpts}</select></div>
+    </div>
+    <div class="grid3">
+      <div><label>Base URL</label>
+        <select id="fBase"><option>https://api.hyperliquid.xyz</option>
+          <option>https://api.hyperliquid-testnet.xyz</option></select></div>
+      <div><label>Path</label><input type="text" id="fPath" value="${editing ? editing.path : "/info"}"></div>
+      <div><label>Method</label>
+        <select id="fMethod"><option>POST</option><option>GET</option></select></div>
+    </div>
+    <div><label>Payload (JSON) — call any API method</label>
+      <textarea id="fPayload" rows="5" spellcheck="false">${editing ? editing.payload : '{"type":"allMids"}'}</textarea></div>
+    <div class="grid3">
+      <div><label>Interval (sec)</label><input type="number" id="fInterval" value="${editing ? editing.interval_sec : 60}" min="1"></div>
+      <div><label>Result shape</label>
+        <select id="fShape">
+          <option value="auto">auto (smart)</option>
+          <option value="rows">rows (flat)</option>
+          <option value="raw">raw (single row)</option>
+        </select></div>
+      <div><label>Enabled</label>
+        <select id="fEnabled"><option value="1">yes</option><option value="0">no</option></select></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="primary" id="fSave">${editing ? "Save" : "Create"}</button>
+      <button id="fCancel">Cancel</button>
+    </div>`;
+  if (editing) {
+    b.querySelector("#fBase").value = editing.base_url;
+    b.querySelector("#fShape").value = editing.result_shape;
+    b.querySelector("#fEnabled").value = String(editing.enabled);
+  }
+  b.querySelector("#epSel").addEventListener("change", fillTemplate);
+  b.querySelector("#fCancel").onclick = () => { wrap.style.display = "none"; };
+  b.querySelector("#fSave").onclick = async () => {
+    const payload = b.querySelector("#fPayload").value;
+    try { JSON.parse(payload); } catch(e) { alert("Payload is not valid JSON: " + e.message); return; }
+    const data = {
+      name: b.querySelector("#fName").value.trim(),
+      base_url: b.querySelector("#fBase").value,
+      path: b.querySelector("#fPath").value.trim() || "/info",
+      method: b.querySelector("#fMethod").value,
+      payload,
+      interval_sec: parseInt(b.querySelector("#fInterval").value, 10) || 60,
+      result_shape: b.querySelector("#fShape").value,
+      enabled: b.querySelector("#fEnabled").value === "1"
+    };
+    try {
+      if (editing) {
+        const put = {payload, interval_sec: data.interval_sec, result_shape: data.result_shape,
+          enabled: data.enabled, path: data.path, base_url: data.base_url, method: data.method};
+        if (data.name !== editing.name) put.name = data.name;
+        await api(`/api/calls/${id}`, {method: "PUT", body: JSON.stringify(put)});
+        toast("saved");
+      } else {
+        await api("/api/calls", {method: "POST", body: JSON.stringify(data)});
+        toast("created");
+      }
+      wrap.style.display = "none";
+      await refreshAll();
+    } catch(e) { alert(e.message); }
+  };
+  wrap.innerHTML = ""; wrap.appendChild(b); wrap.style.display = "block";
+}
+
+/* ---------- logs ---------- */
+async function refreshLogs() {
+  const r = await runQuery(
+    "SELECT call_id, ts, status, http_status, latency_ms, row_count, error FROM logs ORDER BY id DESC LIMIT 200",
+    $("logsTable"), true);
+}
+
+/* ---------- refresh everything ---------- */
+async function refreshAll() {
+  try {
+    await Promise.all([refreshStatus(), refreshTables()]);
+    const d = await api("/api/calls");
+    state.calls = d.calls;
+    renderCalls();
+    await refreshLogs();
+  } catch(e) { toast("refresh failed: " + e.message); }
+}
+
+function startLive() {
+  clearInterval(state.liveTimer);
+  state.liveTimer = null;
+  if (!$("liveChk").checked) return;
+  const sec = Math.max(1, parseInt($("liveSec").value, 10) || 5);
+  state.liveTimer = setInterval(() => {
+    runCurrent(true);
+    refreshAll();
+  }, sec * 1000);
+}
+
+/* ---------- wire up ---------- */
+$("btnNewCall").onclick = () => openCallForm(null);
+$("btnRun").onclick = () => runCurrent(false);
+$("btnRefresh").onclick = refreshAll;
+$("btnReloadLogs").onclick = refreshLogs;
+$("btnRunAll").onclick = async () => {
+  const r = await api("/api/calls/run_all", {method: "POST"});
+  const n = r.results.filter(x => x.ok).length;
+  toast(`ran all: ${n}/${r.results.length} ok`);
+  await refreshAll();
+};
+$("tableSel").addEventListener("change", () => {
+  const t = $("tableSel").value;
+  if (t) $("sqlBox").value = `SELECT * FROM ${t} LIMIT 100`;
+});
+$("exampleSel").addEventListener("change", applyExample);
+$("sqlBox").addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") runCurrent(false);
+});
+$("liveChk").addEventListener("change", startLive);
+$("liveSec").addEventListener("change", startLive);
+
+(async function init() {
+  const d = await api("/api/endpoints");
+  state.endpoints = d.info;
+  await refreshAll();
+  runCurrent(true);
+})();
+</script>
+</body>
+</html>
