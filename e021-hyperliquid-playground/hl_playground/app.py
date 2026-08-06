@@ -55,6 +55,11 @@ class CallBody(BaseModel):
     result_shape: str | None = None
     interval_sec: int | None = None
     enabled: bool | None = None
+    keep_last: int | None = None
+    keep_group_col: str | None = None
+    dedup_cols: str | None = None
+    last_t_col: str | None = None
+    backfill_ms: int | None = None
 
 
 # ---- static ---------------------------------------------------------------
@@ -101,6 +106,10 @@ def endpoints():
             {"label": "l1Book", "payload": {"type": "l1Book", "coin": "BTC"}},
             {"label": "recentTrades", "payload": {"type": "recentTrades", "coin": "BTC"}},
             {"label": "candleSnapshot", "payload": {"type": "candleSnapshot", "req": {"coin": "BTC", "interval": "1h", "startTime": 0, "endTime": 0}}},
+            {"label": "candles 15m (watchlist, incremental)", "payload": '{"type":"candleSnapshot","req":{"coin":{{coins}},"interval":"15m","startTime":{{last_t}},"endTime":{{now_ms}}}}'},
+            {"label": "candles 1h (watchlist, incremental)", "payload": '{"type":"candleSnapshot","req":{"coin":{{coins}},"interval":"1h","startTime":{{last_t}},"endTime":{{now_ms}}}}'},
+            {"label": "candles 4h (watchlist, incremental)", "payload": '{"type":"candleSnapshot","req":{"coin":{{coins}},"interval":"4h","startTime":{{last_t}},"endTime":{{now_ms}}}}'},
+            {"label": "candles 1w (watchlist, incremental)", "payload": '{"type":"candleSnapshot","req":{"coin":{{coins}},"interval":"1w","startTime":{{last_t}},"endTime":{{now_ms}}}}'},
             {"label": "fundingHistory", "payload": {"type": "fundingHistory", "coin": "BTC", "startTime": 0}},
             {"label": "fundingRateHistory", "payload": {"type": "fundingRateHistory", "coin": "BTC", "startTime": 0}},
             {"label": "recentFunding", "payload": {"type": "recentFunding"}},

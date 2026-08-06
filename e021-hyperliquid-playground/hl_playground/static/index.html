@@ -362,7 +362,7 @@ function buildExamples() {
   put("Row count", `SELECT COUNT(*) AS n FROM {{T}}`);
   put("Distinct values of a column", `SELECT {{COL}}, COUNT(*) AS n FROM {{T}} GROUP BY {{COL}} ORDER BY n DESC LIMIT 20`);
   put("Recent call logs", `SELECT call_id, ts, status, http_status, latency_ms, row_count FROM logs ORDER BY id DESC LIMIT 50`);
-  put("Scheduled queries", `SELECT id, name, path, interval_sec, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
+  put("Scheduled queries", `SELECT id, name, path, interval_sec, keep_last, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
   if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
 }
 
@@ -400,7 +400,7 @@ function runCurrent(silent) {
 
 /* ---------- calls CRUD UI ---------- */
 function renderCalls() {
-  const cols = ["id", "name", "path", "payload", "interval_sec", "enabled", "last_run_at", "last_status", "last_row_count"];
+  const cols = ["id", "name", "path", "payload", "interval_sec", "keep_last", "enabled", "last_run_at", "last_status", "last_row_count"];
   const rows = state.calls.map(c => cols.map(k => c[k]));
   const result = {ok: true, columns: cols, rows};
   renderTable($("callsTable"), result, {
@@ -446,7 +446,7 @@ function fillTemplate() {
   const sel = $("epSel"); if (!sel.value) return;
   const ep = state.endpoints.find(e => e.label === sel.value);
   if (!ep) return;
-  $("fPayload").value = JSON.stringify(ep.payload, null, 2);
+  $("fPayload").value = typeof ep.payload === "string" ? ep.payload : JSON.stringify(ep.payload, null, 2);
   $("fPath").value = "/info";
 }
 
@@ -485,6 +485,18 @@ async function openCallForm(id) {
       <div><label>Enabled</label>
         <select id="fEnabled"><option value="1">yes</option><option value="0">no</option></select></div>
     </div>
+    <details style="margin-top:6px">
+      <summary>Bounded storage &amp; incremental</summary>
+      <div class="grid3">
+        <div><label>keep_last (0 = unlimited)</label><input type="number" id="fKeepLast" value="${editing ? editing.keep_last : 0}" min="0"></div>
+        <div><label>Group by column (per-coin prune)</label><input type="text" id="fGroupCol" placeholder="s" value="${editing ? editing.keep_group_col : ""}"></div>
+        <div><label>Dedup columns</label><input type="text" id="fDedupCols" placeholder="s,t" value="${editing ? editing.dedup_cols : ""}"></div>
+      </div>
+      <div class="grid3">
+        <div><label>last_t column (for &#123;&#123;last_t&#125;&#125;)</label><input type="text" id="fLastTCol" value="${editing ? editing.last_t_col : "t"}"></div>
+        <div><label>Backfill ms (first run window)</label><input type="number" id="fBackfill" value="${editing ? editing.backfill_ms : 604800000}" min="0"></div>
+      </div>
+    </details>
     <div class="row" style="margin-top:10px">
       <button class="primary" id="fSave">${editing ? "Save" : "Create"}</button>
       <button id="fCancel">Cancel</button>
@@ -498,7 +510,9 @@ async function openCallForm(id) {
   b.querySelector("#fCancel").onclick = () => { wrap.style.display = "none"; };
   b.querySelector("#fSave").onclick = async () => {
     const payload = b.querySelector("#fPayload").value;
-    try { JSON.parse(payload); } catch(e) { alert("Payload is not valid JSON: " + e.message); return; }
+    const tpl = payload.split("{{coins}}").join('"X"')
+      .split("{{last_t}}").join("0").split("{{now_ms}}").join("0");
+    try { JSON.parse(tpl); } catch(e) { alert("Payload is not valid JSON: " + e.message); return; }
     const data = {
       name: b.querySelector("#fName").value.trim(),
       base_url: b.querySelector("#fBase").value,
@@ -507,12 +521,19 @@ async function openCallForm(id) {
       payload,
       interval_sec: parseInt(b.querySelector("#fInterval").value, 10) || 60,
       result_shape: b.querySelector("#fShape").value,
-      enabled: b.querySelector("#fEnabled").value === "1"
+      enabled: b.querySelector("#fEnabled").value === "1",
+      keep_last: parseInt(b.querySelector("#fKeepLast").value, 10) || 0,
+      keep_group_col: b.querySelector("#fGroupCol").value.trim(),
+      dedup_cols: b.querySelector("#fDedupCols").value.trim(),
+      last_t_col: b.querySelector("#fLastTCol").value.trim() || "t",
+      backfill_ms: parseInt(b.querySelector("#fBackfill").value, 10) || 0
     };
     try {
       if (editing) {
         const put = {payload, interval_sec: data.interval_sec, result_shape: data.result_shape,
-          enabled: data.enabled, path: data.path, base_url: data.base_url, method: data.method};
+          enabled: data.enabled, path: data.path, base_url: data.base_url, method: data.method,
+          keep_last: data.keep_last, keep_group_col: data.keep_group_col,
+          dedup_cols: data.dedup_cols, last_t_col: data.last_t_col, backfill_ms: data.backfill_ms};
         if (data.name !== editing.name) put.name = data.name;
         await api(`/api/calls/${id}`, {method: "PUT", body: JSON.stringify(put)});
         toast("saved");

@@ -61,6 +61,31 @@ Measured on real data (2026-08): top 10 coins = 95.3% of 24h volume, top 20 =
 (BTC ≈ 35k BTC), NOT USD. The ranking converts it to notional with
 `openinterest * markpx` before ranking/summing. `dayNtlVlm` is already USD.
 
+## Candles: bounded + incremental
+
+Candle calls (and any watchlist-backed call) use payload templates resolved
+per request. Templates are **unquoted** in the JSON:
+
+| Template | Resolves to |
+|---|---|
+| `{{coins}}` | The saved watchlist (or all coins in the latest markets snapshot). **Fan-out**: one request per coin, all stored in one table. |
+| `{{last_t}}` | `max(last_t_col)` for that coin; if empty, `now − backfill_ms` (one-shot backfill). |
+| `{{now_ms}}` | Current epoch ms (required for candle `endTime` — `endTime:0` returns HTTP 500). |
+
+Per-call config that makes storage bounded and duplicate-free:
+
+| Config | Meaning |
+|---|---|
+| `keep_last` | Keep only the last N rows per group (0 = unlimited). |
+| `keep_group_col` | Column to prune per coin (candles: `s`). |
+| `dedup_cols` | Skip rows already present (candles: `s,t` avoids boundary re-fetch dups). |
+| `last_t_col` | Column used by `{{last_t}}` (candles: `t`). |
+| `backfill_ms` | First-run window (default 7 days). |
+
+Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
+(~169 candles/coin, 14s), subsequent runs add 0 rows (all deduped), and
+`keep_last=10` caps every coin at its 10 newest candles.
+
 ## API (REST)
 
 | Method/Path | Purpose |

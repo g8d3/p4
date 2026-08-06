@@ -34,7 +34,12 @@ CREATE TABLE IF NOT EXISTS calls (
   last_run_at TEXT,
   last_status TEXT,
   last_error TEXT,
-  last_row_count INTEGER
+  last_row_count INTEGER,
+  keep_last INTEGER NOT NULL DEFAULT 0,
+  keep_group_col TEXT NOT NULL DEFAULT '',
+  dedup_cols TEXT NOT NULL DEFAULT '',
+  last_t_col TEXT NOT NULL DEFAULT 't',
+  backfill_ms INTEGER NOT NULL DEFAULT 604800000
 );
 CREATE TABLE IF NOT EXISTS logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,6 +73,19 @@ def now_iso():
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
 
 
+def valid_payload_template(s):
+    """Payloads may contain templates ({{coins}}, {{last_t}}, {{now_ms}}) that are
+    only valid JSON after resolution — validate with representative values."""
+    t = (s.replace("{{coins}}", '"X"')
+          .replace("{{last_t}}", "0")
+          .replace("{{now_ms}}", "0"))
+    try:
+        json.loads(t)
+        return True
+    except json.JSONDecodeError:
+        return False
+
+
 class DB:
     def __init__(self, path):
         self.path = path
@@ -85,9 +103,23 @@ class DB:
             c = self.conn()
             try:
                 c.executescript(SCHEMA)
+                self._migrate_calls(c)
                 c.commit()
             finally:
                 c.close()
+
+    def _migrate_calls(self, c):
+        """Add columns introduced after the initial schema to existing DBs."""
+        existing = {x[1] for x in c.execute("PRAGMA table_info('calls')").fetchall()}
+        for col, ddl in {
+            "keep_last": "INTEGER NOT NULL DEFAULT 0",
+            "keep_group_col": "TEXT NOT NULL DEFAULT ''",
+            "dedup_cols": "TEXT NOT NULL DEFAULT ''",
+            "last_t_col": "TEXT NOT NULL DEFAULT 't'",
+            "backfill_ms": "INTEGER NOT NULL DEFAULT 604800000",
+        }.items():
+            if col not in existing:
+                c.execute(f'ALTER TABLE calls ADD COLUMN "{col}" {ddl}')
 
     # ---- generic query engine (used for EVERY table in the UI) ----
 
@@ -159,7 +191,7 @@ class DB:
         finally:
             c.close()
 
-    def store_rows(self, call_id, rows, ts):
+    def store_rows(self, call_id, rows, ts, dedup_cols=None):
         if not rows:
             return 0
         # SQLite identifiers are case-insensitive: dedupe column names so a
@@ -186,6 +218,19 @@ class DB:
                     f"PRAGMA table_info('{table}')").fetchall()}
                 pairs = [(orig, actual[k.lower()]) for orig, k in keymap.items()
                          if k.lower() in actual]
+                # skip rows that already exist on the dedup columns (e.g. candle
+                # boundary re-fetches: dedup_cols "s,t" avoids duplicates)
+                dc = [(o, actual[keymap[o].lower()]) for o in keymap
+                      if (dedup_cols and keymap[o] in {d.lower() for d in dedup_cols}
+                          and keymap[o].lower() in actual)]
+                if dc:
+                    dcol_sql = ", ".join(f'"{col}"' for _, col in dc)
+                    existing = {tuple(r) for r in c.execute(
+                        f'SELECT {dcol_sql} FROM "{table}"').fetchall()}
+                    rows = [r for r in rows
+                            if tuple(r.get(orig) for orig, _ in dc) not in existing]
+                    if not rows:
+                        return 0
                 col_sql = ", ".join(f'"{col}"' for _, col in pairs)
                 placeholders = ", ".join("?" for _ in pairs)
                 cur = c.executemany(
@@ -194,6 +239,55 @@ class DB:
                 )
                 c.commit()
                 return cur.rowcount or 0
+            finally:
+                c.close()
+
+    def max_col(self, call_id, col, where_col=None, where_val=None):
+        """Max value of a column in a result table, or None if empty/missing.
+        Optional `where_col`/`where_val` restrict to a group (e.g. one coin)."""
+        c = self.conn()
+        try:
+            cols = {x[1].lower() for x in c.execute(
+                f"PRAGMA table_info('{result_table(call_id)}')").fetchall()}
+            if col.lower() not in cols:
+                return None
+            sql = f'SELECT MAX("{col}") AS m FROM "{result_table(call_id)}"'
+            params = []
+            if where_col and where_col.lower() in cols:
+                sql += f' WHERE "{where_col}" = ?'
+                params.append(where_val)
+            r = c.execute(sql, params).fetchone()
+            return r["m"]
+        except sqlite3.Error:
+            return None
+        finally:
+            c.close()
+
+    def prune_rows(self, call_id, keep_last, group_col=""):
+        """Keep only the last `keep_last` rows per group (or globally)."""
+        if not keep_last or keep_last <= 0:
+            return
+        table = result_table(call_id)
+        with self.lock:
+            c = self.conn()
+            try:
+                cols = {x[1].lower() for x in c.execute(
+                    f"PRAGMA table_info('{table}')").fetchall()}
+                if group_col and group_col.lower() not in cols:
+                    group_col = ""
+                if group_col:
+                    sql = (f'DELETE FROM "{table}" WHERE rowid NOT IN ('
+                           f'SELECT rowid FROM (SELECT rowid, ROW_NUMBER() OVER ('
+                           f'PARTITION BY "{group_col}" ORDER BY rowid DESC) AS rn '
+                           f'FROM "{table}") WHERE rn <= {int(keep_last)})')
+                else:
+                    sql = (f'DELETE FROM "{table}" WHERE rowid NOT IN ('
+                           f'SELECT rowid FROM "{table}" ORDER BY rowid DESC '
+                           f'LIMIT {int(keep_last)})')
+                c.execute(sql)
+                c.commit()
+            except sqlite3.Error:
+                pass
             finally:
                 c.close()
 
@@ -214,10 +308,8 @@ class DB:
         required = ["name", "payload"]
         if not all(data.get(k) for k in required):
             raise ValueError("name and payload are required")
-        try:
-            json.loads(data["payload"])
-        except json.JSONDecodeError as e:
-            raise ValueError(f"payload is not valid JSON: {e}")
+        if not valid_payload_template(data["payload"]):
+            raise ValueError("payload is not valid JSON (templates may be unquoted)")
         ts = now_iso()
         fields = {
             "name": data["name"],
@@ -230,6 +322,11 @@ class DB:
             "enabled": 1 if data.get("enabled", True) else 0,
             "created_at": ts,
             "updated_at": ts,
+            "keep_last": int(data.get("keep_last") or 0),
+            "keep_group_col": data.get("keep_group_col") or "",
+            "dedup_cols": data.get("dedup_cols") or "",
+            "last_t_col": data.get("last_t_col") or "t",
+            "backfill_ms": int(data.get("backfill_ms") or 604800000),
         }
         cols = ", ".join(fields.keys())
         ph = ", ".join("?" for _ in fields)
@@ -246,12 +343,10 @@ class DB:
 
     def update_call(self, call_id, data):
         allowed = {"name", "base_url", "path", "method", "payload", "result_shape",
-                   "interval_sec", "enabled"}
-        if "payload" in data:
-            try:
-                json.loads(data["payload"])
-            except json.JSONDecodeError as e:
-                raise ValueError(f"payload is not valid JSON: {e}")
+                   "interval_sec", "enabled", "keep_last", "keep_group_col",
+                   "dedup_cols", "last_t_col", "backfill_ms"}
+        if "payload" in data and not valid_payload_template(data["payload"]):
+            raise ValueError("payload is not valid JSON (templates may be unquoted)")
         sets, vals = [], []
         for k, v in data.items():
             if k not in allowed or v is None:
@@ -260,7 +355,7 @@ class DB:
                 v = v.upper()
             if k == "enabled":
                 v = 1 if v else 0
-            if k == "interval_sec":
+            if k in ("interval_sec", "keep_last", "backfill_ms"):
                 v = int(v)
             sets.append(f"{k} = ?")
             vals.append(v)
