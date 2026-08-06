@@ -281,10 +281,17 @@ def create_call(body: CallBody):
 @app.put("/api/calls/{call_id}")
 def update_call(call_id: int, body: CallBody):
     data = {k: v for k, v in body.model_dump().items() if v is not None}
+    old = db.get_call(call_id)
     try:
         db.update_call(call_id, data)
     except ValueError as e:
         raise HTTPException(400, str(e))
+    # raising the cap cannot be filled incrementally — clear so the next run
+    # re-backfills to the new window ({{last_t}} refills from an empty table)
+    new_keep = data.get("keep_last", old["keep_last"] if old else 0)
+    if old and new_keep and new_keep > (old["keep_last"] or 0):
+        db.clear_results(call_id)
+        return {"ok": True, "refilled": True}
     return {"ok": True}
 
 

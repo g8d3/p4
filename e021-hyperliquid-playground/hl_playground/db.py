@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS calls (
   keep_group_col TEXT NOT NULL DEFAULT '',
   dedup_cols TEXT NOT NULL DEFAULT '',
   last_t_col TEXT NOT NULL DEFAULT 't',
-  backfill_ms INTEGER NOT NULL DEFAULT 604800000
+  backfill_ms INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -124,7 +124,7 @@ class DB:
             "keep_group_col": "TEXT NOT NULL DEFAULT ''",
             "dedup_cols": "TEXT NOT NULL DEFAULT ''",
             "last_t_col": "TEXT NOT NULL DEFAULT 't'",
-            "backfill_ms": "INTEGER NOT NULL DEFAULT 604800000",
+            "backfill_ms": "INTEGER NOT NULL DEFAULT 0",
         }.items():
             if col not in existing:
                 c.execute(f'ALTER TABLE calls ADD COLUMN "{col}" {ddl}')
@@ -339,7 +339,7 @@ class DB:
             "keep_group_col": data.get("keep_group_col") or "",
             "dedup_cols": data.get("dedup_cols") or "",
             "last_t_col": data.get("last_t_col") or "t",
-            "backfill_ms": int(data.get("backfill_ms") or 604800000),
+            "backfill_ms": int(data.get("backfill_ms") or 0),
             "read_sql": data.get("read_sql") or "SELECT * FROM {{table}} ORDER BY _ts DESC LIMIT 100",
         }
         cols = ", ".join(fields.keys())

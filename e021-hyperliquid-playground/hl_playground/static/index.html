@@ -567,8 +567,8 @@ async function openCallForm(id) {
           dedup_cols: data.dedup_cols, last_t_col: data.last_t_col, backfill_ms: data.backfill_ms,
           read_sql: data.read_sql};
         if (data.name !== editing.name) put.name = data.name;
-        await api(`/api/calls/${id}`, {method: "PUT", body: JSON.stringify(put)});
-        toast("saved");
+        const res = await api(`/api/calls/${id}`, {method: "PUT", body: JSON.stringify(put)});
+        toast(res.refilled ? "saved — rows cleared, re-backfill on next run" : "saved");
       } else {
         await api("/api/calls", {method: "POST", body: JSON.stringify(data)});
         toast("created");

@@ -13,6 +13,7 @@ Payload templates (resolved before each request):
 """
 
 import json
+import re
 import time
 import urllib.error
 import urllib.request
@@ -21,6 +22,7 @@ from . import extract
 from .db import result_table
 
 DEFAULT_TIMEOUT = 20
+DEFAULT_BACKFILL_MS = 7 * 24 * 3600 * 1000
 
 
 def resolve_coins(db):
@@ -47,6 +49,21 @@ def resolve_coins(db):
     return []
 
 
+def _backfill_ms(call):
+    """Window for the first (backfill) run: explicit backfill_ms, else
+    keep_last x interval so the table can actually fill to its cap."""
+    b = int(call.get("backfill_ms") or 0)
+    if b > 0:
+        return b
+    keep_last = int(call.get("keep_last") or 0)
+    m = re.search(r'"interval"\s*:\s*"(\d+)([smhdw])"', call["payload"] or "")
+    if keep_last and m:
+        n, unit = int(m.group(1)), m.group(2)
+        return keep_last * n * {"s": 1000, "m": 60000, "h": 3600000,
+                                "d": 86400000, "w": 604800000}[unit]
+    return DEFAULT_BACKFILL_MS
+
+
 def resolve_templates(db, call, payload_str, group_val=None):
     if "{{last_t}}" in payload_str:
         last_t_col = call.get("last_t_col") or "t"
@@ -56,7 +73,7 @@ def resolve_templates(db, call, payload_str, group_val=None):
         else:
             last = db.max_col(call["id"], last_t_col)
         if last is None:
-            last = int(time.time() * 1000) - int(call.get("backfill_ms") or 604800000)
+            last = int(time.time() * 1000) - _backfill_ms(call)
         payload_str = payload_str.replace("{{last_t}}", str(int(last)))
     if "{{now_ms}}" in payload_str:
         payload_str = payload_str.replace("{{now_ms}}", str(int(time.time() * 1000)))
