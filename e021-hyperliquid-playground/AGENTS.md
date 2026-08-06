@@ -141,6 +141,27 @@ e021-hyperliquid-playground/
     └── static/index.html       # mobile-first single page
 ```
 
+## Verification (fast, no browser)
+
+Headless Chrome is **not reliable in this environment** — after heavy use it hangs
+even on `about:blank` (multiprocess) or segfaults (single-process). It worked at
+session start; the degradation is environmental (likely needs a reboot), not the
+app. A 60s `--virtual-time-budget` dump hangs ~60s.
+
+Use the Node + jsdom verifier instead — it loads `index.html`, runs the page's
+JS against the live server, and checks key UI markers:
+
+```bash
+cd bin && npm install        # once
+node bin/verify.mjs [base]   # PASS in ~1.5s, exit 0/1
+```
+
+When Chrome is healthy again (after reboot), prefer for screenshots/rendering:
+`google-chrome --headless=new --no-sandbox --disable-dev-shm-usage \
+  --user-data-dir=/tmp/opencode/chrome-warm --virtual-time-budget=8000 \
+  --dump-dom URL` — a persistent warm profile avoids per-run cold start, and
+`--headless=new` supports GPU compositing.
+
 ## Conventions
 
 - Results are stored in SQLite (see fundamentals: tabular data prefers CSV, but a live-updating queryable store justifies SQLite here; the data is also queryable, not just diffable).
