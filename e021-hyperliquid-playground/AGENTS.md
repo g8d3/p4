@@ -54,8 +54,12 @@ notional volume (`dayNtlVlm`) and open interest. The UI exposes two sliders —
 - `GET /api/watchlist` — the saved selection
 
 Measured on real data (2026-08): top 10 coins = 95.3% of 24h volume, top 20 =
-97.3%. Open interest is long-tailed — 95% OI needs ~33 coins. Defaults
-(95% vol / 95% OI) resolve to ~41 coins; 90%/90% ≈ 20 coins.
+97.3%. Open interest is long-tailed — 95% OI needs ~28 coins. Defaults
+(95% vol / 95% OI) resolve to ~29 coins; 90%/90% ≈ 15 coins.
+
+**Units pitfall**: `openInterest` from `metaAndAssetCtxs` is in **coin units**
+(BTC ≈ 35k BTC), NOT USD. The ranking converts it to notional with
+`openinterest * markpx` before ranking/summing. `dayNtlVlm` is already USD.
 
 ## API (REST)
 

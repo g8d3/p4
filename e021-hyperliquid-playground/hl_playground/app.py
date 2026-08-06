@@ -137,20 +137,21 @@ def tables():
 
 RANKING_SQL = """
 WITH latest AS (
-  SELECT name, dayntlvlm, openinterest FROM {table}
+  -- openInterest is in coin units (BTC = ~35k BTC): convert to USD notional
+  SELECT name, dayntlvlm, openinterest * markpx AS oi_usd FROM {table}
   WHERE _ts = (SELECT max(_ts) FROM {table})
 ),
 tot AS (
-  SELECT SUM(dayntlvlm) AS tv, SUM(openinterest) AS toi FROM latest
+  SELECT SUM(dayntlvlm) AS tv, SUM(oi_usd) AS toi FROM latest
 )
 SELECT
   ROW_NUMBER() OVER (ORDER BY dayntlvlm DESC)     AS rank_vol,
   name,
   dayntlvlm,
   ROUND(SUM(dayntlvlm) OVER (ORDER BY dayntlvlm DESC) / tot.tv, 4) AS cum_vol,
-  ROW_NUMBER() OVER (ORDER BY openinterest DESC)  AS rank_oi,
-  openinterest,
-  ROUND(SUM(openinterest) OVER (ORDER BY openinterest DESC) / tot.toi, 4) AS cum_oi
+  ROW_NUMBER() OVER (ORDER BY oi_usd DESC)        AS rank_oi,
+  oi_usd,
+  ROUND(SUM(oi_usd) OVER (ORDER BY oi_usd DESC) / tot.toi, 4) AS cum_oi
 FROM latest CROSS JOIN tot
 ORDER BY rank_vol
 """
@@ -185,7 +186,7 @@ def ranking():
     if rows is None:
         return {"available": False, "rows": []}
     tv = sum(r["dayntlvlm"] or 0 for r in rows)
-    toi = sum(r["openinterest"] or 0 for r in rows)
+    toi = sum(r["oi_usd"] or 0 for r in rows)
     return {"available": True, "n_coins": len(rows), "total_vol": tv, "total_oi": toi,
             "rows": rows}
 

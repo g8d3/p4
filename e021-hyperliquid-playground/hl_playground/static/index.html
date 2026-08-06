@@ -250,10 +250,10 @@ function renderRank() {
     `watchlist = top ${volN} by volume (${fmtPct(rows[volN - 1].cum_vol)}) ∪ top ${oiN} by OI ` +
     `(=${sel.size} coins)`;
 
-  const cols = ["vol #", "coin", "24h vol", "cum vol", "oi #", "OI", "cum oi"];
+  const cols = ["vol #", "coin", "24h vol", "cum vol", "oi #", "OI $", "cum oi"];
   const out = rows.map(r => [
     r["rank_vol"], r["name"], fmtMoney(r["dayntlvlm"]), fmtPct(r["cum_vol"]),
-    r["rank_oi"], fmtMoney(r["openinterest"]), fmtPct(r["cum_oi"]),
+    r["rank_oi"], fmtMoney(r["oi_usd"]), fmtPct(r["cum_oi"]),
   ]);
   renderTable($("rankTable"), {ok: true, columns: cols, rows: out}, null, {highlight: sel});
   saveWatchlist();
