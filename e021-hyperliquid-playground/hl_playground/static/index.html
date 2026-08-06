@@ -376,6 +376,19 @@ function buildExamples() {
     put("All mids — biggest by value",
       `SELECT * FROM ${tb} ORDER BY value DESC LIMIT 25`);
   }
+  if (byPayload.candleSnapshot) {
+    const tb = byPayload.candleSnapshot;
+    put("Candles: pct change (intra-candle + vs previous close)",
+      `SELECT s, datetime(t/1000,'unixepoch') AS time, o, h, l, c, v, n, ` +
+      `ROUND((c-o)/o*100,3) AS candle_pct, ` +
+      `ROUND((c - LAG(c) OVER (PARTITION BY s ORDER BY t)) / LAG(c) OVER (PARTITION BY s ORDER BY t) * 100, 3) AS chg_pct ` +
+      `FROM ${tb} WHERE i='1h' ORDER BY t DESC LIMIT 100`);
+    put("Candles: biggest single-hour moves (abs % > 2)",
+      `SELECT * FROM (SELECT s, datetime(t/1000,'unixepoch') AS time, c, ` +
+      `ROUND((c - LAG(c) OVER (PARTITION BY s ORDER BY t)) / LAG(c) OVER (PARTITION BY s ORDER BY t) * 100, 3) AS chg_pct ` +
+      `FROM ${tb} WHERE i='1h') WHERE chg_pct IS NOT NULL AND abs(chg_pct) > 2 ` +
+      `ORDER BY abs(chg_pct) DESC LIMIT 20`);
+  }
   if (byPayload.l2Book) {
     const tb = byPayload.l2Book;
     put("Order book spread (group by side)",
