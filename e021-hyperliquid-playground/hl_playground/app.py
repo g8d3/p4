@@ -139,6 +139,34 @@ def tables():
     return {"tables": db.list_tables()}
 
 
+@app.get("/api/stats")
+def db_stats():
+    s = db.db_stats()
+    flows = {c["id"]: c for c in db.list_calls()}
+    for t in s["tables"]:
+        if t["kind"] != "result":
+            continue
+        fid = int(t["name"][2:])
+        flow = flows.get(fid)
+        t["flow_id"] = fid
+        t["flow_name"] = flow["name"] if flow else None
+        t["keep_last"] = flow["keep_last"] if flow else 0
+        if flow and flow.get("keep_last"):
+            try:
+                groups = 1
+                if flow.get("keep_group_col"):
+                    _, rows, err = db.run_query(
+                        f'SELECT COUNT(DISTINCT "{flow["keep_group_col"]}") FROM "{t["name"]}"')
+                    groups = rows[0][0] if rows else 0
+                cap = int(flow["keep_last"]) * max(1, groups)
+                t["cap_rows"] = cap
+                t["util_pct"] = round(min(100.0, t["rows"] / cap * 100), 1) if cap else 0.0
+            except Exception:
+                pass
+    s["total_rows"] = sum(t["rows"] for t in s["tables"])
+    return s
+
+
 # ---- ranking / coin filter ------------------------------------------------
 # Step 1 of the guided flow: fetch markets once, rank coins by 24h volume and
 # open interest, and let the user pick a *coverage percentage* per metric.
@@ -325,5 +353,5 @@ def run_all():
 
 
 @app.exception_handler(Exception)
-def _catch_all(req, exc):
+async def _catch_all(req, exc):
     return JSONResponse(status_code=500, content={"ok": False, "error": str(exc)})

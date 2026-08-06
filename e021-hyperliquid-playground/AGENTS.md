@@ -100,6 +100,7 @@ Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
 |---|---|
 | `GET /` | The UI |
 | `GET /api/status`, `/api/tables`, `/api/endpoints` | Discovery |
+| `GET /api/stats` | DB file size, per-table rows/size/24h growth, flow cap utilization |
 | `GET /api/ranking`, `POST /api/ranking/setup` | Coin filter: rank by volume/OI, fetch markets once |
 | `GET/PUT /api/watchlist` | Persist the coverage-% watchlist selection |
 | `POST /api/query` `{sql}` | Run read-only SQL → `{columns, rows, truncated, error}` |

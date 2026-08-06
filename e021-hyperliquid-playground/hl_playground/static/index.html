@@ -104,6 +104,16 @@
   </div>
 </div>
 
+<!-- ================= DATABASE ================= -->
+<div class="card">
+  <header>
+    <h2>Database</h2>
+    <button class="small" id="btnReloadDb">Reload</button>
+  </header>
+  <div class="meta" id="dbSummary"></div>
+  <div class="tblwrap" id="dbTable" style="margin-top:6px"></div>
+</div>
+
 <!-- ================= FLOWS ================= -->
 <div class="card" id="callsCard">
   <header>
@@ -382,6 +392,39 @@ function applyExample() {
   $("exampleSel").value = "";
 }
 
+function fmtSize(b) {
+  b = Number(b) || 0;
+  if (b >= 1048576) return (b / 1048576).toFixed(2) + " MB";
+  if (b >= 1024) return (b / 1024).toFixed(1) + " KB";
+  return b + " B";
+}
+
+/* ---------- database stats ---------- */
+async function loadDbStats() {
+  try {
+    const s = await api("/api/stats");
+    const total = s.db_file_bytes + (s.wal_bytes || 0);
+    $("dbSummary").textContent =
+      `db ${fmtSize(total)} · ${s.total_rows} rows · ${s.tables.length} tables · ` +
+      `+${s.tables.reduce((a, t) => a + (t.grown_24h || 0), 0)} rows/24h`;
+    const cols = ["table", "kind", "rows", "size", "+24h", "flow", "keep_last", "cap", "util"];
+    const rows = s.tables.map(t => {
+      let util = "";
+      if (t.kind === "result") {
+        util = t.keep_last ? (t.util_pct ?? 0) + "%"
+                           : "unbounded" + ((t.grown_24h || 0) > 0 ? " ⚠" : "");
+      }
+      return [
+        t.name, t.kind, t.rows, fmtSize(t.size_bytes), t.grown_24h || 0,
+        t.flow_name || "", t.keep_last ?? "", t.cap_rows ?? "", util
+      ];
+    });
+    renderTable($("dbTable"), {ok: true, columns: cols, rows});
+  } catch(e) {
+    $("dbSummary").textContent = "db stats error: " + e.message;
+  }
+}
+
 /* ---------- SQL execution ---------- */
 async function runQuery(sql, container, silent) {
   if (!sql) return;
@@ -590,7 +633,7 @@ async function refreshLogs() {
 /* ---------- refresh everything ---------- */
 async function refreshAll() {
   try {
-    await Promise.all([refreshStatus(), refreshTables()]);
+    await Promise.all([refreshStatus(), refreshTables(), loadDbStats()]);
     const d = await api("/api/calls");
     state.calls = d.calls;
     renderCalls();
@@ -614,6 +657,7 @@ $("btnNewCall").onclick = () => openCallForm(null);
 $("btnRun").onclick = () => runCurrent(false);
 $("btnRefresh").onclick = refreshAll;
 $("btnReloadLogs").onclick = refreshLogs;
+$("btnReloadDb").onclick = loadDbStats;
 $("btnRankSetup").onclick = async () => {
   $("btnRankSetup").disabled = true;
   $("btnRankSetup").textContent = "fetching…";

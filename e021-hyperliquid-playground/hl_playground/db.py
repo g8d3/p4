@@ -178,6 +178,45 @@ class DB:
         finally:
             c.close()
 
+    def db_stats(self):
+        """Storage stats: DB file size + per-table rows/size/24h growth."""
+        import datetime
+        import os
+        c = self.conn()
+        try:
+            page_count = c.execute("PRAGMA page_count").fetchone()[0]
+            page_size = c.execute("PRAGMA page_size").fetchone()[0]
+            per_table = dict(c.execute(
+                "SELECT name, SUM(pgsize) FROM dbstat GROUP BY name").fetchall())
+            since = (datetime.datetime.now(datetime.timezone.utc)
+                     - datetime.timedelta(days=1)).isoformat(timespec="seconds")
+            tables = []
+            for t in self.list_tables():
+                name, grown = t["name"], 0
+                if name.startswith("r_"):
+                    try:
+                        grown = c.execute(
+                            f'SELECT COUNT(*) FROM "{name}" WHERE _ts >= ?',
+                            (since,)).fetchone()[0]
+                    except sqlite3.Error:
+                        grown = 0
+                tables.append({
+                    "name": name, "kind": t["kind"], "rows": t["rows"],
+                    "columns": len(t["columns"]),
+                    "size_bytes": per_table.get(name, 0), "grown_24h": grown,
+                })
+            wal = str(self.path) + "-wal"
+            return {
+                "db_file_bytes": os.path.getsize(self.path) if os.path.exists(self.path) else 0,
+                "wal_bytes": os.path.getsize(wal) if os.path.exists(wal) else 0,
+                "page_count": page_count,
+                "page_size": page_size,
+                "db_bytes": page_count * page_size,
+                "tables": sorted(tables, key=lambda x: -x["size_bytes"]),
+            }
+        finally:
+            c.close()
+
     # ---- result tables ----
 
     def _create_result_table(self, call_id, columns):
