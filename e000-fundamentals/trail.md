@@ -446,3 +446,84 @@ them from AGENTS.md. Benefits:
 - Testable: scripts can have their own tests
 
 Not urgent now but worth tracking. Threshold for action: ~800+ lines.
+
+---
+
+## 2026-08-06 — e022 Nautilus S/R grid strategy
+
+### Decision: new experiment e022-nautilus-sr-grid
+
+User brief (dictated in Spanish): build and backtest on Nautilus Trader a
+**grid strategy** whose levels are placed automatically on support/resistance,
+where when a grid order fills, the freed capital moves to the **opposite side**
+distributed by a **probability distribution computed from the volume profile**
+(user's message was cut at "usando está..." → user chose "Volume profile").
+
+### Decisions
+
+- **Synthetic Gaussian data first** (user choice), regime-switching generator
+  (range / trend / downtrend / mixed) so S/R pivots and volume clusters are
+  meaningful. Real data (Binance) is a listed next iteration.
+- **Nautilus 1.228 pyo3 API**: `BacktestEngine` + `engine.trader` reports.
+- **Margin account, OMS netting, synthetic BTC/USDT perpetual** — grid bots
+  quote both sides, so a cash account rejects resting sells without inventory.
+- **Levels from fractal pivots** (window 3), clustered within 0.10%, gap-filled
+  at ATR spacing, within ±1.5% of price.
+- **Budget split** ∝ level count per side; **within side** ∝ volume-profile KDE.
+- **Fill redistribution pooled once per bar** — the first version resynced all
+  opposite-side orders on every fill → 19,642 fills and 20,834 USDT in
+  commissions. Batching cut it to ~150-180 fills and <200 USDT.
+- **Exposure cap** `max_exposure_budget_mult=1.5` on rebalance placement.
+
+### Results (20k bars, 30k budget, 100k start)
+
+| Regime | Return % | Max DD % |
+|---|---|---|
+| range | +20.59 | -3.96 |
+| trend up | -46.60 | -65.43 |
+| downtrend | -234.70 | -234.02 |
+| mixed | -0.74 | -10.42 |
+
+### Bug found via timing investigation (2026-08-06, same session)
+
+A timing profile of `engine.run()` exposed that when the exposure cap blocked
+both sides, `_rebalance_grid` ran **every bar** (~19k times) because a skipped
+rebalance did not update `_last_rebalance`. Two consequences:
+
+1. **Performance**: the backtest took 30.8s instead of ~3.7s and spammed
+   ~50k log lines.
+2. **Correctness bug**: on skip, `_unallocated = total_budget` re-included the
+   base `grid_budget` every bar, compounding the pool to ~292M USDT and
+   corrupting the results (made the whipsaw look worse / hid the true edge).
+
+Fixes: caps are now checked **before** cancelling orders (a fully-capped
+rebalance is a no-op that keeps the current grid), and rebalance attempts are
+throttled by `_last_rebalance_attempt`. Results above are post-fix.
+
+### Second bug: degenerate fractal detection (same session)
+
+`_detect_sr_levels` tested `highs[i] >= np.max(highs[i-w:i+w+1])` where the
+window **included the bar itself**, so every bar was always a pivot. Fixed to
+compare only against the 2*w neighbours. Effect on results was small (range
++20.6%, trend -46.6%, mixed -0.74% unchanged; downtrend -234.7% → -209.2%)
+because clustering and ATR gap-filling dominate level placement anyway.
+
+### Decision: interactive teaching page (user request)
+
+To teach the strategy to a beginner, the user chose an **interactive HTML page**
+over a video (dynamic concepts — sliding window, fractal confirmation, KDE
+smoothing — are better seen than narrated; mobile-first; offline; zero API
+cost). Built `e022-nautilus-sr-grid/interactive/sr-grid-explainer.html`
+(vanilla JS + canvas, mirrors the Python strategy, embedded 1100-bar range
+slice). Verified with a Node harness (8 rebalances, 91 fills over the slice).
+
+### Findings (honest, documented in the experiment AGENTS.md)
+
+- Fee-efficient per order after batching; real mean-reversion edge in ranging
+  markets (**+20.6%**, PF 2.87).
+- Destroyed by sustained trends: -46.6% uptrend, **-234% blow-up in downtrend**
+  (account goes negative) because fills accumulate inventory between
+  rebalances and the exposure cap is only enforced at rebalance.
+- Highest-impact next fix: enforce the exposure cap **on fill**, plus a trend
+  filter. Then real data and a parameter sweep.
+

@@ -26,6 +26,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e019-kie-image-api/](e019-kie-image-api/) — KIE Seedream 4.5 text-to-image API wrapper
 - [e020-undetectable-browser-benchmark/](e020-undetectable-browser-benchmark/) — benchmark of undetectable open-source browsers
 - [e021-hyperliquid-playground/](e021-hyperliquid-playground/) — Hyperliquid API playground with scheduled calls + SQL tables
+- [e022-nautilus-sr-grid/](e022-nautilus-sr-grid/) — Nautilus Trader S/R grid with volume-profile capital redistribution
 
 ## Language
 
