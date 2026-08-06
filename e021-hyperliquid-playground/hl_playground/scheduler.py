@@ -77,9 +77,14 @@ def execute_call(db, call):
 
     started = time.monotonic()
     total, last_http, first_err = 0, None, None
+    requests = []
     for coin in coins:
         pstr = payload_str.replace("{{coins}}", json.dumps(coin)) if coin is not None else payload_str
         pstr = resolve_templates(db, call, pstr, group_val=coin)
+        try:
+            requests.append(json.loads(pstr))
+        except json.JSONDecodeError:
+            requests.append(pstr)
         info = _do_request(db, call, pstr)
         if not info["ok"] and first_err is None:
             first_err = info["error"]
@@ -91,7 +96,7 @@ def execute_call(db, call):
     if call.get("keep_last"):
         db.prune_rows(call["id"], call["keep_last"], call.get("keep_group_col") or "")
     ok = first_err is None
-    _finish(db, call, "ok" if ok else "error", last_http, latency, total, first_err)
+    _finish(db, call, "ok" if ok else "error", last_http, latency, total, first_err, requests)
     return {"ok": ok, "error": first_err, "row_count": total, "latency_ms": latency}
 
 
@@ -133,9 +138,10 @@ def _do_request(db, call, payload_str):
     return {"ok": True, "http": http, "rows": n, "error": None}
 
 
-def _finish(db, call, status, http_status, latency_ms, row_count, error):
-    db.mark_run(call["id"], status, error, row_count)
-    db.log_run(call["id"], status, http_status, latency_ms, row_count, error)
+def _finish(db, call, status, http_status, latency_ms, row_count, error, requests=None):
+    req_json = json.dumps(requests) if requests else ""
+    db.mark_run(call["id"], status, error, row_count, req_json)
+    db.log_run(call["id"], status, http_status, latency_ms, row_count, error, req_json)
 
 
 def _ts_now():

@@ -64,6 +64,9 @@
     padding:8px 10px;border-radius:8px;font-size:13px;white-space:pre-wrap;
     word-break:break-word}
   .empty{color:var(--muted);text-align:center;padding:16px;font-size:13px}
+  pre.req{background:#0a0e14;border:1px solid var(--border);border-radius:8px;
+    padding:8px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;
+    word-break:break-word;max-height:220px;overflow-y:auto;margin:0}
   #toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
     background:#1f6feb;color:#fff;padding:8px 16px;border-radius:999px;
     font-size:13px;z-index:99;display:none}
@@ -79,10 +82,7 @@
 <div class="card" id="rankCard">
   <header>
     <h2>Coin filter (ranking)</h2>
-    <div class="row">
-      <span class="meta" id="rankInfo"></span>
-      <button class="small" id="btnRankSql" style="display:none">View SQL</button>
-    </div>
+    <span class="meta" id="rankInfo"></span>
   </header>
   <div id="rankSetup" style="display:none">
     <p class="sub">Fetch market data once to build the volume / open-interest ranking. Then pick a coverage percentage and the top-N computes itself.</p>
@@ -97,6 +97,10 @@
     </div>
     <div class="meta" id="rankSummary" style="margin:4px 0 6px"></div>
     <div class="tblwrap" id="rankTable"></div>
+    <details id="rankSqlWrap" style="margin-top:6px;display:none">
+      <summary>View SQL</summary>
+      <pre class="req" id="rankSqlPre"></pre>
+    </details>
   </div>
 </div>
 
@@ -168,6 +172,8 @@ function toast(msg, ms=2200) {
   const t = $("toast"); t.textContent = msg; t.style.display = "block";
   clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = "none", ms);
 }
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function prettyJson(s) { try { return JSON.stringify(JSON.parse(s), null, 1); } catch(_) { return s; } }
 
 /* ---------- generic table renderer (ONE base for all tables) ---------- */
 function renderTable(container, result, extraCol, opts) {
@@ -280,7 +286,10 @@ async function loadRanking() {
     if (r.available) {
       $("rankSetup").style.display = "none";
       $("rankBody").style.display = "block";
-      $("btnRankSql").style.display = r.sql ? "inline-block" : "none";
+      if (r.sql) {
+        $("rankSqlPre").textContent = r.sql;
+        $("rankSqlWrap").style.display = "block";
+      }
       const wl = await api("/api/watchlist").catch(() => ({set: false}));
       if (wl.set) {
         $("volSlider").value = (wl.vol_pct * 100).toFixed(0);
@@ -497,6 +506,7 @@ async function openCallForm(id) {
         <div><label>Backfill ms (first run window)</label><input type="number" id="fBackfill" value="${editing ? editing.backfill_ms : 604800000}" min="0"></div>
       </div>
     </details>
+    ${editing && editing.last_request ? '<details style="margin-top:6px"><summary>Last request (' + (JSON.parse(editing.last_request).length || 1) + ')</summary><pre class="req">' + esc(prettyJson(editing.last_request)) + '</pre></details>' : ''}
     <div class="row" style="margin-top:10px">
       <button class="primary" id="fSave">${editing ? "Save" : "Create"}</button>
       <button id="fCancel">Cancel</button>
@@ -592,13 +602,6 @@ $("btnRankSetup").onclick = async () => {
   } catch(e) { toast("setup failed: " + e.message); }
   $("btnRankSetup").disabled = false;
   $("btnRankSetup").textContent = "Fetch markets ranking";
-};
-$("btnRankSql").onclick = () => {
-  if (rankState && rankState.sql) {
-    $("sqlBox").value = rankState.sql;
-    runCurrent(false);
-    $("sqlBox").scrollIntoView({behavior: "smooth", block: "center"});
-  }
 };
 $("volSlider").addEventListener("input", renderRank);
 $("oiSlider").addEventListener("input", renderRank);

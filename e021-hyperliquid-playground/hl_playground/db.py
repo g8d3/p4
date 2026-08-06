@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS calls (
   last_status TEXT,
   last_error TEXT,
   last_row_count INTEGER,
+  last_request TEXT NOT NULL DEFAULT '',
   keep_last INTEGER NOT NULL DEFAULT 0,
   keep_group_col TEXT NOT NULL DEFAULT '',
   dedup_cols TEXT NOT NULL DEFAULT '',
@@ -49,7 +50,8 @@ CREATE TABLE IF NOT EXISTS logs (
   http_status INTEGER,
   latency_ms INTEGER,
   row_count INTEGER,
-  error TEXT
+  error TEXT,
+  request TEXT NOT NULL DEFAULT ''
 );
 CREATE INDEX IF NOT EXISTS idx_logs_call ON logs(call_id);
 CREATE INDEX IF NOT EXISTS idx_logs_ts ON logs(ts);
@@ -104,6 +106,7 @@ class DB:
             try:
                 c.executescript(SCHEMA)
                 self._migrate_calls(c)
+                self._migrate_logs(c)
                 c.commit()
             finally:
                 c.close()
@@ -112,6 +115,7 @@ class DB:
         """Add columns introduced after the initial schema to existing DBs."""
         existing = {x[1] for x in c.execute("PRAGMA table_info('calls')").fetchall()}
         for col, ddl in {
+            "last_request": "TEXT NOT NULL DEFAULT ''",
             "keep_last": "INTEGER NOT NULL DEFAULT 0",
             "keep_group_col": "TEXT NOT NULL DEFAULT ''",
             "dedup_cols": "TEXT NOT NULL DEFAULT ''",
@@ -120,6 +124,11 @@ class DB:
         }.items():
             if col not in existing:
                 c.execute(f'ALTER TABLE calls ADD COLUMN "{col}" {ddl}')
+
+    def _migrate_logs(self, c):
+        existing = {x[1] for x in c.execute("PRAGMA table_info('logs')").fetchall()}
+        if "request" not in existing:
+            c.execute("ALTER TABLE logs ADD COLUMN request TEXT NOT NULL DEFAULT ''")
 
     # ---- generic query engine (used for EVERY table in the UI) ----
 
@@ -444,27 +453,27 @@ class DB:
                 due.append(call)
         return due
 
-    def mark_run(self, call_id, status, error, row_count):
+    def mark_run(self, call_id, status, error, row_count, last_request=""):
         with self.lock:
             c = self.conn()
             try:
                 c.execute(
                     "UPDATE calls SET last_run_at = ?, last_status = ?, last_error = ?, "
-                    "last_row_count = ?, updated_at = ? WHERE id = ?",
-                    (now_iso(), status, error, row_count, now_iso(), call_id),
+                    "last_row_count = ?, last_request = ?, updated_at = ? WHERE id = ?",
+                    (now_iso(), status, error, row_count, last_request, now_iso(), call_id),
                 )
                 c.commit()
             finally:
                 c.close()
 
-    def log_run(self, call_id, status, http_status, latency_ms, row_count, error):
+    def log_run(self, call_id, status, http_status, latency_ms, row_count, error, request=""):
         with self.lock:
             c = self.conn()
             try:
                 c.execute(
                     "INSERT INTO logs (call_id, ts, status, http_status, latency_ms, "
-                    "row_count, error) VALUES (?,?,?,?,?,?,?)",
-                    (call_id, now_iso(), status, http_status, latency_ms, row_count, error),
+                    "row_count, error, request) VALUES (?,?,?,?,?,?,?,?)",
+                    (call_id, now_iso(), status, http_status, latency_ms, row_count, error, request),
                 )
                 c.commit()
             finally:

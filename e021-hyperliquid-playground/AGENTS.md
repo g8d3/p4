@@ -82,6 +82,12 @@ Per-call config that makes storage bounded and duplicate-free:
 | `last_t_col` | Column used by `{{last_t}}` (candles: `t`). |
 | `backfill_ms` | First-run window (default 7 days). |
 
+**Transparency**: every run stores the exact resolved request(s) that were sent
+to the API as JSON in `calls.last_request` (and per-run in `logs.request`). The
+query's **Edit form shows it read-only** ("Last request"), and the coin filter
+card shows its own SQL inline ("View SQL") — nothing stays hidden in the
+playground.
+
 Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
 (~169 candles/coin, 14s), subsequent runs add 0 rows (all deduped), and
 `keep_last=10` caps every coin at its 10 newest candles.
