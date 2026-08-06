@@ -200,7 +200,7 @@ ORDER BY rank_vol
 
 
 def _ranking_rows():
-    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
+    call = db.markets_flow()
     if not call:
         return None
     table = f"r_{call['id']}"
@@ -229,7 +229,7 @@ def ranking():
         return {"available": False, "rows": [], "sql": None}
     tv = sum(r["dayntlvlm"] or 0 for r in rows)
     toi = sum(r["oi_usd"] or 0 for r in rows)
-    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
+    call = db.markets_flow()
     sql = RANKING_SQL.format(table=f"r_{call['id']}") if call else None
     return {"available": True, "n_coins": len(rows), "total_vol": tv, "total_oi": toi,
             "sql": sql, "rows": rows}
@@ -238,7 +238,7 @@ def ranking():
 @app.post("/api/ranking/setup")
 def ranking_setup():
     """Create (if needed) and run the markets feed that powers the ranking."""
-    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
+    call = db.markets_flow()
     if not call:
         call_id = db.create_call({
             "name": "markets",
@@ -254,10 +254,13 @@ def ranking_setup():
 
 @app.get("/api/watchlist")
 def get_watchlist():
-    raw = db.get_config("watchlist")
-    if not raw:
+    flow = db.markets_flow()
+    if not flow:
         return {"set": False}
-    return {"set": True, **json.loads(raw)}
+    cfg = db.get_flow_config(flow["id"])
+    if "coins" not in cfg:
+        return {"set": False}
+    return {"set": True, **cfg}
 
 
 class WatchlistBody(BaseModel):
@@ -267,11 +270,14 @@ class WatchlistBody(BaseModel):
 
 @app.put("/api/watchlist")
 def put_watchlist(body: WatchlistBody):
+    flow = db.markets_flow()
+    if not flow:
+        raise HTTPException(400, "no markets flow — run /api/ranking/setup first")
     rows = _ranking_rows()
     if rows is None:
         raise HTTPException(400, "no markets data yet — run /api/ranking/setup first")
     wl = _resolve_watchlist(body.vol_pct, body.oi_pct, rows)
-    db.set_config("watchlist", json.dumps(wl))
+    db.set_flow_config(flow["id"], wl)
     return {"ok": True, **wl}
 
 

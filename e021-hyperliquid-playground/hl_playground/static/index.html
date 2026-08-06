@@ -391,8 +391,8 @@ function buildExamples() {
   put("First 100 rows", `SELECT * FROM {{T}} LIMIT 100`);
   put("Row count", `SELECT COUNT(*) AS n FROM {{T}}`);
   put("Distinct values of a column", `SELECT {{COL}}, COUNT(*) AS n FROM {{T}} GROUP BY {{COL}} ORDER BY n DESC LIMIT 20`);
-  put("Runs", `SELECT call_id, ts, status, http_status, latency_ms, row_count, error FROM logs ORDER BY id DESC LIMIT 50`);
-  put("Flows", `SELECT id, name, path, interval_sec, keep_last, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
+  put("Runs", `SELECT flow_id, ts, status, http_status, latency_ms, row_count, error FROM runs ORDER BY id DESC LIMIT 50`);
+  put("Flows", `SELECT id, name, path, interval_sec, keep_last, enabled, last_run_at, last_status, last_row_count FROM flows ORDER BY id`);
   if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
 }
 
@@ -640,7 +640,7 @@ async function openCallForm(id) {
 /* ---------- logs ---------- */
 async function refreshLogs() {
   const r = await runQuery(
-    "SELECT call_id, ts, status, http_status, latency_ms, row_count, error FROM logs ORDER BY id DESC LIMIT 200",
+    "SELECT flow_id, ts, status, http_status, latency_ms, row_count, error FROM runs ORDER BY id DESC LIMIT 200",
     $("logsTable"), true);
 }
 

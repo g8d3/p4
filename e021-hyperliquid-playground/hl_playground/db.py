@@ -3,8 +3,8 @@
 Every artifact the playground produces is a SQLite table, so the SAME query
 engine and the SAME generic table renderer work for all of them:
 
-  calls   - scheduled API call configs (also the playground's admin table)
-  logs    - one row per executed call (status, latency, row count)
+  flows   - flow definitions (the playground's admin table)
+  runs    - one row per execution of a flow (status, latency, row count)
   r_<id>  - one table per call holding the flattened response rows
 
 Dynamic result columns are declared with NUMERIC affinity so SQLite coerces
@@ -19,7 +19,7 @@ import threading
 import uuid
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS calls (
+CREATE TABLE IF NOT EXISTS flows (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT UNIQUE NOT NULL,
   base_url TEXT NOT NULL DEFAULT 'https://api.hyperliquid.xyz',
@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS calls (
   last_row_count INTEGER,
   last_request TEXT NOT NULL DEFAULT '',
   read_sql TEXT NOT NULL DEFAULT '',
+  config TEXT NOT NULL DEFAULT '{}',
   keep_last INTEGER NOT NULL DEFAULT 0,
   keep_group_col TEXT NOT NULL DEFAULT '',
   keep_by TEXT NOT NULL DEFAULT '',
@@ -44,9 +45,9 @@ CREATE TABLE IF NOT EXISTS calls (
   last_t_col TEXT NOT NULL DEFAULT 't',
   backfill_ms INTEGER NOT NULL DEFAULT 0
 );
-CREATE TABLE IF NOT EXISTS logs (
+CREATE TABLE IF NOT EXISTS runs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  call_id INTEGER NOT NULL,
+  flow_id INTEGER NOT NULL,
   ts TEXT NOT NULL,
   status TEXT,
   http_status INTEGER,
@@ -55,13 +56,8 @@ CREATE TABLE IF NOT EXISTS logs (
   error TEXT,
   request TEXT NOT NULL DEFAULT ''
 );
-CREATE INDEX IF NOT EXISTS idx_logs_call ON logs(call_id);
-CREATE INDEX IF NOT EXISTS idx_logs_ts ON logs(ts);
-CREATE TABLE IF NOT EXISTS config (
-  key TEXT PRIMARY KEY,
-  value TEXT,
-  updated_at TEXT
-);
+CREATE INDEX IF NOT EXISTS idx_runs_call ON runs(flow_id);
+CREATE INDEX IF NOT EXISTS idx_runs_ts ON runs(ts);
 """
 
 _READ_PREFIXES = ("select", "with", "explain")
@@ -107,21 +103,38 @@ class DB:
         with self.lock:
             c = self.conn()
             try:
+                self._rename_legacy_tables(c)
                 c.executescript(SCHEMA)
-                self._migrate_calls(c)
-                self._migrate_logs(c)
-                c.execute("UPDATE calls SET read_sql = 'SELECT * FROM {{table}} ORDER BY _ts DESC LIMIT 100' "
+                self._migrate_flows(c)
+                self._migrate_runs(c)
+                self._migrate_config(c)
+                c.execute("UPDATE flows SET read_sql = 'SELECT * FROM {{table}} ORDER BY _ts DESC LIMIT 100' "
                           "WHERE read_sql = ''")
                 c.commit()
             finally:
                 c.close()
 
-    def _migrate_calls(self, c):
+    def _rename_legacy_tables(self, c):
+        """Migrate the pre-Flows/Runs naming (calls/logs/call_id) in place."""
+        tables = {r[0] for r in c.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        if "flows" not in tables and "calls" in tables:
+            c.execute("ALTER TABLE calls RENAME TO flows")
+        if "runs" not in tables and "logs" in tables:
+            c.execute("ALTER TABLE logs RENAME TO runs")
+        runs_cols = {x[1] for x in c.execute("PRAGMA table_info('runs')").fetchall()}
+        if "flow_id" not in runs_cols and "call_id" in runs_cols:
+            c.execute("ALTER TABLE runs RENAME COLUMN call_id TO flow_id")
+        c.execute("DROP INDEX IF EXISTS idx_logs_call")
+        c.execute("DROP INDEX IF EXISTS idx_logs_ts")
+
+    def _migrate_flows(self, c):
         """Add columns introduced after the initial schema to existing DBs."""
-        existing = {x[1] for x in c.execute("PRAGMA table_info('calls')").fetchall()}
+        existing = {x[1] for x in c.execute("PRAGMA table_info('flows')").fetchall()}
         for col, ddl in {
             "last_request": "TEXT NOT NULL DEFAULT ''",
             "read_sql": "TEXT NOT NULL DEFAULT ''",
+            "config": "TEXT NOT NULL DEFAULT '{}'",
             "keep_last": "INTEGER NOT NULL DEFAULT 0",
             "keep_group_col": "TEXT NOT NULL DEFAULT ''",
             "keep_by": "TEXT NOT NULL DEFAULT ''",
@@ -130,12 +143,43 @@ class DB:
             "backfill_ms": "INTEGER NOT NULL DEFAULT 0",
         }.items():
             if col not in existing:
-                c.execute(f'ALTER TABLE calls ADD COLUMN "{col}" {ddl}')
+                c.execute(f'ALTER TABLE flows ADD COLUMN "{col}" {ddl}')
 
-    def _migrate_logs(self, c):
-        existing = {x[1] for x in c.execute("PRAGMA table_info('logs')").fetchall()}
+    def _migrate_runs(self, c):
+        existing = {x[1] for x in c.execute("PRAGMA table_info('runs')").fetchall()}
         if "request" not in existing:
-            c.execute("ALTER TABLE logs ADD COLUMN request TEXT NOT NULL DEFAULT ''")
+            c.execute("ALTER TABLE runs ADD COLUMN request TEXT NOT NULL DEFAULT ''")
+        if "flow_id" not in existing and "call_id" in existing:
+            c.execute("ALTER TABLE runs RENAME COLUMN call_id TO flow_id")
+
+    def _migrate_config(self, c):
+        """Move the legacy `config` table's watchlist into the markets flow,
+        then drop the table entirely."""
+        try:
+            row = c.execute(
+                "SELECT value FROM config WHERE key = 'watchlist'").fetchone()
+        except sqlite3.OperationalError:
+            row = None
+        if row:
+            market = self.markets_flow(c)
+            if market:
+                c.execute("UPDATE flows SET config = ? WHERE id = ?",
+                          (row["value"], market["id"]))
+        c.execute("DROP TABLE IF EXISTS config")
+
+    def markets_flow(self, c=None):
+        """The flow that feeds the ranking/watchlist (metaAndAssetCtxs)."""
+        own = c is None
+        if own:
+            c = self.conn()
+        try:
+            rows = c.execute(
+                "SELECT * FROM flows WHERE payload LIKE '%metaAndAssetCtxs%' "
+                "OR name = 'markets' ORDER BY id LIMIT 1").fetchall()
+            return dict(rows[0]) if rows else None
+        finally:
+            if own:
+                c.close()
 
     # ---- generic query engine (used for EVERY table in the UI) ----
 
@@ -405,7 +449,7 @@ class DB:
         with self.lock:
             c = self.conn()
             try:
-                cur = c.execute(f"INSERT INTO calls ({cols}) VALUES ({ph})", list(fields.values()))
+                cur = c.execute(f"INSERT INTO flows ({cols}) VALUES ({ph})", list(fields.values()))
                 c.commit()
                 return cur.lastrowid
             except sqlite3.IntegrityError:
@@ -416,7 +460,8 @@ class DB:
     def update_call(self, call_id, data):
         allowed = {"name", "base_url", "path", "method", "payload", "result_shape",
                    "interval_sec", "enabled", "keep_last", "keep_group_col",
-                   "keep_by", "dedup_cols", "last_t_col", "backfill_ms", "read_sql"}
+                   "keep_by", "dedup_cols", "last_t_col", "backfill_ms", "read_sql",
+                   "config"}
         if "payload" in data and not valid_payload_template(data["payload"]):
             raise ValueError("payload is not valid JSON (templates may be unquoted)")
         sets, vals = [], []
@@ -439,7 +484,7 @@ class DB:
         with self.lock:
             c = self.conn()
             try:
-                c.execute(f"UPDATE calls SET {', '.join(sets)} WHERE id = ?", vals)
+                c.execute(f"UPDATE flows SET {', '.join(sets)} WHERE id = ?", vals)
                 c.commit()
             except sqlite3.IntegrityError:
                 raise ValueError("call name already exists")
@@ -450,8 +495,8 @@ class DB:
         with self.lock:
             c = self.conn()
             try:
-                c.execute("DELETE FROM calls WHERE id = ?", (call_id,))
-                c.execute("DELETE FROM logs WHERE call_id = ?", (call_id,))
+                c.execute("DELETE FROM flows WHERE id = ?", (call_id,))
+                c.execute("DELETE FROM runs WHERE flow_id = ?", (call_id,))
                 c.execute(f'DROP TABLE IF EXISTS "{result_table(call_id)}"')
                 c.commit()
             finally:
@@ -460,7 +505,7 @@ class DB:
     def get_call(self, call_id):
         c = self.conn()
         try:
-            r = c.execute("SELECT * FROM calls WHERE id = ?", (call_id,)).fetchone()
+            r = c.execute("SELECT * FROM flows WHERE id = ?", (call_id,)).fetchone()
             return dict(r) if r else None
         finally:
             c.close()
@@ -468,31 +513,31 @@ class DB:
     def list_calls(self, enabled_only=False):
         c = self.conn()
         try:
-            sql = "SELECT * FROM calls" + (" WHERE enabled = 1" if enabled_only else "") + " ORDER BY id"
+            sql = "SELECT * FROM flows" + (" WHERE enabled = 1" if enabled_only else "") + " ORDER BY id"
             return [dict(r) for r in c.execute(sql).fetchall()]
         finally:
             c.close()
 
-    # ---- config (persisted UI/user settings) ----
+    # ---- per-flow config (JSON column; e.g. markets flow holds the watchlist) ----
 
-    def get_config(self, key, default=None):
+    def get_flow_config(self, call_id):
         c = self.conn()
         try:
-            r = c.execute("SELECT value FROM config WHERE key = ?", (key,)).fetchone()
-            return r["value"] if r else default
+            r = c.execute("SELECT config FROM flows WHERE id = ?", (call_id,)).fetchone()
+            if not r or not r["config"]:
+                return {}
+            return json.loads(r["config"])
+        except (sqlite3.Error, json.JSONDecodeError):
+            return {}
         finally:
             c.close()
 
-    def set_config(self, key, value):
+    def set_flow_config(self, call_id, obj):
         with self.lock:
             c = self.conn()
             try:
-                c.execute(
-                    "INSERT INTO config (key, value, updated_at) VALUES (?, ?, ?) "
-                    "ON CONFLICT(key) DO UPDATE SET value = excluded.value, "
-                    "updated_at = excluded.updated_at",
-                    (key, value, now_iso()),
-                )
+                c.execute("UPDATE flows SET config = ?, updated_at = ? WHERE id = ?",
+                          (json.dumps(obj), now_iso(), call_id))
                 c.commit()
             finally:
                 c.close()
@@ -521,7 +566,7 @@ class DB:
             c = self.conn()
             try:
                 c.execute(
-                    "UPDATE calls SET last_run_at = ?, last_status = ?, last_error = ?, "
+                    "UPDATE flows SET last_run_at = ?, last_status = ?, last_error = ?, "
                     "last_row_count = ?, last_request = ?, updated_at = ? WHERE id = ?",
                     (now_iso(), status, error, row_count, last_request, now_iso(), call_id),
                 )
@@ -534,7 +579,7 @@ class DB:
             c = self.conn()
             try:
                 c.execute(
-                    "INSERT INTO logs (call_id, ts, status, http_status, latency_ms, "
+                    "INSERT INTO runs (flow_id, ts, status, http_status, latency_ms, "
                     "row_count, error, request) VALUES (?,?,?,?,?,?,?,?)",
                     (call_id, now_iso(), status, http_status, latency_ms, row_count, error, request),
                 )

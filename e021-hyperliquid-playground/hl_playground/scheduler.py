@@ -26,18 +26,15 @@ DEFAULT_BACKFILL_MS = 7 * 24 * 3600 * 1000
 
 
 def resolve_coins(db):
-    """Watchlist coins, or all coins from the latest markets snapshot."""
-    raw = db.get_config("watchlist")
-    if raw:
-        try:
-            coins = json.loads(raw).get("coins")
-            if coins:
-                return coins
-        except Exception:
-            pass
-    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
-    if call:
-        t = result_table(call["id"])
+    """Watchlist coins (stored in the markets flow's config), or all coins
+    from the latest markets snapshot as fallback."""
+    flow = db.markets_flow()
+    if flow:
+        cfg = db.get_flow_config(flow["id"])
+        coins = cfg.get("coins") if cfg else None
+        if coins:
+            return coins
+        t = result_table(flow["id"])
         try:
             _, rows, err = db.run_query(
                 f'SELECT DISTINCT name FROM "{t}" '

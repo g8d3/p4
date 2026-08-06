@@ -11,13 +11,13 @@ Everything the playground produces is a **SQLite table**, so one generic SQL eng
 
 | Table | Contents |
 |---|---|
-| `calls` | **Flows** — the configured, repeatable definitions (the playground's admin table) |
-| `logs` | **Runs** — one row per execution of a flow (status, latency, row count) |
+| `flows` | **Flows** — the configured, repeatable definitions (the playground's admin table) |
+| `runs` | **Runs** — one row per execution of a flow (status, latency, row count) |
 | `r_<id>` | One table per flow holding flattened response rows |
 
-The UI is a single page: pick a table (or type any SQL), run it, and the same generic component renders `calls`, `logs`, and every result table. `SELECT`, `WHERE`, `LIMIT/OFFSET`, `GROUP BY`, `JOIN`, `ORDER BY` all work; queries are read-only by design (writes happen only through the scheduler/CRUD API).
+The UI is a single page: pick a table (or type any SQL), run it, and the same generic component renders `flows`, `runs`, and every result table. `SELECT`, `WHERE`, `LIMIT/OFFSET`, `GROUP BY`, `JOIN`, `ORDER BY` all work; queries are read-only by design (writes happen only through the scheduler/CRUD API).
 
-**Naming**: a *flow* is the definition you configure (runs on an interval); a *run* is one execution of it. Every flow stores its own **Read SQL** (how its results are viewed, `{{table}}` = its result table) and the exact resolved request it last sent (`last_request`).
+**Naming**: a *flow* is the definition you configure (runs on an interval); a *run* is one execution of it. The SQL tables are `flows` and `runs`. The watchlist (coin filter selection) lives in the **markets flow's `config` column** — the flow that produces it contains everything it needs. Every flow stores its own **Read SQL** (how its results are viewed, `{{table}}` = its result table) and the exact resolved request it last sent (`last_request`).
 
 ## Run
 
@@ -52,7 +52,7 @@ notional volume (`dayNtlVlm`) and open interest. The UI exposes two sliders —
 
 - `GET /api/ranking` — ranked list with `rank_vol`, `rank_oi`, `cum_vol`, `cum_oi`
 - `PUT /api/watchlist` `{vol_pct, oi_pct}` — resolves top-N per metric, stores
-  the union in `config` as JSON for later steps (fan-out) to consume
+  the union in the **markets flow's `config`** for later steps (fan-out) to consume
 - `GET /api/watchlist` — the saved selection
 
 Measured on real data (2026-08): top 10 coins = 95.3% of 24h volume, top 20 =
@@ -87,7 +87,7 @@ Per-flow config that makes storage bounded and duplicate-free:
 | `backfill_ms` | First-run window (0 = auto `keep_last × interval`, default). |
 
 **Transparency**: every run stores the exact resolved request(s) that were sent
-to the API as JSON in `calls.last_request` (and per-run in `logs.request`). The
+to the API as JSON in `flows.last_request` (and per-run in `runs.request`). The
 query's **Edit form shows it read-only** ("Last request"), and the coin filter
 card shows its own SQL inline ("View SQL") — nothing stays hidden in the
 playground.
