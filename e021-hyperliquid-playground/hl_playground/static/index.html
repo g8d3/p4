@@ -469,6 +469,12 @@ function fillTemplate() {
   $("fPath").value = "/info";
 }
 
+function tplMatches(cat, stored) {
+  if (typeof cat.payload === "string") return cat.payload === stored;
+  try { return JSON.stringify(cat.payload) === JSON.stringify(JSON.parse(stored)); }
+  catch(_) { return false; }
+}
+
 async function openCallForm(id) {
   const wrap = $("callFormWrap");
   const editing = id ? state.calls.find(c => c.id === id) : null;
@@ -481,7 +487,7 @@ async function openCallForm(id) {
     <div class="grid">
       <div><label>Name</label><input type="text" id="fName" value="${editing ? editing.name : ""}"></div>
       <div><label>Endpoint template</label>
-        <select id="epSel"><option value="">custom…</option>${epOpts}</select></div>
+        <select id="epSel"><option value="">custom payload — write your own in the box below</option>${epOpts}</select></div>
     </div>
     <div class="grid3">
       <div><label>Base URL</label>
@@ -528,6 +534,8 @@ async function openCallForm(id) {
     b.querySelector("#fShape").value = editing.result_shape;
     b.querySelector("#fEnabled").value = String(editing.enabled);
   }
+  const match = (state.endpoints || []).find(e => tplMatches(e, editing ? editing.payload : '{"type":"allMids"}'));
+  if (match) b.querySelector("#epSel").value = match.label;
   b.querySelector("#epSel").addEventListener("change", fillTemplate);
   b.querySelector("#fCancel").onclick = () => { wrap.style.display = "none"; };
   b.querySelector("#fSave").onclick = async () => {
