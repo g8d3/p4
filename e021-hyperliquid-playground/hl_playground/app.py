@@ -184,11 +184,13 @@ def _resolve_watchlist(vol_pct, oi_pct, rows):
 def ranking():
     rows = _ranking_rows()
     if rows is None:
-        return {"available": False, "rows": []}
+        return {"available": False, "rows": [], "sql": None}
     tv = sum(r["dayntlvlm"] or 0 for r in rows)
     toi = sum(r["oi_usd"] or 0 for r in rows)
+    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
+    sql = RANKING_SQL.format(table=f"r_{call['id']}") if call else None
     return {"available": True, "n_coins": len(rows), "total_vol": tv, "total_oi": toi,
-            "rows": rows}
+            "sql": sql, "rows": rows}
 
 
 @app.post("/api/ranking/setup")

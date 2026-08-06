@@ -79,7 +79,10 @@
 <div class="card" id="rankCard">
   <header>
     <h2>Coin filter (ranking)</h2>
-    <span class="meta" id="rankInfo"></span>
+    <div class="row">
+      <span class="meta" id="rankInfo"></span>
+      <button class="small" id="btnRankSql" style="display:none">View SQL</button>
+    </div>
   </header>
   <div id="rankSetup" style="display:none">
     <p class="sub">Fetch market data once to build the volume / open-interest ranking. Then pick a coverage percentage and the top-N computes itself.</p>
@@ -100,7 +103,7 @@
 <!-- ================= CALLS ================= -->
 <div class="card" id="callsCard">
   <header>
-    <h2>Calls &amp; configs</h2>
+    <h2>Scheduled queries</h2>
     <div class="row">
       <button class="small" id="btnRefresh">Refresh</button>
       <button class="small" id="btnRunAll">Run all now</button>
@@ -277,6 +280,7 @@ async function loadRanking() {
     if (r.available) {
       $("rankSetup").style.display = "none";
       $("rankBody").style.display = "block";
+      $("btnRankSql").style.display = r.sql ? "inline-block" : "none";
       const wl = await api("/api/watchlist").catch(() => ({set: false}));
       if (wl.set) {
         $("volSlider").value = (wl.vol_pct * 100).toFixed(0);
@@ -358,7 +362,7 @@ function buildExamples() {
   put("Row count", `SELECT COUNT(*) AS n FROM {{T}}`);
   put("Distinct values of a column", `SELECT {{COL}}, COUNT(*) AS n FROM {{T}} GROUP BY {{COL}} ORDER BY n DESC LIMIT 20`);
   put("Recent call logs", `SELECT call_id, ts, status, http_status, latency_ms, row_count FROM logs ORDER BY id DESC LIMIT 50`);
-  put("Calls & configs", `SELECT id, name, path, interval_sec, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
+  put("Scheduled queries", `SELECT id, name, path, interval_sec, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
   if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
 }
 
@@ -567,6 +571,13 @@ $("btnRankSetup").onclick = async () => {
   } catch(e) { toast("setup failed: " + e.message); }
   $("btnRankSetup").disabled = false;
   $("btnRankSetup").textContent = "Fetch markets ranking";
+};
+$("btnRankSql").onclick = () => {
+  if (rankState && rankState.sql) {
+    $("sqlBox").value = rankState.sql;
+    runCurrent(false);
+    $("sqlBox").scrollIntoView({behavior: "smooth", block: "center"});
+  }
 };
 $("volSlider").addEventListener("input", renderRank);
 $("oiSlider").addEventListener("input", renderRank);
