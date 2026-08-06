@@ -48,6 +48,11 @@ CREATE TABLE IF NOT EXISTS logs (
 );
 CREATE INDEX IF NOT EXISTS idx_logs_call ON logs(call_id);
 CREATE INDEX IF NOT EXISTS idx_logs_ts ON logs(ts);
+CREATE TABLE IF NOT EXISTS config (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at TEXT
+);
 """
 
 _READ_PREFIXES = ("select", "with", "explain")
@@ -300,6 +305,30 @@ class DB:
             return [dict(r) for r in c.execute(sql).fetchall()]
         finally:
             c.close()
+
+    # ---- config (persisted UI/user settings) ----
+
+    def get_config(self, key, default=None):
+        c = self.conn()
+        try:
+            r = c.execute("SELECT value FROM config WHERE key = ?", (key,)).fetchone()
+            return r["value"] if r else default
+        finally:
+            c.close()
+
+    def set_config(self, key, value):
+        with self.lock:
+            c = self.conn()
+            try:
+                c.execute(
+                    "INSERT INTO config (key, value, updated_at) VALUES (?, ?, ?) "
+                    "ON CONFLICT(key) DO UPDATE SET value = excluded.value, "
+                    "updated_at = excluded.updated_at",
+                    (key, value, now_iso()),
+                )
+                c.commit()
+            finally:
+                c.close()
 
     def due_calls(self, now_epoch):
         """Calls that are enabled and have an interval that has elapsed."""

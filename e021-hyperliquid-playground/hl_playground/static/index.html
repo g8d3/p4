@@ -52,6 +52,8 @@
   tbody td{padding:5px 8px;border-bottom:1px solid #21262d;white-space:nowrap;
     max-width:340px;overflow:hidden;text-overflow:ellipsis}
   tbody tr:hover{background:var(--panel2)}
+  tbody tr.sel td{background:#132a42}
+  tbody tr.sel:hover td{background:#17324f}
   .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
   .pill{display:inline-block;background:#161b22;border:1px solid var(--border);
     border-radius:999px;padding:2px 9px;font-size:11px;color:var(--muted);
@@ -72,6 +74,28 @@
 
 <h1>Hyperliquid Playground</h1>
 <p class="sub" id="statusline">loading…</p>
+
+<!-- ================= COIN FILTER ================= -->
+<div class="card" id="rankCard">
+  <header>
+    <h2>Coin filter (ranking)</h2>
+    <span class="meta" id="rankInfo"></span>
+  </header>
+  <div id="rankSetup" style="display:none">
+    <p class="sub">Fetch market data once to build the volume / open-interest ranking. Then pick a coverage percentage and the top-N computes itself.</p>
+    <button class="small primary" id="btnRankSetup">Fetch markets ranking</button>
+  </div>
+  <div id="rankBody" style="display:none">
+    <div class="grid">
+      <div><label>24h volume coverage: <b id="volPctLbl">95%</b> → <b id="volN">?</b> coins</label>
+        <input type="range" id="volSlider" min="50" max="100" step="0.5" value="95"></div>
+      <div><label>Open interest coverage: <b id="oiPctLbl">95%</b> → <b id="oiN">?</b> coins</label>
+        <input type="range" id="oiSlider" min="50" max="100" step="0.5" value="95"></div>
+    </div>
+    <div class="meta" id="rankSummary" style="margin:4px 0 6px"></div>
+    <div class="tblwrap" id="rankTable"></div>
+  </div>
+</div>
 
 <!-- ================= CALLS ================= -->
 <div class="card" id="callsCard">
@@ -143,7 +167,8 @@ function toast(msg, ms=2200) {
 }
 
 /* ---------- generic table renderer (ONE base for all tables) ---------- */
-function renderTable(container, result, extraCol) {
+function renderTable(container, result, extraCol, opts) {
+  opts = opts || {};
   container.innerHTML = "";
   if (!result || !result.ok) {
     if (result && result.error) {
@@ -167,11 +192,12 @@ function renderTable(container, result, extraCol) {
   if (extraCol) { const th = document.createElement("th"); th.textContent = extraCol.title; hr.appendChild(th); }
   thead.appendChild(hr); tbl.appendChild(thead);
   const tbody = document.createElement("tbody");
-  result.rows.forEach(row => {
+  result.rows.forEach((row, i) => {
     const tr = document.createElement("tr");
-    cols.forEach((c, i) => {
+    if (opts.highlight && opts.highlight.has(i)) tr.classList.add("sel");
+    cols.forEach((c, j) => {
       const td = document.createElement("td");
-      const v = row[i];
+      const v = row[j];
       td.title = v === null || v === undefined ? "" : String(v);
       td.textContent = v === null || v === undefined ? "∅" : String(v);
       if (v === null || v === undefined) td.style.color = "var(--muted)";
@@ -183,7 +209,89 @@ function renderTable(container, result, extraCol) {
   tbl.appendChild(tbody); wrap.appendChild(tbl); container.appendChild(wrap);
 }
 
-/* ---------- status ---------- */
+/* ---------- coin filter (ranking) ---------- */
+let rankState = null;   // {available, n_coins, total_vol, total_oi, rows}
+
+function fmtMoney(v) {
+  v = Number(v) || 0;
+  if (Math.abs(v) >= 1e9) return "$" + (v / 1e9).toFixed(2) + "B";
+  if (Math.abs(v) >= 1e6) return "$" + (v / 1e6).toFixed(1) + "M";
+  if (Math.abs(v) >= 1e3) return "$" + (v / 1e3).toFixed(0) + "K";
+  return "$" + v.toFixed(0);
+}
+function fmtPct(v) {
+  return v === null || v === undefined ? "—" : (v * 100).toFixed(1) + "%";
+}
+
+function watchlistN(rows, col, rankCol, thr) {
+  let m = rows.length;
+  for (const r of rows) {
+    if (r[col] !== null && r[col] !== undefined && r[col] >= thr && r[rankCol] < m) m = r[rankCol];
+  }
+  return m;
+}
+
+function renderRank() {
+  if (!rankState || !rankState.available) return;
+  const rows = rankState.rows;
+  const vp = parseInt($("volSlider").value, 10) / 100;
+  const op = parseInt($("oiSlider").value, 10) / 100;
+  const volN = watchlistN(rows, "cum_vol", "rank_vol", vp);
+  const oiN = watchlistN(rows, "cum_oi", "rank_oi", op);
+  const sel = new Set();
+  rows.forEach((r, i) => { if (r["rank_vol"] <= volN || r["rank_oi"] <= oiN) sel.add(i); });
+
+  $("volPctLbl").textContent = (vp * 100).toFixed(0) + "%";
+  $("oiPctLbl").textContent = (op * 100).toFixed(0) + "%";
+  $("volN").textContent = volN;
+  $("oiN").textContent = oiN;
+  $("rankSummary").textContent =
+    `${rankState.n_coins} coins · total 24h vol ${fmtMoney(rankState.total_vol)} · ` +
+    `watchlist = top ${volN} by volume (${fmtPct(rows[volN - 1].cum_vol)}) ∪ top ${oiN} by OI ` +
+    `(=${sel.size} coins)`;
+
+  const cols = ["vol #", "coin", "24h vol", "cum vol", "oi #", "OI", "cum oi"];
+  const out = rows.map(r => [
+    r["rank_vol"], r["name"], fmtMoney(r["dayntlvlm"]), fmtPct(r["cum_vol"]),
+    r["rank_oi"], fmtMoney(r["openinterest"]), fmtPct(r["cum_oi"]),
+  ]);
+  renderTable($("rankTable"), {ok: true, columns: cols, rows: out}, null, {highlight: sel});
+  saveWatchlist();
+}
+
+let wlTimer = null;
+function saveWatchlist() {
+  clearTimeout(wlTimer);
+  wlTimer = setTimeout(() => {
+    api("/api/watchlist", {method: "PUT", body: JSON.stringify({
+      vol_pct: parseInt($("volSlider").value, 10) / 100,
+      oi_pct: parseInt($("oiSlider").value, 10) / 100,
+    })}).then(wl => $("rankInfo").textContent = `saved: ${wl.union_n} coins`).catch(() => {});
+  }, 400);
+}
+
+async function loadRanking() {
+  try {
+    const r = await api("/api/ranking");
+    rankState = r;
+    if (r.available) {
+      $("rankSetup").style.display = "none";
+      $("rankBody").style.display = "block";
+      const wl = await api("/api/watchlist").catch(() => ({set: false}));
+      if (wl.set) {
+        $("volSlider").value = (wl.vol_pct * 100).toFixed(0);
+        $("oiSlider").value = (wl.oi_pct * 100).toFixed(0);
+      }
+      renderRank();
+    } else {
+      $("rankSetup").style.display = "block";
+      $("rankBody").style.display = "none";
+      $("rankInfo").textContent = "no market data yet";
+    }
+  } catch(e) { $("rankInfo").textContent = "ranking error: " + e.message; }
+}
+
+
 async function refreshStatus() {
   try {
     const s = await api("/api/status");
@@ -449,6 +557,19 @@ $("btnNewCall").onclick = () => openCallForm(null);
 $("btnRun").onclick = () => runCurrent(false);
 $("btnRefresh").onclick = refreshAll;
 $("btnReloadLogs").onclick = refreshLogs;
+$("btnRankSetup").onclick = async () => {
+  $("btnRankSetup").disabled = true;
+  $("btnRankSetup").textContent = "fetching…";
+  try {
+    const r = await api("/api/ranking/setup", {method: "POST"});
+    toast(r.ok ? `markets: ${r.row_count} rows` : "markets fetch failed: " + r.error);
+    await loadRanking();
+  } catch(e) { toast("setup failed: " + e.message); }
+  $("btnRankSetup").disabled = false;
+  $("btnRankSetup").textContent = "Fetch markets ranking";
+};
+$("volSlider").addEventListener("input", renderRank);
+$("oiSlider").addEventListener("input", renderRank);
 $("btnRunAll").onclick = async () => {
   const r = await api("/api/calls/run_all", {method: "POST"});
   const n = r.results.filter(x => x.ok).length;
@@ -470,6 +591,7 @@ $("liveSec").addEventListener("change", startLive);
   const d = await api("/api/endpoints");
   state.endpoints = d.info;
   await refreshAll();
+  loadRanking();
   runCurrent(true);
 })();
 </script>

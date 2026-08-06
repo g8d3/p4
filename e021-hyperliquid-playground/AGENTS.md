@@ -40,12 +40,31 @@ A call config = `{name, base_url, path, method, payload(JSON), interval_sec, ena
 
 Dynamic columns are created with NUMERIC affinity, so `ORDER BY markPx` sorts numerically while names/hashes stay text.
 
+## Coin filter (ranking)
+
+Step 1 of the guided flow: limit the market to the coins that matter before
+pulling candles/books. `metaAndAssetCtxs` is fetched once (the "Fetch markets
+ranking" button, or `/api/ranking/setup`) and every coin is ranked by 24h
+notional volume (`dayNtlVlm`) and open interest. The UI exposes two sliders —
+**coverage percentage** per metric — and computes the top-N automatically:
+
+- `GET /api/ranking` — ranked list with `rank_vol`, `rank_oi`, `cum_vol`, `cum_oi`
+- `PUT /api/watchlist` `{vol_pct, oi_pct}` — resolves top-N per metric, stores
+  the union in `config` as JSON for later steps (fan-out) to consume
+- `GET /api/watchlist` — the saved selection
+
+Measured on real data (2026-08): top 10 coins = 95.3% of 24h volume, top 20 =
+97.3%. Open interest is long-tailed — 95% OI needs ~33 coins. Defaults
+(95% vol / 95% OI) resolve to ~41 coins; 90%/90% ≈ 20 coins.
+
 ## API (REST)
 
 | Method/Path | Purpose |
 |---|---|
 | `GET /` | The UI |
 | `GET /api/status`, `/api/tables`, `/api/endpoints` | Discovery |
+| `GET /api/ranking`, `POST /api/ranking/setup` | Coin filter: rank by volume/OI, fetch markets once |
+| `GET/PUT /api/watchlist` | Persist the coverage-% watchlist selection |
 | `POST /api/query` `{sql}` | Run read-only SQL → `{columns, rows, truncated, error}` |
 | `POST /api/calls` / `PUT /api/calls/{id}` / `DELETE /api/calls/{id}` | CRUD |
 | `POST /api/calls/{id}/run` / `/clear` | Run now / clear rows |

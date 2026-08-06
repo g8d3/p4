@@ -4,6 +4,7 @@ Serves a mobile-first single page, a generic SQL query engine over all
 stored tables, and a CRUD API for the scheduled calls.
 """
 
+import json
 import os
 import time
 from pathlib import Path
@@ -126,6 +127,107 @@ def endpoints():
 @app.get("/api/tables")
 def tables():
     return {"tables": db.list_tables()}
+
+
+# ---- ranking / coin filter ------------------------------------------------
+# Step 1 of the guided flow: fetch markets once, rank coins by 24h volume and
+# open interest, and let the user pick a *coverage percentage* per metric.
+# The slider computes the top-N automatically and the chosen watchlist is
+# persisted in `config` so later steps (candle/book fan-out) can consume it.
+
+RANKING_SQL = """
+WITH latest AS (
+  SELECT name, dayntlvlm, openinterest FROM {table}
+  WHERE _ts = (SELECT max(_ts) FROM {table})
+),
+tot AS (
+  SELECT SUM(dayntlvlm) AS tv, SUM(openinterest) AS toi FROM latest
+)
+SELECT
+  ROW_NUMBER() OVER (ORDER BY dayntlvlm DESC)     AS rank_vol,
+  name,
+  dayntlvlm,
+  ROUND(SUM(dayntlvlm) OVER (ORDER BY dayntlvlm DESC) / tot.tv, 4) AS cum_vol,
+  ROW_NUMBER() OVER (ORDER BY openinterest DESC)  AS rank_oi,
+  openinterest,
+  ROUND(SUM(openinterest) OVER (ORDER BY openinterest DESC) / tot.toi, 4) AS cum_oi
+FROM latest CROSS JOIN tot
+ORDER BY rank_vol
+"""
+
+
+def _ranking_rows():
+    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
+    if not call:
+        return None
+    table = f"r_{call['id']}"
+    sql = RANKING_SQL.format(table=table)
+    cols, rows, err = db.run_query(sql)
+    if err or not rows:
+        return None
+    return [dict(zip(cols, r)) for r in rows]
+
+
+def _resolve_watchlist(vol_pct, oi_pct, rows):
+    """Smallest top-N whose cumulative coverage reaches each threshold."""
+    vol_n = min((r["rank_vol"] for r in rows
+                 if r["cum_vol"] is not None and r["cum_vol"] >= vol_pct), default=len(rows))
+    oi_n = min((r["rank_oi"] for r in rows
+                if r["cum_oi"] is not None and r["cum_oi"] >= oi_pct), default=len(rows))
+    coins = [r["name"] for r in rows if r["rank_vol"] <= vol_n or r["rank_oi"] <= oi_n]
+    return {"vol_pct": vol_pct, "oi_pct": oi_pct, "vol_n": vol_n, "oi_n": oi_n,
+            "union_n": len(coins), "coins": coins}
+
+
+@app.get("/api/ranking")
+def ranking():
+    rows = _ranking_rows()
+    if rows is None:
+        return {"available": False, "rows": []}
+    tv = sum(r["dayntlvlm"] or 0 for r in rows)
+    toi = sum(r["openinterest"] or 0 for r in rows)
+    return {"available": True, "n_coins": len(rows), "total_vol": tv, "total_oi": toi,
+            "rows": rows}
+
+
+@app.post("/api/ranking/setup")
+def ranking_setup():
+    """Create (if needed) and run the markets feed that powers the ranking."""
+    call = next((c for c in db.list_calls() if c["name"] == "markets"), None)
+    if not call:
+        call_id = db.create_call({
+            "name": "markets",
+            "payload": '{"type":"metaAndAssetCtxs"}',
+            "interval_sec": 86400,
+            "enabled": True,
+        })
+        call = db.get_call(call_id)
+    result = scheduler.execute_call(db, call)
+    return {"ok": result["ok"], "call_id": call["id"],
+            "error": result.get("error"), "row_count": result.get("row_count")}
+
+
+@app.get("/api/watchlist")
+def get_watchlist():
+    raw = db.get_config("watchlist")
+    if not raw:
+        return {"set": False}
+    return {"set": True, **json.loads(raw)}
+
+
+class WatchlistBody(BaseModel):
+    vol_pct: float = 0.95
+    oi_pct: float = 0.95
+
+
+@app.put("/api/watchlist")
+def put_watchlist(body: WatchlistBody):
+    rows = _ranking_rows()
+    if rows is None:
+        raise HTTPException(400, "no markets data yet — run /api/ranking/setup first")
+    wl = _resolve_watchlist(body.vol_pct, body.oi_pct, rows)
+    db.set_config("watchlist", json.dumps(wl))
+    return {"ok": True, **wl}
 
 
 @app.post("/api/query")
