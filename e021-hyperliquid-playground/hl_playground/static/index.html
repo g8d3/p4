@@ -104,14 +104,14 @@
   </div>
 </div>
 
-<!-- ================= CALLS ================= -->
+<!-- ================= FLOWS ================= -->
 <div class="card" id="callsCard">
   <header>
-    <h2>Scheduled queries</h2>
+    <h2>Flows</h2>
     <div class="row">
       <button class="small" id="btnRefresh">Refresh</button>
-      <button class="small" id="btnRunAll">Run all now</button>
-      <button class="small primary" id="btnNewCall">+ New call</button>
+      <button class="small" id="btnRunAll">Run all</button>
+      <button class="small primary" id="btnNewCall">+ New flow</button>
     </div>
   </header>
   <div id="callFormWrap" style="display:none"></div>
@@ -141,10 +141,10 @@
   <div class="tblwrap" id="result" style="margin-top:8px"></div>
 </div>
 
-<!-- ================= LOGS ================= -->
+<!-- ================= RUNS ================= -->
 <div class="card">
   <header>
-    <h2>Logs</h2>
+    <h2>Runs</h2>
     <button class="small" id="btnReloadLogs">Reload</button>
   </header>
   <div class="tblwrap" id="logsTable"></div>
@@ -370,8 +370,8 @@ function buildExamples() {
   put("First 100 rows", `SELECT * FROM {{T}} LIMIT 100`);
   put("Row count", `SELECT COUNT(*) AS n FROM {{T}}`);
   put("Distinct values of a column", `SELECT {{COL}}, COUNT(*) AS n FROM {{T}} GROUP BY {{COL}} ORDER BY n DESC LIMIT 20`);
-  put("Recent call logs", `SELECT call_id, ts, status, http_status, latency_ms, row_count FROM logs ORDER BY id DESC LIMIT 50`);
-  put("Scheduled queries", `SELECT id, name, path, interval_sec, keep_last, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
+  put("Runs", `SELECT call_id, ts, status, http_status, latency_ms, row_count, error FROM logs ORDER BY id DESC LIMIT 50`);
+  put("Flows", `SELECT id, name, path, interval_sec, keep_last, enabled, last_run_at, last_status, last_row_count FROM calls ORDER BY id`);
   if (cur && sel.querySelector(`option[value="${cur}"]`)) sel.value = cur;
 }
 
@@ -423,6 +423,7 @@ function renderCalls() {
         b.onclick = async e => { e.stopPropagation(); await fn(); };
         td.appendChild(b);
       };
+      mk("view", "primary", () => viewCall(id));
       mk("run", "", () => runCall(id));
       mk("edit", "", () => openCallForm(id));
       mk("clr", "danger", () => clearCall(id));
@@ -430,6 +431,15 @@ function renderCalls() {
       return td;
     }
   });
+}
+
+function viewCall(id) {
+  const flow = state.calls.find(c => c.id === id);
+  if (!flow) return;
+  const sql = (flow.read_sql || "SELECT * FROM {{table}} LIMIT 100").split("{{table}}").join("r_" + id);
+  $("sqlBox").value = sql;
+  runCurrent(false);
+  $("sqlBox").scrollIntoView({behavior: "smooth", block: "center"});
 }
 
 async function runCall(id) {
@@ -483,6 +493,8 @@ async function openCallForm(id) {
     </div>
     <div><label>Payload (JSON) — call any API method</label>
       <textarea id="fPayload" rows="5" spellcheck="false">${editing ? editing.payload : '{"type":"allMids"}'}</textarea></div>
+    <div><label>Read SQL (how this flow's results are viewed) — &#123;&#123;table&#125;&#125; = its result table</label>
+      <textarea id="fReadSql" rows="2" spellcheck="false">${editing ? editing.read_sql : "SELECT * FROM {{table}} ORDER BY _ts DESC LIMIT 100"}</textarea></div>
     <div class="grid3">
       <div><label>Interval (sec)</label><input type="number" id="fInterval" value="${editing ? editing.interval_sec : 60}" min="1"></div>
       <div><label>Result shape</label>
@@ -536,14 +548,16 @@ async function openCallForm(id) {
       keep_group_col: b.querySelector("#fGroupCol").value.trim(),
       dedup_cols: b.querySelector("#fDedupCols").value.trim(),
       last_t_col: b.querySelector("#fLastTCol").value.trim() || "t",
-      backfill_ms: parseInt(b.querySelector("#fBackfill").value, 10) || 0
+      backfill_ms: parseInt(b.querySelector("#fBackfill").value, 10) || 0,
+      read_sql: b.querySelector("#fReadSql").value.trim()
     };
     try {
       if (editing) {
         const put = {payload, interval_sec: data.interval_sec, result_shape: data.result_shape,
           enabled: data.enabled, path: data.path, base_url: data.base_url, method: data.method,
           keep_last: data.keep_last, keep_group_col: data.keep_group_col,
-          dedup_cols: data.dedup_cols, last_t_col: data.last_t_col, backfill_ms: data.backfill_ms};
+          dedup_cols: data.dedup_cols, last_t_col: data.last_t_col, backfill_ms: data.backfill_ms,
+          read_sql: data.read_sql};
         if (data.name !== editing.name) put.name = data.name;
         await api(`/api/calls/${id}`, {method: "PUT", body: JSON.stringify(put)});
         toast("saved");

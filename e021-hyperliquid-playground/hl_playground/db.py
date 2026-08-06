@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS calls (
   last_error TEXT,
   last_row_count INTEGER,
   last_request TEXT NOT NULL DEFAULT '',
+  read_sql TEXT NOT NULL DEFAULT '',
   keep_last INTEGER NOT NULL DEFAULT 0,
   keep_group_col TEXT NOT NULL DEFAULT '',
   dedup_cols TEXT NOT NULL DEFAULT '',
@@ -107,6 +108,8 @@ class DB:
                 c.executescript(SCHEMA)
                 self._migrate_calls(c)
                 self._migrate_logs(c)
+                c.execute("UPDATE calls SET read_sql = 'SELECT * FROM {{table}} ORDER BY _ts DESC LIMIT 100' "
+                          "WHERE read_sql = ''")
                 c.commit()
             finally:
                 c.close()
@@ -116,6 +119,7 @@ class DB:
         existing = {x[1] for x in c.execute("PRAGMA table_info('calls')").fetchall()}
         for col, ddl in {
             "last_request": "TEXT NOT NULL DEFAULT ''",
+            "read_sql": "TEXT NOT NULL DEFAULT ''",
             "keep_last": "INTEGER NOT NULL DEFAULT 0",
             "keep_group_col": "TEXT NOT NULL DEFAULT ''",
             "dedup_cols": "TEXT NOT NULL DEFAULT ''",
@@ -336,6 +340,7 @@ class DB:
             "dedup_cols": data.get("dedup_cols") or "",
             "last_t_col": data.get("last_t_col") or "t",
             "backfill_ms": int(data.get("backfill_ms") or 604800000),
+            "read_sql": data.get("read_sql") or "SELECT * FROM {{table}} ORDER BY _ts DESC LIMIT 100",
         }
         cols = ", ".join(fields.keys())
         ph = ", ".join("?" for _ in fields)
@@ -353,7 +358,7 @@ class DB:
     def update_call(self, call_id, data):
         allowed = {"name", "base_url", "path", "method", "payload", "result_shape",
                    "interval_sec", "enabled", "keep_last", "keep_group_col",
-                   "dedup_cols", "last_t_col", "backfill_ms"}
+                   "dedup_cols", "last_t_col", "backfill_ms", "read_sql"}
         if "payload" in data and not valid_payload_template(data["payload"]):
             raise ValueError("payload is not valid JSON (templates may be unquoted)")
         sets, vals = [], []

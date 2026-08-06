@@ -60,6 +60,7 @@ class CallBody(BaseModel):
     dedup_cols: str | None = None
     last_t_col: str | None = None
     backfill_ms: int | None = None
+    read_sql: str | None = None
 
 
 # ---- static ---------------------------------------------------------------

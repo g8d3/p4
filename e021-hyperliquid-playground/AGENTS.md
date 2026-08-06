@@ -11,11 +11,13 @@ Everything the playground produces is a **SQLite table**, so one generic SQL eng
 
 | Table | Contents |
 |---|---|
-| `calls` | Scheduled call configs — the playground's own admin table |
-| `logs` | One row per execution (status, latency, row count) |
-| `r_<id>` | One table per call holding flattened response rows |
+| `calls` | **Flows** — the configured, repeatable definitions (the playground's admin table) |
+| `logs` | **Runs** — one row per execution of a flow (status, latency, row count) |
+| `r_<id>` | One table per flow holding flattened response rows |
 
 The UI is a single page: pick a table (or type any SQL), run it, and the same generic component renders `calls`, `logs`, and every result table. `SELECT`, `WHERE`, `LIMIT/OFFSET`, `GROUP BY`, `JOIN`, `ORDER BY` all work; queries are read-only by design (writes happen only through the scheduler/CRUD API).
+
+**Naming**: a *flow* is the definition you configure (runs on an interval); a *run* is one execution of it. Every flow stores its own **Read SQL** (how its results are viewed, `{{table}}` = its result table) and the exact resolved request it last sent (`last_request`).
 
 ## Run
 
@@ -27,7 +29,7 @@ The UI is a single page: pick a table (or type any SQL), run it, and the same ge
 
 ## How a call is stored
 
-A call config = `{name, base_url, path, method, payload(JSON), interval_sec, enabled, result_shape}`. The scheduler (and the "Run now" button) executes it and the response is flattened into rows:
+A flow config = `{name, base_url, path, method, payload(JSON), interval_sec, enabled, result_shape, read_sql, keep_last, ...}`. The scheduler (and the "Run now" button) executes it and the response is flattened into rows:
 
 - **`auto`** (default) — smart flattening:
   - arrays of objects → one row per object
@@ -72,7 +74,7 @@ per request. Templates are **unquoted** in the JSON:
 | `{{last_t}}` | `max(last_t_col)` for that coin; if empty, `now − backfill_ms` (one-shot backfill). |
 | `{{now_ms}}` | Current epoch ms (required for candle `endTime` — `endTime:0` returns HTTP 500). |
 
-Per-call config that makes storage bounded and duplicate-free:
+Per-flow config that makes storage bounded and duplicate-free:
 
 | Config | Meaning |
 |---|---|
@@ -102,8 +104,8 @@ Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
 | `GET/PUT /api/watchlist` | Persist the coverage-% watchlist selection |
 | `POST /api/query` `{sql}` | Run read-only SQL → `{columns, rows, truncated, error}` |
 | `POST /api/calls` / `PUT /api/calls/{id}` / `DELETE /api/calls/{id}` | CRUD |
-| `POST /api/calls/{id}/run` / `/clear` | Run now / clear rows |
-| `POST /api/calls/run_all` | Run every call now |
+| `POST /api/calls/{id}/run` / `/clear` | Run one flow now / clear its rows |
+| `POST /api/calls/run_all` | Run every flow now |
 
 ## Structure
 
