@@ -297,6 +297,18 @@ def query(body: QueryBody):
     }
 
 
+class DescribeBody(BaseModel):
+    table: str
+
+
+@app.post("/api/describe")
+def describe_table(body: DescribeBody):
+    tables = {t["name"] for t in db.list_tables()}
+    if body.table not in tables:
+        raise HTTPException(400, f"unknown table '{body.table}'")
+    return {"ok": True, "table": body.table, **db.describe_table(body.table)}
+
+
 # ---- calls CRUD + execution ------------------------------------------------
 
 @app.get("/api/calls")

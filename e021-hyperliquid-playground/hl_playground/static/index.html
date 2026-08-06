@@ -140,6 +140,7 @@
       </label>
       <input type="number" id="liveSec" value="5" min="1" style="width:64px"
         title="refresh seconds">
+      <button class="small" id="btnDescribe">Describe</button>
       <button class="primary" id="btnRun">Run</button>
     </div>
   </header>
@@ -369,7 +370,7 @@ function buildExamples() {
     put("Market overview (markPx, funding, OI) — order by notional",
       `SELECT name, markPx, midPx, prevDayPx, funding, openInterest, dayNtlVlm, oraclePx FROM ${tb} ORDER BY dayNtlVlm DESC LIMIT 25`);
     put("Top gainers today",
-      `SELECT name, prevDayPx, midPx, ROUND((midPx/prevDayPx-1)*100,2) AS chg_pct FROM ${tb} ORDER BY chg_pct DESC LIMIT 15`);
+      `SELECT name, prevDayPx, midPx, ROUND((midPx*1.0/prevDayPx-1)*100,2) AS chg_pct FROM ${tb} ORDER BY chg_pct DESC LIMIT 15`);
   }
   if (byPayload.allMids) {
     const tb = byPayload.allMids;
@@ -380,25 +381,47 @@ function buildExamples() {
     const tb = byPayload.candleSnapshot;
     put("Candles: pct change (intra-candle + vs previous close)",
       `SELECT s, datetime(t/1000,'unixepoch') AS time, o, h, l, c, v, n, ` +
-      `ROUND((c-o)/o*100,3) AS candle_pct, ` +
-      `ROUND((c - LAG(c) OVER (PARTITION BY s ORDER BY t)) / LAG(c) OVER (PARTITION BY s ORDER BY t) * 100, 3) AS chg_pct ` +
+      `ROUND((c-o)*1.0/o*100,3) AS candle_pct, ` +
+      `ROUND((c - LAG(c) OVER (PARTITION BY s ORDER BY t)) * 1.0 / LAG(c) OVER (PARTITION BY s ORDER BY t) * 100, 3) AS chg_pct ` +
       `FROM ${tb} WHERE i='1h' ORDER BY t DESC LIMIT 100`);
     put("Candles: biggest single-hour moves (abs % > 2)",
       `SELECT * FROM (SELECT s, datetime(t/1000,'unixepoch') AS time, c, ` +
-      `ROUND((c - LAG(c) OVER (PARTITION BY s ORDER BY t)) / LAG(c) OVER (PARTITION BY s ORDER BY t) * 100, 3) AS chg_pct ` +
+      `ROUND((c - LAG(c) OVER (PARTITION BY s ORDER BY t)) * 1.0 / LAG(c) OVER (PARTITION BY s ORDER BY t) * 100, 3) AS chg_pct ` +
       `FROM ${tb} WHERE i='1h') WHERE chg_pct IS NOT NULL AND abs(chg_pct) > 2 ` +
       `ORDER BY abs(chg_pct) DESC LIMIT 20`);
+    put("Candles: statistical description per coin (1h)",
+      `WITH ret AS (SELECT s, v, (h-l)*1.0/o AS rng, ` +
+      `(c - LAG(c) OVER (PARTITION BY s ORDER BY t)) / LAG(c) OVER (PARTITION BY s ORDER BY t) AS r ` +
+      `FROM ${tb} WHERE i='1h') ` +
+      `SELECT s AS coin, COUNT(*) AS n, ` +
+      `ROUND(AVG(r)*100,4) AS mean_ret_pct, ` +
+      `ROUND(SQRT(AVG(r*r)-AVG(r)*AVG(r))*100,4) AS ret_vol_pct, ` +
+      `ROUND(MIN(r)*100,2) AS min_ret, ROUND(MAX(r)*100,2) AS max_ret, ` +
+      `ROUND(AVG(rng)*100,3) AS avg_range_pct, ` +
+      `ROUND(AVG(v),1) AS avg_vol, ROUND(MAX(v),1) AS max_vol ` +
+      `FROM ret GROUP BY s ORDER BY ret_vol_pct DESC LIMIT 15`);
   }
   if (byPayload.l2Book) {
     const tb = byPayload.l2Book;
     put("Order book spread (group by side)",
       `SELECT side, COUNT(*) AS levels, MAX(px) AS best, MIN(px) AS worst FROM ${tb} GROUP BY side`);
     put("Bid/ask imbalance (latest snapshot)",
-      `SELECT coin, SUM(CASE WHEN side='bids' THEN sz END)/NULLIF(SUM(CASE WHEN side='asks' THEN sz END),0) AS ratio FROM ${tb} GROUP BY coin ORDER BY ratio ASC LIMIT 10`);
-    put("Walls: levels >> side average (latest snapshot)",
-      `WITH l AS (SELECT * FROM ${tb} WHERE _ts=(SELECT max(_ts) FROM ${tb})), a AS (SELECT coin, side, AVG(sz) av FROM l GROUP BY coin, side) SELECT l.coin, l.side, l.px, l.sz, ROUND(l.sz/a.av,1) AS wall FROM l JOIN a ON l.coin=a.coin AND l.side=a.side WHERE l.sz > 8*a.av ORDER BY wall DESC LIMIT 20`);
-    put("Widest spreads (latest snapshot)",
-      `WITH l AS (SELECT * FROM ${tb} WHERE _ts=(SELECT max(_ts) FROM ${tb})), b AS (SELECT coin, MAX(CASE WHEN side='bids' THEN px END) bb, MIN(CASE WHEN side='asks' THEN px END) ba FROM l GROUP BY coin) SELECT coin, ROUND(ba-bb,4) AS spread, ROUND((ba-bb)/bb*100,4) AS spread_pct FROM b ORDER BY spread_pct DESC LIMIT 15`);
+      `SELECT coin, SUM(CASE WHEN side='bids' THEN sz END)*1.0/NULLIF(SUM(CASE WHEN side='asks' THEN sz END),0) AS ratio FROM ${tb} GROUP BY coin ORDER BY ratio ASC LIMIT 10`);
+    put("Walls: levels >> side average (latest snapshot per coin)",
+      `WITH l AS (SELECT * FROM ${tb} WHERE (coin, time) IN (SELECT coin, MAX(time) FROM ${tb} GROUP BY coin)), a AS (SELECT coin, side, AVG(sz) av FROM l GROUP BY coin, side) SELECT l.coin, l.side, l.px, l.sz, ROUND(l.sz*1.0/a.av,1) AS wall FROM l JOIN a ON l.coin=a.coin AND l.side=a.side WHERE l.sz > 8*a.av ORDER BY wall DESC LIMIT 20`);
+    put("Widest spreads (latest snapshot per coin)",
+      `WITH l AS (SELECT * FROM ${tb} WHERE (coin, time) IN (SELECT coin, MAX(time) FROM ${tb} GROUP BY coin)), b AS (SELECT coin, MAX(CASE WHEN side='bids' THEN px END) bb, MIN(CASE WHEN side='asks' THEN px END) ba FROM l GROUP BY coin) SELECT coin, ROUND(ba-bb,4) AS spread, ROUND((ba-bb)*1.0/bb*100,4) AS spread_pct FROM b ORDER BY spread_pct DESC LIMIT 15`);
+    put("Book: statistical description per coin (latest snapshot per coin)",
+      `WITH l AS (SELECT * FROM ${tb} WHERE (coin, time) IN (SELECT coin, MAX(time) FROM ${tb} GROUP BY coin)) ` +
+      `SELECT coin, ` +
+      `ROUND(SUM(CASE WHEN side='bids' THEN sz END),1) AS bid_depth, ` +
+      `ROUND(SUM(CASE WHEN side='asks' THEN sz END),1) AS ask_depth, ` +
+      `ROUND(SUM(CASE WHEN side='bids' THEN sz END)*1.0/NULLIF(SUM(CASE WHEN side='asks' THEN sz END),0),3) AS imbalance, ` +
+      `ROUND(MAX(CASE WHEN side='bids' THEN px END),6) AS best_bid, ` +
+      `ROUND(MIN(CASE WHEN side='asks' THEN px END),6) AS best_ask, ` +
+      `ROUND((MIN(CASE WHEN side='asks' THEN px END)-MAX(CASE WHEN side='bids' THEN px END))*1.0/MIN(CASE WHEN side='asks' THEN px END)*100,4) AS spread_pct, ` +
+      `ROUND(MAX(sz)*1.0/NULLIF(AVG(sz),0),1) AS wall_concentration ` +
+      `FROM l GROUP BY coin ORDER BY spread_pct DESC LIMIT 15`);
   }
   put("Latest rows of selected table", `SELECT * FROM {{T}} ORDER BY _ts DESC LIMIT 100`);
   put("First 100 rows", `SELECT * FROM {{T}} LIMIT 100`);
@@ -473,6 +496,30 @@ async function runQuery(sql, container, silent) {
 
 function runCurrent(silent) {
   runQuery($("sqlBox").value, $("result"), silent);
+}
+
+async function describeCurrent() {
+  const t = $("tableSel").value;
+  if (!t) { toast("pick a table first"); return; }
+  $("queryInfo").textContent = "describing " + t + "…";
+  try {
+    const d = await api("/api/describe", {method: "POST", body: JSON.stringify({table: t})});
+    if (!d.ok) { toast(d.error || "describe failed"); return; }
+    const cols = ["column", "type", "nulls", "distinct", "min", "max", "avg", "stddev", "p25", "p50", "p75", "p95"];
+    const rows = d.columns.map(c => [
+      c.name, c.numeric ? "num" : "text", c.nulls, c.distinct,
+      c.numeric ? c.min : "—", c.numeric ? c.max : "—",
+      c.numeric ? c.avg : "—", c.numeric ? c.stddev : "—",
+      c.numeric ? c.p25 : "—", c.numeric ? c.p50 : "—",
+      c.numeric ? c.p75 : "—", c.numeric ? c.p95 : "—",
+    ]);
+    renderTable($("result"), {ok: true, columns: cols, rows});
+    $("queryInfo").textContent = `${t}: ${d.rows} rows · ${d.columns.length} cols${d.truncated ? " (first cols)" : ""}`;
+  } catch(e) {
+    $("queryInfo").textContent = "describe error";
+    const el = document.createElement("div"); el.className = "error"; el.textContent = e.message;
+    $("result").innerHTML = ""; $("result").appendChild(el);
+  }
 }
 
 /* ---------- calls CRUD UI ---------- */
@@ -682,6 +729,7 @@ function startLive() {
 /* ---------- wire up ---------- */
 $("btnNewCall").onclick = () => openCallForm(null);
 $("btnRun").onclick = () => runCurrent(false);
+$("btnDescribe").onclick = describeCurrent;
 $("btnRefresh").onclick = refreshAll;
 $("btnReloadLogs").onclick = refreshLogs;
 $("btnReloadDb").onclick = loadDbStats;

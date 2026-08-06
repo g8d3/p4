@@ -121,6 +121,7 @@ Verified on real data: 10 coins × 40 levels = 400 rows, replaced every run
 | `GET /api/ranking`, `POST /api/ranking/setup` | Coin filter: rank by volume/OI, fetch markets once |
 | `GET/PUT /api/watchlist` | Persist the coverage-% watchlist selection |
 | `POST /api/query` `{sql}` | Run read-only SQL → `{columns, rows, truncated, error}` |
+| `POST /api/describe` `{table}` | Pandas-style stats per column: nulls, distinct, min/max, avg, stddev, p25/50/75/95 |
 | `POST /api/calls` / `PUT /api/calls/{id}` / `DELETE /api/calls/{id}` | CRUD |
 | `POST /api/calls/{id}/run` / `/clear` | Run one flow now / clear its rows |
 | `POST /api/calls/run_all` | Run every flow now |
@@ -167,6 +168,20 @@ When Chrome is healthy again (after reboot), prefer for screenshots/rendering:
 - Results are stored in SQLite (see fundamentals: tabular data prefers CSV, but a live-updating queryable store justifies SQLite here; the data is also queryable, not just diffable).
 - No API keys needed — all endpoints used are public.
 - Every command in this repo: timeout it, run blocking things in background.
+
+## Statistics
+
+- **Describe** button (SQL playground): runs `POST /api/describe` on the
+  selected table — a pandas-style summary (nulls, distinct, min/max, avg,
+  stddev, p25/50/75/95) per column.
+- **Domain examples** (Examples dropdown): candle per-coin stats (mean return,
+  return volatility, min/max move, avg range, volume) and book per-coin
+  microstructure (bid/ask depth, imbalance, spread %, wall concentration).
+
+**Pitfall — SQLite integer division**: `a/b` truncates when both operands are
+INTEGER (BTC px, integer sizes). Every ratio in the example queries uses
+`* 1.0` (`SUM(x)*1.0/NULLIF(SUM(y),0)`). Writing a ratio without it returns
+0/1 for integer columns.
 
 ## Pitfalls
 

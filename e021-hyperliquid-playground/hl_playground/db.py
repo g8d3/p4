@@ -225,6 +225,40 @@ class DB:
         finally:
             c.close()
 
+    def describe_table(self, table, max_cols=14):
+        """Pandas-style descriptive statistics for a table, per column."""
+        c = self.conn()
+        try:
+            cols = [x[1] for x in c.execute(f"PRAGMA table_info('{table}')").fetchall()]
+            n = c.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+            out = []
+            for col in cols[:max_cols]:
+                r = c.execute(
+                    f'SELECT COUNT("{col}") AS nn, COALESCE(SUM("{col}" IS NULL),0) AS nulls, '
+                    f'COUNT(DISTINCT "{col}") AS d FROM "{table}"').fetchone()
+                types = {t[0] for t in c.execute(
+                    f'SELECT DISTINCT typeof("{col}") FROM "{table}" '
+                    f'WHERE "{col}" IS NOT NULL')}
+                numeric = bool(types) and types <= {"integer", "real"}
+                row = {"name": col, "numeric": numeric,
+                       "nulls": r["nulls"], "distinct": r["d"]}
+                if numeric:
+                    vals = [v for (v,) in c.execute(
+                        f'SELECT "{col}" FROM "{table}" WHERE "{col}" IS NOT NULL '
+                        f'ORDER BY "{col}"')]
+                    mean = sum(vals) / len(vals)
+                    var = sum((v - mean) ** 2 for v in vals) / len(vals)
+                    p = lambda pct: vals[min(len(vals) - 1, int((len(vals) - 1) * pct))]
+                    row.update({
+                        "min": vals[0], "max": vals[-1],
+                        "avg": round(mean, 6), "stddev": round(var ** 0.5, 6),
+                        "p25": p(0.25), "p50": p(0.50), "p75": p(0.75), "p95": p(0.95),
+                    })
+                out.append(row)
+            return {"rows": n, "columns": out, "truncated": len(cols) > max_cols}
+        finally:
+            c.close()
+
     def db_stats(self):
         """Storage stats: DB file size + per-table rows/size/24h growth."""
         import datetime
