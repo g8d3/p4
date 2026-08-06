@@ -375,6 +375,12 @@ function buildExamples() {
     const tb = byPayload.l2Book;
     put("Order book spread (group by side)",
       `SELECT side, COUNT(*) AS levels, MAX(px) AS best, MIN(px) AS worst FROM ${tb} GROUP BY side`);
+    put("Bid/ask imbalance (latest snapshot)",
+      `SELECT coin, SUM(CASE WHEN side='bids' THEN sz END)/NULLIF(SUM(CASE WHEN side='asks' THEN sz END),0) AS ratio FROM ${tb} GROUP BY coin ORDER BY ratio ASC LIMIT 10`);
+    put("Walls: levels >> side average (latest snapshot)",
+      `WITH l AS (SELECT * FROM ${tb} WHERE _ts=(SELECT max(_ts) FROM ${tb})), a AS (SELECT coin, side, AVG(sz) av FROM l GROUP BY coin, side) SELECT l.coin, l.side, l.px, l.sz, ROUND(l.sz/a.av,1) AS wall FROM l JOIN a ON l.coin=a.coin AND l.side=a.side WHERE l.sz > 8*a.av ORDER BY wall DESC LIMIT 20`);
+    put("Widest spreads (latest snapshot)",
+      `WITH l AS (SELECT * FROM ${tb} WHERE _ts=(SELECT max(_ts) FROM ${tb})), b AS (SELECT coin, MAX(CASE WHEN side='bids' THEN px END) bb, MIN(CASE WHEN side='asks' THEN px END) ba FROM l GROUP BY coin) SELECT coin, ROUND(ba-bb,4) AS spread, ROUND((ba-bb)/bb*100,4) AS spread_pct FROM b ORDER BY spread_pct DESC LIMIT 15`);
   }
   put("Latest rows of selected table", `SELECT * FROM {{T}} ORDER BY _ts DESC LIMIT 100`);
   put("First 100 rows", `SELECT * FROM {{T}} LIMIT 100`);
@@ -411,8 +417,9 @@ async function loadDbStats() {
     const rows = s.tables.map(t => {
       let util = "";
       if (t.kind === "result") {
-        util = t.keep_last ? (t.util_pct ?? 0) + "%"
-                           : "unbounded" + ((t.grown_24h || 0) > 0 ? " ⚠" : "");
+        if (t.keep_by) util = "last " + t.keep_by + " ×" + (t.keep_last || 0);
+        else if (t.keep_last) util = (t.util_pct ?? 0) + "%";
+        else util = "unbounded" + ((t.grown_24h || 0) > 0 ? " ⚠" : "");
       }
       return [
         t.name, t.kind, t.rows, fmtSize(t.size_bytes), t.grown_24h || 0,
@@ -560,11 +567,12 @@ async function openCallForm(id) {
       <div class="grid3">
         <div><label>keep_last (0 = unlimited)</label><input type="number" id="fKeepLast" value="${editing ? editing.keep_last : 0}" min="0"></div>
         <div><label>Group by column (per-coin prune)</label><input type="text" id="fGroupCol" placeholder="s" value="${editing ? editing.keep_group_col : ""}"></div>
-        <div><label>Dedup columns</label><input type="text" id="fDedupCols" placeholder="s,t" value="${editing ? editing.dedup_cols : ""}"></div>
+        <div><label>Keep by (latest N snapshots)</label><input type="text" id="fKeepBy" placeholder="time" value="${editing ? editing.keep_by : ""}"></div>
       </div>
       <div class="grid3">
         <div><label>last_t column (for &#123;&#123;last_t&#125;&#125;)</label><input type="text" id="fLastTCol" value="${editing ? editing.last_t_col : "t"}"></div>
         <div><label>Backfill ms (first run window)</label><input type="number" id="fBackfill" value="${editing ? editing.backfill_ms : 604800000}" min="0"></div>
+        <div><label>Dedup columns</label><input type="text" id="fDedupCols" placeholder="s,t" value="${editing ? editing.dedup_cols : ""}"></div>
       </div>
     </details>
     ${editing && editing.last_request ? '<details style="margin-top:6px"><summary>Last request (' + (JSON.parse(editing.last_request).length || 1) + ')</summary><pre class="req">' + esc(prettyJson(editing.last_request)) + '</pre></details>' : ''}
@@ -597,6 +605,7 @@ async function openCallForm(id) {
       enabled: b.querySelector("#fEnabled").value === "1",
       keep_last: parseInt(b.querySelector("#fKeepLast").value, 10) || 0,
       keep_group_col: b.querySelector("#fGroupCol").value.trim(),
+      keep_by: b.querySelector("#fKeepBy").value.trim(),
       dedup_cols: b.querySelector("#fDedupCols").value.trim(),
       last_t_col: b.querySelector("#fLastTCol").value.trim() || "t",
       backfill_ms: parseInt(b.querySelector("#fBackfill").value, 10) || 0,
@@ -607,7 +616,7 @@ async function openCallForm(id) {
         const put = {payload, interval_sec: data.interval_sec, result_shape: data.result_shape,
           enabled: data.enabled, path: data.path, base_url: data.base_url, method: data.method,
           keep_last: data.keep_last, keep_group_col: data.keep_group_col,
-          dedup_cols: data.dedup_cols, last_t_col: data.last_t_col, backfill_ms: data.backfill_ms,
+          keep_by: data.keep_by, dedup_cols: data.dedup_cols, last_t_col: data.last_t_col, backfill_ms: data.backfill_ms,
           read_sql: data.read_sql};
         if (data.name !== editing.name) put.name = data.name;
         const res = await api(`/api/calls/${id}`, {method: "PUT", body: JSON.stringify(put)});

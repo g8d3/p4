@@ -82,21 +82,25 @@ def resolve_templates(db, call, payload_str, group_val=None):
 
 def execute_call(db, call):
     payload_str = call["payload"] or "{}"
-    has_coins = "{{coins}}" in payload_str
-    if has_coins:
+    m = re.search(r"\{\{coins(?::(\d+))?\}\}", payload_str)
+    if m:
         coins = resolve_coins(db)
+        n = int(m.group(1)) if m.group(1) else 0
+        if n:
+            coins = coins[:n]
         if not coins:
             _finish(db, call, "error", None, 0, 0,
                     "no coins to fan out — run the markets ranking first")
             return {"ok": False, "error": "no coins to fan out", "row_count": 0}
+        token = m.group(0)
     else:
-        coins = [None]
+        coins, token = [None], None
 
     started = time.monotonic()
     total, last_http, first_err = 0, None, None
     requests = []
     for coin in coins:
-        pstr = payload_str.replace("{{coins}}", json.dumps(coin)) if coin is not None else payload_str
+        pstr = payload_str.replace(token, json.dumps(coin)) if token else payload_str
         pstr = resolve_templates(db, call, pstr, group_val=coin)
         try:
             requests.append(json.loads(pstr))
@@ -111,7 +115,8 @@ def execute_call(db, call):
 
     latency = int((time.monotonic() - started) * 1000)
     if call.get("keep_last"):
-        db.prune_rows(call["id"], call["keep_last"], call.get("keep_group_col") or "")
+        db.prune_rows(call["id"], call["keep_last"],
+                      call.get("keep_group_col") or "", call.get("keep_by") or "")
     ok = first_err is None
     _finish(db, call, "ok" if ok else "error", last_http, latency, total, first_err, requests)
     return {"ok": ok, "error": first_err, "row_count": total, "latency_ms": latency}

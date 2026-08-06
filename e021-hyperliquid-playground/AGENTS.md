@@ -71,6 +71,7 @@ per request. Templates are **unquoted** in the JSON:
 | Template | Resolves to |
 |---|---|
 | `{{coins}}` | The saved watchlist (or all coins in the latest markets snapshot). **Fan-out**: one request per coin, all stored in one table. |
+| `{{coins:N}}` | Same fan-out, but only the top-N coins of the watchlist (by volume) — used to bound bandwidth (e.g. book top-10). |
 | `{{last_t}}` | `max(last_t_col)` for that coin; if empty, `now − backfill_ms` (one-shot backfill). |
 | `{{now_ms}}` | Current epoch ms (required for candle `endTime` — `endTime:0` returns HTTP 500). |
 
@@ -79,10 +80,11 @@ Per-flow config that makes storage bounded and duplicate-free:
 | Config | Meaning |
 |---|---|
 | `keep_last` | Keep only the last N rows per group (0 = unlimited). |
-| `keep_group_col` | Column to prune per coin (candles: `s`). |
+| `keep_group_col` | Column to prune per coin (candles: `s`, book: `coin`). |
+| `keep_by` | Keep the last N **snapshots** per group by this column (book: `time`) — keeps a whole multi-level snapshot, not N rows. |
 | `dedup_cols` | Skip rows already present (candles: `s,t` avoids boundary re-fetch dups). |
 | `last_t_col` | Column used by `{{last_t}}` (candles: `t`). |
-| `backfill_ms` | First-run window (default 7 days). |
+| `backfill_ms` | First-run window (0 = auto `keep_last × interval`, default). |
 
 **Transparency**: every run stores the exact resolved request(s) that were sent
 to the API as JSON in `calls.last_request` (and per-run in `logs.request`). The
@@ -93,6 +95,21 @@ playground.
 Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
 (~169 candles/coin, 14s), subsequent runs add 0 rows (all deduped), and
 `keep_last=10` caps every coin at its 10 newest candles.
+
+## Order book (l2Book)
+
+Step 4: a `book` flow fans out over the **top-10 watchlist** (`{{coins:10}}`),
+stores the **latest snapshot only** (`keep_last=1`, `keep_group_col=coin`,
+`keep_by=time` → 20+20 levels per coin, replaced each run), interval 60 s.
+Extraction turns `levels` into rows with a `side` column (`bids`/`asks`).
+
+Ready-made detection queries (in the Examples dropdown, tied to the book table):
+- **Imbalance**: `SUM(sz) bids / SUM(sz) asks` per coin — extreme ratios = one-sided pressure
+- **Walls**: level `sz` > 8× the side average → large resting orders
+- **Spread**: `(best_ask − best_bid) / best_bid` per coin
+
+Verified on real data: 10 coins × 40 levels = 400 rows, replaced every run
+(~44 KB); the whole book step adds ~1.5 KB/coin/fetch.
 
 ## API (REST)
 

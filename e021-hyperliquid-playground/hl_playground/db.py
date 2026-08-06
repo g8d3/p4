@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS calls (
   read_sql TEXT NOT NULL DEFAULT '',
   keep_last INTEGER NOT NULL DEFAULT 0,
   keep_group_col TEXT NOT NULL DEFAULT '',
+  keep_by TEXT NOT NULL DEFAULT '',
   dedup_cols TEXT NOT NULL DEFAULT '',
   last_t_col TEXT NOT NULL DEFAULT 't',
   backfill_ms INTEGER NOT NULL DEFAULT 0
@@ -77,9 +78,10 @@ def now_iso():
 
 
 def valid_payload_template(s):
-    """Payloads may contain templates ({{coins}}, {{last_t}}, {{now_ms}}) that are
-    only valid JSON after resolution — validate with representative values."""
-    t = (s.replace("{{coins}}", '"X"')
+    """Payloads may contain templates ({{coins}}/{{coins:N}}, {{last_t}},
+    {{now_ms}}) that are only valid JSON after resolution — validate with
+    representative values."""
+    t = (re.sub(r"\{\{coins(?::\d+)?\}\}", '"X"', s)
           .replace("{{last_t}}", "0")
           .replace("{{now_ms}}", "0"))
     try:
@@ -122,6 +124,7 @@ class DB:
             "read_sql": "TEXT NOT NULL DEFAULT ''",
             "keep_last": "INTEGER NOT NULL DEFAULT 0",
             "keep_group_col": "TEXT NOT NULL DEFAULT ''",
+            "keep_by": "TEXT NOT NULL DEFAULT ''",
             "dedup_cols": "TEXT NOT NULL DEFAULT ''",
             "last_t_col": "TEXT NOT NULL DEFAULT 't'",
             "backfill_ms": "INTEGER NOT NULL DEFAULT 0",
@@ -315,8 +318,11 @@ class DB:
         finally:
             c.close()
 
-    def prune_rows(self, call_id, keep_last, group_col=""):
-        """Keep only the last `keep_last` rows per group (or globally)."""
+    def prune_rows(self, call_id, keep_last, group_col="", keep_by=""):
+        """Keep only the last `keep_last` rows per group.
+        With `keep_by` set, keeps the last `keep_last` distinct values of that
+        column per group (e.g. book `keep_last=1` + `keep_by=time` keeps the
+        whole latest snapshot — all levels — not just one row)."""
         if not keep_last or keep_last <= 0:
             return
         table = result_table(call_id)
@@ -327,7 +333,19 @@ class DB:
                     f"PRAGMA table_info('{table}')").fetchall()}
                 if group_col and group_col.lower() not in cols:
                     group_col = ""
-                if group_col:
+                if keep_by and keep_by.lower() not in cols:
+                    keep_by = ""
+                if group_col and keep_by:
+                    n = int(keep_last)
+                    sql = (f'DELETE FROM "{table}" WHERE rowid NOT IN ('
+                           f'SELECT rowid FROM "{table}" WHERE '
+                           f'("{group_col}", "{keep_by}") IN ('
+                           f'SELECT "{group_col}", "{keep_by}" FROM ('
+                           f'SELECT "{group_col}", "{keep_by}", ROW_NUMBER() OVER ('
+                           f'PARTITION BY "{group_col}" ORDER BY "{keep_by}" DESC) AS rn '
+                           f'FROM (SELECT DISTINCT "{group_col}", "{keep_by}" FROM "{table}")'
+                           f') WHERE rn <= {n}))')
+                elif group_col:
                     sql = (f'DELETE FROM "{table}" WHERE rowid NOT IN ('
                            f'SELECT rowid FROM (SELECT rowid, ROW_NUMBER() OVER ('
                            f'PARTITION BY "{group_col}" ORDER BY rowid DESC) AS rn '
@@ -376,6 +394,7 @@ class DB:
             "updated_at": ts,
             "keep_last": int(data.get("keep_last") or 0),
             "keep_group_col": data.get("keep_group_col") or "",
+            "keep_by": data.get("keep_by") or "",
             "dedup_cols": data.get("dedup_cols") or "",
             "last_t_col": data.get("last_t_col") or "t",
             "backfill_ms": int(data.get("backfill_ms") or 0),
@@ -397,7 +416,7 @@ class DB:
     def update_call(self, call_id, data):
         allowed = {"name", "base_url", "path", "method", "payload", "result_shape",
                    "interval_sec", "enabled", "keep_last", "keep_group_col",
-                   "dedup_cols", "last_t_col", "backfill_ms", "read_sql"}
+                   "keep_by", "dedup_cols", "last_t_col", "backfill_ms", "read_sql"}
         if "payload" in data and not valid_payload_template(data["payload"]):
             raise ValueError("payload is not valid JSON (templates may be unquoted)")
         sets, vals = [], []

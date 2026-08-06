@@ -57,6 +57,7 @@ class CallBody(BaseModel):
     enabled: bool | None = None
     keep_last: int | None = None
     keep_group_col: str | None = None
+    keep_by: str | None = None
     dedup_cols: str | None = None
     last_t_col: str | None = None
     backfill_ms: int | None = None
@@ -104,6 +105,8 @@ def endpoints():
             {"label": "spotMeta", "payload": {"type": "spotMeta"}},
             {"label": "spotMetaAndAssetCtxs", "payload": {"type": "spotMetaAndAssetCtxs"}},
             {"label": "l2Book", "payload": {"type": "l2Book", "coin": "BTC"}},
+            {"label": "l2Book (top-10 watchlist, latest snapshot)", "payload": '{"type":"l2Book","coin":{{coins:10}}}'},
+            {"label": "l2Book (whole watchlist, latest snapshot)", "payload": '{"type":"l2Book","coin":{{coins}}}'},
             {"label": "l1Book", "payload": {"type": "l1Book", "coin": "BTC"}},
             {"label": "recentTrades", "payload": {"type": "recentTrades", "coin": "BTC"}},
             {"label": "candleSnapshot", "payload": {"type": "candleSnapshot", "req": {"coin": "BTC", "interval": "1h", "startTime": 0, "endTime": 0}}},
@@ -151,7 +154,8 @@ def db_stats():
         t["flow_id"] = fid
         t["flow_name"] = flow["name"] if flow else None
         t["keep_last"] = flow["keep_last"] if flow else 0
-        if flow and flow.get("keep_last"):
+        t["keep_by"] = flow["keep_by"] if flow else ""
+        if flow and flow.get("keep_last") and not flow.get("keep_by"):
             try:
                 groups = 1
                 if flow.get("keep_group_col"):
