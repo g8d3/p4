@@ -35,6 +35,7 @@
     border-radius:8px;padding:8px;font-size:14px;width:100%}
   textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     font-size:13px;line-height:1.5}
+  #sqlBox{min-height:74px;max-height:45vh;resize:vertical}
   label{font-size:12px;color:var(--muted);display:block;margin:8px 0 3px}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
@@ -146,7 +147,7 @@
     <select id="tableSel" style="flex:1"></select>
     <select id="exampleSel" style="flex:1"><option value="">Examples…</option></select>
   </div>
-  <textarea id="sqlBox" rows="3" spellcheck="false"
+  <textarea id="sqlBox" rows="4" spellcheck="false"
     placeholder="SELECT * FROM r_1 ORDER BY _ts DESC LIMIT 100"></textarea>
   <div class="tblwrap" id="result" style="margin-top:8px"></div>
 </div>
@@ -184,6 +185,10 @@ function toast(msg, ms=2200) {
 }
 function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function prettyJson(s) { try { return JSON.stringify(JSON.parse(s), null, 1); } catch(_) { return s; } }
+function autoGrow(el) {
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
 
 /* ---------- generic table renderer (ONE base for all tables) ---------- */
 function renderTable(container, result, extraCol, opts) {
@@ -394,7 +399,7 @@ function buildExamples() {
 function applyExample() {
   const v = $("exampleSel").value; if (!v) return;
   const t = $("tableSel").value;
-  $("sqlBox").value = v.split("{{T}}").join(t || "calls");
+  $("sqlBox").value = v.split("{{T}}").join(t || "calls"); autoGrow($("sqlBox"));
   $("exampleSel").value = "";
 }
 
@@ -487,7 +492,7 @@ function viewCall(id) {
   const flow = state.calls.find(c => c.id === id);
   if (!flow) return;
   const sql = (flow.read_sql || "SELECT * FROM {{table}} LIMIT 100").split("{{table}}").join("r_" + id);
-  $("sqlBox").value = sql;
+  $("sqlBox").value = sql; autoGrow($("sqlBox"));
   runCurrent(false);
   $("sqlBox").scrollIntoView({behavior: "smooth", block: "center"});
 }
@@ -688,12 +693,14 @@ $("btnRunAll").onclick = async () => {
 };
 $("tableSel").addEventListener("change", () => {
   const t = $("tableSel").value;
-  if (t) $("sqlBox").value = `SELECT * FROM ${t} LIMIT 100`;
+  if (t) { $("sqlBox").value = `SELECT * FROM ${t} LIMIT 100`; autoGrow($("sqlBox")); }
 });
 $("exampleSel").addEventListener("change", applyExample);
 $("sqlBox").addEventListener("keydown", e => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") runCurrent(false);
 });
+$("sqlBox").addEventListener("input", e => autoGrow(e.target));
+autoGrow($("sqlBox"));
 $("liveChk").addEventListener("change", startLive);
 $("liveSec").addEventListener("change", startLive);
 
