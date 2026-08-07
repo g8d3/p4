@@ -271,9 +271,16 @@ trade-off: v2 is built for real BTC, not synthetic Gaussian regimes.
 
 ### Still open
 
-- **Nail the Nautilus hang root cause**: run a long config series with
-  `faulthandler` armed until a hang dumps its stack; it is transient (~1/50
-  runs) and currently only survived via the watchdog + resume machinery.
+- **Nautilus hang: 478 runs without a reproduction** — two dedicated harnesses
+  (`ag-01/bin/hang_catcher.py` sequential, `hang_catcher_parallel.py`
+  concurrent, and an exact replication of the original 8-worker unrestricted-
+  BLAS condition) ran 478 single backtests with
+  `faulthandler.dump_traceback_later(exit=True)` armed and captured **zero**
+  hangs. Conclusion: the historical ~1/50 transient hang was
+  machine-state-dependent (memory-leak accumulation + load from other
+  experiments), not a deterministic bug in the strategy or harness. The
+  watchdog + resume machinery in `optimize.py` remains the right defense; the
+  harnesses stay committed so a future long series can keep hunting.
 - Re-run the search on **out-of-sample data only** (proper train/test split) if
   the strategy is redesigned further.
 
