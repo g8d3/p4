@@ -184,10 +184,13 @@ why the out-of-sample step is mandatory, not optional.
 ## Deliverables
 
 - `interactive/sr-grid-explainer.html` — self-contained, offline, mobile-first
-  teaching page. Animated candles with fractal pivots, the sliding 7-bar
-  window, S/R levels, the ATR-spaced grid (line width = allocated capital),
-  fills, rebalances, and the volume-profile KDE panel. Open it directly in a
-  browser (no server needed).
+  teaching page, updated for **v2**. Animated candles with the ATR-spaced
+  price-space grid (line width = allocated capital), the EMA 50/100 flat
+  regime switch (gold band = trend, grid cancelled, inventory flattened to
+  zero), the volume-profile KDE panel, fills, rebalances, the exposure cap and
+  the liquidation model. The data ends with a synthetic trend phase so the
+  flat regime switch is visible. Open it directly in a browser (no server
+  needed).
 
 ## Next iterations (open questions)
 
@@ -243,6 +246,28 @@ a real-market grid should look like.
 Files: `ag-01/bin/sr_grid_strategy_v2.py`, `ag-01/bin/sweep_v2.py` (config
 sweeper), outputs under `ag-01/output/v2_*`, sweep CSVs `v2_sweep_*`. `v1` in
 `run_backtest.py` still drives the original `SRGridStrategy`.
+
+### v2 on synthetic regimes (A/B sanity only — not validation)
+
+Synthetic is only for A/B sanity; the verdict comes from real BTC. v2 on the 4
+synthetic regimes (20k bars, start 100k): fills collapse 3-7× vs v1
+(483 vs 3373 on range) and drawdowns stay bounded (never worse than -11.5%,
+vs v1's -208% blow-up on the old unbounded downtrend generator).
+
+| Regime | v1 return % | v2 return % | v2 max DD % | v2 fills | v2 fees | v2 PF |
+|---|---|---|---|---|---|---|
+| range | +20.60 | **+13.8** | -0.9 | 483 | 549 | 7.20 |
+| trend (up) | -46.60 | **-10.9** | -11.5 | 362 | 654 | 0.42 |
+| downtrend | -209.17* | **+4.2** | -2.3 | 539 | 975 | 1.25 |
+| mixed | -0.74 | **-3.8** | -5.3 | 449 | 712 | 0.75 |
+
+\* v1's downtrend used the ORIGINAL unbounded generator (price collapsed to
+~1 USDT); the current bounded generator is the fair comparison. The synthetic
+"edge" of v1 (+20.6% range, +50% robust config) does NOT reappear in v2 — v2
+trades far less and far wider, giving up the synthetic mean-reversion edge for
+real-market fee control. Range stays strongly positive; the trend regime loses
+gross but is capped at -11.5% DD (v1: -65%). This is exactly the intended
+trade-off: v2 is built for real BTC, not synthetic Gaussian regimes.
 
 ### Still open
 
