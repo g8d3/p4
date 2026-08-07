@@ -191,8 +191,13 @@ why the out-of-sample step is mandatory, not optional.
 
 ## Next iterations (open questions)
 
-- **The strategy, as designed, does not make money on real BTC** (see real-data
-  check). To have any chance it needs a redesign, not more tuning:
+- **Redesign v2 in progress** (`ag-01`): `sr_grid_strategy_v2.py` attacks the
+  two killers directly — wider ATR-spaced levels + maker-only (5m fees) and a
+  flat regime switch in strong trends (1h inventory) — with realistic
+  taker/maker fees and a simple liquidation model. Success = profitable or
+  near-zero on `real_btc_1h.csv` / `real_btc_5m.csv` after fees.
+- **The strategy as designed (v1) does not make money on real BTC** (see
+  real-data check). The redesign list that follows is what v2 implements:
   - Cut churn (the 5m killer): much wider level spacing, higher
     `min_order_notional`, maker-only, or fewer, more selective levels.
   - Trend protection (the 1h killer): a strong trend filter or a regime switch

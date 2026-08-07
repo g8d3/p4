@@ -76,6 +76,40 @@ timeout 30 python3 bin/summarize.py
   every bar a pivot (degenerate S/R). Compare `highs[i]` with the max of
   `[i-w:i]` and `[i+1:i+w+1]` separately.
 
+## Redesign phase (v2): make the grid survive real BTC
+
+Phase 1 (v1, `sr_grid_strategy.py`) proved the grid does NOT make money on real
+BTC: -20.6% on 5m 1y (fee-dominated, 13-16k fills) and -79.4% on 1h 4y
+(trend-dominated inventory). Phase 2 must **redesign the strategy**, not tune it.
+
+### Hard constraints
+
+- **Do NOT modify `sr_grid_strategy.py`** — it stays as the committed v1
+  baseline. Write the new strategy in a NEW file `bin/sr_grid_strategy_v2.py`
+  (class `SRGridStrategyV2`), keeping the same constructor/interface so
+  `run_backtest.py` works unchanged. Add a `--strategy v2` flag to
+  `run_backtest.py` if needed.
+- Reuse `run_backtest.py`, `fetch_binance.py`, and the real CSVs in `data/`.
+- Success criteria (same harness, start 100k USDT, after fees):
+  - `real_btc_1h.csv` (4y) and `real_btc_5m.csv` (1y) must be **profitable or
+    near-zero with realistic fees** (maker 0.02%, taker 0.06% — not 0.02% on
+    both sides). Fills must drop well below v1 (target < 3k on 5m 1y).
+  - Synthetic data is only for A/B sanity; the verdict comes from real BTC.
+
+### The two killers to attack
+
+1. **5m churn / fees**: price-space the grid (min gap between levels >= ~1.5x
+   ATR), far fewer levels (2-3 per side), higher `min_order_notional`,
+   maker-only quoting.
+2. **1h trend inventory**: replace "quote the counter-trend side" with a
+   **flat regime switch** — when a trend filter (EMA slope / ADX-style) is
+   strong, cancel the grid and hold zero position; re-arm on reversion.
+3. Add a simple **liquidation / leverage model** (margin + liquidation price)
+   so the ~3x effective leverage of v1 is honest in the sim.
+
+Report per-run metrics against the v1 baseline (see `../AGENTS.md` real-data
+table) and update `../AGENTS.md` with the v2 outcome.
+
 ## Self-command
 
 Every command runs in background; after launching one, schedule a self-wake:
