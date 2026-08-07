@@ -110,6 +110,53 @@ BTC: -20.6% on 5m 1y (fee-dominated, 13-16k fills) and -79.4% on 1h 4y
 Report per-run metrics against the v1 baseline (see `../AGENTS.md` real-data
 table) and update `../AGENTS.md` with the v2 outcome.
 
+### v2 outcome — DONE
+
+`bin/sr_grid_strategy_v2.py` (`SRGridStrategyV2`) is implemented and both
+killers are defeated on real BTC (see `../AGENTS.md` for the full table):
+5m 1y -20.6% → **+3.6%** (13,424 → 2,158 fills), 1h 4y -79.4% → **+1.7%**
+(6,918 → 1,103 fills), realistic maker 0.02% / taker 0.06% fees, ~98% maker
+fills. Run it with `python3 bin/run_backtest.py --strategy v2 --data
+data/real_btc_5m.csv [--out-dir output/v2_5m]`. Config knobs are CLI-exposed:
+`--atr-mult`, `--max-levels`, `--min-order`, `--trend-fast/slow/enter/exit`,
+`--trend-off`, `--rebalance`, `--max-exposure-mult`. `bin/sweep_v2.py` sweeps
+configs and writes `output/v2_sweep_*.csv`.
+
+New pitfalls learned this phase:
+
+- **The exposure cap must REDUCE the position, not just cancel orders**: v1's
+  cap cancelled the inventory side but the position kept riding to ~2.3x
+  account notional. `_enforce_cap_on_fills` in v2 flattens the over-cap excess
+  with a reduce-only market order (inside a `cap_overshoot_pct` band so it
+  doesn't re-fire every bar).
+- **The 5m rebalance interval is a sharp ridge**: reb 160 = +8.4%, reb 176 =
+  -5.6%, reb 192 = +3.6%, reb 208 = -7.8%. The exact value matters far more on
+  5m than 1h. Prefer reb 192 (long anchoring avoids v1's "walk-up" where buys
+  fill and sells get re-centred away, leaving permanent long inventory).
+- **The flat regime switch needs hysteresis**: enter 1.0% / exit 0.5% on EMA
+  50/100 (fewer flips than 0.5/0.2, which flapped ~800+ times on 5m and
+  churned flatten taker fees).
+- **`opencode run -f <file> "message"` parsing**: the message must come BEFORE
+  the `-f` flags, otherwise `-f` swallows the message as a filename.
+- **The Nautilus hang (~1/50) did NOT reproduce in 478 runs** across three
+  dedicated harnesses (`hang_catcher.py`, `hang_catcher_parallel.py`, and an
+  exact replica of the original 8-worker unrestricted-BLAS condition) with
+  `faulthandler.dump_traceback_later(exit=True)` armed. Conclusion: it was
+  machine-state-dependent, not a deterministic strategy/harness bug.
+- **Root cause (probably) — fork after importing Nautilus/jemalloc**: building
+  a parallel worker pool (`ProcessPoolExecutor`) whose parent has already
+  imported Nautilus reproduces the hang deterministically: the parent spawns
+  a `jemalloc_bg_thd` background thread, and forking a process with an active
+  jemalloc bg thread deadlocks the child in `futex_wait` at first allocation.
+  Evidence: (a) `optimize_v2_oos.py` hung at pool startup when the parent
+  imported Nautilus (via `run_backtest`/`sr_grid_strategy_v2`); (b) passing
+  pickled pyo3 Bars to workers also hung; (c) fixing the parent to NEVER
+  import Nautilus (workers load it fresh in their own process) made the pool
+  run clean. `optimize_v2_oos.py` therefore runs each config as a SEPARATE
+  `subprocess` of `run_backtest.py` (the same model as `sweep_v2.py` and the
+  hang catchers, which never hung in 478 runs). Do NOT reintroduce a
+  ProcessPoolExecutor whose parent imports Nautilus.
+
 ## Self-command
 
 Every command runs in background; after launching one, schedule a self-wake:

@@ -281,8 +281,21 @@ trade-off: v2 is built for real BTC, not synthetic Gaussian regimes.
   experiments), not a deterministic bug in the strategy or harness. The
   watchdog + resume machinery in `optimize.py` remains the right defense; the
   harnesses stay committed so a future long series can keep hunting.
-- Re-run the search on **out-of-sample data only** (proper train/test split) if
-  the strategy is redesigned further.
+- **Nautilus hang root cause found (probably): fork after importing
+  Nautilus/jemalloc.** Building a `ProcessPoolExecutor` whose parent already
+  imported Nautilus reproduces it deterministically: the parent spawns a
+  `jemalloc_bg_thd` background thread, and forking a process with an active
+  jemalloc bg thread deadlocks the child in `futex_wait` at first allocation.
+  `optimize_v2_oos.py` now runs each config as a separate `subprocess` of
+  `run_backtest.py` (never importing Nautilus in the parent) — the same model
+  as `sweep_v2.py` and the hang catchers, which never hung.
+- **v2 out-of-sample check (train/test 60/40 split, real BTC)** — see
+  `ag-01/output/optimize_v2_oos/`. 1h 4y: all top-5 train configs keep a
+  positive OOS edge (+0.75% to +3.3% test; best train +6.0% → +1.8% test). 5m
+  1y: 2 of 5 top-train configs hold OOS (+8.3% → +6.8%, +6.8% → +1.6%), but
+  the best train config overfits (+11.9% → -2.8%). The 1h edge is robust OOS;
+  the 5m edge is real but thin and rebalance-sensitive — consistent with the
+  documented "small-but-real" caveat.
 
 ## Inherits
 
