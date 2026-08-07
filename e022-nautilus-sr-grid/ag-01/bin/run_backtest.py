@@ -234,10 +234,16 @@ def main() -> None:
     metrics = compute_metrics(strategy._equity_curve, fills_df, positions_df)
     metrics["n_rebalances"] = strategy.n_rebalances
     metrics["n_resyncs"] = strategy.n_resyncs
+    metrics["n_fills"] = strategy.n_fills
+    metrics["total_commissions_usdt"] = round(strategy.total_commissions, 2)
 
     # Equity curve.
     eq = pd.DataFrame(strategy._equity_curve, columns=["ts_ns", "equity"])
     eq.to_csv(out_dir / "equity_curve.csv", index=False)
+
+    # Inventory clarity: BTC qty + USDT free over time.
+    pos = pd.DataFrame(strategy._position_curve, columns=["ts_ns", "btc_qty", "usdt_free", "equity", "price"])
+    pos.to_csv(out_dir / "position_curve.csv", index=False)
 
     # Charts.
     try:
@@ -246,18 +252,24 @@ def main() -> None:
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
-        fig, axes = plt.subplots(2, 1, figsize=(11, 8), sharex=True)
+        fig, axes = plt.subplots(3, 1, figsize=(11, 10), sharex=True)
         ts = pd.to_datetime(eq["ts_ns"])
         axes[0].plot(ts, eq["equity"], color="#1f77b4")
         axes[0].set_title(f"Equity curve  (total return {metrics['total_return_pct']:+.2f}%)")
         axes[0].set_ylabel("USDT")
         axes[0].grid(alpha=0.3)
 
-        closes = [float(b.close.as_double()) for b in bars]
-        axes[1].plot(ts, closes[: len(ts)], color="#888", lw=0.6)
-        axes[1].set_title("Synthetic price")
-        axes[1].set_ylabel("BTC/USDT")
+        axes[1].plot(ts, pos["btc_qty"], color="#e57373", drawstyle="steps-post")
+        axes[1].axhline(0, color="#888", lw=0.8)
+        axes[1].set_title("BTC inventory (net position)")
+        axes[1].set_ylabel("BTC")
         axes[1].grid(alpha=0.3)
+
+        closes = [float(b.close.as_double()) for b in bars]
+        axes[2].plot(ts, closes[: len(ts)], color="#888", lw=0.6)
+        axes[2].set_title("Synthetic price")
+        axes[2].set_ylabel("BTC/USDT")
+        axes[2].grid(alpha=0.3)
 
         fig.tight_layout()
         fig.savefig(out_dir / "equity_curve.png", dpi=110)

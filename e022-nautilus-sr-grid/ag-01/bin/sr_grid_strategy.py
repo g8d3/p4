@@ -98,6 +98,19 @@ class SRGridConfig(StrategyConfig, frozen=True):
         Maximum net position notional as a multiple of the grid budget. When a
         rebalance would push exposure past this cap, the side that adds
         inventory in the capped direction is not quoted.
+    enforce_cap_on_fills : bool, default True
+        If True, the exposure cap is also enforced between rebalances: as soon
+        as fills push net exposure past the cap, the inventory-side grid levels
+        are cancelled and their capital moved to the unallocated pool. This
+        stops the grid from accumulating an unbounded position in a trend.
+    trend_filter_enabled : bool, default False
+        If True, only quote the side that fades the trend (buys in uptrends,
+        sells in downtrends), based on the close vs its EMA. In a trend, the
+        grid stops adding inventory in the trend direction.
+    trend_ema_period : int, default 100
+        EMA period for the trend filter.
+    trend_min_dist_pct : float, default 0.3
+        Minimum |close/EMA - 1| (in %) before the market counts as trending.
     equity_sample_interval_bars : int, default 6
         Sample account equity every N bars for the equity curve.
 
@@ -121,6 +134,10 @@ class SRGridConfig(StrategyConfig, frozen=True):
     min_order_notional: Decimal = 100
     max_order_notional: Decimal = 5_000
     max_exposure_budget_mult: PositiveFloat = 1.5
+    enforce_cap_on_fills: bool = True
+    trend_filter_enabled: bool = False
+    trend_ema_period: PositiveInt = 100
+    trend_min_dist_pct: PositiveFloat = 0.3
     equity_sample_interval_bars: PositiveInt = 6
 
 
@@ -156,8 +173,13 @@ class SRGridStrategy(Strategy):
 
         self.n_rebalances = 0
         self.n_resyncs = 0
+        self.n_fills = 0
+        self.n_cap_enforcements = 0
+        self.total_commissions = 0.0
 
         self._equity_curve: list[tuple[int, float]] = []  # (ts_ns, equity)
+        # (ts_ns, btc_qty, usdt_free, equity, price) — inventory at all times.
+        self._position_curve: list[tuple[int, float, float, float, float]] = []
 
     # -- lifecycle ----------------------------------------------------------
 
@@ -194,6 +216,8 @@ class SRGridStrategy(Strategy):
                 self._last_rebalance_attempt = self._bar_count
                 self._rebalance_grid()
 
+        self._enforce_cap_on_fills()
+
         if self._bar_count % self.config.equity_sample_interval_bars == 0:
             self._sample_equity()
 
@@ -220,28 +244,40 @@ class SRGridStrategy(Strategy):
             self.log.warning("Rebalance found no grid levels")
             return
 
-        # Check the exposure caps BEFORE cancelling anything: if both sides are
-        # capped, the rebalance is a no-op and the current grid stays untouched.
-        buy_budget_pre = float(self.config.grid_budget) * nb / (nb + ns)
-        sell_budget_pre = float(self.config.grid_budget) * ns / (nb + ns)
+        # Check the caps BEFORE cancelling anything: if both sides get removed,
+        # the rebalance is a no-op and the current grid stays untouched. (The
+        # pool is estimated from the base budget + freed capital.)
+        cap_total = float(self.config.grid_budget) * self.config.max_exposure_budget_mult
+        pool_est = min(float(self.config.grid_budget) + self._unallocated, cap_total)
+        buy_budget = pool_est * nb / (nb + ns)
+        sell_budget = pool_est * ns / (nb + ns)
         buy_levels, sell_levels = self._apply_exposure_caps(
-            buy_levels, sell_levels, buy_budget_pre, sell_budget_pre, price
+            buy_levels, sell_levels, buy_budget, sell_budget, price
         )
+        buy_levels, sell_levels = self._apply_trend_filter(buy_levels, sell_levels, price)
         nb, ns = len(buy_levels), len(sell_levels)
         if nb + ns == 0:
-            self.log.info("Rebalance skipped: exposure cap reached on both sides")
+            self.log.info("Rebalance skipped: exposure cap or trend filter removed both sides")
             return
 
-        # Fold freed capital into the pool, then rebuild the grid.
+        # Fold freed capital into the pool, then rebuild the grid. The pool is
+        # CLAMPED to the risk cap: freed capital that could not be reabsorbed
+        # by the opposite side (e.g. a trend where one side never fills) must
+        # NOT re-inflate the grid deployment.
         self._cancel_all_orders()
         self._levels.clear()
         total_budget = float(self.config.grid_budget) + self._unallocated
         for side in ("BUY", "SELL"):
             total_budget += self._pending_redistribute.pop(side, 0.0)
-        self._unallocated = 0.0
+        self._unallocated = max(0.0, total_budget - cap_total)
+        total_budget = min(total_budget, cap_total)
 
-        buy_budget = total_budget * nb / (nb + ns)
-        sell_budget = total_budget * ns / (nb + ns)
+        if nb != 0 and ns != 0:
+            buy_budget = total_budget * nb / (nb + ns)
+            sell_budget = total_budget * ns / (nb + ns)
+        else:
+            buy_budget = total_budget if nb else 0.0
+            sell_budget = total_budget if ns else 0.0
 
         self._allocate_and_place(buy_levels, "BUY", buy_budget)
         self._allocate_and_place(sell_levels, "SELL", sell_budget)
@@ -280,6 +316,70 @@ class SRGridStrategy(Strategy):
         if short_notional + sell_budget > cap:
             sell_levels = []
         return buy_levels, sell_levels
+
+    def _apply_trend_filter(
+        self, buy_levels: list[float], sell_levels: list[float], price: float
+    ) -> tuple[list[float], list[float]]:
+        """Only quote the side that fades the trend (buys up, sells down)."""
+        if not self.config.trend_filter_enabled:
+            return buy_levels, sell_levels
+        ema = self._ema()
+        min_dist = self.config.trend_min_dist_pct / 100.0
+        if price > ema * (1 + min_dist):
+            # Uptrend → don't accumulate shorts, only buy dips.
+            sell_levels = []
+        elif price < ema * (1 - min_dist):
+            # Downtrend → don't accumulate longs, only sell rallies.
+            buy_levels = []
+        return buy_levels, sell_levels
+
+    def _ema(self) -> float:
+        period = self.config.trend_ema_period
+        closes = list(self._closes)[-period:]
+        if len(closes) < period:
+            return self._closes[-1]
+        alpha = 2.0 / (period + 1)
+        ema = closes[0]
+        for c in closes[1:]:
+            ema = alpha * c + (1 - alpha) * ema
+        return ema
+
+    def _enforce_cap_on_fills(self) -> None:
+        """Cancel the inventory side as soon as fills push past the cap.
+
+        The exposure cap is otherwise only checked at rebalance, so a sustained
+        trend can grow the position unboundedly between rebalances. This runs
+        after every bar to stop that accumulation.
+        """
+        if not self.config.enforce_cap_on_fills:
+            return
+        pos = None
+        for candidate in self.cache.positions(instrument_id=self.config.instrument_id):
+            if candidate.quantity.as_double() != 0:
+                pos = candidate
+                break
+        if pos is None:
+            return
+        notional = abs(float(pos.quantity.as_double())) * self._closes[-1]
+        cap = float(self.config.grid_budget) * self.config.max_exposure_budget_mult
+        side_to_cancel = None
+        if pos.side == PositionSide.LONG and notional > cap:
+            side_to_cancel = "BUY"
+        elif pos.side == PositionSide.SHORT and notional > cap:
+            side_to_cancel = "SELL"
+        if side_to_cancel is None:
+            return
+
+        self.n_cap_enforcements += 1
+        for key in [k for k, lv in self._levels.items() if lv.side == side_to_cancel]:
+            lv = self._levels[key]
+            if lv.order_id is not None:
+                self._cancel(lv.order_id)
+                self._level_by_order.pop(lv.order_id, None)
+                lv.order_id = None
+            self._unallocated += lv.reserved
+            self._levels.pop(key)
+        self.log.info(f"Exposure cap enforced on fills: cancelled {side_to_cancel} levels")
 
     def _allocate_and_place(self, prices: list[float], side: str, budget: float) -> None:
         if not prices:
@@ -348,6 +448,9 @@ class SRGridStrategy(Strategy):
         cid = event.client_order_id.value
         if cid not in self._level_by_order:
             return
+
+        self.n_fills += 1
+        self.total_commissions += float(event.commission.as_double())
 
         level = self._level_by_order.pop(cid)
         self._levels.pop((level.side, level.price), None)
@@ -534,7 +637,20 @@ class SRGridStrategy(Strategy):
         if account is None:
             return
         balance = account.balance_total(None)
-        self._equity_curve.append((self._clock.timestamp_ns(), float(balance.as_double())))
+        ts = self._clock.timestamp_ns()
+        self._equity_curve.append((ts, float(balance.as_double())))
+
+        # Inventory clarity: how much of each asset is held, at all times.
+        btc_qty = 0.0
+        free_money = account.balance_free(None)
+        usdt_free = float(free_money.as_double()) if free_money is not None else 0.0
+        for candidate in self.cache.positions(instrument_id=self.config.instrument_id):
+            if candidate.quantity.as_double() != 0:
+                btc_qty = float(candidate.quantity.as_double())
+                break
+        self._position_curve.append(
+            (ts, btc_qty, usdt_free, float(balance.as_double()), self._closes[-1])
+        )
 
     # -- state ---------------------------------------------------------------
 

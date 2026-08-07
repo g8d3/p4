@@ -68,6 +68,17 @@ def generate(n_bars: int, seed: int = 42, start_price: float = 30_000.0, mode: s
         else:
             mr = 0.0
 
+        # Bound the trend regimes to a realistic range (no -99.99% collapses).
+        # Downtrend pulls back above a floor; uptrend pulls back below a cap.
+        if regime == 2:  # downtrend
+            floor = start_price * 0.45
+            if price < floor:
+                mr += 0.008 * np.log(floor / price)
+        elif regime == 1:  # uptrend
+            cap_hi = start_price * 1.6
+            if price > cap_hi:
+                mr += 0.008 * np.log(cap_hi / price)
+
         ret = drift[regime] + mr + rng.normal(0.0, vol[regime])
         close = price * np.exp(ret)
 

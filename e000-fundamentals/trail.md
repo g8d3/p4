@@ -527,3 +527,53 @@ slice). Verified with a Node harness (8 rebalances, 91 fills over the slice).
 - Highest-impact next fix: enforce the exposure cap **on fill**, plus a trend
   filter. Then real data and a parameter sweep.
 
+---
+
+## 2026-08-07 — e022 parameter optimization + operational lessons
+
+### What was done
+
+1. **Strategy hardening**: fill-time exposure cap, optional EMA trend filter,
+   pool clamp (freed capital that can't be reabsorbed must not re-inflate the
+   grid), BTC+USDT inventory tracking (`position_curve.csv`), n_fills and
+   total_commissions counters.
+2. **Data bug**: the downtrend generator's unbounded drift collapsed price to
+   ~1 USDT/BTC (-99.99%). Bounded with a floor/cap (~-55%/+60%).
+3. **Search**: `optimize.py` grid-searches 486 configs (span, levels, rebalance,
+   exposure cap, trend filter, trend min-dist) on range+mixed, then validates
+   top-5 out-of-sample on 3 unseen seeds × 4 regimes.
+
+### Result: a robust config
+
+span=3.5, levels=6, rebalance=96, cap=10x, no trend filter. Training mixed
++50.1%/-10.0% DD. Out-of-sample (3 seeds): range +16.1, mixed +23.8 (min
++5.8), trend +30.3, downtrend +45.6 — all positive, min>0 across every regime.
+
+### The OOS step caught an overfit
+
+span=3.5, levels=6, rebalance=48, cap=10x scored best on training (+54.8%) but
+fails OOS (mixed mean -1.9%, one seed -50.5%). Only difference vs robust: the
+rebalance interval (48 vs 96). Rebalancing too often overfits training noise.
+→ OOS validation is mandatory.
+
+### Caveats documented
+
+Robust config reaches ~314k USDT notional on 100k (~3.1x leverage). Free in sim
+(margin_init=0), a liquidation risk in reality. Synthetic trends are cleaner
+than real ones, so the trend-fade edge is optimistic.
+
+### Operational lessons (machine froze during the search)
+
+- **BLAS oversubscription froze the laptop**: 8 workers × OpenBLAS all-cores =
+  ~96 threads on 12. Fix: force `OPENBLAS_NUM_THREADS=1` etc. + cap workers.
+- **Nautilus Rust/pyo3 memory leak**: ~25MB per backtest run. Without worker
+  recycling one worker hit ~3GB and the OOM killer killed the search. Fix:
+  `max_tasks_per_child`.
+- **Transient Nautilus hang**: ~1/50 runs a worker freezes in a futex with no
+  CPU (deterministic poison ruled out; faulthandler armed but affected runs were
+  clean). Survived via incremental CSV + resume + chunked execution with a
+  watchdog that isolates stuck tasks. Root cause still open.
+- **Self-wake pattern**: use `(sleep N; tmux send-keys -t <window> "..." Enter) &`
+  for non-blocking periodic checks so the agent stays responsive to the user.
+
+
