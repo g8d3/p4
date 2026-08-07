@@ -1,13 +1,15 @@
-"""Run a Nautilus Trader backtest of the S/R grid strategy on synthetic data.
+"""Run a Nautilus Trader backtest of the S/R grid strategy.
 
 Pipeline:
-1. Load synthetic 5-min OHLCV bars (ag-01/data/synthetic_5m.csv).
+1. Load OHLCV bars (synthetic 5m by default, or real BTC via --data).
 2. Build a synthetic BTC/USDT perpetual futures instrument + margin venue.
-3. Run the SRGridStrategy through BacktestEngine.
+3. Run SRGridStrategy (v1) or SRGridStrategyV2 (--strategy v2) through
+   BacktestEngine.
 4. Write reports + metrics + equity curve to ag-01/output/.
 
 Usage:
     python3 run_backtest.py [--data PATH] [--budget 30000] [--span 1.5]
+    python3 run_backtest.py --strategy v2 --data data/real_btc_5m.csv
 """
 
 from __future__ import annotations
@@ -40,6 +42,7 @@ from nautilus_trader.model.instruments import CryptoFuture
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sr_grid_strategy import SRGridConfig, SRGridStrategy  # noqa: E402
+from sr_grid_strategy_v2 import SRGridConfigV2, SRGridStrategyV2  # noqa: E402
 
 AG_DIR = Path(__file__).resolve().parents[1]
 OUT_DIR = AG_DIR / "output"
@@ -49,7 +52,7 @@ USD = Currency("USDT", precision=2, iso4217=0, name="Tether", currency_type=Curr
 BTC = Currency("BTC", precision=8, iso4217=0, name="Bitcoin", currency_type=CurrencyType.CRYPTO)
 
 
-def build_instrument(ts_event_ns: int) -> CryptoFuture:
+def build_instrument(ts_event_ns: int, maker_fee: Decimal = Decimal("0.0002"), taker_fee: Decimal = Decimal("0.0006")) -> CryptoFuture:
     return CryptoFuture(
         instrument_id=InstrumentId(Symbol("BTC/USDT"), Venue("SIM")),
         raw_symbol=Symbol("BTC"),
@@ -69,9 +72,21 @@ def build_instrument(ts_event_ns: int) -> CryptoFuture:
         lot_size=Quantity.from_int(1),
         margin_init=Decimal("0.0"),
         margin_maint=Decimal("0.0"),
-        maker_fee=Decimal("0.0002"),
-        taker_fee=Decimal("0.0005"),
+        maker_fee=maker_fee,
+        taker_fee=taker_fee,
     )
+
+
+def infer_bar_spec(df: pd.DataFrame) -> BarSpecification:
+    """Infer the bar interval from the median timestamp delta."""
+    ts = pd.to_datetime(df["timestamp"], utc=True)
+    deltas = ts.diff().dropna().dt.total_seconds().astype(int)
+    median = int(deltas.median()) if len(deltas) else 300
+    if median % 3600 == 0:
+        return BarSpecification(median // 3600, BarAggregation.HOUR, PriceType.LAST)
+    if median % 60 == 0:
+        return BarSpecification(median // 60, BarAggregation.MINUTE, PriceType.LAST)
+    raise ValueError(f"cannot infer bar aggregation from median delta {median}s")
 
 
 def load_bars(path: Path) -> tuple[list[Bar], BarType]:
@@ -79,9 +94,10 @@ def load_bars(path: Path) -> tuple[list[Bar], BarType]:
     df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
     ts_ns = (df["timestamp"].astype("int64")).tolist()
 
+    bar_spec = infer_bar_spec(df)
     bar_type = BarType(
         InstrumentId(Symbol("BTC/USDT"), Venue("SIM")),
-        BarSpecification(5, BarAggregation.MINUTE, PriceType.LAST),
+        bar_spec,
     )
 
     bars = []
@@ -167,14 +183,24 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=DATA_FILE)
     parser.add_argument("--out-dir", type=Path, default=OUT_DIR)
+    parser.add_argument("--strategy", choices=["v1", "v2"], default="v1")
     parser.add_argument("--budget", type=float, default=30_000.0, help="grid budget (USDT)")
     parser.add_argument("--start-balance", type=float, default=100_000.0)
-    parser.add_argument("--span", type=float, default=1.5, help="grid span %")
+    parser.add_argument("--span", type=float, default=1.5, help="grid span % (v1 only)")
     parser.add_argument("--rebalance", type=int, default=96, help="rebalance interval in bars")
     parser.add_argument("--max-levels", type=int, default=8)
     parser.add_argument("--min-levels", type=int, default=3)
     parser.add_argument("--max-order-notional", type=float, default=5_000.0)
     parser.add_argument("--max-exposure-mult", type=float, default=1.5)
+    parser.add_argument("--maker-fee", type=float, default=0.0002, help="maker fee rate")
+    parser.add_argument("--taker-fee", type=float, default=0.0006, help="taker fee rate")
+    parser.add_argument("--atr-mult", type=float, default=1.5, help="grid level spacing in ATR (v2)")
+    parser.add_argument("--min-order", type=float, default=500.0, help="min order notional (v2)")
+    parser.add_argument("--trend-fast", type=int, default=20, help="trend fast EMA (v2)")
+    parser.add_argument("--trend-slow", type=int, default=100, help="trend slow EMA (v2)")
+    parser.add_argument("--trend-enter", type=float, default=0.5, help="trend enter % (v2)")
+    parser.add_argument("--trend-exit", type=float, default=0.2, help="trend exit % (v2)")
+    parser.add_argument("--trend-off", action="store_true", help="disable trend filter (v2)")
     parser.add_argument("--log-level", default="ERROR")
     args = parser.parse_args()
 
@@ -183,20 +209,39 @@ def main() -> None:
 
     bars, bar_type = load_bars(args.data)
     first_ts = bars[0].ts_event
-    instrument = build_instrument(first_ts)
+    instrument = build_instrument(first_ts, Decimal(str(args.maker_fee)), Decimal(str(args.taker_fee)))
 
-    config = SRGridConfig(
-        instrument_id=instrument.id,
-        bar_type=bar_type,
-        grid_budget=Decimal(str(args.budget)),
-        grid_span_pct=args.span,
-        rebalance_interval_bars=args.rebalance,
-        max_levels_per_side=args.max_levels,
-        min_levels_per_side=args.min_levels,
-        max_order_notional=Decimal(str(args.max_order_notional)),
-        max_exposure_budget_mult=args.max_exposure_mult,
-    )
-    strategy = SRGridStrategy(config=config)
+    if args.strategy == "v2":
+        config = SRGridConfigV2(
+            instrument_id=instrument.id,
+            bar_type=bar_type,
+            grid_budget=Decimal(str(args.budget)),
+            rebalance_interval_bars=args.rebalance,
+            max_levels_per_side=args.max_levels,
+            grid_atr_mult=args.atr_mult,
+            min_order_notional=Decimal(str(args.min_order)),
+            max_order_notional=Decimal(str(args.max_order_notional)),
+            max_exposure_budget_mult=args.max_exposure_mult,
+            trend_filter_enabled=not args.trend_off,
+            trend_ema_fast=args.trend_fast,
+            trend_ema_slow=args.trend_slow,
+            trend_enter_pct=args.trend_enter,
+            trend_exit_pct=args.trend_exit,
+        )
+        strategy = SRGridStrategyV2(config=config)
+    else:
+        config = SRGridConfig(
+            instrument_id=instrument.id,
+            bar_type=bar_type,
+            grid_budget=Decimal(str(args.budget)),
+            grid_span_pct=args.span,
+            rebalance_interval_bars=args.rebalance,
+            max_levels_per_side=args.max_levels,
+            min_levels_per_side=args.min_levels,
+            max_order_notional=Decimal(str(args.max_order_notional)),
+            max_exposure_budget_mult=args.max_exposure_mult,
+        )
+        strategy = SRGridStrategy(config=config)
 
     engine = BacktestEngine(
         config=BacktestEngineConfig(
@@ -236,6 +281,9 @@ def main() -> None:
     metrics["n_resyncs"] = strategy.n_resyncs
     metrics["n_fills"] = strategy.n_fills
     metrics["total_commissions_usdt"] = round(strategy.total_commissions, 2)
+    for attr in ("n_regime_flips", "n_liquidations", "n_cap_enforcements"):
+        if hasattr(strategy, attr):
+            metrics[attr] = getattr(strategy, attr)
 
     # Equity curve.
     eq = pd.DataFrame(strategy._equity_curve, columns=["ts_ns", "equity"])
@@ -267,7 +315,7 @@ def main() -> None:
 
         closes = [float(b.close.as_double()) for b in bars]
         axes[2].plot(ts, closes[: len(ts)], color="#888", lw=0.6)
-        axes[2].set_title("Synthetic price")
+        axes[2].set_title("Price")
         axes[2].set_ylabel("BTC/USDT")
         axes[2].grid(alpha=0.3)
 

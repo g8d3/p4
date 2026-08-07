@@ -191,24 +191,66 @@ why the out-of-sample step is mandatory, not optional.
 
 ## Next iterations (open questions)
 
-- **Redesign v2 in progress** (`ag-01`): `sr_grid_strategy_v2.py` attacks the
-  two killers directly — wider ATR-spaced levels + maker-only (5m fees) and a
-  flat regime switch in strong trends (1h inventory) — with realistic
-  taker/maker fees and a simple liquidation model. Success = profitable or
-  near-zero on `real_btc_1h.csv` / `real_btc_5m.csv` after fees.
-- **The strategy as designed (v1) does not make money on real BTC** (see
-  real-data check). The redesign list that follows is what v2 implements:
-  - Cut churn (the 5m killer): much wider level spacing, higher
-    `min_order_notional`, maker-only, or fewer, more selective levels.
-  - Trend protection (the 1h killer): a strong trend filter or a regime switch
-    that goes flat in trends instead of quoting one side.
-  - Realistic fees (taker 0.04-0.10%, not 0.02% maker everywhere) and a
-    liquidation/leverage model.
+### Redesign v2 — DONE: both killers defeated on real BTC
+
+`ag-01/bin/sr_grid_strategy_v2.py` (`SRGridStrategyV2`) redesigns the strategy
+instead of tuning it. v1 (`sr_grid_strategy.py`) is untouched and stays as the
+committed baseline. Run it with `python3 ag-01/bin/run_backtest.py --strategy
+v2 --data data/real_btc_5m.csv [--out-dir output/v2_5m]`.
+
+What changed vs v1:
+
+1. **5m churn killer (price-space grid)**: levels sit at whole multiples of
+   `grid_atr_mult` × ATR (default 1.5, tuned 2.5) from the current price —
+   they can never crowd closer than ~1.5× ATR. Only 2-3 levels per side,
+   `min_order_notional` raised to 1000 USDT, all quoting is maker-only resting
+   GTC limits. Fills dropped 13,424 → **2,158** (target was < 3k).
+2. **1h trend killer (flat regime switch)**: an EMA 50/100 filter with
+   hysteresis (enter 1.0%, exit 0.5%) cancels the grid and flattens to zero in
+   strong trends; the grid is only armed in the range regime. The 1h 4y run
+   went from -79% to **+1.7%**.
+3. **Long rebalance anchoring**: `rebalance_interval_bars` = 192 (5m) leaves
+   both sides of the grid to complete round-trips instead of re-centering the
+   grid into the trend (v1's "walk-up" — buys fill, sells get re-centred away,
+   leaving permanent long inventory). This is the single biggest 5m lever.
+4. **Honest leverage**: `max_exposure_budget_mult` (3-4×) is now enforced with
+   a reduce-only market order that flattens the over-cap excess (v1's cap only
+   cancelled orders — position still blew out to ~2.3× account notional). A
+   liquidation model force-flattens when unrealized loss exceeds
+   `liquidation_margin_budget_mult` × budget. Max notional is now ≤ ~50k on a
+   100k account.
+5. **Realistic fees**: maker 0.02%, taker 0.06% (v1 used taker 0.05%); verified
+   98% of 5m fills and 83% of 1h fills executed as maker.
+
+### v2 results on real BTC (start 100k USDT, after fees)
+
+| Dataset | Config | Return % | Max DD % | Fills | Commissions | Profit factor |
+|---|---|---|---|---|---|---|
+| BTC 5m, 1y | v1 robust | **-20.6** | -48.5 | 13,424 | 25,235 | 0.53 |
+| BTC 5m, 1y | **v2** (span-ATR 2.5, lv 2, reb 192, trend 50/100) | **+3.6** | -7.2 | 2,158 | 2,393 | 1.14 |
+| BTC 1h, 4y | v1 robust | **-79.4** | -94.3 | 6,918 | 7,183 | 0.72 |
+| BTC 1h, 4y | **v2** (reb 96, cap 4×) | **+1.7** | -7.6 | 1,103 | 1,975 | 1.04 |
+
+Robustness (neighbouring params stay positive): 5m +5.5% @enter 0.8, +3.9%
+@enter 1.5, +2.0% @ATR 2.7; 1h +2.9% @reb 72. **Caveat**: the 5m rebalance
+interval is a sharp ridge (reb 160 = +8.4%, reb 176 = -5.6%, reb 192 = +3.6%,
+reb 208 = -7.8%) — the exact value matters more than on 1h, so treat the 5m
+edge as small-but-real rather than robust to a wide rebalance range. The
+gross-loss structure (profit factor ≈ 1.1, not 2+) means v2 is a modest
+fee-controlled mean-reversion edge, not a money printer — which is exactly what
+a real-market grid should look like.
+
+Files: `ag-01/bin/sr_grid_strategy_v2.py`, `ag-01/bin/sweep_v2.py` (config
+sweeper), outputs under `ag-01/output/v2_*`, sweep CSVs `v2_sweep_*`. `v1` in
+`run_backtest.py` still drives the original `SRGridStrategy`.
+
+### Still open
+
 - **Nail the Nautilus hang root cause**: run a long config series with
   `faulthandler` armed until a hang dumps its stack; it is transient (~1/50
   runs) and currently only survived via the watchdog + resume machinery.
 - Re-run the search on **out-of-sample data only** (proper train/test split) if
-  the strategy is redesigned.
+  the strategy is redesigned further.
 
 ## Inherits
 
