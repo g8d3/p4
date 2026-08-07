@@ -62,6 +62,9 @@
   <span>Cap. compras <b id="sBuy"></b></span>
   <span>Cap. ventas <b id="sSell"></b></span>
   <span>Inventario <b id="sInv">0</b></span>
+  <span>PnL <b id="sUpnl"></b></span>
+  <span>Equity <b id="sEq"></b></span>
+  <span>Exposición <b id="sExp"></b></span>
   <span class="sw" id="sReb"></span>
 </div>
 
@@ -217,15 +220,16 @@ function computeTrace(){
   let allFills = [];
   let inventory = 0;         // +qty long / -qty short (BTC)
   let avgEntry = 0;          // precio medio de entrada del inventario actual
+  let cash = 100000;         // USDT disponibles (empezamos con 100k)
   let regime = 'RANGE';
   let capFlattens = 0, liquidations = 0;
 
   const capNotional = CFG.gridBudget * CFG.maxExposureMult;
   const liqMargin = CFG.gridBudget;
 
-  // Compras suman +qty; ventas suman -qty. avgEntry se actualiza por peso
-  // cuando se acumula en la misma dirección, y se reinicia al cruzar por cero.
+  // Compras suman +qty (gastan USDT); ventas suman -qty (reciben USDT).
   const addQty = (q, p) => {
+    cash -= q * p;           // q es notional en BTC: gasto/cobro en USDT
     if (q === 0) return;
     if (inventory === 0){ inventory = q; avgEntry = p; return; }
     if (inventory > 0 && q > 0){ avgEntry = (avgEntry*inventory + p*q)/(inventory+q); inventory += q; return; }
@@ -300,17 +304,21 @@ function computeTrace(){
         // Cap de exposición: flatten del exceso.
         const netNotional = Math.abs(inventory) * close[i];
         if (netNotional > capNotional){
-          inventory = 0; avgEntry = 0; capFlattens++;
+          cash += inventory * close[i]; inventory = 0; avgEntry = 0; capFlattens++;
           gridBuy = []; gridSell = []; unalloc = 0; capped = true;
         }
       }
 
       // Liquidación simple: pérdida no realizada > margen.
       if (unrealized(close[i]) < -liqMargin){
-        inventory = 0; avgEntry = 0; liquidations++;
+        cash += inventory * close[i]; inventory = 0; avgEntry = 0; liquidations++;
         gridBuy = []; gridSell = []; unalloc = 0; liq = true;
       }
     }
+
+    const upnl = unrealized(close[i]);
+    const equity = cash + inventory * close[i];
+    const exposure = Math.abs(inventory) * close[i];
 
     trace[i] = {
       price: close[i],
@@ -322,7 +330,9 @@ function computeTrace(){
       gridSell: gridSell.map(l=>Object.assign({},l)),
       emaFast: active ? ema(i, CFG.trendFast) : null,
       emaSlow: active ? ema(i, CFG.trendSlow) : null,
-      inventory, capFlattens, liquidations,
+      inventory, upnl, equity, exposure,
+      capNotional, liqMargin,
+      capFlattens, liquidations,
     };
   }
   return trace;
@@ -497,6 +507,13 @@ function updateStatus(){
   el('sBuy').textContent = (t.gridBuy.reduce((a,l)=>a+l.notional,0)/1000).toFixed(1)+'k';
   el('sSell').textContent = (t.gridSell.reduce((a,l)=>a+l.notional,0)/1000).toFixed(1)+'k';
   el('sInv').textContent = t.inventory.toFixed(4);
+  const upnl = el('sUpnl');
+  upnl.textContent = (t.upnl >= 0 ? '+' : '') + t.upnl.toFixed(0);
+  upnl.style.color = t.upnl >= 0 ? 'var(--buy)' : 'var(--sell)';
+  el('sEq').textContent = t.equity.toFixed(0);
+  const exp = el('sExp');
+  exp.textContent = Math.round(t.exposure / t.capNotional * 100) + '% cap';
+  exp.style.color = t.exposure / t.capNotional > 0.8 ? 'var(--sell)' : 'var(--fg)';
   el('sReb').textContent = t.rebalanced ? '‖ rebalance' : (t.regimeFlip ? '⚑ régimen' : '');
   slider.value = idx;
 }
