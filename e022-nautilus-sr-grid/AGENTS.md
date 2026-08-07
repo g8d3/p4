@@ -62,6 +62,31 @@ Requires `nautilus-trader` >= 1.228 (pyo3 API), `pandas`, `numpy`, `matplotlib`.
 | `<mode>/positions_report.csv` | `run_backtest.py` | Nautilus positions report |
 | `data/synthetic_5m_<mode>.csv` | `gen_synthetic_data.py` | Synthetic OHLCV input |
 
+## Real data reality check (the truth)
+
+The synthetic "robust config" **does not transfer to real markets**. Results on
+real BTC/USDT klines (Binance), start 100k USDT:
+
+| Dataset | Config | Return % | Max DD % | Fills | Commissions |
+|---|---|---|---|---|---|
+| BTC 5m, 1 year | robust (span 3.5, lev 6, reb 96, cap 10x) | **-20.6** | -48.5 | 13,424 | 25,235 |
+| BTC 5m, 1 year | defaults | -30.2 | -30.3 | 16,181 | 20,654 |
+| BTC 1h, 4 years | robust | -79.4 | -94.3 | 6,918 | 7,183 |
+
+Two distinct killers:
+1. **5m is fee-dominated**: 13-16k fills/year bleed 20-25% of capital to maker
+   fees. Real 5-min BTC crosses grid levels far more than smooth synthetic data.
+2. **1h is trend-dominated**: over 4 years (2022 bear, 2023-24 bull) the grid
+   accumulates inventory into trends and the counter-trend side never fills.
+
+**Conclusion**: the +50% synthetic "edge" was an artifact of Gaussian regime
+structure, not a real market edge. This is the single most important result of
+the experiment — it is exactly why out-of-sample real validation is mandatory
+and why "profitable in backtest" on synthetic data means almost nothing.
+
+`data/real_btc_5m.csv` (105k bars, 1y) and `data/real_btc_1h.csv` (35k bars,
+4y) are the inputs; `output/real_*` hold the reports.
+
 ## Baseline results (original defaults, 20k bars, budget 30k, start 100k)
 
 | Regime | Return % | Max DD % | Fills | Commissions USDT | Profit factor |
@@ -76,13 +101,16 @@ collapsed the price to ~1 USDT/BTC (-99.99%). The generator is now bounded
 (floor/cap), so that blow-up was largely a data artifact. The defaults also
 changed since (pool clamp, fill-time cap, trend filter added) — see below.
 
-## Optimization (parameter search + out-of-sample validation)
+## Optimization (parameter search + out-of-sample validation, SYNTHETIC ONLY)
 
 `ag-01/bin/optimize.py` grid-searches the strategy across 486 configs on the
-range + mixed regimes (the hard ones) and validates the top ones out-of-sample
-on 3 unseen data seeds × 4 regimes. Search space: grid span {1.0, 2.0, 3.5},
-max levels {4, 6, 8}, rebalance {48, 96, 192}, exposure cap mult {3, 6, 10},
-trend filter {off, on}, trend min-dist {1, 2, 3}%.
+range + mixed synthetic regimes (the hard ones) and validates the top ones
+out-of-sample on 3 unseen synthetic seeds × 4 regimes. Search space: grid span
+{1.0, 2.0, 3.5}, max levels {4, 6, 8}, rebalance {48, 96, 192}, exposure cap
+mult {3, 6, 10}, trend filter {off, on}, trend min-dist {1, 2, 3}%.
+
+> **IMPORTANT**: everything in this section is synthetic-only. The real-data
+> reality check above shows the results do NOT carry over to real BTC.
 
 ### Robust (recommended) configuration
 
@@ -163,16 +191,19 @@ why the out-of-sample step is mandatory, not optional.
 
 ## Next iterations (open questions)
 
+- **The strategy, as designed, does not make money on real BTC** (see real-data
+  check). To have any chance it needs a redesign, not more tuning:
+  - Cut churn (the 5m killer): much wider level spacing, higher
+    `min_order_notional`, maker-only, or fewer, more selective levels.
+  - Trend protection (the 1h killer): a strong trend filter or a regime switch
+    that goes flat in trends instead of quoting one side.
+  - Realistic fees (taker 0.04-0.10%, not 0.02% maker everywhere) and a
+    liquidation/leverage model.
 - **Nail the Nautilus hang root cause**: run a long config series with
   `faulthandler` armed until a hang dumps its stack; it is transient (~1/50
   runs) and currently only survived via the watchdog + resume machinery.
-- Test on **real data** (e.g. Binance BTC/USDT via Nautilus catalog) — synthetic
-  Gaussian regimes are only a first pass, and the trend-fade edge is cleaner in
-  synthetic trends than in real ones.
-- Re-run the search on **out-of-sample data only** (proper train/test split) or
-  with cross-validation to make the "robust config" claim stronger.
-- Add a **leverage/liquidation model** so the robust config's 3x exposure is
-  priced with real risk, not free margin.
+- Re-run the search on **out-of-sample data only** (proper train/test split) if
+  the strategy is redesigned.
 
 ## Inherits
 

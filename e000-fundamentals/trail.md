@@ -576,4 +576,30 @@ than real ones, so the trend-fade edge is optimistic.
 - **Self-wake pattern**: use `(sleep N; tmux send-keys -t <window> "..." Enter) &`
   for non-blocking periodic checks so the agent stays responsive to the user.
 
+---
+
+## 2026-08-07 — e022 real-data reality check (the honest end of the road)
+
+After the synthetic "robust config" was found, the user chose to test on real
+data. Downloaded Binance BTC/USDT klines (`fetch_binance.py`): 105k 5-min bars
+(1y) and 35k 1h bars (4y). Results on 100k start:
+
+| Dataset | Config | Return | Max DD | Fills | Commissions |
+|---|---|---|---|---|---|
+| 5m, 1y | robust | -20.6% | -48.5% | 13,424 | 25,235 USDT |
+| 5m, 1y | defaults | -30.2% | -30.3% | 16,181 | 20,654 USDT |
+| 1h, 4y | robust | -79.4% | -94.3% | 6,918 | 7,183 USDT |
+
+### Conclusion
+
+The synthetic "+50%" edge was an artifact of smooth Gaussian regime structure.
+On real BTC: 5m is fee-dominated (13-16k fills/year = 20-25% of capital in
+commissions) and 1h is trend-dominated (grid accumulates inventory into the
+2022 bear / 2023-24 bull). **The strategy, as designed, does not make money on
+real data.** This is the single most valuable result of the experiment: it
+demonstrates why synthetic backtests alone mean almost nothing and why real
+out-of-sample validation is mandatory. Documented in the experiment AGENTS.md
+with a redesign list (cut churn, trend protection, realistic fees, liquidation
+model).
+
 
