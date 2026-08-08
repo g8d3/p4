@@ -183,7 +183,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=DATA_FILE)
     parser.add_argument("--out-dir", type=Path, default=OUT_DIR)
-    parser.add_argument("--strategy", choices=["v1", "v2"], default="v1")
+    parser.add_argument("--strategy", choices=["v1", "v2", "v3"], default="v1")
     parser.add_argument("--budget", type=float, default=30_000.0, help="grid budget (USDT)")
     parser.add_argument("--start-balance", type=float, default=100_000.0)
     parser.add_argument("--span", type=float, default=1.5, help="grid span % (v1 only)")
@@ -201,6 +201,7 @@ def main() -> None:
     parser.add_argument("--trend-enter", type=float, default=0.5, help="trend enter % (v2)")
     parser.add_argument("--trend-exit", type=float, default=0.2, help="trend exit % (v2)")
     parser.add_argument("--trend-off", action="store_true", help="disable trend filter (v2)")
+    parser.add_argument("--trend-budget-mult", type=float, default=2.0, help="trend notional as mult of grid budget (v3)")
     parser.add_argument("--log-level", default="ERROR")
     args = parser.parse_args()
 
@@ -211,8 +212,14 @@ def main() -> None:
     first_ts = bars[0].ts_event
     instrument = build_instrument(first_ts, Decimal(str(args.maker_fee)), Decimal(str(args.taker_fee)))
 
-    if args.strategy == "v2":
-        config = SRGridConfigV2(
+    if args.strategy in ("v2", "v3"):
+        if args.strategy == "v3":
+            from sr_grid_strategy_v3 import SRGridConfigV3, SRGridStrategyV3
+        else:
+            from sr_grid_strategy_v2 import SRGridConfigV2, SRGridStrategyV2
+        config_cls = SRGridConfigV3 if args.strategy == "v3" else SRGridConfigV2
+        strategy_cls = SRGridStrategyV3 if args.strategy == "v3" else SRGridStrategyV2
+        kwargs = dict(
             instrument_id=instrument.id,
             bar_type=bar_type,
             grid_budget=Decimal(str(args.budget)),
@@ -228,7 +235,10 @@ def main() -> None:
             trend_enter_pct=args.trend_enter,
             trend_exit_pct=args.trend_exit,
         )
-        strategy = SRGridStrategyV2(config=config)
+        if args.strategy == "v3":
+            kwargs["trend_budget_mult"] = args.trend_budget_mult
+        config = config_cls(**kwargs)
+        strategy = strategy_cls(config=config)
     else:
         config = SRGridConfig(
             instrument_id=instrument.id,

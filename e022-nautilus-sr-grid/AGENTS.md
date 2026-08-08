@@ -308,6 +308,17 @@ trade-off: v2 is built for real BTC, not synthetic Gaussian regimes.
   the combined strategy needs risk budgeting between the two modes. Files:
   `ag-01/bin/trend_follow.py`, outputs `output/trend_follow_*`,
   `output/v2_trend_overlay.csv`.
+- **Dual-regime v3 prototype (`ag-01/bin/sr_grid_strategy_v3.py`)** — combines
+  the v2 grid (RANGE) with the trend-following overlay (LONG/SHORT), with risk
+  budgeting via `trend_budget_mult` (trend notional as a multiple of the grid
+  budget) and the shared exposure cap. Real BTC 1h 4y: `tb1.0/cap3` = +10.8% /
+  DD -14.5%, `tb1.5/cap4` = +21.6% / -20.8%, `tb2.0/cap5` = +32.1% / -27.0%
+  (all PF 1.10-1.16 vs grid-only +1.7%). The trend budget is a clean risk dial
+  between the grid's small-DD and the trend's higher return. **But on 5m the
+  combo is a disaster**: -55.7% / DD -62.7% / 10,654 fills — the trend mode
+  whipsaws in 5m noise and drags the grid with it. Conclusion: the dual-regime
+  belongs on 1h only; 5m should stay grid-only (v2). Files:
+  `ag-01/bin/sr_grid_strategy_v3.py`, `output/v3_*`, `output/v3_dual_summary.csv`.
 
 ## Inherits
 
