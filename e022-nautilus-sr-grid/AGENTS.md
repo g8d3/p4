@@ -296,6 +296,18 @@ trade-off: v2 is built for real BTC, not synthetic Gaussian regimes.
   the best train config overfits (+11.9% → -2.8%). The 1h edge is robust OOS;
   the 5m edge is real but thin and rebalance-sensitive — consistent with the
   documented "small-but-real" caveat.
+- **Trend-following overlay prototype (`ag-01/bin/trend_follow.py`)** — the
+  natural upgrade of v2's flat regime switch: instead of going flat in trends,
+  CAPTURE them with a directional EMA-cross strategy (long/short, realistic
+  taker fees, exposure cap, liquidation model). On real BTC 1h 4y (fast 100,
+  slow 400, enter 1.0%, exit 0.5%, 2× budget): **+37.7%** / DD -24.1% / PF 1.23
+  vs grid-only v2 +1.7% / -7.6%. On 5m 1y the same config loses (-12.5%) — 5m
+  is too noisy for trend-following. This confirms the dual-regime thesis: the
+  grid is the right mode in range (5m/1h), trend-following is the right mode
+  in strong trends (1h). The drawdown cost is real (2-3× the grid's DD), so
+  the combined strategy needs risk budgeting between the two modes. Files:
+  `ag-01/bin/trend_follow.py`, outputs `output/trend_follow_*`,
+  `output/v2_trend_overlay.csv`.
 
 ## Inherits
 

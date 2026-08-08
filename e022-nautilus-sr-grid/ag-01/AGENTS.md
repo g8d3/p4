@@ -156,6 +156,12 @@ New pitfalls learned this phase:
   `subprocess` of `run_backtest.py` (the same model as `sweep_v2.py` and the
   hang catchers, which never hung in 478 runs). Do NOT reintroduce a
   ProcessPoolExecutor whose parent imports Nautilus.
+- **Trend-following overlay prototype (`bin/trend_follow.py`)** — the upgrade
+  of v2's flat regime switch: CAPTURE trends instead of going flat. On real 1h
+  4y, EMA 100/400 with enter 1.0%/exit 0.5% at 2× budget gives **+37.7%** (DD
+  -24.1%, PF 1.23) vs grid-only +1.7%; on 5m the same config loses (-12.5%).
+  Confirms dual-regime: grid in range, trend-follow in 1h trends. Needs risk
+  budgeting between modes before combining (trend DD is 2-3× the grid's).
 
 ## Self-command
 
