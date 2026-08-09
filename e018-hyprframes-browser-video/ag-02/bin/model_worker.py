@@ -82,8 +82,14 @@ def handle(conn):
     if not os.path.exists(path):
         conn.sendall(json.dumps({'error': f'File not found: {path}'}).encode())
     else:
-        result = process(path)
-        conn.sendall(json.dumps(result).encode())
+        try:
+            result = process(path)
+            conn.sendall(json.dumps(result).encode())
+        except Exception as e:
+            # A bad audio file must NOT kill the worker — return the error
+            # to the caller and keep serving. The worker is a shared service.
+            conn.sendall(json.dumps({'error': f'Transcription failed: {e}'}).encode())
+            print(f'  ERROR transcribing {path}: {e}', flush=True)
     conn.close()
 
 while True:

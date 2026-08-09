@@ -139,8 +139,11 @@ for u in r.get('resultUrls', []): print(u)
         for url in $AUDIO_URLS; do
             $QUIET || echo "Downloading..."
             curl -sS -o "${local_file}_raw.wav" "$url"
+            # Convert directly to MP3, no trimming. The old silenceremove filter
+            # stripped natural silence at start/end of every chunk, mutilating the
+            # narration (dry cuts, border words clipped). KIE already returns
+            # properly-padded audio — convert as-is, then delete the raw WAV.
             ffmpeg -y -i "${local_file}_raw.wav" \
-                -af "silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_duration=0.1:start_threshold=-50dB,areverse" \
                 -codec:a libmp3lame -qscale:a 2 "${local_file}.mp3" 2>/dev/null
             rm -f "${local_file}_raw.wav"
             DUR=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${local_file}.mp3" 2>/dev/null)

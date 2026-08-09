@@ -43,9 +43,10 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 - **Device**: Android + Termux → SSH to Linux (zsh + tmux).
 - **Input**: Google Keyboard (voice dictation).
 - **Agent**: Open Code CLI.
-- **Provider 1**: opencode-go — subscription via [opencode.ai](https://opencode.ai) (DeepSeek, Mimo, GLM, etc.).
-- **Provider 2**: Xiaomi Token Plan — subscription via Xiaomi Mimo platform (`xiaomi/` prefix).
+- **Provider 1**: opencode-go — subscription via [opencode.ai](https://opencode.ai) (DeepSeek, Mimo, GLM, etc.). **Top priority.**
+- **Provider 2**: Command Code (`cmd`) — separate CLI binary with its own subscription.
 - **Provider 3**: Z.AI Coding Plan — subscription via Z.AI (`zai-coding-plan/` prefix).
+- **Inactive**: Xiaomi Token Plan (`xiaomi/` prefix) — NOT active; do not use until re-activated.
 - **tmux**: windows only, no panes.
 - **Mobile-first**: all interfaces (terminal or web) must be mobile-friendly.
 
@@ -308,6 +309,8 @@ The response contains `text` (full transcript), `srt`, and `words_raw` (word-lev
 - Input audio must be **mono** (stereo raises a TypeError) — convert first with `ffmpeg -i in.mp3 -ac 1 out.mp3`
 - The worker takes ~20s to load; keep it running, do not restart per file
 - Parakeet writes numbers as words ("five point six") — post-process to digits if needed
+- **A bad audio file no longer kills the worker** (fixed: errors are returned to the caller, worker keeps serving). If the worker is DOWN, restart it: `.venv/bin/python bin/model_worker.py` (model reloads in ~15-20s). Verify it's really up with a transcription, not just `/health` — `/health` only checks the socket file exists, which can be stale after a crash. Check `ps aux | grep model_worker` instead.
+- If the transcribe server (not worker) hangs, restart just the server: `kill $(pgrep -f "python3 transcribe_server" | head -1)` then relaunch it. The server is single-threaded and can wedge on a leaked connection (CLOSE-WAIT pileup).
 
 ### Pre-production: storyboards & character sheets
 
@@ -400,14 +403,24 @@ To launch an agent for a specific task:
 
 The agent's AGENTS.md + inherited files are its context.
 
+### Provider priority
+
+When several providers are available, use them in this order:
+
+1. **opencode-go** — `opencode -m opencode-go/deepseek-v4-flash` (primary)
+2. **Command Code** — `cmd -m deepseek/deepseek-v4-pro` (secondary, parallel load)
+3. **Z.AI Coding Plan** — `opencode -m zai-coding-plan/glm-4.7` (tertiary)
+
+For parallel agents, spread across providers in this order (ag-01 → opencode-go, ag-02 → cmd, ag-03 → zai) so each uses independent compute. Xiaomi Token Plan is currently **inactive**.
+
 ### Model selection
 
 By default agents use DeepSeek V4 Flash. To use a different model or provider, specify it when launching:
 
 ```
-opencode -m opencode-go/mimo-v2.5             # opencode-go provider
-opencode -m xiaomi-token-plan-sgp/mimo-v2.5   # Xiaomi Token Plan Singapore
-opencode -m zai-coding-plan/glm-5.1           # Z.AI Coding Plan provider
+opencode -m opencode-go/deepseek-v4-flash       # opencode-go provider (priority 1)
+cmd -m deepseek/deepseek-v4-pro                 # Command Code (priority 2)
+opencode -m zai-coding-plan/glm-4.7             # Z.AI Coding Plan (priority 3)
 ```
 
 The agent's AGENTS.md should declare its required model in a `## Model` section. The orchestrator reads this and uses the corresponding `-m` flag.
@@ -419,13 +432,9 @@ The agent's AGENTS.md should declare its required model in a `## Model` section.
 | Provider | Provider ID prefix | Subscription | Typical models |
 |----------|-------------------|-------------|----------------|
 | OpenCode Go | `opencode-go/` | Monthly subscription | deepseek-v4-flash, mimo-v2.5, glm-5.1, kimi-k2.6, minimax-m2.7 |
-| Xiaomi Token Plan (Singapore) | `xiaomi-token-plan-sgp/` | Token-based plan | mimo-v2.5, mimo-v2-tts, mimo-v2-omni |
-| Xiaomi Token Plan (Europe) | `xiaomi-token-plan-ams/` | Token-based plan | mimo-v2.5, mimo-v2-tts, mimo-v2-omni |
-| Xiaomi Token Plan (China) | `xiaomi-token-plan-cn/` | Token-based plan | mimo-v2.5, mimo-v2-tts, mimo-v2-omni |
+| Command Code | `cmd` (separate binary) | Monthly subscription (Go/Pro/Max) | deepseek/deepseek-v4-pro, xiaomi/mimo-v2.5, zai-org/GLM-5.2 |
 | Z.AI Coding Plan | `zai-coding-plan/` | Coding plan Pro (5h rolling window) | glm-4.7, glm-5.1, glm-5-turbo |
-| OpenCode Zen | `opencode/` | Pay-per-use | All tested models |
-
-Note: Xiaomi Token Plan has 3 regional variants. Use `xiaomi-token-plan-sgp/` (Singapore) — lowest latency from our location.
+| ~~Xiaomi Token Plan~~ | ~~`xiaomi-token-plan-sgp/`~~ | ~~Token-based plan~~ | **INACTIVE — do not use** |
 
 ### Command Code Go (separate binary: `cmd`)
 
@@ -444,7 +453,36 @@ cmd -m xiaomi/mimo-v2.5
 cmd -m tencent/Hy3
 ```
 
-#### Command Code Plans
+**Important**: `cmd --print "query"` HANGS (no timeout makes it wait indefinitely). Use `cmd --help`, `cmd info`, `cmd --list-models` instead — these return instantly. Never use `--print` in agents.
+
+#### Command Code permission system (CRITICAL for background agents)
+
+**The definitive rule: any `cmd` agent launched in tmux MUST be started with `--yolo`.**
+
+```bash
+cmd -m <model> --trust --yolo --skip-onboarding --add-dir /home/vuos/code/p4
+```
+
+Without `--yolo`, cmd prompts for permission on every shell command and **stalls the headless agent mid-task** (the prompt can't be answered from a tmux window). This happened repeatedly in e023. `--yolo` is the one-flag fix.
+
+- `--yolo` — bypass ALL permission prompts (reads, writes, edits, commands). Alias: `--dangerously-skip-permissions`. Safe here: agents work inside p4, no prod systems.
+- `--trust` (`-t`) — skip the first-launch "Do you trust the files in this folder?" prompt
+- `--skip-onboarding` — skip taste onboarding
+- `--add-dir <dir>` — extend workspace scope so it can read files OUTSIDE its launch dir (inherited AGENTS.md, other experiments). Add every path the agent reads.
+
+**Why each flag exists (the failure layers, in launch order):**
+
+1. **Project trust prompt** — first launch asks "Do you trust the files in this folder?"; until answered, cmd does nothing. → `--trust`
+2. **Workspace scope** — reads/writes outside the launch dir (e.g. `../AGENTS.md`) trigger a "Tool Permission … is outside" block. → `--add-dir`
+3. **Command permission prompt** — `--auto-accept` only auto-accepts **edits**, NOT shell commands. Any command (`echo`, `pgrep`, `pdw`, `python3` one-liners) can prompt. → **`--yolo`** (this is the one that truly matters)
+4. **Taste onboarding** — interactive onboarding blocks automation. → `--skip-onboarding`
+
+**Recovery if an agent was launched without `--yolo` and is blocked on a prompt:**
+- Do NOT try to answer prompts key-by-key — new command types keep appearing. Kill the window and relaunch with the full flag set above. That is the only definitive fix.
+
+Persistent settings live in `~/.commandcode/` (`config.json` = provider/model; `projects/<proj>/` = per-project trust/state). The persisted permission mode is `permissions.defaultMode` (values: `default|plan|auto-accept|dont-ask`; `bypass`/`--yolo` is launch-flag only). Switching in-session: `/mode` or `Shift+Tab` (default → auto-accept → plan).
+
+### Command Code Plans
 
 | Plan | Price/mo | Credits/mo | 5h Limit | Weekly Limit | Models |
 |------|----------|------------|----------|--------------|--------|
@@ -498,14 +536,14 @@ These models can "see" images and videos (useful for reviewing video output):
 When running multiple agents simultaneously, use different providers to maximize token throughput (each provider has independent compute):
 
 ```
-# ag-01 with opencode-go
-opencode -m opencode-go/mimo-v2.5
+# ag-01 with opencode-go (priority 1)
+opencode -m opencode-go/deepseek-v4-flash
 
-# ag-02 with Xiaomi Token Plan (Singapore)
-opencode -m xiaomi-token-plan-sgp/mimo-v2.5
+# ag-02 with Command Code (priority 2)
+cmd -m deepseek/deepseek-v4-pro
 
-# ag-03 with Z.AI Coding Plan
-opencode -m zai-coding-plan/glm-5.1
+# ag-03 with Z.AI Coding Plan (priority 3)
+opencode -m zai-coding-plan/glm-4.7
 ```
 
 ### Listing available models
@@ -516,7 +554,7 @@ opencode models                 # list all available models across all providers
 opencode models opencode-go     # list models for a specific provider
 ```
 
-Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xiaomi-token-plan-sgp/mimo-v2.5`, `zai-coding-plan/glm-4.7` (has vision).
+Vision-capable models (for self-reviewing videos): `opencode-go/mimo-v2.5`, `xiaomi-token-plan-sgp/mimo-v2.5` (inactive), `zai-coding-plan/glm-4.7` (has vision).
 
 ## Media generation APIs
 
@@ -795,6 +833,26 @@ ffmpeg -vaapi_device /dev/dri/renderD128 -i input_frames -vf "format=nv12,hwuplo
 
 Key: `-vf "format=nv12,hwupload"` is required before the VAAPI encoder.
 Speed: ~20× real time for 608×1080 at 25fps.
+
+### FINAL video encodes MUST use the GPU — never CPU encoders
+
+**Rule**: the FINAL video encode (`episode.mp4`, `FINAL.mp4`, any deliverable) MUST be `h264_vaapi`. CPU encoders (`libx264`, `libx265`, `mpeg4`) are FORBIDDEN for final videos.
+
+**The ONLY allowed libx264 use is wf-recorder capture** (`wf-recorder -c libx264`), because VAAPI in wf-recorder produces corrupt files from headless displays (documented below). That intermediate capture is then re-encoded to GPU with:
+
+```
+e023-build-in-public/bin/encode_vaapi.sh <input> [output]
+```
+
+Why it matters: a CPU final encode pegs the machine (loud fans, 150-200% CPU) while the GPU idles. On this system, a libx264 encode that burns ~185% CPU runs at ~20× real time with `h264_vaapi` at near-zero CPU.
+
+**Verify the GPU was used** (check the stream's encoder tag, not just the codec name — both report `h264`):
+```
+ffprobe -v quiet -select_streams v:0 -show_entries stream=encoder -of csv=p=0 video.mp4
+# must contain "vaapi"
+```
+
+Agents: when assembling a final video, use `encode_vaapi.sh`, then verify the encoder tag contains `vaapi`. If you find yourself writing `-c:v libx264` in a final-assembly ffmpeg command, STOP and use the wrapper.
 
 ## Screen recording (Wayland headless)
 
