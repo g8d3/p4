@@ -90,6 +90,26 @@ npm run symlink:create --workspace=@diffusionstudio/cli
    transcription, real footage from the p4 capture stack.
 5. Benchmark vs the ffmpeg/VAAPI composition pipeline (speed, quality, cost).
 
+## Demo video deliverable
+
+The composition work ends with a **video about the tool itself** (user choice,
+2026-08-12):
+
+- **Topic**: "Diffusion Studio — the video editor your coding agents can drive."
+  What it is, the `dapi` CLI workflow, compositions as TSX, and what it means
+  for p4 (an honest comparison with the ffmpeg/VAAPI pipeline).
+- **Aspect ratio**: 16:9 (1920×1080) — the tool is a desktop web/Electron
+  editor, landscape suits the code + UI demo. Override if the user asks.
+- **Duration**: NOT predefined — results from the narration transcription
+  (fundamentals rule).
+- **Pipeline**: this is a **composition** video (pre-generated), not a screen
+  capture: script → TTS (KIE Gemini via `e019-kie-image-api`) → transcribe
+  (Parakeet) → assemble with Diffusion Studio compositions (`dapi mount` +
+  `dapi node render`) or ffmpeg. The editor's own renders are the subject AND
+  the tool.
+- **Verify**: ffprobe (resolution 1920×1080, audio present, encoder tag) +
+  extracted frames showing non-black, readable content.
+
 ## Files / agents
 
 | Path | What it is |

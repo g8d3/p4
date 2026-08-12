@@ -38,6 +38,21 @@ notes as you go (`output/exploration.md`) or the next run loses your context.
    speed, quality, control, effort. Write the comparison to
    `output/benchmark.md` with real numbers (file sizes, encode times, encoder
    tags, commands used).
+7. **Demo video (the final deliverable)** — a video **about the tool itself**:
+   - **Topic**: "Diffusion Studio — the video editor your coding agents can
+     drive." What it is, the `dapi` CLI workflow, compositions as TSX, and an
+     honest comparison with p4's ffmpeg/VAAPI pipeline.
+   - **Aspect ratio**: 16:9 (1920×1080). **Duration**: not predefined — it
+     results from the narration transcription.
+   - **Pipeline**: composition video (pre-generated). Write the script, TTS
+     it (KIE Gemini TTS via
+     `../../e019-kie-image-api/ag-01/bin/kie-tts.sh`), transcribe (Parakeet),
+     then assemble the scenes as TSX compositions (`dapi mount` + `dapi node
+     render`) — the subject and the tool are the same. Use `generate.*` assets
+     and/or real p4 media in the scenes.
+   - **Verify**: ffprobe (1920×1080, audio present, encoder tag) + extracted
+     frames with readable, non-black content. Write `output/metadata.json`
+     (per fundamentals) and commit the composition sources in `bin/`.
 
 ## Success criteria
 
@@ -51,6 +66,9 @@ notes as you go (`output/exploration.md`) or the next run loses your context.
   extracted to confirm non-black content.
 - `output/benchmark.md` states, with evidence, whether `dapi node render`
   should be adopted, adapted, or ignored by the p4 pipeline — and why.
+- `output/demo.mp4` — the final demo video about the tool itself: 1920×1080,
+  audio present, non-black readable frames, verified with ffprobe +
+  extracted frames. `output/metadata.json` written per fundamentals.
 
 ## Pitfalls (check before assuming)
 
