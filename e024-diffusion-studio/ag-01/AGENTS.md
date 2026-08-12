@@ -1,8 +1,10 @@
-# ag-01 — Setup & exploration
+# ag-01 — Setup, exploration & composition
 
-Set up the Diffusion Studio editor from `../upstream/` and explore the `dapi`
-CLI until the whole toolset is understood, working, and documented. You are the
-first person to touch this experiment — verify everything, trust nothing.
+Full-stack agent for the Diffusion Studio experiment: set up the editor from
+`../upstream/`, explore the `dapi` CLI until the toolset is understood, write
+TSX compositions, render real videos, and benchmark against the p4 ffmpeg/VAAPI
+pipeline. You are the only agent here — you own everything end to end, so keep
+notes as you go (`output/exploration.md`) or the next run loses your context.
 
 ## Model
 
@@ -21,9 +23,21 @@ first person to touch this experiment — verify everything, trust nothing.
    `../upstream/examples/` (runnable compositions). Try the examples:
    `dapi mount ../upstream/examples/01-basics.tsx`, `dapi node tree`, `dapi
    node capture`, `dapi node render -o <out>.mp4`.
-4. **Document** — write your findings to `output/exploration.md`: what works,
-   what fails, exact commands with their real outputs, and pitfalls. Keep
-   `bin/` for any helper scripts you write.
+4. **Compose** — write your own compositions in `bin/` (TSX modules), e.g.:
+   - A title/text scene from a local TTS narration (KIE Gemini TTS via
+     `../../e019-kie-image-api/ag-01/bin/kie-tts.sh`, or edge-tts fallback).
+   - A real-footage scene using media produced elsewhere in p4 (check
+     `../../e018-hyprframes-browser-video/`, `../../e010-more-videos/` for
+     existing captures you can import as assets).
+   - A captions/subtitles scene driven by a Parakeet `.srt`/transcript
+     (`../../e018-hyprframes-browser-video/ag-02/bin/transcribe.sh`).
+5. **Render & verify** — `dapi mount <comp>.tsx`, `dapi node render -o
+   output/<name>.mp4`. Verify every output with ffprobe: resolution matches
+   the composition, duration is sane, audio present, no black frames.
+6. **Benchmark** — compare against the p4 ffmpeg composition pipeline: encode
+   speed, quality, control, effort. Write the comparison to
+   `output/benchmark.md` with real numbers (file sizes, encode times, encoder
+   tags, commands used).
 
 ## Success criteria
 
@@ -32,6 +46,11 @@ first person to touch this experiment — verify everything, trust nothing.
 - `output/exploration.md` exists and answers: how to start the app, which
   commands are agent-critical, what needs the hosted backend vs works offline,
   and how `dapi node render` encodes (codec, hardware) vs the p4 VAAPI rule.
+- At least two rendered videos in `output/` (one pure-composition, one with
+  p4-generated audio/footage), each verified with ffprobe and with a frame
+  extracted to confirm non-black content.
+- `output/benchmark.md` states, with evidence, whether `dapi node render`
+  should be adopted, adapted, or ignored by the p4 pipeline — and why.
 
 ## Pitfalls (check before assuming)
 
@@ -45,6 +64,17 @@ first person to touch this experiment — verify everything, trust nothing.
   it with a self-wake instead of blocking.
 - The repo is a moving target (v0.132.0); if a documented command has no
   reference file or differs from `reference/`, trust the live `dapi --help`.
+- The FINAL p4 deliverable rule still applies if you assemble a final video
+  with ffmpeg: encode with h264_vaapi (`../../e023-build-in-public/bin/encode_vaapi.sh`),
+  verify the encoder tag. `dapi node render`'s own encoder is a separate
+  question — report what it produces, don't silently hand it to the pipeline.
+- Generative assets (`generate.*`) may hit the hosted API and cost
+  credits/require an account. Prefer local media for the core benchmark; use
+  `generate.*` only as an exploration add-on.
+- Parakeet needs mono audio; transcribe first, then reference the transcript
+  in your composition.
+- Composition sources are the deliverable — commit them in `bin/` with a
+  short README if useful.
 
 ## Self-command
 
@@ -56,5 +86,7 @@ first person to touch this experiment — verify everything, trust nothing.
 ## Inherits
 
 - [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles,
-  command rules, background + self-wake pattern, GPU/VAAPI encoding
+  command rules, background + self-wake pattern, GPU/VAAPI encoding, video pipeline
 - [../AGENTS.md](../AGENTS.md) — experiment scope, repo layout, core workflow
+- [../../e019-kie-image-api/AGENTS.md](../../e019-kie-image-api/AGENTS.md) — KIE TTS usage
+- [../../e018-hyprframes-browser-video/AGENTS.md](../../e018-hyprframes-browser-video/AGENTS.md) — Parakeet transcription

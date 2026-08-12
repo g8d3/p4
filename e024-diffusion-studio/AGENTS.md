@@ -94,12 +94,10 @@ npm run symlink:create --workspace=@diffusionstudio/cli
 
 | Path | What it is |
 |---|---|
-| `ag-01/` | Setup + exploration agent: install deps, run dapi, document commands and pitfalls |
-| `ag-02/` | Composition agent: write TSX scenes, render videos, integrate p4 assets |
+| `ag-01/` | Single full-stack agent: setup, exploration, TSX compositions, renders, benchmark vs the ffmpeg/VAAPI pipeline |
 
-Agent outputs go in each agent's `output/` (gitignored). Composition sources
-and notes are committed alongside the AGENTS.md files so the experiment's state
-is auditable.
+Agent outputs go in `ag-01/output/` (gitignored). Composition sources and notes
+are committed alongside the AGENTS.md so the experiment's state is auditable.
 
 ## Inherits
 

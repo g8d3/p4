@@ -594,9 +594,13 @@ Decisions:
 - **Upstream source**: cloned shallow (depth 1, v0.132.0) into
   `e024-diffusion-studio/upstream/`, **gitignored** (23 MB with its own git
   history; not p4's content).
-- **Structure**: two agents — `ag-01` (setup + exploration, document dapi
-  commands and pitfalls), `ag-02` (TSX compositions + render + benchmark vs the
-  ffmpeg/VAAPI pipeline, integrating KIE TTS / Parakeet / p4 captures).
+- **Structure**: one full-stack agent (`ag-01`). Initially scaffolded with two
+  agents (ag-01 setup+exploration, ag-02 compositions+benchmark), but the user
+  (from experience) sees no need for a second agent in a case like this: the
+  second agent typically fails from **incomplete context** — the exploration
+  phase's findings never fully transfer. Consolidated to one agent that owns
+  setup → explore → compose → integrate → benchmark end to end, writing notes
+  to `output/exploration.md` so its own context survives across runs.
 - **Scope**: evaluate where Diffusion Studio fits in p4's pipeline; the final
   p4 deliverable rule (h264_vaapi) still applies to any ffmpeg assembly, while
   `dapi node render`'s own encoder is an open question to report on.
