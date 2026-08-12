@@ -284,7 +284,11 @@ Every video — regardless of type — follows the same five-step pipeline. Vide
 
 Transcription is done with the **Parakeet ASR** toolset from [`e018-hyprframes-browser-video/ag-02/bin/`](../e018-hyprframes-browser-video/ag-02/bin/). It produces word-level timestamps, an `.srt` subtitle file, and a `.txt` transcript next to the audio.
 
+**Authoritative how-to**: read [`e018-hyprframes-browser-video/ag-02/bin/PARAKEET.md`](../e018-hyprframes-browser-video/ag-02/bin/PARAKEET.md) — setup, usage, and pitfalls.
+
 **Model location (portable)**: the Parakeet model must live at `~/models/parakeet-ctc-0.6b.nemo`. The workers resolve it via the `PARAKEET_MODEL` env var, defaulting to `~/models/parakeet-ctc-0.6b.nemo` — never hardcode a machine path.
+
+**The venv is ephemeral**: Parakeet runs from `/tmp/nemo_venv` (uv-managed, RAM/tmpfs — wiped on reboot). If `python3 -c "import nemo"` fails everywhere, recreate it with `uv venv /tmp/nemo_venv --python 3.11` + `uv pip install --python /tmp/nemo_venv/bin/python "nemo_toolkit[asr]>=1.22,<2"` (see PARAKEET.md). Do not search the machine for nemo; it exists only in that venv.
 
 **Architecture (two persistent services):**
 1. `model_worker.py` — loads the model into RAM once (~20s), serves via Unix socket `/tmp/transcribe-worker.sock`
