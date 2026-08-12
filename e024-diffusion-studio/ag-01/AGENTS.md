@@ -94,6 +94,25 @@ notes as you go (`output/exploration.md`) or the next run loses your context.
 - Composition sources are the deliverable — commit them in `bin/` with a
   short README if useful.
 
+## Learnings (2026-08-12, first session)
+
+- **Render encoder is software H.264 (OpenH264), not VAAPI** — and ffprobe
+  reports no encoder tag. Default AAC audio FAILS (`encoder config not
+  supported`); always pass `"audio":{"codec":"opus"}`. ~100 FPS at 1080p.
+- `dapi` talks to the **Electron desktop app** over `/tmp/diffusion-studio.sock`
+  — browser-only `dev:web` is not enough. Launch Electron headless on a sway
+  Wayland display; `dapi open -b` needs a `diffusion-studio` binary we don't
+  have, so launch electron directly.
+- Render returns `{path}` + exit 0 even when the file is 0 bytes — always
+  verify with ffprobe. A hung render wedges the app; restart all electron pids.
+- `npm install` needs `npm config set allow-git all` (npm 12), then approve
+  esbuild's install script and run electron's `install.js` manually.
+- `dapi fonts` is macOS only. On Linux only `Inter` is available.
+- `pkill -f electron` matches the agent's own shell — use exact PIDs.
+- The p4 GPU rule still applies for final delivery: `encode_vaapi.sh` accepts a
+  dapi mp4 unchanged (verified). Verdict in `output/benchmark.md`:
+  **adopt the editor for authoring, keep h264_vaapi for encoding.**
+
 ## Self-command
 
 - Every blocking command runs in background: `> /dev/null 2>&1 &`
