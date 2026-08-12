@@ -361,6 +361,22 @@ Tools:
 
 Output files go in the agent's `output/` directory. The storyboard becomes the plan that the agent follows during production.
 
+### Image sourcing priorities (where do the images come from?)
+
+A recurring question in every video build. The answer is a fixed priority
+order, documented in [`sources.md`](sources.md#image-sourcing-priorities-for-video-visuals):
+
+1. **Session captures** (real screenshots of the work) — free, truthful, always preferred
+2. **Existing p4 media/outputs** (other experiments' verified `.mp4`/`.png`) — probe first, reuse before generating
+3. **Stock / public-domain images** (generic filler only)
+4. **AI-generated images (KIE Seedream)** — thematic scenes/characters that don't exist
+5. **Editor-native `generate.*`** — only where the composition must be declarative AND the backend is available
+6. **AI video frames** — last resort for footage nobody captured
+
+Never generate what you can capture; never generate what p4 already has.
+Full table, decision flow, and hard rules in [`sources.md`](sources.md).
+
+
 ## Context inheritance
 
 An agent only reads its own `AGENTS.md`. To share rules across agents, use **explicit inheritance**:

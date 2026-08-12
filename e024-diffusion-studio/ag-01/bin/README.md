@@ -7,9 +7,28 @@ locally, no generation credits.
 |---|---|---|
 | `dapi-titles.tsx` | Pure-composition title video (text cards + audio) | `../output/narration-dapi.mp3` (KIE Gemini TTS) |
 | `p4-media.tsx` | Real p4 footage (e023 `episode.mp4`) in a PiP layout | `../output/narration-p4media.mp3` |
-| `demo.tsx` | Final demo: "Diffusion Studio — the video editor your coding agents can drive" | `../output/demo-narration.mp3` |
+| `demo.tsx` | Final demo v2: "Diffusion Studio — the video editor your coding agents can drive" | `../output/demo-narration.mp3` |
 | `demo-script.md` | Demo narration script (scene-by-scene) | — |
 | `bench-ffmpeg.sh` | ffmpeg h264_vaapi baseline for the benchmark | — |
+
+## Demo v2 improvements (applied 2026-08-12)
+
+1. Gradient background + cyan badge visible from frame 0 (no black frame).
+2. Bright PiP of our own render with cyan glow border.
+3. Real assets: `asset-composition.png` (clean `dapi node capture`) and
+   `asset-terminal-crop.png` (grim capture of dapi running in a foot terminal).
+4. Captions timed from the local Parakeet SRT (dapi's `<captions>` needs the
+   hosted backend: `Missing authorization token`).
+5. Inter font everywhere, entrance fade on cards, ambient music bed
+   (`ambient-bed.mp3`, synthesized offline with ffmpeg, -30 dB), end card with
+   repo CTA, 8 Mbps video bitrate.
+
+## Image sourcing priority (where do the images come from?)
+
+Documented in fundamentals: `e000-fundamentals/sources.md` →
+**Image sourcing priorities**. Summary: session captures → existing p4 media →
+stock → KIE Seedream generation → editor-native `generate.*` → AI video frames.
+Never generate what you can capture; never generate what p4 already has.
 
 ## Mount + render
 
