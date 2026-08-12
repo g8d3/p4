@@ -373,8 +373,14 @@ order, documented in [`sources.md`](sources.md#image-sourcing-priorities-for-vid
 5. **Editor-native `generate.*`** — only where the composition must be declarative AND the backend is available
 6. **AI video frames** — last resort for footage nobody captured
 
-Never generate what you can capture; never generate what p4 already has.
+**When there is no documented source, generate — via a grid, not single
+images:** one KIE request produces N related cells (storyboard/character sheet
+costs ~1 image), a vision model (mimo-v2.5 / kimi-k2.7 / glm-5.x) decodes the
+grid (cell count, rows×cols, per-cell description), then crop the cells out.
+Grid in → vision decode → cells out. Never generate what you can capture;
+never generate what p4 already has.
 Full table, decision flow, and hard rules in [`sources.md`](sources.md).
+
 
 
 ## Context inheritance

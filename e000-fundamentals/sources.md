@@ -86,12 +86,40 @@ Decision flow:
 5. Is it part of a Diffusion Studio composition that must stay declarative? → **tier 5** (only if backend available).
 6. Do you need moving footage nobody captured? → **tier 6** (AI video).
 
+### Generation is the default when no documented source exists
+
+If there is **no documentation / no known source** for the images a video
+needs, do NOT stall looking for a source — **generate**. Whatever image model
+is available right now (KIE Seedream today) is the answer, and the default way
+to generate is **a grid, not one image at a time**:
+
+1. **One KIE request asks for a grid** of related images (storyboard grid,
+   character reference sheet, a scene pack) instead of N single-image
+   requests. One call ≈ 1 image cost for N cells — ~16× cheaper and faster
+   for a 4×4 storyboard. The storyboard template at
+   `prompts/storyboard.md` already does this (16 cells, single request).
+2. **A vision model decodes the grid** (mimo-v2.5 / kimi-k2.7 / glm-5.x):
+   it returns the cell count, the layout (rows × columns), and a per-cell
+   description. Validated 2026-08-12 on a p4 grid: *"6 cells, 3 rows × 2
+   columns, character reference sheet, one line per expression."*
+   Command: `opencode run -m opencode-go/mimo-v2.5 "read <grid.png>: how many
+   cells, layout, one line per cell"`.
+3. **Crop the grid** into individual cell images (programmatic crop by
+   rows/columns — a 4×4 grid of 2576×1456 → 16 cells of ~644×364, or use the
+   vision model's reported geometry).
+4. Each cell is now a usable scene image; the vision model's per-cell
+   descriptions tell you exactly which cell goes where in the storyboard.
+
+So generation-as-default means: **grid in, vision decode, cells out** —
+cheaper than single images, and the grid doubles as the storyboard artifact.
+
 Hard rules:
 - **Never generate what you can capture.** A screenshot of the real tool is more honest, free, and faster than an AI image of it.
 - **Always reuse p4 output before generating.** `e018/e019/e023` are full of verified media; probe before you generate.
+- **Generation is the tie-breaker, not the first resort** — but when no source applies, generate rather than stall; prefer the grid+vision+crop pattern over N single requests.
 - **Aspect ratio consistency**: every image used in a video must match the deliverable's aspect ratio (p4 mobile = 9:16, this experiment's demo = 16:9). Crop/`objectFit` to fit, never mix ratios.
 - **Storyboards**: generated via the single-request KIE grid (`prompts/storyboard.md`), but real screen captures replace grid cells when the video shows computer events.
-- **Verify after every fetch**: `ffprobe` images/videos for dimensions; never trust a URL or a generator's promise — check the file.
+- **Verify after every fetch**: `ffprobe` images/videos for dimensions; never trust a URL or a generator's promise — check the file. For grids, the vision model's decode must match what the crop produces — check a cell after cropping.
 
 ## Output formats
 
