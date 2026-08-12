@@ -7,21 +7,25 @@ locally, no generation credits.
 |---|---|---|
 | `dapi-titles.tsx` | Pure-composition title video (text cards + audio) | `../output/narration-dapi.mp3` (KIE Gemini TTS) |
 | `p4-media.tsx` | Real p4 footage (e023 `episode.mp4`) in a PiP layout | `../output/narration-p4media.mp3` |
-| `demo.tsx` | Final demo v2: "Diffusion Studio — the video editor your coding agents can drive" | `../output/demo-narration.mp3` |
+| `demo.tsx` | Final demo v3: "Diffusion Studio — the video editor your coding agents can drive" (196s) | `../output/demo-narration.mp3` |
 | `demo-script.md` | Demo narration script (scene-by-scene) | — |
 | `bench-ffmpeg.sh` | ffmpeg h264_vaapi baseline for the benchmark | — |
 
-## Demo v2 improvements (applied 2026-08-12)
+## Demo v3 (2026-08-12) — captures, data, intro/outro
 
-1. Gradient background + cyan badge visible from frame 0 (no black frame).
-2. Bright PiP of our own render with cyan glow border.
-3. Real assets: `asset-composition.png` (clean `dapi node capture`) and
-   `asset-terminal-crop.png` (grim capture of dapi running in a foot terminal).
-4. Captions timed from the local Parakeet SRT (dapi's `<captions>` needs the
-   hosted backend: `Missing authorization token`).
-5. Inter font everywhere, entrance fade on cards, ambient music bed
-   (`ambient-bed.mp3`, synthesized offline with ffmpeg, -30 dB), end card with
-   repo CTA, 8 Mbps video bitrate.
+- **Real captures**: wf-recorder clip of the terminal running the actual dapi
+  mount/tree/render workflow (`asset-workflow-clip.mp4`), grim still of the
+  editor with the composition mounted (`asset-editor-scene.png`), clean
+  composition frame (`asset-composition.png`).
+- **Measured data on screen**: OpenH264 92–100 FPS @1080p, 48s→~14s wall,
+  h264_vaapi 235 FPS (2.5× faster), AAC refused → opus required, <1 MB per 14s
+  clip (~500 kbps).
+- **Future ideas**: offline Parakeet captions, hardware encoder path, grid
+  assets (one KIE request → vision decode → crop).
+- **Proper intro + full conclusion**: narration ends with "...using the tool
+  itself" (192s), end card holds to 196.5s — no mid-idea cut.
+- **KIE TTS length limit discovered**: single calls truncate around ~106s /
+  ~270 words — long narrations must be split into parts and concatenated.
 
 ## Image sourcing priority (where do the images come from?)
 

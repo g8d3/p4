@@ -361,25 +361,28 @@ Tools:
 
 Output files go in the agent's `output/` directory. The storyboard becomes the plan that the agent follows during production.
 
-### Image sourcing priorities (where do the images come from?)
+### Image sourcing (where do the images come from?)
 
-A recurring question in every video build. The answer is a fixed priority
-order, documented in [`sources.md`](sources.md#image-sourcing-priorities-for-video-visuals):
+A recurring question in every video build. The full guide is in
+[`sources.md`](sources.md#image-sourcing-for-video-visuals). Key idea:
+**screen captures/recordings and generated images are two INDEPENDENT
+dimensions, not two ranks of one ladder.** Every video element picks the
+dimension that matches what it must show:
 
-1. **Session captures** (real screenshots of the work) — free, truthful, always preferred
-2. **Existing p4 media/outputs** (other experiments' verified `.mp4`/`.png`) — probe first, reuse before generating
-3. **Stock / public-domain images** (generic filler only)
-4. **AI-generated images (KIE Seedream)** — thematic scenes/characters that don't exist
-5. **Editor-native `generate.*`** — only where the composition must be declarative AND the backend is available
-6. **AI video frames** — last resort for footage nobody captured
+- **Reality dimension** (what actually happened): live captures/recordings of
+  the session first, existing p4 media second, stock third. When a video shows
+  real work, a capture always beats a generated image of it.
+- **Visual-support dimension** (what doesn't exist to capture): AI-generated
+  images (KIE Seedream) first, editor-native `generate.*` second, AI video
+  frames last.
 
-**When there is no documented source, generate — via a grid, not single
+**When no documented source applies, generate — via a grid, not single
 images:** one KIE request produces N related cells (storyboard/character sheet
 costs ~1 image), a vision model (mimo-v2.5 / kimi-k2.7 / glm-5.x) decodes the
 grid (cell count, rows×cols, per-cell description), then crop the cells out.
 Grid in → vision decode → cells out. Never generate what you can capture;
-never generate what p4 already has.
-Full table, decision flow, and hard rules in [`sources.md`](sources.md).
+never generate what p4 already has. Full guide in [`sources.md`](sources.md).
+
 
 
 
