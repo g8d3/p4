@@ -23,6 +23,9 @@ e008-asistente-ht/
 # Experiment 11 - cloned repos
 e011-gh-repo-analysis/ag-*/
 
+# Experiment 24 - cloned upstream repo
+e024-diffusion-studio/upstream/
+
 # Tool configuration
 .commandcode/
 

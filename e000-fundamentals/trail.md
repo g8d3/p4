@@ -578,6 +578,34 @@ than real ones, so the trend-fade edge is optimistic.
 
 ---
 
+## 2026-08-12 — e024 Diffusion Studio editor (video editor for coding agents)
+
+### Decision: new experiment e024-diffusion-studio
+
+User wants to play with [diffusionstudio/editor](https://github.com/diffusionstudio/editor)
+— an open-source video editor built for coding agents: an agent writes a TSX
+composition, the `dapi` CLI mounts it into the editor, and every element stays
+editable ("FFmpeg for agents"). This is directly relevant to p4's video
+pipeline (compositions as code, browser GPU rendering via WebCodecs,
+agent-native CLI conventions).
+
+Decisions:
+- **Experiment number**: e024 (next free after e023).
+- **Upstream source**: cloned shallow (depth 1, v0.132.0) into
+  `e024-diffusion-studio/upstream/`, **gitignored** (23 MB with its own git
+  history; not p4's content).
+- **Structure**: two agents — `ag-01` (setup + exploration, document dapi
+  commands and pitfalls), `ag-02` (TSX compositions + render + benchmark vs the
+  ffmpeg/VAAPI pipeline, integrating KIE TTS / Parakeet / p4 captures).
+- **Scope**: evaluate where Diffusion Studio fits in p4's pipeline; the final
+  p4 deliverable rule (h264_vaapi) still applies to any ffmpeg assembly, while
+  `dapi node render`'s own encoder is an open question to report on.
+- **Open questions**: how much needs the hosted backend (Supabase/API) vs
+  works offline; whether `dapi node render` can replace the ffmpeg composition
+  step; cost/effort of `generate.*` assets.
+
+---
+
 ## 2026-08-07 — e022 real-data reality check (the honest end of the road)
 
 After the synthetic "robust config" was found, the user chose to test on real

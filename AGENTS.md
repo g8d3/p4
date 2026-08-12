@@ -28,6 +28,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e021-hyperliquid-playground/](e021-hyperliquid-playground/) — Hyperliquid API playground with scheduled calls + SQL tables
 - [e022-nautilus-sr-grid/](e022-nautilus-sr-grid/) — Nautilus Trader S/R grid with volume-profile capital redistribution
 - [e023-build-in-public/](e023-build-in-public/) — YouTube channel: build-in-public AI episodes from p4 experiments
+- [e024-diffusion-studio/](e024-diffusion-studio/) — Diffusion Studio editor: video editor for coding agents (dapi CLI, TSX compositions)
 
 ## Language
 
