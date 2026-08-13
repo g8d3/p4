@@ -3,7 +3,8 @@
 
 Narration was TTS'd in 3 parts (KIE truncation limit). Each part's mp3 duration
 is measured exactly; within a part, slides are allocated proportionally to
-paragraph word counts (uniform TTS pacing).
+paragraph word counts (uniform TTS pacing). All times are ABSOLUTE within the
+concatenated narration.
 """
 import json
 import os
@@ -21,21 +22,19 @@ for i in range(1, 4):
     PARTS.append(paras)
 
 slides = []
+base = 0.0
 idx = 1
 for part_paras, dur in zip(PARTS, PART_DUR):
     words = [len(p.split()) for p in part_paras]
     total = sum(words)
-    starts = []
     t = 0.0
-    for w in words:
-        starts.append(t)
-        t += dur * w / total
-    for para, s in zip(part_paras, starts):
-        slides.append({"index": idx, "paragraph": para, "start": round(s, 3),
-                       "words": len(para.split()), "part_dur": round(dur, 3)})
+    for para, w in zip(part_paras, words):
+        slides.append({"index": idx, "paragraph": para, "start": round(base + t, 3),
+                       "words": w, "part_dur": round(dur, 3)})
         idx += 1
+        t += dur * w / total
+    base += dur
 
-# clamp end of last slide to total duration
 total_dur = sum(PART_DUR)
 for i, sl in enumerate(slides):
     sl["end"] = round(slides[i + 1]["start"] if i + 1 < len(slides) else total_dur, 3)
@@ -45,4 +44,4 @@ with open(os.path.join(OUT, "timing.json"), "w") as f:
     json.dump(timing, f, indent=2)
 print(f"total narration: {total_dur:.3f}s, {len(slides)} slides")
 for sl in slides:
-    print(f"  slide {sl['index']:02d}: {sl['start']:7.2f} - {sl['end']:7.2f}  ({sl['words']:3d}w)  {sl['paragraph'][:50]}...")
+    print(f"  slide {sl['index']:02d}: {sl['start']:7.2f} - {sl['end']:7.2f}  ({sl['words']:3d}w)")

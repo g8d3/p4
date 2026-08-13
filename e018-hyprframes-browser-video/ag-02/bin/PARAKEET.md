@@ -1,5 +1,11 @@
 # Parakeet ASR — setup & usage (portable reference)
 
+> **2026-08-12: prefer the cloud.** Local Parakeet is fragile on this machine
+> (venv in `/tmp` gets wiped, `nemo_toolkit` won't install cleanly on Python
+> 3.11, heavy RAM). Researched cloud alternatives with costs are in
+> [`CLOUD-ASR.md`](CLOUD-ASR.md). Use this file only if a local option is
+> genuinely required.
+
 Word-level speech transcription for the p4 video pipeline. This file is the
 authoritative how-to; it lives next to the scripts so any agent can recover the
 setup from scratch. **The virtualenv is ephemeral — if it's gone, recreate it

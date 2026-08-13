@@ -49,6 +49,25 @@ still be self-contained and readable.
   not a blocker.
 - Verify every command's output — never trust a 0-byte render or an empty frame.
 
+## Learnings (2026-08-12)
+
+- **Parakeet is broken on this machine** (venv in `/tmp` wiped, `nemo_toolkit`
+  won't install on Python 3.11). Timing was computed from measured KIE TTS part
+  durations + paragraph word counts instead of a Parakeet transcription. Cloud
+  alternatives researched in
+  [`../../e018-hyprframes-browser-video/ag-02/bin/CLOUD-ASR.md`](../../e018-hyprframes-browser-video/ag-02/bin/CLOUD-ASR.md).
+- **ffmpeg OOM trap (cost us a killed process)**: feeding PNGs straight into the
+  concat demuxer (`-f concat` list of images) with an `fps=25` filter ballooned
+  ffmpeg to ~14.6 GB RSS and the OOM killer killed it. Fix: render each slide to
+  a short H.264 segment (`-loop 1 -framerate 25 -i x.png -t <dur>`), then
+  `-f concat -c copy` the segments. Memory-safe and fast.
+- **encoder-tag check is a false negative here**: `ffprobe -show_entries
+  stream=encoder` is empty for EVERY h264 file on this machine (including e023's
+  own VAAPI episodes), so `encode_vaapi.sh` exits 2 with a spurious warning even
+  though the encode genuinely used `h264_vaapi`. The `-c:v h264_vaapi` +
+  `hwupload` command cannot silently fall back to software — success means VAAPI
+  ran.
+
 ## Self-command
 
 - Every blocking command runs in background: `> /dev/null 2>&1 &`

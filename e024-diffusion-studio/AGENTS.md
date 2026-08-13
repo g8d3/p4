@@ -114,10 +114,12 @@ The composition work ends with a **video about the tool itself** (user choice,
 
 | Path | What it is |
 |---|---|
-| `ag-01/` | Single full-stack agent: setup, exploration, TSX compositions, renders, benchmark vs the ffmpeg/VAAPI pipeline |
+| `ag-01/` | Full-stack agent: setup, exploration, TSX compositions, renders, benchmark vs the ffmpeg/VAAPI pipeline |
+| `ag-02/` | Follow-up agent: hands-on code tutorial video ("Your first composition") — script → KIE TTS → code slides → ffmpeg assembly → h264_vaapi |
 
-Agent outputs go in `ag-01/output/` (gitignored). Composition sources and notes
-are committed alongside the AGENTS.md so the experiment's state is auditable.
+Agent outputs go in `<agent>/output/` (gitignored). Composition sources and
+notes are committed alongside the AGENTS.md so the experiment's state is
+auditable.
 
 ## Inherits
 
