@@ -1,0 +1,15 @@
+ag-02 distribution analysis DONE
+
+Headline stats:
+- n per tf (returns): 5m=60,277, 1h=60,014, 1d=10,250, 1w=1,468
+- Raw kurtosis (pooled): 5m=9.27, 1h=10.11, 1d=13.79, 1w=10.59 (all >> 3, fat-tailed everywhere)
+- p99.9 (σ units): 5m=4.95, 1h=5.49, 1d=4.96, 1w=6.71 (all beyond ±4σ)
+- Extreme per-coin: XRP 1d kurtosis=72.5, CRV 1w p99.9=106.9%, ZEC 1h kurtosis=16.24
+- 3,175 synthetic pre-listing candles (v=0) dropped before computing returns
+
+Deliverables:
+- output/stats.csv (49 rows: 48 coin×tf + header)
+- output/hist_5m.csv, hist_1h.csv, hist_1d.csv, hist_1w.csv (60 bins each, centered on 0)
+- output/charts/hist_{5m,1h,1d,1w}.png + overlay_tails.png (1400×700, valid)
+- output/report.md (concrete numbers + ag-03 guidance)
+- output/session-log.md (timeline, command count, 5 problems + solutions)

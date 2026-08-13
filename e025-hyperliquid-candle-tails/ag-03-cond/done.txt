@@ -1,0 +1,12 @@
+ag-03-cond DONE 2026-08-13T16:35
+
+Headline verdict per signal (pooled z-score, adequate n):
+
+1. prev_ret ±2σ/±3σ   → NO directional edge; vol clusters. p99_next 1.5–2.2x base, stdev 1.6–2.3x. Median p50 reverts up after down extremes (+0.3σ), flat after up. Not tradeable for direction.
+2. range top decile/pct → VOL CLUSTERING IS REAL + STRONG (cleanest effect). stdev_next 1.5–2.5x, p99_next 1.9–2.7x base, |ret_next| up to 2.8x. p99 CI excludes base p99. Consistent 37/48 per-coin pairs. Direction ≈ 0.
+3. vol top1%           → same vol-clustering effect, weaker proxy of #2.
+4. up5/dn5 streaks     → insufficient data / no robust edge (p99 shift sign flips across tf).
+
+Overall conclusion: close-to-close returns are NOT directionally predictable (honest null), but extremes cluster in time — volatility clustering is the measurable edge. Points strategy toward range/vol sizing (e022), not directional tails.
+
+Deliverables: output/cond_next.csv (988 rows, per coin/tf + pooled ALL), output/report.md, output/session-log.md.

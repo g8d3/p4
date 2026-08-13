@@ -1,0 +1,31 @@
+ag-01-data COMPLETE
+===================
+Fetch: 2026-08-13T16:21:05-05:00 -> 2026-08-13T16:22:27-05:00 (82s wall clock)
+
+Deliverables:
+  output/candles_raw.csv  135,232 data rows (+1 header), long format
+  output/manifest.json    per-(coin,tf) counts, first/last ts, v0 counts, gaps, errors
+
+Row counts by (coin,tf):
+  5m: 12 coins x ~5000 rows = 60,163
+  1h: 12 coins x ~5000 rows = 60,023
+  1d: 12 coins x 235-1321    = 13,379
+  1w: 12 coins x 35-190      = 1,667
+  TOTAL                       135,232
+
+Validation:
+  - All 48 (coin,tf) pairs present, no garbage
+  - Zero duplicate (coin,tf,t_ms)
+  - Zero API errors, zero gaps
+  - rows == expected (100% of available history) for every pair
+
+IMPORTANT RETENTION NOTE (documented for downstream agents):
+  The candleSnapshot API only retains the MOST RECENT ~5000 candles for
+  5m (~17 days) and 1h (~7 months). Older 5m/1h data does not exist on
+  the API (verified: requests into older windows return empty arrays).
+  The ~3M-row / 250k-per-coin estimate in AGENTS.md assumed full 5m
+  history back to 2023, which Hyperliquid does not serve. This CSV holds
+  the maximum available history. 5m/1h have ~5000 obs per coin (enough
+  for p99.9 tails); 1d/1w span the full exchange lifetime.
+  1d/1w also contain pre-listing synthetic candles with v=0 (counted as
+  v0_count in the manifest) - filter v>0 before return statistics.
