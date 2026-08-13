@@ -11,7 +11,7 @@ a statistical edge worth building on. If no, that is an honest null result.
 
 ## Inputs
 
-- `../ag-01/output/candles_raw.csv` — raw candles (compute `ret` and `range`
+- `../ag-01-data/output/candles_raw.csv` — raw candles (compute `ret` and `range`
   yourself, same definitions as ag-02, per `(coin, tf)` ordered by time).
 
 ## Method
@@ -56,6 +56,7 @@ in a direction with enough samples to trust it:
 |---|---|
 | `output/cond_next.csv` | The conditional tail table above |
 | `output/report.md` | Per signal: finding + numbers + verdict (edge / no edge / insufficient data). Final section: overall conclusion for the experiment |
+| `output/session-log.md` | **A/B test data**: start/end timestamps, command count, every problem hit + how solved, anything that consumed extra context |
 
 ## Honest-results rule
 

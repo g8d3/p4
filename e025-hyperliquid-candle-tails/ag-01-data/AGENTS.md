@@ -1,7 +1,11 @@
-# ag-01 — Data: download Hyperliquid candles
+# ag-01 — Data: download Hyperliquid candles (SHARED, run once)
 
 Download candles for the top-10 perps (by volume AND open interest) across four
 timeframes, maximum available history, into one clean long-format CSV.
+
+**This download is consumed by BOTH paths of the A/B test (Path A = ag-02 +
+ag-03, Path B = ag-04-monolith). Run it exactly once.** Never re-run or expand
+it for one path — a second download would corrupt the test.
 
 ## Inherits
 - [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules
@@ -37,7 +41,7 @@ ms). **Max 5000 candles per request** — paginate:
 | File | Contents |
 |---|---|
 | `output/candles_raw.csv` | One row per candle: `coin,tf,t_ms,o,h,l,c,v` |
-| `output/manifest.json` | Fetch start/end, per-`(coin,tf)` row count + expected count, gaps, API errors (0 errors expected — record any) |
+| `output/manifest.json` | Fetch start/end, per-`(coin,tf)` row count + expected count, gaps, API errors (0 errors expected — record any). Include fetch start/end wall-clock timestamps — the A/B comparison uses them |
 
 ## Success criteria
 

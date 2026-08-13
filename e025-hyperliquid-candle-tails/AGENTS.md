@@ -8,20 +8,34 @@ from context (previous candle, volatility, volume).
 - [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command rules, data formats (CSV preferred)
 - [../e021-hyperliquid-playground/AGENTS.md](../e021-hyperliquid-playground/AGENTS.md) — Hyperliquid API details, coin ranking, candle conventions
 
-## Pipeline
+## Pipeline — A/B test: 3 agents vs 1 agent
 
-Three agents, chained via the filesystem (AgentFS):
+The experiment doubles as a test of agent architecture. Both paths consume the
+**same downloaded data** (ag-01 runs once; never download twice). They are
+compared on wall-clock time, problems encountered, and output parity.
 
 ```
-ag-01-data → output/candles_raw.csv  →  ag-02-dist → histograms + stats
-                                    ↘  ag-03-cond → conditional tails + edge test
+                    ┌─ Path A (3 agents) ─ ag-02-dist → ag-03-cond
+ag-01-data (once) ──┤
+    candles_raw.csv └─ Path B (1 agent) ── ag-04-monolith
 ```
 
 | Agent | Consumes | Produces |
 |---|---|---|
-| **ag-01-data** | Hyperliquid REST + e021 ranking | `output/candles_raw.csv`, `output/manifest.json` |
-| **ag-02-dist** | `../ag-01/output/candles_raw.csv` | `output/stats.csv`, `output/hist_<tf>.csv`, `output/charts/*.png`, `output/report.md` |
-| **ag-03-cond** | `../ag-01/output/candles_raw.csv` | `output/cond_next.csv`, `output/report.md` |
+| **ag-01-data** (shared, runs once) | Hyperliquid REST + e021 ranking | `output/candles_raw.csv`, `output/manifest.json` |
+| **ag-02-dist** (Path A) | `../ag-01-data/output/candles_raw.csv` | `output/stats.csv`, `output/hist_<tf>.csv`, `output/charts/*.png`, `output/report.md`, `output/session-log.md` |
+| **ag-03-cond** (Path A) | `../ag-01-data/output/candles_raw.csv` | `output/cond_next.csv`, `output/report.md`, `output/session-log.md` |
+| **ag-04-monolith** (Path B) | `../ag-01-data/output/candles_raw.csv` | ag-02 + ag-03 deliverables combined into ONE `output/`, plus `output/session-log.md` |
+
+**Rules for the A/B test:**
+- ag-01 runs once. Path B must NOT download — it reads the shared CSV.
+- Both paths use identical output file names (`stats.csv`, `hist_<tf>.csv`,
+  `cond_next.csv`) so parity can be checked with `diff`/`sha256sum`.
+- Each analysis agent writes `session-log.md`: start/end timestamps, command
+  count, every problem hit and how it was solved, anything that consumed
+  context.
+- After both paths finish, `comparison.md` (in this directory) is filled in by
+  the orchestrator from the two session logs + output diffs.
 
 ## Scope (decided 2026-08-13)
 
@@ -59,14 +73,23 @@ ag-01-data → output/candles_raw.csv  →  ag-02-dist → histograms + stats
 ## Run
 
 ```bash
-# ag-01 (data) — from this directory:
+# ag-01 (data, ONCE — shared by both paths) — from this directory:
 tmux new-window -n 25-1 -d
 tmux send-keys -t 25-1 "cd ag-01-data && opencode" Enter
 sleep 3
 tmux send-keys -t 25-1 "Read AGENTS.md, then read each file listed in Inherits. Execute the task." Enter
 ```
 
-Then ag-02 and ag-03 once `candles_raw.csv` exists (they read only ag-01's output, never ag-01's session).
+Once `candles_raw.csv` exists, launch Path A and Path B:
+
+```bash
+# Path A — two windows (25-2 ag-02-dist, 25-3 ag-03-cond). ag-03 reads only
+# ag-01's CSV, not ag-02's session — can run in parallel with ag-02 if desired.
+# Path B — one window (25-4 ag-04-monolith).
+```
+
+Both paths write `session-log.md`; when both are done, the orchestrator fills
+in `comparison.md` from the logs + `diff` of the outputs.
 
 ## Conventions
 

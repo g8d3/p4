@@ -9,7 +9,7 @@ per-timeframe histograms, heavy-tail statistics, and a findings report.
 
 ## Inputs
 
-- `../ag-01/output/candles_raw.csv` — columns `coin,tf,t_ms,o,h,l,c,v`
+- `../ag-01-data/output/candles_raw.csv` — columns `coin,tf,t_ms,o,h,l,c,v`
 - Sort by `(coin, tf, t_ms)` before computing anything time-dependent.
 
 ## Derived columns
@@ -30,6 +30,7 @@ has no `ret` — drop it for stats.
 | `output/hist_<tf>.csv` | One per tf, pooled across coins: `bucket_low, bucket_high, count` (equal-width buckets, ~60 bins, centered on 0) |
 | `output/charts/*.png` | Per-tf histogram + one overlay chart comparing tail heaviness (log y-axis shows the tails) |
 | `output/report.md` | Findings: are returns fat-tailed? Which tf is most extreme? Any coin outlier? |
+| `output/session-log.md` | **A/B test data**: start/end timestamps, command count, every problem hit + how solved, anything that consumed extra context |
 
 ## Analysis rules
 
