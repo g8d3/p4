@@ -98,7 +98,7 @@ Reports: GPU busy %, top CPU consumers, wf-recorder/ffmpeg processes, **flags an
 **GPU rules (absolute):**
 - The FINAL video encode MUST be `h264_vaapi` — via `e023-build-in-public/bin/encode_vaapi.sh <input> <output>`. CPU encoders (`libx264` etc.) for final videos are forbidden.
 - The ONLY allowed libx264 is wf-recorder capture (fundamentals: VAAPI corrupts headless captures). Re-encode that capture with `encode_vaapi.sh` afterward.
-- Verify every final video with: `ffprobe ... -show_entries stream=encoder` → must contain `vaapi`. Both libx264 and vaapi report codec `h264`, so check the ENCODER tag, not the codec.
+- Verify every final video with: `ffprobe ... -show_entries stream_tags=encoder` → must contain `vaapi`. Both libx264 and vaapi report codec `h264`, so check the ENCODER tag, not the codec. (The encoder name is a stream *tag*, not a direct stream field — `stream=encoder` returns empty.)
 
 **Signs of a CPU-encode problem**: machine gets loud/fans spin, GPU busy stays low while one process eats 150-200% CPU. When in doubt, run `monitor.sh`.
 

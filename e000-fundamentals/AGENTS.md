@@ -667,6 +667,12 @@ For composition videos, KIE can generate all assets:
 - **Music**: `suno/*` models — generate background music / soundtrack
 - **TTS**: `google/gemini-*-flash-tts` — narration voiceover (cheap, ~0.6 credits)
 
+**ffmpeg OOM trap (killed a process in e024)**: do NOT feed still PNGs straight
+into the concat demuxer with an `fps` filter — ffmpeg ballooned to ~14.6 GB RSS
+and the OOM killer killed it on a 15 GB machine. When joining stills, render each
+image to a short segment first (`-loop 1 -framerate 25 -i x.png -t <dur>`), then
+`-f concat -c copy` the segments. Memory-safe and fast.
+
 **Screen capture (GPU, x11grab / Godot / OBS)**
 Runs a live application (terminal, game engine, browser) and captures its display output. Takes exactly real time — a 4-minute demo takes 4 minutes to capture. Captures authentic interaction: mouse movement, 3D animations, terminal typing. Each capture needs a display.
 
@@ -875,9 +881,9 @@ e023-build-in-public/bin/encode_vaapi.sh <input> [output]
 
 Why it matters: a CPU final encode pegs the machine (loud fans, 150-200% CPU) while the GPU idles. On this system, a libx264 encode that burns ~185% CPU runs at ~20× real time with `h264_vaapi` at near-zero CPU.
 
-**Verify the GPU was used** (check the stream's encoder tag, not just the codec name — both report `h264`):
+**Verify the GPU was used** (check the stream's encoder tag, not just the codec name — both report `h264`; the encoder is a stream *tag*, so use `stream_tags`, not `stream`):
 ```
-ffprobe -v quiet -select_streams v:0 -show_entries stream=encoder -of csv=p=0 video.mp4
+ffprobe -v quiet -select_streams v:0 -show_entries stream_tags=encoder -of csv=p=0 video.mp4
 # must contain "vaapi"
 ```
 

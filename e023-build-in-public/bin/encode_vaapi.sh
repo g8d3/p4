@@ -32,7 +32,7 @@ fi
 ENCODER=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name \
   -of csv=p=0 "$IN" 2>/dev/null || echo "")
 # VAAPI output stream still reports codec h264; check the encoder tag instead
-ENC_TAG=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=encoder \
+ENC_TAG=$(ffprobe -v quiet -select_streams v:0 -show_entries stream_tags=encoder \
   -of csv=p=0 "$IN" 2>/dev/null || echo "")
 if [[ "$ENC_TAG" == *"vaapi"* ]]; then
   echo "Input already VAAPI-encoded — copying without re-encode"
@@ -50,7 +50,7 @@ ffmpeg -y -vaapi_device /dev/dri/renderD128 \
   "$OUT" 2>&1 | tail -5
 
 # Verify the result actually used the GPU encoder
-ENC_TAG_OUT=$(ffprobe -v quiet -select_streams v:0 -show_entries stream=encoder \
+ENC_TAG_OUT=$(ffprobe -v quiet -select_streams v:0 -show_entries stream_tags=encoder \
   -of csv=p=0 "$OUT" 2>/dev/null || echo "")
 echo "=== encoded with: ${ENC_TAG_OUT:-unknown} ==="
 if [[ "$ENC_TAG_OUT" != *"vaapi"* ]]; then

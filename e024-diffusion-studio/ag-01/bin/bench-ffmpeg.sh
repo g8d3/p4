@@ -17,5 +17,5 @@ ffmpeg -y -vaapi_device /dev/dri/renderD128 \
 END=$(date +%s.%N)
 echo "ffmpeg wall: $(echo "$END - $START" | bc)s"
 tail -3 /tmp/opencode/bench-ffmpeg.log
-ffprobe -v quiet -select_streams v:0 -show_entries stream=encoder -of csv=p=0 benchmark-ffmpeg.mp4
+ffprobe -v quiet -select_streams v:0 -show_entries stream_tags=encoder -of csv=p=0 benchmark-ffmpeg.mp4
 ls -la benchmark-ffmpeg.mp4

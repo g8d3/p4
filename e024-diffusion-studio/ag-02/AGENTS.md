@@ -61,12 +61,11 @@ still be self-contained and readable.
   ffmpeg to ~14.6 GB RSS and the OOM killer killed it. Fix: render each slide to
   a short H.264 segment (`-loop 1 -framerate 25 -i x.png -t <dur>`), then
   `-f concat -c copy` the segments. Memory-safe and fast.
-- **encoder-tag check is a false negative here**: `ffprobe -show_entries
-  stream=encoder` is empty for EVERY h264 file on this machine (including e023's
-  own VAAPI episodes), so `encode_vaapi.sh` exits 2 with a spurious warning even
-  though the encode genuinely used `h264_vaapi`. The `-c:v h264_vaapi` +
-  `hwupload` command cannot silently fall back to software — success means VAAPI
-  ran.
+- **encoder tag was a false negative, now fixed**: `ffprobe -show_entries
+  stream=encoder` returns empty because the encoder name is a stream *tag*, not
+  a direct stream field. Use `-show_entries stream_tags=encoder` — it correctly
+  reports `Lavc60.31.102 h264_vaapi`. `encode_vaapi.sh` and the fundamentals
+  docs were fixed accordingly.
 
 ## Self-command
 
