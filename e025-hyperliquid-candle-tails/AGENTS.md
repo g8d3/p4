@@ -29,6 +29,12 @@ ag-01-data (once) ──┤
 | **ag-05-seasonality** (phase 2, single agent) | `../ag-01-data/output/candles_raw.csv` | `output/patterns.csv`, `output/charts/*.png`, `output/report.md`, `output/session-log.md` |
 | **ag-06-backtest** (phase 3, single agent) | `../ag-01-data/output/candles_raw.csv` | permutation test + strategy spec + out-of-sample backtest, all explained for beginners |
 | **ag-07-event-study** (phase 4, single agent) | `../ag-01-data/output/candles_raw.csv` | 3σ event study: windows, swing-distance feature (confirmed pivots), momentum/reversion paths, MAE/MFE |
+| **ag-08-crash-backtest** (phase 5a) | candles | OOS backtest of daily-crash reversion (walk-forward, net of fees, controls) |
+| **ag-09-funding** (phase 5b) | candles + `funding_raw.csv` | funding sentiment: crowding→reversal, weekday & crash interactions |
+| **ag-10-cross-sectional** (phase 5c) | candles | relative strength ranking, long-short portfolio OOS, event co-movement |
+| **ag-11-vol-model** (phase 5d) | candles | EGARCH + EVT: next-candle vol forecast, tail probabilities, sizing table |
+| **ag-12-regime-drift** (phase 5e) | candles | quarterly stability of vol/tails/patterns; trend test |
+| **ag-13-fees-filter** (phase 5f) | all reports | net-of-fees edge ledger: what survives real costs — the experiment's verdict |
 
 **Rules for the A/B test:**
 - ag-01 runs once. Path B must NOT download — it reads the shared CSV.
