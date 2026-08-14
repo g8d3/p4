@@ -53,6 +53,15 @@ Follow the fundamentals video pipeline. Capture at 16:9 (1920x1080) long-form.
 - Honest failures are the channel's value. A failed run is a great episode if you say so.
 - Verify every claim on screen. Trust nothing the tools output.
 
+## Learnings (E02)
+
+- **Local Parakeet worker can be dead with a wiped venv** (`/tmp/nemo_venv` empty, `ModuleNotFoundError: nemo`). Do NOT try to reinstall (`youtokentome` fails to build on py3.11). Use the Deepgram fallback instead — `bin/transcribe_cloud.py` (nova-3, word timestamps, same output shape). OpenAI key has NO credits; Deepgram key has free credit.
+- **Sway socket**: the e023 socket path in these docs is stale. Real socket: `/run/user/1000/sway-ipc.1000.240699.sock` (check `ls /run/user/$(id -u)/sway-*`).
+- **HEADLESS-1 defaults to 608x1080** — resize to 16:9 with `swaymsg output HEADLESS-1 resolution 1920x1080` before capturing (works live).
+- **wf-recorder keeps recording after the driver/foot exits** — the capture gains a long black tail. Kill the recorder by PID as soon as the foot process disappears (watch `pgrep -c foot`).
+- **chafa**: `--colors 16` renders light-bg matplotlib PNGs legibly in the terminal (avoid `--colors 8`/`none` — noisy blocks).
+- **Capture verification without vision**: this model can't read images. Verify frames via OCR (`tesseract frame.png -`) + pixel-average checks at multiple timestamps; confirm the encoder tag with `ffprobe -show_entries stream_tags=encoder`.
+
 ## Parallel safety
 
 You own **HEADLESS-1** — your exclusive virtual display. Create it if missing (`swaymsg --socket /tmp/opencode/sway-e023.sock create_output`), verify it's free before using, and record ONLY it (`wf-recorder -o HEADLESS-1`). Never touch another display. The transcribe server queues requests automatically; KIE rate-limits and you back off+retry. Check state (`pgrep`, `pdw ls`) before acting on any shared resource — never assume.
