@@ -9,6 +9,8 @@ set -euo pipefail
 #
 # Options (Gemini):
 #   --voice, -v     Voice name (default: Fenrir). 30 options: Achernar..Zubenelgenubi
+#                   PREFERRED (p4 default): Alnilam, Gacrux, Puck, Sulafat,
+#                   Umbriel, Vindemiatrix — pick one and stay consistent.
 #   --scene, -s     Environment description, e.g. "A quiet library at night"
 #   --context, -c   Style/tone prompt, e.g. "Calm and reflective"
 #   --style         Emotional style: Vocal Smile, Newscaster, Whisper, Empathetic, Promo/Hype, Deadpan

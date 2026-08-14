@@ -327,6 +327,7 @@ Every video — regardless of type — follows the same five-step pipeline. Vide
   2. `xscreensaver-command -exit`
   3. Fallbacks: `xdg-screensaver suspend` or `gsettings set org.gnome.desktop.screensaver idle-activation-enabled false`
 - **TTS (primary)**: English voice, use **KIE Gemini TTS** (`google/gemini-3-1-flash-tts`) via `e019-kie-image-api/ag-01/bin/kie-tts.sh`. Tested, works, cheap (~0.6 credits per short sentence), full voice/style/accent control. Requires `KIE_API_KEY`.
+- **TTS preferred voices (documented 2026-08-14, user-approved)**: use one of **Alnilam, Gacrux, Puck, Sulafat, Umbriel, Vindemiatrix** for all p4 narration. Pick one per episode/character and keep it consistent across the video; set with `kie-tts.sh --voice <name>`. (Full list of 30 is in e019 AGENTS.md; the default `Fenrir` remains available.)
 - **TTS fallbacks** (only if KIE is unavailable):
   - `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male).
   - Xiaomi `mimo-v2.5-tts` via API (higher quality, requires `XIAOMI_API_KEY`). See `e009-xiaomi-display/ag-01/bin/xiaomi-api` for CLI usage.
