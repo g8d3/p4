@@ -7,6 +7,10 @@
 #                 e.g. "e025-hyperliquid-candle-tails/ag-15-combined")
 #   --test        label the message "(manual test)" so receivers know it is
 #                 not from an agent
+#   --file <path> append a clickable URL to the message, built from
+#                 FILEX_BASE_URL (default http://192.168.0.93:9090/code/p4)
+#                 + the repo-relative <path>. E.g. the finished video URL.
+#   --url <url>   append an arbitrary URL to the message.
 #   --ask "...?"  REQUEST ORCHESTRATOR DIRECTION: writes a structured entry
 #                 to the orchestrator inbox (~/.opencode/orchestrator-inbox.md)
 #                 AND pushes a high-priority phone alert. The orchestrator
@@ -34,14 +38,26 @@ MSG="${2:-(no message)}"
 SENDER=""
 TEST=""
 ASK=""
+FILEX=""
+URL=""
 while [ $# -gt 2 ]; do
   case "$3" in
     -s) SENDER="$4"; shift 2;;
     --test) TEST=" (manual test)"; shift;;
     --ask) ASK="$4"; shift 2;;
+    --file) FILEX="$4"; shift 2;;
+    --url) URL="$4"; shift 2;;
     *) shift;;
   esac
 done
+
+SUFFIX=""
+if [ -n "$URL" ]; then
+  SUFFIX=" — $URL"
+elif [ -n "$FILEX" ]; then
+  BASE="${FILEX_BASE_URL:-http://192.168.0.93:9090/code/p4}"
+  SUFFIX=" — $BASE/${FILEX#./}"
+fi
 
 # --- sender detection: from CWD if inside a p4 experiment/agent dir ------
 if [ -z "$SENDER" ]; then
@@ -57,7 +73,7 @@ fi
 
 LOGFILE="${NOTIFY_LOG:-$HOME/.opencode/notifications.log}"
 mkdir -p "$(dirname "$LOGFILE")"
-echo "[$(date -Is)] $LEVEL [$SENDER] $MSG$TEST" >> "$LOGFILE"
+echo "[$(date -Is)] $LEVEL [$SENDER] $MSG$TEST$SUFFIX" >> "$LOGFILE"
 
 TITLE="p4 · $SENDER · $LEVEL"
 case "$LEVEL" in
@@ -87,16 +103,16 @@ if [ -n "${NTFY_TOPIC:-}" ]; then
   SERVER="${NTFY_SERVER:-https://ntfy.sh}"
   timeout 10 curl -s -o /dev/null -w "ntfy:%{http_code}\n" \
     -H "Title: $TITLE" -H "Tags: $TAG" -H "Priority: $PRIO" \
-    -d "$MSG$TEST" "$SERVER/$NTFY_TOPIC" >> "$LOGFILE" 2>&1
+    -d "$MSG$TEST$SUFFIX" "$SERVER/$NTFY_TOPIC" >> "$LOGFILE" 2>&1
 elif [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
   timeout 10 curl -s -o /dev/null -w "telegram:%{http_code}\n" \
-    -d "chat_id=$TELEGRAM_CHAT_ID" -d "text=$TITLE: $MSG$TEST" \
+    -d "chat_id=$TELEGRAM_CHAT_ID" -d "text=$TITLE: $MSG$TEST$SUFFIX" \
     "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" >> "$LOGFILE" 2>&1
 fi
 
 # --- tmux status line (only if inside tmux) ------------------------------
 if [ -n "${TMUX:-}" ]; then
-  timeout 3 tmux display-message "$TITLE: $MSG" 2>/dev/null || true
+  timeout 3 tmux display-message "$TITLE: $MSG$SUFFIX" 2>/dev/null || true
 fi
 
 exit 0
