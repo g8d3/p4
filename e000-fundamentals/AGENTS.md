@@ -813,7 +813,33 @@ Each AGENTS.md should include a concrete `## Command execution` section with exa
 
 **Rule of thumb**: If a command takes more than 2 seconds, it needs `timeout` or background + self-wake. Never run bare `kill`, `sleep`, or long-running commands synchronously.
 
-### Orchestrator workflow: fix agents without restart (MANDATORY FIRST STEP)
+### Time budgets and retry caps (hard limits for every agent)
+
+No agent may work forever or retry a failing call indefinitely. Two rules,
+both mandatory:
+
+**1. Retry cap — never loop on one call.** A failing API call or command is
+retried at most **3 times**. If it still fails: SKIP that unit (document the
+gap in the deliverable) or request orchestrator direction with
+`notify.sh ... --ask "<question>"`. A retry loop with `sleep` is a bug, not
+persistence — break it.
+
+**2. Hard deadline — stop and deliver.** Every launched agent gets a deadline
+in its launch prompt (default: analysis agents 60 min, video producers 90
+min). When the deadline is reached:
+- STOP working.
+- Deliver what exists (partial results are valid and better than nothing).
+- Write `done.txt` documenting what is missing.
+- `notify.sh error "<agent> TIMEOUT: <what's missing>" --ask "How to proceed?"`
+- Stop working.
+
+**The orchestrator enforces deadlines**: check window age vs the assigned
+deadline during orchestration cycles. On breach: send a corrective message
+with a new short deadline; if the agent stays unresponsive, kill it by
+window. A finished-late episode is better than a perfect one that never
+arrives.
+
+## Orchestrator workflow: fix agents without restart (MANDATORY FIRST STEP)
 
 **When an agent is stuck, wrong, or confused: ALWAYS send a corrective message first. NEVER kill and relaunch as first action.**
 

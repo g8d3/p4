@@ -120,6 +120,7 @@ Do NOT restart the ASR worker (`model_worker.py`) — it takes ~20s to reload th
 - Spread producers across providers by priority: ag-01 → opencode-go, ag-02 → Command Code, ag-03 → Z.AI. Use independent compute per producer.
 - Window naming: `23-1`, `23-2`, `23-3`.
 - Before sending keys to a window, capture it and check the current state — never assume the previous launch attempt failed or succeeded.
+- **Time budgets (enforced)**: producers get **90 minutes** per episode from launch. If a window exceeds the deadline: send a corrective message with a short remaining deadline; if unresponsive, kill the window and notify `notify.sh error "producer TIMEOUT" --ask "How to proceed?"`. Producers themselves must never loop on a failing TTS/API call more than 3 tries — skip the chunk or ask, don't spin.
 
 ## Inherits
 
