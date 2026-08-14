@@ -1,0 +1,40 @@
+Starting simplified volatility analysis...
+Loading candles data...
+Top coins by volume: ['PUMP', 'DOGE', 'XRP', 'CRV', 'HYPE', 'LIT']
+Analyzing 30005 1h candles for top 6 coins
+
+Processing CRV...
+  GARCH correlation: 0.746
+  GPD tail: ξ=0.010, 500 exceedances
+
+Processing DOGE...
+  GARCH correlation: 0.682
+  GPD tail: ξ=0.090, 500 exceedances
+
+Processing HYPE...
+  GARCH correlation: 0.483
+  GPD tail: ξ=0.096, 500 exceedances
+
+Processing LIT...
+  GARCH correlation: 0.467
+  GPD tail: ξ=-0.000, 500 exceedances
+
+Processing PUMP...
+  GARCH correlation: 0.429
+  GPD tail: ξ=0.025, 501 exceedances
+
+Processing XRP...
+  GARCH correlation: 0.628
+  GPD tail: ξ=0.139, 500 exceedances
+
+Saving results...
+Saved 6 forecast results
+Saved 6 tail results
+Saved sizing tables
+Saved empirical benchmarks
+Saved head-to-head comparison
+
+GARCH wins in 6/6 cases
+Average improvement: 0.3122
+
+Simplified analysis complete!
