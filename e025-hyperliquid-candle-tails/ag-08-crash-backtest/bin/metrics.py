@@ -20,10 +20,10 @@ COINS_ORDER = ["BTC", "ETH", "HYPE", "SOL", "PUMP", "ZEC", "XRP",
                "LIT", "DOGE", "CRV", "AAVE", "XMR"]
 
 RULES = [("down", 5), ("up", 5), ("down", 3), ("down", 10)]
-RULE_LABEL = {("down", 5): "A (crash, hold 5)",
-              ("up", 5): "B (rally, hold 5)",
-              ("down", 3): "A sens. hold 3",
-              ("down", 10): "A sens. hold 10",
+RULE_LABEL = {("A", 5): "A (crash, hold 5)",
+              ("B", 5): "B (rally, hold 5)",
+              ("A", 3): "A sens. hold 3",
+              ("A", 10): "A sens. hold 10",
               ("C", 1): "C (always long)"}
 
 
@@ -120,6 +120,8 @@ def main():
             "maker_mean": t["net_maker"].mean() * 100,
             "gross_win": (t["gross"] > 0).mean() * 100,
             "taker_win": (t["net_taker"] > 0).mean() * 100,
+            "per_trade_sharpe_taker": (t["net_taker"].mean() / t["net_taker"].std()
+                                       if len(t) > 1 and t["net_taker"].std() > 0 else np.nan),
         }
         for fname, fee in feemap.items():
             col = "gross" if fname == "gross" else ("net_taker" if fname == "taker" else "net_maker")

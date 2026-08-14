@@ -24,6 +24,12 @@ FEE_MAKER = 0.00018   # each side
 COINS_ORDER = ["BTC", "ETH", "HYPE", "SOL", "PUMP", "ZEC", "XRP",
                "LIT", "DOGE", "CRV", "AAVE", "XMR"]
 
+RULE_NAME = {("down", 5): "A (crash, hold 5)",
+             ("up", 5): "B (rally, hold 5)",
+             ("down", 3): "A sensitivity hold 3",
+             ("down", 10): "A sensitivity hold 10",
+             ("C", 1): "C (always long baseline)"}
+
 def net_ret(gross, fee):
     """Multiplicative net return for a round trip (entry fee + exit fee)."""
     return (1.0 + gross) * (1.0 - fee) * (1.0 - fee) - 1.0
@@ -119,6 +125,12 @@ def main():
     bt = pd.DataFrame(rows)
     bt["entry_date"] = pd.to_datetime(bt.entry_t, unit="ms", utc=True).dt.date
     bt["exit_date"] = pd.to_datetime(bt.exit_t, unit="ms", utc=True).dt.date
+    bt["rule_name"] = bt.apply(lambda r: RULE_NAME[(r["rule"], r["hold"])], axis=1)
+    bt["fee_taker_roundtrip"] = FEE_TAKER * 2
+    bt["fee_maker_roundtrip"] = FEE_MAKER * 2
+    bt["gross_pct"] = bt["gross"] * 100
+    bt["net_taker_pct"] = bt["net_taker"] * 100
+    bt["net_maker_pct"] = bt["net_maker"] * 100
     bt = bt.sort_values(["rule", "hold", "coin", "entry_t"]).reset_index(drop=True)
     bt.to_csv(OUT, index=False)
 

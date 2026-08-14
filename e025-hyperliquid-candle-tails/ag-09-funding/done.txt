@@ -1,0 +1,65 @@
+# ag-09-funding Analysis Verdicts
+
+## Question 1: Does Crowding Predict Reversal?
+**VERDICT:** NO EFFECT FOUND
+
+**Evidence:**
+- Extreme positive funding → +0.46% next-day return (positive, not negative)
+- Extreme negative funding → +0.25% next-day return (also positive)
+- No consistent pattern across coins (replication rate < 50%)
+- 5-day horizon shows slight negative for extreme positive (-1.15%) but insufficient second-half sample
+
+**Honest null:** Funding extremes do not reliably predict short-term reversals.
+
+---
+
+## Question 2: Does Funding Explain the Weekday Pattern?
+**VERDICT:** NO EXPLANATION
+
+**Evidence:**
+- Funding rates uniform across weekdays (23-25 bps variation)
+- Monday/Wednesday weakness exists independent of funding
+- Correlation between funding level and weekday returns: near zero
+
+**Honest null:** Weekday pattern is funding-independent; likely driven by other factors (liquidity, flows).
+
+---
+
+## Question 3: Does Extreme Funding Before Crashes Predict Reversion?
+**VERDICT:** MIXED EVIDENCE, SMALL SAMPLE
+
+**Evidence:**
+- Crashes after extreme positive funding: +4.18% 5-day return (strong reversion)
+- But only 30 such crashes vs 653 normal crashes
+- Extreme negative pre-crash: -1.07% (worse, contrary to hypothesis)
+- Sample size < 100 per bucket (insufficient per methodology)
+
+**Honest null:** Hint of effect but underpowered; needs more data.
+
+---
+
+## Question 4: Does Funding Mean-Revert?
+**VERDICT:** HIGHLY PERSISTENT
+
+**Evidence:**
+- 1-day autocorrelation: 0.5-0.8 (very high persistence)
+- 30-day autocorrelation: 0.0-0.7 (varies; some coins persist)
+- Extreme spells last avg 1.8-2.3 days (not hours)
+- Max spell duration: 29 days (negative extremes)
+
+**Honest null:** Funding is a slow regime indicator, not a fast timing signal.
+
+---
+
+## Overall Replication Verdict
+
+**Per-coin replication rate:** < 50% for funding-reversal hypothesis
+**Split-sample replication:** First half shows some patterns; second half underpowered
+**Cross-question consistency:** No coherent story emerges
+
+**Final assessment:** Funding sentiment shows strong persistence but limited predictive power for price direction in this dataset.
+
+---
+
+**Analysis completed:** 2026-08-14  
+**Data:** 118,545 funding rows, 7,975 daily candles, 9 coins

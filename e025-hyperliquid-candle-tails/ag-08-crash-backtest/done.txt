@@ -1,0 +1,9 @@
+ag-08 done.
+
+Net expectancy (taker): Rule A (crash, hold 5) +1.24% per trade, win 68%,
+total +3.58% OOS. Rule B (rally) -4.81%, win 18%. Rule C (always long) -0.10%/day.
+
+Verdict: daily-crash reversion SURVIVES out-of-sample net of fees, but as
+directional evidence only — 28 trades (below the pre-declared 30 minimum),
+collapsing to ~8 shared market-wide crash days, one bear regime. Asymmetry
+specific to crashes is confirmed (B and C both lose). Not proven; not advice.
