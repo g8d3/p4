@@ -92,6 +92,15 @@ query's **Edit form shows it read-only** ("Last request"), and the coin filter
 card shows its own SQL inline ("View SQL") — nothing stays hidden in the
 playground.
 
+**Funding/OI history collector (since 2026-08-14)**: the `markets` flow now runs
+**hourly** (`interval_sec=3600`, `keep_last=0` = unlimited) instead of daily. Its
+`metaAndAssetCtxs` snapshot captures `funding`, `openInterest`, `markpx` for the
+full universe (~232 coins) once per hour, accumulating the funding-rate and OI
+history that Hyperliquid only retains for days. This feed powers
+[e025-hyperliquid-candle-tails](../e025-hyperliquid-candle-tails/AGENTS.md)
+(funding/OI as strategy features). Note: `openInterest` is in coin units —
+multiply by `markpx` for notional.
+
 Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
 (~169 candles/coin, 14s), subsequent runs add 0 rows (all deduped), and
 `keep_last=10` caps every coin at its 10 newest candles.
