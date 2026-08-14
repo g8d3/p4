@@ -67,9 +67,27 @@ For each feature bucket, report **all three** next-period stats:
 | File | Contents |
 |---|---|
 | `output/patterns.csv` | Per `(feature, bucket, tf)`: `n, mean_next, median_next, p90_next, p99_next, |mean|_next, median_abs_next, split1_median, split2_median` |
+| `output/patterns_by_coin.csv` | **Per-coin breakdown**: per `(coin, feature, bucket, tf)` — same target stats, at least for features with adequate per-coin n (calendar, vol buckets) |
 | `output/charts/*.png` | One chart per feature per tf (bar per bucket, error bars) + `hour_x_weekday` volume and volatility heatmaps. ~12 charts |
-| `output/report.md` | Per feature: finding, numbers, replication verdict |
+| `output/report.md` | Per feature: finding, numbers, replication verdict. **Must state per-coin replication rate** |
 | `output/session-log.md` | Per e025 A/B conventions (timestamps, commands, problems) |
+
+## Coin as a grouping variable (mandatory)
+
+The coin IS a dimension. Pooling hides or invents patterns (meme coins vs BTC,
+new listings, different volume profiles). Every feature must ALSO be analyzed
+per coin, and the report must answer: **"does this pattern hold across coins?"**
+
+1. `patterns_by_coin.csv`: per-`(coin, feature, bucket, tf)` rows with the same
+   target stats. Calendar and volume-bucket features have thousands of obs per
+   coin — per-coin analysis is fine. Tail quantiles per coin stay pooled-only
+   (n<300 rule from ag-03).
+2. **Replication rate**: for each `(feature, tf)`, compute the fraction of
+   coins where the effect goes in the SAME direction (e.g. "higher vol after
+   top-decile volume: 10/12 coins"). Report it explicitly.
+3. **Robustness bar**: an effect is robust only if it replicates in the
+   majority of coins AND in both split halves. If 3 coins drive the pooled
+   result and 9 are flat, that is NOT a pattern — name the exceptions.
 
 ## Split-sample validation (non-negotiable)
 
@@ -80,6 +98,11 @@ For every feature × tf, split the series 50/50 by time:
   in both halves** (same direction of effect). If only one half shows it, call
   it noise. This is the multiple-testing guard — 24 hours × 7 days × 31 days ×
   buckets × 4 tfs is hundreds of tests; most "signals" will be chance.
+
+## Run order (declare before computing)
+
+State in session-log.md the exact feature/target/tf test grid BEFORE running.
+A grid added after seeing results is p-hacking — don't.
 
 ## Honest-results rule
 
