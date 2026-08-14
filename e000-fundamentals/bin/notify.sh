@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 # notify.sh — notify completion/errors to the orchestrator log AND the user's phone.
 #
-# Usage: notify.sh <done|error|info> <message> [-s <sender>] [--test]
+# Usage: notify.sh <done|error|info> <message> [-s <sender>] [--test] [--ask "<question>"]
 #
 #   -s <sender>   override the sender (default: auto-detected from CWD —
 #                 e.g. "e025-hyperliquid-candle-tails/ag-15-combined")
 #   --test        label the message "(manual test)" so receivers know it is
 #                 not from an agent
+#   --ask "...?"  REQUEST ORCHESTRATOR DIRECTION: writes a structured entry
+#                 to the orchestrator inbox (~/.opencode/orchestrator-inbox.md)
+#                 AND pushes a high-priority phone alert. The orchestrator
+#                 reads the inbox whenever it runs; the phone alert tells the
+#                 user to point the orchestrator at it.
 #
 # Channels (each independent, best-effort, never blocks):
 #   1. LOG    — ~/.opencode/notifications.log — THE ORCHESTRATOR'S CHANNEL.
@@ -28,10 +33,12 @@ LEVEL="${1:-info}"
 MSG="${2:-(no message)}"
 SENDER=""
 TEST=""
+ASK=""
 while [ $# -gt 2 ]; do
   case "$3" in
     -s) SENDER="$4"; shift 2;;
     --test) TEST=" (manual test)"; shift;;
+    --ask) ASK="$4"; shift 2;;
     *) shift;;
   esac
 done
@@ -58,6 +65,22 @@ case "$LEVEL" in
   error) TAG="warning";             PRIO="high";;
   info)  TAG="information_source";  PRIO="low";;
 esac
+
+# --- orchestrator inbox (--ask): structured entry + phone alert -----------
+if [ -n "$ASK" ]; then
+  INBOX="${ORCHESTRATOR_INBOX:-$HOME/.opencode/orchestrator-inbox.md}"
+  mkdir -p "$(dirname "$INBOX")"
+  {
+    echo
+    echo "## $(date -Is) — from $SENDER [$LEVEL]"
+    echo "> $MSG"
+    echo "**$SENDER asks:** $ASK"
+  } >> "$INBOX"
+  TAG="rotating_light"
+  PRIO="high"
+  TITLE="p4 · $SENDER · ORCHESTRATOR REQUEST"
+  MSG="$MSG — asks: $ASK"
+fi
 
 # --- phone push (the user's channel) --------------------------------------
 if [ -n "${NTFY_TOPIC:-}" ]; then

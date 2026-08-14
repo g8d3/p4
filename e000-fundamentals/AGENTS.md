@@ -89,12 +89,27 @@ mistake a manual message for an agent's.
 | Channel | Receiver | What |
 |---|---|---|
 | `~/.opencode/notifications.log` | **The orchestrator** | Every event, timestamped, with sender. The orchestrator reads this file — it is the orchestrator's ONLY channel (no pushes to it). |
-| ntfy / Telegram push | **The user's phone** | The headline + sender, as a push notification |
+| `~/.opencode/orchestrator-inbox.md` | **The orchestrator** | Structured entries from agents that **request orchestrator direction** (`--ask`). The orchestrator reads the inbox at the start of every orchestration cycle and acts on each request. |
+| ntfy / Telegram push | **The user's phone** | The headline + sender, as a push notification; `--ask` requests push as high-priority "ORCHESTRATOR REQUEST". |
 | tmux status line | Anyone attached to the session | Short inline alert |
 
-There is no push channel to the orchestrator by design: it is the process
-that reads the log. If an orchestrator wants live alerts, it tails the log.
-The phone push goes to the user — the person — not to another agent.
+**Agents requesting orchestrator direction** — when an agent needs a decision
+it cannot make itself (spec ambiguity, unexpected results, tool failures), it
+does NOT guess or stall. It writes `done.txt` (or a partial state), then:
+
+```bash
+notify.sh done "Monitor needs a decision on AAVE" \
+  --ask "Widen exit to 7 days or keep the frozen 5-day spec?"
+```
+
+The entry lands in the orchestrator inbox, and a high-priority push tells the
+user to point the orchestrator at it.
+
+**The orchestrator's contract**: before acting on any agent, read
+`~/.opencode/orchestrator-inbox.md`, answer every request (append your
+decision as a reply under the entry), and only then proceed. The orchestrator
+receives NO live pushes — the inbox is its queue, and the phone push exists
+so the user knows to send the orchestrator there.
 
 **Contract for agents**: when writing `done.txt`, ALSO run
 `notify.sh done "<agent> finished: <headline numbers>"`. On an unrecoverable
