@@ -76,17 +76,25 @@ one-liner is `e000-fundamentals/bin/notify.sh`:
 notify.sh done  "ag-15 finished: 312 OOS trades, +0.55%/trade net"
 notify.sh error "ag-11 GARCH fit crashed: missing arch package"
 notify.sh info  "OI collector: r_2 now has N snapshots"
+notify.sh done "this is a demo" --test -s orchestrator   # manual/test: labeled
 ```
 
-Three best-effort channels, each independent (a failure never blocks the
-agent):
+**Every message identifies its sender.** `notify.sh` auto-detects the sender
+from the calling directory (e.g. `e025-hyperliquid-candle-tails/ag-15-combined`)
+or takes `-s <sender>`; `--test` appends "(manual test)" so receivers never
+mistake a manual message for an agent's.
 
-1. **Log** — always appends to `~/.opencode/notifications.log` (the
-   orchestrator's source of truth for what finished and when).
-2. **tmux status line** — visible when attached to the session.
-3. **Phone push** — ntfy (`NTFY_TOPIC`) or Telegram
-   (`TELEGRAM_BOT_TOKEN`+`TELEGRAM_CHAT_ID`). No secrets in the repo; env vars
-   only.
+**Routing (who receives what):**
+
+| Channel | Receiver | What |
+|---|---|---|
+| `~/.opencode/notifications.log` | **The orchestrator** | Every event, timestamped, with sender. The orchestrator reads this file — it is the orchestrator's ONLY channel (no pushes to it). |
+| ntfy / Telegram push | **The user's phone** | The headline + sender, as a push notification |
+| tmux status line | Anyone attached to the session | Short inline alert |
+
+There is no push channel to the orchestrator by design: it is the process
+that reads the log. If an orchestrator wants live alerts, it tails the log.
+The phone push goes to the user — the person — not to another agent.
 
 **Contract for agents**: when writing `done.txt`, ALSO run
 `notify.sh done "<agent> finished: <headline numbers>"`. On an unrecoverable
