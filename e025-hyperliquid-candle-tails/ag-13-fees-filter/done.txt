@@ -1,0 +1,24 @@
+EDGE LEDGER VERDICT (ag-13, phase 5f) — 2026-08-14
+
+Net of Hyperliquid fees (taker 0.045%/side, 0.09% RT; + slippage 1-5bps/side):
+
+TRADEABLE (real AND net-positive):
+- Daily crash reversion (1d): gross +2.47% mean / +3.07% median over 5d
+  (ag-07, verified), net taker +2.38% / +2.98%. Edge ~26x fee.
+  PROVISIONAL until ag-08 OOS backtest lands (pending).
+
+REAL BUT NOT TRADEABLE (killed by fees or by spec):
+- Weekday tilt (1d): real (p<0.0001) but OOS gross -0.34%/trade -> net -0.43%.
+- 5m post-crash bounce: +0.049% p50 < 0.09% breakeven -> net -0.04%.
+- 1h body-position reversion: ~0.04% edge < 0.09% cost.
+
+REAL, ROBUST, SIZING-INPUT ONLY (no directional leg):
+- Volatility clustering (|ret_next| 1.5-3.4x after extremes).
+- Hour-of-day volatility (US-open bump, 1.6-1.8x).
+
+PENDING: relative strength (ag-10, must beat 0.18%/day for 2-leg daily L/S);
+funding (ag-09); vol model (ag-11); regime drift (ag-12).
+
+BOTTOM LINE: at 0.09% round trip, almost every real statistical edge in e025
+is too small to survive real costs. The single exception is daily crash
+reversion (~26x the fee). Fees and slippage are the hype filter.

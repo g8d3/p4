@@ -1,0 +1,19 @@
+ag-10 cross-sectional analysis DONE
+
+Q1 (Relative Strength): MILD MOMENTUM CONFIRMED
+  Top 3 coins by trailing return beat bottom 3 by 0.2-0.4pp/day.
+  N=20 stronger than N=5. Split-sample holds (H2 gap larger than H1).
+  Effect driven by fat-tail outliers, not consistent daily edge.
+
+Q2 (Long-Short Portfolio): EDGE SURVIVES FEES, BUT RISK IS EXTREME
+  N=20: +341% total return OOS, Sharpe 1.28, net of 0.09% round-trip fees.
+  N=5: +104% total return OOS, Sharpe 0.76.
+  Both have massive drawdowns (-53% to -66%). 12 coins = high idiosyncratic risk.
+
+Q3 (Co-Movement): YES — CRACTS HIT EVERYTHING AT ONCE
+  Down 3σ events: 96.3% of other coins drop (vs 50% expected).
+  Up 3σ events: 84.2% of other coins rise.
+  BTC/ETH lead. Diversification evaporates in tails.
+
+Verdict: Momentum is real but noisy. Tail risk is systematic. The long-short
+edge is genuine but requires risk management beyond simple equal-weight.
