@@ -1,0 +1,21 @@
+# ag-15 done — combined reversion (crash OR low-volume down)
+
+Four answers (OOS, net taker fees, pooled):
+
+1. **Sample gain**: C = 312 trades vs A = 28 (11.1x, 155 distinct days vs 8).
+   Edge preserved in sign: C +0.55%/trade, Sharpe 0.44, total +16.31% vs A
+   +1.24%, +3.58%. C credible at n=312 (>50).
+
+2. **Volume refines crash? NO.** D (crash AND low-volume) = 20 trades,
+   -0.54% net (negative). "Unconfirmed crashes revert strongest" NOT supported.
+   Crash edge actually sat in the 8 high-volume crashes (+5.68%, 8/8 wins) —
+   small-sample lead only.
+
+3. **T2 independent of T1? Largely YES.** Only 4.2% of T2 triggers are also T1
+   (22 of 530). B adds new non-crash trades, not duplicates of A.
+
+4. **Metrics net taker**: A +1.24%/67.9%/-9.0%/0.22; B +0.48%/48.1%/-32.5%/0.39;
+   C +0.55%/48.7%/-32.4%/0.44; D -0.54%/55.0%/-8.0%/-0.05; E -0.10%/46.6%/-75.6%/-0.59.
+
+Verdict: pooling works (bigger, more independent sample, edge survives fees),
+but the quiet-crash refinement is contradicted. Not advice.
