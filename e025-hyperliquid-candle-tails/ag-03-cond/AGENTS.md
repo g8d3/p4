@@ -81,3 +81,9 @@ work (like e022) as the realistic direction.
 
 Window: `25-3`. On wake, check outputs, iterate, then write `done.txt` with the
 headline verdict per signal.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

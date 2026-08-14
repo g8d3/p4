@@ -130,3 +130,9 @@ Expected, based on ag-02/ag-03 findings:
 
 Window: `25-5`. On wake: check outputs, fix errors, iterate. When all
 deliverables exist, write `done.txt` with the headline findings per feature.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

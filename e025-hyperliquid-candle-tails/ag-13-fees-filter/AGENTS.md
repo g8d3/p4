@@ -62,3 +62,9 @@ small caps will pay more slippage).
 ```
 
 Window: `25-13`. Write `done.txt` with the final ledger verdict when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

@@ -37,6 +37,7 @@ ag-01-data (once) ──┤
 | **ag-13-fees-filter** (phase 5f) | all reports | net-of-fees edge ledger: what survives real costs — the experiment's verdict |
 | **ag-14-volume-price** (phase 6) | candles | volume×price interaction for direction: move×vol, OBV, VWAP distance, up/down volume ratio |
 | **ag-15-combined** (phase 7) | candles + ag-08/14 outputs | combined reversion strategy (crash OR low-volume down), pooled OOS backtest |
+| **ag-16-live-monitor** (phase 8, live) | live Hyperliquid candles | daily paper-trade monitor of the reversion strategy: triggers, logs, phone notifications |
 
 **Rules for the A/B test:**
 - ag-01 runs once. Path B must NOT download — it reads the shared CSV.

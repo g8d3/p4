@@ -73,3 +73,9 @@ Do not pad or flatter — the A/B test needs the real numbers.
 
 Window: `25-4`. On wake: check outputs, fix errors, iterate. When all six
 deliverables exist, write `done.txt` with headline stats + the verdicts.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

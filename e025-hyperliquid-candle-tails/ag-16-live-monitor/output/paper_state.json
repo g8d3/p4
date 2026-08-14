@@ -1,0 +1,12 @@
+{
+  "last_day": "2026-08-13",
+  "pending": [
+    {
+      "coin": "AAVE",
+      "entry_day": "2026-08-13",
+      "exit_day": "2026-08-18",
+      "trigger": "T2_lowvol",
+      "entry_close": 87.869
+    }
+  ]
+}

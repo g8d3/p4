@@ -66,3 +66,9 @@ Single agent, never downloads. Beginner-explain requirement applies.
 ```
 
 Window: `25-10`. Write `done.txt` with the 3 verdicts when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

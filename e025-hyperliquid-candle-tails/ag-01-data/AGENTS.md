@@ -82,3 +82,9 @@ blocks or sleeps:
 Check on each wake: the CSV is growing, `manifest.json` exists, no API errors
 piling up. When the fetch completes, validate the CSV (row count, no dups) and
 write `done.txt` with the row counts.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

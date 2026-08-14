@@ -64,3 +64,9 @@ has no `ret` — drop it for stats.
 Window: `25-2`. On wake, check outputs, fix errors, iterate until all four
 deliverables exist, then write `done.txt` with the headline stats (n per tf,
 kurtosis range, p99.9 range).
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

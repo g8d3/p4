@@ -88,3 +88,9 @@ For each signal, bucket and look at the **next 1-day and next 5-day return**
 ```
 
 Window: `25-14`. Write `done.txt` with the 5 verdicts when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

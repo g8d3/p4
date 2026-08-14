@@ -126,3 +126,9 @@ test, not a production system:
 Window: `25-6`. On wake: check outputs, fix errors, iterate. When all
 deliverables exist, write `done.txt` with the p-value, the net expectancy, and
 the verdict.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

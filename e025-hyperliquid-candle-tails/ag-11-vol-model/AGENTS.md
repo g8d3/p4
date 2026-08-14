@@ -64,3 +64,9 @@ EVT explained for a beginner in Plain English).
 ```
 
 Window: `25-11`. Write `done.txt` with the verdicts when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

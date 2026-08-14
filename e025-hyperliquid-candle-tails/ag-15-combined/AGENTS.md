@@ -95,3 +95,9 @@ Net of taker 0.045% per side (also report maker 0.018%).
 ```
 
 Window: `25-15`. Write `done.txt` with the 4 answers when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

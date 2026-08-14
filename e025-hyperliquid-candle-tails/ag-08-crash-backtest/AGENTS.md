@@ -73,3 +73,9 @@ followed by positive 5-day cumulative returns: mean +2.5%, median +3.07% vs
 ```
 
 Window: `25-8`. Write `done.txt` with net expectancy and the verdict when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

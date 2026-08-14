@@ -57,3 +57,9 @@ short). Per quarter, compute:
 ```
 
 Window: `25-12`. Write `done.txt` with the stability verdict when done.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+

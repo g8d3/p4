@@ -127,3 +127,9 @@ in the deliverables — the no-lookahead property is the whole point.
 Window: `25-7`. On wake: check outputs, fix errors, iterate. When all
 deliverables exist, write `done.txt` with the headline answers to the 6
 questions.
+
+## Notify (mandatory)
+In addition to writing `done.txt`, agents MUST notify on completion:
+`notify.sh done "<agent> finished: <headline>"` (from `../../e000-fundamentals/bin/notify.sh`)
+On an unrecoverable failure, before giving up: `notify.sh error "<agent> failed: <cause>"`
+
