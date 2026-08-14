@@ -77,9 +77,9 @@ OUTPUT_DIR="${OUTPUT_DIR:-$SCRIPT_DIR/output}"
 call_api() {
     local endpoint="$1" data="${2:-}" method="${3:-POST}"
     if [ "$method" = "GET" ]; then
-        curl -sS "$API_BASE$endpoint" -H "Authorization: Bearer $KIE_API_KEY"
+        curl -sS --max-time 30 "$API_BASE$endpoint" -H "Authorization: Bearer $KIE_API_KEY"
     else
-        printf '%s' "$data" | curl -sS "$API_BASE$endpoint" \
+        printf '%s' "$data" | curl -sS --max-time 30 "$API_BASE$endpoint" \
             -H "Authorization: Bearer $KIE_API_KEY" \
             -H "Content-Type: application/json" -X "$method" -d @-
     fi
@@ -140,7 +140,7 @@ for u in r.get('resultUrls', []): print(u)
 
         for url in $AUDIO_URLS; do
             $QUIET || echo "Downloading..."
-            curl -sS -o "${local_file}_raw.wav" "$url"
+            curl -sS --max-time 60 -o "${local_file}_raw.wav" "$url"
             # Convert directly to MP3, no trimming. The old silenceremove filter
             # stripped natural silence at start/end of every chunk, mutilating the
             # narration (dry cuts, border words clipped). KIE already returns
