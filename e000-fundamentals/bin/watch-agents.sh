@@ -31,8 +31,12 @@ rewrite_status() {
   last_line=$(grep -v "^ntfy:" "$LOG" 2>/dev/null | tail -1 | sed -E 's/^ntfy:[0-9]+//')
   local pending=0
   if [ -f "$INBOX" ]; then
-    # unanswered = "asks:" line not yet followed by a "Reply:" line
-    pending=$(grep -c '\*\*.*asks:\*\*' "$INBOX" 2>/dev/null || true)
+    # unanswered = ask entries minus orchestrator replies
+    local asks replies
+    asks=$(grep -c '\*\*.*asks:\*\*' "$INBOX" 2>/dev/null || echo 0)
+    replies=$(grep -c 'Reply (orchestrator' "$INBOX" 2>/dev/null || echo 0)
+    pending=$(( asks - replies ))
+    [ "$pending" -lt 0 ] && pending=0
   fi
   {
     echo "# Agent status — updated $(date -Is)"
