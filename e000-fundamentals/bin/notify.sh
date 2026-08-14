@@ -85,11 +85,11 @@ fi
 # --- phone push (the user's channel) --------------------------------------
 if [ -n "${NTFY_TOPIC:-}" ]; then
   SERVER="${NTFY_SERVER:-https://ntfy.sh}"
-  timeout 10 curl -s -o /dev/null -w "ntfy:%{http_code}" \
+  timeout 10 curl -s -o /dev/null -w "ntfy:%{http_code}\n" \
     -H "Title: $TITLE" -H "Tags: $TAG" -H "Priority: $PRIO" \
     -d "$MSG$TEST" "$SERVER/$NTFY_TOPIC" >> "$LOGFILE" 2>&1
 elif [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
-  timeout 10 curl -s -o /dev/null -w "telegram:%{http_code}" \
+  timeout 10 curl -s -o /dev/null -w "telegram:%{http_code}\n" \
     -d "chat_id=$TELEGRAM_CHAT_ID" -d "text=$TITLE: $MSG$TEST" \
     "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" >> "$LOGFILE" 2>&1
 fi

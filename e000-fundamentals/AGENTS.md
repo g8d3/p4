@@ -111,6 +111,28 @@ decision as a reply under the entry), and only then proceed. The orchestrator
 receives NO live pushes — the inbox is its queue, and the phone push exists
 so the user knows to send the orchestrator there.
 
+### The completion watcher (structural, no memory needed)
+
+`e000-fundamentals/bin/watch-agents.sh` is a persistent daemon (started at
+boot via cron `@reboot`) that tails `notifications.log` and:
+
+1. Rewrites `~/.opencode/agent-status.md` — a one-glance snapshot (last
+   event + unanswered inbox requests) within ~10s of every event.
+2. Flashes the tmux status line of the main session (non-intrusive:
+   `display-message` only — it NEVER uses `send-keys`, so it cannot
+   interfere with any session).
+
+**The orchestrator reads `~/.opencode/agent-status.md` as its FIRST action on
+every turn** — it is always current, so completions can't be missed even if
+the orchestrator forgets to poll. The guaranteed human path remains: phone
+push → user relays → orchestrator acts. Restart manually if it died:
+`nohup e000-fundamentals/bin/watch-agents.sh >/dev/null 2>&1 &`.
+
+**Why not agent→orchestrator `tmux send-keys`**: agents messaging sessions
+directly lets them interfere with each other and with a live interactive
+session (a stray `Enter` types into the wrong window). The watcher reads and
+displays only — zero interference by construction.
+
 **Contract for agents**: when writing `done.txt`, ALSO run
 `notify.sh done "<agent> finished: <headline numbers>"`. On an unrecoverable
 failure, run `notify.sh error "<agent> failed: <cause>"` before giving up.
