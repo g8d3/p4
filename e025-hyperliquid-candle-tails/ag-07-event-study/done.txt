@@ -1,0 +1,27 @@
+# ag-07 done — event study around 3σ moves
+
+2,139 events (|ret| > 3×global σ) across 12 coins × 4 tfs. Headline answers:
+
+1. Momentum/reversion: NOTHING at 5m/1h (means within ~±0.3%, medians straddle 0).
+   1d: crashes mean-revert (down events +2.5% mean / +3.07% median next-5 vs
+   +0.68% baseline); up events +4.4% mean but fails replication.
+2. Asymmetry: YES. Up events more frequent (1d: 99 vs 46) and slightly bigger
+   than down events everywhere; but crashes revert while rallies don't.
+3. Clustering: YES (expected). 1h/1d intervals 10-20% below random expectation,
+   ≤10-candle gaps 2.5-3x over-represented; 5m over-dispersed (bursts+gaps).
+4. Pre-event state: mostly NULL. Extension/volume/regime splits show only weak,
+   non-replicating differences; hour only suggestive (1h up, US hours 12-17).
+5. Risk envelope: symmetric at 5m (MAE/MFE ~±0.4%) and 1h (~±2.5%);
+   asymmetric at 1d (MFE median +14.2% vs MAE -9.3% for down events; p90 MFE
+   up +54%).
+6. Replication: ONE robust result — daily crashes revert, 6/6 coins same sign,
+   halves +3.04/+2.17, mean+median agree. All 5m/1h and the 1d rally-momentum
+   flip sign across halves → noise.
+
+NEW feature (swing distance, no-lookahead): median dist_high ~ -0.1σ; >half of
+candles ≥1σ from last confirmed swing; 3σ events 3-14x more likely when price
+is already extended past its last confirmed swing (direction-matched). Doesn't
+predict what happens after.
+
+Sample windows: 5m/1h = recent snapshot (~17d/~7mo), 1w too thin (22 events),
+coins correlated. See output/report.md + beginners_guide.md.
