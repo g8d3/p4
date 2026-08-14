@@ -35,6 +35,7 @@ ag-01-data (once) ──┤
 | **ag-11-vol-model** (phase 5d) | candles | EGARCH + EVT: next-candle vol forecast, tail probabilities, sizing table |
 | **ag-12-regime-drift** (phase 5e) | candles | quarterly stability of vol/tails/patterns; trend test |
 | **ag-13-fees-filter** (phase 5f) | all reports | net-of-fees edge ledger: what survives real costs — the experiment's verdict |
+| **ag-14-volume-price** (phase 6) | candles | volume×price interaction for direction: move×vol, OBV, VWAP distance, up/down volume ratio |
 
 **Rules for the A/B test:**
 - ag-01 runs once. Path B must NOT download — it reads the shared CSV.
