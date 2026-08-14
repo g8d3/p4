@@ -13,6 +13,11 @@ certs/
 # Agent output directories (videos, logs, metadata)
 **/output/
 
+# e025 exception: analysis artifacts are small (CSV/MD/JSON/PNG ~50KB) —
+# keep them fully versioned so every agent's output is auditable via git
+!e025-hyperliquid-candle-tails/**/output/
+!e025-hyperliquid-candle-tails/**/output/**
+
 # Python cache
 __pycache__/
 

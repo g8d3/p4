@@ -1,0 +1,7 @@
+coin,tf,feature,correlation,n_observations
+CRV,1h,rolling_vol_20,0.19431494198671076,4980
+DOGE,1h,rolling_vol_20,0.2227636631491545,4980
+HYPE,1h,rolling_vol_20,0.3409859053541012,4978
+LIT,1h,rolling_vol_20,0.2639554591138399,4980
+PUMP,1h,rolling_vol_20,0.22308916902214262,4981
+XRP,1h,rolling_vol_20,0.3167194083220853,4980

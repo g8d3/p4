@@ -1,0 +1,26 @@
+ag-05 DONE 2026-08-13T19:10-05:00
+
+Headline findings per feature (all split-sample validated, out-of-sample
+replication required):
+
+- hour (5m/1h): VOLATILITY REAL — U-shaped across UTC day, peak 13-16 UTC
+  (US open), trough 5-9 UTC. vol_rho 0.60-0.64, p<0.01. Direction FLAT.
+- weekday: DIRECTION REAL on 1d — Mon -0.42%, Wed -0.60% down; Thu +0.20%,
+  Sun +0.28% up. 7/7 weekdays same sign in both halves AND per-coin
+  (10-11/12 coins). Weekend vol lull on 1h (Sat/Sun) and Friday on 1d.
+- dom: NOTHING (null as expected).
+- vol_pct: VOLATILITY REAL, monotonic, strong — >99 pct bucket 2.4-3.4x
+  baseline vol. Direction flat/inconsistent (1d >99 negative vs 5m/1h >99
+  positive -> not established).
+- vol_chg: NOTHING. vol_per_move: NOTHING.
+- vol_ma20: VOLATILITY REAL, monotonic (1d/1h rho 1.0). Direction flat.
+- body_pos: mild 1h reversion only (upper-wick close -> down next), small.
+- cooloff: VOLATILITY CLUSTERING REAL — after 2-sigma move vol ~2x baseline,
+  decays over 6+ candles (5m + 1h, rho 1.0). Direction flat.
+
+Verdict: volatility seasonality is real and chartable (hour, volume level,
+vol clustering). Directional edges nearly absent except the daily-weekday
+pattern and a weak 1h body-position reversion.
+
+Deliverables verified: patterns.csv (304 rows), 35 PNGs (valid),
+report.md, session-log.md.

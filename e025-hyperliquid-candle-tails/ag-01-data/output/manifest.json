@@ -1,0 +1,517 @@
+{
+    "fetch_start": "2026-08-13T16:21:05-05:00",
+    "fetch_end": "2026-08-13T16:22:27-05:00",
+  "coins": [
+    "BTC",
+    "ETH",
+    "HYPE",
+    "SOL",
+    "PUMP",
+    "ZEC",
+    "XRP",
+    "LIT",
+    "DOGE",
+    "CRV",
+    "AAVE",
+    "XMR"
+  ],
+  "timeframes": [
+    "5m",
+    "1h",
+    "1d",
+    "1w"
+  ],
+  "history_floor": "2023-01-01T00:00:00+00:00",
+  "per_pair": {
+    "BTC:5m": {
+      "rows": 5032,
+      "expected": 5032.0,
+      "v0_count": 0,
+      "first_real_t": "1785146700000",
+      "first_real_ts": "2026-07-27T10:05:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "BTC:1h": {
+      "rows": 5003,
+      "expected": 5003.0,
+      "v0_count": 0,
+      "first_real_t": "1768647600000",
+      "first_real_ts": "2026-01-17T11:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "BTC:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 56,
+      "first_real_t": "1677369600000",
+      "first_real_ts": "2023-02-26T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "BTC:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 8,
+      "first_real_t": "1677110400000",
+      "first_real_ts": "2023-02-23T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "ETH:5m": {
+      "rows": 5032,
+      "expected": 5032.0,
+      "v0_count": 0,
+      "first_real_t": "1785146700000",
+      "first_real_ts": "2026-07-27T10:05:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "ETH:1h": {
+      "rows": 5003,
+      "expected": 5003.0,
+      "v0_count": 0,
+      "first_real_t": "1768647600000",
+      "first_real_ts": "2026-01-17T11:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "ETH:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 56,
+      "first_real_t": "1677369600000",
+      "first_real_ts": "2023-02-26T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "ETH:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 8,
+      "first_real_t": "1677110400000",
+      "first_real_ts": "2023-02-23T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "HYPE:5m": {
+      "rows": 5004,
+      "expected": 5004.0,
+      "v0_count": 0,
+      "first_real_t": "1785155100000",
+      "first_real_ts": "2026-07-27T12:25:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "HYPE:1h": {
+      "rows": 5000,
+      "expected": 5000.0,
+      "v0_count": 0,
+      "first_real_t": "1768658400000",
+      "first_real_ts": "2026-01-17T14:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "HYPE:1d": {
+      "rows": 617,
+      "expected": 617.0,
+      "v0_count": 0,
+      "first_real_t": "1733356800000",
+      "first_real_ts": "2024-12-05T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "HYPE:1w": {
+      "rows": 89,
+      "expected": 89.0,
+      "v0_count": 0,
+      "first_real_t": "1733356800000",
+      "first_real_ts": "2024-12-05T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "SOL:5m": {
+      "rows": 5030,
+      "expected": 5030.0,
+      "v0_count": 0,
+      "first_real_t": "1785147300000",
+      "first_real_ts": "2026-07-27T10:15:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "SOL:1h": {
+      "rows": 5003,
+      "expected": 5003.0,
+      "v0_count": 0,
+      "first_real_t": "1768647600000",
+      "first_real_ts": "2026-01-17T11:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "SOL:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 62,
+      "first_real_t": "1677888000000",
+      "first_real_ts": "2023-03-04T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "SOL:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 9,
+      "first_real_t": "1677715200000",
+      "first_real_ts": "2023-03-02T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "PUMP:5m": {
+      "rows": 5032,
+      "expected": 5032.0,
+      "v0_count": 0,
+      "first_real_t": "1785146700000",
+      "first_real_ts": "2026-07-27T10:05:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "PUMP:1h": {
+      "rows": 5003,
+      "expected": 5003.0,
+      "v0_count": 0,
+      "first_real_t": "1768647600000",
+      "first_real_ts": "2026-01-17T11:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "PUMP:1d": {
+      "rows": 400,
+      "expected": 400.0,
+      "v0_count": 0,
+      "first_real_t": "1752105600000",
+      "first_real_ts": "2025-07-10T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "PUMP:1w": {
+      "rows": 59,
+      "expected": 59.0,
+      "v0_count": 1,
+      "first_real_t": "1752105600000",
+      "first_real_ts": "2025-07-10T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "ZEC:5m": {
+      "rows": 5026,
+      "expected": 5026.0,
+      "v0_count": 0,
+      "first_real_t": "1785148500000",
+      "first_real_ts": "2026-07-27T10:35:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "ZEC:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "ZEC:1d": {
+      "rows": 1315,
+      "expected": 1315.0,
+      "v0_count": 999,
+      "first_real_t": "1759363200000",
+      "first_real_ts": "2025-10-02T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "ZEC:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 144,
+      "first_real_t": "1759363200000",
+      "first_real_ts": "2025-10-02T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "XRP:5m": {
+      "rows": 5020,
+      "expected": 5020.0,
+      "v0_count": 0,
+      "first_real_t": "1785150300000",
+      "first_real_ts": "2026-07-27T11:05:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "XRP:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "XRP:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 167,
+      "first_real_t": "1686960000000",
+      "first_real_ts": "2023-06-17T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "XRP:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 24,
+      "first_real_t": "1686787200000",
+      "first_real_ts": "2023-06-15T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "LIT:5m": {
+      "rows": 5021,
+      "expected": 5021.0,
+      "v0_count": 0,
+      "first_real_t": "1785150000000",
+      "first_real_ts": "2026-07-27T11:00:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "LIT:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "LIT:1d": {
+      "rows": 235,
+      "expected": 235.0,
+      "v0_count": 0,
+      "first_real_t": "1766361600000",
+      "first_real_ts": "2025-12-22T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "LIT:1w": {
+      "rows": 35,
+      "expected": 35.0,
+      "v0_count": 0,
+      "first_real_t": "1766016000000",
+      "first_real_ts": "2025-12-18T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "DOGE:5m": {
+      "rows": 5027,
+      "expected": 5027.0,
+      "v0_count": 0,
+      "first_real_t": "1785148200000",
+      "first_real_ts": "2026-07-27T10:30:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "DOGE:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "DOGE:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 92,
+      "first_real_t": "1680480000000",
+      "first_real_ts": "2023-04-03T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "DOGE:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 13,
+      "first_real_t": "1680134400000",
+      "first_real_ts": "2023-03-30T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "CRV:5m": {
+      "rows": 5025,
+      "expected": 5025.0,
+      "v0_count": 0,
+      "first_real_t": "1785148800000",
+      "first_real_ts": "2026-07-27T10:40:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "CRV:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "CRV:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 134,
+      "first_real_t": "1684108800000",
+      "first_real_ts": "2023-05-15T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "CRV:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 19,
+      "first_real_t": "1683763200000",
+      "first_real_ts": "2023-05-11T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "AAVE:5m": {
+      "rows": 5019,
+      "expected": 5019.0,
+      "v0_count": 0,
+      "first_real_t": "1785150600000",
+      "first_real_ts": "2026-07-27T11:10:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "AAVE:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "AAVE:1d": {
+      "rows": 1321,
+      "expected": 1321.0,
+      "v0_count": 197,
+      "first_real_t": "1689552000000",
+      "first_real_ts": "2023-07-17T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "AAVE:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 28,
+      "first_real_t": "1689206400000",
+      "first_real_ts": "2023-07-13T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "XMR:5m": {
+      "rows": 5021,
+      "expected": 5021.0,
+      "v0_count": 0,
+      "first_real_t": "1785150000000",
+      "first_real_ts": "2026-07-27T11:00:00",
+      "last_t": "1786656000000",
+      "last_ts": "2026-08-13T21:20:00",
+      "gap_count": 0
+    },
+    "XMR:1h": {
+      "rows": 5002,
+      "expected": 5002.0,
+      "v0_count": 0,
+      "first_real_t": "1768651200000",
+      "first_real_ts": "2026-01-17T12:00:00",
+      "last_t": "1786654800000",
+      "last_ts": "2026-08-13T21:00:00",
+      "gap_count": 0
+    },
+    "XMR:1d": {
+      "rows": 1210,
+      "expected": 1210.0,
+      "v0_count": 999,
+      "first_real_t": "1768435200000",
+      "first_real_ts": "2026-01-15T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    },
+    "XMR:1w": {
+      "rows": 190,
+      "expected": 190.0,
+      "v0_count": 159,
+      "first_real_t": "1768435200000",
+      "first_real_ts": "2026-01-15T00:00:00",
+      "last_t": "1786579200000",
+      "last_ts": "2026-08-13T00:00:00",
+      "gap_count": 0
+    }
+  },
+  "api_errors": {},
+  "notes": {
+    "retention": {
+      "5m": "API retains ~most recent 5000 candles (~17 days for BTC)",
+      "1h": "API retains ~most recent 5000 candles (~7 months for BTC)",
+      "1d": "full history since exchange launch",
+      "1w": "full history since exchange launch"
+    },
+    "pre_launch_volume": "1d/1w candles before the coin's listing have v=0 (synthetic backfill)"
+  }
+}

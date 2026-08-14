@@ -1,0 +1,55 @@
+=== BTC 5m page 1 start=1672531200000 got=5032 ===
+=== BTC 1h page 1 start=1672531200000 got=5003 ===
+=== BTC 1d page 1 start=1672531200000 got=1321 ===
+=== BTC 1w page 1 start=1672531200000 got=190 ===
+=== ETH 5m page 1 start=1672531200000 got=5032 ===
+=== ETH 1h page 1 start=1672531200000 got=5003 ===
+=== ETH 1d page 1 start=1672531200000 got=1321 ===
+=== ETH 1w page 1 start=1672531200000 got=190 ===
+=== HYPE 5m page 1 start=1672531200000 got=5004 ===
+=== HYPE 1h page 1 start=1672531200000 got=5000 ===
+=== HYPE 1d page 1 start=1672531200000 got=617 ===
+=== HYPE 1w page 1 start=1672531200000 got=89 ===
+=== SOL 5m page 1 start=1672531200000 got=5030 ===
+=== SOL 1h page 1 start=1672531200000 got=5003 ===
+=== SOL 1d page 1 start=1672531200000 got=1321 ===
+=== SOL 1w page 1 start=1672531200000 got=190 ===
+=== PUMP 5m page 1 start=1672531200000 got=5032 ===
+=== PUMP 1h page 1 start=1672531200000 got=5003 ===
+=== PUMP 1d page 1 start=1672531200000 got=400 ===
+=== PUMP 1w page 1 start=1672531200000 got=59 ===
+=== ZEC 5m page 1 start=1672531200000 got=5026 ===
+=== ZEC 1h page 1 start=1672531200000 got=5002 ===
+=== ZEC 1d page 1 start=1672531200000 got=1315 ===
+=== ZEC 1w page 1 start=1672531200000 got=190 ===
+=== XRP 5m page 1 start=1672531200000 got=5020 ===
+=== XRP 1h page 1 start=1672531200000 got=5002 ===
+=== XRP 1d page 1 start=1672531200000 got=1321 ===
+=== XRP 1w page 1 start=1672531200000 got=190 ===
+=== LIT 5m page 1 start=1672531200000 got=5021 ===
+=== LIT 1h page 1 start=1672531200000 got=5002 ===
+=== LIT 1d page 1 start=1672531200000 got=235 ===
+=== LIT 1w page 1 start=1672531200000 got=35 ===
+=== DOGE 5m page 1 start=1672531200000 got=5027 ===
+=== DOGE 1h page 1 start=1672531200000 got=5002 ===
+=== DOGE 1d page 1 start=1672531200000 got=1321 ===
+=== DOGE 1w page 1 start=1672531200000 got=190 ===
+=== CRV 5m page 1 start=1672531200000 got=5025 ===
+=== CRV 1h page 1 start=1672531200000 got=5002 ===
+=== CRV 1d page 1 start=1672531200000 got=1321 ===
+=== CRV 1w page 1 start=1672531200000 got=190 ===
+=== AAVE 5m page 1 start=1672531200000 got=5019 ===
+=== AAVE 1h page 1 start=1672531200000 got=5002 ===
+=== AAVE 1d page 1 start=1672531200000 got=1321 ===
+=== AAVE 1w page 1 start=1672531200000 got=190 ===
+=== XMR 5m page 1 start=1672531200000 got=5021 ===
+=== XMR 1h page 1 start=1672531200000 got=5002 ===
+=== XMR 1d page 1 start=1672531200000 got=1210 ===
+=== XMR 1w page 1 start=1672531200000 got=190 ===
+Traceback (most recent call last):
+  File "/home/vuos/code/p4/e025-hyperliquid-candle-tails/ag-01-data/bin/fetch_candles.py", line 169, in <module>
+    main()
+  File "/home/vuos/code/p4/e025-hyperliquid-candle-tails/ag-01-data/bin/fetch_candles.py", line 135, in main
+    real = [r for r in rows if (r["v"] | 0) > 0]  # v>0 = actually listed/traded
+                                ~~~~~~~^~~
+TypeError: unsupported operand type(s) for |: 'str' and 'int'

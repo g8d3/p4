@@ -1,0 +1,17 @@
+# ag-14 done — volume × price interaction for direction
+
+Five verdicts (1d primary, 1h sensitivity all-dead):
+
+1. **Move × volume** — NULL: up moves on high volume do NOT continue
+   (delta −0.11pp vs low-volume up); vol>99 cell too thin per-coin to
+   replicate. Classic "volume confirms continuation" not present.
+2. **OBV divergence** — REAL but small: bearish divergence (price↑ OBV↓)
+   next-1d −0.10% vs up-confirmation +0.24% (spread 0.34pp, 1.11pp 5d);
+   6/10 coins next1, 8/10 next5, split-half consistent. Dies at 0.09% fee
+   (net +0.01pp next1).
+3. **VWAP distance** — NULL: no mean reversion, split halves disagree.
+4. **Up/down volume ratio** — NULL: no replicable directional effect.
+5. **Volume-adjusted return** — REAL on down side: down-move on unusually
+   low volume for its size → +0.24% next1, +1.27% next5 (delta +0.38/+1.32pp),
+   6/9 coins, split consistent. Only signal that clears fees with room
+   (+1.18pp net 5d) — same family as ag-07/ag-08 crash reversion.

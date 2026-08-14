@@ -1,0 +1,7 @@
+tf,metric,n_quarters,kendall_tau,kendall_p,slope_log_per_q,note
+5m,sigma,1,,,,too few quarters
+1h,sigma,3,,,,too few quarters
+1d,sigma,15,0.2,0.3282,0.0188,
+1d,kurtosis,15,-0.086,0.6972,,
+1w,sigma,15,0.048,0.8458,-0.0023,
+1w,kurtosis,15,-0.124,0.559,,

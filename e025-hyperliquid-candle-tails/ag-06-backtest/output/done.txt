@@ -1,0 +1,24 @@
+# ag-06 — done
+
+Date: 2026-08-13
+
+## Headline results
+
+- **Permutation test p-value (pooled):** **< 0.0001** (tilt +0.749%, max-min
+  spread +0.873%; 0 of 10,000 shuffles matched). Per-coin: 9/12 pass p<0.05,
+  6/12 pass p<0.01 (failures = short-history coins LIT/XMR/ZEC).
+- **Net expectancy (net taker):** Rule A **−0.430%/trade**, Rule B
+  −0.083%/trade, Rule C −0.094%/trade. Even gross, Rule A is −0.340%/trade.
+- **Total return (net taker, pooled, OOS):** Rule A **−85.4%**, Rule B
+  −48.5%, Rule C −66.2%, buy-and-hold −6.9%.
+
+## Verdict
+
+The 1d weekday pattern is **statistically real** (p<0.0001) but the strategy
+built from it **fails out-of-sample**: Rule A loses money even before fees,
+because the spec trades the **same-day intraday** while the ag-05 finding
+measured the **next-day** return (empirically ret_next[w] ≈ intraday[w+1]).
+The pattern lives one weekday to the side of where the spec points. Fixing
+the rule post-hoc was deliberately avoided (data snooping). All deliverables
+exist: permutation_test.md, strategy_spec.md, backtest.csv, backtest_report.md,
+backtest_equity.png, beginners_guide.md, session-log.md.

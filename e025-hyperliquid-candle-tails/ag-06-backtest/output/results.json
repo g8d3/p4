@@ -1,0 +1,277 @@
+{
+  "perm": {
+    "n_perm": 10000,
+    "obs_meds": [
+      -0.424270423587747,
+      -0.08662234302301286,
+      -0.5971716946417571,
+      0.20000310492396256,
+      0.06760603489714967,
+      -0.20981956047025907,
+      0.2762284255747649
+    ],
+    "obs_tilt": 0.7488368243641158,
+    "obs_spread": 0.873400120216522,
+    "p_tilt": 0.0,
+    "p_spread": 0.0,
+    "per_coin": [
+      {
+        "coin": "AAVE",
+        "n": 1123,
+        "tilt_obs": 0.8226184933138536,
+        "p": 0.0094
+      },
+      {
+        "coin": "BTC",
+        "n": 1264,
+        "tilt_obs": 0.4068694753000368,
+        "p": 0.0009
+      },
+      {
+        "coin": "CRV",
+        "n": 1186,
+        "tilt_obs": 1.1345674306603215,
+        "p": 0.0006
+      },
+      {
+        "coin": "DOGE",
+        "n": 1228,
+        "tilt_obs": 0.9300916471190468,
+        "p": 0.0
+      },
+      {
+        "coin": "ETH",
+        "n": 1264,
+        "tilt_obs": 0.5260267299314225,
+        "p": 0.0007
+      },
+      {
+        "coin": "HYPE",
+        "n": 616,
+        "tilt_obs": 1.5637550310875825,
+        "p": 0.0132
+      },
+      {
+        "coin": "LIT",
+        "n": 234,
+        "tilt_obs": -1.20962990163479,
+        "p": 0.8338
+      },
+      {
+        "coin": "PUMP",
+        "n": 399,
+        "tilt_obs": 1.9341240439735896,
+        "p": 0.0246
+      },
+      {
+        "coin": "SOL",
+        "n": 1258,
+        "tilt_obs": 0.5962640171506939,
+        "p": 0.0225
+      },
+      {
+        "coin": "XMR",
+        "n": 210,
+        "tilt_obs": 0.11185133582548301,
+        "p": 0.4432
+      },
+      {
+        "coin": "XRP",
+        "n": 1153,
+        "tilt_obs": 0.9283478936814915,
+        "p": 0.0
+      },
+      {
+        "coin": "ZEC",
+        "n": 315,
+        "tilt_obs": 1.598185566356608,
+        "p": 0.0653
+      }
+    ],
+    "n_pass_005": 9,
+    "n_pass_001": 6
+  },
+  "metrics": {
+    "A": {
+      "rule": "A",
+      "n_trades": 2938,
+      "total_net_taker_pct": -85.4360315561368,
+      "expectancy_gross_pct": -0.34043110891763106,
+      "expectancy_net_taker_pct": -0.430431108917631,
+      "expectancy_net_maker_pct": -0.37643110891763104,
+      "winrate_gross": 0.4635806671204901,
+      "winrate_net_taker": 0.4503063308373043,
+      "winrate_net_maker": 0.45949625595643295,
+      "max_dd_net_taker_pct": -89.46509758505715,
+      "sharpe_daily": -1.7391890690588754
+    },
+    "B": {
+      "rule": "B",
+      "n_trades": 5127,
+      "total_net_taker_pct": -48.50283304333149,
+      "expectancy_gross_pct": 0.007148730056563276,
+      "expectancy_net_taker_pct": -0.08285126994343668,
+      "expectancy_net_maker_pct": -0.028851269943436727,
+      "winrate_gross": 0.5057538521552565,
+      "winrate_net_taker": 0.49190559781548665,
+      "winrate_net_maker": 0.5010727520967427,
+      "max_dd_net_taker_pct": -67.21185922905842,
+      "sharpe_daily": -0.20792307318746509
+    },
+    "C": {
+      "rule": "C",
+      "n_trades": 5127,
+      "total_net_taker_pct": -66.17265814787454,
+      "expectancy_gross_pct": -0.00438471952408815,
+      "expectancy_net_taker_pct": -0.09438471952408817,
+      "expectancy_net_maker_pct": -0.04038471952408817,
+      "winrate_gross": 0.47961771016188803,
+      "winrate_net_taker": 0.466159547493661,
+      "winrate_net_maker": 0.4753267017749171,
+      "max_dd_net_taker_pct": -74.7942100140357,
+      "sharpe_daily": -0.5588819928601088
+    }
+  },
+  "buy_and_hold": [
+    {
+      "coin": "AAVE",
+      "gross_pct": -69.60536266758336,
+      "net_taker_pct": -69.69536266758337,
+      "net_maker_pct": -69.64136266758337,
+      "first_date": "2025-01-29",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "BTC",
+      "gross_pct": -32.766588933644265,
+      "net_taker_pct": -32.85658893364427,
+      "net_maker_pct": -32.802588933644266,
+      "first_date": "2024-11-20",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "CRV",
+      "gross_pct": -73.20653319283457,
+      "net_taker_pct": -73.29653319283457,
+      "net_maker_pct": -73.24253319283457,
+      "first_date": "2024-12-29",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "DOGE",
+      "gross_pct": -84.97506047567059,
+      "net_taker_pct": -85.06506047567059,
+      "net_maker_pct": -85.01106047567059,
+      "first_date": "2024-12-08",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "ETH",
+      "gross_pct": -38.58249772105743,
+      "net_taker_pct": -38.67249772105743,
+      "net_maker_pct": -38.61849772105743,
+      "first_date": "2024-11-20",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "HYPE",
+      "gross_pct": 53.8163035915003,
+      "net_taker_pct": 53.7263035915003,
+      "net_maker_pct": 53.7803035915003,
+      "first_date": "2025-10-10",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "LIT",
+      "gross_pct": 159.52140208965287,
+      "net_taker_pct": 159.43140208965286,
+      "net_maker_pct": 159.48540208965287,
+      "first_date": "2026-04-19",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "PUMP",
+      "gross_pct": 4.758391737366294,
+      "net_taker_pct": 4.668391737366294,
+      "net_maker_pct": 4.722391737366294,
+      "first_date": "2026-01-26",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "SOL",
+      "gross_pct": -70.14303628811037,
+      "net_taker_pct": -70.23303628811037,
+      "net_maker_pct": -70.17903628811037,
+      "first_date": "2024-11-23",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "XMR",
+      "gross_pct": 4.547488091791882,
+      "net_taker_pct": 4.457488091791882,
+      "net_maker_pct": 4.5114880917918825,
+      "first_date": "2026-05-01",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "XRP",
+      "gross_pct": -62.23270793543797,
+      "net_taker_pct": -62.322707935437975,
+      "net_maker_pct": -62.26870793543797,
+      "first_date": "2025-01-14",
+      "last_date": "2026-08-13"
+    },
+    {
+      "coin": "ZEC",
+      "gross_pct": 126.76279807737178,
+      "net_taker_pct": 126.67279807737178,
+      "net_maker_pct": 126.72679807737178,
+      "first_date": "2026-03-09",
+      "last_date": "2026-08-13"
+    }
+  ],
+  "oos_weekday_diag": {
+    "0": {
+      "intraday_med": 0.2758,
+      "ret_next_med": -0.5501,
+      "n": 733,
+      "weekday": "Mon"
+    },
+    "1": {
+      "intraday_med": -0.5583,
+      "ret_next_med": -0.0863,
+      "n": 734,
+      "weekday": "Tue"
+    },
+    "2": {
+      "intraday_med": -0.0849,
+      "ret_next_med": -1.095,
+      "n": 737,
+      "weekday": "Wed"
+    },
+    "3": {
+      "intraday_med": -1.1003,
+      "ret_next_med": 0.0165,
+      "n": 737,
+      "weekday": "Thu"
+    },
+    "4": {
+      "intraday_med": 0.0323,
+      "ret_next_med": 0.0461,
+      "n": 727,
+      "weekday": "Fri"
+    },
+    "5": {
+      "intraday_med": 0.0409,
+      "ret_next_med": -0.2018,
+      "n": 728,
+      "weekday": "Sat"
+    },
+    "6": {
+      "intraday_med": -0.1634,
+      "ret_next_med": 0.2767,
+      "n": 731,
+      "weekday": "Sun"
+    }
+  }
+}

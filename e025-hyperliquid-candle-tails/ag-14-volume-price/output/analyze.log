@@ -1,0 +1,14 @@
+signals.csv rows: 923
+per-coin rows (n>=30): 707
+signal        tf
+move_vol      1d    126
+              1h    153
+obv           1d     52
+              1h     52
+ud_vol_ratio  1d     65
+              1h     65
+vol_adj_ret   1d    137
+              1h    143
+vwap_dist     1d     65
+              1h     65
+dtype: int64

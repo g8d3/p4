@@ -1,0 +1,171 @@
+{
+  "metrics": {
+    "A (crash, hold 5)::gross": {
+      "total_return": 3.907747376720927,
+      "expectancy": 1.32927202757113,
+      "win_rate": 71.42857142857143,
+      "max_drawdown": -8.989744617223582,
+      "sharpe": 0.23987847587562897,
+      "n_days": 633
+    },
+    "A (crash, hold 5)::taker": {
+      "total_return": 3.5763007581196993,
+      "expectancy": 1.2380962019239143,
+      "win_rate": 67.85714285714286,
+      "max_drawdown": -9.028278813196621,
+      "sharpe": 0.2249129733645595,
+      "n_days": 633
+    },
+    "A (crash, hold 5)::maker": {
+      "total_return": 3.77505342859219,
+      "expectancy": 1.2927967727096288,
+      "win_rate": 71.42857142857143,
+      "max_drawdown": -9.005158994675444,
+      "sharpe": 0.2338958097885793,
+      "n_days": 633
+    },
+    "B (rally, hold 5)::gross": {
+      "total_return": -18.005638455663085,
+      "expectancy": -4.725740691826054,
+      "win_rate": 17.647058823529413,
+      "max_drawdown": -18.487298650765428,
+      "sharpe": -0.7593070670417968,
+      "n_days": 633
+    },
+    "B (rally, hold 5)::taker": {
+      "total_return": -18.355775188947774,
+      "expectancy": -4.8114682321658915,
+      "win_rate": 17.647058823529413,
+      "max_drawdown": -18.82326700485897,
+      "sharpe": -0.7755941861878148,
+      "n_days": 633
+    },
+    "B (rally, hold 5)::maker": {
+      "total_return": -18.145866062832695,
+      "expectancy": -4.760036338290984,
+      "win_rate": 17.647058823529413,
+      "max_drawdown": -18.621845869696486,
+      "sharpe": -0.7658302893527325,
+      "n_days": 633
+    },
+    "C (always long)::gross": {
+      "total_return": -42.21905882119922,
+      "expectancy": -0.009745542965802389,
+      "win_rate": 47.80402108139762,
+      "max_drawdown": -61.929540522176595,
+      "sharpe": -0.11320551998278797,
+      "n_days": 633
+    },
+    "C (always long)::taker": {
+      "total_return": -67.24150587392167,
+      "expectancy": -0.09971652395059563,
+      "win_rate": 46.55475307437049,
+      "max_drawdown": -75.61703687262583,
+      "sharpe": -0.5883607005784272,
+      "n_days": 633
+    },
+    "C (always long)::maker": {
+      "total_return": -53.951700573077076,
+      "expectancy": -0.045738794886082,
+      "win_rate": 47.29650595354285,
+      "max_drawdown": -67.5335288613268,
+      "sharpe": -0.30319262086496496,
+      "n_days": 633
+    },
+    "A sens. hold 3::gross": {
+      "total_return": 27.020010903264758,
+      "expectancy": 6.825268807067545,
+      "win_rate": 83.33333333333334,
+      "max_drawdown": -3.79318496980785,
+      "sharpe": 1.231317202233177,
+      "n_days": 633
+    },
+    "A sens. hold 3::taker": {
+      "total_return": 26.58320122378093,
+      "expectancy": 6.729147697258125,
+      "win_rate": 83.33333333333334,
+      "max_drawdown": -3.81774743469363,
+      "sharpe": 1.2171955091031907,
+      "n_days": 633
+    },
+    "A sens. hold 3::maker": {
+      "total_return": 26.845122113853172,
+      "expectancy": 6.78681517143572,
+      "win_rate": 83.33333333333334,
+      "max_drawdown": -3.8030102358937445,
+      "sharpe": 1.2256826708831656,
+      "n_days": 633
+    },
+    "A sens. hold 10::gross": {
+      "total_return": 9.553395296040046,
+      "expectancy": 3.3296347152817485,
+      "win_rate": 68.0,
+      "max_drawdown": -13.32757211031711,
+      "sharpe": 0.38564731617071957,
+      "n_days": 633
+    },
+    "A sens. hold 10::taker": {
+      "total_return": 9.246445053839935,
+      "expectancy": 3.236658968289035,
+      "win_rate": 68.0,
+      "max_drawdown": -13.365916214735618,
+      "sharpe": 0.37655661739525,
+      "n_days": 633
+    },
+    "A sens. hold 10::maker": {
+      "total_return": 9.43052064330887,
+      "expectancy": 3.2924393946644175,
+      "win_rate": 68.0,
+      "max_drawdown": -13.34291074981161,
+      "sharpe": 0.3820127619927732,
+      "n_days": 633
+    }
+  },
+  "trade_metrics": {
+    "A (crash, hold 5)": {
+      "n": 28,
+      "gross_mean": 1.32927202757113,
+      "taker_mean": 1.2380962019239143,
+      "maker_mean": 1.2927967727096288,
+      "gross_win": 71.42857142857143,
+      "taker_win": 67.85714285714286,
+      "per_trade_sharpe_taker": 0.14877872630590516
+    },
+    "B (rally, hold 5)": {
+      "n": 34,
+      "gross_mean": -4.725740691826054,
+      "taker_mean": -4.8114682321658915,
+      "maker_mean": -4.760036338290984,
+      "gross_win": 17.647058823529413,
+      "taker_win": 17.647058823529413,
+      "per_trade_sharpe_taker": -0.4961130250598582
+    },
+    "C (always long)": {
+      "n": 5123,
+      "gross_mean": -0.009745542965802389,
+      "taker_mean": -0.09971652395059563,
+      "maker_mean": -0.045738794886082,
+      "gross_win": 47.80402108139762,
+      "taker_win": 46.55475307437049,
+      "per_trade_sharpe_taker": -0.02260912552225455
+    },
+    "A sens. hold 3": {
+      "n": 30,
+      "gross_mean": 6.825268807067545,
+      "taker_mean": 6.729147697258125,
+      "maker_mean": 6.78681517143572,
+      "gross_win": 83.33333333333334,
+      "taker_win": 83.33333333333334,
+      "per_trade_sharpe_taker": 0.8250741647614124
+    },
+    "A sens. hold 10": {
+      "n": 25,
+      "gross_mean": 3.3296347152817485,
+      "taker_mean": 3.236658968289035,
+      "maker_mean": 3.2924393946644175,
+      "gross_win": 68.0,
+      "taker_win": 68.0,
+      "per_trade_sharpe_taker": 0.3066551663014804
+    }
+  }
+}

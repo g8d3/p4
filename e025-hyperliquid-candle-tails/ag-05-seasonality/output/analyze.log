@@ -1,0 +1,18 @@
+/home/vuos/code/p4/e025-hyperliquid-candle-tails/ag-05-seasonality/bin/analyze.py:152: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_d, p_d = stats.spearmanr(d1, d2)
+/home/vuos/code/p4/e025-hyperliquid-candle-tails/ag-05-seasonality/bin/analyze.py:152: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_d, p_d = stats.spearmanr(d1, d2)
+=== STEP 1/6: load ===
+=== STEP 2/6: derived columns ===
+=== STEP 3/6: calendar + shape feature buckets ===
+=== STEP 4/6: next-period targets ===
+=== STEP 5/6: per-feature x tf aggregation + split halves ===
+patterns rows: 304
+metrics rows: 36
+=== STEP 6/7: per-coin patterns ===
+coin rows: 2742
+=== STEP 7/7: per-coin replication rates ===
+replication rows: 17
+=== STEP 8/8: hour_x_weekday heatmap data ===
+heat rows: 336
+=== DONE ===
