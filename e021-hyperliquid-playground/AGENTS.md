@@ -95,11 +95,14 @@ playground.
 **Funding/OI history collector (since 2026-08-14)**: the `markets` flow now runs
 **hourly** (`interval_sec=3600`, `keep_last=0` = unlimited) instead of daily. Its
 `metaAndAssetCtxs` snapshot captures `funding`, `openInterest`, `markpx` for the
-full universe (~232 coins) once per hour, accumulating the funding-rate and OI
-history that Hyperliquid only retains for days. This feed powers
-[e025-hyperliquid-candle-tails](../e025-hyperliquid-candle-tails/AGENTS.md)
-(funding/OI as strategy features). Note: `openInterest` is in coin units —
-multiply by `markpx` for notional.
+full universe (~232 coins) once per hour. **Why hourly is still needed despite
+`fundingHistory`**: the `fundingHistory` info endpoint DOES return full funding
+history (paginated, ~500 entries/request, back to exchange launch May 2023), so
+funding can be backfilled directly. **But open-interest history has no
+endpoint** — OI exists only as a point-in-time snapshot, so the only way to
+build an OI time series is to sample it now and let it accumulate. This feed
+powers [e025-hyperliquid-candle-tails](../e025-hyperliquid-candle-tails/AGENTS.md).
+Note: `openInterest` is in coin units — multiply by `markpx` for notional.
 
 Verified on real data: 29-coin watchlist, 1h candles — backfill = 4901 rows
 (~169 candles/coin, 14s), subsequent runs add 0 rows (all deduped), and
