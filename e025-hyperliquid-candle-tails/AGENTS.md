@@ -108,3 +108,8 @@ in `comparison.md` from the logs + `diff` of the outputs.
 - Every command timed out; blocking commands backgrounded + self-wake.
 - Results are descriptive first, inferential second. The experiment measures —
   it does not assume edges exist.
+- **Notifications**: when an agent completes it writes `done.txt` AND runs
+  `notify.sh done "<agent>: <headline>"` (from
+  `e000-fundamentals/bin/notify.sh`) — see the Notifications section in
+  [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md).
+  Errors: `notify.sh error "<cause>"` before giving up.

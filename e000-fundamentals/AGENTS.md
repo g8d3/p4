@@ -63,6 +63,36 @@ Abstraction levels are infinite. An experiment may contain sub-experiments, and 
 | `XIAOMI_BASE_URL` | Base URL for Xiaomi Token Plan |
 | `KIE_API_KEY` | API key for KIE (Seedream, GPT-Image, etc.) |
 | `KIE_API_BASE_URL` | Base URL for KIE API (default: `https://api.kie.ai`) |
+| `NTFY_TOPIC` | ntfy push topic for phone notifications (see Notifications) |
+| `NTFY_SERVER` | ntfy server, default `https://ntfy.sh` |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Telegram alternative channel for notifications |
+
+### Notifications
+
+Every agent MUST notify when it finishes or fails, so nobody polls. The
+one-liner is `e000-fundamentals/bin/notify.sh`:
+
+```bash
+notify.sh done  "ag-15 finished: 312 OOS trades, +0.55%/trade net"
+notify.sh error "ag-11 GARCH fit crashed: missing arch package"
+notify.sh info  "OI collector: r_2 now has N snapshots"
+```
+
+Three best-effort channels, each independent (a failure never blocks the
+agent):
+
+1. **Log** — always appends to `~/.opencode/notifications.log` (the
+   orchestrator's source of truth for what finished and when).
+2. **tmux status line** — visible when attached to the session.
+3. **Phone push** — ntfy (`NTFY_TOPIC`) or Telegram
+   (`TELEGRAM_BOT_TOKEN`+`TELEGRAM_CHAT_ID`). No secrets in the repo; env vars
+   only.
+
+**Contract for agents**: when writing `done.txt`, ALSO run
+`notify.sh done "<agent> finished: <headline numbers>"`. On an unrecoverable
+failure, run `notify.sh error "<agent> failed: <cause>"` before giving up.
+`done.txt` is the machine-readable signal; `notify.sh` is the human signal —
+both, always.
 
 ## AgentFS: the filesystem is the orchestrator
 
