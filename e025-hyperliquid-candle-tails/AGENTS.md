@@ -28,6 +28,7 @@ ag-01-data (once) ──┤
 | **ag-04-monolith** (Path B) | `../ag-01-data/output/candles_raw.csv` | ag-02 + ag-03 deliverables combined into ONE `output/`, plus `output/session-log.md` |
 | **ag-05-seasonality** (phase 2, single agent) | `../ag-01-data/output/candles_raw.csv` | `output/patterns.csv`, `output/charts/*.png`, `output/report.md`, `output/session-log.md` |
 | **ag-06-backtest** (phase 3, single agent) | `../ag-01-data/output/candles_raw.csv` | permutation test + strategy spec + out-of-sample backtest, all explained for beginners |
+| **ag-07-event-study** (phase 4, single agent) | `../ag-01-data/output/candles_raw.csv` | 3σ event study: windows, swing-distance feature (confirmed pivots), momentum/reversion paths, MAE/MFE |
 
 **Rules for the A/B test:**
 - ag-01 runs once. Path B must NOT download — it reads the shared CSV.
