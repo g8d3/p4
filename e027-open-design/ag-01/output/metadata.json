@@ -1,0 +1,71 @@
+{
+  "experiment": "e027-open-design",
+  "agent": "ag-01",
+  "model": "opencode-go/deepseek-v4-flash",
+  "date": "2026-08-15",
+  "upstream_commit": "30fc648",
+  "upstream_version": "0.19.2",
+  "hardware": {
+    "cpu": "unknown (mild load during runs: ~1.5 load avg on a 15GB box)",
+    "gpu": "none used (headless Chrome CPU rendering for HTML screenshots + HyperFrames mp4)",
+    "ram": "15 GiB total"
+  },
+  "software": {
+    "os": "Ubuntu 24.04.4 LTS (x86_64)",
+    "node": "24.16.0",
+    "pnpm": "10.33.2 (corepack-pinned)",
+    "chrome": "google-chrome headless for screenshots",
+    "daemon_port": 7457,
+    "web_port": 5173
+  },
+  "setup": {
+    "git_clone_depth": 1,
+    "pnpm_install_sec": 92,
+    "daemon_build": "pnpm --filter @open-design/daemon build",
+    "runtimes_detected": ["opencode", "claude", "hermes", "grok-build", "antigravity", "reasonix", "mimo"]
+  },
+  "artifacts": [
+    {
+      "file": "output/landing.html",
+      "skill": "open-design-landing",
+      "design_system": "default",
+      "size_bytes": 98950,
+      "verification": "headless Chrome screenshot 1440x900: 42% non-white, 242 gray levels"
+    },
+    {
+      "file": "output/open-design-intro.mp4",
+      "skill": "hyperframes",
+      "design_system": "default",
+      "size_bytes": 1294476,
+      "duration_sec": 16.0,
+      "resolution": "1920x1080",
+      "codec": "h264 (libx264)",
+      "fps": 30,
+      "render_elapsed_sec": 21.5,
+      "run_wall_min": 13.5,
+      "verification": "ffprobe + OCR of 4 extracted frames (real text content)"
+    },
+    {
+      "file": "output/landing-brutal.html",
+      "skill": "open-design-landing",
+      "design_system": "user:ag01-brutal (custom)",
+      "size_bytes": 95164,
+      "verification": "tokens present (#000/#00FF00/Courier) + screenshot 96% non-white + OCR readable; DESIGN.md propagation confirmed"
+    }
+  ],
+  "integration": {
+    "mcp": "od mcp install opencode -> ~/.config/opencode/opencode.json mcp.open-design (type local, node + cli.js mcp, OD_DATA_DIR + OD_SIDECAR_IPC_PATH env). Verified: initialize + tools/list (21 tools) + tools/call list_projects over stdio.",
+    "skills_count": 162,
+    "plugins_count": 460,
+    "design_systems_count": "~100 bundled + user"
+  },
+  "cloud": {
+    "cost": "$0 model cost for HTML/video/HyperFrames path (only local opencode-go agent tokens; video run ~81k input + 16k output tokens)"
+  },
+  "key_findings": [
+    "od skill run does NOT exist in v0.19.2; headless runs go through POST /api/runs (daemon spawns local agent CLI).",
+    "HyperFrames html-html mode renders HTML composition to mp4 via Chrome with NO generative model.",
+    "DESIGN.md tokens propagate into artifacts; user design systems need metadata.json status=published.",
+    "od renderer emits libx264, not h264_vaapi -> re-encode final p4 videos with encode_vaapi.sh."
+  ]
+}

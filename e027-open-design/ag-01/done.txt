@@ -1,0 +1,19 @@
+e027 ag-01 DONE
+
+Setup + exploration + skill runs + OpenCode MCP integration + benchmark complete.
+
+Deliverables (output/):
+- exploration.md — how to start, agent-critical commands, headless vs web-UI, open-design.json spec, pitfalls
+- benchmark.md — verdict: ADOPT as HTML-capture/design front-end, keep p4 VAAPI for final encodes
+- metadata.json — resources + measurements
+- landing.html (98KB) — open-design-landing skill, default DS, screenshot-verified
+- open-design-intro.mp4 (16s 1920x1080 h264) — hyperframes HTML->mp4, ffprobe+OCR-verified
+- landing-brutal.html (95KB) — same skill + custom user:ag01-brutal DS, tokens propagated (confirmed)
+
+Success criteria met:
+- od CLI responds, daemon+web UI verified by ports/health (not just exit codes)
+- 2 real artifacts verified by screenshot/ffprobe/OCR (landing + video)
+- exploration.md answers how-to-start, agent-critical commands, headless vs web-UI, open-design.json spec
+- benchmark.md states ADOPT/ADAPT/IGNORE verdict with evidence
+
+Note: the live CLI lacks `od skill run` (docs delta). Headless runs use POST /api/runs.

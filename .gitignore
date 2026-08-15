@@ -18,6 +18,11 @@ certs/
 !e025-hyperliquid-candle-tails/**/output/
 !e025-hyperliquid-candle-tails/**/output/**
 
+# e027 exception: notes + deliverables are committed so the experiment is
+# auditable (upstream/ clone stays ignored)
+!e027-open-design/**/output/
+!e027-open-design/**/output/**
+
 # Python cache
 __pycache__/
 
