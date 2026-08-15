@@ -31,6 +31,9 @@ e011-gh-repo-analysis/ag-*/
 # Experiment 24 - cloned upstream repo
 e024-diffusion-studio/upstream/
 
+# Experiment 27 - cloned upstream repo
+e027-open-design/upstream/
+
 # Tool configuration
 .commandcode/
 
