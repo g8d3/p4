@@ -41,6 +41,10 @@ e027-open-design/upstream/
 
 # Tool configuration
 .commandcode/
+.claude/
+
+# Runtime logs
+**/*.log
 
 # Node.js
 node_modules/
