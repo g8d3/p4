@@ -148,6 +148,38 @@ ssh -L 3080:127.0.0.1:3080 <user>@192.168.0.93
 # then open http://127.0.0.1:3080 — everything works
 ```
 
+## Setting provider keys without the web UI
+
+The web Models page is loopback-only (trap 5), but it is not the only way to
+set keys — and on this machine it is not even the primary one. Verified
+2026-08-15:
+
+- `deepseek-official` (default provider) resolves its key from
+  `~/.dsh/.credentials.yaml` via the credentials service, falling back to the
+  `DEEPSEEK_API_KEY` env var (dsh-llm-deepseek `resolveApiKey`). The credentials
+  file is a strict `CredentialRef: string` YAML map, owner-only (0600):
+
+  ```yaml
+  DEEPSEEK_API_KEY: sk-xxxx
+  ```
+
+  This file is exactly what the web Models page writes; both layers hot-publish
+  without a restart (file writes re-load under a lock; env requires relaunching
+  dsh).
+- On this machine the key already comes from the environment — verify headlessly
+  (loopback origin needed for the fence):
+
+  ```sh
+  curl -s -H "Origin: http://127.0.0.1:3080" -H "Content-Type: application/json" \
+    -X POST http://127.0.0.1:3080/api/credentials.describe \
+    -d '{"type":"client-request","rpcId":"r","method":"credentials.describe","payload":{"refs":["DEEPSEEK_API_KEY"]}}'
+  # → "configured": true, "source": "env"
+  ```
+
+  So the provider directory failing to load over LAN is cosmetic: the provider
+  itself is already configured and usable headlessly. Only the settings/Models
+  web page needs a loopback origin (SSH tunnel).
+
 ## Working topology
 
 ```
