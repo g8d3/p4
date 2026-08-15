@@ -634,4 +634,63 @@ out-of-sample validation is mandatory. Documented in the experiment AGENTS.md
 with a redesign list (cut churn, trend protection, realistic fees, liquidation
 model).
 
+---
+
+## 2026-08-15 — e028 DeepSeek Harness (dsh web): five traps to LAN access
+
+User asked to run `npx @deepseek-ai/dsh web` (DeepSeek Harness browser UI).
+Documented the full journey as a new experiment `e028-dsh-harness/`.
+
+### Trap 1 — npm 12 blocks install scripts → no pty.node
+
+`npx @deepseek-ai/dsh web` crashes: `Failed to load native module: pty.node`.
+node-pty ships prebuilds only for darwin/win32; linux must compile at install.
+npm 12's `allowScripts` security feature blocked node-pty's `install` script by
+default. The npx cache can't be repaired per-package → install into a real
+project and approve scripts:
+
+```bash
+npm install @deepseek-ai/dsh
+npm install-scripts approve node-pty koffi @deepseek-ai/dsh-subprocess-local
+npm rebuild node-pty
+```
+
+### Trap 2 — dsh refuses LAN binds
+
+`--host 0.0.0.0` → hard error ("expose remote code execution to the network");
+any other IP → config validation (only `127.0.0.1`/`0.0.0.0` allowed). LAN
+requires a reverse proxy. Bonus surprise: socat cannot bind `0.0.0.0:3080`
+while dsh owns `127.0.0.1:3080` (EADDRINUSE, empirically reproducible, not
+normal socket semantics) → proxy must use a different port (8080).
+
+### Trap 3 — crypto.randomUUID dies over plain HTTP on LAN
+
+Browser client calls `crypto.randomUUID()`; it only exists in secure contexts
+(HTTPS or localhost). LAN HTTP origin is insecure → UI breaks. Fix: socat TLS
+proxy (8443) with a self-signed cert.
+
+### Trap 4 — /api 403: the browser-trust fence
+
+dsh validates every `/api` request (Host must be loopback or trusted; Origin
+must match). Fix: `dsh web --trusted-host 192.168.0.93:8443` — value must equal
+the browser origin exactly (host:port).
+
+### Trap 5 — privileged methods are loopback-only by design
+
+`settings.*`, `credentials.*`, `agentPreset.*`, `host.pickDirectory`,
+`host.openPath`, `llm.discoverModels` (dsh-client-connection
+`PRIVILEGED_METHODS`) stay 403 on LAN **even with --trusted-host** — the source
+is explicit that `trustedHosts` is a DNS-rebinding fence, not authentication.
+Not configurable. Only fix: SSH tunnel so the browser origin is loopback.
+
+### Decisions
+
+- **Experiment e028** as a self-contained, reproducible runbook: `bin/install.sh`
+  (npm 12 fix), `bin/start.sh`/`bin/stop.sh` (dsh + HTTP/TLS proxies), cert
+  generation, verification curls. The working install lives in gitignored `app/`.
+- **Working topology**: HTTP 8080 and HTTPS 8443 proxies → `127.0.0.1:3080` for
+  non-privileged LAN browsing; SSH tunnel for full functionality from the phone.
+- **Security posture documented**: proxies bypass dsh's loopback-only bind, so
+  LAN exposure is only for trusted networks; self-signed TLS still MITM-able.
+
 
