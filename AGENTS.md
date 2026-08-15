@@ -30,7 +30,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e023-build-in-public/](e023-build-in-public/) — YouTube channel: build-in-public AI episodes from p4 experiments
 - [e024-diffusion-studio/](e024-diffusion-studio/) — Diffusion Studio editor: video editor for coding agents (dapi CLI, TSX compositions)
 - [e025-hyperliquid-candle-tails/](e025-hyperliquid-candle-tails/) — candle tail analysis: distributions of % moves and predictability of extremes on Hyperliquid
-- [e026-composio-playground/](e026-composio-playground/) — Composio Platform SDK: connect apps and run real tool calls (Deepgram transcription)
+- [e026-composio-playground/](e026-composio-playground/) — audio transcription playground: Deepgram direct REST (no middleware)
 
 ## Language
 
