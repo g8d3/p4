@@ -39,6 +39,16 @@ All long running work (capture, encode, TTS, transcribe, seedream) in
 background with self-wake context; always `Enter`:
 `tmux send-keys -t 30-3 "Self-wake: <pid> <step> <what to check> <next>" Enter`
 
+## Window discipline (no cross-talk)
+- Your window is **30-3** and it is the ONLY tmux window you may operate on.
+- NEVER run `tmux send-keys`, `tmux kill-window`, `tmux rename-window`, or
+  `tmux new-window` targeting any other window or session. Other agents live in
+  `a0`, `a1`, `30-1` — never touch them.
+- NEVER pkill anything. Kill only your own PIDs. Never kill/restart another
+  agent's node/chrome (avatar server is a shared resource — you may poll it).
+- When you need something from another agent, use `notify.sh ... --ask` (goes
+  to the orchestrator inbox). Never message agents directly.
+
 ## Model
 `zai-coding-plan/glm-4.7`. If the provider is out of credits, request
 direction via `notify.sh … --ask` — do not silently downgrade.

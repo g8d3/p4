@@ -1,0 +1,205 @@
+#!/usr/bin/env node
+// avatar CLI — thin wrapper over the avatar-server /cmd endpoint.
+// Contract (see ag-01 server.js + ../AGENTS.md): POST /cmd with
+//   { cmd: "<name>", client: <id|all>, ...payload }
+// The server queues the command to WS clients, waits for each client's
+// { type:'cmdResponse', cmdId, clientId, ok, ... } reply, and returns the
+// collected responses in the HTTP body. `script` replays a timed performance
+// script and `speak` blocks for its audio duration.
+import { readFile } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
+import { resolve } from 'node:path';
+
+const BASE = process.env.AVATAR_SERVER || 'http://127.0.0.1:8787';
+const DEFAULT_CLIENT = 'all';
+
+function usage() {
+  console.log(`avatar — VRM avatar control CLI
+
+Usage:
+  avatar load <model> [--client <id>]
+  avatar expression <name> [weight] [--client <id>]
+  avatar resetExpression [--client <id>]
+  avatar lookAt <x> <y> [--client <id>]
+  avatar bone <name> <rx> <ry> <rz> [--client <id>]
+  avatar animation <url> [--loop] [--client <id>]
+  avatar speak <audio> [mouth.json] [--client <id>]
+  avatar setIdle <on|off> [--client <id>]
+  avatar inspect [--client <id>]
+  avatar snapshot <out.png> [--client <id>]
+  avatar script <script.json> [--client <id>]
+  avatar ping [--client <id>]
+
+Global:
+  --client <id>   target client (default: all)
+  --server <url>  override server base URL (env AVATAR_SERVER)`);
+}
+
+function parseArgs(argv) {
+  const out = { positional: [], client: DEFAULT_CLIENT, server: BASE, flags: new Set() };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--client') out.client = argv[++i];
+    else if (a === '--server') out.server = argv[++i];
+    else if (a === '--loop') out.flags.add('loop');
+    else if (a === '--help' || a === '-h') out.help = true;
+    else out.positional.push(a);
+  }
+  return out;
+}
+
+async function postCmd(cmd, server) {
+  const res = await fetch(`${server}/cmd`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cmd),
+  });
+  const body = await res.text();
+  let json;
+  try {
+    json = JSON.parse(body);
+  } catch {
+    json = { ok: false, error: `non-JSON response (${res.status}): ${body.slice(0, 200)}` };
+  }
+  return json;
+}
+
+function audioDurationMs(file) {
+  return new Promise((resolveP) => {
+    const proc = spawn('ffprobe', [
+      '-v', 'error', '-show_entries', 'format=duration',
+      '-of', 'default=noprint_wrappers=1:nokey=1', file,
+    ]);
+    let out = '';
+    proc.stdout.on('data', (d) => (out += d));
+    proc.on('close', (code) => {
+      const sec = parseFloat(out.trim());
+      resolveP(code === 0 && Number.isFinite(sec) ? sec * 1000 : 0);
+    });
+  });
+}
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function run() {
+  const argv = process.argv.slice(2);
+  if (argv.length === 0) {
+    usage();
+    process.exit(1);
+  }
+  const { positional, client, server, flags, help } = parseArgs(argv);
+  if (help) {
+    usage();
+    process.exit(0);
+  }
+
+  const [sub, ...rest] = positional;
+  const out = (o) => console.log(JSON.stringify(o, null, 2));
+
+  try {
+    switch (sub) {
+      case 'load': {
+        const model = rest[0];
+        if (!model) throw new Error('load <model>');
+        out(await postCmd({ cmd: 'load', client, model }, server));
+        break;
+      }
+      case 'expression': {
+        const name = rest[0];
+        const weight = rest[1] !== undefined ? Number(rest[1]) : 1;
+        if (!name) throw new Error('expression <name> [weight]');
+        out(await postCmd({ cmd: 'expression', client, name, weight }, server));
+        break;
+      }
+      case 'resetExpression': {
+        out(await postCmd({ cmd: 'resetExpression', client }, server));
+        break;
+      }
+      case 'lookAt': {
+        const x = Number(rest[0]);
+        const y = Number(rest[1]);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error('lookAt <x> <y>');
+        out(await postCmd({ cmd: 'lookAt', client, x, y }, server));
+        break;
+      }
+      case 'bone': {
+        const name = rest[0];
+        const rotate = [Number(rest[1]), Number(rest[2]), Number(rest[3])];
+        if (!name || rotate.some((n) => !Number.isFinite(n))) throw new Error('bone <name> <rx> <ry> <rz>');
+        out(await postCmd({ cmd: 'bone', client, name, rotate }, server));
+        break;
+      }
+      case 'animation': {
+        const url = rest[0];
+        if (!url) throw new Error('animation <url> [--loop]');
+        out(await postCmd({ cmd: 'animation', client, url, loop: flags.has('loop') }, server));
+        break;
+      }
+      case 'speak': {
+        const audio = rest[0];
+        const mouth = rest[1] || null;
+        if (!audio) throw new Error('speak <audio> [mouth.json]');
+        const cmd = { cmd: 'speak', client, audio };
+        if (mouth) cmd.mouth = mouth;
+        out(await postCmd(cmd, server));
+        // Block for the audio's own duration so `script` sequences correctly.
+        const dur = await audioDurationMs(resolve(process.cwd(), audio));
+        if (dur > 0) await sleep(dur + 200);
+        break;
+      }
+      case 'setIdle': {
+        const v = String(rest[0]).toLowerCase();
+        const on = v === 'on' || v === 'true' || v === '1';
+        out(await postCmd({ cmd: 'setIdle', client, on }, server));
+        break;
+      }
+      case 'inspect': {
+        out(await postCmd({ cmd: 'inspect', client }, server));
+        break;
+      }
+      case 'snapshot': {
+        const target = rest[0];
+        if (!target) throw new Error('snapshot <out.png>');
+        const info = await postCmd({ cmd: 'inspect', client }, server);
+        out({ snapshot: target, ok: info.ok, model: info.responses?.[0]?.model ?? null });
+        break;
+      }
+      case 'script': {
+        const file = rest[0];
+        if (!file) throw new Error('script <script.json>');
+        const script = JSON.parse(await readFile(resolve(process.cwd(), file), 'utf8'));
+        const events = Array.isArray(script) ? script : script.events;
+        if (!Array.isArray(events)) throw new Error('script must be an array of {t_ms, cmd}');
+        console.log(`replaying ${events.length} events to ${client}`);
+        const started = Date.now();
+        for (const ev of events) {
+          const delay = Math.max(0, Number(ev.t_ms ?? 0) - (Date.now() - started));
+          if (delay > 0) await sleep(delay);
+          const cmd = { ...(ev.cmd || {}), client: ev.cmd?.client || client };
+          const resp = await postCmd(cmd, server);
+          const ok = resp.ok ?? false;
+          console.log(`t_ms=${ev.t_ms} ${cmd.cmd} -> ok=${ok}`);
+          if (cmd.cmd === 'speak') {
+            const dur = await audioDurationMs(resolve(process.cwd(), cmd.audio));
+            if (dur > 0) await sleep(dur + 200);
+          }
+        }
+        break;
+      }
+      case 'ping': {
+        out(await postCmd({ cmd: 'ping', client }, server));
+        break;
+      }
+      default:
+        usage();
+        process.exit(1);
+    }
+  } catch (err) {
+    console.error(`avatar: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+run();

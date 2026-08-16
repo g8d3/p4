@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>client-A · avatar viewer</title>
+<script type="importmap">
+{
+  "imports": {
+    "three": "/vendor/three/build/three.module.js",
+    "three/addons/": "/vendor/three/examples/jsm/",
+    "three/examples/jsm/": "/vendor/three/examples/jsm/",
+    "@pixiv/three-vrm": "/vendor/@pixiv/three-vrm/lib/three-vrm.module.js",
+    "@pixiv/three-vrm-animation": "/vendor/@pixiv/three-vrm-animation/lib/three-vrm-animation.module.js"
+  }
+}
+</script>
+<style>
+  html, body { margin: 0; padding: 0; background: #111; overflow: hidden; height: 100%; }
+  #stage {
+    width: 608px; height: 1080px;
+    margin: 0 auto;
+    position: relative;
+  }
+  canvas { display: block; width: 608px; height: 1080px; }
+  #status {
+    position: absolute; left: 8px; top: 8px; z-index: 5;
+    font: 12px/1.4 monospace; color: #8be9fd; background: rgba(0,0,0,.55);
+    padding: 6px 8px; border-radius: 6px; white-space: pre-wrap;
+    max-width: 580px; max-height: 300px; overflow: auto;
+  }
+  #badge {
+    position: absolute; right: 8px; bottom: 8px; z-index: 5;
+    font: 11px monospace; color: #888; background: rgba(0,0,0,.5);
+    padding: 3px 7px; border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="gl"></canvas>
+  <div id="status">client-A initializing…</div>
+  <div id="badge">client-A · avatar-server 1.0</div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
+import { VRMAnimationLoaderPlugin } from '@pixiv/three-vrm-animation';
+
+const CLIENT_ID = 'clientA';
+const WS_URL = `ws://${location.host}/`;
+const MODEL_URL = 'models/model-a.vrm';
+const VIEW = { w: 608, h: 1080 };
+
+const statusEl = document.getElementById('status');
+function log(msg) {
+  statusEl.textContent = msg;
+  console.log('[client-A]', msg);
+}
+
+const HUMAN_BONE_NAMES = [
+  'hips', 'spine', 'chest', 'upperChest', 'neck', 'head',
+  'leftShoulder', 'leftUpperArm', 'leftLowerArm', 'leftHand',
+  'rightShoulder', 'rightUpperArm', 'rightLowerArm', 'rightHand',
+  'leftUpperLeg', 'leftLowerLeg', 'leftFoot', 'leftToes',
+  'rightUpperLeg', 'rightLowerLeg', 'rightFoot', 'rightToes',
+];
+
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(VIEW.w, VIEW.h, false);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(42, VIEW.w / VIEW.h, 0.1, 100);
+const camTarget = new THREE.Vector3(0, 1.25, 0);
+cam.position.set(0, 1.35, 1.85);
+cam.lookAt(camTarget);
+scene.add(cam);
+
+function makeGradientBg() {
+  const c = document.createElement('canvas');
+  c.width = 2; c.height = 256;
+  const g = c.getContext('2d');
+  const grad = g.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, '#3a3f5c');
+  grad.addColorStop(0.55, '#23263a');
+  grad.addColorStop(1, '#14161f');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 2, 256);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  scene.background = tex;
+}
+makeGradientBg();
+
+scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x20242e, 0.85));
+const key = new THREE.DirectionalLight(0xfff2d8, 1.7);
+key.position.set(0.9, 2.0, 1.6);
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x88aaff, 0.7);
+rim.position.set(-1.4, 1.2, -1.2);
+scene.add(rim);
+const fill = new THREE.DirectionalLight(0xffe0c0, 0.45);
+fill.position.set(-0.5, 0.4, 1.8);
+scene.add(fill);
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(6, 6),
+  new THREE.MeshStandardMaterial({ color: 0x15181f, roughness: 0.95, metalness: 0 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.001;
+floor.receiveShadow = true;
+scene.add(floor);
+
+let vrm = null;
+let mixer = null;
+let activeAction = null;
+let currentAnimationUrl = null;
+
+const loader = new GLTFLoader();
+loader.register((parser) => new VRMLoaderPlugin(parser));
+
+let idleEnabled = true;
+const idle = {
+  blinkState: 'open', blinkTimer: 2.5, blinkDuration: 0.16, blinkT: 0, blinkWeight: 0,
+  breathPhase: 0,
+  wanderTarget: new THREE.Vector2(0.1, 0.02), wanderTimer: 2,
+};
+const commandedLookAt = new THREE.Vector2(0, 0);
+let commandedLookAtActive = false;
+const lookTargetObj = new THREE.Object3D();
+scene.add(lookTargetObj);
+
+let mouthExpressionName = null;
+let mouthTimeline = null;
+let currentAudio = null;
+
+const userRotations = new Map();
+
+function getMouthExpressionName() {
+  if (!vrm?.expressionManager) return null;
+  const exps = vrm.expressionManager.expressions.map((e) => e.expressionName);
+  if (exps.includes('mouth')) return 'mouth';
+  if (exps.includes('aa')) return 'aa';
+  return null;
+}
+
+function applyMouthWeight(w) {
+  if (!vrm?.expressionManager) return;
+  if (!mouthExpressionName) mouthExpressionName = getMouthExpressionName();
+  if (!mouthExpressionName) return;
+  vrm.expressionManager.setValue(mouthExpressionName, w);
+}
+
+function loadModel(url) {
+  log(`loading ${url}…`);
+  return new Promise((resolve, reject) => {
+    loader.load(url, (gltf) => {
+      const loaded = gltf.userData.vrm;
+      if (!loaded) { reject(new Error('no VRM in file')); return; }
+      if (vrm) { scene.remove(vrm.scene); vrm = null; }
+      vrm = loaded;
+      scene.add(vrm.scene);
+      VRMUtils.removeUnnecessaryVertices(vrm.scene);
+      if (vrm.meta && vrm.meta.metaVersion === 0) VRMUtils.rotateVRM0(vrm);
+      vrm.scene.updateMatrixWorld(true);
+      vrm.humanoid.updateNormalizedBonesMatrices();
+      mouthExpressionName = getMouthExpressionName();
+      log(`loaded ${url}: ${vrm.meta?.name || '?'} v${vrm.meta?.version || '?'}`);
+      resolve(vrm);
+    }, undefined, reject);
+  });
+}
+
+function setExpression(name, weight) {
+  if (!vrm?.expressionManager) return { ok: false, error: 'no model' };
+  const names = vrm.expressionManager.expressions.map((e) => e.expressionName);
+  if (!names.includes(name)) return { ok: false, error: `expression "${name}" not found`, available: names };
+  vrm.expressionManager.setValue(name, weight);
+  return { ok: true, name, weight };
+}
+
+function resetExpression() {
+  if (!vrm?.expressionManager) return { ok: false, error: 'no model' };
+  vrm.expressionManager.reset();
+  return { ok: true };
+}
+
+function setLookAt(nx, ny) {
+  commandedLookAt.set(nx, ny);
+  commandedLookAtActive = true;
+  return { ok: true, x: nx, y: ny };
+}
+
+function setBone(name, rot) {
+  if (!vrm?.humanoid) return { ok: false, error: 'no model' };
+  const node = vrm.humanoid.getRawBoneNode(name);
+  if (!node) return { ok: false, error: `bone "${name}" not found` };
+  node.rotation.set(rot[0] || 0, rot[1] || 0, rot[2] || 0);
+  userRotations.set(name, [rot[0] || 0, rot[1] || 0, rot[2] || 0]);
+  return { ok: true, name, rotate: [node.rotation.x, node.rotation.y, node.rotation.z] };
+}
+
+function playAnimation(url, loop) {
+  if (!vrm) return { ok: false, error: 'no model' };
+  return new Promise((resolve) => {
+    const animLoader = new GLTFLoader();
+    animLoader.register((parser) => new VRMAnimationLoaderPlugin(parser, vrm));
+    animLoader.load(
+      url,
+      (gltf) => {
+        const vrmAnim = gltf.userData?.vrmAnimations?.[0];
+        if (!vrmAnim) throw new Error('no VRMA animation');
+        mixer = new THREE.AnimationMixer(vrm);
+        activeAction = mixer.clipAction(vrmAnim);
+        activeAction.loop = loop ? THREE.LoopRepeat : THREE.LoopOnce;
+        if (!loop) activeAction.clampWhenFinished = true;
+        activeAction.reset().play();
+        currentAnimationUrl = url;
+        resolve({ ok: true, url, loop, format: 'vrm-animation' });
+      },
+      undefined,
+      () => {
+        const plain = new GLTFLoader();
+        plain.load(url, (gltf) => {
+          if (!gltf.animations || gltf.animations.length === 0) {
+            resolve({ ok: false, error: 'no animation in file' });
+            return;
+          }
+          mixer = new THREE.AnimationMixer(vrm.scene);
+          activeAction = mixer.clipAction(gltf.animations[0]);
+          activeAction.loop = loop ? THREE.LoopRepeat : THREE.LoopOnce;
+          if (!loop) activeAction.clampWhenFinished = true;
+          activeAction.reset().play();
+          currentAnimationUrl = url;
+          resolve({ ok: true, url, loop, format: 'glb-clip' });
+        }, undefined, () => {
+          resolve({ ok: false, error: 'animation load failed' });
+        });
+      }
+    );
+  });
+}
+
+async function speak(audioUrl, mouthUrl) {
+  if (!vrm) return { ok: false, error: 'no model' };
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  let timeline = null;
+  if (mouthUrl) {
+    try {
+      const r = await fetch(mouthUrl);
+      timeline = await r.json();
+      if (!Array.isArray(timeline)) timeline = null;
+    } catch { timeline = null; }
+  }
+  mouthTimeline = timeline;
+  const audio = new Audio(audioUrl);
+  currentAudio = audio;
+  audio.onended = () => { currentAudio = null; mouthTimeline = null; applyMouthWeight(0); };
+  audio.play().catch(() => log('audio play failed'));
+  return { ok: true, audio: audioUrl, mouth: mouthUrl, points: timeline ? timeline.length : 0 };
+}
+
+function interpolateTimeline(timeline, tMs) {
+  if (!timeline || timeline.length === 0) return 0;
+  if (tMs <= timeline[0][0]) return timeline[0][1];
+  const last = timeline[timeline.length - 1];
+  if (tMs >= last[0]) return last[1];
+  for (let i = 0; i < timeline.length - 1; i++) {
+    const [t0, w0] = timeline[i];
+    const [t1, w1] = timeline[i + 1];
+    if (tMs >= t0 && tMs <= t1) {
+      const f = (tMs - t0) / (t1 - t0 || 1);
+      return w0 + (w1 - w0) * f;
+    }
+  }
+  return 0;
+}
+
+async function fetchVrmVersion() {
+  try {
+    const r = await fetch('/vendor/@pixiv/three-vrm/package.json');
+    const j = await r.json();
+    return j.version;
+  } catch { return 'unknown'; }
+}
+
+async function inspect() {
+  const info = {
+    client: { id: CLIENT_ID, idleEnabled },
+    modelLoaded: !!vrm,
+  };
+  if (vrm) {
+    const bones = HUMAN_BONE_NAMES.filter((n) => vrm.humanoid?.getRawBoneNode(n) || vrm.humanoid?.getNormalizedBoneNode(n));
+    const expressions = vrm.expressionManager ? vrm.expressionManager.expressions.map((e) => ({ name: e.expressionName, weight: e.weight })) : [];
+    const spring = vrm.springBoneManager;
+    info.model = {
+      meta: {
+        name: vrm.meta?.name || null,
+        version: vrm.meta?.version || null,
+        metaVersion: vrm.meta?.metaVersion ?? null,
+      },
+    };
+    info.humanoid = { bones, count: bones.length };
+    info.expressions = {
+      count: expressions.length,
+      names: expressions.map((e) => e.name),
+      weights: expressions,
+      mouthExpression: mouthExpressionName,
+    };
+    info.springBones = {
+      joints: spring?.joints.size ?? 0,
+      colliders: spring?.colliders.length ?? 0,
+      colliderGroups: spring?.colliderGroups.length ?? 0,
+    };
+  }
+  const gl = renderer.getContext();
+  info.renderer = {
+    type: gl instanceof WebGL2RenderingContext ? 'WebGL2' : 'WebGL',
+    canvas: [VIEW.w, VIEW.h],
+    drawingBuffer: [renderer.domElement.width, renderer.domElement.height],
+    pixelRatio: renderer.getPixelRatio(),
+    three: THREE.REVISION,
+    threeVrm: await fetchVrmVersion(),
+  };
+  info.camera = {
+    fov: cam.fov,
+    position: cam.position.toArray(),
+    target: camTarget.toArray(),
+  };
+  info.lookAt = { target: commandedLookAtActive ? [commandedLookAt.x, commandedLookAt.y] : 'wander' };
+  return info;
+}
+
+async function handleCommand(cmd) {
+  try {
+    switch (cmd.cmd) {
+      case 'load':
+        return { ...(await loadModel(cmd.model || MODEL_URL)) };
+      case 'expression':
+        return setExpression(cmd.name, cmd.weight ?? 1);
+      case 'resetExpression':
+        return resetExpression();
+      case 'lookAt':
+        return setLookAt(cmd.x ?? 0, cmd.y ?? 0);
+      case 'bone':
+        return setBone(cmd.name, cmd.rotate || [0, 0, 0]);
+      case 'animation':
+        return { ...(await playAnimation(cmd.url, !!cmd.loop)) };
+      case 'speak':
+        return { ...(await speak(cmd.audio, cmd.mouth)) };
+      case 'setIdle': {
+        idleEnabled = !!cmd.on;
+        return { ok: true, on: idleEnabled };
+      }
+      case 'inspect':
+        return { ok: true, result: await inspect() };
+      case 'ping':
+        return { ok: true, pong: true };
+      default:
+        return { ok: false, error: `unknown command "${cmd.cmd}"` };
+    }
+  } catch (e) {
+    return { ok: false, error: String(e?.message || e) };
+  }
+}
+
+let ws = null;
+let wsRetry = 0;
+function connectWS() {
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    log('WS connected');
+    ws.send(JSON.stringify({ type: 'register', id: CLIENT_ID }));
+    if (!vrm) loadModel(MODEL_URL).then(() => log('idle: blink + breathing on'));
+  };
+  ws.onmessage = async (ev) => {
+    let msg;
+    try { msg = JSON.parse(ev.data); } catch { return; }
+    if (msg.type === 'cmd') {
+      const result = await handleCommand(msg);
+      ws.send(JSON.stringify({ type: 'cmdResponse', cmdId: msg.cmdId, cmd: msg.cmd, ...result }));
+    }
+  };
+  ws.onclose = () => {
+    setTimeout(() => {
+      wsRetry++;
+      if (wsRetry < 60) connectWS();
+    }, 2000);
+  };
+  ws.onerror = () => { try { ws.close(); } catch {} };
+}
+
+const clock = new THREE.Clock();
+
+function updateIdle(dt, t) {
+  if (!vrm || !idleEnabled) return;
+
+  idle.blinkTimer -= dt;
+  if (idle.blinkTimer <= 0) {
+    if (idle.blinkState === 'open') { idle.blinkState = 'closing'; idle.blinkT = 0; }
+  }
+  if (idle.blinkState === 'closing') {
+    idle.blinkT += dt;
+    const f = Math.min(idle.blinkT / idle.blinkDuration, 1);
+    idle.blinkWeight = f;
+    if (f >= 1) { idle.blinkState = 'opening'; idle.blinkT = 0; }
+  } else if (idle.blinkState === 'opening') {
+    idle.blinkT += dt;
+    const f = Math.min(idle.blinkT / idle.blinkDuration, 1);
+    idle.blinkWeight = 1 - f;
+    if (f >= 1) { idle.blinkState = 'open'; idle.blinkTimer = 2 + Math.random() * 3.5; }
+  }
+  if (vrm.expressionManager) {
+    vrm.expressionManager.setValue('blink', idle.blinkWeight);
+    if (vrm.expressionManager.expressions.some((e) => e.expressionName === 'blinkLeft')) {
+      vrm.expressionManager.setValue('blinkLeft', idle.blinkWeight);
+      vrm.expressionManager.setValue('blinkRight', idle.blinkWeight);
+    }
+  }
+
+  idle.breathPhase += dt * (Math.PI * 2 * 0.22);
+  const s = 1 + Math.sin(idle.breathPhase) * 0.012;
+  const chest = vrm.humanoid.getRawBoneNode('chest');
+  if (chest) chest.scale.set(s, s, s);
+
+  idle.wanderTimer -= dt;
+  if (idle.wanderTimer <= 0) {
+    idle.wanderTimer = 2.5 + Math.random() * 3;
+    idle.wanderTarget.set((Math.random() * 2 - 1) * 0.45, (Math.random() * 2 - 1) * 0.3);
+  }
+  const target = commandedLookAtActive ? commandedLookAt : idle.wanderTarget;
+  lookTargetObj.position.lerp(target, 0.6);
+}
+
+function applyLookAt() {
+  if (!vrm?.humanoid) return;
+  const head = vrm.humanoid.getRawBoneNode('head') || vrm.humanoid.getNormalizedBoneNode('head');
+  if (!head || !vrm.lookAt) return;
+  const p = new THREE.Vector3();
+  head.getWorldPosition(p);
+  lookTargetObj.position.x = p.x + lookTargetObj.position.x * 0.65;
+  lookTargetObj.position.y = p.y + lookTargetObj.position.y * 0.45 + 0.05;
+  lookTargetObj.position.z = p.z + 0.55;
+  vrm.lookAt.target = lookTargetObj;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  const t = performance.now() / 1000;
+
+  updateIdle(dt, t);
+
+  if (currentAudio && mouthTimeline) {
+    applyMouthWeight(interpolateTimeline(mouthTimeline, currentAudio.currentTime * 1000));
+  }
+
+  if (vrm) {
+    vrm.update(dt);
+    applyLookAt();
+  }
+  if (mixer) mixer.update(dt);
+
+  cam.lookAt(camTarget);
+  renderer.render(scene, cam);
+}
+animate();
+
+connectWS();
+log('client-A ready · waiting for VRM…');
+</script>
+</body>
+</html>

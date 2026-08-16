@@ -45,6 +45,16 @@ All blocking work runs in background; self-wake with context:
 `tmux send-keys -t 30-1 "Self-wake: <pid> <step> <what to check> <next action>" Enter`
 Always end with Enter. Deliver `done.txt` + `notify.sh done` when finished.
 
+## Window discipline (no cross-talk)
+- Your window is **30-1** and it is the ONLY tmux window you may operate on.
+- NEVER run `tmux send-keys`, `tmux kill-window`, `tmux rename-window`, or
+  `tmux new-window` targeting any other window or session. Other agents live in
+  `a0`, `a1`, `30-3` — never touch them.
+- NEVER pkill anything. Kill only your own PIDs. Your `node server.js` server
+  and models are shared resources — never kill/restart another agent's node
+  or chrome instance (they use ports 9222/9223; you may only read them).
+- The orchestrator (window `a0`) talks to you; you do not talk back to other agents.
+
 ## Model
 `opencode-go/deepseek-v4-flash`
 

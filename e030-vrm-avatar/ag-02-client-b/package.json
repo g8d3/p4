@@ -1,0 +1,19 @@
+{
+  "name": "avatar-client-b",
+  "version": "1.0.0",
+  "description": "client-B renderer + avatar CLI for e030 VRM avatar",
+  "type": "module",
+  "scripts": {
+    "build": "node bin/build-viewer.js",
+    "start:test-server": "node server-test.js"
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "^3.5.5",
+    "@pixiv/three-vrm-animation": "^3.5.5",
+    "three": "^0.185.1",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  }
+}

@@ -46,6 +46,15 @@ Background every blocking command; self-wake always:
 Send production commands from this window; the server/client run elsewhere —
 verify via curl/`inspect` + screenshots, not visually.
 
+## Window discipline (no cross-talk)
+- Your window is **a1** and it is the ONLY tmux window you may operate on.
+- NEVER run `tmux send-keys`, `tmux kill-window`, `tmux rename-window`, or
+  `tmux new-window` targeting any other window or session. Other agents live in
+  `a0`, `30-1`, `30-3` — never touch them.
+- NEVER pkill anything. Kill only your own PIDs. Your Chrome instance must stay
+  on its own port (e.g. 9223); never kill/restart another agent's chrome/node.
+- The orchestrator (window `a0`) talks to you; you do not talk back to other agents.
+
 ## Model
 Command Code — current model in this window (`cmd`); this agent runs inside
 the existing a1 session.
