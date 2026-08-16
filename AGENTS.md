@@ -33,6 +33,8 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e026-composio-playground/](e026-composio-playground/) — audio transcription playground: Deepgram direct REST (no middleware)
 - [e027-open-design/](e027-open-design/) — Open Design: open-source design engine for coding agents (od daemon, skills, DESIGN.md brand systems)
 - [e028-dsh-harness/](e028-dsh-harness/) — DeepSeek Harness web (dsh): install, LAN access, and security fences (npm 12 allowScripts, socat proxies, trusted-host)
+- [e029-html-video-explainer/](e029-html-video-explainer/) — HTML video explainer production
+- [e030-vrm-avatar/](e030-vrm-avatar/) — programmatically controllable VRM avatar: three.js/three-vrm renderers + control API + talking-avatar videos
 
 ## Language
 
