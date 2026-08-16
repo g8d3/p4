@@ -10,7 +10,7 @@ const MODELS_DIR = path.resolve(ROOT, '..', 'models');
 const MEDIA_DIR = path.resolve(ROOT, '..', 'media');
 const AG02_DIR = path.resolve(ROOT, '..', 'ag-02-client-b');
 const AG03_OUTPUT = path.resolve(ROOT, '..', 'ag-03-video', 'output');
-const HOST = '127.0.0.1';
+const HOST = "0.0.0.0";
 const PORT = 8787;
 const COMMAND_TIMEOUT_MS = 20000;
 
@@ -51,16 +51,31 @@ function sendFile(res, filePath, contentType) {
   });
 }
 
-const clients = new Map(); // id -> ws
-const pending = new Map(); // cmdId -> { targets, responses, resolve, timeout }
+const clients = new Map(); // id -> Set<ws>
+const pending = new Map(); // cmdId -> { targets, responses, resolve, timer }
+
+function registerClient(id, ws) {
+  ws.clientId = id;
+  if (!clients.has(id)) clients.set(id, new Set());
+  clients.get(id).add(ws);
+}
+
+function unregisterClient(id, ws) {
+  const set = clients.get(id);
+  if (!set) return;
+  set.delete(ws);
+  if (set.size === 0) clients.delete(id);
+}
 
 function broadcast(kind, payload, targetIds = null) {
   let sent = 0;
-  for (const [id, ws] of clients) {
+  for (const [id, set] of clients) {
     if (targetIds && !targetIds.includes(id)) continue;
-    if (ws.readyState === 1) {
-      ws.send(JSON.stringify({ type: kind, ...payload }));
-      sent++;
+    for (const ws of set) {
+      if (ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: kind, ...payload }));
+        sent++;
+      }
     }
   }
   return sent;
@@ -69,7 +84,7 @@ function broadcast(kind, payload, targetIds = null) {
 function resolvePending(cmdId) {
   const p = pending.get(cmdId);
   if (!p) return;
-  clearTimeout(p.timeout);
+  clearTimeout(p.timer);
   pending.delete(cmdId);
   const results = p.targets.map((id) => p.responses.get(id)).filter(Boolean);
   const all = results.length === p.targets.length && p.targets.length > 0;
@@ -119,21 +134,18 @@ function handleCmdMessage(msg) {
   if (msg.type === 'register') {
     const id = String(msg.id || '');
     if (!id) return;
-    if (clients.has(id)) {
-      const old = clients.get(id);
-      try { old.close(); } catch {}
-    }
-    clients.set(id, msg.ws);
-    msg.ws.ready = true;
+    registerClient(id, msg.ws);
     msg.ws.send(JSON.stringify({ type: 'registered', id, server: 'avatar-server', protocol: '1.0' }));
     return;
   }
   if (msg.type === 'cmdResponse') {
     const p = pending.get(msg.cmdId);
-    if (p && p.targets.includes(msg.clientId)) {
-      p.responses.set(msg.clientId, msg);
-      if (p.responses.size >= p.targets.length) resolvePending(msg.cmdId);
-    }
+    if (!p) return;
+    const rid = msg.clientId || msg.client || msg.ws.clientId;
+    if (!rid || !p.targets.includes(rid)) return;
+    const { ws: _ws, type: _t, ...clean } = msg;
+    if (!p.responses.has(rid)) p.responses.set(rid, clean);
+    if (p.responses.size >= p.targets.length) resolvePending(msg.cmdId);
     return;
   }
   if (msg.type === 'cmd' || msg.cmd) {
@@ -169,7 +181,11 @@ const server = http.createServer((req, res) => {
       }
       queueCommand(command, null).then((result) => {
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ...command, ...result }));
+        try {
+          res.end(JSON.stringify({ ...command, ...result }));
+        } catch (err) {
+          res.end(JSON.stringify({ ok: false, error: `serialization failed: ${err.message}`, cmdId: command.cmdId }));
+        }
       });
     });
     return;
@@ -250,7 +266,7 @@ wss.on('connection', (ws) => {
     }
   });
   ws.on('close', () => {
-    for (const [id, c] of clients) if (c === ws) clients.delete(id);
+    if (ws.clientId) unregisterClient(ws.clientId, ws);
   });
   ws.send(JSON.stringify({ type: 'hello', server: 'avatar-server', protocol: '1.0' }));
 });

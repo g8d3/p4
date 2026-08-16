@@ -85,8 +85,10 @@ function makeCamera(aspect) {
 }
 
 function resize() {
-  const w = window.innerWidth || 608;
-  const h = window.innerHeight || 1080;
+  // Fixed vertical framebuffer for deterministic 608x1080 capture, regardless
+  // of the headless window's reported inner size.
+  const w = 608;
+  const h = 1080;
   state.renderer.setSize(w, h, false);
   state.camera.aspect = w / h;
   state.camera.updateProjectionMatrix();
@@ -237,11 +239,28 @@ async function loadModel(model) {
     vrm.scene.position.set(0, -0.2, 0);
     const box = new THREE.Box3().setFromObject(vrm.scene);
     const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const scale = 2.6 / maxDim;
+    const targetHeight = 2.8;
+    const scale = targetHeight / maxDim;
     vrm.scene.scale.setScalar(scale);
 
+    // Frame the camera on the model's actual center so the whole character
+    // is visible in the vertical 608x1080 frame.
+    const fovRad = THREE.MathUtils.degToRad(state.camera.fov);
+    const halfH = Math.tan(fovRad / 2);
+    const halfW = halfH * state.camera.aspect;
+    const needDistH = (size.y * scale) / 2 / halfH;
+    const needDistW = (size.x * scale) / 2 / halfW;
+    const dist = Math.max(needDistH, needDistW) * 1.15 + Math.max(size.z * scale, 0.5);
+    state.camera.position.set(0, center.y * scale + vrm.scene.position.y, dist);
+    state.camera.lookAt(0, center.y * scale + vrm.scene.position.y, 0);
+    state.camera.near = 0.1;
+    state.camera.far = dist * 4 + 20;
+    state.camera.updateProjectionMatrix();
+
     registerClient();
+    setStatus(`client-B loaded ${model} (${vrm.meta?.name || 'unnamed'})`);
     return { model, name: vrm.meta?.name || null };
   } catch (err) {
     log(`load failed: ${err.message}`);
@@ -467,6 +486,11 @@ function animate() {
   state.renderer.render(state.scene, state.camera);
 }
 
+function setStatus(t) {
+  const el = document.getElementById('status');
+  if (el) el.innerText = t;
+}
+
 async function main() {
   state.container = document.getElementById('app') || document.body;
   state.renderer = makeRenderer();
@@ -486,6 +510,7 @@ async function main() {
   animate();
 
   window.__clientB = { state, loadModel, inspect, setExpression, setLookAt, setBone, clearExpressions, speak };
+  setStatus('client-B ready');
   log('ready');
 }
 

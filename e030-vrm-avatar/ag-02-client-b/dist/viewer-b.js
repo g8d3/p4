@@ -42580,8 +42580,8 @@ function makeCamera(aspect2) {
   return camera;
 }
 function resize() {
-  const w = window.innerWidth || 608;
-  const h = window.innerHeight || 1080;
+  const w = 608;
+  const h = 1080;
   state.renderer.setSize(w, h, false);
   state.camera.aspect = w / h;
   state.camera.updateProjectionMatrix();
@@ -42715,10 +42715,24 @@ async function loadModel(model) {
     vrm.scene.position.set(0, -0.2, 0);
     const box = new Box3().setFromObject(vrm.scene);
     const size = box.getSize(new Vector3());
+    const center = box.getCenter(new Vector3());
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const scale = 2.6 / maxDim;
+    const targetHeight = 2.8;
+    const scale = targetHeight / maxDim;
     vrm.scene.scale.setScalar(scale);
+    const fovRad = MathUtils.degToRad(state.camera.fov);
+    const halfH = Math.tan(fovRad / 2);
+    const halfW = halfH * state.camera.aspect;
+    const needDistH = size.y * scale / 2 / halfH;
+    const needDistW = size.x * scale / 2 / halfW;
+    const dist = Math.max(needDistH, needDistW) * 1.15 + Math.max(size.z * scale, 0.5);
+    state.camera.position.set(0, center.y * scale + vrm.scene.position.y, dist);
+    state.camera.lookAt(0, center.y * scale + vrm.scene.position.y, 0);
+    state.camera.near = 0.1;
+    state.camera.far = dist * 4 + 20;
+    state.camera.updateProjectionMatrix();
     registerClient();
+    setStatus(`client-B loaded ${model} (${vrm.meta?.name || "unnamed"})`);
     return { model, name: vrm.meta?.name || null };
   } catch (err) {
     log2(`load failed: ${err.message}`);
@@ -42924,6 +42938,10 @@ function animate() {
   for (const mixer of state.mixers) mixer.update(delta);
   state.renderer.render(state.scene, state.camera);
 }
+function setStatus(t) {
+  const el = document.getElementById("status");
+  if (el) el.innerText = t;
+}
 async function main() {
   state.container = document.getElementById("app") || document.body;
   state.renderer = makeRenderer();
@@ -42939,6 +42957,7 @@ async function main() {
   connectWS();
   animate();
   window.__clientB = { state, loadModel, inspect, setExpression, setLookAt, setBone, clearExpressions, speak };
+  setStatus("client-B ready");
   log2("ready");
 }
 main().catch((e) => {
