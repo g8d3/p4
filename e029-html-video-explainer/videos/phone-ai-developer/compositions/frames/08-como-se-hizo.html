@@ -1,0 +1,191 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Bodoni Moda";
+      src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2");
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2");
+      font-weight: 300 700;
+      font-display: swap;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      container-type: size;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(44cqw 40cqh at 84cqw 12cqh, rgba(196, 217, 78, 0.16), transparent 70%),
+        radial-gradient(36cqw 32cqh at 6cqw 88cqh, rgba(139, 180, 247, 0.12), transparent 70%),
+        #f5f5f0;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+    .type-stack {
+      position: absolute;
+      left: 50%;
+      top: 24cqh;
+      width: 80cqw;
+      transform: translateX(-50%);
+    }
+    .typed-line {
+      font-family: "Bodoni Moda", serif;
+      font-weight: 700;
+      font-size: 3.6cqw;
+      color: #1a1a1a;
+      line-height: 1.45;
+      white-space: pre;
+      min-height: 5cqw;
+    }
+    #line1 {
+      font-size: 4.4cqw;
+    }
+    .caret {
+      display: inline-block;
+      width: 1.1cqw;
+      height: 2.8cqw;
+      background: #1a1a1a;
+      vertical-align: text-bottom;
+    }
+    .chip-row {
+      display: flex;
+      gap: 1.6cqw;
+      margin-top: 2.4cqw;
+      flex-wrap: wrap;
+      min-height: 5cqw;
+    }
+    .chip {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 1.7cqw;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.9cqw 1.8cqw;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      opacity: 0;
+    }
+    #chip-web { background: #c5b5e0; }
+    #chip-html { background: #8bb4f7; }
+    #chip-lite { background: #a8e6cf; }
+  </style>
+
+  <div id="root" data-composition-id="08-como-se-hizo" data-width="1920" data-height="1080" data-duration="7.86">
+    <div class="bg clip" id="f08-como-se-hizo-bg" data-start="0" data-duration="7.916" data-track-index="1"></div>
+    <div class="grain clip" id="f08-como-se-hizo-grain" data-start="0" data-duration="7.916" data-track-index="2"></div>
+
+    <div class="type-stack">
+      <div class="typed-line" id="line1"><span id="typed1"></span><span class="caret" id="caret"></span></div>
+      <div class="typed-line" id="line2"><span id="typed2"></span></div>
+      <div class="typed-line" id="line3"><span id="typed3"></span></div>
+
+      <div class="chip-row">
+        <span class="chip" id="chip-web">Plantillas web</span>
+        <span class="chip" id="chip-html">HTML</span>
+        <span class="chip" id="chip-lite">Sin programas pesados</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    const line1Text = "¿Cómo se hizo este video?";
+    const line2Text = "Buscando plantillas bonitas en la web…";
+    const line3Text = "…y construyéndolas en HTML.";
+
+    const len1 = { v: 0 };
+    tl.to(
+      len1,
+      {
+        v: line1Text.length,
+        duration: 1.7,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          document.getElementById("typed1").textContent = line1Text.substring(0, Math.floor(len1.v));
+        },
+      },
+      0.3,
+    );
+
+    const len2 = { v: 0 };
+    tl.to(
+      len2,
+      {
+        v: line2Text.length,
+        duration: 2.0,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          document.getElementById("typed2").textContent = line2Text.substring(0, Math.floor(len2.v));
+        },
+      },
+      2.4,
+    );
+
+    const len3 = { v: 0 };
+    tl.to(
+      len3,
+      {
+        v: line3Text.length,
+        duration: 1.8,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          document.getElementById("typed3").textContent = line3Text.substring(0, Math.floor(len3.v));
+        },
+      },
+      5.0,
+    );
+
+    const blink = { p: 0 };
+    tl.to(
+      blink,
+      {
+        p: Math.PI * 2 * 8,
+        duration: 7.317,
+        ease: "none",
+        onUpdate: () => {
+          document.getElementById("caret").style.opacity = Math.sin(blink.p) > 0 ? "1" : "0";
+        },
+      },
+      0,
+    );
+
+    tl.fromTo(
+      "#chip-web",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" },
+      3.6,
+    );
+    tl.fromTo(
+      "#chip-html",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" },
+      5.2,
+    );
+    tl.fromTo(
+      "#chip-lite",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.5, ease: "power3.out" },
+      6.3,
+    );
+
+    window.__timelines["08-como-se-hizo"] = tl;
+  </script>
+</template>

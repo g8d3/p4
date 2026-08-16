@@ -1,0 +1,1489 @@
+{
+  "total_duration_s": 58.32,
+  "width": 1920,
+  "height": 1080,
+  "groups": [
+    {
+      "id": "caption-group-0",
+      "frame": 1,
+      "start": 0.4,
+      "end": 1.04,
+      "text": "¿Sabías que",
+      "words": [
+        {
+          "id": "caption-word-0-0",
+          "text": "¿Sabías",
+          "start": 0.4,
+          "end": 0.8
+        },
+        {
+          "id": "caption-word-0-1",
+          "text": "que",
+          "start": 0.8,
+          "end": 1.04
+        }
+      ]
+    },
+    {
+      "id": "caption-group-1",
+      "frame": 1,
+      "start": 1.04,
+      "end": 2.16,
+      "text": "tu celular Android",
+      "words": [
+        {
+          "id": "caption-word-1-0",
+          "text": "tu",
+          "start": 1.04,
+          "end": 1.36
+        },
+        {
+          "id": "caption-word-1-1",
+          "text": "celular",
+          "start": 1.36,
+          "end": 1.76
+        },
+        {
+          "id": "caption-word-1-2",
+          "text": "Android",
+          "start": 1.76,
+          "end": 2.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-2",
+      "frame": 1,
+      "start": 2.16,
+      "end": 2.64,
+      "text": "puede ser",
+      "words": [
+        {
+          "id": "caption-word-2-0",
+          "text": "puede",
+          "start": 2.16,
+          "end": 2.4
+        },
+        {
+          "id": "caption-word-2-1",
+          "text": "ser",
+          "start": 2.4,
+          "end": 2.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-3",
+      "frame": 1,
+      "start": 2.64,
+      "end": 3.48,
+      "text": "tu programador?",
+      "words": [
+        {
+          "id": "caption-word-3-0",
+          "text": "tu",
+          "start": 2.64,
+          "end": 2.8
+        },
+        {
+          "id": "caption-word-3-1",
+          "text": "programador?",
+          "start": 2.8,
+          "end": 3.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-4",
+      "frame": 2,
+      "start": 3.92,
+      "end": 4.96,
+      "text": "Crees que necesitas",
+      "words": [
+        {
+          "id": "caption-word-4-0",
+          "text": "Crees",
+          "start": 3.92,
+          "end": 4.32
+        },
+        {
+          "id": "caption-word-4-1",
+          "text": "que",
+          "start": 4.32,
+          "end": 4.48
+        },
+        {
+          "id": "caption-word-4-2",
+          "text": "necesitas",
+          "start": 4.48,
+          "end": 4.96
+        }
+      ]
+    },
+    {
+      "id": "caption-group-5",
+      "frame": 2,
+      "start": 4.96,
+      "end": 6.56,
+      "text": "una computadora carísima",
+      "words": [
+        {
+          "id": "caption-word-5-0",
+          "text": "una",
+          "start": 4.96,
+          "end": 5.28
+        },
+        {
+          "id": "caption-word-5-1",
+          "text": "computadora",
+          "start": 5.28,
+          "end": 5.92
+        },
+        {
+          "id": "caption-word-5-2",
+          "text": "carísima",
+          "start": 5.92,
+          "end": 6.56
+        }
+      ]
+    },
+    {
+      "id": "caption-group-6",
+      "frame": 2,
+      "start": 6.56,
+      "end": 7.04,
+      "text": "y un",
+      "words": [
+        {
+          "id": "caption-word-6-0",
+          "text": "y",
+          "start": 6.56,
+          "end": 6.8
+        },
+        {
+          "id": "caption-word-6-1",
+          "text": "un",
+          "start": 6.8,
+          "end": 7.04
+        }
+      ]
+    },
+    {
+      "id": "caption-group-7",
+      "frame": 2,
+      "start": 7.04,
+      "end": 8.6,
+      "text": "equipo de desarrolladores,",
+      "words": [
+        {
+          "id": "caption-word-7-0",
+          "text": "equipo",
+          "start": 7.04,
+          "end": 7.28
+        },
+        {
+          "id": "caption-word-7-1",
+          "text": "de",
+          "start": 7.28,
+          "end": 7.52
+        },
+        {
+          "id": "caption-word-7-2",
+          "text": "desarrolladores,",
+          "start": 7.52,
+          "end": 8.48
+        }
+      ]
+    },
+    {
+      "id": "caption-group-8",
+      "frame": 2,
+      "start": 8.64,
+      "end": 9.64,
+      "text": "no es cierto.",
+      "words": [
+        {
+          "id": "caption-word-8-0",
+          "text": "no",
+          "start": 8.64,
+          "end": 9.04
+        },
+        {
+          "id": "caption-word-8-1",
+          "text": "es",
+          "start": 9.04,
+          "end": 9.2
+        },
+        {
+          "id": "caption-word-8-2",
+          "text": "cierto.",
+          "start": 9.2,
+          "end": 9.52
+        }
+      ]
+    },
+    {
+      "id": "caption-group-9",
+      "frame": 3,
+      "start": 10.08,
+      "end": 11.28,
+      "text": "Sólo necesitas 2",
+      "words": [
+        {
+          "id": "caption-word-9-0",
+          "text": "Sólo",
+          "start": 10.08,
+          "end": 10.4
+        },
+        {
+          "id": "caption-word-9-1",
+          "text": "necesitas",
+          "start": 10.4,
+          "end": 10.96
+        },
+        {
+          "id": "caption-word-9-2",
+          "text": "2",
+          "start": 10.96,
+          "end": 11.28
+        }
+      ]
+    },
+    {
+      "id": "caption-group-10",
+      "frame": 3,
+      "start": 11.28,
+      "end": 12,
+      "text": "aparatos,",
+      "words": [
+        {
+          "id": "caption-word-10-0",
+          "text": "aparatos,",
+          "start": 11.28,
+          "end": 12
+        }
+      ]
+    },
+    {
+      "id": "caption-group-11",
+      "frame": 3,
+      "start": 12,
+      "end": 12.64,
+      "text": "una conexión",
+      "words": [
+        {
+          "id": "caption-word-11-0",
+          "text": "una",
+          "start": 12,
+          "end": 12.16
+        },
+        {
+          "id": "caption-word-11-1",
+          "text": "conexión",
+          "start": 12.16,
+          "end": 12.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-12",
+      "frame": 3,
+      "start": 12.64,
+      "end": 13.12,
+      "text": "y un",
+      "words": [
+        {
+          "id": "caption-word-12-0",
+          "text": "y",
+          "start": 12.64,
+          "end": 12.96
+        },
+        {
+          "id": "caption-word-12-1",
+          "text": "un",
+          "start": 12.96,
+          "end": 13.12
+        }
+      ]
+    },
+    {
+      "id": "caption-group-13",
+      "frame": 3,
+      "start": 13.12,
+      "end": 13.68,
+      "text": "modelo de",
+      "words": [
+        {
+          "id": "caption-word-13-0",
+          "text": "modelo",
+          "start": 13.12,
+          "end": 13.44
+        },
+        {
+          "id": "caption-word-13-1",
+          "text": "de",
+          "start": 13.44,
+          "end": 13.68
+        }
+      ]
+    },
+    {
+      "id": "caption-group-14",
+      "frame": 3,
+      "start": 13.68,
+      "end": 14.84,
+      "text": "IA barato,",
+      "words": [
+        {
+          "id": "caption-word-14-0",
+          "text": "IA",
+          "start": 13.68,
+          "end": 14
+        },
+        {
+          "id": "caption-word-14-1",
+          "text": "barato,",
+          "start": 14,
+          "end": 14.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-15",
+      "frame": 3,
+      "start": 14.88,
+      "end": 15.28,
+      "text": "y con",
+      "words": [
+        {
+          "id": "caption-word-15-0",
+          "text": "y",
+          "start": 14.88,
+          "end": 15.04
+        },
+        {
+          "id": "caption-word-15-1",
+          "text": "con",
+          "start": 15.04,
+          "end": 15.28
+        }
+      ]
+    },
+    {
+      "id": "caption-group-16",
+      "frame": 3,
+      "start": 15.28,
+      "end": 15.92,
+      "text": "eso ya",
+      "words": [
+        {
+          "id": "caption-word-16-0",
+          "text": "eso",
+          "start": 15.28,
+          "end": 15.52
+        },
+        {
+          "id": "caption-word-16-1",
+          "text": "ya",
+          "start": 15.52,
+          "end": 15.92
+        }
+      ]
+    },
+    {
+      "id": "caption-group-17",
+      "frame": 3,
+      "start": 15.92,
+      "end": 16.84,
+      "text": "tienes equipo.",
+      "words": [
+        {
+          "id": "caption-word-17-0",
+          "text": "tienes",
+          "start": 15.92,
+          "end": 16.24
+        },
+        {
+          "id": "caption-word-17-1",
+          "text": "equipo.",
+          "start": 16.24,
+          "end": 16.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-18",
+      "frame": 4,
+      "start": 17.16,
+      "end": 18.36,
+      "text": "Paso 1,",
+      "words": [
+        {
+          "id": "caption-word-18-0",
+          "text": "Paso",
+          "start": 17.16,
+          "end": 17.64
+        },
+        {
+          "id": "caption-word-18-1",
+          "text": "1,",
+          "start": 17.64,
+          "end": 18.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-19",
+      "frame": 4,
+      "start": 18.36,
+      "end": 19.64,
+      "text": "instala TherMUX,",
+      "words": [
+        {
+          "id": "caption-word-19-0",
+          "text": "instala",
+          "start": 18.36,
+          "end": 18.92
+        },
+        {
+          "id": "caption-word-19-1",
+          "text": "TherMUX,",
+          "start": 18.92,
+          "end": 19.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-20",
+      "frame": 4,
+      "start": 19.64,
+      "end": 20.12,
+      "text": "una app",
+      "words": [
+        {
+          "id": "caption-word-20-0",
+          "text": "una",
+          "start": 19.64,
+          "end": 19.88
+        },
+        {
+          "id": "caption-word-20-1",
+          "text": "app",
+          "start": 19.88,
+          "end": 20.12
+        }
+      ]
+    },
+    {
+      "id": "caption-group-21",
+      "frame": 4,
+      "start": 20.12,
+      "end": 20.6,
+      "text": "que abre",
+      "words": [
+        {
+          "id": "caption-word-21-0",
+          "text": "que",
+          "start": 20.12,
+          "end": 20.28
+        },
+        {
+          "id": "caption-word-21-1",
+          "text": "abre",
+          "start": 20.28,
+          "end": 20.6
+        }
+      ]
+    },
+    {
+      "id": "caption-group-22",
+      "frame": 4,
+      "start": 20.6,
+      "end": 21,
+      "text": "la puerta",
+      "words": [
+        {
+          "id": "caption-word-22-0",
+          "text": "la",
+          "start": 20.6,
+          "end": 20.76
+        },
+        {
+          "id": "caption-word-22-1",
+          "text": "puerta",
+          "start": 20.76,
+          "end": 21
+        }
+      ]
+    },
+    {
+      "id": "caption-group-23",
+      "frame": 4,
+      "start": 21,
+      "end": 22.08,
+      "text": "de tu teléfono.",
+      "words": [
+        {
+          "id": "caption-word-23-0",
+          "text": "de",
+          "start": 21,
+          "end": 21.16
+        },
+        {
+          "id": "caption-word-23-1",
+          "text": "tu",
+          "start": 21.16,
+          "end": 21.32
+        },
+        {
+          "id": "caption-word-23-2",
+          "text": "teléfono.",
+          "start": 21.32,
+          "end": 21.96
+        }
+      ]
+    },
+    {
+      "id": "caption-group-24",
+      "frame": 4,
+      "start": 22.2,
+      "end": 22.84,
+      "text": "Aquí puedes",
+      "words": [
+        {
+          "id": "caption-word-24-0",
+          "text": "Aquí",
+          "start": 22.2,
+          "end": 22.52
+        },
+        {
+          "id": "caption-word-24-1",
+          "text": "puedes",
+          "start": 22.52,
+          "end": 22.84
+        }
+      ]
+    },
+    {
+      "id": "caption-group-25",
+      "frame": 4,
+      "start": 22.84,
+      "end": 23.24,
+      "text": "poner la",
+      "words": [
+        {
+          "id": "caption-word-25-0",
+          "text": "poner",
+          "start": 22.84,
+          "end": 23.08
+        },
+        {
+          "id": "caption-word-25-1",
+          "text": "la",
+          "start": 23.08,
+          "end": 23.24
+        }
+      ]
+    },
+    {
+      "id": "caption-group-26",
+      "frame": 4,
+      "start": 23.24,
+      "end": 23.72,
+      "text": "foto de",
+      "words": [
+        {
+          "id": "caption-word-26-0",
+          "text": "foto",
+          "start": 23.24,
+          "end": 23.56
+        },
+        {
+          "id": "caption-word-26-1",
+          "text": "de",
+          "start": 23.56,
+          "end": 23.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-27",
+      "frame": 4,
+      "start": 23.72,
+      "end": 24.28,
+      "text": "tu celular",
+      "words": [
+        {
+          "id": "caption-word-27-0",
+          "text": "tu",
+          "start": 23.72,
+          "end": 23.88
+        },
+        {
+          "id": "caption-word-27-1",
+          "text": "celular",
+          "start": 23.88,
+          "end": 24.28
+        }
+      ]
+    },
+    {
+      "id": "caption-group-28",
+      "frame": 4,
+      "start": 24.28,
+      "end": 25.2,
+      "text": "con TherMUX.",
+      "words": [
+        {
+          "id": "caption-word-28-0",
+          "text": "con",
+          "start": 24.28,
+          "end": 24.6
+        },
+        {
+          "id": "caption-word-28-1",
+          "text": "TherMUX.",
+          "start": 24.6,
+          "end": 25.08
+        }
+      ]
+    },
+    {
+      "id": "caption-group-29",
+      "frame": 5,
+      "start": 25.56,
+      "end": 26.44,
+      "text": "Paso 2:",
+      "words": [
+        {
+          "id": "caption-word-29-0",
+          "text": "Paso",
+          "start": 25.56,
+          "end": 25.96
+        },
+        {
+          "id": "caption-word-29-1",
+          "text": "2:",
+          "start": 25.96,
+          "end": 26.44
+        }
+      ]
+    },
+    {
+      "id": "caption-group-30",
+      "frame": 5,
+      "start": 26.44,
+      "end": 27,
+      "text": "Conecta tu",
+      "words": [
+        {
+          "id": "caption-word-30-0",
+          "text": "Conecta",
+          "start": 26.44,
+          "end": 26.84
+        },
+        {
+          "id": "caption-word-30-1",
+          "text": "tu",
+          "start": 26.84,
+          "end": 27
+        }
+      ]
+    },
+    {
+      "id": "caption-group-31",
+      "frame": 5,
+      "start": 27,
+      "end": 27.48,
+      "text": "teléfono a",
+      "words": [
+        {
+          "id": "caption-word-31-0",
+          "text": "teléfono",
+          "start": 27,
+          "end": 27.32
+        },
+        {
+          "id": "caption-word-31-1",
+          "text": "a",
+          "start": 27.32,
+          "end": 27.48
+        }
+      ]
+    },
+    {
+      "id": "caption-group-32",
+      "frame": 5,
+      "start": 27.48,
+      "end": 28.52,
+      "text": "tu computador con",
+      "words": [
+        {
+          "id": "caption-word-32-0",
+          "text": "tu",
+          "start": 27.48,
+          "end": 27.64
+        },
+        {
+          "id": "caption-word-32-1",
+          "text": "computador",
+          "start": 27.64,
+          "end": 28.12
+        },
+        {
+          "id": "caption-word-32-2",
+          "text": "con",
+          "start": 28.12,
+          "end": 28.52
+        }
+      ]
+    },
+    {
+      "id": "caption-group-33",
+      "frame": 5,
+      "start": 28.52,
+      "end": 31.16,
+      "text": "Es un puente invisible",
+      "words": [
+        {
+          "id": "caption-word-33-0",
+          "text": "Es",
+          "start": 28.52,
+          "end": 30.12
+        },
+        {
+          "id": "caption-word-33-1",
+          "text": "un",
+          "start": 30.12,
+          "end": 30.28
+        },
+        {
+          "id": "caption-word-33-2",
+          "text": "puente",
+          "start": 30.28,
+          "end": 30.6
+        },
+        {
+          "id": "caption-word-33-3",
+          "text": "invisible",
+          "start": 30.6,
+          "end": 31.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-34",
+      "frame": 5,
+      "start": 31.16,
+      "end": 32.32,
+      "text": "entre los 2.",
+      "words": [
+        {
+          "id": "caption-word-34-0",
+          "text": "entre",
+          "start": 31.16,
+          "end": 31.64
+        },
+        {
+          "id": "caption-word-34-1",
+          "text": "los",
+          "start": 31.64,
+          "end": 31.88
+        },
+        {
+          "id": "caption-word-34-2",
+          "text": "2.",
+          "start": 31.88,
+          "end": 32.2
+        }
+      ]
+    },
+    {
+      "id": "caption-group-35",
+      "frame": 6,
+      "start": 32.48,
+      "end": 33.52,
+      "text": "Paso 3,",
+      "words": [
+        {
+          "id": "caption-word-35-0",
+          "text": "Paso",
+          "start": 32.48,
+          "end": 33.04
+        },
+        {
+          "id": "caption-word-35-1",
+          "text": "3,",
+          "start": 33.04,
+          "end": 33.52
+        }
+      ]
+    },
+    {
+      "id": "caption-group-36",
+      "frame": 6,
+      "start": 33.52,
+      "end": 34.72,
+      "text": "lanza Open Code",
+      "words": [
+        {
+          "id": "caption-word-36-0",
+          "text": "lanza",
+          "start": 33.52,
+          "end": 33.92
+        },
+        {
+          "id": "caption-word-36-1",
+          "text": "Open",
+          "start": 33.92,
+          "end": 34.32
+        },
+        {
+          "id": "caption-word-36-2",
+          "text": "Code",
+          "start": 34.32,
+          "end": 34.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-37",
+      "frame": 6,
+      "start": 34.72,
+      "end": 35.28,
+      "text": "Code con",
+      "words": [
+        {
+          "id": "caption-word-37-0",
+          "text": "Code",
+          "start": 34.72,
+          "end": 35.04
+        },
+        {
+          "id": "caption-word-37-1",
+          "text": "con",
+          "start": 35.04,
+          "end": 35.28
+        }
+      ]
+    },
+    {
+      "id": "caption-group-38",
+      "frame": 6,
+      "start": 35.28,
+      "end": 36.4,
+      "text": "el modelo Dipsik",
+      "words": [
+        {
+          "id": "caption-word-38-0",
+          "text": "el",
+          "start": 35.28,
+          "end": 35.44
+        },
+        {
+          "id": "caption-word-38-1",
+          "text": "modelo",
+          "start": 35.44,
+          "end": 35.76
+        },
+        {
+          "id": "caption-word-38-2",
+          "text": "Dipsik",
+          "start": 35.76,
+          "end": 36.4
+        }
+      ]
+    },
+    {
+      "id": "caption-group-39",
+      "frame": 6,
+      "start": 36.4,
+      "end": 37.12,
+      "text": "Flash y",
+      "words": [
+        {
+          "id": "caption-word-39-0",
+          "text": "Flash",
+          "start": 36.4,
+          "end": 36.8
+        },
+        {
+          "id": "caption-word-39-1",
+          "text": "y",
+          "start": 36.8,
+          "end": 37.12
+        }
+      ]
+    },
+    {
+      "id": "caption-group-40",
+      "frame": 6,
+      "start": 37.12,
+      "end": 38.16,
+      "text": "tu agente empieza",
+      "words": [
+        {
+          "id": "caption-word-40-0",
+          "text": "tu",
+          "start": 37.12,
+          "end": 37.28
+        },
+        {
+          "id": "caption-word-40-1",
+          "text": "agente",
+          "start": 37.28,
+          "end": 37.6
+        },
+        {
+          "id": "caption-word-40-2",
+          "text": "empieza",
+          "start": 37.6,
+          "end": 38.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-41",
+      "frame": 6,
+      "start": 38.16,
+      "end": 38.84,
+      "text": "a trabajar.",
+      "words": [
+        {
+          "id": "caption-word-41-0",
+          "text": "a",
+          "start": 38.16,
+          "end": 38.32
+        },
+        {
+          "id": "caption-word-41-1",
+          "text": "trabajar.",
+          "start": 38.32,
+          "end": 38.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-42",
+      "frame": 7,
+      "start": 39.2,
+      "end": 39.84,
+      "text": "Ya está,",
+      "words": [
+        {
+          "id": "caption-word-42-0",
+          "text": "Ya",
+          "start": 39.2,
+          "end": 39.52
+        },
+        {
+          "id": "caption-word-42-1",
+          "text": "está,",
+          "start": 39.52,
+          "end": 39.84
+        }
+      ]
+    },
+    {
+      "id": "caption-group-43",
+      "frame": 7,
+      "start": 39.84,
+      "end": 40.16,
+      "text": "le pides",
+      "words": [
+        {
+          "id": "caption-word-43-0",
+          "text": "le",
+          "start": 39.84,
+          "end": 39.92
+        },
+        {
+          "id": "caption-word-43-1",
+          "text": "pides",
+          "start": 39.92,
+          "end": 40.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-44",
+      "frame": 7,
+      "start": 40.16,
+      "end": 40.64,
+      "text": "algo con",
+      "words": [
+        {
+          "id": "caption-word-44-0",
+          "text": "algo",
+          "start": 40.16,
+          "end": 40.4
+        },
+        {
+          "id": "caption-word-44-1",
+          "text": "con",
+          "start": 40.4,
+          "end": 40.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-45",
+      "frame": 7,
+      "start": 40.64,
+      "end": 41.04,
+      "text": "tu voz",
+      "words": [
+        {
+          "id": "caption-word-45-0",
+          "text": "tu",
+          "start": 40.64,
+          "end": 40.8
+        },
+        {
+          "id": "caption-word-45-1",
+          "text": "voz",
+          "start": 40.8,
+          "end": 41.04
+        }
+      ]
+    },
+    {
+      "id": "caption-group-46",
+      "frame": 7,
+      "start": 41.04,
+      "end": 42.36,
+      "text": "o tu teclado,",
+      "words": [
+        {
+          "id": "caption-word-46-0",
+          "text": "o",
+          "start": 41.04,
+          "end": 41.36
+        },
+        {
+          "id": "caption-word-46-1",
+          "text": "tu",
+          "start": 41.36,
+          "end": 41.52
+        },
+        {
+          "id": "caption-word-46-2",
+          "text": "teclado,",
+          "start": 41.52,
+          "end": 42.24
+        }
+      ]
+    },
+    {
+      "id": "caption-group-47",
+      "frame": 7,
+      "start": 42.48,
+      "end": 42.88,
+      "text": "y él",
+      "words": [
+        {
+          "id": "caption-word-47-0",
+          "text": "y",
+          "start": 42.48,
+          "end": 42.56
+        },
+        {
+          "id": "caption-word-47-1",
+          "text": "él",
+          "start": 42.56,
+          "end": 42.88
+        }
+      ]
+    },
+    {
+      "id": "caption-group-48",
+      "frame": 7,
+      "start": 42.88,
+      "end": 43.2,
+      "text": "hace el",
+      "words": [
+        {
+          "id": "caption-word-48-0",
+          "text": "hace",
+          "start": 42.88,
+          "end": 43.04
+        },
+        {
+          "id": "caption-word-48-1",
+          "text": "el",
+          "start": 43.04,
+          "end": 43.2
+        }
+      ]
+    },
+    {
+      "id": "caption-group-49",
+      "frame": 7,
+      "start": 43.2,
+      "end": 44.64,
+      "text": "resto diseña programa",
+      "words": [
+        {
+          "id": "caption-word-49-0",
+          "text": "resto",
+          "start": 43.2,
+          "end": 43.44
+        },
+        {
+          "id": "caption-word-49-1",
+          "text": "diseña",
+          "start": 43.44,
+          "end": 44.08
+        },
+        {
+          "id": "caption-word-49-2",
+          "text": "programa",
+          "start": 44.08,
+          "end": 44.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-50",
+      "frame": 7,
+      "start": 44.64,
+      "end": 45.48,
+      "text": "corrige.",
+      "words": [
+        {
+          "id": "caption-word-50-0",
+          "text": "corrige.",
+          "start": 44.64,
+          "end": 45.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-51",
+      "frame": 8,
+      "start": 45.68,
+      "end": 46.32,
+      "text": "¿Cómo se",
+      "words": [
+        {
+          "id": "caption-word-51-0",
+          "text": "¿Cómo",
+          "start": 45.68,
+          "end": 46.16
+        },
+        {
+          "id": "caption-word-51-1",
+          "text": "se",
+          "start": 46.16,
+          "end": 46.32
+        }
+      ]
+    },
+    {
+      "id": "caption-group-52",
+      "frame": 8,
+      "start": 46.32,
+      "end": 46.8,
+      "text": "hizo este",
+      "words": [
+        {
+          "id": "caption-word-52-0",
+          "text": "hizo",
+          "start": 46.32,
+          "end": 46.56
+        },
+        {
+          "id": "caption-word-52-1",
+          "text": "este",
+          "start": 46.56,
+          "end": 46.8
+        }
+      ]
+    },
+    {
+      "id": "caption-group-53",
+      "frame": 8,
+      "start": 46.8,
+      "end": 47.28,
+      "text": "video?",
+      "words": [
+        {
+          "id": "caption-word-53-0",
+          "text": "video?",
+          "start": 46.8,
+          "end": 47.28
+        }
+      ]
+    },
+    {
+      "id": "caption-group-54",
+      "frame": 8,
+      "start": 47.28,
+      "end": 48.64,
+      "text": "Buscando plantillas bonitas",
+      "words": [
+        {
+          "id": "caption-word-54-0",
+          "text": "Buscando",
+          "start": 47.28,
+          "end": 47.68
+        },
+        {
+          "id": "caption-word-54-1",
+          "text": "plantillas",
+          "start": 47.68,
+          "end": 48.16
+        },
+        {
+          "id": "caption-word-54-2",
+          "text": "bonitas",
+          "start": 48.16,
+          "end": 48.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-55",
+      "frame": 8,
+      "start": 48.64,
+      "end": 48.96,
+      "text": "en la",
+      "words": [
+        {
+          "id": "caption-word-55-0",
+          "text": "en",
+          "start": 48.64,
+          "end": 48.8
+        },
+        {
+          "id": "caption-word-55-1",
+          "text": "la",
+          "start": 48.8,
+          "end": 48.96
+        }
+      ]
+    },
+    {
+      "id": "caption-group-56",
+      "frame": 8,
+      "start": 48.96,
+      "end": 50.08,
+      "text": "web y construyéndolas",
+      "words": [
+        {
+          "id": "caption-word-56-0",
+          "text": "web",
+          "start": 48.96,
+          "end": 49.12
+        },
+        {
+          "id": "caption-word-56-1",
+          "text": "y",
+          "start": 49.12,
+          "end": 49.36
+        },
+        {
+          "id": "caption-word-56-2",
+          "text": "construyéndolas",
+          "start": 49.36,
+          "end": 50.08
+        }
+      ]
+    },
+    {
+      "id": "caption-group-57",
+      "frame": 8,
+      "start": 50.08,
+      "end": 51.48,
+      "text": "en HTML,",
+      "words": [
+        {
+          "id": "caption-word-57-0",
+          "text": "en",
+          "start": 50.08,
+          "end": 50.32
+        },
+        {
+          "id": "caption-word-57-1",
+          "text": "HTML,",
+          "start": 50.32,
+          "end": 51.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-58",
+      "frame": 8,
+      "start": 51.6,
+      "end": 52.92,
+      "text": "sin programas pesados.",
+      "words": [
+        {
+          "id": "caption-word-58-0",
+          "text": "sin",
+          "start": 51.6,
+          "end": 51.84
+        },
+        {
+          "id": "caption-word-58-1",
+          "text": "programas",
+          "start": 51.84,
+          "end": 52.16
+        },
+        {
+          "id": "caption-word-58-2",
+          "text": "pesados.",
+          "start": 52.16,
+          "end": 52.8
+        }
+      ]
+    },
+    {
+      "id": "caption-group-59",
+      "frame": 9,
+      "start": 53.28,
+      "end": 54.16,
+      "text": "Instalas,",
+      "words": [
+        {
+          "id": "caption-word-59-0",
+          "text": "Instalas,",
+          "start": 53.28,
+          "end": 54.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-60",
+      "frame": 9,
+      "start": 54.16,
+      "end": 54.72,
+      "text": "conectas,",
+      "words": [
+        {
+          "id": "caption-word-60-0",
+          "text": "conectas,",
+          "start": 54.16,
+          "end": 54.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-61",
+      "frame": 9,
+      "start": 54.72,
+      "end": 55.36,
+      "text": "pides y",
+      "words": [
+        {
+          "id": "caption-word-61-0",
+          "text": "pides",
+          "start": 54.72,
+          "end": 55.04
+        },
+        {
+          "id": "caption-word-61-1",
+          "text": "y",
+          "start": 55.04,
+          "end": 55.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-62",
+      "frame": 9,
+      "start": 55.36,
+      "end": 55.76,
+      "text": "ya tienes",
+      "words": [
+        {
+          "id": "caption-word-62-0",
+          "text": "ya",
+          "start": 55.36,
+          "end": 55.52
+        },
+        {
+          "id": "caption-word-62-1",
+          "text": "tienes",
+          "start": 55.52,
+          "end": 55.76
+        }
+      ]
+    },
+    {
+      "id": "caption-group-63",
+      "frame": 9,
+      "start": 55.76,
+      "end": 56.16,
+      "text": "a alguien",
+      "words": [
+        {
+          "id": "caption-word-63-0",
+          "text": "a",
+          "start": 55.76,
+          "end": 55.92
+        },
+        {
+          "id": "caption-word-63-1",
+          "text": "alguien",
+          "start": 55.92,
+          "end": 56.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-64",
+      "frame": 9,
+      "start": 56.16,
+      "end": 57.28,
+      "text": "trabajando para ti,",
+      "words": [
+        {
+          "id": "caption-word-64-0",
+          "text": "trabajando",
+          "start": 56.16,
+          "end": 56.64
+        },
+        {
+          "id": "caption-word-64-1",
+          "text": "para",
+          "start": 56.64,
+          "end": 56.96
+        },
+        {
+          "id": "caption-word-64-2",
+          "text": "ti,",
+          "start": 56.96,
+          "end": 57.28
+        }
+      ]
+    },
+    {
+      "id": "caption-group-65",
+      "frame": 9,
+      "start": 57.28,
+      "end": 58.36,
+      "text": "tú también puedes.",
+      "words": [
+        {
+          "id": "caption-word-65-0",
+          "text": "tú",
+          "start": 57.28,
+          "end": 57.52
+        },
+        {
+          "id": "caption-word-65-1",
+          "text": "también",
+          "start": 57.52,
+          "end": 57.84
+        },
+        {
+          "id": "caption-word-65-2",
+          "text": "puedes.",
+          "start": 57.84,
+          "end": 58.24
+        }
+      ]
+    }
+  ]
+}

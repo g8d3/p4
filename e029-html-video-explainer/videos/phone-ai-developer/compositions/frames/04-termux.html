@@ -1,0 +1,232 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Bodoni Moda";
+      src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2");
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2");
+      font-weight: 300 700;
+      font-display: swap;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      container-type: size;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(40cqw 36cqh at 78cqw 12cqh, rgba(168, 230, 207, 0.2), transparent 70%),
+        radial-gradient(34cqw 30cqh at 6cqw 84cqh, rgba(242, 209, 96, 0.12), transparent 70%),
+        #f5f5f0;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+    .step-pill {
+      position: absolute;
+      left: 6cqw;
+      top: 10cqh;
+      background: #f2d160;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      font-size: 1.6cqw;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.9cqw 2.2cqw;
+      white-space: nowrap;
+    }
+    .caption {
+      position: absolute;
+      left: 6cqw;
+      top: 34cqh;
+      width: 34cqw;
+      font-family: "Bodoni Moda", serif;
+      font-weight: 700;
+      font-size: 3.2cqw;
+      line-height: 1.2;
+      color: #1a1a1a;
+    }
+    .phone {
+      position: absolute;
+      right: 9cqw;
+      top: 18cqh;
+      width: 26cqw;
+      height: 60cqh;
+      background: #fff;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 2rem;
+      box-shadow: 0.4cqw 0.4cqw 0 rgba(26, 26, 26, 0.08);
+      padding: 2cqw;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: #1a2a3a;
+      border-radius: 1.4rem;
+      padding: 2cqw;
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
+    }
+    .term {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.9cqw;
+      color: #a8e6cf;
+      line-height: 1.5;
+      white-space: pre;
+    }
+    .caret {
+      display: inline-block;
+      width: 1cqw;
+      height: 1.8cqw;
+      background: #a8e6cf;
+      vertical-align: text-bottom;
+      margin-left: 0.3cqw;
+    }
+    .done-pill {
+      position: absolute;
+      right: 9cqw;
+      top: 82cqh;
+      background: #c4d94e;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 1.9cqw;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.9cqw 2cqw;
+      white-space: nowrap;
+      opacity: 0;
+    }
+    .placeholder {
+      position: absolute;
+      left: 6cqw;
+      bottom: 14cqh;
+      width: 32cqw;
+      height: 16cqh;
+      border: 0.25cqw dashed #1e1e1e;
+      border-radius: 2rem;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 500;
+      font-size: 1.4cqw;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      opacity: 0;
+    }
+    .placeholder .cam {
+      font-size: 2.4cqw;
+      margin-bottom: 0.6cqw;
+    }
+  </style>
+
+  <div id="root" data-composition-id="04-termux" data-width="1920" data-height="1080" data-duration="8.9">
+    <div class="bg clip" id="f04-termux-bg" data-start="0" data-duration="7.668" data-track-index="1"></div>
+    <div class="grain clip" id="f04-termux-grain" data-start="0" data-duration="7.668" data-track-index="2"></div>
+
+    <div class="step-pill" id="step">Paso 1</div>
+    <div class="caption" id="caption">La puerta de tu teléfono</div>
+
+    <div class="phone" id="phone">
+      <div class="phone-screen">
+        <div class="term" id="term"><span id="cmd">$ </span><span id="typed"></span><span class="caret" id="caret"></span></div>
+      </div>
+    </div>
+
+    <div class="done-pill" id="done">Termux ✓</div>
+    <div class="placeholder" id="placeholder"><div><div class="cam">📷</div>Tu foto aquí</div></div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo(
+      "#step",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.55, ease: "power3.out" },
+      0.1,
+    );
+    tl.fromTo(
+      "#caption",
+      { opacity: 0, y: 26 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+      0.4,
+    );
+
+    tl.fromTo(
+      "#phone",
+      { x: 900, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+      0.5,
+    );
+
+    const fullCmd = "pkg install termux";
+    const cmdLen = { v: 0 };
+    tl.to(
+      cmdLen,
+      {
+        v: fullCmd.length,
+        duration: 2.6,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          document.getElementById("typed").textContent = fullCmd.substring(0, Math.floor(cmdLen.v));
+        },
+      },
+      1.6,
+    );
+
+    const blink = { p: 0 };
+    tl.to(
+      blink,
+      {
+        p: Math.PI * 2 * 8,
+        duration: 7.168,
+        ease: "none",
+        onUpdate: () => {
+          document.getElementById("caret").style.opacity = Math.sin(blink.p) > 0 ? "1" : "0";
+        },
+      },
+      0,
+    );
+
+    tl.fromTo(
+      "#done",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.55, ease: "power3.out" },
+      4.5,
+    );
+    tl.fromTo(
+      "#placeholder",
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      5.2,
+    );
+
+    window.__timelines["04-termux"] = tl;
+  </script>
+</template>

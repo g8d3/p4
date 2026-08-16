@@ -1,0 +1,164 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Bodoni Moda";
+      src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2");
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2");
+      font-weight: 300 700;
+      font-display: swap;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      container-type: size;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(46cqw 40cqh at 50% 46%, rgba(242, 209, 96, 0.2), transparent 70%),
+        radial-gradient(36cqw 32cqh at 90cqw 90cqh, rgba(232, 93, 78, 0.1), transparent 70%),
+        #f5f5f0;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+    .float-pill {
+      position: absolute;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      font-size: 1.2cqw;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.7cqw 1.6cqw;
+    }
+    #fp1 { left: 8cqw; top: 18cqh; background: #c5b5e0; transform: rotate(-14deg); }
+    #fp2 { right: 9cqw; top: 24cqh; background: #a8e6cf; transform: rotate(10deg); }
+    #fp3 { left: 12cqw; bottom: 16cqh; background: #8bb4f7; transform: rotate(8deg); }
+    #fp4 { right: 10cqw; bottom: 20cqh; background: #f5b895; transform: rotate(-8deg); }
+    #fp5 { left: 42cqw; top: 12cqh; background: #c4d94e; transform: rotate(-6deg); }
+    .verb {
+      position: absolute;
+      left: 50%;
+      top: 40%;
+      font-family: "Bodoni Moda", serif;
+      font-weight: 800;
+      font-size: 8cqw;
+      color: #1a1a1a;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      opacity: 0;
+    }
+    .closing {
+      position: absolute;
+      left: 50%;
+      top: 40%;
+      transform: translate(-50%, -50%);
+      background: #f2d160;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.4cqw 0.4cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Bodoni Moda", serif;
+      font-weight: 800;
+      font-size: 5cqw;
+      color: #1a1a1a;
+      padding: 1.4cqw 4cqw;
+      white-space: nowrap;
+      opacity: 0;
+    }
+    .accent-line {
+      position: absolute;
+      left: 50%;
+      top: 62%;
+      width: 12cqw;
+      height: 0.6cqw;
+      transform: translateX(-50%);
+      background: #e85d4e;
+      border-radius: 9999px;
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="09-tu-tambien-puedes" data-width="1920" data-height="1080">
+    <div class="bg clip" id="f09-tu-tambien-puedes-bg" data-start="0" data-duration="5.077" data-track-index="1"></div>
+    <div class="grain clip" id="f09-tu-tambien-puedes-grain" data-start="0" data-duration="5.077" data-track-index="2"></div>
+
+    <div class="float-pill" id="fp1">Idea</div>
+    <div class="float-pill" id="fp2">Código</div>
+    <div class="float-pill" id="fp3">Diseño</div>
+    <div class="float-pill" id="fp4">Texto</div>
+    <div class="float-pill" id="fp5">Voz</div>
+
+    <div class="verb" id="verb1">Instalas.</div>
+    <div class="verb" id="verb2">Conectas.</div>
+    <div class="verb" id="verb3">Pides.</div>
+
+    <div class="closing" id="closing">Tú también puedes.</div>
+    <div class="accent-line" id="accent-line"></div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    gsap.utils.toArray(".float-pill").forEach((el, i) => {
+      tl.fromTo(
+        el,
+        { opacity: 0, y: 24, scale: 0.6 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "power3.out" },
+        0.2 + i * 0.18,
+      );
+    });
+
+    const beats = [
+      { el: "#verb1", at: 0.5 },
+      { el: "#verb2", at: 1.9 },
+      { el: "#verb3", at: 3.0 },
+    ];
+    beats.forEach((b, i) => {
+      tl.fromTo(
+        b.el,
+        { opacity: 0, y: 60, scale: 0.7, xPercent: -50, yPercent: -50 },
+        { opacity: 1, y: 0, scale: 1, xPercent: -50, yPercent: -50, duration: 0.55, ease: "power3.out" },
+        b.at,
+      );
+      beats.forEach((prev, j) => {
+        if (j !== i) tl.set(prev.el, { opacity: 0 }, b.at);
+      });
+    });
+
+    tl.fromTo(
+      "#closing",
+      { scale: 0.6, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.6, ease: "power3.out" },
+      4.1,
+    );
+    tl.fromTo(
+      "#accent-line",
+      { scaleX: 0, opacity: 0 },
+      { scaleX: 1, opacity: 1, duration: 0.5, ease: "power2.out" },
+      4.4,
+    );
+    gsap.utils.toArray(".verb").forEach((el) => {
+      tl.to(el, { opacity: 0, y: -40, duration: 0.45, ease: "power2.out" }, 4.1);
+    });
+
+    window.__timelines["09-tu-tambien-puedes"] = tl;
+  </script>
+</template>

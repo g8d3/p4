@@ -1,0 +1,22 @@
+# e029 — phone-ai-developer
+
+The user's brief, verbatim from the intent conversation (translated to English for the record; narration will be in Spanish):
+
+> I'd like us to try, in a new experiment, making a video from HTML, but the HTML needs to be as beautiful as possible. The options I've thought of are presentations — or, I don't know, presentations or something like impress.js, or three.js. And I'd like whatever you create to be a self-explanation — honestly, whatever you do is going to be an explanation of itself, i.e., a presentation of how you make the presentation. But you have to orient it to a non-technical audience.
+>
+> If you notice, our toolkit is a phone and a computer connected through SSH, with the inference provider OpenCode Go and the model DeepSeek Flash. It's a very economical toolkit. For example, what I'm looking at is Termux, which is a very efficient program for communicating with you.
+>
+> I imagine it would help your presentation if I send you photos of the way I work — photos or videos. You could leave blank spaces for me to put them in later. I use Google's Android keyboard and I'm dictating through it.
+>
+> The orientation of that video should be something like: "Look — if you have access to an Android phone, you can install these programs and put this on your computer, and you already have a programmer working for you, or a designer working for you." But we need the right templates so that the presentation and the video come out pretty, because — as I've said before, to other agents — the presentation or the aesthetics aren't the best.
+>
+> I saw that yesterday I was trying Open Design, but I'm not sure that's what you should do, because if you go down that path, honestly, Open Design is a very heavy program. So maybe you could search the web for templates — that you search the web for templates. That could also be put in the video or the presentation you're going to make.
+
+## Confirmed brief (from the intent interview)
+
+- Deliverable: one MP4 video rendered from HTML (HyperFrames), 16:9, Spanish narration, ~60-90s.
+- Audience: non-technical Spanish-speaking people who own an Android phone.
+- Message: "With just an Android phone and a computer connected via SSH, you can have an AI programmer or designer working for you, almost for free."
+- Angle: how-to / inspiration — "you can do this too".
+- The video should leave blank placeholder spaces for the user's own photos/videos of their real workflow (Termux, phone, SSH, dictation).
+- Aesthetics matter most: the user wants the HTML to be as beautiful as possible; explicitly NOT relying on Open Design (too heavy); web-searched templates/inspiration are welcome and can be a beat inside the video itself.

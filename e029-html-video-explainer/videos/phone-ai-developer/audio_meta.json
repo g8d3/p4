@@ -1,0 +1,1057 @@
+{
+  "bgm": null,
+  "bgm_pending": false,
+  "voices": [
+    {
+      "frame": 1,
+      "path": "assets/voice/01.mp3",
+      "duration_s": 3.52,
+      "words": [
+        {
+          "id": "w0",
+          "text": "\u00bfSab\u00edas",
+          "start": 0.4,
+          "end": 0.8
+        },
+        {
+          "id": "w1",
+          "text": "que",
+          "start": 0.8,
+          "end": 1.04
+        },
+        {
+          "id": "w2",
+          "text": "tu",
+          "start": 1.04,
+          "end": 1.36
+        },
+        {
+          "id": "w3",
+          "text": "celular",
+          "start": 1.36,
+          "end": 1.76
+        },
+        {
+          "id": "w4",
+          "text": "Android",
+          "start": 1.76,
+          "end": 2.16
+        },
+        {
+          "id": "w5",
+          "text": "puede",
+          "start": 2.16,
+          "end": 2.4
+        },
+        {
+          "id": "w6",
+          "text": "ser",
+          "start": 2.4,
+          "end": 2.64
+        },
+        {
+          "id": "w7",
+          "text": "tu",
+          "start": 2.64,
+          "end": 2.8
+        },
+        {
+          "id": "w8",
+          "text": "programador?",
+          "start": 2.8,
+          "end": 3.36
+        }
+      ]
+    },
+    {
+      "frame": 2,
+      "path": "assets/voice/02.mp3",
+      "duration_s": 6.16,
+      "words": [
+        {
+          "id": "w0",
+          "text": "Crees",
+          "start": 0.4,
+          "end": 0.8
+        },
+        {
+          "id": "w1",
+          "text": "que",
+          "start": 0.8,
+          "end": 0.96
+        },
+        {
+          "id": "w2",
+          "text": "necesitas",
+          "start": 0.96,
+          "end": 1.44
+        },
+        {
+          "id": "w3",
+          "text": "una",
+          "start": 1.44,
+          "end": 1.76
+        },
+        {
+          "id": "w4",
+          "text": "computadora",
+          "start": 1.76,
+          "end": 2.4
+        },
+        {
+          "id": "w5",
+          "text": "car\u00edsima",
+          "start": 2.4,
+          "end": 3.04
+        },
+        {
+          "id": "w6",
+          "text": "y",
+          "start": 3.04,
+          "end": 3.28
+        },
+        {
+          "id": "w7",
+          "text": "un",
+          "start": 3.28,
+          "end": 3.52
+        },
+        {
+          "id": "w8",
+          "text": "equipo",
+          "start": 3.52,
+          "end": 3.76
+        },
+        {
+          "id": "w9",
+          "text": "de",
+          "start": 3.76,
+          "end": 4.0
+        },
+        {
+          "id": "w10",
+          "text": "desarrolladores,",
+          "start": 4.0,
+          "end": 4.96
+        },
+        {
+          "id": "w11",
+          "text": "no",
+          "start": 5.12,
+          "end": 5.52
+        },
+        {
+          "id": "w12",
+          "text": "es",
+          "start": 5.52,
+          "end": 5.68
+        },
+        {
+          "id": "w13",
+          "text": "cierto.",
+          "start": 5.68,
+          "end": 6.0
+        }
+      ]
+    },
+    {
+      "frame": 3,
+      "path": "assets/voice/03.mp3",
+      "duration_s": 7.16,
+      "words": [
+        {
+          "id": "w0",
+          "text": "S\u00f3lo",
+          "start": 0.4,
+          "end": 0.72
+        },
+        {
+          "id": "w1",
+          "text": "necesitas",
+          "start": 0.72,
+          "end": 1.28
+        },
+        {
+          "id": "w2",
+          "text": "2",
+          "start": 1.28,
+          "end": 1.6
+        },
+        {
+          "id": "w3",
+          "text": "aparatos,",
+          "start": 1.6,
+          "end": 2.32
+        },
+        {
+          "id": "w4",
+          "text": "una",
+          "start": 2.32,
+          "end": 2.48
+        },
+        {
+          "id": "w5",
+          "text": "conexi\u00f3n",
+          "start": 2.48,
+          "end": 2.96
+        },
+        {
+          "id": "w6",
+          "text": "y",
+          "start": 2.96,
+          "end": 3.28
+        },
+        {
+          "id": "w7",
+          "text": "un",
+          "start": 3.28,
+          "end": 3.44
+        },
+        {
+          "id": "w8",
+          "text": "modelo",
+          "start": 3.44,
+          "end": 3.76
+        },
+        {
+          "id": "w9",
+          "text": "de",
+          "start": 3.76,
+          "end": 4.0
+        },
+        {
+          "id": "w10",
+          "text": "IA",
+          "start": 4.0,
+          "end": 4.32
+        },
+        {
+          "id": "w11",
+          "text": "barato,",
+          "start": 4.32,
+          "end": 5.04
+        },
+        {
+          "id": "w12",
+          "text": "y",
+          "start": 5.2,
+          "end": 5.36
+        },
+        {
+          "id": "w13",
+          "text": "con",
+          "start": 5.36,
+          "end": 5.6
+        },
+        {
+          "id": "w14",
+          "text": "eso",
+          "start": 5.6,
+          "end": 5.84
+        },
+        {
+          "id": "w15",
+          "text": "ya",
+          "start": 5.84,
+          "end": 6.24
+        },
+        {
+          "id": "w16",
+          "text": "tienes",
+          "start": 6.24,
+          "end": 6.56
+        },
+        {
+          "id": "w17",
+          "text": "equipo.",
+          "start": 6.56,
+          "end": 7.04
+        }
+      ]
+    },
+    {
+      "frame": 4,
+      "path": "assets/voice/04.mp3",
+      "duration_s": 8.4,
+      "words": [
+        {
+          "id": "w0",
+          "text": "Paso",
+          "start": 0.32,
+          "end": 0.8
+        },
+        {
+          "id": "w1",
+          "text": "1,",
+          "start": 0.8,
+          "end": 1.52
+        },
+        {
+          "id": "w2",
+          "text": "instala",
+          "start": 1.52,
+          "end": 2.08
+        },
+        {
+          "id": "w3",
+          "text": "TherMUX,",
+          "start": 2.08,
+          "end": 2.8
+        },
+        {
+          "id": "w4",
+          "text": "una",
+          "start": 2.8,
+          "end": 3.04
+        },
+        {
+          "id": "w5",
+          "text": "app",
+          "start": 3.04,
+          "end": 3.28
+        },
+        {
+          "id": "w6",
+          "text": "que",
+          "start": 3.28,
+          "end": 3.44
+        },
+        {
+          "id": "w7",
+          "text": "abre",
+          "start": 3.44,
+          "end": 3.76
+        },
+        {
+          "id": "w8",
+          "text": "la",
+          "start": 3.76,
+          "end": 3.92
+        },
+        {
+          "id": "w9",
+          "text": "puerta",
+          "start": 3.92,
+          "end": 4.16
+        },
+        {
+          "id": "w10",
+          "text": "de",
+          "start": 4.16,
+          "end": 4.32
+        },
+        {
+          "id": "w11",
+          "text": "tu",
+          "start": 4.32,
+          "end": 4.48
+        },
+        {
+          "id": "w12",
+          "text": "tel\u00e9fono.",
+          "start": 4.48,
+          "end": 5.12
+        },
+        {
+          "id": "w13",
+          "text": "Aqu\u00ed",
+          "start": 5.36,
+          "end": 5.68
+        },
+        {
+          "id": "w14",
+          "text": "puedes",
+          "start": 5.68,
+          "end": 6.0
+        },
+        {
+          "id": "w15",
+          "text": "poner",
+          "start": 6.0,
+          "end": 6.24
+        },
+        {
+          "id": "w16",
+          "text": "la",
+          "start": 6.24,
+          "end": 6.4
+        },
+        {
+          "id": "w17",
+          "text": "foto",
+          "start": 6.4,
+          "end": 6.72
+        },
+        {
+          "id": "w18",
+          "text": "de",
+          "start": 6.72,
+          "end": 6.88
+        },
+        {
+          "id": "w19",
+          "text": "tu",
+          "start": 6.88,
+          "end": 7.04
+        },
+        {
+          "id": "w20",
+          "text": "celular",
+          "start": 7.04,
+          "end": 7.44
+        },
+        {
+          "id": "w21",
+          "text": "con",
+          "start": 7.44,
+          "end": 7.76
+        },
+        {
+          "id": "w22",
+          "text": "TherMUX.",
+          "start": 7.76,
+          "end": 8.24
+        }
+      ]
+    },
+    {
+      "frame": 5,
+      "path": "assets/voice/05.mp3",
+      "duration_s": 7.0,
+      "words": [
+        {
+          "id": "w0",
+          "text": "Paso",
+          "start": 0.32,
+          "end": 0.72
+        },
+        {
+          "id": "w1",
+          "text": "2:",
+          "start": 0.72,
+          "end": 1.2
+        },
+        {
+          "id": "w2",
+          "text": "Conecta",
+          "start": 1.2,
+          "end": 1.6
+        },
+        {
+          "id": "w3",
+          "text": "tu",
+          "start": 1.6,
+          "end": 1.76
+        },
+        {
+          "id": "w4",
+          "text": "tel\u00e9fono",
+          "start": 1.76,
+          "end": 2.08
+        },
+        {
+          "id": "w5",
+          "text": "a",
+          "start": 2.08,
+          "end": 2.24
+        },
+        {
+          "id": "w6",
+          "text": "tu",
+          "start": 2.24,
+          "end": 2.4
+        },
+        {
+          "id": "w7",
+          "text": "computador",
+          "start": 2.4,
+          "end": 2.88
+        },
+        {
+          "id": "w8",
+          "text": "con",
+          "start": 2.88,
+          "end": 3.28
+        },
+        {
+          "id": "w9",
+          "text": "Es",
+          "start": 3.28,
+          "end": 4.88
+        },
+        {
+          "id": "w10",
+          "text": "un",
+          "start": 4.88,
+          "end": 5.04
+        },
+        {
+          "id": "w11",
+          "text": "puente",
+          "start": 5.04,
+          "end": 5.36
+        },
+        {
+          "id": "w12",
+          "text": "invisible",
+          "start": 5.36,
+          "end": 5.92
+        },
+        {
+          "id": "w13",
+          "text": "entre",
+          "start": 5.92,
+          "end": 6.4
+        },
+        {
+          "id": "w14",
+          "text": "los",
+          "start": 6.4,
+          "end": 6.64
+        },
+        {
+          "id": "w15",
+          "text": "2.",
+          "start": 6.64,
+          "end": 6.96
+        }
+      ]
+    },
+    {
+      "frame": 6,
+      "path": "assets/voice/06.mp3",
+      "duration_s": 6.64,
+      "words": [
+        {
+          "id": "w0",
+          "text": "Paso",
+          "start": 0.24,
+          "end": 0.8
+        },
+        {
+          "id": "w1",
+          "text": "3,",
+          "start": 0.8,
+          "end": 1.28
+        },
+        {
+          "id": "w2",
+          "text": "lanza",
+          "start": 1.28,
+          "end": 1.68
+        },
+        {
+          "id": "w3",
+          "text": "Open",
+          "start": 1.68,
+          "end": 2.08
+        },
+        {
+          "id": "w4",
+          "text": "Code",
+          "start": 2.08,
+          "end": 2.48
+        },
+        {
+          "id": "w5",
+          "text": "Code",
+          "start": 2.48,
+          "end": 2.8
+        },
+        {
+          "id": "w6",
+          "text": "con",
+          "start": 2.8,
+          "end": 3.04
+        },
+        {
+          "id": "w7",
+          "text": "el",
+          "start": 3.04,
+          "end": 3.2
+        },
+        {
+          "id": "w8",
+          "text": "modelo",
+          "start": 3.2,
+          "end": 3.52
+        },
+        {
+          "id": "w9",
+          "text": "Dipsik",
+          "start": 3.52,
+          "end": 4.16
+        },
+        {
+          "id": "w10",
+          "text": "Flash",
+          "start": 4.16,
+          "end": 4.56
+        },
+        {
+          "id": "w11",
+          "text": "y",
+          "start": 4.56,
+          "end": 4.88
+        },
+        {
+          "id": "w12",
+          "text": "tu",
+          "start": 4.88,
+          "end": 5.04
+        },
+        {
+          "id": "w13",
+          "text": "agente",
+          "start": 5.04,
+          "end": 5.36
+        },
+        {
+          "id": "w14",
+          "text": "empieza",
+          "start": 5.36,
+          "end": 5.92
+        },
+        {
+          "id": "w15",
+          "text": "a",
+          "start": 5.92,
+          "end": 6.08
+        },
+        {
+          "id": "w16",
+          "text": "trabajar.",
+          "start": 6.08,
+          "end": 6.48
+        }
+      ]
+    },
+    {
+      "frame": 7,
+      "path": "assets/voice/07.mp3",
+      "duration_s": 6.56,
+      "words": [
+        {
+          "id": "w0",
+          "text": "Ya",
+          "start": 0.32,
+          "end": 0.64
+        },
+        {
+          "id": "w1",
+          "text": "est\u00e1,",
+          "start": 0.64,
+          "end": 0.96
+        },
+        {
+          "id": "w2",
+          "text": "le",
+          "start": 0.96,
+          "end": 1.04
+        },
+        {
+          "id": "w3",
+          "text": "pides",
+          "start": 1.04,
+          "end": 1.28
+        },
+        {
+          "id": "w4",
+          "text": "algo",
+          "start": 1.28,
+          "end": 1.52
+        },
+        {
+          "id": "w5",
+          "text": "con",
+          "start": 1.52,
+          "end": 1.76
+        },
+        {
+          "id": "w6",
+          "text": "tu",
+          "start": 1.76,
+          "end": 1.92
+        },
+        {
+          "id": "w7",
+          "text": "voz",
+          "start": 1.92,
+          "end": 2.16
+        },
+        {
+          "id": "w8",
+          "text": "o",
+          "start": 2.16,
+          "end": 2.48
+        },
+        {
+          "id": "w9",
+          "text": "tu",
+          "start": 2.48,
+          "end": 2.64
+        },
+        {
+          "id": "w10",
+          "text": "teclado,",
+          "start": 2.64,
+          "end": 3.36
+        },
+        {
+          "id": "w11",
+          "text": "y",
+          "start": 3.6,
+          "end": 3.68
+        },
+        {
+          "id": "w12",
+          "text": "\u00e9l",
+          "start": 3.68,
+          "end": 4.0
+        },
+        {
+          "id": "w13",
+          "text": "hace",
+          "start": 4.0,
+          "end": 4.16
+        },
+        {
+          "id": "w14",
+          "text": "el",
+          "start": 4.16,
+          "end": 4.32
+        },
+        {
+          "id": "w15",
+          "text": "resto",
+          "start": 4.32,
+          "end": 4.56
+        },
+        {
+          "id": "w16",
+          "text": "dise\u00f1a",
+          "start": 4.56,
+          "end": 5.2
+        },
+        {
+          "id": "w17",
+          "text": "programa",
+          "start": 5.2,
+          "end": 5.76
+        },
+        {
+          "id": "w18",
+          "text": "corrige.",
+          "start": 5.76,
+          "end": 6.48
+        }
+      ]
+    },
+    {
+      "frame": 8,
+      "path": "assets/voice/08.mp3",
+      "duration_s": 7.36,
+      "words": [
+        {
+          "id": "w0",
+          "text": "\u00bfC\u00f3mo",
+          "start": 0.24,
+          "end": 0.72
+        },
+        {
+          "id": "w1",
+          "text": "se",
+          "start": 0.72,
+          "end": 0.88
+        },
+        {
+          "id": "w2",
+          "text": "hizo",
+          "start": 0.88,
+          "end": 1.12
+        },
+        {
+          "id": "w3",
+          "text": "este",
+          "start": 1.12,
+          "end": 1.36
+        },
+        {
+          "id": "w4",
+          "text": "video?",
+          "start": 1.36,
+          "end": 1.84
+        },
+        {
+          "id": "w5",
+          "text": "Buscando",
+          "start": 1.84,
+          "end": 2.24
+        },
+        {
+          "id": "w6",
+          "text": "plantillas",
+          "start": 2.24,
+          "end": 2.72
+        },
+        {
+          "id": "w7",
+          "text": "bonitas",
+          "start": 2.72,
+          "end": 3.2
+        },
+        {
+          "id": "w8",
+          "text": "en",
+          "start": 3.2,
+          "end": 3.36
+        },
+        {
+          "id": "w9",
+          "text": "la",
+          "start": 3.36,
+          "end": 3.52
+        },
+        {
+          "id": "w10",
+          "text": "web",
+          "start": 3.52,
+          "end": 3.68
+        },
+        {
+          "id": "w11",
+          "text": "y",
+          "start": 3.68,
+          "end": 3.92
+        },
+        {
+          "id": "w12",
+          "text": "construy\u00e9ndolas",
+          "start": 3.92,
+          "end": 4.64
+        },
+        {
+          "id": "w13",
+          "text": "en",
+          "start": 4.64,
+          "end": 4.88
+        },
+        {
+          "id": "w14",
+          "text": "HTML,",
+          "start": 4.88,
+          "end": 5.92
+        },
+        {
+          "id": "w15",
+          "text": "sin",
+          "start": 6.16,
+          "end": 6.4
+        },
+        {
+          "id": "w16",
+          "text": "programas",
+          "start": 6.4,
+          "end": 6.72
+        },
+        {
+          "id": "w17",
+          "text": "pesados.",
+          "start": 6.72,
+          "end": 7.36
+        }
+      ]
+    },
+    {
+      "frame": 9,
+      "path": "assets/voice/09.mp3",
+      "duration_s": 5.52,
+      "words": [
+        {
+          "id": "w0",
+          "text": "Instalas,",
+          "start": 0.48,
+          "end": 1.36
+        },
+        {
+          "id": "w1",
+          "text": "conectas,",
+          "start": 1.36,
+          "end": 1.92
+        },
+        {
+          "id": "w2",
+          "text": "pides",
+          "start": 1.92,
+          "end": 2.24
+        },
+        {
+          "id": "w3",
+          "text": "y",
+          "start": 2.24,
+          "end": 2.56
+        },
+        {
+          "id": "w4",
+          "text": "ya",
+          "start": 2.56,
+          "end": 2.72
+        },
+        {
+          "id": "w5",
+          "text": "tienes",
+          "start": 2.72,
+          "end": 2.96
+        },
+        {
+          "id": "w6",
+          "text": "a",
+          "start": 2.96,
+          "end": 3.12
+        },
+        {
+          "id": "w7",
+          "text": "alguien",
+          "start": 3.12,
+          "end": 3.36
+        },
+        {
+          "id": "w8",
+          "text": "trabajando",
+          "start": 3.36,
+          "end": 3.84
+        },
+        {
+          "id": "w9",
+          "text": "para",
+          "start": 3.84,
+          "end": 4.16
+        },
+        {
+          "id": "w10",
+          "text": "ti,",
+          "start": 4.16,
+          "end": 4.48
+        },
+        {
+          "id": "w11",
+          "text": "t\u00fa",
+          "start": 4.48,
+          "end": 4.72
+        },
+        {
+          "id": "w12",
+          "text": "tambi\u00e9n",
+          "start": 4.72,
+          "end": 5.04
+        },
+        {
+          "id": "w13",
+          "text": "puedes.",
+          "start": 5.04,
+          "end": 5.44
+        }
+      ]
+    }
+  ],
+  "sfx": [
+    {
+      "frame": 1,
+      "file": "assets/sfx/pop.mp3",
+      "offset_s": 0,
+      "duration_s": 0.72,
+      "volume": 0.35
+    },
+    {
+      "frame": 2,
+      "file": "assets/sfx/click.mp3",
+      "offset_s": 0,
+      "duration_s": 0.37,
+      "volume": 0.35
+    },
+    {
+      "frame": 3,
+      "file": "assets/sfx/pop.mp3",
+      "offset_s": 0,
+      "duration_s": 0.72,
+      "volume": 0.35
+    },
+    {
+      "frame": 4,
+      "file": "assets/sfx/whoosh-short.mp3",
+      "offset_s": 0,
+      "duration_s": 0.57,
+      "volume": 0.35
+    },
+    {
+      "frame": 4,
+      "file": "assets/sfx/typing.mp3",
+      "offset_s": 0,
+      "duration_s": 1.5,
+      "volume": 0.35
+    },
+    {
+      "frame": 5,
+      "file": "assets/sfx/whoosh.mp3",
+      "offset_s": 0,
+      "duration_s": 0.57,
+      "volume": 0.35
+    },
+    {
+      "frame": 5,
+      "file": "assets/sfx/click-soft.mp3",
+      "offset_s": 0,
+      "duration_s": 0.37,
+      "volume": 0.35
+    },
+    {
+      "frame": 6,
+      "file": "assets/sfx/click-soft.mp3",
+      "offset_s": 0,
+      "duration_s": 0.37,
+      "volume": 0.35
+    },
+    {
+      "frame": 6,
+      "file": "assets/sfx/pop.mp3",
+      "offset_s": 0,
+      "duration_s": 0.72,
+      "volume": 0.35
+    },
+    {
+      "frame": 7,
+      "file": "assets/sfx/typing.mp3",
+      "offset_s": 0,
+      "duration_s": 1.5,
+      "volume": 0.35
+    },
+    {
+      "frame": 7,
+      "file": "assets/sfx/pop.mp3",
+      "offset_s": 0,
+      "duration_s": 0.72,
+      "volume": 0.35
+    },
+    {
+      "frame": 8,
+      "file": "assets/sfx/typing.mp3",
+      "offset_s": 0,
+      "duration_s": 1.5,
+      "volume": 0.35
+    },
+    {
+      "frame": 9,
+      "file": "assets/sfx/impact-bass-1.mp3",
+      "offset_s": 0,
+      "duration_s": 2.12,
+      "volume": 0.35
+    },
+    {
+      "frame": 9,
+      "file": "assets/sfx/pop.mp3",
+      "offset_s": 0,
+      "duration_s": 0.72,
+      "volume": 0.35
+    }
+  ]
+}

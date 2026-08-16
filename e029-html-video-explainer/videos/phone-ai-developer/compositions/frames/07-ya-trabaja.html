@@ -1,0 +1,203 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Bodoni Moda";
+      src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2");
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2");
+      font-weight: 300 700;
+      font-display: swap;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      container-type: size;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(44cqw 40cqh at 80cqw 8cqh, rgba(232, 93, 78, 0.14), transparent 70%),
+        radial-gradient(36cqw 32cqh at 6cqw 90cqh, rgba(197, 181, 224, 0.14), transparent 70%),
+        #f5f5f0;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+    .prompt-card {
+      position: absolute;
+      left: 50%;
+      top: 14cqh;
+      width: 64cqw;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 2rem;
+      box-shadow: 0.4cqw 0.4cqw 0 rgba(26, 26, 26, 0.08);
+      padding: 2.4cqw 3cqw;
+      box-sizing: border-box;
+    }
+    .prompt-label {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      font-size: 1.5cqw;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      margin-bottom: 1.4cqw;
+    }
+    .prompt-line {
+      font-family: "Bodoni Moda", serif;
+      font-weight: 700;
+      font-size: 3.4cqw;
+      color: #1a1a1a;
+      white-space: pre;
+      min-height: 4.4cqw;
+    }
+    .caret {
+      display: inline-block;
+      width: 1.1cqw;
+      height: 2.6cqw;
+      background: #1a1a1a;
+      vertical-align: text-bottom;
+    }
+    .answer-row {
+      position: absolute;
+      left: 50%;
+      top: 46cqh;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 2cqw;
+    }
+    .answer-pill {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 2.2cqw;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 1.1cqw 2.4cqw;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      opacity: 0;
+    }
+    #answer1 { background: #e85d4e; color: #f5f5f0; }
+    #answer2 { background: #8bb4f7; }
+    #answer3 { background: #a8e6cf; }
+    .placeholder {
+      position: absolute;
+      right: 6cqw;
+      bottom: 12cqh;
+      width: 30cqw;
+      height: 15cqh;
+      border: 0.25cqw dashed #1e1e1e;
+      border-radius: 2rem;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 500;
+      font-size: 1.4cqw;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      opacity: 0;
+    }
+    .placeholder .cam {
+      font-size: 2.4cqw;
+      margin-bottom: 0.6cqw;
+    }
+  </style>
+
+  <div id="root" data-composition-id="07-ya-trabaja" data-width="1920" data-height="1080" data-duration="7.06">
+    <div class="bg clip" id="f07-ya-trabaja-bg" data-start="0" data-duration="5.94" data-track-index="1"></div>
+    <div class="grain clip" id="f07-ya-trabaja-grain" data-start="0" data-duration="5.94" data-track-index="2"></div>
+
+    <div class="prompt-card" id="prompt">
+      <div class="prompt-label" id="prompt-label">Tú dices…</div>
+      <div class="prompt-line" id="prompt-line"><span id="typed"></span><span class="caret" id="caret"></span></div>
+    </div>
+
+    <div class="answer-row" id="answer-row">
+      <span class="answer-pill" id="answer1">Diseña</span>
+      <span class="answer-pill" id="answer2">Programa</span>
+      <span class="answer-pill" id="answer3">Corrige</span>
+    </div>
+
+    <div class="placeholder" id="placeholder"><div><div class="cam">📷</div>Tu foto aquí</div></div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo(
+      "#prompt",
+      { opacity: 0, y: 50, scale: 0.96 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "power3.out" },
+      0.15,
+    );
+
+    const fullText = "Diseña una presentación";
+    const len = { v: 0 };
+    tl.to(
+      len,
+      {
+        v: fullText.length,
+        duration: 2.6,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          document.getElementById("typed").textContent = fullText.substring(0, Math.floor(len.v));
+        },
+      },
+      1.3,
+    );
+
+    const blink = { p: 0 };
+    tl.to(
+      blink,
+      {
+        p: Math.PI * 2 * 6,
+        duration: 5.44,
+        ease: "none",
+        onUpdate: () => {
+          document.getElementById("caret").style.opacity = Math.sin(blink.p) > 0 ? "1" : "0";
+        },
+      },
+      0,
+    );
+
+    tl.to("#prompt-label", { textContent: "Él hace…", duration: 0.2 }, 3.9);
+
+    ["#answer1", "#answer2", "#answer3"].forEach((s, i) => {
+      tl.fromTo(
+        s,
+        { scale: 0, opacity: 0, y: 22 },
+        { scale: 1, opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+        4.0 + i * 0.35,
+      );
+    });
+
+    tl.fromTo(
+      "#placeholder",
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      2.9,
+    );
+
+    window.__timelines["07-ya-trabaja"] = tl;
+  </script>
+</template>

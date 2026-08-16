@@ -329,6 +329,10 @@ Every video — regardless of type — follows the same five-step pipeline. Vide
 - **TTS (primary)**: English voice, use **KIE Gemini TTS** (`google/gemini-3-1-flash-tts`) via `e019-kie-image-api/ag-01/bin/kie-tts.sh`. Tested, works, cheap (~0.6 credits per short sentence), full voice/style/accent control. Requires `KIE_API_KEY`.
 - **TTS preferred voices (documented 2026-08-14, user-approved)**: use one of **Alnilam, Gacrux, Puck, Sulafat, Umbriel, Vindemiatrix** for all p4 narration. Pick one per episode/character and keep it consistent across the video; set with `kie-tts.sh --voice <name>`. (Full list of 30 is in e019 AGENTS.md; the default `Fenrir` remains available.)
 - **TTS fallbacks** (only if KIE is unavailable):
+  - **Deepgram Aura-2** (`aura-2-celeste-es` = es-co Spanish, energetic/friendly;
+    ~$0.030/1k chars, free credits) — wrapper: `e029-html-video-explainer/bin/dg-tts.sh`.
+    Good economical Spanish quality. See `e029-html-video-explainer/TTS-RESEARCH.md`
+    for emotion-capable providers (Fish Audio S2.1 Pro, Deepgram Flux, Hume, ElevenLabs, Cartesia).
   - `edge-tts` with `en-US-JennyNeural` (female) or `en-US-GuyNeural` (male).
   - Xiaomi `mimo-v2.5-tts` via API (higher quality, requires `XIAOMI_API_KEY`). See `e009-xiaomi-display/ag-01/bin/xiaomi-api` for CLI usage.
   - ElevenLabs via KIE (`elevenlabs/text-to-speech-turbo-2-5`) — not working on KIE (internal error).

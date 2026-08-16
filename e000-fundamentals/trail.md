@@ -683,6 +683,108 @@ the browser origin exactly (host:port).
 is explicit that `trustedHosts` is a DNS-rebinding fence, not authentication.
 Not configurable. Only fix: SSH tunnel so the browser origin is loopback.
 
+---
+
+## 2026-08-15 — e029 HTML video explainer ("phone-ai-developer")
+
+User asked for a **video from HTML, as beautiful as possible**, as a
+self-explanation for a non-technical Spanish-speaking audience: "look, with an
+Android phone + Termux + SSH + a computer you already have an AI
+developer/designer working for you" — the real cheap toolkit (OpenCode Go +
+DeepSeek Flash). User explicitly wanted to avoid Open Design (too heavy);
+web-searched template inspiration became a beat inside the video.
+
+### Decisions
+
+- **Route**: `/hyperframes` → faceless-explainer (no site, no capture; invented
+  visuals). Single deliverable = MP4, not a navigable deck.
+- **Design**: **Capsule** frame preset (warm cream, 2px ink pills, Bodoni Moda +
+  Space Grotesk, candy pastels, grain + radial glows) — playful editorial,
+  friendly for non-technical viewers, zero external assets (all CSS/SVG).
+- **Spanish narration**: Kokoro local TTS `ef_dora`. Requires a venv
+  (`/home/vuos/.hf-venv`) with `kokoro-onnx` + `soundfile`; the CLI honors
+  `HYPERFRAMES_PYTHON`. No HeyGen credential → **no BGM** (retrieve-only,
+  no offline fallback); local bundled SFX only. Captions skipped (Kokoro has no
+  word timestamps).
+- **Fonts**: variable fonts Bodoni Moda + Space Grotesk, one latin `.woff2`
+  each (downloaded from the Google Fonts CSS API with a modern UA) — the
+  `@font-face` lives inside each sub-composition as the contract requires.
+- **Subagents unavailable** (only `build` in primary mode) → the 9 frame
+  workers ran **inline serially** (the contract's fallback ladder).
+
+### Bugs caught at check time
+
+- `getElementById("#c1")` with a `#` prefix → null → `getTotalLength()` crash
+  (frame 03).
+- Frame 09's verbs lingering at 55% opacity under the closing pill →
+  `content_overlap`; closing must fully retire the verbs.
+- Background + grain are both timed clips; both on track 1 → overlap violation,
+  grain moved to track 2.
+- `.verb` had a CSS `transform: translate(-50%,-50%)` plus GSAP animating `y` →
+  `gsap_css_transform_conflict`; moved centering into `xPercent/yPercent`.
+
+### Result
+
+`e029-html-video-explainer/videos/phone-ai-developer/renders/video.mp4` —
+**58.3s, 1920×1080, h264**, 9 frames, Spanish voice + SFX, 0 check errors.
+Frames 4 & 7 carry dashed "TU FOTO AQUÍ" placeholders for the user's real
+photos/videos of Termux and dictation.
+
+### TTS correction (same session, user feedback)
+
+User: "¿por qué Kokoro? pensé que Gemini TTS con las voces preferidas … también
+que aprendas Deepgram Flux o Aura … y busques más proveedores de TTS realistas
+con emociones en leaderboards / x.com / HuggingFace."
+
+- **Why Kokoro happened**: `audio.mjs`'s provider chain (HeyGen → ElevenLabs →
+  Kokoro local) silently fell to Kokoro without a HeyGen credential. The p4
+  primary (KIE Gemini TTS with preferred voices) was never wired into the
+  HyperFrames audio step — my miss.
+- **Fix**: re-voiced the narration with **Deepgram Aura-2 `aura-2-celeste-es`**
+  (es-co Colombian, "Clear/Energetic/Friendly"), which is cheaper than KIE and
+  has free credits. Re-rendered to `renders/video.mp4` (58.3s). Added
+  `bin/dg-tts.sh` (Deepgram wrapper mirroring `kie-tts.sh`).
+- **TTS research documented** in `TTS-RESEARCH.md`: Speech Arena / HF TTS Arena
+  leaders (Simba 3.2, Qwen-Audio, Gemini 3.1 Flash=KIE, StepAudio; Deepgram's
+  own blind test puts Flux #1), and emotion-capable providers — **Fish Audio
+  S2.1 Pro** (free-form `[tag]` emotions, 80+ langs, $15/1M, free dev tier),
+  **Deepgram Flux** (conversation-native, expressive by default, English-only,
+  free through 2026-09-12), Hume Octave 2, ElevenLabs v3, Cartesia Sonic 3.5,
+  MiniMax, plus open weights (Orpheus, Chatterbox, IndexTTS-2, CosyVoice3,
+  Sesame CSM). Recommendation: Deepgram Celeste for Spanish narration, Fish for
+  emotion-heavy marketing lines, Flux for future voice agents.
+- **MP3 convention**: p4 does not use WAV. Converted the Deepgram WAVs to MP3
+  (`libmp3lame q2`), deleted the WAVs, and updated `dg-tts.sh` to output MP3
+  directly (Deepgram's default — no container/encoding params needed; WAV needs
+  `encoding=linear16&container=wav`). Note: MP3 container duration includes ~56ms
+  LAME encoder delay; the storyboard/frame slots must use the **decoded** duration
+  (what `check` measures), not the container duration.
+
+### Transcription correction (same session, user interruption — a real gap)
+
+User interrupted: generated audio **must be transcribed** before anything downstream,
+and suggested Deepgram likely has STT models. Correct on both counts — the first pass
+dropped captions entirely because Kokoro emits no word timestamps.
+
+- **Deepgram Nova-3** (`/v1/listen?model=nova-3&language=es&smart_format=true`) returns
+  `words[]` with `{word, start, end}` — the exact input `captions.mjs` needs
+  (`audio_meta.json -> voices[].words`). Confidence ~0.99 on the 9 narration lines.
+- **Wired the transcription into the pipeline**: transcribed all 9 MP3s, wrote the 148
+  word timestamps into `audio_meta.json`, ran `captions.mjs build` → **66 karaoke caption
+  groups** using the Capsule preset skin. Reassembled, re-injected transitions, re-checked
+  (38 contrast checks, 0 errors), re-rendered `renders/video.mp4` (58.3s, 9.5 MB).
+- **Rule for future video runs**: TTS → **transcribe** (word timestamps) → captions →
+  assemble. Never ship a narrated video without transcription (captions are the point of
+  word timestamps).
+- **`captions.mjs` symlink gotcha**: running it through the `~/.config/opencode/skills/...`
+  path silently no-ops (exit 0, zero output, no files) because that dir is a symlink to
+  `~/.claude/skills/...` — `process.argv[1]` (symlink) ≠ `import.meta.url` (realpath), so
+  the CLI guard fails. Run via the realpath.
+- **Font naming for captions**: the caption skin's `@font-face` generator matches font
+  files by family-prefix (`bodoni-latin.woff2` → "bodoni…" ≠ "Bodoni Moda" key) — renamed
+  to `Bodoni_Moda_400.woff2` / `Space_Grotesk_400.woff2` and updated the frame refs.
+- **Added `bin/dg-transcribe.sh`** — reusable Nova-3 STT wrapper (mirrors `dg-tts.sh`).
+
 ### Decisions
 
 - **Experiment e028** as a self-contained, reproducible runbook: `bin/install.sh`

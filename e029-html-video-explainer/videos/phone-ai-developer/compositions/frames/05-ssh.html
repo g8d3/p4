@@ -1,0 +1,230 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Bodoni Moda";
+      src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2");
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2");
+      font-weight: 300 700;
+      font-display: swap;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      container-type: size;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(42cqw 38cqh at 84cqw 12cqh, rgba(139, 180, 247, 0.18), transparent 70%),
+        radial-gradient(36cqw 32cqh at 6cqw 86cqh, rgba(168, 230, 207, 0.14), transparent 70%),
+        #f5f5f0;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+    .step-pill {
+      position: absolute;
+      left: 6cqw;
+      top: 10cqh;
+      z-index: 5;
+      background: #f2d160;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      font-size: 1.6cqw;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.9cqw 2.2cqw;
+      white-space: nowrap;
+    }
+    .scene {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .world {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 50%;
+      will-change: transform;
+    }
+    .station {
+      position: absolute;
+      top: 30cqh;
+      width: 40cqw;
+      height: 40cqh;
+      border-radius: 2rem;
+      border: 0.2cqw solid #1e1e1e;
+      box-shadow: 0.4cqw 0.4cqw 0 rgba(26, 26, 26, 0.08);
+      display: grid;
+      place-items: center;
+      font-family: "Bodoni Moda", serif;
+      font-weight: 800;
+      font-size: 3.6cqw;
+      color: #1a1a1a;
+    }
+    .station .emoji {
+      display: block;
+      font-size: 5cqw;
+      margin-bottom: 1cqw;
+    }
+    #station-phone {
+      left: calc(50cqw - 20cqw);
+      background: #8bb4f7;
+    }
+    #station-computer {
+      left: calc(50cqw - 20cqw + 75cqw);
+      background: #f5b895;
+    }
+    svg.bridge-svg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .ssh-pill {
+      position: absolute;
+      left: 50cqw;
+      top: 26cqh;
+      background: #a8e6cf;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 2.2cqw;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.8cqw 2cqw;
+      white-space: nowrap;
+      opacity: 0;
+      z-index: 4;
+    }
+    .bridge-word {
+      position: absolute;
+      left: 50cqw;
+      top: 78cqh;
+      transform: translateX(-50%);
+      font-family: "Bodoni Moda", serif;
+      font-weight: 700;
+      font-size: 2.6cqw;
+      color: #1a1a1a;
+      opacity: 0;
+      z-index: 4;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="05-ssh" data-width="1920" data-height="1080" data-duration="7.5">
+    <div class="bg clip" id="f05-ssh-bg" data-start="0" data-duration="6.281" data-track-index="1"></div>
+    <div class="grain clip" id="f05-ssh-grain" data-start="0" data-duration="6.281" data-track-index="2"></div>
+
+    <div class="step-pill" id="step">Paso 2</div>
+
+    <div class="scene" id="scene">
+      <div class="world" id="world">
+        <div class="station" id="station-phone"><div><span class="emoji">📱</span>Celular</div></div>
+        <div class="station" id="station-computer"><div><span class="emoji">💻</span>Computador</div></div>
+
+        <svg class="bridge-svg" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path
+            id="bridge"
+            d="M1180 560 C 1380 320, 1980 320, 2180 560"
+            fill="none"
+            stroke="#c5b5e0"
+            stroke-width="8"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div class="ssh-pill" id="ssh">SSH</div>
+    <div class="bridge-word" id="puente">Puente</div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo(
+      "#step",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.55, ease: "power3.out" },
+      0.1,
+    );
+
+    const world = document.getElementById("world");
+    const cam = { scale: 1, x: 0, y: 0 };
+    function applyCamera() {
+      world.style.transform = `translate(${cam.x}px, ${cam.y}px) scale(${cam.scale})`;
+    }
+    applyCamera();
+
+    tl.fromTo(
+      "#station-phone",
+      { scale: 0.6, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.6, ease: "power3.out" },
+      0.3,
+    );
+
+    tl.to(
+      cam,
+      {
+        x: -760,
+        duration: 1.5,
+        ease: "power3.inOut",
+        onUpdate: applyCamera,
+      },
+      1.4,
+    );
+
+    tl.fromTo(
+      "#station-computer",
+      { scale: 0.6, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.6, ease: "power3.out" },
+      2.3,
+    );
+
+    const bridge = document.getElementById("bridge");
+    const len = bridge.getTotalLength();
+    gsap.set(bridge, { strokeDasharray: len, strokeDashoffset: len });
+    tl.to("#bridge", { strokeDashoffset: 0, duration: 0.7, ease: "power2.out" }, 3.2);
+
+    tl.fromTo(
+      "#ssh",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.55, ease: "power3.out" },
+      3.5,
+    );
+    tl.fromTo(
+      "#puente",
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+      3.8,
+    );
+
+    window.__timelines["05-ssh"] = tl;
+  </script>
+</template>

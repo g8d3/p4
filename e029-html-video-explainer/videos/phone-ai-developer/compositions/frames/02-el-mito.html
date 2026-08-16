@@ -1,0 +1,163 @@
+<template>
+  <style>
+    @font-face {
+      font-family: "Bodoni Moda";
+      src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2");
+      font-weight: 400 900;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: "Space Grotesk";
+      src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2");
+      font-weight: 300 700;
+      font-display: swap;
+    }
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      container-type: size;
+      background: #f5f5f0;
+      color: #1a1a1a;
+    }
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(40cqw 36cqh at 78cqw 10cqh, rgba(197, 181, 224, 0.2), transparent 70%),
+        radial-gradient(38cqw 34cqh at 6cqw 88cqh, rgba(232, 93, 78, 0.08), transparent 70%),
+        #f5f5f0;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+    .title-pill {
+      position: absolute;
+      left: 50%;
+      top: 10cqh;
+      transform: translateX(-50%);
+      background: #c5b5e0;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      font-size: 1.6cqw;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 0.9cqw 2.4cqw;
+      white-space: nowrap;
+    }
+    .myth {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      width: 72cqw;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-family: "Bodoni Moda", serif;
+      font-weight: 700;
+      font-size: 3.4cqw;
+      line-height: 1.22;
+      letter-spacing: -0.015em;
+      color: #1a1a1a;
+    }
+    .word {
+      display: inline-block;
+      white-space: pre;
+    }
+    .myth-svg {
+      position: absolute;
+      left: 4cqw;
+      top: 50%;
+      width: 64cqw;
+      transform: translateY(-50%);
+      overflow: visible;
+      z-index: 0;
+    }
+    .truth-pill {
+      position: absolute;
+      left: 50%;
+      top: 72cqh;
+      transform: translateX(-50%);
+      background: #c4d94e;
+      border: 0.2cqw solid #1e1e1e;
+      border-radius: 9999px;
+      box-shadow: 0.3cqw 0.3cqw 0 rgba(26, 26, 26, 0.08);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 2.4cqw;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #1a1a1a;
+      padding: 1.2cqw 3cqw;
+      white-space: nowrap;
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="02-el-mito" data-width="1920" data-height="1080" data-duration="6.66">
+    <div class="bg clip" id="f02-el-mito-bg" data-start="0" data-duration="5.727" data-track-index="1"></div>
+    <div class="grain clip" id="f02-el-mito-grain" data-start="0" data-duration="5.727" data-track-index="2"></div>
+
+    <div class="title-pill" id="pill">El mito</div>
+
+    <div class="myth" id="myth">
+      <svg class="myth-svg" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          id="strike"
+          d="M10,30 Q160,10 310,30 Q460,50 610,30 Q760,10 910,30 Q1060,50 1190,30"
+          fill="none"
+          stroke="#e85d4e"
+          stroke-width="8"
+          stroke-linecap="round"
+        />
+      </svg>
+      <span class="word">Crees</span><span class="word"> que</span><span class="word"> necesitas</span><span class="word"> una</span><span class="word"> computadora</span><span class="word"> carísima</span><span class="word"> y</span><span class="word"> un</span><span class="word"> equipo</span><span class="word"> de</span><span class="word"> desarrolladores.</span>
+    </div>
+
+    <div class="truth-pill" id="truth">No es cierto.</div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo(
+      "#pill",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.55, ease: "power3.out" },
+      0.05,
+    );
+
+    const words = gsap.utils.toArray("#myth .word");
+    tl.fromTo(
+      words,
+      { opacity: 0, y: 26, filter: "blur(5px)" },
+      { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.45, ease: "power3.out", stagger: 0.11 },
+      0.45,
+    );
+
+    const strike = document.getElementById("strike");
+    const len = strike.getTotalLength();
+    gsap.set(strike, { strokeDasharray: len, strokeDashoffset: len });
+    tl.to("#strike", { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, 2.0);
+
+    tl.to("#myth .word", { opacity: 0.55, duration: 0.4, ease: "power2.out" }, 2.0);
+
+    tl.fromTo(
+      "#truth",
+      { scale: 0, opacity: 0, y: 20 },
+      { scale: 1, opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+      2.45,
+    );
+
+    window.__timelines["02-el-mito"] = tl;
+  </script>
+</template>
