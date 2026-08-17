@@ -1,164 +1,58 @@
-# e030 — VRM Avatar
+# e030 — VRM Avatar Studio
 
-Create a **programmatically controllable VRM avatar** rendered with
-**three.js + `@pixiv/three-vrm`**. Two interchangeable renderer clients (two
-characters/implementations, built in parallel by two agents), one shared
-control protocol, and a video production pipeline — producing both an
-interactive viewer and talking-avatar videos.
+A **single web page** where you both **create** and **control** a VRM avatar —
+accessible from the phone over LAN. No CLI, no multi-client protocol, no video
+pipeline: one small server + one page.
 
-## Deliverables
+## Vision
 
-1. **Viewer + control API**: three.js/`@pixiv/three-vrm` pages that load a VRM
-   model, plus a local HTTP+WebSocket control server that drives them. Any
-   script or agent can pose the avatar, change expressions, set look-at
-   targets, play animations, and trigger speech with lip sync.
-2. **Two renderer clients, one protocol**: two independent three.js/three-vrm
-   clients (built in parallel), interoperable behind the same WS control
-   protocol, each able to show a different character.
-3. **Preview/verification**: deterministic frame captures (headless WebGL) so
-   renders can be reviewed by a vision-capable model.
-4. **Talking-avatar video**: an avatar performs a narration (KIE TTS), is
-   captured at 608x1080, and encoded to a GPU (VAAPI) final video with
-   `metadata.json`.
+Open `http://<host>:8787/` and get an **Avatar Studio**:
 
-## Architecture
+- **Create**: pick a character from a gallery (VRM models), replace the model
+  on the canvas, save pose/expression snapshots.
+- **Control**: on the same page — drag to rotate the camera, press expression
+  buttons or sliders (happy, sad, surprised, blink…), set look-at targets,
+  toggle idle behavior.
+- Mobile-first: the page must be usable and readable on the phone's vertical
+  browser (WebGL + touch).
 
-```
-avatar-server (Node, HTTP+WS on 127.0.0.1:8787)
-   │  WS control protocol (shared, versioned)
-   ├──▶ client-A (three-vrm viewer.html  → ag-01)   [avatar A]
-   ├──▶ client-B (three-vrm viewer-B    → ag-02)   [avatar B]
-   ▼
-capture: (A) headless Chrome CDP screenshot  → stills for verification
-          (B) sway headless + wf-recorder      → real-time footage for video (ag-03)
-```
+Later phases (NOT now): agents using the studio to produce many avatars,
+narration/lip-sync, talking-avatar videos.
 
-- **avatar-server** (ag-01): single Node process, HTTP+WS on **8787**. Serves
-  the viewer pages and VRM files; forwards commands; serves speech audio +
-  lip-sync timeline.
-- **client-A** (ag-01): primary `viewer.html` page (three.js + three-vrm),
-  idle behavior (blink, breathing), WS command executor, diagnostics.
-- **client-B** (ag-02): second three.js/three-vrm client. May differ in build
-  tooling (esbuild vs Vite), extras (VRMA animation, shadow, background), and
-  MUST load a **second character** (another VRM). Same WS protocol, same JSON
-  command/response shapes.
-- **`avatar` CLI** (ag-02): thin wrapper over the server so humans and agents
-  control either client from the shell.
+## Scope rules
 
-### Control command surface (shared protocol)
+- One deliverable, one agent (ag-01): a tiny Node server (serves the page +
+  the `.vrm` files) + one page that creates and controls.
+- Skip: CLI, WebSocket protocol, second client, capture scripts, video
+  encoding, performance scripts. If a feature isn't needed to "create and
+  control on one page", it stays out of v1.
+- The `.vrm` model(s) may be shared at `ag-01-avatar-studio/models/`
+  (verified once: glTF magic + size; never re-fetch in loops).
 
-Commands travel as JSON over the WebSocket (and `POST /cmd`). Clients MUST
-implement exactly these; responses mirror the command with `"ok":true` plus
-result fields:
-
-| Command | Example payload | Effect |
-|---|---|---|
-| `load` | `{"model":"models/model-a.vrm"}` | Load a VRM file served by the server |
-| `expression` | `{"name":"happy","weight":1}` | Set a VRM expression weight |
-| `resetExpression` | `{}` | Clear all expressions |
-| `lookAt` | `{"x":0.4,"y":0.2}` | Set look-at target (normalized) |
-| `bone` | `{"name":"leftUpperArm","rotate":[0,0.5,0]}` | Direct humanoid bone control |
-| `animation` | `{"url":"…","loop":true}` | Play a VRMA/glb animation |
-| `speak` | `{"audio":"media/narration.mp3","mouth":"media/narration.mouth.json"}` | Play audio + drive mouth-open expression from energy timeline |
-| `setIdle` | `{"on":true}` | Enable/disable idle blink+breathing |
-| `inspect` | `{}` | Return model state: bones, expressions, spring bones, renderer info |
-
-### Lip sync
-
-Speech audio → per-window RMS energy → `mouth.json` timeline `[[t_ms, weight],…]`.
-The client maps weight to the mouth/`aa` expression. Energy extraction uses
-ffmpeg (decode to mono PCM, ~80-100 ms windows). See e000 fundamentals for TTS
-and transcription steps.
-
-### Video production (ag-03, reused p4 pipeline)
-
-1. Narration: `e019-kie-image-api/ag-01/bin/kie-tts.sh` (approved voice).
-2. Transcribe: `e018-hyprframes-browser-video/ag-02/bin/transcribe.sh` → word timestamps.
-3. Build a **performance script** (expression cues + `speak` at synced times)
-   → `output/performance.json`.
-4. Play the performance while capturing: sway headless 608x1080 + wf-recorder
-   (`--no-dmabuf --no-damage -c libx264`).
-5. Re-encode to `h264_vaapi` with `e023-build-in-public/bin/encode_vaapi.sh`.
-   **Final video MUST be VAAPI** (verify `stream_tags=encoder`).
-6. Write `metadata.json` (e000 fundamentals).
-
-## Tools and sources
-
-- **Library**: `three` + `@pixiv/three-vrm` (npm registry verified reachable).
-  Verify the compatible version pair from the three-vrm docs before coding.
-- **Model A** (verified GLB 10.7 MB, glTF2):
-  `https://raw.githubusercontent.com/pixiv/three-vrm/dev/packages/three-vrm/examples/models/VRM1_Constraint_Twist_Sample.vrm` — download ONCE into `models/`, never re-fetch.
-- **Model B** (ag-02): find and verify a second, distinct VRM character (size +
-  glTF magic check; document license). Prefer official vrm.dev / three-vrm /
-  VRoid Hub sample URLs. If no stable second source exists, reuse Model A and
-  make client-B distinguished by implementation.
-- **Renderer hosts**: `google-chrome` (installed). Headless WebGL needs flags:
-  Chrome ≥137 requires `--enable-unsafe-swiftshader` (`--use-angle=swiftshader`
-  for software WebGL). GPU real-time footage uses sway headless + wf-recorder
-  (sway is currently NOT running — start per e000 if needed).
-- **Vision review**: `zai-coding-plan/glm-4.7` or `opencode-go/mimo-v2.5`.
-
-## Parallel agents (one per provider)
-
-| Agent | Provider / model | tmux | Scope |
-|---|---|---|---|
-| ag-01 | `opencode-go/deepseek-v4-flash` | `30-1` | avatar-server + client-A (+ model A) |
-| ag-02 | `cmd` (Command Code, existing window) | `a1` | client-B + `avatar` CLI (+ model B) |
-| ag-03 | `zai-coding-plan/glm-4.7` | `30-3` | video production (performance → capture → encode) |
-
-All three speak the same protocol and consume/produce files in their own
-`output/`. ag-03 may start TTS/transcribe/pipeline work before clients exist;
-clients must be ready with a minimal `inspect` + `expression` before production.
-
-## Pitfalls
-
-- three-vrm load is async — wait for renderer init and verify `vrm.humanoid`
-  before issuing control commands.
-- Verify every screenshot is non-blank with the character visible (vision
-  review + file-size sanity).
-- Keep model files local in `models/`; never hang a session on re-download.
-- Final video encode MUST be VAAPI; verify with ffprobe `stream_tags=encoder`.
-- All background services via background + self-wake; never block
-  synchronously. Clean up tmux windows created (`30-1`, `30-3`).
-- Remote CDP discovery: `ss -tln | grep 9222`.
-
-## Directory layout
-
-Organized as **two playgrounds** — creation (characters + renderers) and
-control (driving + production). `ag-0N/` is the agent-stage naming from the
-build; the final homes are the playgrounds:
+## Structure
 
 ```
 e030-vrm-avatar/
 ├── AGENTS.md
-├── create-playground/     characters + renderers + poses
-│   ├── clients/           viewer.html (client-A), viewer-b.html (client-B)
-│   ├── models/            model-a.vrm, model-b.vrm
-│   └── poses/             verification screenshots
-└── control-playground/    control API, CLI, media, production
-    ├── server/            avatar-server (port 8787) + capture helpers
-    ├── cli/               avatar CLI + cdp helpers
-    ├── media/             narration + mouth timeline
-    ├── scripts/           performance + demo scripts, transcripts
-    └── output/            final.mp4, metadata.json, done.txt
+└── ag-01-avatar-studio/    the whole studio (server + page + models) → tmux 30-1
+    ├── AGENTS.md
+    └── output/             screenshots proving create+control work
 ```
 
-**During a build**, agents stage their work in `ag-0N-*/` dirs (window
-`30-N`); when an agent finishes, its deliverables are moved into the
-playground it belongs to. Data flows through files: create-playground feeds
-`/models/` + `/viewer*.html` to the server; control-playground drives them.
+Future agents (eg. ag-02 "many avatars", ag-03 "video") will be added later as
+separate `ag-0N/` dirs, each reading the studio's files.
 
-## Success criteria
+## Success criteria (ag-01)
 
-- `avatar inspect` works against both clients; both report humanoid bones,
-  expressions, renderer info.
-- Frames at several poses/expressions render correctly from both clients
-  (vision model confirms; no black frames).
-- A 30-60 s talking-avatar video: 608x1080, audible narration, mouth moves
-  with speech, VAAPI tag verified, `metadata.json` present.
-- Programmatic control demonstrable with one replayable script (poses +
-  expressions + speech), no manual interaction.
+- From a phone on the LAN, the page loads, a character appears (not black),
+  you can pick another character, rotate it, trigger ≥3 expressions/look-at,
+  and save a snapshot.
+- The server keeps running headless; the page connects simply (no exotic
+  browser flags for a REAL device — the flags matter only for headless Chrome
+  verification).
+- `output/` contains screenshots of at least two characters in different
+  expressions, and the models are verified + documented.
 
 ## Inherits
-- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command/timeout rules, video pipeline, GPU encoding, sway/wf-recorder, browser/CDP
-- [../AGENTS.md](../AGENTS.md) — p4 experiment index and context
+- [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md) — principles, command/timeout rules, browser/CDP, Wayland/sway, TTS, video
+- [../AGENTS.md](../AGENTS.md) — p4 index
