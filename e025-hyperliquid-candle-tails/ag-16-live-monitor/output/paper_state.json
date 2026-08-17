@@ -1,5 +1,5 @@
 {
-  "last_day": "2026-08-13",
+  "last_day": "2026-08-15",
   "pending": [
     {
       "coin": "AAVE",
@@ -7,6 +7,27 @@
       "exit_day": "2026-08-18",
       "trigger": "T2_lowvol",
       "entry_close": 87.869
+    },
+    {
+      "coin": "SOL",
+      "entry_day": "2026-08-15",
+      "exit_day": "2026-08-20",
+      "trigger": "T2_lowvol",
+      "entry_close": 75.318
+    },
+    {
+      "coin": "ZEC",
+      "entry_day": "2026-08-15",
+      "exit_day": "2026-08-20",
+      "trigger": "T2_lowvol",
+      "entry_close": 487.68
+    },
+    {
+      "coin": "DOGE",
+      "entry_day": "2026-08-15",
+      "exit_day": "2026-08-20",
+      "trigger": "T2_lowvol",
+      "entry_close": 0.069593
     }
   ]
 }

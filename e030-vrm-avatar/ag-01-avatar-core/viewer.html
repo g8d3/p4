@@ -34,6 +34,19 @@
     font: 11px monospace; color: #888; background: rgba(0,0,0,.5);
     padding: 3px 7px; border-radius: 5px;
   }
+  #controls {
+    position: absolute; left: 8px; bottom: 8px; z-index: 5;
+    font: 10px monospace; color: #aaa; background: rgba(0,0,0,.5);
+    padding: 8px 10px; border-radius: 6px; line-height: 1.6;
+  }
+  #controls .title { color: #8be9fd; font-weight: bold; margin-bottom: 4px; }
+  #controls .item { display: block; }
+  #controls .key { color: #ffb86c; }
+  #tech {
+    position: absolute; right: 8px; top: 8px; z-index: 5;
+    font: 9px monospace; color: #666; background: rgba(0,0,0,.4);
+    padding: 4px 6px; border-radius: 4px; text-align: right;
+  }
 </style>
 </head>
 <body>
@@ -41,6 +54,16 @@
   <canvas id="gl"></canvas>
   <div id="status">client-A initializing…</div>
   <div id="badge">client-A · avatar-server 1.0</div>
+  <div id="controls">
+    <div class="title">CONTROLS</div>
+    <span class="item"><span class="key">1-finger</span> = rotate view</span>
+    <span class="item"><span class="key">pinch</span> = zoom in/out</span>
+    <span class="item"><span class="key">double-tap</span> = reset view</span>
+  </div>
+  <div id="tech">
+    three.js + three-vrm<br>
+    WebGL2 renderer
+  </div>
 </div>
 <script type="module">
 import * as THREE from 'three';
@@ -516,12 +539,18 @@ canvas.addEventListener('touchstart', (e) => {
   if (e.touches.length === 1) {
     isDragging = true;
     previousTouch = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    canvas.lastPinchDist = null;
   } else if (e.touches.length === 2) {
     isDragging = false;
+    canvas.lastPinchDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
   }
 }, { passive: true });
 
 canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
   if (e.touches.length === 1 && isDragging) {
     const deltaX = e.touches[0].clientX - previousTouch.x;
     const deltaY = e.touches[0].clientY - previousTouch.y;
@@ -545,7 +574,7 @@ canvas.addEventListener('touchmove', (e) => {
     }
     canvas.lastPinchDist = dist;
   }
-}, { passive: true });
+}, { passive: false });
 
 canvas.addEventListener('touchend', (e) => {
   if (e.touches.length === 0) {
@@ -597,6 +626,7 @@ canvas.addEventListener('wheel', (e) => {
 }, { passive: false });
 
 log('client-A ready · waiting for VRM…');
+connectWS();
 </script>
 </body>
 </html>

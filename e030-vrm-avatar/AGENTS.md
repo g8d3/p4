@@ -124,15 +124,29 @@ clients must be ready with a minimal `inspect` + `expression` before production.
 
 ## Directory layout
 
+Organized as **two playgrounds** — creation (characters + renderers) and
+control (driving + production). `ag-0N/` is the agent-stage naming from the
+build; the final homes are the playgrounds:
+
 ```
 e030-vrm-avatar/
 ├── AGENTS.md
-├── models/               # VRM files (ag-01 owns)
-├── ag-01-avatar-core/    # server + client-A + capture helper → tmux 30-1
-├── ag-02-client-b/       # client-B + avatar CLI + model B     → tmux a1
-├── ag-03-video/          # talking-avatar video pipeline       → tmux 30-3
-└── ag-0N/output/         # each agent's deliverables (AgentFS)
+├── create-playground/     characters + renderers + poses
+│   ├── clients/           viewer.html (client-A), viewer-b.html (client-B)
+│   ├── models/            model-a.vrm, model-b.vrm
+│   └── poses/             verification screenshots
+└── control-playground/    control API, CLI, media, production
+    ├── server/            avatar-server (port 8787) + capture helpers
+    ├── cli/               avatar CLI + cdp helpers
+    ├── media/             narration + mouth timeline
+    ├── scripts/           performance + demo scripts, transcripts
+    └── output/            final.mp4, metadata.json, done.txt
 ```
+
+**During a build**, agents stage their work in `ag-0N-*/` dirs (window
+`30-N`); when an agent finishes, its deliverables are moved into the
+playground it belongs to. Data flows through files: create-playground feeds
+`/models/` + `/viewer*.html` to the server; control-playground drives them.
 
 ## Success criteria
 
