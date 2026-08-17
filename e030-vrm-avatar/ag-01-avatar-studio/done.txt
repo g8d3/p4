@@ -1,0 +1,31 @@
+# done.txt — ag-01 Avatar Studio
+
+Date: 2026-08-16 23:41 (local)
+Status: DONE
+
+## Deliverable
+- `server.js` — Node server on 0.0.0.0:8787 serving `/` (page), `/models/<name>.vrm`, `/models/manifest.json`, `/lib/*`
+- `index.html` — single page, mobile-first (three.js r180 + @pixiv/three-vrm 3.5.5, vendored locally in `lib/`)
+- `models/` — 3 verified VRM files (glTF magic + size), documented in `output/models.md`
+- `output/screenshots/` — proof screenshots (see below)
+
+## Features (create + control on one page)
+- Character gallery: 3 models, click to switch
+- Expressions: buttons + strength slider (happy, sad, angry, surprised, blink, aa/ih/ou/ee/oh, relaxed…)
+- Look-at control: up/down/left/right/center + "look at me" (verified: yaw/pitch change, eyes move)
+- Pose section: neutral / arms up / T-pose / wave (verified by vision: arms differ)
+- Idle toggle: blink + breathing
+- Capture snapshot: downloads a PNG (verified non-gray, clean render)
+- Model info: name, bone count, expression list
+
+## Verification
+- Server: `ss -tlnp` shows 0.0.0.0:8787; `curl localhost:8787/` → 200; model + lib routes → 200
+- Rendering verified on real GPU (sway headless + RADV/radeonsi, no SwiftShader)
+- Vision-verified with mimo-v2.5 (opencode-go): Seed-san happy/angry/surprised/sad all distinct;
+  three-vrm-girl happy(joyful)/sad/surprised/blink(eyes closed) distinct
+- Snapshot PNG verified clean render (dark background, not gray)
+
+## Known limits (out of v1 scope)
+- No poses beyond the 4 presets (rotates arm bones)
+- Look-at effect is subtle on expression-based models (eyes only)
+- Headless verification needs GPU flags; real phone needs none
