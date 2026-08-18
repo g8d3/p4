@@ -1,0 +1,32 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #1A1A1A; color: #F5F5F0; }
+    .bg { position: absolute; inset: 0; background: #1A1A1A; }
+    .grain { position: absolute; inset: 0; opacity: 0.05; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .glow { position: absolute; border-radius: 50%; filter: blur(8cqw); opacity: 0.18; }
+    .daypill { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 30cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4.2cqw; letter-spacing: 0.18em; text-transform: uppercase; color: #F5F5F0; background: #E85D4E; border: 0.22cqw solid #F5F5F0; border-radius: 9999px; padding: 1.8cqw 5cqw; white-space: nowrap; box-shadow: 0.3cqw 0.3cqw 0 rgba(245,245,240,0.14); }
+    .display { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; text-align: center; top: 38cqh; font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 15cqw; color: #F5F5F0; line-height: 1.02; letter-spacing: -0.02em; text-transform: uppercase; will-change: transform, opacity, filter; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 56cqh; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 4cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #F5F5F0; border: 0.18cqw solid rgba(245,245,240,0.5); border-radius: 9999px; padding: 1.4cqw 4cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="01-dia1-reto" data-width="1080" data-height="1920" data-duration="9.716">
+    <div class="bg clip" id="f01-bg" data-start="0" data-duration="9.716" data-track-index="1"></div>
+    <div class="grain clip" id="f01-grain" data-start="0" data-duration="9.716" data-track-index="2"></div>
+    <div class="glow" id="f01-glow" style="top:-16cqh;left:-22cqw;width:95cqw;height:95cqw;background:#A06CE8;"></div>
+    <div class="daypill" id="f01-day">Día 1 del reto</div>
+    <div class="display" id="f01-display">Dicta tu idea</div>
+    <div class="sub" id="f01-sub">solo tu teléfono</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 9.216;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f01-display", "#f01-sub"], { opacity: 0 });
+    tl.fromTo("#f01-day", { opacity: 0, scale: 0.6, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(2)" }, D * 0.03);
+    tl.fromTo("#f01-display", { opacity: 0, scale: 0.9, y: 40, filter: "blur(14px)" }, { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 0.6, ease: "power3.out" }, D * 0.28);
+    tl.fromTo("#f01-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.72);
+    window.__timelines["01-dia1-reto"] = tl;
+  </script>
+</template>

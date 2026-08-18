@@ -1,0 +1,72 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 88cqw 90cqh, rgba(168,230,207,0.18), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #A06CE8; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.4cqw; color: #1A1A1A; white-space: nowrap; }
+    .chat { position: absolute; left: 0; right: 0; margin: 0 auto; top: 20cqh; width: 70cqw; height: 52cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .chat-head { position: absolute; top: 0; left: 0; right: 0; height: 4.5cqh; border-bottom: 0.2cqw solid #1E1E1E; border-radius: 4cqw 4cqw 0 0; background: #F5F5F0; }
+    .chat-dot { position: absolute; top: 1.5cqh; width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: #E85D4E; }
+    .chat-dot2 { left: 4cqw; background: #F2D160; }
+    .chat-dot3 { left: 6.6cqw; background: #A8E6CF; }
+    .wave { position: absolute; top: 7cqh; left: 0; right: 0; margin: 0 auto; width: 56cqw; height: 8cqh; display: flex; align-items: center; justify-content: center; gap: 1.4cqw; }
+    .bar { display: block; width: 2cqw; border: 0.18cqw solid #1E1E1E; border-radius: 9999px; background: #8BB4F7; transform-origin: 50% 100%; }
+    .row { position: absolute; left: 6cqw; right: 6cqw; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 4cqw; color: #1A1A1A; text-align: center; white-space: nowrap; }
+    .typed { position: absolute; left: 6cqw; right: 6cqw; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 3cqw; color: #1A1A1A; border-bottom: 0.16cqw solid #E5E0D5; padding: 1.3cqw 0; text-align: center; white-space: nowrap; }
+    .check { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 66.5cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.2cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; background: #A8E6CF; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; padding: 1.4cqw 3.6cqw; white-space: nowrap; }
+    .zero { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 76cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 2cqw 5cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="03-dia1-dicta" data-width="1080" data-height="1920" data-duration="36.384">
+    <div class="bg clip" id="f03-bg" data-start="0" data-duration="36.384" data-track-index="1"></div>
+    <div class="grain clip" id="f03-grain" data-start="0" data-duration="36.384" data-track-index="2"></div>
+    <div class="day" id="f03-day">Día 1</div>
+    <div class="sub" id="f03-sub">Dicta tu guion</div>
+    <div class="chat" id="f03-chat">
+      <div class="chat-head">
+        <span class="chat-dot" style="left:2cqw;"></span>
+        <span class="chat-dot chat-dot2"></span>
+        <span class="chat-dot chat-dot3"></span>
+      </div>
+      <div class="wave" id="f03-wave">
+        <span class="bar" style="height:34%;"></span>
+        <span class="bar" style="height:64%;"></span>
+        <span class="bar" style="height:46%;"></span>
+        <span class="bar" style="height:78%;"></span>
+        <span class="bar" style="height:56%;"></span>
+      </div>
+      <div class="row" id="f03-s1" style="top:22cqh;">un consejo</div>
+      <div class="row" id="f03-s2" style="top:30cqh;">un error que cometiste</div>
+      <div class="row" id="f03-s3" style="top:38cqh;">una explicación corta</div>
+      <div class="typed" id="f03-t1" style="top:22cqh;">Escena 1 · el tema</div>
+      <div class="typed" id="f03-t2" style="top:30cqh;">Escena 2 · el error</div>
+      <div class="typed" id="f03-t3" style="top:38cqh;">Escena 3 · la solución</div>
+    </div>
+    <div class="check" id="f03-check">✔ ¡Listo!</div>
+    <div class="zero" id="f03-zero">Te costó cero</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 36.384;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f03-sub", "#f03-chat", "#f03-s1", "#f03-s2", "#f03-s3", "#f03-t1", "#f03-t2", "#f03-t3", "#f03-check", "#f03-zero", ".bar"], { opacity: 0 });
+    tl.fromTo("#f03-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.03);
+    tl.fromTo("#f03-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.09);
+    tl.fromTo("#f03-chat", { opacity: 0, scale: 0.86, y: 50 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" }, D * 0.17);
+    tl.fromTo(".bar", { opacity: 0, scaleY: 0.2 }, { opacity: 1, scaleY: 1, duration: 0.4, ease: "back.out(2)", stagger: 0.08 }, D * 0.23);
+    tl.fromTo("#f03-s1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.3);
+    tl.fromTo("#f03-s2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.36);
+    tl.fromTo("#f03-s3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.42);
+    tl.fromTo(".bar", { opacity: 0.25 }, { opacity: 0, duration: 0.4, ease: "none" }, D * 0.46);
+    tl.to(["#f03-s1", "#f03-s2", "#f03-s3"], { opacity: 0, duration: 0.25, ease: "power2.in" }, D * 0.49);
+    tl.fromTo("#f03-t1", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.5);
+    tl.fromTo("#f03-t2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.57);
+    tl.fromTo("#f03-t3", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.64);
+    tl.fromTo("#f03-check", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, D * 0.7);
+    tl.fromTo("#f03-zero", { opacity: 0, y: 34, scale: 0.85 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, D * 0.88);
+    window.__timelines["03-dia1-dicta"] = tl;
+  </script>
+</template>

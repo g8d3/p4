@@ -35,6 +35,8 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e028-dsh-harness/](e028-dsh-harness/) — DeepSeek Harness web (dsh): install, LAN access, and security fences (npm 12 allowScripts, socat proxies, trusted-host)
 - [e029-html-video-explainer/](e029-html-video-explainer/) — HTML video explainer production
 - [e030-vrm-avatar/](e030-vrm-avatar/) — programmatically controllable VRM avatar: three.js/three-vrm renderers + control API + talking-avatar videos
+- [e031-skill-teaching/](e031-skill-teaching/) — Spanish teaching guide on the three skill domains (video creation, crypto trading, web app dev) for a non-technical audience
+- [e032-ai-skills-digest/](e032-ai-skills-digest/) — research→teaching→profit pipeline: agents map AI-agent skills (video, digital products, marketing, crypto), synthesize, plan, and produce an Open Design-driven teaching video
 
 ## Language
 

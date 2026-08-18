@@ -1,0 +1,40 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 12cqw 88cqh, rgba(139,180,247,0.2), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #A06CE8; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.6cqw; color: #1A1A1A; white-space: nowrap; }
+    .topic { position: absolute; left: 0; right: 0; margin: 0 auto; width: 72cqw; height: 10cqh; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 2rem; box-shadow: 0.3cqw 0.3cqw 0 rgba(26,26,26,0.08); display: flex; align-items: center; justify-content: center; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 4.4cqw; color: #1A1A1A; text-align: center; }
+    .t1 { top: 26cqh; }
+    .t2 { top: 40cqh; }
+    .t3 { top: 54cqh; }
+    .chip { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 72cqh; max-width: 84cqw; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.4cqw; letter-spacing: 0.08em; text-transform: uppercase; color: #1A1A1A; background: #C4D94E; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 3.6cqw; text-align: center; white-space: normal; line-height: 1.4; }
+  </style>
+  <div id="root" data-composition-id="02-elige-tema" data-width="1080" data-height="1920" data-duration="13.608">
+    <div class="bg clip" id="f02-bg" data-start="0" data-duration="14.108" data-track-index="1"></div>
+    <div class="grain clip" id="f02-grain" data-start="0" data-duration="14.108" data-track-index="2"></div>
+    <div class="day" id="f02-day">Día 1</div>
+    <div class="sub" id="f02-sub">Elige tu tema</div>
+    <div class="topic t1" id="f02-t1">Un consejo</div>
+    <div class="topic t2" id="f02-t2">Un error que cometiste</div>
+    <div class="topic t3" id="f02-t3">Una explicación corta</div>
+    <div class="chip" id="f02-chip">El tema correcto: el que explicas hoy</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 13.608;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f02-sub", "#f02-t1", "#f02-t2", "#f02-t3", "#f02-chip"], { opacity: 0 });
+    tl.fromTo("#f02-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.03);
+    tl.fromTo("#f02-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.1);
+    tl.fromTo("#f02-t1", { opacity: 0, x: -46, scale: 0.9 }, { opacity: 1, x: 0, scale: 1, duration: 0.5, ease: "power3.out" }, D * 0.26);
+    tl.fromTo("#f02-t2", { opacity: 0, x: -46, scale: 0.9 }, { opacity: 1, x: 0, scale: 1, duration: 0.5, ease: "power3.out" }, D * 0.4);
+    tl.fromTo("#f02-t3", { opacity: 0, x: -46, scale: 0.9 }, { opacity: 1, x: 0, scale: 1, duration: 0.5, ease: "power3.out" }, D * 0.54);
+    tl.fromTo("#f02-chip", { opacity: 0, y: 34, scale: 0.85 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, D * 0.8);
+    window.__timelines["02-elige-tema"] = tl;
+  </script>
+</template>

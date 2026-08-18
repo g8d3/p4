@@ -1,0 +1,60 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 88cqw 90cqh, rgba(139,180,247,0.18), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 5cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.4cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #C5B5E0; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.6cqw 4.4cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 11cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.2cqw; color: #1A1A1A; white-space: nowrap; }
+    .tool { position: absolute; left: 0; right: 0; margin: 0 auto; top: 17cqh; width: 74cqw; height: 36cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .tool-name { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 6.5cqw; color: #1A1A1A; white-space: nowrap; }
+    .tool-sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 14cqh; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 3.2cqw; letter-spacing: 0.12em; text-transform: uppercase; color: #1A1A1A; white-space: nowrap; }
+    .wave { position: absolute; top: 24cqh; left: 0; right: 0; margin: 0 auto; width: 52cqw; height: 8cqh; display: flex; align-items: center; justify-content: center; gap: 1.4cqw; }
+    .bar { display: block; width: 2cqw; border: 0.18cqw solid #1E1E1E; border-radius: 9999px; background: #8BB4F7; transform-origin: 50% 100%; }
+    .cost { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 57cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; background: #FFFFFF; padding: 1.6cqw 4cqw; white-space: nowrap; box-shadow: 0.3cqw 0.3cqw 0 rgba(26,26,26,0.08); }
+    .free { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 68cqh; min-width: 40cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 2rem; box-shadow: 0.3cqw 0.3cqw 0 rgba(26,26,26,0.08); padding: 2.4cqw 5cqw; }
+    .free-num { font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 10cqw; color: #1A1A1A; line-height: 1; letter-spacing: -0.03em; white-space: nowrap; }
+    .free-lbl { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.2cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; margin-top: 1.4cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="02-herramienta" data-width="1080" data-height="1920" data-duration="18.236">
+    <div class="bg clip" id="f02-bg" data-start="0" data-duration="18.236" data-track-index="1"></div>
+    <div class="grain clip" id="f02-grain" data-start="0" data-duration="18.236" data-track-index="2"></div>
+    <div class="day" id="f02-day">Día 2</div>
+    <div class="sub" id="f02-sub">La voz</div>
+    <div class="tool" id="f02-tool">
+      <div class="tool-name" id="f02-name">Deepgram</div>
+      <div class="tool-sub" id="f02-toolsub">voz celeste · es latino</div>
+      <div class="wave" id="f02-wave">
+        <span class="bar" style="height:34%;"></span>
+        <span class="bar" style="height:64%;"></span>
+        <span class="bar" style="height:46%;"></span>
+        <span class="bar" style="height:78%;"></span>
+        <span class="bar" style="height:56%;"></span>
+        <span class="bar" style="height:70%;"></span>
+        <span class="bar" style="height:40%;"></span>
+      </div>
+    </div>
+    <div class="cost" id="f02-cost">$0.030 / 1k caracteres</div>
+    <div class="free" id="f02-free">
+      <div class="free-num">$200</div>
+      <div class="free-lbl">crédito gratis</div>
+    </div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 17.736;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f02-sub", "#f02-tool", "#f02-toolsub", "#f02-name", ".bar", "#f02-cost", "#f02-free"], { opacity: 0 });
+    tl.fromTo("#f02-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.03);
+    tl.fromTo("#f02-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.07);
+    tl.fromTo("#f02-tool", { opacity: 0, scale: 0.86, y: 50 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" }, D * 0.15);
+    tl.fromTo("#f02-name", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.2);
+    tl.fromTo("#f02-toolsub", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.3);
+    tl.fromTo(".bar", { opacity: 0, scaleY: 0.2 }, { opacity: 1, scaleY: 1, duration: 0.4, ease: "back.out(2)", stagger: 0.08 }, D * 0.38);
+    tl.fromTo("#f02-cost", { opacity: 0, y: 20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, D * 0.62);
+    tl.fromTo("#f02-free", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, D * 0.82);
+    window.__timelines["02-herramienta"] = tl;
+  </script>
+</template>

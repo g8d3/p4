@@ -1,0 +1,695 @@
+{
+ "bgm": null,
+ "bgm_pending": false,
+ "voices": [
+  {
+   "frame": 1,
+   "path": "assets/voice/01.mp3",
+   "duration_s": 9.384,
+   "words": [
+    {
+     "id": "w0",
+     "text": "ayer",
+     "start": 0.4,
+     "end": 1.04
+    },
+    {
+     "id": "w1",
+     "text": "cerraste",
+     "start": 1.04,
+     "end": 1.6
+    },
+    {
+     "id": "w2",
+     "text": "con",
+     "start": 1.6,
+     "end": 1.76
+    },
+    {
+     "id": "w3",
+     "text": "un",
+     "start": 1.76,
+     "end": 1.92
+    },
+    {
+     "id": "w4",
+     "text": "plan",
+     "start": 1.92,
+     "end": 2.16
+    },
+    {
+     "id": "w5",
+     "text": "escrito",
+     "start": 2.16,
+     "end": 2.96
+    },
+    {
+     "id": "w6",
+     "text": "hoy",
+     "start": 3.2,
+     "end": 3.92
+    },
+    {
+     "id": "w7",
+     "text": "ese",
+     "start": 3.92,
+     "end": 4.24
+    },
+    {
+     "id": "w8",
+     "text": "guion",
+     "start": 4.24,
+     "end": 4.88
+    },
+    {
+     "id": "w9",
+     "text": "va",
+     "start": 4.88,
+     "end": 5.2
+    },
+    {
+     "id": "w10",
+     "text": "a",
+     "start": 5.2,
+     "end": 5.36
+    },
+    {
+     "id": "w11",
+     "text": "hablar",
+     "start": 5.36,
+     "end": 6.0
+    },
+    {
+     "id": "w12",
+     "text": "día",
+     "start": 6.56,
+     "end": 6.88
+    },
+    {
+     "id": "w13",
+     "text": "2",
+     "start": 6.88,
+     "end": 7.12
+    },
+    {
+     "id": "w14",
+     "text": "del",
+     "start": 7.12,
+     "end": 7.36
+    },
+    {
+     "id": "w15",
+     "text": "reto",
+     "start": 7.36,
+     "end": 8.08
+    },
+    {
+     "id": "w16",
+     "text": "la",
+     "start": 8.4,
+     "end": 8.64
+    },
+    {
+     "id": "w17",
+     "text": "voz",
+     "start": 8.64,
+     "end": 8.96
+    }
+   ]
+  },
+  {
+   "frame": 2,
+   "path": "assets/voice/02.mp3",
+   "duration_s": 17.736,
+   "words": [
+    {
+     "id": "w0",
+     "text": "no",
+     "start": 0.32,
+     "end": 0.56
+    },
+    {
+     "id": "w1",
+     "text": "te",
+     "start": 0.56,
+     "end": 0.72
+    },
+    {
+     "id": "w2",
+     "text": "grabas",
+     "start": 0.72,
+     "end": 1.04
+    },
+    {
+     "id": "w3",
+     "text": "tú",
+     "start": 1.04,
+     "end": 1.6
+    },
+    {
+     "id": "w4",
+     "text": "una",
+     "start": 1.68,
+     "end": 1.92
+    },
+    {
+     "id": "w5",
+     "text": "voz",
+     "start": 1.92,
+     "end": 2.16
+    },
+    {
+     "id": "w6",
+     "text": "de",
+     "start": 2.16,
+     "end": 2.4
+    },
+    {
+     "id": "w7",
+     "text": "ia",
+     "start": 2.4,
+     "end": 2.88
+    },
+    {
+     "id": "w8",
+     "text": "lee",
+     "start": 2.88,
+     "end": 3.28
+    },
+    {
+     "id": "w9",
+     "text": "tu",
+     "start": 3.28,
+     "end": 3.44
+    },
+    {
+     "id": "w10",
+     "text": "guion",
+     "start": 3.44,
+     "end": 3.68
+    },
+    {
+     "id": "w11",
+     "text": "en",
+     "start": 3.68,
+     "end": 3.92
+    },
+    {
+     "id": "w12",
+     "text": "español",
+     "start": 3.92,
+     "end": 4.64
+    },
+    {
+     "id": "w13",
+     "text": "con",
+     "start": 4.64,
+     "end": 4.8
+    },
+    {
+     "id": "w14",
+     "text": "tono",
+     "start": 4.8,
+     "end": 5.12
+    },
+    {
+     "id": "w15",
+     "text": "natural",
+     "start": 5.12,
+     "end": 5.84
+    },
+    {
+     "id": "w16",
+     "text": "la",
+     "start": 6.0,
+     "end": 6.24
+    },
+    {
+     "id": "w17",
+     "text": "herramienta",
+     "start": 6.24,
+     "end": 6.72
+    },
+    {
+     "id": "w18",
+     "text": "es",
+     "start": 6.72,
+     "end": 7.12
+    },
+    {
+     "id": "w19",
+     "text": "deepgram",
+     "start": 7.12,
+     "end": 8.0
+    },
+    {
+     "id": "w20",
+     "text": "la",
+     "start": 8.0,
+     "end": 8.24
+    },
+    {
+     "id": "w21",
+     "text": "voz",
+     "start": 8.24,
+     "end": 8.88
+    },
+    {
+     "id": "w22",
+     "text": "celeste",
+     "start": 8.88,
+     "end": 9.6
+    },
+    {
+     "id": "w23",
+     "text": "amable",
+     "start": 9.76,
+     "end": 10.08
+    },
+    {
+     "id": "w24",
+     "text": "y",
+     "start": 10.08,
+     "end": 10.4
+    },
+    {
+     "id": "w25",
+     "text": "cercana",
+     "start": 10.4,
+     "end": 10.88
+    },
+    {
+     "id": "w26",
+     "text": "cuesta",
+     "start": 11.401,
+     "end": 11.721
+    },
+    {
+     "id": "w27",
+     "text": "unos",
+     "start": 11.721,
+     "end": 12.041
+    },
+    {
+     "id": "w28",
+     "text": "3",
+     "start": 12.041,
+     "end": 12.361
+    },
+    {
+     "id": "w29",
+     "text": "centavos",
+     "start": 12.361,
+     "end": 12.681
+    },
+    {
+     "id": "w30",
+     "text": "por",
+     "start": 12.681,
+     "end": 13.001
+    },
+    {
+     "id": "w31",
+     "text": "cada",
+     "start": 13.001,
+     "end": 13.241
+    },
+    {
+     "id": "w32",
+     "text": "1000",
+     "start": 13.241,
+     "end": 13.481
+    },
+    {
+     "id": "w33",
+     "text": "caracteres",
+     "start": 13.481,
+     "end": 14.361
+    },
+    {
+     "id": "w34",
+     "text": "y",
+     "start": 14.361,
+     "end": 14.521
+    },
+    {
+     "id": "w35",
+     "text": "la",
+     "start": 14.521,
+     "end": 14.681
+    },
+    {
+     "id": "w36",
+     "text": "cuenta",
+     "start": 14.681,
+     "end": 15.001
+    },
+    {
+     "id": "w37",
+     "text": "trae",
+     "start": 15.001,
+     "end": 15.321
+    },
+    {
+     "id": "w38",
+     "text": "200",
+     "start": 15.321,
+     "end": 15.881
+    },
+    {
+     "id": "w39",
+     "text": "dólares",
+     "start": 15.881,
+     "end": 16.361
+    },
+    {
+     "id": "w40",
+     "text": "de",
+     "start": 16.361,
+     "end": 16.601
+    },
+    {
+     "id": "w41",
+     "text": "crédito",
+     "start": 16.601,
+     "end": 16.921
+    },
+    {
+     "id": "w42",
+     "text": "gratis",
+     "start": 16.921,
+     "end": 17.401
+    }
+   ]
+  },
+  {
+   "frame": 3,
+   "path": "assets/voice/03.mp3",
+   "duration_s": 8.664,
+   "words": [
+    {
+     "id": "w0",
+     "text": "pegas",
+     "start": 0.24,
+     "end": 0.72
+    },
+    {
+     "id": "w1",
+     "text": "tu",
+     "start": 0.72,
+     "end": 0.88
+    },
+    {
+     "id": "w2",
+     "text": "guion",
+     "start": 0.88,
+     "end": 1.52
+    },
+    {
+     "id": "w3",
+     "text": "eliges",
+     "start": 1.6,
+     "end": 2.0
+    },
+    {
+     "id": "w4",
+     "text": "la",
+     "start": 2.0,
+     "end": 2.24
+    },
+    {
+     "id": "w5",
+     "text": "voz",
+     "start": 2.24,
+     "end": 2.56
+    },
+    {
+     "id": "w6",
+     "text": "y",
+     "start": 2.56,
+     "end": 2.96
+    },
+    {
+     "id": "w7",
+     "text": "en",
+     "start": 2.96,
+     "end": 3.12
+    },
+    {
+     "id": "w8",
+     "text": "un",
+     "start": 3.12,
+     "end": 3.28
+    },
+    {
+     "id": "w9",
+     "text": "minuto",
+     "start": 3.28,
+     "end": 3.76
+    },
+    {
+     "id": "w10",
+     "text": "tienes",
+     "start": 3.76,
+     "end": 4.16
+    },
+    {
+     "id": "w11",
+     "text": "el",
+     "start": 4.16,
+     "end": 4.4
+    },
+    {
+     "id": "w12",
+     "text": "audio",
+     "start": 4.4,
+     "end": 4.64
+    },
+    {
+     "id": "w13",
+     "text": "de",
+     "start": 4.64,
+     "end": 4.8
+    },
+    {
+     "id": "w14",
+     "text": "tu",
+     "start": 4.8,
+     "end": 4.96
+    },
+    {
+     "id": "w15",
+     "text": "video",
+     "start": 4.96,
+     "end": 5.6
+    },
+    {
+     "id": "w16",
+     "text": "un",
+     "start": 5.84,
+     "end": 6.08
+    },
+    {
+     "id": "w17",
+     "text": "archivo",
+     "start": 6.08,
+     "end": 6.48
+    },
+    {
+     "id": "w18",
+     "text": "de",
+     "start": 6.48,
+     "end": 6.72
+    },
+    {
+     "id": "w19",
+     "text": "audio",
+     "start": 6.72,
+     "end": 7.36
+    },
+    {
+     "id": "w20",
+     "text": "listo",
+     "start": 7.44,
+     "end": 7.76
+    },
+    {
+     "id": "w21",
+     "text": "para",
+     "start": 7.76,
+     "end": 8.0
+    },
+    {
+     "id": "w22",
+     "text": "mañana",
+     "start": 8.0,
+     "end": 8.32
+    }
+   ]
+  },
+  {
+   "frame": 4,
+   "path": "assets/voice/04.mp3",
+   "duration_s": 12.576,
+   "words": [
+    {
+     "id": "w0",
+     "text": "costo",
+     "start": 0.32,
+     "end": 0.72
+    },
+    {
+     "id": "w1",
+     "text": "real",
+     "start": 0.72,
+     "end": 1.44
+    },
+    {
+     "id": "w2",
+     "text": "de",
+     "start": 1.52,
+     "end": 1.76
+    },
+    {
+     "id": "w3",
+     "text": "0",
+     "start": 1.76,
+     "end": 2.16
+    },
+    {
+     "id": "w4",
+     "text": "a",
+     "start": 2.16,
+     "end": 2.48
+    },
+    {
+     "id": "w5",
+     "text": "30",
+     "start": 2.48,
+     "end": 2.88
+    },
+    {
+     "id": "w6",
+     "text": "centavos",
+     "start": 2.88,
+     "end": 3.44
+    },
+    {
+     "id": "w7",
+     "text": "por",
+     "start": 3.44,
+     "end": 3.68
+    },
+    {
+     "id": "w8",
+     "text": "video",
+     "start": 3.68,
+     "end": 4.32
+    },
+    {
+     "id": "w9",
+     "text": "y",
+     "start": 4.4,
+     "end": 4.48
+    },
+    {
+     "id": "w10",
+     "text": "lo",
+     "start": 4.48,
+     "end": 4.72
+    },
+    {
+     "id": "w11",
+     "text": "1º",
+     "start": 4.72,
+     "end": 5.12
+    },
+    {
+     "id": "w12",
+     "text": "te",
+     "start": 5.12,
+     "end": 5.52
+    },
+    {
+     "id": "w13",
+     "text": "sale",
+     "start": 5.52,
+     "end": 5.76
+    },
+    {
+     "id": "w14",
+     "text": "gratis",
+     "start": 5.76,
+     "end": 6.48
+    },
+    {
+     "id": "w15",
+     "text": "mañana",
+     "start": 7.04,
+     "end": 7.76
+    },
+    {
+     "id": "w16",
+     "text": "día",
+     "start": 7.84,
+     "end": 8.24
+    },
+    {
+     "id": "w17",
+     "text": "3",
+     "start": 8.24,
+     "end": 8.88
+    },
+    {
+     "id": "w18",
+     "text": "las",
+     "start": 9.04,
+     "end": 9.36
+    },
+    {
+     "id": "w19",
+     "text": "imágenes",
+     "start": 9.36,
+     "end": 10.16
+    },
+    {
+     "id": "w20",
+     "text": "sígueme",
+     "start": 10.4,
+     "end": 10.88
+    },
+    {
+     "id": "w21",
+     "text": "para",
+     "start": 10.88,
+     "end": 11.2
+    },
+    {
+     "id": "w22",
+     "text": "no",
+     "start": 11.2,
+     "end": 11.44
+    },
+    {
+     "id": "w23",
+     "text": "perderte",
+     "start": 11.44,
+     "end": 11.84
+    },
+    {
+     "id": "w24",
+     "text": "el",
+     "start": 11.84,
+     "end": 12.0
+    },
+    {
+     "id": "w25",
+     "text": "reto",
+     "start": 12.0,
+     "end": 12.24
+    }
+   ]
+  }
+ ],
+ "sfx": []
+}

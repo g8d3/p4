@@ -1,0 +1,41 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 88cqw 12cqh, rgba(242,209,96,0.22), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .stat { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 18cqh; min-width: 62cqw; text-align: center; background: #C4D94E; border: 0.24cqw solid #1E1E1E; border-radius: 2rem; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); padding: 3cqw 5cqw; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .stat-num { font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 11cqw; color: #1A1A1A; line-height: 1; letter-spacing: -0.03em; }
+    .stat-label { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.2cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; margin-top: 1.6cqw; }
+    .check { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 42cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 2cqw 4.6cqw; white-space: nowrap; box-shadow: 0.3cqw 0.3cqw 0 rgba(26,26,26,0.08); }
+    .idea { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 54cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 4cqw; color: #1A1A1A; white-space: nowrap; }
+    .teaser { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 68cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; background: #A06CE8; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 2cqw 4.6cqw; white-space: nowrap; }
+    .cta { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 80cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4.2cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #E85D4E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 2cqw 5cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="04-cero-dia2" data-width="1080" data-height="1920" data-duration="11.544">
+    <div class="bg clip" id="f04-bg" data-start="0" data-duration="12.044" data-track-index="1"></div>
+    <div class="grain clip" id="f04-grain" data-start="0" data-duration="12.044" data-track-index="2"></div>
+    <div class="stat" id="f04-stat">
+      <div class="stat-num">$0</div>
+      <div class="stat-label">Te costó</div>
+    </div>
+    <div class="check" id="f04-check">✔ Plan escrito</div>
+    <div class="idea" id="f04-idea">de idea → guion por escenas</div>
+    <div class="teaser" id="f04-teaser">Mañana · Día 2 · La voz</div>
+    <div class="cta" id="f04-cta">Sígueme</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 11.544;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f04-check", "#f04-idea", "#f04-teaser", "#f04-cta"], { opacity: 0 });
+    tl.fromTo("#f04-stat", { opacity: 0, scale: 0.6, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "back.out(1.5)" }, D * 0.15);
+    tl.fromTo("#f04-check", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.38);
+    tl.fromTo("#f04-idea", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.52);
+    tl.fromTo("#f04-teaser", { opacity: 0, y: 34, scale: 0.85 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, D * 0.74);
+    tl.fromTo("#f04-cta", { opacity: 0, y: 34, scale: 0.85 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, D * 0.9);
+    window.__timelines["04-cero-dia2"] = tl;
+  </script>
+</template>

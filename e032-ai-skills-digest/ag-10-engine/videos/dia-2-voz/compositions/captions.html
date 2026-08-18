@@ -1,0 +1,228 @@
+<template id="captions-template" data-composition-id="captions" data-width="1080" data-height="1920">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+
+
+<style data-brand-tokens>
+      @font-face { font-family: 'Space Grotesk'; src: url('assets/fonts/Space_Grotesk_400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: block; }
+      @font-face { font-family: 'Bodoni Moda'; src: url('assets/fonts/Bodoni_Moda_400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: block; }
+      :root {
+      --cream: #F5F5F0;
+      --ink: #1A1A1A;
+      --outline: #1E1E1E;
+      --white: #FFFFFF;
+      --coral: #E85D4E;
+      --lime: #C4D94E;
+      --lavender: #C5B5E0;
+      --sky: #8BB4F7;
+      --violet: #A06CE8;
+      --yellow: #F2D160;
+      --peach: #F5B895;
+      --mint: #A8E6CF;
+      --shadow: rgba(26,26,26,0.08);
+      --cap-ink: #1A1A1A;
+      --cap-canvas: #F5F5F0;
+      --cap-accent: #E85D4E;
+      --cap-accent-2: #F2D160;
+      --font-display: "Bodoni Moda", system-ui, serif;
+      --font-body: "Space Grotesk", system-ui, sans-serif;
+      --cap-band-top: 1600px;
+      --cap-band-height: 320px;
+      }
+    </style>
+
+<style>
+  #captions-root {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .caption-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+  /* the keep-out band, from captionBand(H) — frame content stays above it */
+  .caption-stage {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--cap-band-top, 900px);
+    height: var(--cap-band-height, 180px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .caption-group {
+    /* every group is absolutely stacked over the SAME band — exactly one shown at a
+       time via opacity. Must be absolute: in-flow groups would lay out side-by-side. */
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+  }
+
+  /* THE caption capsule — cream pill, fully-rounded (9999px), capsule's universal 2px
+     ink outline, lifted on a soft hard-offset shadow (no blur, 8% ink) */
+  .caption-pill {
+    max-width: 80%;
+    padding: 18px 46px 20px;
+    background: var(--cap-canvas, #f5f5f0);
+    border: 2px solid var(--cap-ink, #1a1a1a);
+    border-radius: 9999px;
+    box-shadow: 8px 8px 0 color-mix(in srgb, var(--cap-ink, #1a1a1a) 8%, transparent);
+  }
+  .caption-line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.12em 0.36em;
+    font-family: "Bodoni Moda", Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(38px, 4.2vw, 56px);
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+  }
+
+  /* upcoming — faint ink, no highlight */
+  .caption-word {
+    display: inline-block;
+    padding: 0 0.1em;
+    border-radius: 9999px;
+    color: color-mix(in srgb, var(--cap-ink, #1a1a1a) 42%, var(--cap-canvas, #f5f5f0));
+  }
+  /* current word — THE rounded candy highlight: a candy fill + a box-shadow spread
+     halo that follows the pill radius (a soft candy capsule around the word, no blur,
+     no layout shift), ink reading on top */
+  .caption-word.is-active {
+    color: var(--cap-ink, #1a1a1a);
+    background: var(--cap-accent, #e85d4e);
+    box-shadow: 0 0 0 0.14em var(--cap-accent, #e85d4e);
+  }
+  /* already spoken — solid ink, candy highlight cleared */
+  .caption-word.is-spoken {
+    color: var(--cap-ink, #1a1a1a);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* optional per-word accents (dormant until a word-classer tags them) */
+  /* brand / key term — Bodoni Moda italic, capsule's display inflection */
+  .caption-word.cap-brand {
+    font-style: italic;
+  }
+  /* numerals / data — the Space Grotesk voice, slightly recessed */
+  .caption-word.cap-num {
+    font-family: "Space Grotesk", ui-sans-serif, sans-serif;
+    color: color-mix(in srgb, var(--cap-ink, #1a1a1a) 72%, var(--cap-canvas, #f5f5f0));
+  }
+  /* emphasis — a second-candy rounded underline (the counter-accent) */
+  .caption-word.cap-cta {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--cap-accent-2, #f2d160);
+    text-underline-offset: 0.12em;
+  }
+
+  @media (max-aspect-ratio: 9/16) {
+    .caption-pill {
+      max-width: 92%;
+    }
+    .caption-line {
+      font-size: clamp(34px, 5.4vw, 48px);
+    }
+  }
+</style>
+
+<div
+  id="captions-root"
+  data-composition-id="captions"
+  data-timeline-locked
+  data-start="0"
+  data-duration="48.36"
+  data-fps="30"
+  data-width="1080"
+  data-height="1920"
+>
+  <div class="caption-layer" aria-hidden="true">
+    <div id="caption-stage" class="caption-stage"></div>
+  </div>
+</div>
+
+<script>
+  // captions.mjs injects the engine's scene-aware groups + real duration here.
+  var GROUPS = [{"id":"caption-group-0","frame":1,"start":0.4,"end":1.92,"text":"ayer cerraste con un","words":[{"id":"caption-word-0-0","text":"ayer","start":0.4,"end":1.04},{"id":"caption-word-0-1","text":"cerraste","start":1.04,"end":1.6},{"id":"caption-word-0-2","text":"con","start":1.6,"end":1.76},{"id":"caption-word-0-3","text":"un","start":1.76,"end":1.92}]},{"id":"caption-group-1","frame":1,"start":1.92,"end":3.08,"text":"plan escrito","words":[{"id":"caption-word-1-0","text":"plan","start":1.92,"end":2.16},{"id":"caption-word-1-1","text":"escrito","start":2.16,"end":2.96}]},{"id":"caption-group-2","frame":1,"start":3.2,"end":5.2,"text":"hoy ese guion va","words":[{"id":"caption-word-2-0","text":"hoy","start":3.2,"end":3.92},{"id":"caption-word-2-1","text":"ese","start":3.92,"end":4.24},{"id":"caption-word-2-2","text":"guion","start":4.24,"end":4.88},{"id":"caption-word-2-3","text":"va","start":4.88,"end":5.2}]},{"id":"caption-group-3","frame":1,"start":5.2,"end":6.12,"text":"a hablar","words":[{"id":"caption-word-3-0","text":"a","start":5.2,"end":5.36},{"id":"caption-word-3-1","text":"hablar","start":5.36,"end":6}]},{"id":"caption-group-4","frame":1,"start":6.56,"end":7.12,"text":"día 2","words":[{"id":"caption-word-4-0","text":"día","start":6.56,"end":6.88},{"id":"caption-word-4-1","text":"2","start":6.88,"end":7.12}]},{"id":"caption-group-5","frame":1,"start":7.12,"end":8.2,"text":"del reto","words":[{"id":"caption-word-5-0","text":"del","start":7.12,"end":7.36},{"id":"caption-word-5-1","text":"reto","start":7.36,"end":8.08}]},{"id":"caption-group-6","frame":1,"start":8.4,"end":9.08,"text":"la voz","words":[{"id":"caption-word-6-0","text":"la","start":8.4,"end":8.64},{"id":"caption-word-6-1","text":"voz","start":8.64,"end":8.96}]},{"id":"caption-group-7","frame":2,"start":9.704,"end":10.104,"text":"no te","words":[{"id":"caption-word-7-0","text":"no","start":9.704,"end":9.944},{"id":"caption-word-7-1","text":"te","start":9.944,"end":10.104}]},{"id":"caption-group-8","frame":2,"start":10.104,"end":11.304,"text":"grabas tú una","words":[{"id":"caption-word-8-0","text":"grabas","start":10.104,"end":10.424},{"id":"caption-word-8-1","text":"tú","start":10.424,"end":10.984},{"id":"caption-word-8-2","text":"una","start":11.064,"end":11.304}]},{"id":"caption-group-9","frame":2,"start":11.304,"end":11.784,"text":"voz de","words":[{"id":"caption-word-9-0","text":"voz","start":11.304,"end":11.544},{"id":"caption-word-9-1","text":"de","start":11.544,"end":11.784}]},{"id":"caption-group-10","frame":2,"start":11.784,"end":12.824,"text":"ia lee tu","words":[{"id":"caption-word-10-0","text":"ia","start":11.784,"end":12.264},{"id":"caption-word-10-1","text":"lee","start":12.264,"end":12.664},{"id":"caption-word-10-2","text":"tu","start":12.664,"end":12.824}]},{"id":"caption-group-11","frame":2,"start":12.824,"end":14.024,"text":"guion en español","words":[{"id":"caption-word-11-0","text":"guion","start":12.824,"end":13.064},{"id":"caption-word-11-1","text":"en","start":13.064,"end":13.304},{"id":"caption-word-11-2","text":"español","start":13.304,"end":14.024}]},{"id":"caption-group-12","frame":2,"start":14.024,"end":15.344,"text":"con tono natural","words":[{"id":"caption-word-12-0","text":"con","start":14.024,"end":14.184},{"id":"caption-word-12-1","text":"tono","start":14.184,"end":14.504},{"id":"caption-word-12-2","text":"natural","start":14.504,"end":15.224}]},{"id":"caption-group-13","frame":2,"start":15.384,"end":16.504,"text":"la herramienta es","words":[{"id":"caption-word-13-0","text":"la","start":15.384,"end":15.624},{"id":"caption-word-13-1","text":"herramienta","start":15.624,"end":16.104},{"id":"caption-word-13-2","text":"es","start":16.104,"end":16.504}]},{"id":"caption-group-14","frame":2,"start":16.504,"end":19.104,"text":"deepgram la voz celeste","words":[{"id":"caption-word-14-0","text":"deepgram","start":16.504,"end":17.384},{"id":"caption-word-14-1","text":"la","start":17.384,"end":17.624},{"id":"caption-word-14-2","text":"voz","start":17.624,"end":18.264},{"id":"caption-word-14-3","text":"celeste","start":18.264,"end":18.984}]},{"id":"caption-group-15","frame":2,"start":19.144,"end":20.384,"text":"amable y cercana","words":[{"id":"caption-word-15-0","text":"amable","start":19.144,"end":19.464},{"id":"caption-word-15-1","text":"y","start":19.464,"end":19.784},{"id":"caption-word-15-2","text":"cercana","start":19.784,"end":20.264}]},{"id":"caption-group-16","frame":2,"start":20.785,"end":21.425,"text":"cuesta unos","words":[{"id":"caption-word-16-0","text":"cuesta","start":20.785,"end":21.105},{"id":"caption-word-16-1","text":"unos","start":21.105,"end":21.425}]},{"id":"caption-group-17","frame":2,"start":21.425,"end":22.065,"text":"3 centavos","words":[{"id":"caption-word-17-0","text":"3","start":21.425,"end":21.745},{"id":"caption-word-17-1","text":"centavos","start":21.745,"end":22.065}]},{"id":"caption-group-18","frame":2,"start":22.065,"end":22.625,"text":"por cada","words":[{"id":"caption-word-18-0","text":"por","start":22.065,"end":22.385},{"id":"caption-word-18-1","text":"cada","start":22.385,"end":22.625}]},{"id":"caption-group-19","frame":2,"start":22.625,"end":24.065,"text":"1000 caracteres y la","words":[{"id":"caption-word-19-0","text":"1000","start":22.625,"end":22.865},{"id":"caption-word-19-1","text":"caracteres","start":22.865,"end":23.745},{"id":"caption-word-19-2","text":"y","start":23.745,"end":23.905},{"id":"caption-word-19-3","text":"la","start":23.905,"end":24.065}]},{"id":"caption-group-20","frame":2,"start":24.065,"end":25.265,"text":"cuenta trae 200","words":[{"id":"caption-word-20-0","text":"cuenta","start":24.065,"end":24.385},{"id":"caption-word-20-1","text":"trae","start":24.385,"end":24.705},{"id":"caption-word-20-2","text":"200","start":24.705,"end":25.265}]},{"id":"caption-group-21","frame":2,"start":25.265,"end":26.305,"text":"dólares de crédito","words":[{"id":"caption-word-21-0","text":"dólares","start":25.265,"end":25.745},{"id":"caption-word-21-1","text":"de","start":25.745,"end":25.985},{"id":"caption-word-21-2","text":"crédito","start":25.985,"end":26.305}]},{"id":"caption-group-22","frame":2,"start":26.305,"end":26.905,"text":"gratis","words":[{"id":"caption-word-22-0","text":"gratis","start":26.305,"end":26.785}]},{"id":"caption-group-23","frame":3,"start":27.36,"end":28.72,"text":"pegas tu guion","words":[{"id":"caption-word-23-0","text":"pegas","start":27.36,"end":27.84},{"id":"caption-word-23-1","text":"tu","start":27.84,"end":28},{"id":"caption-word-23-2","text":"guion","start":28,"end":28.64}]},{"id":"caption-group-24","frame":3,"start":28.72,"end":29.36,"text":"eliges la","words":[{"id":"caption-word-24-0","text":"eliges","start":28.72,"end":29.12},{"id":"caption-word-24-1","text":"la","start":29.12,"end":29.36}]},{"id":"caption-group-25","frame":3,"start":29.36,"end":30.08,"text":"voz y","words":[{"id":"caption-word-25-0","text":"voz","start":29.36,"end":29.68},{"id":"caption-word-25-1","text":"y","start":29.68,"end":30.08}]},{"id":"caption-group-26","frame":3,"start":30.08,"end":30.4,"text":"en un","words":[{"id":"caption-word-26-0","text":"en","start":30.08,"end":30.24},{"id":"caption-word-26-1","text":"un","start":30.24,"end":30.4}]},{"id":"caption-group-27","frame":3,"start":30.4,"end":31.52,"text":"minuto tienes el","words":[{"id":"caption-word-27-0","text":"minuto","start":30.4,"end":30.88},{"id":"caption-word-27-1","text":"tienes","start":30.88,"end":31.28},{"id":"caption-word-27-2","text":"el","start":31.28,"end":31.52}]},{"id":"caption-group-28","frame":3,"start":31.52,"end":31.92,"text":"audio de","words":[{"id":"caption-word-28-0","text":"audio","start":31.52,"end":31.76},{"id":"caption-word-28-1","text":"de","start":31.76,"end":31.92}]},{"id":"caption-group-29","frame":3,"start":31.92,"end":32.84,"text":"tu video","words":[{"id":"caption-word-29-0","text":"tu","start":31.92,"end":32.08},{"id":"caption-word-29-1","text":"video","start":32.08,"end":32.72}]},{"id":"caption-group-30","frame":3,"start":32.96,"end":33.6,"text":"un archivo","words":[{"id":"caption-word-30-0","text":"un","start":32.96,"end":33.2},{"id":"caption-word-30-1","text":"archivo","start":33.2,"end":33.6}]},{"id":"caption-group-31","frame":3,"start":33.6,"end":34.88,"text":"de audio listo","words":[{"id":"caption-word-31-0","text":"de","start":33.6,"end":33.84},{"id":"caption-word-31-1","text":"audio","start":33.84,"end":34.48},{"id":"caption-word-31-2","text":"listo","start":34.56,"end":34.88}]},{"id":"caption-group-32","frame":3,"start":34.88,"end":35.56,"text":"para mañana","words":[{"id":"caption-word-32-0","text":"para","start":34.88,"end":35.12},{"id":"caption-word-32-1","text":"mañana","start":35.12,"end":35.44}]},{"id":"caption-group-33","frame":4,"start":36.104,"end":37.944,"text":"costo real de 0","words":[{"id":"caption-word-33-0","text":"costo","start":36.104,"end":36.504},{"id":"caption-word-33-1","text":"real","start":36.504,"end":37.224},{"id":"caption-word-33-2","text":"de","start":37.304,"end":37.544},{"id":"caption-word-33-3","text":"0","start":37.544,"end":37.944}]},{"id":"caption-group-34","frame":4,"start":37.944,"end":39.224,"text":"a 30 centavos","words":[{"id":"caption-word-34-0","text":"a","start":37.944,"end":38.264},{"id":"caption-word-34-1","text":"30","start":38.264,"end":38.664},{"id":"caption-word-34-2","text":"centavos","start":38.664,"end":39.224}]},{"id":"caption-group-35","frame":4,"start":39.224,"end":40.264,"text":"por video y","words":[{"id":"caption-word-35-0","text":"por","start":39.224,"end":39.464},{"id":"caption-word-35-1","text":"video","start":39.464,"end":40.104},{"id":"caption-word-35-2","text":"y","start":40.184,"end":40.264}]},{"id":"caption-group-36","frame":4,"start":40.264,"end":41.304,"text":"lo 1º te","words":[{"id":"caption-word-36-0","text":"lo","start":40.264,"end":40.504},{"id":"caption-word-36-1","text":"1º","start":40.504,"end":40.904},{"id":"caption-word-36-2","text":"te","start":40.904,"end":41.304}]},{"id":"caption-group-37","frame":4,"start":41.304,"end":42.384,"text":"sale gratis","words":[{"id":"caption-word-37-0","text":"sale","start":41.304,"end":41.544},{"id":"caption-word-37-1","text":"gratis","start":41.544,"end":42.264}]},{"id":"caption-group-38","frame":4,"start":42.824,"end":45.144,"text":"mañana día 3 las","words":[{"id":"caption-word-38-0","text":"mañana","start":42.824,"end":43.544},{"id":"caption-word-38-1","text":"día","start":43.624,"end":44.024},{"id":"caption-word-38-2","text":"3","start":44.024,"end":44.664},{"id":"caption-word-38-3","text":"las","start":44.824,"end":45.144}]},{"id":"caption-group-39","frame":4,"start":45.144,"end":46.064,"text":"imágenes","words":[{"id":"caption-word-39-0","text":"imágenes","start":45.144,"end":45.944}]},{"id":"caption-group-40","frame":4,"start":46.184,"end":47.224,"text":"sígueme para no","words":[{"id":"caption-word-40-0","text":"sígueme","start":46.184,"end":46.664},{"id":"caption-word-40-1","text":"para","start":46.664,"end":46.984},{"id":"caption-word-40-2","text":"no","start":46.984,"end":47.224}]},{"id":"caption-group-41","frame":4,"start":47.224,"end":48.144,"text":"perderte el reto","words":[{"id":"caption-word-41-0","text":"perderte","start":47.224,"end":47.624},{"id":"caption-word-41-1","text":"el","start":47.624,"end":47.784},{"id":"caption-word-41-2","text":"reto","start":47.784,"end":48.024}]}];
+  var DURATION = 48.36;
+
+  (function () {
+    var stage = document.getElementById("caption-stage");
+
+    // build DOM: one .caption-group per group, .caption-word per word
+    GROUPS.forEach(function (group, g) {
+      var groupEl = document.createElement("div");
+      groupEl.className = "caption-group";
+      groupEl.id = "caption-group-" + g;
+      var pill = document.createElement("div");
+      pill.className = "caption-pill";
+      var line = document.createElement("div");
+      line.className = "caption-line";
+      (group.words || []).forEach(function (w, i) {
+        var span = document.createElement("span");
+        span.className = "caption-word";
+        span.id = "caption-word-" + g + "-" + i;
+        span.textContent = String(w.text);
+        line.appendChild(span);
+      });
+      pill.appendChild(line);
+      groupEl.appendChild(pill);
+      stage.appendChild(groupEl);
+    });
+
+    window.__timelines = window.__timelines || {};
+    var tl = gsap.timeline({ paused: true });
+
+    GROUPS.forEach(function (group, g) {
+      var groupEl = document.getElementById("caption-group-" + g);
+      var words = group.words || [];
+      var next = GROUPS[g + 1];
+      var isLast = g === GROUPS.length - 1;
+      var start = Math.max(0, Number(group.start));
+      var end = isLast ? DURATION : Math.min(Number(next.start), Number(group.end) + 0.3);
+      if (end <= start) end = start + 0.01;
+
+      // group on/off — exactly one group visible at a time
+      tl.set(groupEl, { opacity: 1 }, start);
+      tl.set(groupEl, { opacity: 0 }, end);
+
+      // 3-state karaoke via className SETS — seek-safe (gsap.set applies on the
+      // engine's frame-by-frame seek; .call callbacks would NOT fire).
+      words.forEach(function (w, i) {
+        var el = document.getElementById("caption-word-" + g + "-" + i);
+        var at = Math.max(start, Number(w.start));
+        tl.set(el, { className: "caption-word" }, start); // upcoming (also resets on reverse-seek)
+        tl.set(el, { className: "caption-word is-active" }, at); // current
+        tl.fromTo(el, { scale: 0.92 }, { scale: 1, duration: 0.18, ease: "back.out(2)" }, at);
+        if (i + 1 < words.length) {
+          var nextAt = Math.max(start, Number(words[i + 1].start));
+          tl.set(el, { className: "caption-word is-spoken" }, nextAt); // demote when next activates
+        }
+      });
+      if (words.length) {
+        var lastEl = document.getElementById("caption-word-" + g + "-" + (words.length - 1));
+        var lastSpoken = Math.min(end, Number(words[words.length - 1].end) + 0.1);
+        tl.set(lastEl, { className: "caption-word is-spoken" }, lastSpoken);
+      }
+    });
+
+    // full-span anchor so the sub-comp timeline spans the whole video
+    tl.to({}, { duration: DURATION }, 0);
+    window.__timelines["captions"] = tl;
+  })();
+</script>
+
+<style>
+  .caption-line { line-height: 1.1 !important; }
+</style>
+</template>

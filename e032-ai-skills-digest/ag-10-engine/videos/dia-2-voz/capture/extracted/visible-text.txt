@@ -1,0 +1,16 @@
+Día 2 del reto · La voz (short companion to "Tu primer video explicativo en 7 días")
+
+Source: ../ag-06-engine/output/episode-1-challenge.md (Día 2 — Ponle voz a tu guion)
+Reference module: [teaching-plan M2] — "La voz" — Generate the narration voice-over in Spanish.
+  Deepgram Aura-2 `aura-2-celeste-es` ($0.030/1k chars, $200 free credit) [measured, ag-01];
+  or KIE Gemini TTS (30 voices) [measured]. Cost $0–0.30/video [measured].
+Honesty rule: past is not future — prices measured/verified 2026-08-17/18, they change. No views/income promises.
+
+Day 2 content:
+- Qué haces: conviertes el guion en voz hablada. No te grabas a ti — una voz de IA lee tu guion en español, con tono natural.
+- Con qué: Deepgram Aura-2, la voz `aura-2-celeste-es` (español latino, amable y cercano). Cuesta unos $0.030 por cada mil caracteres y la cuenta trae $200 de crédito gratis — tus primeros videos no te cuestan nada. La alternativa verificada es KIE Gemini TTS (30 voces distintas). [teaching-plan M2]
+- Cuánto cuesta: $0–0.30 por video [measured].
+- Qué lograste: un archivo de audio con la narración de todo tu video.
+- Si te atascas: pedirle a tu chat de IA "¿cómo convierto mi guion en audio con Deepgram Aura-2 paso a paso?" y seguirlo. Este paso también se puede hacer en un ordenador en unos 5 minutos.
+
+Teaser day 3 (imágenes): generates 4-6 scene images with KIE Seedream ~$0.03/img.

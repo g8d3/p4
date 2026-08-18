@@ -1,0 +1,47 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 14cqw 30cqh, rgba(197,181,224,0.18), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #8BB4F7; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5cqw; color: #1A1A1A; white-space: nowrap; }
+    .inp { position: absolute; left: 0; right: 0; margin: 0 auto; width: 70cqw; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 3cqw; box-shadow: 0.3cqw 0.3cqw 0 rgba(26,26,26,0.08); padding: 2.4cqw 3cqw; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 4.4cqw; color: #1A1A1A; text-align: center; }
+    .inp-cap { display: block; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 2.4cqw; letter-spacing: 0.08em; text-transform: uppercase; color: #5A5A5A; margin-top: 0.6cqw; }
+    .mp4 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; background: #A8E6CF; border: 0.26cqw solid #1E1E1E; border-radius: 4.5cqw; box-shadow: 0.5cqw 0.5cqw 0 rgba(26,26,26,0.1); padding: 2.6cqw 7cqw; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 7cqw; letter-spacing: 0.1em; color: #1A1A1A; white-space: nowrap; }
+    .badge { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; background: #E85D4E; border: 0.24cqw solid #1E1E1E; border-radius: 1.2cqw; color: #F5F5F0; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.4cqw; letter-spacing: 0.12em; text-transform: uppercase; padding: 1.8cqw 4cqw; transform: rotate(-2deg); box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.1); white-space: nowrap; }
+    .note { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 3cqw; color: #1A1A1A; background: #FFFFFF; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 3.6cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="06-dia4-montaje" data-width="1080" data-height="1920" data-duration="39.744">
+    <div class="bg clip" id="f06-bg" data-start="0" data-duration="39.744" data-track-index="1"></div>
+    <div class="grain clip" id="f06-grain" data-start="0" data-duration="39.744" data-track-index="2"></div>
+    <div class="day" id="f06-day">Día 4</div>
+    <div class="sub" id="f06-sub">Subtítulos y montaje</div>
+    <div class="inp" id="f06-i1" style="top:23cqh;">voz<span class="inp-cap">audio</span></div>
+    <div class="inp" id="f06-i2" style="top:30.5cqh;">imágenes<span class="inp-cap">escena por escena</span></div>
+    <div class="inp" id="f06-i3" style="top:38cqh;">subtítulos<span class="inp-cap">palabra por palabra · Deepgram Nova &lt; $0.005/min</span></div>
+    <div class="mp4" id="f06-mp4" style="top:55cqh;">MP4</div>
+    <div class="badge" id="f06-gap" style="top:68cqh;">OPEN GAP · montaje en teléfono</div>
+    <div class="note" id="f06-n1" style="top:77cqh;">ruta probada: un ordenador, ~1 hora</div>
+    <div class="note" id="f06-n2" style="top:79cqh;">¿Atascado? Este es el paso para pedir ayuda</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 39.744;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f06-sub", "#f06-i1", "#f06-i2", "#f06-i3", "#f06-mp4", "#f06-gap", "#f06-n1", "#f06-n2"], { opacity: 0 });
+    tl.fromTo("#f06-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.03);
+    tl.fromTo("#f06-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.09);
+    tl.fromTo("#f06-i1", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, D * 0.16);
+    tl.fromTo("#f06-i2", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, D * 0.23);
+    tl.fromTo("#f06-i3", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, D * 0.3);
+    tl.to(["#f06-i1", "#f06-i2", "#f06-i3"], { y: 130, opacity: 0.35, scale: 0.9, duration: 0.7, ease: "power2.in" }, D * 0.46);
+    tl.fromTo("#f06-mp4", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.8)" }, D * 0.48);
+    tl.fromTo("#f06-gap", { opacity: 0, scale: 2.4, rotate: -2 }, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" }, D * 0.56);
+    tl.fromTo("#f06-n1", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.7);
+    tl.fromTo("#f06-n2", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.82);
+    window.__timelines["06-dia4-montaje"] = tl;
+  </script>
+</template>

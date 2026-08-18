@@ -1,0 +1,53 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(42cqw 30cqh at 12cqw 8cqh, rgba(139,180,247,0.14), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .chrome { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 2.7cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; white-space: nowrap; }
+    .phone { position: absolute; left: 0; right: 0; margin: 0 auto; width: 30cqw; height: 26cqh; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 6cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .phone-speaker { position: absolute; top: 3cqh; left: 0; right: 0; margin: 0 auto; width: 10cqw; height: 1.4cqh; background: #C5B5E0; border-radius: 9999px; }
+    .phone-face { position: absolute; top: 9cqh; left: 0; right: 0; margin: 0 auto; width: 20cqw; height: 3cqh; background: #F5F5F0; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; }
+    .myth { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 7.5cqw; color: #1A1A1A; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 3.5cqw; padding: 2.4cqw 6cqw; text-align: center; will-change: transform, opacity; }
+    .strike { position: absolute; left: -2cqw; right: -2cqw; top: 50%; height: 0.8cqw; background: #E85D4E; transform-origin: 0 50%; }
+    .casi { position: absolute; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.4cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; background: #F2D160; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; padding: 1cqw 2.6cqw; white-space: nowrap; }
+    .teexplico { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4.2cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #F5F5F0; background: #E85D4E; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; padding: 2cqw 6cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="01-el-problema" data-width="1080" data-height="1920" data-duration="19.676">
+    <div class="bg clip" id="f01-bg" data-start="0" data-duration="19.676" data-track-index="1"></div>
+    <div class="grain clip" id="f01-grain" data-start="0" data-duration="19.676" data-track-index="2"></div>
+    <div class="chrome" id="f01-title" style="top:7cqh;">No publicas tu primer video</div>
+    <div class="phone" id="f01-phone">
+      <div class="phone-speaker"></div>
+      <div class="phone-face"></div>
+    </div>
+    <div class="myth" id="f01-m1" style="top:47cqh;">una cámara<span class="strike" id="f01-s1"></span></div>
+    <div class="myth" id="f01-m2" style="top:59cqh;">saber editar<span class="strike" id="f01-s2"></span></div>
+    <div class="myth" id="f01-m3" style="top:71cqh;">una computadora<span class="strike" id="f01-s3"></span></div>
+    <div class="casi" id="f01-casi" style="top:76.5cqh;">casi</div>
+    <div class="teexplico" id="f01-te" style="top:78cqh;">Te explico</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 19.176;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f01-phone", "#f01-m1", "#f01-m2", "#f01-m3", "#f01-s1", "#f01-s2", "#f01-s3", "#f01-casi", "#f01-te"], { opacity: 0 });
+    gsap.set(["#f01-s1", "#f01-s2", "#f01-s3"], { scaleX: 0 });
+    tl.fromTo("#f01-title", { opacity: 0, y: -24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.03);
+    tl.fromTo("#f01-phone", { opacity: 0, scale: 0.8, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.6)" }, D * 0.34);
+    tl.fromTo("#f01-m1", { opacity: 0, y: 46, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, D * 0.38);
+    tl.fromTo("#f01-m2", { opacity: 0, y: 46, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, D * 0.46);
+    tl.fromTo("#f01-m3", { opacity: 0, y: 46, filter: "blur(6px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, D * 0.54);
+    tl.to("#f01-s1", { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, D * 0.66);
+    tl.to("#f01-m1", { opacity: 0.55, duration: 0.3 }, D * 0.7);
+    tl.to("#f01-s2", { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, D * 0.74);
+    tl.to("#f01-m2", { opacity: 0.55, duration: 0.3 }, D * 0.78);
+    tl.to("#f01-s3", { scaleX: 1, duration: 0.35, ease: "power2.inOut" }, D * 0.82);
+    tl.to("#f01-m3", { opacity: 0.55, duration: 0.3 }, D * 0.86);
+    tl.fromTo("#f01-casi", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, D * 0.87);
+    tl.fromTo("#f01-te", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.93);
+    window.__timelines["01-el-problema"] = tl;
+  </script>
+</template>

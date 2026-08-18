@@ -1,0 +1,50 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 88cqw 20cqh, rgba(139,180,247,0.16), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .ring { position: absolute; left: 0; right: 0; margin: 0 auto; top: 22cqh; width: 42cqw; height: 42cqw; border: 0.4cqw solid #1A1A1A; border-radius: 50%; }
+    .ring-dot { position: absolute; width: 5cqw; height: 5cqw; border: 0.22cqw solid #1E1E1E; border-radius: 50%; background: #C4D94E; }
+    .hub { position: absolute; left: 0; right: 0; margin: 0 auto; top: 33cqh; width: fit-content; max-width: 38cqw; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 3.4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); padding: 2cqw 3cqw; text-align: center; }
+    .hub-t { display: block; font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 4.4cqw; line-height: 1.15; color: #1A1A1A; }
+    .res { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.2cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; padding: 1.6cqw 3.6cqw; white-space: nowrap; }
+    .rep { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 77cqh; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.8cqw; letter-spacing: 0.12em; text-transform: uppercase; color: #1A1A1A; padding: 2cqw 5cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="10-la-maquina" data-width="1080" data-height="1920" data-duration="16.868">
+    <div class="bg clip" id="f10-bg" data-start="0" data-duration="16.868" data-track-index="1"></div>
+    <div class="grain clip" id="f10-grain" data-start="0" data-duration="16.868" data-track-index="2"></div>
+    <div class="ring" id="f10-ring">
+      <div class="ring-dot" style="left:-2.5cqw;top:50%;"></div>
+      <div class="ring-dot" style="left:12%;top:-2.5cqw;"></div>
+      <div class="ring-dot" style="left:50%;top:-2.5cqw;"></div>
+      <div class="ring-dot" style="left:88%;top:-2.5cqw;"></div>
+      <div class="ring-dot" style="left:100%;top:50%;"></div>
+      <div class="ring-dot" style="left:88%;bottom:-2.5cqw;top:auto;"></div>
+      <div class="ring-dot" style="left:50%;bottom:-2.5cqw;top:auto;"></div>
+    </div>
+    <div class="hub" id="f10-hub"><span class="hub-t">1 video + 5 piezas + 1 mejora</span></div>
+    <div class="res" id="f10-r1" style="top:12cqh;background:#E85D4E;color:#F5F5F0;">1 video</div>
+    <div class="res" id="f10-r2" style="top:70cqh;left:16cqw;background:#F2D160;">5 piezas</div>
+    <div class="res" id="f10-r3" style="top:70cqh;right:16cqw;background:#A8E6CF;">1 mejora</div>
+    <div class="rep" id="f10-rep">Repitiendo, no aprendiendo</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 16.368;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f10-ring", "#f10-hub", "#f10-r1", "#f10-r2", "#f10-r3", "#f10-rep", ".ring-dot"], { opacity: 0 });
+    tl.fromTo("#f10-ring", { opacity: 0, scale: 0.6, rotation: -20 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: "back.out(1.6)" }, D * 0.06);
+    tl.fromTo(".ring-dot", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)", stagger: 0.05 }, D * 0.14);
+    tl.fromTo("#f10-hub", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.8)" }, D * 0.22);
+    tl.fromTo("#f10-r1", { opacity: 0, y: -30, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, D * 0.3);
+    tl.fromTo("#f10-r2", { opacity: 0, y: 30, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, D * 0.4);
+    tl.fromTo("#f10-r3", { opacity: 0, y: 30, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }, D * 0.48);
+    tl.to("#f10-ring", { scale: 1.03, duration: 0.5, ease: "power1.inOut" }, D * 0.6);
+    tl.to("#f10-ring", { scale: 1, duration: 0.5, ease: "power1.inOut" }, D * 0.64);
+    tl.fromTo("#f10-rep", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, D * 0.78);
+    window.__timelines["10-la-maquina"] = tl;
+  </script>
+</template>

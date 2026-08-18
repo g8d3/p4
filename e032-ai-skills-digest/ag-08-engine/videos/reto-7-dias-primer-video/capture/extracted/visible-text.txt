@@ -1,0 +1,151 @@
+# Episodio 1 — "Tu primer video explicativo en 7 días" (guion de narración)
+
+**Agente**: ag-07-engine · **Fecha**: 2026-08-18
+**Tipo**: explicador sin rostro (faceless), 9:16 (Short largo) con corte 16:9 posible
+**Duración objetivo**: ~6–7 min de narración (≈1,000 palabras a ~150 ppm)
+**Fuente**: `../ag-06-engine/output/episode-1-challenge.md` (el reto, ya publicado). Los costos y la nota de honestidad son verbatim de esa guía; donde el plan está mudo se marca **OPEN GAP**, no se inventa.
+**Voz**: UNA voz en español, constante en todo el video. KIE Gemini TTS (voces p4 preferidas: Alnilam/Gacrux/Puck/Sulafat/Umbriel/Vindemiatrix) o Deepgram Aura-2 `aura-2-celeste-es`. Sin cara: tipografía, iconos y abstractos; nunca un presentador.
+
+---
+
+## Línea de gancho (para portada/título)
+
+**Sin cámara. Sin cara. Sin saber editar. En 7 días publicas tu primer video explicativo con IA, desde el teléfono.**
+
+---
+
+## Guion escena por escena
+
+### Escena 0 — Gancho (0:00–0:15)
+
+**Visual**: fondo oscuro. Tipografía enorme que golpea en cortes secos: `SIN CÁMARA` → `SIN CARA` → `SIN SABER EDITAR` → `7 DÍAS`. Sonido de transición limpio por corte.
+
+**Narración**:
+> Sin cámara. Sin mostrar tu cara. Sin saber editar. En siete días puedes publicar tu primer video explicativo, hecho con IA, desde tu teléfono.
+
+---
+
+### Escena 1 — El problema (0:15–0:40)
+
+**Visual**: un teléfono en el centro. Aparecen y se tachan, uno a uno, tres rótulos: "necesito una cámara", "necesito aprender a editar", "necesito una computadora". El tercero queda tachado con un asterisco: "casi".
+
+**Narración**:
+> La mayoría de la gente no publica su primer video, no porque no tenga algo que decir, sino porque cree que necesita tres cosas que no tiene: una cámara, saber editar y una computadora. La primera es falsa. La segunda es falsa. Y la tercera... casi. Te explico.
+
+---
+
+### Escena 2 — La promesa (0:40–1:10)
+
+**Visual**: línea de tiempo con 7 puntos que se encienden uno a uno; cada punto un icono (guion, voz, imagen, engranaje, subida, copia, bucle).
+
+**Narración**:
+> Este es el reto de los siete días: una acción por día, de veinte a treinta minutos. Cuando termines tendrás un video explicativo publicado en YouTube, hecho con voz, imágenes y subtítulos generados por IA. El costo real: entre cero y un dólar, gracias a los créditos gratis de las herramientas. Y ojo, una promesa honesta desde el segundo cero: esto no te promete vistas ni dinero. Te promete una habilidad. Siete días, una idea, tu primer video. Empezamos.
+
+---
+
+### Escena 3 — Día 1 · Dicta tu guion (1:10–1:50)
+
+**Visual**: app de chat en el teléfono, onda de voz que se dicta, texto que se convierte en guion numerado por escenas. `[teaching-plan M1]`
+
+**Narración**:
+> Día uno. Elige una cosa que sepas explicar en dos minutos: un consejo, un error que cometiste, una explicación corta. No busques el tema perfecto: el tema correcto es el que puedes explicar hoy sin investigar nada. Abre tu chat de IA en el teléfono y dicta tu idea con tu voz, como si le hablaras a un amigo. Después pídele: convierte esto en un guion por escenas para un video de un minuto, en español sencillo, una idea por escena. Y listo: ya no tienes una idea, tienes un plan escrito. Te costó cero.
+
+---
+
+### Escena 4 — Día 2 · La voz (1:50–2:25)
+
+**Visual**: el guion entra a una barra de texto-a-voz; una onda sonora se dibuja; un altavoz emite. `[teaching-plan M2]`
+
+**Narración**:
+> Día dos. Le pones voz a tu guion. No te grabas tú: una voz de IA lo lee en español, con tono natural. Con Deepgram Aura-2, la voz "celeste es", tus primeros videos no te cuestan nada, porque la cuenta trae doscientos dólares de crédito gratis. La alternativa verificada es Gemini TTS, con treinta voces. Si en algún momento te sientes perdido, pregúntale a tu chat de IA cómo se hace paso a paso: para eso existe. En unos minutos tienes el audio de todo tu video.
+
+---
+
+### Escena 5 — Día 3 · Las imágenes (2:25–3:00)
+
+**Visual**: el guion en columnas; cada escena gana una imagen 16:9; un sello de "mismo estilo" cruza todas. `[teaching-plan M3]`
+
+**Narración**:
+> Día tres. Las imágenes. Generas entre cuatro y seis, una por escena. No dibujas nada: describes con palabras y la IA crea. Con Seedream cuestan unos tres centavos cada una; con Gemini Nano Banana, precio verificado en su página. Pide el mismo estilo en todas para que el video se vea coherente y no a parches. Cuando termines tienes guion, voz e imágenes: el video ya existe, solo falta juntarlo.
+
+---
+
+### Escena 6 — Día 4 · Subtítulos y montaje (3:00–3:50)
+
+**Visual**: audio + imágenes entran a un ensamblador; los subtítulos palabra por palabra se alinean; emerge un archivo `MP4`. Una marca amarilla "abierto" junto al paso de montaje. `[teaching-plan M4]` + `[OPEN GAP]`
+
+**Narración**:
+> Día cuatro. Subtítulos y montaje. Primero, la transcripción automática con Deepgram Nova: te da los subtítulos palabra por palabra, a menos de medio centavo por minuto. Después juntas voz, imágenes y subtítulos en un solo archivo MP4. Aviso honesto: este es el único paso que el equipo de investigación no ha verificado en el teléfono. La ruta probada corre en un ordenador, en una hora. Si solo tienes teléfono, usa el editor gratis que ya trae tu teléfono para poner todo en orden; lo marcamos como punto abierto, no como receta probada. Si te atascas, este es el paso para pedir ayuda.
+
+---
+
+### Escena 7 — Día 5 · Publica (3:50–4:20)
+
+**Visual**: botón "publicar", logotipo de YouTube, un check en "contenido generado con IA". `[teaching-plan M5]`
+
+**Narración**:
+> Día cinco. Publica. Sube tu MP4 a YouTube, ponle un título claro y una miniatura, y responde con honestidad la pregunta de la plataforma: sí, tu contenido fue generado con IA. Es una regla, no es opcional. Y no esperes números el primer día. La victoria de hoy es que ayer no existía, y ahora está publicado.
+
+---
+
+### Escena 8 — Día 6 · Un video, cinco publicaciones (4:20–4:55)
+
+**Visual**: el video se abre en cinco iconos: hilo, publicación, historia, correo. Uno de ellos se marca "a mano". `[teaching-plan T3 M1, T3 M5]`
+
+**Narración**:
+> Día seis. Tu video no es un producto de un día: es materia prima. Extrae la transcripción, pídele a tu chat de IA que la reescriba en cinco piezas cortas y publícalas donde ya tengas audiencia: X, WhatsApp, LinkedIn. Detalle honesto: en Instagram y TikTok se publica a mano, no se puede automatizar. Un video alimentando una semana de contenido. Eso es una máquina.
+
+---
+
+### Escena 9 — Día 7 · El bucle (4:55–5:25)
+
+**Visual**: gráficas de vistas y comentarios, una nota, un bucle que se cierra y vuelve a girar. `[teaching-plan T3 M4]`
+
+**Narración**:
+> Día siete. El bucle. Mira los números: vistas, cuáles de tus cinco publicaciones llamaron la atención, qué comentarios llegaron. Anótalo todo en un solo lugar y responde a cada comentario. Después decide una sola cosa: qué mejorarás en el video dos. Ese es el ciclo: publicar, aprender, mejorar. Repítelo y dejas de tener videos sueltos: tienes una máquina.
+
+---
+
+### Escena 10 — La máquina (5:25–5:50)
+
+**Visual**: un engranaje de 7 piezas que gira; en el centro: "video publicado + 5 piezas + 1 mejora".
+
+**Narración**:
+> Siete días: un video publicado, cinco piezas de contenido y un bucle de mejora. Eso es lo que te llevas. Y la buena noticia: el video dos sale más rápido, porque ya no estás aprendiendo, estás repitiendo.
+
+---
+
+### Escena 11 — La nota honesta (5:50–6:20)
+
+**Visual**: fondo oscuro, tipografía serena y seria: "Pasado no es futuro".
+
+**Narración**:
+> Y la parte que casi nadie te dice. Pasado no es futuro: los precios que mencioné son los que el equipo midió en agosto de dos mil veintiséis, y cambian; revisa la página del proveedor antes de pagar. Y sobre todo: este reto no te promete vistas, seguidores ni ingresos. Nadie honesto puede prometerte eso. Lo único que te garantiza es una habilidad: pasar de una idea a un video publicado por alrededor de un dólar. Eso ya nadie te lo quita.
+
+---
+
+### Escena 12 — Cierre (6:20–6:45)
+
+**Visual**: la portada de la guía, un enlace, una línea: "Día 1: dicta tu idea".
+
+**Narración**:
+> La guía completa, día por día, con todos los costos, está gratis en el enlace de la descripción. Tienes una idea en la cabeza en este momento. Día uno: dictala. Nos vemos en siete días.
+
+---
+
+## Notas de producción
+
+| Campo | Valor |
+|---|---|
+| Relación de aspecto | 9:16 para Short; el corte 16:9 es un bonus (misma narración, re-posicionar visuales) |
+| Duración narración | ~6:45 min (≈1,000 palabras) — dentro de la ventana 5–8 min |
+| Voz | KIE Gemini TTS (Alnilam/Gacrux/Puck/Sulafat/Umbriel/Vindemiatrix) o Deepgram Aura-2 `aura-2-celeste-es`; UNA voz, constante |
+| Subtítulos | palabra por palabra (Deepgram Nova-3), siempre visibles — muchos ven sin sonido |
+| Montaje | HyperFrames (ruta verificada ag-01 `[teaching-plan M4]`); esto ES la prueba que el texto del día 4 pide |
+| Divulgación IA | marcar "contenido generado sintéticamente" al publicar `[teaching-plan M5]` |
+| Miniatura | una imagen tipográfica con el gancho "Sin cámara. Sin cara. 7 días." |
+
+**Etiquetas de costo por escena** (para el control de calidad, no se dicen en cámara):
+- Día 1 → $0 `[estimated]` — Día 2 → $0–0.30/video `[measured]` — Día 3 → $0–0.60/video `[estimated]` — Día 4 → $0–0.05 `[measured]` + **OPEN GAP** montaje en teléfono — Día 5 → $0 — Día 6 → $0 `[measured]` — Día 7 → $0.
+
+**Fuentes**: guía `episode-1-challenge.md` de ag-06 (verbatim en costos y honestidad), `teaching-plan.md` (M1–M5, T3 M1/M4/M5) y `synthesis.md` (reglas de honestidad) de ag-05-synthesis. Ninguna herramienta inventada; todo cita el plan o se marca abierto.

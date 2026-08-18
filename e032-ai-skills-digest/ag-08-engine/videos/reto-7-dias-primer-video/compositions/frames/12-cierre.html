@@ -1,0 +1,42 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 12cqw 12cqh, rgba(197,181,224,0.2), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .cover { position: absolute; left: 0; right: 0; margin: 0 auto; top: 20cqh; width: 66cqw; background: #FFFFFF; border: 0.26cqw solid #1E1E1E; border-radius: 4cqw; box-shadow: 0.5cqw 0.5cqw 0 rgba(26,26,26,0.1); padding: 4cqw 4cqw 3cqw 4cqw; text-align: center; }
+    .cover-t { display: block; font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 7.4cqw; line-height: 1.1; letter-spacing: -0.02em; color: #1A1A1A; }
+    .cover-s { display: block; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #E85D4E; margin-top: 1.6cqw; }
+    .dots { margin-top: 3cqw; display: flex; justify-content: center; gap: 1.6cqw; }
+    .dot { width: 2.6cqw; height: 2.6cqw; border-radius: 50%; border: 0.2cqw solid #1E1E1E; }
+    .link { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 54cqh; background: #E85D4E; color: #F5F5F0; border: 0.24cqw solid #1E1E1E; border-radius: 9999px; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.12); font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.8cqw; letter-spacing: 0.12em; text-transform: uppercase; padding: 2.2cqw 5.4cqw; white-space: nowrap; }
+    .cta { position: absolute; left: 0; right: 0; margin: 0 auto; top: 70cqh; width: 84cqw; text-align: center; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 7cqw; line-height: 1.15; color: #1A1A1A; }
+    .bye { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 80cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #8A8178; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="12-cierre" data-width="1080" data-height="1920" data-duration="13.056">
+    <div class="bg clip" id="f12-bg" data-start="0" data-duration="13.056" data-track-index="1"></div>
+    <div class="grain clip" id="f12-grain" data-start="0" data-duration="13.056" data-track-index="2"></div>
+    <div class="cover" id="f12-cover">
+      <span class="cover-t">Tu primer video explicativo</span>
+      <span class="cover-s">en 7 días</span>
+      <div class="dots"><span class="dot" style="background:#E85D4E;"></span><span class="dot" style="background:#F5B895;"></span><span class="dot" style="background:#F2D160;"></span><span class="dot" style="background:#A8E6CF;"></span><span class="dot" style="background:#8BB4F7;"></span><span class="dot" style="background:#C5B5E0;"></span><span class="dot" style="background:#C4D94E;"></span></div>
+    </div>
+    <div class="link" id="f12-link">Enlace en la descripción ↓</div>
+    <div class="cta" id="f12-cta">Día 1: dicta tu idea</div>
+    <div class="bye" id="f12-bye">Nos vemos en siete días</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 13.056;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f12-link", "#f12-cta", "#f12-bye"], { opacity: 0 });
+    tl.fromTo("#f12-cover", { opacity: 0, y: 50, scale: 0.85, filter: "blur(6px)" }, { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.7, ease: "back.out(1.4)" }, D * 0.05);
+    tl.fromTo("#f12-link", { opacity: 0, y: 28, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.8)" }, D * 0.32);
+    tl.fromTo("#f12-cta", { opacity: 0, y: 34, filter: "blur(4px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.6, ease: "power3.out" }, D * 0.55);
+    tl.fromTo("#f12-bye", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.72);
+    tl.to(["#f12-cover", "#f12-link", "#f12-cta", "#f12-bye"], { opacity: 0.92, duration: 0.6, ease: "power1.out" }, D * 0.92);
+    window.__timelines["12-cierre"] = tl;
+  </script>
+</template>

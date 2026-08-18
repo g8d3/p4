@@ -1,0 +1,102 @@
+{
+  "agents": {
+    "ag-01-video": {
+      "next_check_at": 1787059246,
+      "last_status": "DONE",
+      "last_flag": 1787027157,
+      "last_age": 31364,
+      "last_step": "done.txt present"
+    },
+    "ag-02-products": {
+      "next_check_at": 1787059645,
+      "last_status": "DONE",
+      "last_flag": 1787027157,
+      "last_age": 7474,
+      "last_step": "done.txt present"
+    },
+    "ag-03-marketing": {
+      "next_check_at": 1787059645,
+      "last_status": "DONE",
+      "last_flag": 1787027157,
+      "last_age": 32729.15553355217,
+      "last_step": "done.txt present"
+    },
+    "ag-04-crypto": {
+      "next_check_at": 1787059568,
+      "last_status": "DONE",
+      "last_flag": 1787027157,
+      "last_age": 31696,
+      "last_step": "done.txt present"
+    },
+    "scout-1": {
+      "next_check_at": 1787051651,
+      "last_status": "DONE",
+      "last_flag": 1787027851,
+      "last_age": null,
+      "last_step": "done.txt present"
+    },
+    "scout-2": {
+      "next_check_at": 1787051581,
+      "last_status": "DONE",
+      "last_flag": 1787028803,
+      "last_age": null,
+      "last_step": "done.txt present"
+    },
+    "scout-3": {
+      "next_check_at": 1787051586,
+      "last_status": "DONE",
+      "last_flag": 1787030010,
+      "last_age": null,
+      "last_step": "done.txt present"
+    },
+    "ag-05-synthesis": {
+      "next_check_at": 1787059365,
+      "last_status": "DONE",
+      "last_flag": 1787052495,
+      "last_age": 6105,
+      "last_step": "done.txt present"
+    },
+    "ag-06-engine": {
+      "next_check_at": 1787059340,
+      "last_status": "DONE",
+      "last_flag": 1787052994,
+      "last_age": 4355,
+      "last_step": "done.txt present"
+    },
+    "ag-07-engine": {
+      "next_check_at": 1787059154,
+      "last_status": "DONE",
+      "last_flag": 1787053930,
+      "last_age": 4743.031230926514,
+      "last_step": "done.txt present"
+    },
+    "ag-08-engine": {
+      "next_check_at": 1787059197,
+      "last_status": "DONE",
+      "last_flag": 1787054578,
+      "last_age": 2165.5622704029083,
+      "last_step": "done.txt present"
+    },
+    "ag-09-engine": {
+      "next_check_at": 1787059281,
+      "last_status": "DONE",
+      "last_flag": 1787056604,
+      "last_age": 1376,
+      "last_step": "done.txt present"
+    },
+    "ag-10-engine": {
+      "next_check_at": 1787059394,
+      "last_status": "DONE",
+      "last_flag": 1787057825,
+      "last_age": 174,
+      "last_step": "done.txt present"
+    },
+    "ag-11-engine": {
+      "next_check_at": 1787059160,
+      "last_status": "WORKING",
+      "last_flag": 1787058800,
+      "last_age": 33,
+      "last_step": "last evidence 33s ago (N=300)"
+    }
+  }
+}

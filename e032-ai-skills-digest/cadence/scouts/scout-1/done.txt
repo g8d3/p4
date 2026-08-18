@@ -1,0 +1,1 @@
+scout-1: ONE Chrome instance = 1.21 GiB (1,263 MB tree), 16% of used RAM. It's the e031 dream-player display (live 8788 tab) but runs SwiftShader CPU rendering (~3h CPU, audit flag) and points at dead 8787. e032 needs zero Chrome. Recommend: kill-or-relaunch-with-GPU decision + one-instance-per-batch CDP pattern + never-swiftshader launch rule.

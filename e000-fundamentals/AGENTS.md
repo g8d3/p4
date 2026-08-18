@@ -182,6 +182,204 @@ e011-gh-repo-analysis/
 - **Resumable**: if an agent fails, the next agent can still read its partial output
 - **Language-agnostic**: agents can be any tool (opencode, Python script, bash)
 
+## Hardware awareness & quiet mode (MANDATORY)
+
+This machine is a quiet workstation. The user works and sleeps next to it, and
+**the cooling fan must NOT turn on**. CPU and RAM are shared and limited
+(12 cores, 15 GiB RAM, ~5–6 GiB already used by the desktop session).
+
+Two standing obligations for EVERY agent, always:
+
+1. **Be aware of hardware at all times.** Before launching anything heavy,
+   check the current state and keep it low: `uptime`, `free -h`,
+   `ps -eo pcpu,pmem,comm --sort=-pcpu | head`. Do not assume the machine is
+   idle. If load average is already > 1.5, throttle your own work.
+2. **Batch and serialize, don't parallelize.** Spawning N heavy agents at once
+   multiplies CPU/RAM. When several research tasks need doing, run them ONE at
+   a time (or a maximum of two light ones), spread across providers, and let
+   each finish before the next starts. Fewer concurrent agents = cooler fans.
+
+**The quiet window (night / while the user sleeps):** when the user is asleep,
+the machine must be extra-quiet. During this window:
+
+- Aggregate CPU for ALL agents must stay under **1.5 cores** (150%).
+- Aggregate RAM must stay under **8 GiB**.
+- The orchestrator applies these as HARD cgroup caps
+  (`agents-limited` under the user's cgroup tree) — agents must not fight the
+  cap, they must work *inside* it (background + self-wake, one at a time).
+- Prefer the cheapest model that can do the job; defer heavy renders or batch
+  research to the day.
+
+**Quiet schedule (user decision 2026-08-18):** the quiet window runs
+**21:00–10:00** (`config.json` → `time.quiet`). Outside it, caps are lifted.
+
+**Manual override (user message wins):** when the user sends a message to turn
+quiet off (or `set-caps.sh off`), a `quiet-override` file is written with
+`off` and the caps go to FULL (600% / 14GiB) immediately. The schedule is
+**suspended, not postponed**: while the override is `off`, Cadence must NOT
+re-cap at any hour. To resume the schedule, the user sends "resume quiet mode"
+(or `set-caps.sh schedule`), which clears the override and returns to the
+21:00–10:00 window. `set-caps.sh on` forces quiet regardless of the clock.
+Check `set-caps.sh status` to see the override state any time.
+
+**How to check you are inside the cap:** `cat /proc/self/cgroup` should contain
+`agents-limited`. If not, you are not limited — re-check resource levels with
+the commands above and throttle yourself accordingly.
+
+## Cadence: the adaptive progress verifier (MANDATORY for spawned agents)
+
+**What it is.** A dedicated agent type that verifies other agents are making
+progress, and that tunes its own check interval per agent. It is the answer to
+"agents get stuck and nobody notices until too late". Two halves, by design:
+
+1. **The clock (deterministic).** `e000-fundamentals/bin/progress-monitor/`
+   runs `cadence-monitor.py` as a persistent loop. Every **N seconds per agent**
+   it reads two kinds of evidence and writes a status to
+   `progress-monitor.log` + `anomalies.md`:
+   - **Heartbeats**: what the agent *says* — `report.sh <agent> "<step>"` appended
+     lines in `progress/<agent>.jsonl`.
+   - **Deliverables**: what the agent *produced* — newest file mtime in its
+     `output/`. Evidence wins over words; files appearing = working.
+   - Statuses: `NOT_STARTED` → `WORKING` → `IDLE` → `STUCK` → `DONE`.
+   - `N` comes from `config.json` (`interval_s` per agent). The clock never
+     decides anything — it only measures against the interval it was given.
+2. **The mind (adaptive).** The Cadence agent (`ag-00-cadence`-style directory,
+   named `cadence` in tmux) is the thinking half. On each wake it reads the
+   monitor's logs and anomalies, plus each agent's `timings.log`, and:
+   - **Tunes N per agent** — fast-moving agents get a shorter interval (tighter
+     watch), slow-but-alive phases get a longer one (don't nag), completed
+     agents get checked almost never. It writes the new interval back to
+     `config.json`; the clock obeys it next tick.
+   - **Acts on anomalies**: for a `STUCK`/`NOT_STARTED` agent it checks the
+     window itself (token counter frozen? output absent?) and sends one
+     corrective message (per the orchestrator's first-fix-then-kill rule) or
+     escalates to the orchestrator inbox with evidence.
+   - **Stays out of the chain**: Cadence is not a reporting target for the
+     orchestrator or the user; its inputs are worker heartbeats + filesystem
+     evidence only.
+
+### Cadence is also the system health keeper
+
+Cadence owns awareness of ANY agent error — not just slowness. The clock's
+30-second **hygiene audit** (`resource-audit.log`) classifies the machine and
+Cadence decides and acts on it:
+
+- **CPU instead of GPU** — `libx264/libx265` final encodes (must be `h264_vaapi`)
+  or Chrome with `--enable-unsafe-swiftshader`/`--disable-gpu` (software
+  rendering). Cadence messages the offender; if it belongs to a non-agent
+  experiment (e.g. an avatar client), it documents it in `notes.md` and does
+  not kill it.
+- **Idle agents** — same first-fix-then-escalate flow as progress.
+- **Too much resource** — sustained high load in quiet hours → lower the caps.
+- **Too little resource / wrong-mode quiet** — day time doesn't need quiet mode.
+  When `time.quiet` says the quiet window is off, Cadence RAISES the caps via
+  `set-caps.sh`; at night it keeps them tight. The caps change only through
+  `set-caps.sh`, never by editing cgroup files.
+- **Its own cases** — repeated permission prompts, a single agent pegging 95%
+  CPU with no heartbeat, dead tmux windows, zombie processes. It logs findings
+  in `notes.md` and takes the same help-first action.
+
+### Cadence's N model (five distinct N's per agent — never conflate them)
+
+Cadence tunes **five quantities per agent**; only the first is written to the
+clock's config, the rest are its own model:
+
+| N | What it is | Source |
+|---|---|---|
+| `N_base(phase)` | natural interval for the agent's current phase | `base_intervals_s` in config |
+| `N_check` | the ACTIVE interval the clock obeys | `N_base(phase) × multiplier` → `interval_s` |
+| `N_idle` / `N_stuck` | evidence-age thresholds that flip status | `N_check × idle_mult` (2) / `stuck_mult` (4) |
+| `N_timeout(cmd)` | per-command timeout from the agent's timings | mean+4σ per command |
+| `N_stepback` | relaxation ceiling once ultra-sure | base × growing multiplier, capped |
+
+**Step-back rule:** start at ×1.0; after `stable_cycles_needed` clean cycles,
+grow the multiplier by `grow_by` up to `max_multiplier`. ANY anomaly resets it
+to 1.0. Cadence logs every change in `calculations.md` with the formula and
+evidence.
+
+### Cadence's two report formats (user requirement — both, every cycle)
+
+- **`brief.md`** — the 30-second answer. Overwritten every cycle: one row per
+  agent (phase, N_check, status, age, next, multiplier, stable cycles) + one
+  health line. Never left stale.
+- **`calculations.md`** — the 5-minute answer. Append-only audit trail: every
+  N computation with its formula and evidence, every anomaly, every step-back.
+
+Where: `<experiment>/cadence/brief.md` and `<experiment>/cadence/calculations.md`.
+
+### Unsubmitted-Enter detection (the #1 agent-launch mistake)
+
+The clock checks every agent window (config `window` field) twice ~2.5s apart.
+If the pane is identical both times AND a line matches `❯ <long text>` (a
+message typed at the input prompt, never submitted) → it flags
+`unsubmitted_input`. If the pane's owning process is just a shell (agent binary
+exited, input stranded) → `dead_windows`. Cadence's fix for unsubmitted input is
+`tmux send-keys -t <window> Enter` ONCE, verify the pane moved, escalate if not.
+
+### Cadence also spawns improvement scouts
+
+Cadence owns **"where are we doing things poorly?"** by spawning short-lived
+analyst agents — **Scouts** — that investigate concrete hypotheses and return
+improvement proposals. The reusable scout contract is
+[`bin/progress-monitor/scout.proto.md`](bin/progress-monitor/scout.proto.md) and
+candidate questions live in the experiment's `cadence/audit-candidates.md`.
+
+- **One question per scout**, in writing, read-only, bounded to 30 min; each
+  writes `scout-report.md` + `done.txt` and notifies when done.
+- Cadence is the initiator, reviewer, and relay: it filters evidence-backed
+  proposals and escalates only the top 1-3 to the orchestrator inbox with
+  numbers. Cadence never implements fixes itself, and scouts are forbidden from
+  touching the system (no installs, no kills, no message loops).
+- Cadence's own hypotheses are welcome — e.g. "we run opencode as our agent
+  CLI; might a leaner harness do the same job with less RAM/CPU?" — exactly the
+  kind of waste a scout should measure before anyone changes anything.
+- During quiet hours Cadence spawns at most ONE scout at a time and keeps it
+  inside the same `agents-limited` caps.
+
+`set-caps.sh <cpu%> <memBytes>` applies/relaxes the `agents-limited` cgroup
+caps; `set-caps.sh status` reports them. Cadence is the ONLY agent that calls
+it.
+
+### Agent reproduction: the engine keeps itself alive (self-launching successors)
+
+**The rule:** a completing agent that leaves a `successor.md` (with a launch
+prompt) is NOT done-launching — the system must actually start the successor.
+Cadence is responsible for doing it: when it sees a DONE agent whose successor
+is unlaunched, it runs
+[`bin/progress-monitor/spawn-agent.sh`](bin/progress-monitor/spawn-agent.sh):
+
+```bash
+spawn-agent.sh <agent-id> <window> <agent-dir>   # reads successor.md for the prompt
+spawn-agent.sh <agent-id> <window> <agent-dir> "<explicit prompt>"
+```
+
+`spawn-agent.sh` does the full launch safely: refuses if the window or agent
+already exists, waits for the agent's Build status bar BEFORE sending the prompt
+(fixing the unsubmitted-Enter class of bugs), registers the agent in the cadence
+config, and caps it into `agents-limited`. A completing agent therefore
+"clones" itself through the filesystem: write `successor.md` → Cadence launches
+`ag-N+1` from it. The orchestrator does NOT need to be asked for every next
+step — only for escalations and user-facing decisions.
+
+**Contract for every spawned agent** (mandatory):
+- Call `e000-fundamentals/bin/progress-monitor/report.sh <agent-id> "<step>"`
+  at every milestone and after every long command.
+- Keep `output/` as the single deliverables directory — Cadence watches it.
+- Your `AGENTS.md` must declare a stable **agent-id** and a `## Cadence` section
+  naming your expected intervals and phases so the Cadence agent can tune N.
+
+**Launching Cadence:**
+```bash
+# 1. clock (persistent, one per machine)
+python3 e000-fundamentals/bin/progress-monitor/cadence-monitor.py >/dev/null 2>&1 &
+
+# 2. mind (one per active experiment) → tmux window named "cadence"
+tmux new-window -n cadence -d
+tmux send-keys -t cadence "cd <exp>/cadence && opencode" Enter
+sleep 3
+tmux send-keys -t cadence "Read AGENTS.md, then read each file listed in Inherits. Execute the task." Enter
+```
+
 ## Agent principles
 
 - **Quality over speed**: don't just finish fast. Explore freely but balance it — don't add unnecessary code. Prioritize simple, well-made solutions.

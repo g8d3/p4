@@ -1,13 +1,6 @@
 {
-  "last_day": "2026-08-15",
+  "last_day": "2026-08-17",
   "pending": [
-    {
-      "coin": "AAVE",
-      "entry_day": "2026-08-13",
-      "exit_day": "2026-08-18",
-      "trigger": "T2_lowvol",
-      "entry_close": 87.869
-    },
     {
       "coin": "SOL",
       "entry_day": "2026-08-15",
@@ -28,6 +21,20 @@
       "exit_day": "2026-08-20",
       "trigger": "T2_lowvol",
       "entry_close": 0.069593
+    },
+    {
+      "coin": "BTC",
+      "entry_day": "2026-08-16",
+      "exit_day": "2026-08-21",
+      "trigger": "T2_lowvol",
+      "entry_close": 62873.0
+    },
+    {
+      "coin": "ETH",
+      "entry_day": "2026-08-16",
+      "exit_day": "2026-08-21",
+      "trigger": "T2_lowvol",
+      "entry_close": 1875.6
     }
   ]
 }

@@ -1,0 +1,54 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 16cqw 84cqh, rgba(245,184,149,0.16), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #C5B5E0; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 4.8cqw; color: #1A1A1A; white-space: nowrap; }
+    .vid { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 22cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 3.4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); padding: 2cqw 5cqw; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4cqw; letter-spacing: 0.08em; color: #1A1A1A; white-space: nowrap; }
+    .play { display: inline-block; width: 0; height: 0; border-left: 2.6cqw solid #E85D4E; border-top: 1.8cqw solid transparent; border-bottom: 1.8cqw solid transparent; margin-right: 2cqw; }
+    .icon { position: absolute; width: 12cqw; height: 12cqw; border: 0.22cqw solid #1E1E1E; border-radius: 50%; background: #FFFFFF; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; color: #1A1A1A; display: flex; align-items: center; justify-content: center; }
+    .arrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 32cqh; font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 7cqw; color: #1A1A1A; }
+    .aman { position: absolute; background: #E85D4E; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; color: #F5F5F0; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 2.5cqw; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.9cqw 2.2cqw; white-space: nowrap; }
+    .piedras { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 76cqh; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.8cqw; letter-spacing: 0.12em; text-transform: uppercase; color: #1A1A1A; padding: 2cqw 5cqw; white-space: nowrap; }
+    .chipcap { position: absolute; top: 63cqh; left: 0; right: 0; margin: 0 auto; width: fit-content; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 2.4cqw; letter-spacing: 0.06em; color: #5A5A5A; }
+  </style>
+  <div id="root" data-composition-id="08-dia6-cinco" data-width="1080" data-height="1920" data-duration="31.968">
+    <div class="bg clip" id="f08-bg" data-start="0" data-duration="31.968" data-track-index="1"></div>
+    <div class="grain clip" id="f08-grain" data-start="0" data-duration="31.968" data-track-index="2"></div>
+    <div class="day" id="f08-day">Día 6</div>
+    <div class="sub" id="f08-sub">Un video, cinco publicaciones</div>
+    <div class="vid" id="f08-vid"><span class="play"></span>1 video</div>
+    <div class="arrow" id="f08-arrow">→</div>
+    <div class="icon" id="f08-i1" style="left:12cqw;top:41cqh;background:#F5B895;">X</div>
+    <div class="icon" id="f08-i2" style="left:28cqw;top:41cqh;background:#A8E6CF;">WA</div>
+    <div class="icon" id="f08-i3" style="left:44cqw;top:41cqh;background:#8BB4F7;">LI</div>
+    <div class="icon" id="f08-i4" style="left:60cqw;top:41cqh;background:#C5B5E0;">IG</div>
+    <div class="icon" id="f08-i5" style="left:76cqw;top:41cqh;background:#F2D160;">TK</div>
+    <div class="chipcap" id="f08-cap">X · WhatsApp · LinkedIn · Instagram · TikTok</div>
+    <div class="aman" id="f08-a1" style="left:57cqw;top:69cqh;">a mano</div>
+    <div class="aman" id="f08-a2" style="left:73cqw;top:69cqh;">a mano</div>
+    <div class="piedras" id="f08-p">1 video → 5 piezas</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 31.968;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f08-sub", "#f08-vid", "#f08-arrow", "#f08-i1", "#f08-i2", "#f08-i3", "#f08-i4", "#f08-i5", "#f08-cap", "#f08-a1", "#f08-a2", "#f08-p"], { opacity: 0 });
+    tl.fromTo("#f08-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.04);
+    tl.fromTo("#f08-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.12);
+    tl.fromTo("#f08-vid", { opacity: 0, y: 36, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, D * 0.2);
+    tl.fromTo("#f08-arrow", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.27);
+    ["#f08-i1", "#f08-i2", "#f08-i3", "#f08-i4", "#f08-i5"].forEach((c, i) => {
+      tl.fromTo(c, { opacity: 0, scale: 0.3, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(2)" }, D * 0.32 + i * (D * 0.035));
+    });
+    tl.fromTo("#f08-cap", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.5);
+    tl.fromTo("#f08-a1", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, D * 0.62);
+    tl.fromTo("#f08-a2", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, D * 0.66);
+    tl.fromTo("#f08-p", { opacity: 0, y: 34, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, D * 0.78);
+    window.__timelines["08-dia6-cinco"] = tl;
+  </script>
+</template>

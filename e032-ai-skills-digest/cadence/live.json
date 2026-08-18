@@ -1,0 +1,148 @@
+{
+ "ts": "2026-08-18T08:18:49-05:00",
+ "ts_epoch": 1787059129,
+ "summary": {
+  "alive": 0,
+  "working": 1,
+  "done": 10,
+  "stuck": 0
+ },
+ "engine": {
+  "level": "producing",
+  "text": "🔥 1 working · 10 done · 0 stuck — the loop is producing."
+ },
+ "agents": [
+  {
+   "agent": "ag-01-video",
+   "window": "32-1",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "DONE: all deliverables verified in output/ (skills-video.md 17.5KB 54 verified c",
+   "age_s": "8.7h",
+   "age_secs": 31364,
+   "hb_age_secs": 31847,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-01-video"
+  },
+  {
+   "agent": "ag-02-products",
+   "window": "32-2",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "complete: all 4 deliverables written, verify step",
+   "age_s": "2.1h",
+   "age_secs": 7474,
+   "hb_age_secs": 7558,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-02-products"
+  },
+  {
+   "agent": "ag-03-marketing",
+   "window": "32-3",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "done.txt present",
+   "age_s": "9.1h",
+   "age_secs": 32729,
+   "hb_age_secs": null,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-03-marketing"
+  },
+  {
+   "agent": "ag-04-crypto",
+   "window": "32-4",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "COMPLETE: all 4 deliverables written (skills-trading.md, recommendations.md, tim",
+   "age_s": "8.8h",
+   "age_secs": 31696,
+   "hb_age_secs": 31857,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-04-crypto"
+  },
+  {
+   "agent": "ag-05-synthesis",
+   "window": "32-5",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "done: synthesis.md + teaching-plan.md + profit-plan.md + done.txt shipped",
+   "age_s": "1.7h",
+   "age_secs": 6105,
+   "hb_age_secs": 6469,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-05-synthesis"
+  },
+  {
+   "agent": "ag-06-engine",
+   "window": "32-6",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "ag-07 corrected: episode-1-script shipped + successor ready",
+   "age_s": "1.2h",
+   "age_secs": 4355,
+   "hb_age_secs": 4744,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-06-engine"
+  },
+  {
+   "agent": "ag-07-engine",
+   "window": "32-7",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "done.txt present",
+   "age_s": "1.3h",
+   "age_secs": 4743,
+   "hb_age_secs": null,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-07-engine"
+  },
+  {
+   "agent": "ag-08-engine",
+   "window": "32-8",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "all contract files shipped; notifying done",
+   "age_s": "36m",
+   "age_secs": 2165,
+   "hb_age_secs": 2700,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-08-engine"
+  },
+  {
+   "agent": "ag-09-engine",
+   "window": "32-9",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "done: day-1 Short shipped",
+   "age_s": "23m",
+   "age_secs": 1376,
+   "hb_age_secs": 1824,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-09-engine"
+  },
+  {
+   "agent": "ag-10-engine",
+   "window": "32-10",
+   "alive": false,
+   "cpu": "—",
+   "status": "DONE",
+   "step": "DONE: day-2 Short rendered + verified + successor ready",
+   "age_s": "3m",
+   "age_secs": 174,
+   "hb_age_secs": 509,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-10-engine"
+  },
+  {
+   "agent": "ag-11-engine",
+   "window": "32-11",
+   "alive": false,
+   "cpu": "—",
+   "status": "WORKING",
+   "step": "TTS 4/4 done (Alnilam, 50.6s total); transcribing",
+   "age_s": "33s",
+   "age_secs": 33,
+   "hb_age_secs": 39,
+   "url": "/files/code/p4/e032-ai-skills-digest/ag-11-engine"
+  }
+ ]
+}

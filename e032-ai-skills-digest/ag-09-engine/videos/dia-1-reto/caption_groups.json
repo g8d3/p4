@@ -1,0 +1,1144 @@
+{
+  "total_duration_s": 49.104,
+  "width": 1080,
+  "height": 1920,
+  "groups": [
+    {
+      "id": "caption-group-0",
+      "frame": 1,
+      "start": 0.48,
+      "end": 2.92,
+      "text": "sin cámara sin cara",
+      "words": [
+        {
+          "id": "caption-word-0-0",
+          "text": "sin",
+          "start": 0.48,
+          "end": 0.8
+        },
+        {
+          "id": "caption-word-0-1",
+          "text": "cámara",
+          "start": 0.8,
+          "end": 1.6
+        },
+        {
+          "id": "caption-word-0-2",
+          "text": "sin",
+          "start": 1.76,
+          "end": 2.08
+        },
+        {
+          "id": "caption-word-0-3",
+          "text": "cara",
+          "start": 2.08,
+          "end": 2.8
+        }
+      ]
+    },
+    {
+      "id": "caption-group-1",
+      "frame": 1,
+      "start": 2.96,
+      "end": 4.52,
+      "text": "sin saber editar",
+      "words": [
+        {
+          "id": "caption-word-1-0",
+          "text": "sin",
+          "start": 2.96,
+          "end": 3.28
+        },
+        {
+          "id": "caption-word-1-1",
+          "text": "saber",
+          "start": 3.28,
+          "end": 3.68
+        },
+        {
+          "id": "caption-word-1-2",
+          "text": "editar",
+          "start": 3.68,
+          "end": 4.4
+        }
+      ]
+    },
+    {
+      "id": "caption-group-2",
+      "frame": 1,
+      "start": 4.72,
+      "end": 5.52,
+      "text": "hoy empieza",
+      "words": [
+        {
+          "id": "caption-word-2-0",
+          "text": "hoy",
+          "start": 4.72,
+          "end": 5.04
+        },
+        {
+          "id": "caption-word-2-1",
+          "text": "empieza",
+          "start": 5.04,
+          "end": 5.52
+        }
+      ]
+    },
+    {
+      "id": "caption-group-3",
+      "frame": 1,
+      "start": 5.52,
+      "end": 6.44,
+      "text": "el reto",
+      "words": [
+        {
+          "id": "caption-word-3-0",
+          "text": "el",
+          "start": 5.52,
+          "end": 5.68
+        },
+        {
+          "id": "caption-word-3-1",
+          "text": "reto",
+          "start": 5.68,
+          "end": 6.32
+        }
+      ]
+    },
+    {
+      "id": "caption-group-4",
+      "frame": 1,
+      "start": 6.64,
+      "end": 7.8,
+      "text": "día 1",
+      "words": [
+        {
+          "id": "caption-word-4-0",
+          "text": "día",
+          "start": 6.64,
+          "end": 6.96
+        },
+        {
+          "id": "caption-word-4-1",
+          "text": "1",
+          "start": 6.96,
+          "end": 7.68
+        }
+      ]
+    },
+    {
+      "id": "caption-group-5",
+      "frame": 1,
+      "start": 7.92,
+      "end": 9,
+      "text": "dicta tu idea",
+      "words": [
+        {
+          "id": "caption-word-5-0",
+          "text": "dicta",
+          "start": 7.92,
+          "end": 8.32
+        },
+        {
+          "id": "caption-word-5-1",
+          "text": "tu",
+          "start": 8.32,
+          "end": 8.56
+        },
+        {
+          "id": "caption-word-5-2",
+          "text": "idea",
+          "start": 8.56,
+          "end": 8.88
+        }
+      ]
+    },
+    {
+      "id": "caption-group-6",
+      "frame": 2,
+      "start": 9.616,
+      "end": 10.256,
+      "text": "elige una",
+      "words": [
+        {
+          "id": "caption-word-6-0",
+          "text": "elige",
+          "start": 9.616,
+          "end": 10.016
+        },
+        {
+          "id": "caption-word-6-1",
+          "text": "una",
+          "start": 10.016,
+          "end": 10.256
+        }
+      ]
+    },
+    {
+      "id": "caption-group-7",
+      "frame": 2,
+      "start": 10.256,
+      "end": 10.736,
+      "text": "cosa que",
+      "words": [
+        {
+          "id": "caption-word-7-0",
+          "text": "cosa",
+          "start": 10.256,
+          "end": 10.496
+        },
+        {
+          "id": "caption-word-7-1",
+          "text": "que",
+          "start": 10.496,
+          "end": 10.736
+        }
+      ]
+    },
+    {
+      "id": "caption-group-8",
+      "frame": 2,
+      "start": 10.736,
+      "end": 11.936,
+      "text": "sepas explicar en",
+      "words": [
+        {
+          "id": "caption-word-8-0",
+          "text": "sepas",
+          "start": 10.736,
+          "end": 11.136
+        },
+        {
+          "id": "caption-word-8-1",
+          "text": "explicar",
+          "start": 11.136,
+          "end": 11.616
+        },
+        {
+          "id": "caption-word-8-2",
+          "text": "en",
+          "start": 11.616,
+          "end": 11.936
+        }
+      ]
+    },
+    {
+      "id": "caption-group-9",
+      "frame": 2,
+      "start": 11.936,
+      "end": 12.416,
+      "text": "menos de",
+      "words": [
+        {
+          "id": "caption-word-9-0",
+          "text": "menos",
+          "start": 11.936,
+          "end": 12.176
+        },
+        {
+          "id": "caption-word-9-1",
+          "text": "de",
+          "start": 12.176,
+          "end": 12.416
+        }
+      ]
+    },
+    {
+      "id": "caption-group-10",
+      "frame": 2,
+      "start": 12.416,
+      "end": 14.576,
+      "text": "2 minutos un consejo",
+      "words": [
+        {
+          "id": "caption-word-10-0",
+          "text": "2",
+          "start": 12.416,
+          "end": 12.656
+        },
+        {
+          "id": "caption-word-10-1",
+          "text": "minutos",
+          "start": 12.656,
+          "end": 13.296
+        },
+        {
+          "id": "caption-word-10-2",
+          "text": "un",
+          "start": 13.456,
+          "end": 13.776
+        },
+        {
+          "id": "caption-word-10-3",
+          "text": "consejo",
+          "start": 13.776,
+          "end": 14.576
+        }
+      ]
+    },
+    {
+      "id": "caption-group-11",
+      "frame": 2,
+      "start": 14.576,
+      "end": 15.136,
+      "text": "un error",
+      "words": [
+        {
+          "id": "caption-word-11-0",
+          "text": "un",
+          "start": 14.576,
+          "end": 14.816
+        },
+        {
+          "id": "caption-word-11-1",
+          "text": "error",
+          "start": 14.816,
+          "end": 15.136
+        }
+      ]
+    },
+    {
+      "id": "caption-group-12",
+      "frame": 2,
+      "start": 15.136,
+      "end": 16.296,
+      "text": "que cometiste",
+      "words": [
+        {
+          "id": "caption-word-12-0",
+          "text": "que",
+          "start": 15.136,
+          "end": 15.296
+        },
+        {
+          "id": "caption-word-12-1",
+          "text": "cometiste",
+          "start": 15.296,
+          "end": 16.176
+        }
+      ]
+    },
+    {
+      "id": "caption-group-13",
+      "frame": 2,
+      "start": 16.416,
+      "end": 17.976,
+      "text": "una explicación corta",
+      "words": [
+        {
+          "id": "caption-word-13-0",
+          "text": "una",
+          "start": 16.416,
+          "end": 16.736
+        },
+        {
+          "id": "caption-word-13-1",
+          "text": "explicación",
+          "start": 16.736,
+          "end": 17.136
+        },
+        {
+          "id": "caption-word-13-2",
+          "text": "corta",
+          "start": 17.136,
+          "end": 17.856
+        }
+      ]
+    },
+    {
+      "id": "caption-group-14",
+      "frame": 2,
+      "start": 18.176,
+      "end": 18.816,
+      "text": "no busques",
+      "words": [
+        {
+          "id": "caption-word-14-0",
+          "text": "no",
+          "start": 18.176,
+          "end": 18.416
+        },
+        {
+          "id": "caption-word-14-1",
+          "text": "busques",
+          "start": 18.416,
+          "end": 18.816
+        }
+      ]
+    },
+    {
+      "id": "caption-group-15",
+      "frame": 2,
+      "start": 18.816,
+      "end": 20.016,
+      "text": "el tema perfecto",
+      "words": [
+        {
+          "id": "caption-word-15-0",
+          "text": "el",
+          "start": 18.816,
+          "end": 18.976
+        },
+        {
+          "id": "caption-word-15-1",
+          "text": "tema",
+          "start": 18.976,
+          "end": 19.216
+        },
+        {
+          "id": "caption-word-15-2",
+          "text": "perfecto",
+          "start": 19.216,
+          "end": 19.936
+        }
+      ]
+    },
+    {
+      "id": "caption-group-16",
+      "frame": 2,
+      "start": 20.016,
+      "end": 21.056,
+      "text": "el correcto es",
+      "words": [
+        {
+          "id": "caption-word-16-0",
+          "text": "el",
+          "start": 20.016,
+          "end": 20.336
+        },
+        {
+          "id": "caption-word-16-1",
+          "text": "correcto",
+          "start": 20.336,
+          "end": 20.816
+        },
+        {
+          "id": "caption-word-16-2",
+          "text": "es",
+          "start": 20.816,
+          "end": 21.056
+        }
+      ]
+    },
+    {
+      "id": "caption-group-17",
+      "frame": 2,
+      "start": 21.056,
+      "end": 21.376,
+      "text": "el que",
+      "words": [
+        {
+          "id": "caption-word-17-0",
+          "text": "el",
+          "start": 21.056,
+          "end": 21.216
+        },
+        {
+          "id": "caption-word-17-1",
+          "text": "que",
+          "start": 21.216,
+          "end": 21.376
+        }
+      ]
+    },
+    {
+      "id": "caption-group-18",
+      "frame": 2,
+      "start": 21.376,
+      "end": 22.696,
+      "text": "puedes explicar hoy",
+      "words": [
+        {
+          "id": "caption-word-18-0",
+          "text": "puedes",
+          "start": 21.376,
+          "end": 21.696
+        },
+        {
+          "id": "caption-word-18-1",
+          "text": "explicar",
+          "start": 21.696,
+          "end": 22.176
+        },
+        {
+          "id": "caption-word-18-2",
+          "text": "hoy",
+          "start": 22.176,
+          "end": 22.576
+        }
+      ]
+    },
+    {
+      "id": "caption-group-19",
+      "frame": 3,
+      "start": 23.144,
+      "end": 23.624,
+      "text": "abre tu",
+      "words": [
+        {
+          "id": "caption-word-19-0",
+          "text": "abre",
+          "start": 23.144,
+          "end": 23.464
+        },
+        {
+          "id": "caption-word-19-1",
+          "text": "tu",
+          "start": 23.464,
+          "end": 23.624
+        }
+      ]
+    },
+    {
+      "id": "caption-group-20",
+      "frame": 3,
+      "start": 23.624,
+      "end": 24.104,
+      "text": "chat de",
+      "words": [
+        {
+          "id": "caption-word-20-0",
+          "text": "chat",
+          "start": 23.624,
+          "end": 23.944
+        },
+        {
+          "id": "caption-word-20-1",
+          "text": "de",
+          "start": 23.944,
+          "end": 24.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-21",
+      "frame": 3,
+      "start": 24.104,
+      "end": 24.744,
+      "text": "ia gratis",
+      "words": [
+        {
+          "id": "caption-word-21-0",
+          "text": "ia",
+          "start": 24.104,
+          "end": 24.344
+        },
+        {
+          "id": "caption-word-21-1",
+          "text": "gratis",
+          "start": 24.344,
+          "end": 24.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-22",
+      "frame": 3,
+      "start": 24.744,
+      "end": 25.064,
+      "text": "en el",
+      "words": [
+        {
+          "id": "caption-word-22-0",
+          "text": "en",
+          "start": 24.744,
+          "end": 24.984
+        },
+        {
+          "id": "caption-word-22-1",
+          "text": "el",
+          "start": 24.984,
+          "end": 25.064
+        }
+      ]
+    },
+    {
+      "id": "caption-group-23",
+      "frame": 3,
+      "start": 25.064,
+      "end": 26.184,
+      "text": "teléfono y dicta",
+      "words": [
+        {
+          "id": "caption-word-23-0",
+          "text": "teléfono",
+          "start": 25.064,
+          "end": 25.624
+        },
+        {
+          "id": "caption-word-23-1",
+          "text": "y",
+          "start": 25.624,
+          "end": 25.864
+        },
+        {
+          "id": "caption-word-23-2",
+          "text": "dicta",
+          "start": 25.864,
+          "end": 26.184
+        }
+      ]
+    },
+    {
+      "id": "caption-group-24",
+      "frame": 3,
+      "start": 26.184,
+      "end": 26.664,
+      "text": "tu idea",
+      "words": [
+        {
+          "id": "caption-word-24-0",
+          "text": "tu",
+          "start": 26.184,
+          "end": 26.424
+        },
+        {
+          "id": "caption-word-24-1",
+          "text": "idea",
+          "start": 26.424,
+          "end": 26.664
+        }
+      ]
+    },
+    {
+      "id": "caption-group-25",
+      "frame": 3,
+      "start": 26.664,
+      "end": 27.064,
+      "text": "con tu",
+      "words": [
+        {
+          "id": "caption-word-25-0",
+          "text": "con",
+          "start": 26.664,
+          "end": 26.904
+        },
+        {
+          "id": "caption-word-25-1",
+          "text": "tu",
+          "start": 26.904,
+          "end": 27.064
+        }
+      ]
+    },
+    {
+      "id": "caption-group-26",
+      "frame": 3,
+      "start": 27.064,
+      "end": 27.784,
+      "text": "voz como",
+      "words": [
+        {
+          "id": "caption-word-26-0",
+          "text": "voz",
+          "start": 27.064,
+          "end": 27.544
+        },
+        {
+          "id": "caption-word-26-1",
+          "text": "como",
+          "start": 27.544,
+          "end": 27.784
+        }
+      ]
+    },
+    {
+      "id": "caption-group-27",
+      "frame": 3,
+      "start": 27.784,
+      "end": 28.104,
+      "text": "si le",
+      "words": [
+        {
+          "id": "caption-word-27-0",
+          "text": "si",
+          "start": 27.784,
+          "end": 27.864
+        },
+        {
+          "id": "caption-word-27-1",
+          "text": "le",
+          "start": 27.864,
+          "end": 28.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-28",
+      "frame": 3,
+      "start": 28.104,
+      "end": 28.584,
+      "text": "hablaras a",
+      "words": [
+        {
+          "id": "caption-word-28-0",
+          "text": "hablaras",
+          "start": 28.104,
+          "end": 28.424
+        },
+        {
+          "id": "caption-word-28-1",
+          "text": "a",
+          "start": 28.424,
+          "end": 28.584
+        }
+      ]
+    },
+    {
+      "id": "caption-group-29",
+      "frame": 3,
+      "start": 28.584,
+      "end": 30.464,
+      "text": "un amigo pídele",
+      "words": [
+        {
+          "id": "caption-word-29-0",
+          "text": "un",
+          "start": 28.584,
+          "end": 28.744
+        },
+        {
+          "id": "caption-word-29-1",
+          "text": "amigo",
+          "start": 28.744,
+          "end": 29.304
+        },
+        {
+          "id": "caption-word-29-2",
+          "text": "pídele",
+          "start": 29.464,
+          "end": 30.344
+        }
+      ]
+    },
+    {
+      "id": "caption-group-30",
+      "frame": 3,
+      "start": 30.584,
+      "end": 31.384,
+      "text": "convierte esto",
+      "words": [
+        {
+          "id": "caption-word-30-0",
+          "text": "convierte",
+          "start": 30.584,
+          "end": 30.984
+        },
+        {
+          "id": "caption-word-30-1",
+          "text": "esto",
+          "start": 30.984,
+          "end": 31.384
+        }
+      ]
+    },
+    {
+      "id": "caption-group-31",
+      "frame": 3,
+      "start": 31.384,
+      "end": 31.704,
+      "text": "en un",
+      "words": [
+        {
+          "id": "caption-word-31-0",
+          "text": "en",
+          "start": 31.384,
+          "end": 31.544
+        },
+        {
+          "id": "caption-word-31-1",
+          "text": "un",
+          "start": 31.544,
+          "end": 31.704
+        }
+      ]
+    },
+    {
+      "id": "caption-group-32",
+      "frame": 3,
+      "start": 31.704,
+      "end": 32.184,
+      "text": "guion por",
+      "words": [
+        {
+          "id": "caption-word-32-0",
+          "text": "guion",
+          "start": 31.704,
+          "end": 31.944
+        },
+        {
+          "id": "caption-word-32-1",
+          "text": "por",
+          "start": 31.944,
+          "end": 32.184
+        }
+      ]
+    },
+    {
+      "id": "caption-group-33",
+      "frame": 3,
+      "start": 32.184,
+      "end": 33.224,
+      "text": "escenas para un",
+      "words": [
+        {
+          "id": "caption-word-33-0",
+          "text": "escenas",
+          "start": 32.184,
+          "end": 32.664
+        },
+        {
+          "id": "caption-word-33-1",
+          "text": "para",
+          "start": 32.664,
+          "end": 32.984
+        },
+        {
+          "id": "caption-word-33-2",
+          "text": "un",
+          "start": 32.984,
+          "end": 33.224
+        }
+      ]
+    },
+    {
+      "id": "caption-group-34",
+      "frame": 3,
+      "start": 33.224,
+      "end": 33.704,
+      "text": "video de",
+      "words": [
+        {
+          "id": "caption-word-34-0",
+          "text": "video",
+          "start": 33.224,
+          "end": 33.464
+        },
+        {
+          "id": "caption-word-34-1",
+          "text": "de",
+          "start": 33.464,
+          "end": 33.704
+        }
+      ]
+    },
+    {
+      "id": "caption-group-35",
+      "frame": 3,
+      "start": 33.704,
+      "end": 34.824,
+      "text": "un minuto en",
+      "words": [
+        {
+          "id": "caption-word-35-0",
+          "text": "un",
+          "start": 33.704,
+          "end": 33.864
+        },
+        {
+          "id": "caption-word-35-1",
+          "text": "minuto",
+          "start": 33.864,
+          "end": 34.584
+        },
+        {
+          "id": "caption-word-35-2",
+          "text": "en",
+          "start": 34.664,
+          "end": 34.824
+        }
+      ]
+    },
+    {
+      "id": "caption-group-36",
+      "frame": 3,
+      "start": 34.824,
+      "end": 36.744,
+      "text": "español sencillo una idea",
+      "words": [
+        {
+          "id": "caption-word-36-0",
+          "text": "español",
+          "start": 34.824,
+          "end": 35.224
+        },
+        {
+          "id": "caption-word-36-1",
+          "text": "sencillo",
+          "start": 35.224,
+          "end": 36.024
+        },
+        {
+          "id": "caption-word-36-2",
+          "text": "una",
+          "start": 36.184,
+          "end": 36.504
+        },
+        {
+          "id": "caption-word-36-3",
+          "text": "idea",
+          "start": 36.504,
+          "end": 36.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-37",
+      "frame": 3,
+      "start": 36.744,
+      "end": 37.424,
+      "text": "por escena",
+      "words": [
+        {
+          "id": "caption-word-37-0",
+          "text": "por",
+          "start": 36.744,
+          "end": 36.984
+        },
+        {
+          "id": "caption-word-37-1",
+          "text": "escena",
+          "start": 36.984,
+          "end": 37.304
+        }
+      ]
+    },
+    {
+      "id": "caption-group-38",
+      "frame": 4,
+      "start": 37.96,
+      "end": 39.08,
+      "text": "listo ya no",
+      "words": [
+        {
+          "id": "caption-word-38-0",
+          "text": "listo",
+          "start": 37.96,
+          "end": 38.6
+        },
+        {
+          "id": "caption-word-38-1",
+          "text": "ya",
+          "start": 38.6,
+          "end": 38.92
+        },
+        {
+          "id": "caption-word-38-2",
+          "text": "no",
+          "start": 38.92,
+          "end": 39.08
+        }
+      ]
+    },
+    {
+      "id": "caption-group-39",
+      "frame": 4,
+      "start": 39.08,
+      "end": 40.12,
+      "text": "tienes una idea",
+      "words": [
+        {
+          "id": "caption-word-39-0",
+          "text": "tienes",
+          "start": 39.08,
+          "end": 39.32
+        },
+        {
+          "id": "caption-word-39-1",
+          "text": "una",
+          "start": 39.32,
+          "end": 39.56
+        },
+        {
+          "id": "caption-word-39-2",
+          "text": "idea",
+          "start": 39.56,
+          "end": 40.12
+        }
+      ]
+    },
+    {
+      "id": "caption-group-40",
+      "frame": 4,
+      "start": 40.12,
+      "end": 41.24,
+      "text": "tienes un plan",
+      "words": [
+        {
+          "id": "caption-word-40-0",
+          "text": "tienes",
+          "start": 40.12,
+          "end": 40.52
+        },
+        {
+          "id": "caption-word-40-1",
+          "text": "un",
+          "start": 40.52,
+          "end": 40.76
+        },
+        {
+          "id": "caption-word-40-2",
+          "text": "plan",
+          "start": 40.76,
+          "end": 41.24
+        }
+      ]
+    },
+    {
+      "id": "caption-group-41",
+      "frame": 4,
+      "start": 41.24,
+      "end": 43.68,
+      "text": "escrito te costó 0",
+      "words": [
+        {
+          "id": "caption-word-41-0",
+          "text": "escrito",
+          "start": 41.24,
+          "end": 42.12
+        },
+        {
+          "id": "caption-word-41-1",
+          "text": "te",
+          "start": 42.2,
+          "end": 42.44
+        },
+        {
+          "id": "caption-word-41-2",
+          "text": "costó",
+          "start": 42.44,
+          "end": 42.84
+        },
+        {
+          "id": "caption-word-41-3",
+          "text": "0",
+          "start": 42.84,
+          "end": 43.56
+        }
+      ]
+    },
+    {
+      "id": "caption-group-42",
+      "frame": 4,
+      "start": 43.72,
+      "end": 45.64,
+      "text": "mañana día 2 le",
+      "words": [
+        {
+          "id": "caption-word-42-0",
+          "text": "mañana",
+          "start": 43.72,
+          "end": 44.52
+        },
+        {
+          "id": "caption-word-42-1",
+          "text": "día",
+          "start": 44.52,
+          "end": 44.76
+        },
+        {
+          "id": "caption-word-42-2",
+          "text": "2",
+          "start": 44.76,
+          "end": 45.4
+        },
+        {
+          "id": "caption-word-42-3",
+          "text": "le",
+          "start": 45.4,
+          "end": 45.64
+        }
+      ]
+    },
+    {
+      "id": "caption-group-43",
+      "frame": 4,
+      "start": 45.64,
+      "end": 47.04,
+      "text": "ponemos la voz",
+      "words": [
+        {
+          "id": "caption-word-43-0",
+          "text": "ponemos",
+          "start": 45.64,
+          "end": 46.12
+        },
+        {
+          "id": "caption-word-43-1",
+          "text": "la",
+          "start": 46.12,
+          "end": 46.36
+        },
+        {
+          "id": "caption-word-43-2",
+          "text": "voz",
+          "start": 46.36,
+          "end": 46.92
+        }
+      ]
+    },
+    {
+      "id": "caption-group-44",
+      "frame": 4,
+      "start": 47.16,
+      "end": 47.88,
+      "text": "sígueme para",
+      "words": [
+        {
+          "id": "caption-word-44-0",
+          "text": "sígueme",
+          "start": 47.16,
+          "end": 47.64
+        },
+        {
+          "id": "caption-word-44-1",
+          "text": "para",
+          "start": 47.64,
+          "end": 47.88
+        }
+      ]
+    },
+    {
+      "id": "caption-group-45",
+      "frame": 4,
+      "start": 47.88,
+      "end": 48.36,
+      "text": "no perderte",
+      "words": [
+        {
+          "id": "caption-word-45-0",
+          "text": "no",
+          "start": 47.88,
+          "end": 48.04
+        },
+        {
+          "id": "caption-word-45-1",
+          "text": "perderte",
+          "start": 48.04,
+          "end": 48.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-46",
+      "frame": 4,
+      "start": 48.36,
+      "end": 48.96,
+      "text": "el reto",
+      "words": [
+        {
+          "id": "caption-word-46-0",
+          "text": "el",
+          "start": 48.36,
+          "end": 48.52
+        },
+        {
+          "id": "caption-word-46-1",
+          "text": "reto",
+          "start": 48.52,
+          "end": 48.84
+        }
+      ]
+    }
+  ]
+}

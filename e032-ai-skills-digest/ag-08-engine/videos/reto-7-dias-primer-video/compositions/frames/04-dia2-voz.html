@@ -1,0 +1,60 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 10cqw 90cqh, rgba(245,184,149,0.16), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.4cqw; color: #1A1A1A; white-space: nowrap; }
+    .ttsbar { position: absolute; left: 0; right: 0; margin: 0 auto; top: 22cqh; width: 82cqw; height: 16cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .speaker { position: absolute; left: 6cqw; top: 50%; transform: translateY(-50%); width: 8cqw; height: 8cqw; border: 0.24cqw solid #1E1E1E; border-radius: 50%; background: #F5F5F0; }
+    .speaker::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; border-left: 2.6cqw solid #1A1A1A; border-top: 1.8cqw solid transparent; border-bottom: 1.8cqw solid transparent; transform: translate(-15%, -50%); }
+    .tts-label { position: absolute; left: 20cqw; top: 50%; transform: translateY(-50%); font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; }
+    .wave { position: absolute; right: 6cqw; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 0.8cqw; height: 8cqh; }
+    .bar { display: block; width: 1.6cqw; border: 0.16cqw solid #1E1E1E; border-radius: 9999px; background: #E85D4E; transform-origin: 50% 100%; }
+    .chip { position: absolute; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3cqw; letter-spacing: 0.08em; text-transform: uppercase; color: #1A1A1A; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 3.6cqw; white-space: nowrap; }
+    .stat { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 62cqh; background: #C4D94E; border: 0.24cqw solid #1E1E1E; border-radius: 4.5cqw; padding: 2.6cqw 7cqw; text-align: center; display:flex; flex-direction:column; align-items:center; gap:0.8cqw; }
+    .stat-num { display: block; font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 11cqw; line-height: 1; letter-spacing: -0.02em; color: #1A1A1A; }
+    .stat-cap { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 2.6cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; }
+    .help { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 76cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.06em; color: #1A1A1A; background: #FFFFFF; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; padding: 2cqw 4.6cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="04-dia2-voz" data-width="1080" data-height="1920" data-duration="34.896">
+    <div class="bg clip" id="f04-bg" data-start="0" data-duration="34.9" data-track-index="1"></div>
+    <div class="grain clip" id="f04-grain" data-start="0" data-duration="34.9" data-track-index="2"></div>
+    <div class="day" id="f04-day">Día 2</div>
+    <div class="sub" id="f04-sub">Le pones voz a tu guion</div>
+    <div class="ttsbar" id="f04-bar">
+      <div class="speaker"></div>
+      <div class="tts-label">texto → voz</div>
+      <div class="wave" id="f04-wave">
+        <span class="bar" style="height:30%;"></span>
+        <span class="bar" style="height:70%;"></span>
+        <span class="bar" style="height:45%;"></span>
+        <span class="bar" style="height:85%;"></span>
+        <span class="bar" style="height:55%;"></span>
+        <span class="bar" style="height:75%;"></span>
+      </div>
+    </div>
+    <div class="chip" id="f04-c1" style="left:0;right:0;margin:0 auto;width:fit-content;top:45cqh;background:#8BB4F7;">Aura-2 · celeste es</div>
+    <div class="chip" id="f04-c2" style="left:0;right:0;margin:0 auto;width:fit-content;top:48cqh;background:#C5B5E0;">Gemini TTS · 30 voces</div>
+    <div class="stat" id="f04-stat"><span class="stat-num">$0</span><span class="stat-cap">tus primeros videos</span></div>
+    <div class="help" id="f04-help">¿Perdido? Pregúntale a tu IA</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 34.896;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f04-sub", "#f04-bar", "#f04-c1", "#f04-c2", "#f04-stat", "#f04-help", ".bar"], { opacity: 0 });
+    tl.fromTo("#f04-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.03);
+    tl.fromTo("#f04-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.09);
+    tl.fromTo("#f04-bar", { opacity: 0, scale: 0.9, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.6)" }, D * 0.16);
+    tl.fromTo(".bar", { opacity: 0, scaleY: 0.2 }, { opacity: 1, scaleY: 1, duration: 0.4, ease: "back.out(2)", stagger: 0.07 }, D * 0.22);
+    tl.fromTo("#f04-c1", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.4);
+    tl.fromTo("#f04-c2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.5);
+    tl.fromTo("#f04-stat", { opacity: 0, y: 40, scale: 0.8 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, D * 0.62);
+    tl.fromTo("#f04-help", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.8);
+    window.__timelines["04-dia2-voz"] = tl;
+  </script>
+</template>

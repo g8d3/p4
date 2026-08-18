@@ -1,0 +1,4 @@
+1|Ayer cerraste con un plan escrito. Hoy, ese guion va a hablar. Día dos del reto: la voz.
+2|No te grabas tú: una voz de IA lee tu guion en español, con tono natural. La herramienta es Deepgram, la voz celeste: amable y cercana. Cuesta unos tres centavos por cada mil caracteres, y la cuenta trae doscientos dólares de crédito gratis.
+3|Pegas tu guion, eliges la voz, y en un minuto tienes el audio de tu video. Un archivo de audio, listo para mañana.
+4|Costo real: de cero a treinta centavos por video, y lo primero te sale gratis. Mañana, día tres: las imágenes. Sígueme para no perderte el reto.

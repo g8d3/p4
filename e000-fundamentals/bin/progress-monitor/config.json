@@ -1,0 +1,252 @@
+{
+  "time": {
+    "quiet": {
+      "start_hour_min": 1260,
+      "end_hour_min": 600
+    }
+  },
+  "agents": {
+    "ag-01-video": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-01-video/output",
+      "window": "32-1",
+      "task": "research: video/content skills",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 4.0,
+      "stable_cycles": 100,
+      "interval_s": 600
+    },
+    "ag-02-products": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-02-products/output",
+      "window": "32-2",
+      "task": "research: digital product skills",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 4.0,
+      "stable_cycles": 100,
+      "interval_s": 600
+    },
+    "ag-03-marketing": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-03-marketing/output",
+      "window": "32-3",
+      "task": "research: marketing/selling/acq",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 4.0,
+      "stable_cycles": 100,
+      "interval_s": 600
+    },
+    "ag-04-crypto": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-04-crypto/output",
+      "window": "32-4",
+      "task": "research: crypto trading (include/drop)",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 4.0,
+      "stable_cycles": 100,
+      "interval_s": 600
+    },
+    "ag-05-synthesis": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-05-synthesis/output",
+      "window": "32-5",
+      "task": "synthesis: teach+profit plan",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 600
+    },
+    "ag-06-engine": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-06-engine/output",
+      "window": "32-6",
+      "task": "content engine: episode-1 challenge + successor",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 600
+    },
+    "ag-07-engine": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-07-engine/output",
+      "window": "32-7",
+      "task": "successor (auto-spawned)",
+      "phase": "booting",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 30
+    },
+    "ag-08-engine": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-08-engine/output",
+      "window": "32-8",
+      "task": "successor (auto-spawned)",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 600
+    },
+    "ag-09-engine": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-09-engine/output",
+      "window": "32-9",
+      "task": "successor (auto-spawned)",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 600
+    },
+    "ag-10-engine": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-10-engine/output",
+      "window": "32-10",
+      "task": "successor (auto-spawned)",
+      "phase": "done",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 600
+    },
+    "ag-11-engine": {
+      "dir": "/home/vuos/code/p4/e032-ai-skills-digest/ag-11-engine/output",
+      "window": "32-11",
+      "task": "successor (auto-spawned)",
+      "phase": "long-step",
+      "base_intervals_s": {
+        "booting": 30,
+        "working": 60,
+        "long-step": 300,
+        "done": 600
+      },
+      "idle_mult": 2,
+      "stuck_mult": 4,
+      "step_back": {
+        "max_multiplier": 4,
+        "stable_cycles_needed": 3,
+        "grow_by": 1.5
+      },
+      "multiplier": 1.0,
+      "stable_cycles": 0,
+      "interval_s": 300
+    }
+  }
+}

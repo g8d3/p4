@@ -1,0 +1,38 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #1A1A1A; color: #F5F5F0; }
+    .bg { position: absolute; inset: 0; background: #1A1A1A; }
+    .grain { position: absolute; inset: 0; opacity: 0.05; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .chrome { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 10cqh; font-family: "Space Grotesk", sans-serif; font-weight: 500; font-size: 3cqw; letter-spacing: 0.18em; text-transform: uppercase; color: #F5F5F0; opacity: 0.45; white-space: nowrap; }
+    .display { position: absolute; left: 0; right: 0; margin: 0 auto; top: 34cqh; width: 84cqw; text-align: center; font-family: "Bodoni Moda", serif; font-weight: 800; font-size: 11cqw; line-height: 1.12; letter-spacing: -0.02em; color: #F5F5F0; }
+    .rule { position: absolute; left: 0; right: 0; margin: 0 auto; top: 52cqh; width: 34cqw; height: 0.5cqw; background: #E85D4E; transform-origin: 0 50%; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; top: 58cqh; width: 76cqw; text-align: center; font-family: "Space Grotesk", sans-serif; font-weight: 400; font-size: 3.2cqw; line-height: 1.5; color: #C9C4B8; }
+    .pill { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 72cqh; background: #F5F5F0; color: #1A1A1A; border: 0.22cqw solid #1A1A1A; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.06em; padding: 1.8cqw 3.8cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="11-pasado-no-es-futuro" data-width="1080" data-height="1920" data-duration="33.936">
+    <div class="bg clip" id="f11-bg" data-start="0" data-duration="33.936" data-track-index="1"></div>
+    <div class="grain clip" id="f11-grain" data-start="0" data-duration="33.936" data-track-index="2"></div>
+    <div class="chrome" id="f11-chrome">La parte que nadie te dice</div>
+    <div class="display" id="f11-display">Pasado no es futuro</div>
+    <div class="rule" id="f11-rule"></div>
+    <div class="sub" id="f11-sub">Los precios cambian · revisa la página del proveedor</div>
+    <div class="pill" id="f11-pill">idea → video publicado ≈ $1</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 33.936;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f11-display", "#f11-rule", "#f11-sub", "#f11-pill"], { opacity: 0 });
+    gsap.set("#f11-rule", { scaleX: 0 });
+    tl.fromTo("#f11-chrome", { opacity: 0 }, { opacity: 0.45, duration: 1.2, ease: "power1.out" }, D * 0.02);
+    tl.fromTo("#f11-display", { opacity: 0, y: 34, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.2, ease: "power2.out" }, D * 0.12);
+    tl.fromTo("#f11-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, D * 0.3);
+    tl.to("#f11-rule", { scaleX: 1, opacity: 1, duration: 0.7, ease: "power2.inOut" }, D * 0.52);
+    tl.fromTo("#f11-pill", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, D * 0.72);
+    tl.to("#f11-display", { opacity: 0.8, duration: 1.0, ease: "power1.out" }, D * 0.88);
+    window.__timelines["11-pasado-no-es-futuro"] = tl;
+  </script>
+</template>

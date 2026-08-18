@@ -1,0 +1,25 @@
+# Día 3 del reto · Las imágenes
+
+Día 3 del reto de 7 días: genera las imágenes de tu video explicativo con IA.
+
+## Qué haces hoy
+
+Generas entre 4 y 6 imágenes en formato 16:9 que ilustren cada escena de tu
+guion. No tienes que dibujar nada: describes la imagen con palabras y la IA la
+crea.
+
+## Con qué
+
+KIE Seedream, unas $0.03 por imagen [measured]; la alternativa es Gemini Nano
+Banana (precio verificado en su página). [teaching-plan M3]
+
+## Cuánto cuesta
+
+$0-0.60 por video [estimated]
+
+## Qué lograste
+
+Las escenas visuales de tu video. Guion + voz + imágenes = el video ya existe,
+solo falta juntarlo (día 4: subtítulos y montaje).
+
+Fuente: ag-06-engine/output/episode-1-challenge.md (Día 3).

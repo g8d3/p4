@@ -1,0 +1,60 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 88cqw 20cqh, rgba(168,230,207,0.18), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #F5B895; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.4cqw; color: #1A1A1A; white-space: nowrap; }
+    .chart { position: absolute; left: 0; right: 0; margin: 0 auto; top: 21cqh; width: 64cqw; height: 24cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 3.4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .bar { position: absolute; bottom: 4cqh; width: 9cqw; border: 0.2cqw solid #1E1E1E; border-radius: 1cqw 1cqw 0 0; transform-origin: 50% 100%; }
+    .axis { position: absolute; bottom: 3cqh; left: 0; right: 0; height: 0.2cqw; background: #1A1A1A; }
+    .comment { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 48cqh; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 3cqw; box-shadow: 0.3cqw 0.3cqw 0 rgba(26,26,26,0.08); padding: 1.8cqw 3.6cqw; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 4cqw; color: #1A1A1A; white-space: nowrap; }
+    .answered { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 55cqh; background: #A8E6CF; border: 0.2cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 2.8cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; padding: 1.2cqw 3cqw; white-space: nowrap; }
+    .loop { position: absolute; left: 0; right: 0; margin: 0 auto; width: 46cqw; height: 46cqw; border: 0.4cqw dashed #A8E6CF; border-radius: 50%; }
+    .nodepill { position: absolute; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3cqw; letter-spacing: 0.08em; text-transform: uppercase; color: #1A1A1A; padding: 1.6cqw 3cqw; white-space: nowrap; }
+    .maq { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 78cqh; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1A1A1A; padding: 2cqw 5cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="09-dia7-bucle" data-width="1080" data-height="1920" data-duration="28.868">
+    <div class="bg clip" id="f09-bg" data-start="0" data-duration="28.868" data-track-index="1"></div>
+    <div class="grain clip" id="f09-grain" data-start="0" data-duration="28.868" data-track-index="2"></div>
+    <div class="day" id="f09-day">Día 7</div>
+    <div class="sub" id="f09-sub">El bucle</div>
+    <div class="chart" id="f09-chart">
+      <div class="axis"></div>
+      <div class="bar" id="f09-b1" style="left:18cqw;height:9cqh;background:#C5B5E0;"></div>
+      <div class="bar" id="f09-b2" style="left:32cqw;height:14cqh;background:#8BB4F7;"></div>
+      <div class="bar" id="f09-b3" style="left:46cqw;height:19cqh;background:#A8E6CF;"></div>
+    </div>
+    <div class="comment" id="f09-comment">💬 comentarios</div>
+    <div class="answered" id="f09-ans">✔ respondido</div>
+    <div class="loop" id="f09-ring" style="top:66cqh;"></div>
+    <div class="nodepill" id="f09-n1" style="top:60cqh;">publicar</div>
+    <div class="nodepill" id="f09-n2" style="left:15cqw;top:77cqh;">aprender</div>
+    <div class="nodepill" id="f09-n3" style="right:15cqw;top:77cqh;">mejorar</div>
+    <div class="maq" id="f09-maq">Una máquina</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 28.368;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f09-sub", "#f09-chart", "#f09-b1", "#f09-b2", "#f09-b3", "#f09-comment", "#f09-ans", "#f09-ring", "#f09-n1", "#f09-n2", "#f09-n3", "#f09-maq"], { opacity: 0 });
+    gsap.set(["#f09-b1", "#f09-b2", "#f09-b3"], { scaleY: 0.1 });
+    tl.fromTo("#f09-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.04);
+    tl.fromTo("#f09-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.12);
+    tl.fromTo("#f09-chart", { opacity: 0, scale: 0.9, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.6)" }, D * 0.18);
+    tl.to("#f09-b1", { scaleY: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, D * 0.26);
+    tl.to("#f09-b2", { scaleY: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, D * 0.3);
+    tl.to("#f09-b3", { scaleY: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, D * 0.34);
+    tl.fromTo("#f09-comment", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.42);
+    tl.fromTo("#f09-ans", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, D * 0.52);
+    tl.fromTo("#f09-n1", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, D * 0.6);
+    tl.fromTo("#f09-n2", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, D * 0.64);
+    tl.fromTo("#f09-n3", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, D * 0.68);
+    tl.fromTo("#f09-ring", { opacity: 0, rotation: 0, scale: 0.7 }, { opacity: 1, rotation: 180, scale: 1, duration: 1.4, ease: "power2.inOut" }, D * 0.64);
+    tl.fromTo("#f09-maq", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, D * 0.82);
+    window.__timelines["09-dia7-bucle"] = tl;
+  </script>
+</template>

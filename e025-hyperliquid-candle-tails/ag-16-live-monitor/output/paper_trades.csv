@@ -1,0 +1,2 @@
+coin,entry_day,exit_day,trigger,entry_close,exit_close,ret_pct,fees_pct,net_pct,status
+AAVE,2026-08-13,2026-08-18,T2_lowvol,87.869,88.299,0.489,0.09,0.399,closed

@@ -1,0 +1,749 @@
+{
+ "bgm": null,
+ "bgm_pending": false,
+ "voices": [
+  {
+   "frame": 1,
+   "path": "assets/voice/01.mp3",
+   "duration_s": 9.216,
+   "words": [
+    {
+     "id": "w0",
+     "text": "sin",
+     "start": 0.48,
+     "end": 0.8
+    },
+    {
+     "id": "w1",
+     "text": "cámara",
+     "start": 0.8,
+     "end": 1.6
+    },
+    {
+     "id": "w2",
+     "text": "sin",
+     "start": 1.76,
+     "end": 2.08
+    },
+    {
+     "id": "w3",
+     "text": "cara",
+     "start": 2.08,
+     "end": 2.8
+    },
+    {
+     "id": "w4",
+     "text": "sin",
+     "start": 2.96,
+     "end": 3.28
+    },
+    {
+     "id": "w5",
+     "text": "saber",
+     "start": 3.28,
+     "end": 3.68
+    },
+    {
+     "id": "w6",
+     "text": "editar",
+     "start": 3.68,
+     "end": 4.4
+    },
+    {
+     "id": "w7",
+     "text": "hoy",
+     "start": 4.72,
+     "end": 5.04
+    },
+    {
+     "id": "w8",
+     "text": "empieza",
+     "start": 5.04,
+     "end": 5.52
+    },
+    {
+     "id": "w9",
+     "text": "el",
+     "start": 5.52,
+     "end": 5.68
+    },
+    {
+     "id": "w10",
+     "text": "reto",
+     "start": 5.68,
+     "end": 6.32
+    },
+    {
+     "id": "w11",
+     "text": "día",
+     "start": 6.64,
+     "end": 6.96
+    },
+    {
+     "id": "w12",
+     "text": "1",
+     "start": 6.96,
+     "end": 7.68
+    },
+    {
+     "id": "w13",
+     "text": "dicta",
+     "start": 7.92,
+     "end": 8.32
+    },
+    {
+     "id": "w14",
+     "text": "tu",
+     "start": 8.32,
+     "end": 8.56
+    },
+    {
+     "id": "w15",
+     "text": "idea",
+     "start": 8.56,
+     "end": 8.88
+    }
+   ]
+  },
+  {
+   "frame": 2,
+   "path": "assets/voice/02.mp3",
+   "duration_s": 13.608,
+   "words": [
+    {
+     "id": "w0",
+     "text": "elige",
+     "start": 0.4,
+     "end": 0.8
+    },
+    {
+     "id": "w1",
+     "text": "una",
+     "start": 0.8,
+     "end": 1.04
+    },
+    {
+     "id": "w2",
+     "text": "cosa",
+     "start": 1.04,
+     "end": 1.28
+    },
+    {
+     "id": "w3",
+     "text": "que",
+     "start": 1.28,
+     "end": 1.52
+    },
+    {
+     "id": "w4",
+     "text": "sepas",
+     "start": 1.52,
+     "end": 1.92
+    },
+    {
+     "id": "w5",
+     "text": "explicar",
+     "start": 1.92,
+     "end": 2.4
+    },
+    {
+     "id": "w6",
+     "text": "en",
+     "start": 2.4,
+     "end": 2.72
+    },
+    {
+     "id": "w7",
+     "text": "menos",
+     "start": 2.72,
+     "end": 2.96
+    },
+    {
+     "id": "w8",
+     "text": "de",
+     "start": 2.96,
+     "end": 3.2
+    },
+    {
+     "id": "w9",
+     "text": "2",
+     "start": 3.2,
+     "end": 3.44
+    },
+    {
+     "id": "w10",
+     "text": "minutos",
+     "start": 3.44,
+     "end": 4.08
+    },
+    {
+     "id": "w11",
+     "text": "un",
+     "start": 4.24,
+     "end": 4.56
+    },
+    {
+     "id": "w12",
+     "text": "consejo",
+     "start": 4.56,
+     "end": 5.36
+    },
+    {
+     "id": "w13",
+     "text": "un",
+     "start": 5.36,
+     "end": 5.6
+    },
+    {
+     "id": "w14",
+     "text": "error",
+     "start": 5.6,
+     "end": 5.92
+    },
+    {
+     "id": "w15",
+     "text": "que",
+     "start": 5.92,
+     "end": 6.08
+    },
+    {
+     "id": "w16",
+     "text": "cometiste",
+     "start": 6.08,
+     "end": 6.96
+    },
+    {
+     "id": "w17",
+     "text": "una",
+     "start": 7.2,
+     "end": 7.52
+    },
+    {
+     "id": "w18",
+     "text": "explicación",
+     "start": 7.52,
+     "end": 7.92
+    },
+    {
+     "id": "w19",
+     "text": "corta",
+     "start": 7.92,
+     "end": 8.64
+    },
+    {
+     "id": "w20",
+     "text": "no",
+     "start": 8.96,
+     "end": 9.2
+    },
+    {
+     "id": "w21",
+     "text": "busques",
+     "start": 9.2,
+     "end": 9.6
+    },
+    {
+     "id": "w22",
+     "text": "el",
+     "start": 9.6,
+     "end": 9.76
+    },
+    {
+     "id": "w23",
+     "text": "tema",
+     "start": 9.76,
+     "end": 10.0
+    },
+    {
+     "id": "w24",
+     "text": "perfecto",
+     "start": 10.0,
+     "end": 10.72
+    },
+    {
+     "id": "w25",
+     "text": "el",
+     "start": 10.8,
+     "end": 11.12
+    },
+    {
+     "id": "w26",
+     "text": "correcto",
+     "start": 11.12,
+     "end": 11.6
+    },
+    {
+     "id": "w27",
+     "text": "es",
+     "start": 11.6,
+     "end": 11.84
+    },
+    {
+     "id": "w28",
+     "text": "el",
+     "start": 11.84,
+     "end": 12.0
+    },
+    {
+     "id": "w29",
+     "text": "que",
+     "start": 12.0,
+     "end": 12.16
+    },
+    {
+     "id": "w30",
+     "text": "puedes",
+     "start": 12.16,
+     "end": 12.48
+    },
+    {
+     "id": "w31",
+     "text": "explicar",
+     "start": 12.48,
+     "end": 12.96
+    },
+    {
+     "id": "w32",
+     "text": "hoy",
+     "start": 12.96,
+     "end": 13.36
+    }
+   ]
+  },
+  {
+   "frame": 3,
+   "path": "assets/voice/03.mp3",
+   "duration_s": 14.736,
+   "words": [
+    {
+     "id": "w0",
+     "text": "abre",
+     "start": 0.32,
+     "end": 0.64
+    },
+    {
+     "id": "w1",
+     "text": "tu",
+     "start": 0.64,
+     "end": 0.8
+    },
+    {
+     "id": "w2",
+     "text": "chat",
+     "start": 0.8,
+     "end": 1.12
+    },
+    {
+     "id": "w3",
+     "text": "de",
+     "start": 1.12,
+     "end": 1.28
+    },
+    {
+     "id": "w4",
+     "text": "ia",
+     "start": 1.28,
+     "end": 1.52
+    },
+    {
+     "id": "w5",
+     "text": "gratis",
+     "start": 1.52,
+     "end": 1.92
+    },
+    {
+     "id": "w6",
+     "text": "en",
+     "start": 1.92,
+     "end": 2.16
+    },
+    {
+     "id": "w7",
+     "text": "el",
+     "start": 2.16,
+     "end": 2.24
+    },
+    {
+     "id": "w8",
+     "text": "teléfono",
+     "start": 2.24,
+     "end": 2.8
+    },
+    {
+     "id": "w9",
+     "text": "y",
+     "start": 2.8,
+     "end": 3.04
+    },
+    {
+     "id": "w10",
+     "text": "dicta",
+     "start": 3.04,
+     "end": 3.36
+    },
+    {
+     "id": "w11",
+     "text": "tu",
+     "start": 3.36,
+     "end": 3.6
+    },
+    {
+     "id": "w12",
+     "text": "idea",
+     "start": 3.6,
+     "end": 3.84
+    },
+    {
+     "id": "w13",
+     "text": "con",
+     "start": 3.84,
+     "end": 4.08
+    },
+    {
+     "id": "w14",
+     "text": "tu",
+     "start": 4.08,
+     "end": 4.24
+    },
+    {
+     "id": "w15",
+     "text": "voz",
+     "start": 4.24,
+     "end": 4.72
+    },
+    {
+     "id": "w16",
+     "text": "como",
+     "start": 4.72,
+     "end": 4.96
+    },
+    {
+     "id": "w17",
+     "text": "si",
+     "start": 4.96,
+     "end": 5.04
+    },
+    {
+     "id": "w18",
+     "text": "le",
+     "start": 5.04,
+     "end": 5.28
+    },
+    {
+     "id": "w19",
+     "text": "hablaras",
+     "start": 5.28,
+     "end": 5.6
+    },
+    {
+     "id": "w20",
+     "text": "a",
+     "start": 5.6,
+     "end": 5.76
+    },
+    {
+     "id": "w21",
+     "text": "un",
+     "start": 5.76,
+     "end": 5.92
+    },
+    {
+     "id": "w22",
+     "text": "amigo",
+     "start": 5.92,
+     "end": 6.48
+    },
+    {
+     "id": "w23",
+     "text": "pídele",
+     "start": 6.64,
+     "end": 7.52
+    },
+    {
+     "id": "w24",
+     "text": "convierte",
+     "start": 7.76,
+     "end": 8.16
+    },
+    {
+     "id": "w25",
+     "text": "esto",
+     "start": 8.16,
+     "end": 8.56
+    },
+    {
+     "id": "w26",
+     "text": "en",
+     "start": 8.56,
+     "end": 8.72
+    },
+    {
+     "id": "w27",
+     "text": "un",
+     "start": 8.72,
+     "end": 8.88
+    },
+    {
+     "id": "w28",
+     "text": "guion",
+     "start": 8.88,
+     "end": 9.12
+    },
+    {
+     "id": "w29",
+     "text": "por",
+     "start": 9.12,
+     "end": 9.36
+    },
+    {
+     "id": "w30",
+     "text": "escenas",
+     "start": 9.36,
+     "end": 9.84
+    },
+    {
+     "id": "w31",
+     "text": "para",
+     "start": 9.84,
+     "end": 10.16
+    },
+    {
+     "id": "w32",
+     "text": "un",
+     "start": 10.16,
+     "end": 10.4
+    },
+    {
+     "id": "w33",
+     "text": "video",
+     "start": 10.4,
+     "end": 10.64
+    },
+    {
+     "id": "w34",
+     "text": "de",
+     "start": 10.64,
+     "end": 10.88
+    },
+    {
+     "id": "w35",
+     "text": "un",
+     "start": 10.88,
+     "end": 11.04
+    },
+    {
+     "id": "w36",
+     "text": "minuto",
+     "start": 11.04,
+     "end": 11.76
+    },
+    {
+     "id": "w37",
+     "text": "en",
+     "start": 11.84,
+     "end": 12.0
+    },
+    {
+     "id": "w38",
+     "text": "español",
+     "start": 12.0,
+     "end": 12.4
+    },
+    {
+     "id": "w39",
+     "text": "sencillo",
+     "start": 12.4,
+     "end": 13.2
+    },
+    {
+     "id": "w40",
+     "text": "una",
+     "start": 13.36,
+     "end": 13.68
+    },
+    {
+     "id": "w41",
+     "text": "idea",
+     "start": 13.68,
+     "end": 13.92
+    },
+    {
+     "id": "w42",
+     "text": "por",
+     "start": 13.92,
+     "end": 14.16
+    },
+    {
+     "id": "w43",
+     "text": "escena",
+     "start": 14.16,
+     "end": 14.48
+    }
+   ]
+  },
+  {
+   "frame": 4,
+   "path": "assets/voice/04.mp3",
+   "duration_s": 11.544,
+   "words": [
+    {
+     "id": "w0",
+     "text": "listo",
+     "start": 0.4,
+     "end": 1.04
+    },
+    {
+     "id": "w1",
+     "text": "ya",
+     "start": 1.04,
+     "end": 1.36
+    },
+    {
+     "id": "w2",
+     "text": "no",
+     "start": 1.36,
+     "end": 1.52
+    },
+    {
+     "id": "w3",
+     "text": "tienes",
+     "start": 1.52,
+     "end": 1.76
+    },
+    {
+     "id": "w4",
+     "text": "una",
+     "start": 1.76,
+     "end": 2.0
+    },
+    {
+     "id": "w5",
+     "text": "idea",
+     "start": 2.0,
+     "end": 2.56
+    },
+    {
+     "id": "w6",
+     "text": "tienes",
+     "start": 2.56,
+     "end": 2.96
+    },
+    {
+     "id": "w7",
+     "text": "un",
+     "start": 2.96,
+     "end": 3.2
+    },
+    {
+     "id": "w8",
+     "text": "plan",
+     "start": 3.2,
+     "end": 3.68
+    },
+    {
+     "id": "w9",
+     "text": "escrito",
+     "start": 3.68,
+     "end": 4.56
+    },
+    {
+     "id": "w10",
+     "text": "te",
+     "start": 4.64,
+     "end": 4.88
+    },
+    {
+     "id": "w11",
+     "text": "costó",
+     "start": 4.88,
+     "end": 5.28
+    },
+    {
+     "id": "w12",
+     "text": "0",
+     "start": 5.28,
+     "end": 6.0
+    },
+    {
+     "id": "w13",
+     "text": "mañana",
+     "start": 6.16,
+     "end": 6.96
+    },
+    {
+     "id": "w14",
+     "text": "día",
+     "start": 6.96,
+     "end": 7.2
+    },
+    {
+     "id": "w15",
+     "text": "2",
+     "start": 7.2,
+     "end": 7.84
+    },
+    {
+     "id": "w16",
+     "text": "le",
+     "start": 7.84,
+     "end": 8.08
+    },
+    {
+     "id": "w17",
+     "text": "ponemos",
+     "start": 8.08,
+     "end": 8.56
+    },
+    {
+     "id": "w18",
+     "text": "la",
+     "start": 8.56,
+     "end": 8.8
+    },
+    {
+     "id": "w19",
+     "text": "voz",
+     "start": 8.8,
+     "end": 9.36
+    },
+    {
+     "id": "w20",
+     "text": "sígueme",
+     "start": 9.6,
+     "end": 10.08
+    },
+    {
+     "id": "w21",
+     "text": "para",
+     "start": 10.08,
+     "end": 10.32
+    },
+    {
+     "id": "w22",
+     "text": "no",
+     "start": 10.32,
+     "end": 10.48
+    },
+    {
+     "id": "w23",
+     "text": "perderte",
+     "start": 10.48,
+     "end": 10.8
+    },
+    {
+     "id": "w24",
+     "text": "el",
+     "start": 10.8,
+     "end": 10.96
+    },
+    {
+     "id": "w25",
+     "text": "reto",
+     "start": 10.96,
+     "end": 11.28
+    }
+   ]
+  }
+ ],
+ "sfx": []
+}

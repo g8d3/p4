@@ -1,0 +1,49 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 90cqw 20cqh, rgba(139,180,247,0.16), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #F2D160; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.4cqw; color: #1A1A1A; white-space: nowrap; }
+    .card { position: absolute; width: 31cqw; height: 15.5cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 2.4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .art { position: absolute; inset: 1.6cqw; border-radius: 1.6cqw; overflow: hidden; }
+    .sun { position: absolute; top: 18%; left: 60%; width: 24%; height: 34%; border-radius: 50%; }
+    .hill { position: absolute; bottom: 12%; left: -8%; width: 70%; height: 42%; border-radius: 50%; }
+    .chip { position: absolute; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 2.9cqw; letter-spacing: 0.06em; text-transform: uppercase; color: #1A1A1A; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 3.4cqw; white-space: nowrap; }
+    .stamp { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 42cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 5cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #F5F5F0; background: #E85D4E; border: 0.28cqw solid #1E1E1E; border-radius: 1cqw; padding: 2.4cqw 5cqw; transform: rotate(-8deg); box-shadow: 0.5cqw 0.5cqw 0 rgba(26,26,26,0.12); white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="05-dia3-imagenes" data-width="1080" data-height="1920" data-duration="30.116">
+    <div class="bg clip" id="f05-bg" data-start="0" data-duration="30.116" data-track-index="1"></div>
+    <div class="grain clip" id="f05-grain" data-start="0" data-duration="30.116" data-track-index="2"></div>
+    <div class="day" id="f05-day">Día 3</div>
+    <div class="sub" id="f05-sub">Las imágenes</div>
+    <div class="card" id="f05-c1" style="top:19cqh;left:14cqw;"><div class="art" style="background:#F5B895;"><span class="sun" style="background:#F2D160;border:0.2cqw solid #1E1E1E;"></span><span class="hill" style="background:#A8E6CF;border:0.2cqw solid #1E1E1E;"></span></div></div>
+    <div class="card" id="f05-c2" style="top:19cqh;left:55cqw;"><div class="art" style="background:#C5B5E0;"><span class="sun" style="background:#F5F5F0;border:0.2cqw solid #1E1E1E;"></span><span class="hill" style="background:#8BB4F7;border:0.2cqw solid #1E1E1E;"></span></div></div>
+    <div class="card" id="f05-c3" style="top:36cqh;left:14cqw;"><div class="art" style="background:#A8E6CF;"><span class="sun" style="background:#F2D160;border:0.2cqw solid #1E1E1E;"></span><span class="hill" style="background:#C4D94E;border:0.2cqw solid #1E1E1E;"></span></div></div>
+    <div class="card" id="f05-c4" style="top:36cqh;left:55cqw;"><div class="art" style="background:#8BB4F7;"><span class="sun" style="background:#F5B895;border:0.2cqw solid #1E1E1E;"></span><span class="hill" style="background:#E85D4E;border:0.2cqw solid #1E1E1E;"></span></div></div>
+    <div class="card" id="f05-c5" style="top:53cqh;left:14cqw;"><div class="art" style="background:#F2D160;"><span class="sun" style="background:#F5F5F0;border:0.2cqw solid #1E1E1E;"></span><span class="hill" style="background:#C5B5E0;border:0.2cqw solid #1E1E1E;"></span></div></div>
+    <div class="card" id="f05-c6" style="top:53cqh;left:55cqw;"><div class="art" style="background:#E85D4E;"><span class="sun" style="background:#F2D160;border:0.2cqw solid #1E1E1E;"></span><span class="hill" style="background:#F5B895;border:0.2cqw solid #1E1E1E;"></span></div></div>
+    <div class="stamp" id="f05-stamp">Mismo estilo</div>
+    <div class="chip" id="f05-chip1" style="left:15cqw;top:77.5cqh;background:#C4D94E;">Seedream ≈ $0.03 c/u</div>
+    <div class="chip" id="f05-chip2" style="left:55cqw;top:77.5cqh;background:#C5B5E0;">Gemini Nano Banana</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 29.616;
+    const tl = gsap.timeline({ paused: true });
+    const cards = ["#f05-c1", "#f05-c2", "#f05-c3", "#f05-c4", "#f05-c5", "#f05-c6"];
+    gsap.set(["#f05-sub", "#f05-c1", "#f05-c2", "#f05-c3", "#f05-c4", "#f05-c5", "#f05-c6", "#f05-stamp", "#f05-chip1", "#f05-chip2"], { opacity: 0 });
+    tl.fromTo("#f05-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.04);
+    tl.fromTo("#f05-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.11);
+    cards.forEach((c, i) => {
+      tl.fromTo(c, { opacity: 0, y: 44, scale: 0.82, filter: "blur(4px)" }, { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", duration: 0.5, ease: "back.out(1.7)" }, D * 0.2 + i * (D * 0.05));
+    });
+    tl.fromTo("#f05-chip1", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.5);
+    tl.fromTo("#f05-chip2", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.58);
+    tl.fromTo("#f05-stamp", { opacity: 0, scale: 2.2, rotate: -8 }, { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" }, D * 0.68);
+    window.__timelines["05-dia3-imagenes"] = tl;
+  </script>
+</template>

@@ -1,0 +1,53 @@
+<template>
+  <style>
+    @font-face { font-family: "Bodoni Moda"; src: url("assets/fonts/Bodoni_Moda_400.woff2") format("woff2"); font-weight: 400 900; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/Space_Grotesk_400.woff2") format("woff2"); font-weight: 300 700; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F5F0; color: #1A1A1A; }
+    .bg { position: absolute; inset: 0; background: radial-gradient(44cqw 30cqh at 88cqw 80cqh, rgba(232,93,78,0.14), transparent 70%), #F5F5F0; }
+    .grain { position: absolute; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"); }
+    .day { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 7cqh; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.6cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1A1A1A; background: #A8E6CF; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; padding: 1.8cqw 4.6cqw; white-space: nowrap; }
+    .sub { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12.5cqh; font-family: "Bodoni Moda", serif; font-weight: 700; font-size: 5.4cqw; color: #1A1A1A; white-space: nowrap; }
+    .card { position: absolute; left: 0; right: 0; margin: 0 auto; top: 24cqh; width: 76cqw; height: 40cqh; background: #FFFFFF; border: 0.24cqw solid #1E1E1E; border-radius: 4cqw; box-shadow: 0.4cqw 0.4cqw 0 rgba(26,26,26,0.08); }
+    .row { position: absolute; left: 6cqw; right: 6cqw; height: 8cqh; border-bottom: 0.16cqw solid #E5E0D5; display: flex; align-items: center; gap: 3cqw; }
+    .file { position: absolute; left: 6cqw; top: 50%; transform: translateY(-50%); width: 10cqw; height: 10cqw; border: 0.22cqw solid #1E1E1E; border-radius: 2cqw; background: #F5F5F0; }
+    .file::after { content: "MP4"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 1.9cqw; color: #1A1A1A; }
+    .fname { position: absolute; left: 20cqw; top: 50%; transform: translateY(-50%); font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3cqw; color: #1A1A1A; white-space: nowrap; }
+    .yt { position: absolute; left: 6cqw; top: 20cqh; width: 16cqw; height: 16cqw; border-radius: 4.5cqw; background: #E85D4E; border: 0.22cqw solid #1E1E1E; }
+    .yt::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; border-left: 4.6cqw solid #FFFFFF; border-top: 3cqw solid transparent; border-bottom: 3cqw solid transparent; transform: translate(-20%, -50%); }
+    .ytcap { position: absolute; left: 27cqw; top: 24cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; color: #1A1A1A; white-space: nowrap; }
+    .btn { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 54cqh; background: #E85D4E; color: #F5F5F0; border: 0.24cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 4.4cqw; letter-spacing: 0.14em; text-transform: uppercase; padding: 2.2cqw 6.6cqw; box-shadow: 0.5cqw 0.5cqw 0 rgba(26,26,26,0.12); white-space: nowrap; }
+    .check { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 68cqh; background: #FFFFFF; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.06em; color: #1A1A1A; padding: 1.8cqw 4cqw; white-space: nowrap; }
+    .victory { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 78cqh; background: #C4D94E; border: 0.22cqw solid #1E1E1E; border-radius: 9999px; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 3.4cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1A1A1A; padding: 1.8cqw 4.4cqw; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="07-dia5-publica" data-width="1080" data-height="1920" data-duration="26.156">
+    <div class="bg clip" id="f07-bg" data-start="0" data-duration="26.156" data-track-index="1"></div>
+    <div class="grain clip" id="f07-grain" data-start="0" data-duration="26.156" data-track-index="2"></div>
+    <div class="day" id="f07-day">Día 5</div>
+    <div class="sub" id="f07-sub">Publica</div>
+    <div class="card" id="f07-card">
+      <div class="row" style="top:0;">
+        <div class="file"></div>
+        <div class="fname">mi-primer-video.mp4</div>
+      </div>
+      <div class="yt"></div>
+      <div class="ytcap">YouTube</div>
+    </div>
+    <div class="btn" id="f07-btn">Publicar</div>
+    <div class="check" id="f07-check">✔ Contenido generado con IA</div>
+    <div class="victory" id="f07-v">Ayer no existía · hoy está publicado</div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 25.656;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f07-sub", "#f07-card", "#f07-btn", "#f07-check", "#f07-v"], { opacity: 0 });
+    tl.fromTo("#f07-day", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.04);
+    tl.fromTo("#f07-sub", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.12);
+    tl.fromTo("#f07-card", { opacity: 0, scale: 0.88, y: 44 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" }, D * 0.2);
+    tl.fromTo("#f07-btn", { opacity: 0, scale: 0.7, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(2)" }, D * 0.42);
+    tl.fromTo("#f07-check", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.6);
+    tl.fromTo("#f07-v", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.7)" }, D * 0.78);
+    window.__timelines["07-dia5-publica"] = tl;
+  </script>
+</template>

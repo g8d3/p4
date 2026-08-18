@@ -1,0 +1,6 @@
+{"ts":"2026-08-18T07:04:54-0500","epoch":1787054694,"agent":"ag-08-engine","step":"boot: routing general-video/faceless explainer, reading inputs"}
+{"ts":"2026-08-18T07:10:59-0500","epoch":1787055059,"agent":"ag-08-engine","step":"TTS gen (6/13), storyboard+script done, building frames"}
+{"ts":"2026-08-18T07:15:12-0500","epoch":1787055312,"agent":"ag-08-engine","step":"audio+meta done (5:54), durations synced, frames 00-05 built, writing 06-12"}
+{"ts":"2026-08-18T07:25:41-0500","epoch":1787055941,"agent":"ag-08-engine","step":"check passed, snapshots verified, launching render"}
+{"ts":"2026-08-18T07:33:30-0500","epoch":1787056410,"agent":"ag-08-engine","step":"video rendered+verified (VAAPI 5:54), writing final contract files"}
+{"ts":"2026-08-18T07:33:49-0500","epoch":1787056429,"agent":"ag-08-engine","step":"all contract files shipped; notifying done"}

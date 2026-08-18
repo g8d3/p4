@@ -1,0 +1,8002 @@
+{
+  "total_duration_s": 353.76,
+  "width": 1080,
+  "height": 1920,
+  "groups": [
+    {
+      "id": "caption-group-0",
+      "frame": 1,
+      "start": 0.4,
+      "end": 2.24,
+      "text": "sin cámara sin mostrar",
+      "words": [
+        {
+          "id": "caption-word-0-0",
+          "text": "sin",
+          "start": 0.4,
+          "end": 0.8
+        },
+        {
+          "id": "caption-word-0-1",
+          "text": "cámara",
+          "start": 0.8,
+          "end": 1.52
+        },
+        {
+          "id": "caption-word-0-2",
+          "text": "sin",
+          "start": 1.6,
+          "end": 1.84
+        },
+        {
+          "id": "caption-word-0-3",
+          "text": "mostrar",
+          "start": 1.84,
+          "end": 2.24
+        }
+      ]
+    },
+    {
+      "id": "caption-group-1",
+      "frame": 1,
+      "start": 2.24,
+      "end": 3.36,
+      "text": "tu cara sin",
+      "words": [
+        {
+          "id": "caption-word-1-0",
+          "text": "tu",
+          "start": 2.24,
+          "end": 2.48
+        },
+        {
+          "id": "caption-word-1-1",
+          "text": "cara",
+          "start": 2.48,
+          "end": 3.04
+        },
+        {
+          "id": "caption-word-1-2",
+          "text": "sin",
+          "start": 3.12,
+          "end": 3.36
+        }
+      ]
+    },
+    {
+      "id": "caption-group-2",
+      "frame": 1,
+      "start": 3.36,
+      "end": 4.44,
+      "text": "saber editar",
+      "words": [
+        {
+          "id": "caption-word-2-0",
+          "text": "saber",
+          "start": 3.36,
+          "end": 3.6
+        },
+        {
+          "id": "caption-word-2-1",
+          "text": "editar",
+          "start": 3.6,
+          "end": 4.32
+        }
+      ]
+    },
+    {
+      "id": "caption-group-3",
+      "frame": 1,
+      "start": 4.56,
+      "end": 5.12,
+      "text": "en 7",
+      "words": [
+        {
+          "id": "caption-word-3-0",
+          "text": "en",
+          "start": 4.56,
+          "end": 4.8
+        },
+        {
+          "id": "caption-word-3-1",
+          "text": "7",
+          "start": 4.8,
+          "end": 5.12
+        }
+      ]
+    },
+    {
+      "id": "caption-group-4",
+      "frame": 1,
+      "start": 5.12,
+      "end": 6.32,
+      "text": "días puedes publicar",
+      "words": [
+        {
+          "id": "caption-word-4-0",
+          "text": "días",
+          "start": 5.12,
+          "end": 5.44
+        },
+        {
+          "id": "caption-word-4-1",
+          "text": "puedes",
+          "start": 5.44,
+          "end": 5.84
+        },
+        {
+          "id": "caption-word-4-2",
+          "text": "publicar",
+          "start": 5.84,
+          "end": 6.32
+        }
+      ]
+    },
+    {
+      "id": "caption-group-5",
+      "frame": 1,
+      "start": 6.32,
+      "end": 6.88,
+      "text": "tu 1º",
+      "words": [
+        {
+          "id": "caption-word-5-0",
+          "text": "tu",
+          "start": 6.32,
+          "end": 6.56
+        },
+        {
+          "id": "caption-word-5-1",
+          "text": "1º",
+          "start": 6.56,
+          "end": 6.88
+        }
+      ]
+    },
+    {
+      "id": "caption-group-6",
+      "frame": 1,
+      "start": 6.88,
+      "end": 8.72,
+      "text": "video explicativo hecho con",
+      "words": [
+        {
+          "id": "caption-word-6-0",
+          "text": "video",
+          "start": 6.88,
+          "end": 7.28
+        },
+        {
+          "id": "caption-word-6-1",
+          "text": "explicativo",
+          "start": 7.28,
+          "end": 8.24
+        },
+        {
+          "id": "caption-word-6-2",
+          "text": "hecho",
+          "start": 8.24,
+          "end": 8.48
+        },
+        {
+          "id": "caption-word-6-3",
+          "text": "con",
+          "start": 8.48,
+          "end": 8.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-7",
+      "frame": 1,
+      "start": 8.72,
+      "end": 9.76,
+      "text": "ia desde tu",
+      "words": [
+        {
+          "id": "caption-word-7-0",
+          "text": "ia",
+          "start": 8.72,
+          "end": 9.28
+        },
+        {
+          "id": "caption-word-7-1",
+          "text": "desde",
+          "start": 9.28,
+          "end": 9.52
+        },
+        {
+          "id": "caption-word-7-2",
+          "text": "tu",
+          "start": 9.52,
+          "end": 9.76
+        }
+      ]
+    },
+    {
+      "id": "caption-group-8",
+      "frame": 1,
+      "start": 9.76,
+      "end": 10.28,
+      "text": "teléfono",
+      "words": [
+        {
+          "id": "caption-word-8-0",
+          "text": "teléfono",
+          "start": 9.76,
+          "end": 10.16
+        }
+      ]
+    },
+    {
+      "id": "caption-group-9",
+      "frame": 2,
+      "start": 10.728,
+      "end": 11.368,
+      "text": "la mayoría",
+      "words": [
+        {
+          "id": "caption-word-9-0",
+          "text": "la",
+          "start": 10.728,
+          "end": 11.048
+        },
+        {
+          "id": "caption-word-9-1",
+          "text": "mayoría",
+          "start": 11.048,
+          "end": 11.368
+        }
+      ]
+    },
+    {
+      "id": "caption-group-10",
+      "frame": 2,
+      "start": 11.368,
+      "end": 11.688,
+      "text": "de la",
+      "words": [
+        {
+          "id": "caption-word-10-0",
+          "text": "de",
+          "start": 11.368,
+          "end": 11.528
+        },
+        {
+          "id": "caption-word-10-1",
+          "text": "la",
+          "start": 11.528,
+          "end": 11.688
+        }
+      ]
+    },
+    {
+      "id": "caption-group-11",
+      "frame": 2,
+      "start": 11.688,
+      "end": 12.248,
+      "text": "gente no",
+      "words": [
+        {
+          "id": "caption-word-11-0",
+          "text": "gente",
+          "start": 11.688,
+          "end": 11.928
+        },
+        {
+          "id": "caption-word-11-1",
+          "text": "no",
+          "start": 11.928,
+          "end": 12.248
+        }
+      ]
+    },
+    {
+      "id": "caption-group-12",
+      "frame": 2,
+      "start": 12.248,
+      "end": 12.888,
+      "text": "publica su",
+      "words": [
+        {
+          "id": "caption-word-12-0",
+          "text": "publica",
+          "start": 12.248,
+          "end": 12.648
+        },
+        {
+          "id": "caption-word-12-1",
+          "text": "su",
+          "start": 12.648,
+          "end": 12.888
+        }
+      ]
+    },
+    {
+      "id": "caption-group-13",
+      "frame": 2,
+      "start": 12.888,
+      "end": 14.008,
+      "text": "1º video no",
+      "words": [
+        {
+          "id": "caption-word-13-0",
+          "text": "1º",
+          "start": 12.888,
+          "end": 13.128
+        },
+        {
+          "id": "caption-word-13-1",
+          "text": "video",
+          "start": 13.128,
+          "end": 13.768
+        },
+        {
+          "id": "caption-word-13-2",
+          "text": "no",
+          "start": 13.768,
+          "end": 14.008
+        }
+      ]
+    },
+    {
+      "id": "caption-group-14",
+      "frame": 2,
+      "start": 14.008,
+      "end": 14.488,
+      "text": "porque no",
+      "words": [
+        {
+          "id": "caption-word-14-0",
+          "text": "porque",
+          "start": 14.008,
+          "end": 14.248
+        },
+        {
+          "id": "caption-word-14-1",
+          "text": "no",
+          "start": 14.248,
+          "end": 14.488
+        }
+      ]
+    },
+    {
+      "id": "caption-group-15",
+      "frame": 2,
+      "start": 14.488,
+      "end": 14.968,
+      "text": "tenga algo",
+      "words": [
+        {
+          "id": "caption-word-15-0",
+          "text": "tenga",
+          "start": 14.488,
+          "end": 14.728
+        },
+        {
+          "id": "caption-word-15-1",
+          "text": "algo",
+          "start": 14.728,
+          "end": 14.968
+        }
+      ]
+    },
+    {
+      "id": "caption-group-16",
+      "frame": 2,
+      "start": 14.968,
+      "end": 16.088,
+      "text": "que decir sino",
+      "words": [
+        {
+          "id": "caption-word-16-0",
+          "text": "que",
+          "start": 14.968,
+          "end": 15.128
+        },
+        {
+          "id": "caption-word-16-1",
+          "text": "decir",
+          "start": 15.128,
+          "end": 15.768
+        },
+        {
+          "id": "caption-word-16-2",
+          "text": "sino",
+          "start": 15.848,
+          "end": 16.088
+        }
+      ]
+    },
+    {
+      "id": "caption-group-17",
+      "frame": 2,
+      "start": 16.088,
+      "end": 16.728,
+      "text": "porque cree",
+      "words": [
+        {
+          "id": "caption-word-17-0",
+          "text": "porque",
+          "start": 16.088,
+          "end": 16.408
+        },
+        {
+          "id": "caption-word-17-1",
+          "text": "cree",
+          "start": 16.408,
+          "end": 16.728
+        }
+      ]
+    },
+    {
+      "id": "caption-group-18",
+      "frame": 2,
+      "start": 16.728,
+      "end": 17.768,
+      "text": "que necesita 3",
+      "words": [
+        {
+          "id": "caption-word-18-0",
+          "text": "que",
+          "start": 16.728,
+          "end": 16.888
+        },
+        {
+          "id": "caption-word-18-1",
+          "text": "necesita",
+          "start": 16.888,
+          "end": 17.448
+        },
+        {
+          "id": "caption-word-18-2",
+          "text": "3",
+          "start": 17.448,
+          "end": 17.768
+        }
+      ]
+    },
+    {
+      "id": "caption-group-19",
+      "frame": 2,
+      "start": 17.768,
+      "end": 18.408,
+      "text": "cosas que",
+      "words": [
+        {
+          "id": "caption-word-19-0",
+          "text": "cosas",
+          "start": 17.768,
+          "end": 18.168
+        },
+        {
+          "id": "caption-word-19-1",
+          "text": "que",
+          "start": 18.168,
+          "end": 18.408
+        }
+      ]
+    },
+    {
+      "id": "caption-group-20",
+      "frame": 2,
+      "start": 18.408,
+      "end": 19.688,
+      "text": "no tiene una",
+      "words": [
+        {
+          "id": "caption-word-20-0",
+          "text": "no",
+          "start": 18.408,
+          "end": 18.648
+        },
+        {
+          "id": "caption-word-20-1",
+          "text": "tiene",
+          "start": 18.648,
+          "end": 19.208
+        },
+        {
+          "id": "caption-word-20-2",
+          "text": "una",
+          "start": 19.368,
+          "end": 19.688
+        }
+      ]
+    },
+    {
+      "id": "caption-group-21",
+      "frame": 2,
+      "start": 19.688,
+      "end": 21.208,
+      "text": "cámara saber editar",
+      "words": [
+        {
+          "id": "caption-word-21-0",
+          "text": "cámara",
+          "start": 19.688,
+          "end": 20.328
+        },
+        {
+          "id": "caption-word-21-1",
+          "text": "saber",
+          "start": 20.328,
+          "end": 20.648
+        },
+        {
+          "id": "caption-word-21-2",
+          "text": "editar",
+          "start": 20.648,
+          "end": 21.208
+        }
+      ]
+    },
+    {
+      "id": "caption-group-22",
+      "frame": 2,
+      "start": 21.208,
+      "end": 22.848,
+      "text": "y una computadora",
+      "words": [
+        {
+          "id": "caption-word-22-0",
+          "text": "y",
+          "start": 21.208,
+          "end": 21.528
+        },
+        {
+          "id": "caption-word-22-1",
+          "text": "una",
+          "start": 21.528,
+          "end": 21.848
+        },
+        {
+          "id": "caption-word-22-2",
+          "text": "computadora",
+          "start": 21.848,
+          "end": 22.728
+        }
+      ]
+    },
+    {
+      "id": "caption-group-23",
+      "frame": 2,
+      "start": 22.968,
+      "end": 23.608,
+      "text": "la 1º",
+      "words": [
+        {
+          "id": "caption-word-23-0",
+          "text": "la",
+          "start": 22.968,
+          "end": 23.208
+        },
+        {
+          "id": "caption-word-23-1",
+          "text": "1º",
+          "start": 23.208,
+          "end": 23.608
+        }
+      ]
+    },
+    {
+      "id": "caption-group-24",
+      "frame": 2,
+      "start": 23.608,
+      "end": 25.528,
+      "text": "es falsa la 2º",
+      "words": [
+        {
+          "id": "caption-word-24-0",
+          "text": "es",
+          "start": 23.608,
+          "end": 23.928
+        },
+        {
+          "id": "caption-word-24-1",
+          "text": "falsa",
+          "start": 23.928,
+          "end": 24.568
+        },
+        {
+          "id": "caption-word-24-2",
+          "text": "la",
+          "start": 24.728,
+          "end": 24.968
+        },
+        {
+          "id": "caption-word-24-3",
+          "text": "2º",
+          "start": 24.968,
+          "end": 25.528
+        }
+      ]
+    },
+    {
+      "id": "caption-group-25",
+      "frame": 2,
+      "start": 25.528,
+      "end": 26.789,
+      "text": "es falsa y",
+      "words": [
+        {
+          "id": "caption-word-25-0",
+          "text": "es",
+          "start": 25.528,
+          "end": 25.768
+        },
+        {
+          "id": "caption-word-25-1",
+          "text": "falsa",
+          "start": 25.768,
+          "end": 26.888
+        },
+        {
+          "id": "caption-word-25-2",
+          "text": "y",
+          "start": 26.469,
+          "end": 26.789
+        }
+      ]
+    },
+    {
+      "id": "caption-group-26",
+      "frame": 2,
+      "start": 26.789,
+      "end": 27.789,
+      "text": "la 3º",
+      "words": [
+        {
+          "id": "caption-word-26-0",
+          "text": "la",
+          "start": 26.789,
+          "end": 26.949
+        },
+        {
+          "id": "caption-word-26-1",
+          "text": "3º",
+          "start": 26.949,
+          "end": 27.669
+        }
+      ]
+    },
+    {
+      "id": "caption-group-27",
+      "frame": 2,
+      "start": 27.989,
+      "end": 29.549,
+      "text": "casi te explico",
+      "words": [
+        {
+          "id": "caption-word-27-0",
+          "text": "casi",
+          "start": 27.989,
+          "end": 28.629
+        },
+        {
+          "id": "caption-word-27-1",
+          "text": "te",
+          "start": 28.789,
+          "end": 29.029
+        },
+        {
+          "id": "caption-word-27-2",
+          "text": "explico",
+          "start": 29.029,
+          "end": 29.429
+        }
+      ]
+    },
+    {
+      "id": "caption-group-28",
+      "frame": 3,
+      "start": 30.144,
+      "end": 30.624,
+      "text": "este es",
+      "words": [
+        {
+          "id": "caption-word-28-0",
+          "text": "este",
+          "start": 30.144,
+          "end": 30.464
+        },
+        {
+          "id": "caption-word-28-1",
+          "text": "es",
+          "start": 30.464,
+          "end": 30.624
+        }
+      ]
+    },
+    {
+      "id": "caption-group-29",
+      "frame": 3,
+      "start": 30.624,
+      "end": 31.104,
+      "text": "el reto",
+      "words": [
+        {
+          "id": "caption-word-29-0",
+          "text": "el",
+          "start": 30.624,
+          "end": 30.784
+        },
+        {
+          "id": "caption-word-29-1",
+          "text": "reto",
+          "start": 30.784,
+          "end": 31.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-30",
+      "frame": 3,
+      "start": 31.104,
+      "end": 31.424,
+      "text": "de los",
+      "words": [
+        {
+          "id": "caption-word-30-0",
+          "text": "de",
+          "start": 31.104,
+          "end": 31.264
+        },
+        {
+          "id": "caption-word-30-1",
+          "text": "los",
+          "start": 31.264,
+          "end": 31.424
+        }
+      ]
+    },
+    {
+      "id": "caption-group-31",
+      "frame": 3,
+      "start": 31.424,
+      "end": 33.104,
+      "text": "7 días una acción",
+      "words": [
+        {
+          "id": "caption-word-31-0",
+          "text": "7",
+          "start": 31.424,
+          "end": 31.664
+        },
+        {
+          "id": "caption-word-31-1",
+          "text": "días",
+          "start": 31.664,
+          "end": 32.304
+        },
+        {
+          "id": "caption-word-31-2",
+          "text": "una",
+          "start": 32.464,
+          "end": 32.784
+        },
+        {
+          "id": "caption-word-31-3",
+          "text": "acción",
+          "start": 32.784,
+          "end": 33.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-32",
+      "frame": 3,
+      "start": 33.104,
+      "end": 33.664,
+      "text": "por día",
+      "words": [
+        {
+          "id": "caption-word-32-0",
+          "text": "por",
+          "start": 33.104,
+          "end": 33.344
+        },
+        {
+          "id": "caption-word-32-1",
+          "text": "día",
+          "start": 33.344,
+          "end": 33.664
+        }
+      ]
+    },
+    {
+      "id": "caption-group-33",
+      "frame": 3,
+      "start": 33.664,
+      "end": 34.704,
+      "text": "de 20 a",
+      "words": [
+        {
+          "id": "caption-word-33-0",
+          "text": "de",
+          "start": 33.664,
+          "end": 34.064
+        },
+        {
+          "id": "caption-word-33-1",
+          "text": "20",
+          "start": 34.064,
+          "end": 34.384
+        },
+        {
+          "id": "caption-word-33-2",
+          "text": "a",
+          "start": 34.384,
+          "end": 34.704
+        }
+      ]
+    },
+    {
+      "id": "caption-group-34",
+      "frame": 3,
+      "start": 34.704,
+      "end": 35.864,
+      "text": "30 minutos",
+      "words": [
+        {
+          "id": "caption-word-34-0",
+          "text": "30",
+          "start": 34.704,
+          "end": 35.024
+        },
+        {
+          "id": "caption-word-34-1",
+          "text": "minutos",
+          "start": 35.024,
+          "end": 35.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-35",
+      "frame": 3,
+      "start": 36.064,
+      "end": 37.584,
+      "text": "cuando termines tendrás un",
+      "words": [
+        {
+          "id": "caption-word-35-0",
+          "text": "cuando",
+          "start": 36.064,
+          "end": 36.384
+        },
+        {
+          "id": "caption-word-35-1",
+          "text": "termines",
+          "start": 36.384,
+          "end": 37.104
+        },
+        {
+          "id": "caption-word-35-2",
+          "text": "tendrás",
+          "start": 37.104,
+          "end": 37.424
+        },
+        {
+          "id": "caption-word-35-3",
+          "text": "un",
+          "start": 37.424,
+          "end": 37.584
+        }
+      ]
+    },
+    {
+      "id": "caption-group-36",
+      "frame": 3,
+      "start": 37.584,
+      "end": 39.104,
+      "text": "video explicativo publicado",
+      "words": [
+        {
+          "id": "caption-word-36-0",
+          "text": "video",
+          "start": 37.584,
+          "end": 37.904
+        },
+        {
+          "id": "caption-word-36-1",
+          "text": "explicativo",
+          "start": 37.904,
+          "end": 38.544
+        },
+        {
+          "id": "caption-word-36-2",
+          "text": "publicado",
+          "start": 38.544,
+          "end": 39.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-37",
+      "frame": 3,
+      "start": 39.104,
+      "end": 40.224,
+      "text": "en youtube hecho",
+      "words": [
+        {
+          "id": "caption-word-37-0",
+          "text": "en",
+          "start": 39.104,
+          "end": 39.344
+        },
+        {
+          "id": "caption-word-37-1",
+          "text": "youtube",
+          "start": 39.344,
+          "end": 39.984
+        },
+        {
+          "id": "caption-word-37-2",
+          "text": "hecho",
+          "start": 39.984,
+          "end": 40.224
+        }
+      ]
+    },
+    {
+      "id": "caption-group-38",
+      "frame": 3,
+      "start": 40.224,
+      "end": 41.744,
+      "text": "con voz imágenes",
+      "words": [
+        {
+          "id": "caption-word-38-0",
+          "text": "con",
+          "start": 40.224,
+          "end": 40.464
+        },
+        {
+          "id": "caption-word-38-1",
+          "text": "voz",
+          "start": 40.464,
+          "end": 41.104
+        },
+        {
+          "id": "caption-word-38-2",
+          "text": "imágenes",
+          "start": 41.104,
+          "end": 41.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-39",
+      "frame": 3,
+      "start": 41.744,
+      "end": 43.584,
+      "text": "y subtítulos generados por",
+      "words": [
+        {
+          "id": "caption-word-39-0",
+          "text": "y",
+          "start": 41.744,
+          "end": 42.064
+        },
+        {
+          "id": "caption-word-39-1",
+          "text": "subtítulos",
+          "start": 42.064,
+          "end": 42.784
+        },
+        {
+          "id": "caption-word-39-2",
+          "text": "generados",
+          "start": 42.784,
+          "end": 43.344
+        },
+        {
+          "id": "caption-word-39-3",
+          "text": "por",
+          "start": 43.344,
+          "end": 43.584
+        }
+      ]
+    },
+    {
+      "id": "caption-group-40",
+      "frame": 3,
+      "start": 43.584,
+      "end": 44.344,
+      "text": "ia",
+      "words": [
+        {
+          "id": "caption-word-40-0",
+          "text": "ia",
+          "start": 43.584,
+          "end": 44.224
+        }
+      ]
+    },
+    {
+      "id": "caption-group-41",
+      "frame": 3,
+      "start": 44.544,
+      "end": 45.464,
+      "text": "el costo real",
+      "words": [
+        {
+          "id": "caption-word-41-0",
+          "text": "el",
+          "start": 44.544,
+          "end": 44.784
+        },
+        {
+          "id": "caption-word-41-1",
+          "text": "costo",
+          "start": 44.784,
+          "end": 45.104
+        },
+        {
+          "id": "caption-word-41-2",
+          "text": "real",
+          "start": 45.104,
+          "end": 45.344
+        }
+      ]
+    },
+    {
+      "id": "caption-group-42",
+      "frame": 3,
+      "start": 45.719,
+      "end": 46.759,
+      "text": "entre 0 y",
+      "words": [
+        {
+          "id": "caption-word-42-0",
+          "text": "entre",
+          "start": 45.719,
+          "end": 46.119
+        },
+        {
+          "id": "caption-word-42-1",
+          "text": "0",
+          "start": 46.119,
+          "end": 46.439
+        },
+        {
+          "id": "caption-word-42-2",
+          "text": "y",
+          "start": 46.439,
+          "end": 46.759
+        }
+      ]
+    },
+    {
+      "id": "caption-group-43",
+      "frame": 3,
+      "start": 46.759,
+      "end": 47.959,
+      "text": "un dólar gracias",
+      "words": [
+        {
+          "id": "caption-word-43-0",
+          "text": "un",
+          "start": 46.759,
+          "end": 46.999
+        },
+        {
+          "id": "caption-word-43-1",
+          "text": "dólar",
+          "start": 46.999,
+          "end": 47.639
+        },
+        {
+          "id": "caption-word-43-2",
+          "text": "gracias",
+          "start": 47.639,
+          "end": 47.959
+        }
+      ]
+    },
+    {
+      "id": "caption-group-44",
+      "frame": 3,
+      "start": 47.959,
+      "end": 48.279,
+      "text": "a los",
+      "words": [
+        {
+          "id": "caption-word-44-0",
+          "text": "a",
+          "start": 47.959,
+          "end": 48.119
+        },
+        {
+          "id": "caption-word-44-1",
+          "text": "los",
+          "start": 48.119,
+          "end": 48.279
+        }
+      ]
+    },
+    {
+      "id": "caption-group-45",
+      "frame": 3,
+      "start": 48.279,
+      "end": 48.999,
+      "text": "créditos gratis",
+      "words": [
+        {
+          "id": "caption-word-45-0",
+          "text": "créditos",
+          "start": 48.279,
+          "end": 48.679
+        },
+        {
+          "id": "caption-word-45-1",
+          "text": "gratis",
+          "start": 48.679,
+          "end": 48.999
+        }
+      ]
+    },
+    {
+      "id": "caption-group-46",
+      "frame": 3,
+      "start": 48.999,
+      "end": 50.239,
+      "text": "de las herramientas",
+      "words": [
+        {
+          "id": "caption-word-46-0",
+          "text": "de",
+          "start": 48.999,
+          "end": 49.159
+        },
+        {
+          "id": "caption-word-46-1",
+          "text": "las",
+          "start": 49.159,
+          "end": 49.319
+        },
+        {
+          "id": "caption-word-46-2",
+          "text": "herramientas",
+          "start": 49.319,
+          "end": 50.119
+        }
+      ]
+    },
+    {
+      "id": "caption-group-47",
+      "frame": 3,
+      "start": 50.519,
+      "end": 51.639,
+      "text": "y ojo una",
+      "words": [
+        {
+          "id": "caption-word-47-0",
+          "text": "y",
+          "start": 50.519,
+          "end": 50.679
+        },
+        {
+          "id": "caption-word-47-1",
+          "text": "ojo",
+          "start": 50.679,
+          "end": 51.319
+        },
+        {
+          "id": "caption-word-47-2",
+          "text": "una",
+          "start": 51.319,
+          "end": 51.639
+        }
+      ]
+    },
+    {
+      "id": "caption-group-48",
+      "frame": 3,
+      "start": 51.639,
+      "end": 52.759,
+      "text": "promesa honesta desde",
+      "words": [
+        {
+          "id": "caption-word-48-0",
+          "text": "promesa",
+          "start": 51.639,
+          "end": 52.039
+        },
+        {
+          "id": "caption-word-48-1",
+          "text": "honesta",
+          "start": 52.039,
+          "end": 52.439
+        },
+        {
+          "id": "caption-word-48-2",
+          "text": "desde",
+          "start": 52.439,
+          "end": 52.759
+        }
+      ]
+    },
+    {
+      "id": "caption-group-49",
+      "frame": 3,
+      "start": 52.759,
+      "end": 54.159,
+      "text": "el 2º 0",
+      "words": [
+        {
+          "id": "caption-word-49-0",
+          "text": "el",
+          "start": 52.759,
+          "end": 52.999
+        },
+        {
+          "id": "caption-word-49-1",
+          "text": "2º",
+          "start": 52.999,
+          "end": 53.399
+        },
+        {
+          "id": "caption-word-49-2",
+          "text": "0",
+          "start": 53.399,
+          "end": 54.039
+        }
+      ]
+    },
+    {
+      "id": "caption-group-50",
+      "frame": 3,
+      "start": 54.439,
+      "end": 54.919,
+      "text": "esto no",
+      "words": [
+        {
+          "id": "caption-word-50-0",
+          "text": "esto",
+          "start": 54.439,
+          "end": 54.759
+        },
+        {
+          "id": "caption-word-50-1",
+          "text": "no",
+          "start": 54.759,
+          "end": 54.919
+        }
+      ]
+    },
+    {
+      "id": "caption-group-51",
+      "frame": 3,
+      "start": 54.919,
+      "end": 55.959,
+      "text": "te promete vistas",
+      "words": [
+        {
+          "id": "caption-word-51-0",
+          "text": "te",
+          "start": 54.919,
+          "end": 55.159
+        },
+        {
+          "id": "caption-word-51-1",
+          "text": "promete",
+          "start": 55.159,
+          "end": 55.479
+        },
+        {
+          "id": "caption-word-51-2",
+          "text": "vistas",
+          "start": 55.479,
+          "end": 55.959
+        }
+      ]
+    },
+    {
+      "id": "caption-group-52",
+      "frame": 3,
+      "start": 55.959,
+      "end": 57.799,
+      "text": "ni dinero te promete",
+      "words": [
+        {
+          "id": "caption-word-52-0",
+          "text": "ni",
+          "start": 55.959,
+          "end": 56.279
+        },
+        {
+          "id": "caption-word-52-1",
+          "text": "dinero",
+          "start": 56.279,
+          "end": 56.919
+        },
+        {
+          "id": "caption-word-52-2",
+          "text": "te",
+          "start": 56.999,
+          "end": 57.239
+        },
+        {
+          "id": "caption-word-52-3",
+          "text": "promete",
+          "start": 57.239,
+          "end": 57.799
+        }
+      ]
+    },
+    {
+      "id": "caption-group-53",
+      "frame": 3,
+      "start": 57.799,
+      "end": 58.639,
+      "text": "una habilidad",
+      "words": [
+        {
+          "id": "caption-word-53-0",
+          "text": "una",
+          "start": 57.799,
+          "end": 58.119
+        },
+        {
+          "id": "caption-word-53-1",
+          "text": "habilidad",
+          "start": 58.119,
+          "end": 58.519
+        }
+      ]
+    },
+    {
+      "id": "caption-group-54",
+      "frame": 3,
+      "start": 59.263,
+      "end": 61.423,
+      "text": "7 días una idea",
+      "words": [
+        {
+          "id": "caption-word-54-0",
+          "text": "7",
+          "start": 59.263,
+          "end": 59.663
+        },
+        {
+          "id": "caption-word-54-1",
+          "text": "días",
+          "start": 59.663,
+          "end": 60.303
+        },
+        {
+          "id": "caption-word-54-2",
+          "text": "una",
+          "start": 60.383,
+          "end": 60.703
+        },
+        {
+          "id": "caption-word-54-3",
+          "text": "idea",
+          "start": 60.703,
+          "end": 61.343
+        }
+      ]
+    },
+    {
+      "id": "caption-group-55",
+      "frame": 3,
+      "start": 61.423,
+      "end": 62.783,
+      "text": "tu 1º video",
+      "words": [
+        {
+          "id": "caption-word-55-0",
+          "text": "tu",
+          "start": 61.423,
+          "end": 61.663
+        },
+        {
+          "id": "caption-word-55-1",
+          "text": "1º",
+          "start": 61.663,
+          "end": 61.983
+        },
+        {
+          "id": "caption-word-55-2",
+          "text": "video",
+          "start": 61.983,
+          "end": 62.703
+        }
+      ]
+    },
+    {
+      "id": "caption-group-56",
+      "frame": 3,
+      "start": 62.783,
+      "end": 63.463,
+      "text": "empezamos",
+      "words": [
+        {
+          "id": "caption-word-56-0",
+          "text": "empezamos",
+          "start": 62.783,
+          "end": 63.343
+        }
+      ]
+    },
+    {
+      "id": "caption-group-57",
+      "frame": 4,
+      "start": 64.168,
+      "end": 65.248,
+      "text": "día 1",
+      "words": [
+        {
+          "id": "caption-word-57-0",
+          "text": "día",
+          "start": 64.168,
+          "end": 64.488
+        },
+        {
+          "id": "caption-word-57-1",
+          "text": "1",
+          "start": 64.488,
+          "end": 65.128
+        }
+      ]
+    },
+    {
+      "id": "caption-group-58",
+      "frame": 4,
+      "start": 65.448,
+      "end": 66.728,
+      "text": "elige una cosa",
+      "words": [
+        {
+          "id": "caption-word-58-0",
+          "text": "elige",
+          "start": 65.448,
+          "end": 66.008
+        },
+        {
+          "id": "caption-word-58-1",
+          "text": "una",
+          "start": 66.008,
+          "end": 66.408
+        },
+        {
+          "id": "caption-word-58-2",
+          "text": "cosa",
+          "start": 66.408,
+          "end": 66.728
+        }
+      ]
+    },
+    {
+      "id": "caption-group-59",
+      "frame": 4,
+      "start": 66.728,
+      "end": 67.848,
+      "text": "que sepas explicar",
+      "words": [
+        {
+          "id": "caption-word-59-0",
+          "text": "que",
+          "start": 66.728,
+          "end": 66.968
+        },
+        {
+          "id": "caption-word-59-1",
+          "text": "sepas",
+          "start": 66.968,
+          "end": 67.528
+        },
+        {
+          "id": "caption-word-59-2",
+          "text": "explicar",
+          "start": 67.528,
+          "end": 67.848
+        }
+      ]
+    },
+    {
+      "id": "caption-group-60",
+      "frame": 4,
+      "start": 67.848,
+      "end": 69.248,
+      "text": "en 2 minutos",
+      "words": [
+        {
+          "id": "caption-word-60-0",
+          "text": "en",
+          "start": 67.848,
+          "end": 68.168
+        },
+        {
+          "id": "caption-word-60-1",
+          "text": "2",
+          "start": 68.168,
+          "end": 68.408
+        },
+        {
+          "id": "caption-word-60-2",
+          "text": "minutos",
+          "start": 68.408,
+          "end": 69.128
+        }
+      ]
+    },
+    {
+      "id": "caption-group-61",
+      "frame": 4,
+      "start": 69.288,
+      "end": 70.888,
+      "text": "un consejo un error",
+      "words": [
+        {
+          "id": "caption-word-61-0",
+          "text": "un",
+          "start": 69.288,
+          "end": 69.608
+        },
+        {
+          "id": "caption-word-61-1",
+          "text": "consejo",
+          "start": 69.608,
+          "end": 70.408
+        },
+        {
+          "id": "caption-word-61-2",
+          "text": "un",
+          "start": 70.408,
+          "end": 70.648
+        },
+        {
+          "id": "caption-word-61-3",
+          "text": "error",
+          "start": 70.648,
+          "end": 70.888
+        }
+      ]
+    },
+    {
+      "id": "caption-group-62",
+      "frame": 4,
+      "start": 70.888,
+      "end": 72.808,
+      "text": "que cometiste una explicación",
+      "words": [
+        {
+          "id": "caption-word-62-0",
+          "text": "que",
+          "start": 70.888,
+          "end": 71.048
+        },
+        {
+          "id": "caption-word-62-1",
+          "text": "cometiste",
+          "start": 71.048,
+          "end": 71.928
+        },
+        {
+          "id": "caption-word-62-2",
+          "text": "una",
+          "start": 72.008,
+          "end": 72.328
+        },
+        {
+          "id": "caption-word-62-3",
+          "text": "explicación",
+          "start": 72.328,
+          "end": 72.808
+        }
+      ]
+    },
+    {
+      "id": "caption-group-63",
+      "frame": 4,
+      "start": 72.808,
+      "end": 73.568,
+      "text": "corta",
+      "words": [
+        {
+          "id": "caption-word-63-0",
+          "text": "corta",
+          "start": 72.808,
+          "end": 73.448
+        }
+      ]
+    },
+    {
+      "id": "caption-group-64",
+      "frame": 4,
+      "start": 73.768,
+      "end": 74.408,
+      "text": "no busques",
+      "words": [
+        {
+          "id": "caption-word-64-0",
+          "text": "no",
+          "start": 73.768,
+          "end": 74.008
+        },
+        {
+          "id": "caption-word-64-1",
+          "text": "busques",
+          "start": 74.008,
+          "end": 74.408
+        }
+      ]
+    },
+    {
+      "id": "caption-group-65",
+      "frame": 4,
+      "start": 74.408,
+      "end": 75.608,
+      "text": "el tema perfecto",
+      "words": [
+        {
+          "id": "caption-word-65-0",
+          "text": "el",
+          "start": 74.408,
+          "end": 74.568
+        },
+        {
+          "id": "caption-word-65-1",
+          "text": "tema",
+          "start": 74.568,
+          "end": 74.808
+        },
+        {
+          "id": "caption-word-65-2",
+          "text": "perfecto",
+          "start": 74.808,
+          "end": 75.528
+        }
+      ]
+    },
+    {
+      "id": "caption-group-66",
+      "frame": 4,
+      "start": 75.608,
+      "end": 76.168,
+      "text": "el tema",
+      "words": [
+        {
+          "id": "caption-word-66-0",
+          "text": "el",
+          "start": 75.608,
+          "end": 75.848
+        },
+        {
+          "id": "caption-word-66-1",
+          "text": "tema",
+          "start": 75.848,
+          "end": 76.168
+        }
+      ]
+    },
+    {
+      "id": "caption-group-67",
+      "frame": 4,
+      "start": 76.168,
+      "end": 76.888,
+      "text": "correcto es",
+      "words": [
+        {
+          "id": "caption-word-67-0",
+          "text": "correcto",
+          "start": 76.168,
+          "end": 76.568
+        },
+        {
+          "id": "caption-word-67-1",
+          "text": "es",
+          "start": 76.568,
+          "end": 76.888
+        }
+      ]
+    },
+    {
+      "id": "caption-group-68",
+      "frame": 4,
+      "start": 76.888,
+      "end": 77.208,
+      "text": "el que",
+      "words": [
+        {
+          "id": "caption-word-68-0",
+          "text": "el",
+          "start": 76.888,
+          "end": 77.048
+        },
+        {
+          "id": "caption-word-68-1",
+          "text": "que",
+          "start": 77.048,
+          "end": 77.208
+        }
+      ]
+    },
+    {
+      "id": "caption-group-69",
+      "frame": 4,
+      "start": 77.208,
+      "end": 78.408,
+      "text": "puedes explicar hoy",
+      "words": [
+        {
+          "id": "caption-word-69-0",
+          "text": "puedes",
+          "start": 77.208,
+          "end": 77.528
+        },
+        {
+          "id": "caption-word-69-1",
+          "text": "explicar",
+          "start": 77.528,
+          "end": 78.008
+        },
+        {
+          "id": "caption-word-69-2",
+          "text": "hoy",
+          "start": 78.008,
+          "end": 78.408
+        }
+      ]
+    },
+    {
+      "id": "caption-group-70",
+      "frame": 4,
+      "start": 78.408,
+      "end": 79.888,
+      "text": "sin investigar nada",
+      "words": [
+        {
+          "id": "caption-word-70-0",
+          "text": "sin",
+          "start": 78.408,
+          "end": 78.888
+        },
+        {
+          "id": "caption-word-70-1",
+          "text": "investigar",
+          "start": 78.888,
+          "end": 79.368
+        },
+        {
+          "id": "caption-word-70-2",
+          "text": "nada",
+          "start": 79.368,
+          "end": 79.768
+        }
+      ]
+    },
+    {
+      "id": "caption-group-71",
+      "frame": 4,
+      "start": 80.463,
+      "end": 81.023,
+      "text": "abre tu",
+      "words": [
+        {
+          "id": "caption-word-71-0",
+          "text": "abre",
+          "start": 80.463,
+          "end": 80.783
+        },
+        {
+          "id": "caption-word-71-1",
+          "text": "tu",
+          "start": 80.783,
+          "end": 81.023
+        }
+      ]
+    },
+    {
+      "id": "caption-group-72",
+      "frame": 4,
+      "start": 81.023,
+      "end": 81.343,
+      "text": "chat de",
+      "words": [
+        {
+          "id": "caption-word-72-0",
+          "text": "chat",
+          "start": 81.023,
+          "end": 81.183
+        },
+        {
+          "id": "caption-word-72-1",
+          "text": "de",
+          "start": 81.183,
+          "end": 81.343
+        }
+      ]
+    },
+    {
+      "id": "caption-group-73",
+      "frame": 4,
+      "start": 81.343,
+      "end": 81.743,
+      "text": "ia en",
+      "words": [
+        {
+          "id": "caption-word-73-0",
+          "text": "ia",
+          "start": 81.343,
+          "end": 81.583
+        },
+        {
+          "id": "caption-word-73-1",
+          "text": "en",
+          "start": 81.583,
+          "end": 81.743
+        }
+      ]
+    },
+    {
+      "id": "caption-group-74",
+      "frame": 4,
+      "start": 81.743,
+      "end": 82.303,
+      "text": "el teléfono",
+      "words": [
+        {
+          "id": "caption-word-74-0",
+          "text": "el",
+          "start": 81.743,
+          "end": 81.903
+        },
+        {
+          "id": "caption-word-74-1",
+          "text": "teléfono",
+          "start": 81.903,
+          "end": 82.303
+        }
+      ]
+    },
+    {
+      "id": "caption-group-75",
+      "frame": 4,
+      "start": 82.303,
+      "end": 82.943,
+      "text": "y dicta",
+      "words": [
+        {
+          "id": "caption-word-75-0",
+          "text": "y",
+          "start": 82.303,
+          "end": 82.623
+        },
+        {
+          "id": "caption-word-75-1",
+          "text": "dicta",
+          "start": 82.623,
+          "end": 82.943
+        }
+      ]
+    },
+    {
+      "id": "caption-group-76",
+      "frame": 4,
+      "start": 82.943,
+      "end": 83.423,
+      "text": "tu idea",
+      "words": [
+        {
+          "id": "caption-word-76-0",
+          "text": "tu",
+          "start": 82.943,
+          "end": 83.183
+        },
+        {
+          "id": "caption-word-76-1",
+          "text": "idea",
+          "start": 83.183,
+          "end": 83.423
+        }
+      ]
+    },
+    {
+      "id": "caption-group-77",
+      "frame": 4,
+      "start": 83.423,
+      "end": 83.823,
+      "text": "con tu",
+      "words": [
+        {
+          "id": "caption-word-77-0",
+          "text": "con",
+          "start": 83.423,
+          "end": 83.663
+        },
+        {
+          "id": "caption-word-77-1",
+          "text": "tu",
+          "start": 83.663,
+          "end": 83.823
+        }
+      ]
+    },
+    {
+      "id": "caption-group-78",
+      "frame": 4,
+      "start": 83.823,
+      "end": 84.543,
+      "text": "voz como",
+      "words": [
+        {
+          "id": "caption-word-78-0",
+          "text": "voz",
+          "start": 83.823,
+          "end": 84.303
+        },
+        {
+          "id": "caption-word-78-1",
+          "text": "como",
+          "start": 84.303,
+          "end": 84.543
+        }
+      ]
+    },
+    {
+      "id": "caption-group-79",
+      "frame": 4,
+      "start": 84.543,
+      "end": 84.863,
+      "text": "si le",
+      "words": [
+        {
+          "id": "caption-word-79-0",
+          "text": "si",
+          "start": 84.543,
+          "end": 84.703
+        },
+        {
+          "id": "caption-word-79-1",
+          "text": "le",
+          "start": 84.703,
+          "end": 84.863
+        }
+      ]
+    },
+    {
+      "id": "caption-group-80",
+      "frame": 4,
+      "start": 84.863,
+      "end": 85.263,
+      "text": "hablaras a",
+      "words": [
+        {
+          "id": "caption-word-80-0",
+          "text": "hablaras",
+          "start": 84.863,
+          "end": 85.183
+        },
+        {
+          "id": "caption-word-80-1",
+          "text": "a",
+          "start": 85.183,
+          "end": 85.263
+        }
+      ]
+    },
+    {
+      "id": "caption-group-81",
+      "frame": 4,
+      "start": 85.263,
+      "end": 86.103,
+      "text": "un amigo",
+      "words": [
+        {
+          "id": "caption-word-81-0",
+          "text": "un",
+          "start": 85.263,
+          "end": 85.423
+        },
+        {
+          "id": "caption-word-81-1",
+          "text": "amigo",
+          "start": 85.423,
+          "end": 85.983
+        }
+      ]
+    },
+    {
+      "id": "caption-group-82",
+      "frame": 4,
+      "start": 86.303,
+      "end": 88.463,
+      "text": "después pídele convierte esto",
+      "words": [
+        {
+          "id": "caption-word-82-0",
+          "text": "después",
+          "start": 86.303,
+          "end": 86.623
+        },
+        {
+          "id": "caption-word-82-1",
+          "text": "pídele",
+          "start": 86.623,
+          "end": 87.343
+        },
+        {
+          "id": "caption-word-82-2",
+          "text": "convierte",
+          "start": 87.503,
+          "end": 88.063
+        },
+        {
+          "id": "caption-word-82-3",
+          "text": "esto",
+          "start": 88.063,
+          "end": 88.463
+        }
+      ]
+    },
+    {
+      "id": "caption-group-83",
+      "frame": 4,
+      "start": 88.463,
+      "end": 88.783,
+      "text": "en un",
+      "words": [
+        {
+          "id": "caption-word-83-0",
+          "text": "en",
+          "start": 88.463,
+          "end": 88.623
+        },
+        {
+          "id": "caption-word-83-1",
+          "text": "un",
+          "start": 88.623,
+          "end": 88.783
+        }
+      ]
+    },
+    {
+      "id": "caption-group-84",
+      "frame": 4,
+      "start": 88.783,
+      "end": 89.263,
+      "text": "guion por",
+      "words": [
+        {
+          "id": "caption-word-84-0",
+          "text": "guion",
+          "start": 88.783,
+          "end": 89.023
+        },
+        {
+          "id": "caption-word-84-1",
+          "text": "por",
+          "start": 89.023,
+          "end": 89.263
+        }
+      ]
+    },
+    {
+      "id": "caption-group-85",
+      "frame": 4,
+      "start": 89.263,
+      "end": 89.903,
+      "text": "escenas para",
+      "words": [
+        {
+          "id": "caption-word-85-0",
+          "text": "escenas",
+          "start": 89.263,
+          "end": 89.583
+        },
+        {
+          "id": "caption-word-85-1",
+          "text": "para",
+          "start": 89.583,
+          "end": 89.903
+        }
+      ]
+    },
+    {
+      "id": "caption-group-86",
+      "frame": 4,
+      "start": 89.903,
+      "end": 90.303,
+      "text": "un video",
+      "words": [
+        {
+          "id": "caption-word-86-0",
+          "text": "un",
+          "start": 89.903,
+          "end": 90.063
+        },
+        {
+          "id": "caption-word-86-1",
+          "text": "video",
+          "start": 90.063,
+          "end": 90.303
+        }
+      ]
+    },
+    {
+      "id": "caption-group-87",
+      "frame": 4,
+      "start": 90.303,
+      "end": 91.423,
+      "text": "de un minuto",
+      "words": [
+        {
+          "id": "caption-word-87-0",
+          "text": "de",
+          "start": 90.303,
+          "end": 90.543
+        },
+        {
+          "id": "caption-word-87-1",
+          "text": "un",
+          "start": 90.543,
+          "end": 90.783
+        },
+        {
+          "id": "caption-word-87-2",
+          "text": "minuto",
+          "start": 90.783,
+          "end": 91.423
+        }
+      ]
+    },
+    {
+      "id": "caption-group-88",
+      "frame": 4,
+      "start": 91.423,
+      "end": 92.783,
+      "text": "en español sencillo",
+      "words": [
+        {
+          "id": "caption-word-88-0",
+          "text": "en",
+          "start": 91.423,
+          "end": 91.583
+        },
+        {
+          "id": "caption-word-88-1",
+          "text": "español",
+          "start": 91.583,
+          "end": 91.903
+        },
+        {
+          "id": "caption-word-88-2",
+          "text": "sencillo",
+          "start": 91.903,
+          "end": 92.783
+        }
+      ]
+    },
+    {
+      "id": "caption-group-89",
+      "frame": 4,
+      "start": 92.783,
+      "end": 93.423,
+      "text": "una idea",
+      "words": [
+        {
+          "id": "caption-word-89-0",
+          "text": "una",
+          "start": 92.783,
+          "end": 93.183
+        },
+        {
+          "id": "caption-word-89-1",
+          "text": "idea",
+          "start": 93.183,
+          "end": 93.423
+        }
+      ]
+    },
+    {
+      "id": "caption-group-90",
+      "frame": 4,
+      "start": 93.423,
+      "end": 94.103,
+      "text": "por escena",
+      "words": [
+        {
+          "id": "caption-word-90-0",
+          "text": "por",
+          "start": 93.423,
+          "end": 93.663
+        },
+        {
+          "id": "caption-word-90-1",
+          "text": "escena",
+          "start": 93.663,
+          "end": 93.983
+        }
+      ]
+    },
+    {
+      "id": "caption-group-91",
+      "frame": 4,
+      "start": 94.547,
+      "end": 95.827,
+      "text": "y listo ya",
+      "words": [
+        {
+          "id": "caption-word-91-0",
+          "text": "y",
+          "start": 94.547,
+          "end": 94.787
+        },
+        {
+          "id": "caption-word-91-1",
+          "text": "listo",
+          "start": 94.787,
+          "end": 95.427
+        },
+        {
+          "id": "caption-word-91-2",
+          "text": "ya",
+          "start": 95.507,
+          "end": 95.827
+        }
+      ]
+    },
+    {
+      "id": "caption-group-92",
+      "frame": 4,
+      "start": 95.827,
+      "end": 96.387,
+      "text": "no tienes",
+      "words": [
+        {
+          "id": "caption-word-92-0",
+          "text": "no",
+          "start": 95.827,
+          "end": 95.987
+        },
+        {
+          "id": "caption-word-92-1",
+          "text": "tienes",
+          "start": 95.987,
+          "end": 96.387
+        }
+      ]
+    },
+    {
+      "id": "caption-group-93",
+      "frame": 4,
+      "start": 96.387,
+      "end": 97.507,
+      "text": "una idea tienes",
+      "words": [
+        {
+          "id": "caption-word-93-0",
+          "text": "una",
+          "start": 96.387,
+          "end": 96.547
+        },
+        {
+          "id": "caption-word-93-1",
+          "text": "idea",
+          "start": 96.547,
+          "end": 97.107
+        },
+        {
+          "id": "caption-word-93-2",
+          "text": "tienes",
+          "start": 97.107,
+          "end": 97.507
+        }
+      ]
+    },
+    {
+      "id": "caption-group-94",
+      "frame": 4,
+      "start": 97.507,
+      "end": 98.787,
+      "text": "un plan escrito",
+      "words": [
+        {
+          "id": "caption-word-94-0",
+          "text": "un",
+          "start": 97.507,
+          "end": 97.747
+        },
+        {
+          "id": "caption-word-94-1",
+          "text": "plan",
+          "start": 97.747,
+          "end": 98.067
+        },
+        {
+          "id": "caption-word-94-2",
+          "text": "escrito",
+          "start": 98.067,
+          "end": 98.787
+        }
+      ]
+    },
+    {
+      "id": "caption-group-95",
+      "frame": 4,
+      "start": 98.787,
+      "end": 99.867,
+      "text": "te costó 0",
+      "words": [
+        {
+          "id": "caption-word-95-0",
+          "text": "te",
+          "start": 98.787,
+          "end": 99.107
+        },
+        {
+          "id": "caption-word-95-1",
+          "text": "costó",
+          "start": 99.107,
+          "end": 99.427
+        },
+        {
+          "id": "caption-word-95-2",
+          "text": "0",
+          "start": 99.427,
+          "end": 99.747
+        }
+      ]
+    },
+    {
+      "id": "caption-group-96",
+      "frame": 5,
+      "start": 100.392,
+      "end": 102.152,
+      "text": "día 2 le pones",
+      "words": [
+        {
+          "id": "caption-word-96-0",
+          "text": "día",
+          "start": 100.392,
+          "end": 100.792
+        },
+        {
+          "id": "caption-word-96-1",
+          "text": "2",
+          "start": 100.792,
+          "end": 101.432
+        },
+        {
+          "id": "caption-word-96-2",
+          "text": "le",
+          "start": 101.592,
+          "end": 101.832
+        },
+        {
+          "id": "caption-word-96-3",
+          "text": "pones",
+          "start": 101.832,
+          "end": 102.152
+        }
+      ]
+    },
+    {
+      "id": "caption-group-97",
+      "frame": 5,
+      "start": 102.152,
+      "end": 102.632,
+      "text": "voz a",
+      "words": [
+        {
+          "id": "caption-word-97-0",
+          "text": "voz",
+          "start": 102.152,
+          "end": 102.472
+        },
+        {
+          "id": "caption-word-97-1",
+          "text": "a",
+          "start": 102.472,
+          "end": 102.632
+        }
+      ]
+    },
+    {
+      "id": "caption-group-98",
+      "frame": 5,
+      "start": 102.632,
+      "end": 103.752,
+      "text": "tu guion no",
+      "words": [
+        {
+          "id": "caption-word-98-0",
+          "text": "tu",
+          "start": 102.632,
+          "end": 102.792
+        },
+        {
+          "id": "caption-word-98-1",
+          "text": "guion",
+          "start": 102.792,
+          "end": 103.352
+        },
+        {
+          "id": "caption-word-98-2",
+          "text": "no",
+          "start": 103.512,
+          "end": 103.752
+        }
+      ]
+    },
+    {
+      "id": "caption-group-99",
+      "frame": 5,
+      "start": 103.752,
+      "end": 104.952,
+      "text": "te agrabas tú",
+      "words": [
+        {
+          "id": "caption-word-99-0",
+          "text": "te",
+          "start": 103.752,
+          "end": 103.912
+        },
+        {
+          "id": "caption-word-99-1",
+          "text": "agrabas",
+          "start": 103.912,
+          "end": 104.312
+        },
+        {
+          "id": "caption-word-99-2",
+          "text": "tú",
+          "start": 104.312,
+          "end": 104.872
+        }
+      ]
+    },
+    {
+      "id": "caption-group-100",
+      "frame": 5,
+      "start": 104.952,
+      "end": 105.432,
+      "text": "una voz",
+      "words": [
+        {
+          "id": "caption-word-100-0",
+          "text": "una",
+          "start": 104.952,
+          "end": 105.192
+        },
+        {
+          "id": "caption-word-100-1",
+          "text": "voz",
+          "start": 105.192,
+          "end": 105.432
+        }
+      ]
+    },
+    {
+      "id": "caption-group-101",
+      "frame": 5,
+      "start": 105.432,
+      "end": 106.152,
+      "text": "de ia",
+      "words": [
+        {
+          "id": "caption-word-101-0",
+          "text": "de",
+          "start": 105.432,
+          "end": 105.592
+        },
+        {
+          "id": "caption-word-101-1",
+          "text": "ia",
+          "start": 105.592,
+          "end": 106.152
+        }
+      ]
+    },
+    {
+      "id": "caption-group-102",
+      "frame": 5,
+      "start": 106.152,
+      "end": 106.712,
+      "text": "lo lee",
+      "words": [
+        {
+          "id": "caption-word-102-0",
+          "text": "lo",
+          "start": 106.152,
+          "end": 106.392
+        },
+        {
+          "id": "caption-word-102-1",
+          "text": "lee",
+          "start": 106.392,
+          "end": 106.712
+        }
+      ]
+    },
+    {
+      "id": "caption-group-103",
+      "frame": 5,
+      "start": 106.712,
+      "end": 107.432,
+      "text": "en español",
+      "words": [
+        {
+          "id": "caption-word-103-0",
+          "text": "en",
+          "start": 106.712,
+          "end": 106.872
+        },
+        {
+          "id": "caption-word-103-1",
+          "text": "español",
+          "start": 106.872,
+          "end": 107.432
+        }
+      ]
+    },
+    {
+      "id": "caption-group-104",
+      "frame": 5,
+      "start": 107.432,
+      "end": 108.912,
+      "text": "con tono natural",
+      "words": [
+        {
+          "id": "caption-word-104-0",
+          "text": "con",
+          "start": 107.432,
+          "end": 107.672
+        },
+        {
+          "id": "caption-word-104-1",
+          "text": "tono",
+          "start": 107.672,
+          "end": 108.072
+        },
+        {
+          "id": "caption-word-104-2",
+          "text": "natural",
+          "start": 108.072,
+          "end": 108.792
+        }
+      ]
+    },
+    {
+      "id": "caption-group-105",
+      "frame": 5,
+      "start": 109.112,
+      "end": 110.472,
+      "text": "con deepgram aura",
+      "words": [
+        {
+          "id": "caption-word-105-0",
+          "text": "con",
+          "start": 109.112,
+          "end": 109.352
+        },
+        {
+          "id": "caption-word-105-1",
+          "text": "deepgram",
+          "start": 109.352,
+          "end": 109.912
+        },
+        {
+          "id": "caption-word-105-2",
+          "text": "aura",
+          "start": 109.912,
+          "end": 110.472
+        }
+      ]
+    },
+    {
+      "id": "caption-group-106",
+      "frame": 5,
+      "start": 110.472,
+      "end": 111.192,
+      "text": "2 la",
+      "words": [
+        {
+          "id": "caption-word-106-0",
+          "text": "2",
+          "start": 110.472,
+          "end": 111.112
+        },
+        {
+          "id": "caption-word-106-1",
+          "text": "la",
+          "start": 111.112,
+          "end": 111.192
+        }
+      ]
+    },
+    {
+      "id": "caption-group-107",
+      "frame": 5,
+      "start": 111.192,
+      "end": 112.872,
+      "text": "voz celeste es tus",
+      "words": [
+        {
+          "id": "caption-word-107-0",
+          "text": "voz",
+          "start": 111.192,
+          "end": 111.432
+        },
+        {
+          "id": "caption-word-107-1",
+          "text": "celeste",
+          "start": 111.432,
+          "end": 112.232
+        },
+        {
+          "id": "caption-word-107-2",
+          "text": "es",
+          "start": 112.232,
+          "end": 112.472
+        },
+        {
+          "id": "caption-word-107-3",
+          "text": "tus",
+          "start": 112.472,
+          "end": 112.872
+        }
+      ]
+    },
+    {
+      "id": "caption-group-108",
+      "frame": 5,
+      "start": 112.872,
+      "end": 114.392,
+      "text": "primeros videos no te",
+      "words": [
+        {
+          "id": "caption-word-108-0",
+          "text": "primeros",
+          "start": 112.872,
+          "end": 113.272
+        },
+        {
+          "id": "caption-word-108-1",
+          "text": "videos",
+          "start": 113.272,
+          "end": 114.072
+        },
+        {
+          "id": "caption-word-108-2",
+          "text": "no",
+          "start": 114.072,
+          "end": 114.232
+        },
+        {
+          "id": "caption-word-108-3",
+          "text": "te",
+          "start": 114.232,
+          "end": 114.392
+        }
+      ]
+    },
+    {
+      "id": "caption-group-109",
+      "frame": 5,
+      "start": 114.392,
+      "end": 115.232,
+      "text": "cuestan nada",
+      "words": [
+        {
+          "id": "caption-word-109-0",
+          "text": "cuestan",
+          "start": 114.392,
+          "end": 114.792
+        },
+        {
+          "id": "caption-word-109-1",
+          "text": "nada",
+          "start": 114.792,
+          "end": 115.112
+        }
+      ]
+    },
+    {
+      "id": "caption-group-110",
+      "frame": 5,
+      "start": 115.457,
+      "end": 116.017,
+      "text": "porque la",
+      "words": [
+        {
+          "id": "caption-word-110-0",
+          "text": "porque",
+          "start": 115.457,
+          "end": 115.857
+        },
+        {
+          "id": "caption-word-110-1",
+          "text": "la",
+          "start": 115.857,
+          "end": 116.017
+        }
+      ]
+    },
+    {
+      "id": "caption-group-111",
+      "frame": 5,
+      "start": 116.017,
+      "end": 117.297,
+      "text": "cuenta trae 200",
+      "words": [
+        {
+          "id": "caption-word-111-0",
+          "text": "cuenta",
+          "start": 116.017,
+          "end": 116.417
+        },
+        {
+          "id": "caption-word-111-1",
+          "text": "trae",
+          "start": 116.417,
+          "end": 116.737
+        },
+        {
+          "id": "caption-word-111-2",
+          "text": "200",
+          "start": 116.737,
+          "end": 117.297
+        }
+      ]
+    },
+    {
+      "id": "caption-group-112",
+      "frame": 5,
+      "start": 117.297,
+      "end": 118.417,
+      "text": "dólares de crédito",
+      "words": [
+        {
+          "id": "caption-word-112-0",
+          "text": "dólares",
+          "start": 117.297,
+          "end": 117.777
+        },
+        {
+          "id": "caption-word-112-1",
+          "text": "de",
+          "start": 117.777,
+          "end": 117.937
+        },
+        {
+          "id": "caption-word-112-2",
+          "text": "crédito",
+          "start": 117.937,
+          "end": 118.417
+        }
+      ]
+    },
+    {
+      "id": "caption-group-113",
+      "frame": 5,
+      "start": 118.417,
+      "end": 119.177,
+      "text": "gratis",
+      "words": [
+        {
+          "id": "caption-word-113-0",
+          "text": "gratis",
+          "start": 118.417,
+          "end": 119.057
+        }
+      ]
+    },
+    {
+      "id": "caption-group-114",
+      "frame": 5,
+      "start": 119.537,
+      "end": 120.897,
+      "text": "la alternativa verificada",
+      "words": [
+        {
+          "id": "caption-word-114-0",
+          "text": "la",
+          "start": 119.537,
+          "end": 119.697
+        },
+        {
+          "id": "caption-word-114-1",
+          "text": "alternativa",
+          "start": 119.697,
+          "end": 120.337
+        },
+        {
+          "id": "caption-word-114-2",
+          "text": "verificada",
+          "start": 120.337,
+          "end": 120.897
+        }
+      ]
+    },
+    {
+      "id": "caption-group-115",
+      "frame": 5,
+      "start": 120.897,
+      "end": 122.897,
+      "text": "es gemini tts",
+      "words": [
+        {
+          "id": "caption-word-115-0",
+          "text": "es",
+          "start": 120.897,
+          "end": 121.297
+        },
+        {
+          "id": "caption-word-115-1",
+          "text": "gemini",
+          "start": 121.297,
+          "end": 121.857
+        },
+        {
+          "id": "caption-word-115-2",
+          "text": "tts",
+          "start": 121.857,
+          "end": 122.817
+        }
+      ]
+    },
+    {
+      "id": "caption-group-116",
+      "frame": 5,
+      "start": 122.897,
+      "end": 123.977,
+      "text": "con 30 voces",
+      "words": [
+        {
+          "id": "caption-word-116-0",
+          "text": "con",
+          "start": 122.897,
+          "end": 123.137
+        },
+        {
+          "id": "caption-word-116-1",
+          "text": "30",
+          "start": 123.137,
+          "end": 123.457
+        },
+        {
+          "id": "caption-word-116-2",
+          "text": "voces",
+          "start": 123.457,
+          "end": 123.857
+        }
+      ]
+    },
+    {
+      "id": "caption-group-117",
+      "frame": 5,
+      "start": 124.493,
+      "end": 124.893,
+      "text": "si en",
+      "words": [
+        {
+          "id": "caption-word-117-0",
+          "text": "si",
+          "start": 124.493,
+          "end": 124.733
+        },
+        {
+          "id": "caption-word-117-1",
+          "text": "en",
+          "start": 124.733,
+          "end": 124.893
+        }
+      ]
+    },
+    {
+      "id": "caption-group-118",
+      "frame": 5,
+      "start": 124.893,
+      "end": 125.373,
+      "text": "algún momento",
+      "words": [
+        {
+          "id": "caption-word-118-0",
+          "text": "algún",
+          "start": 124.893,
+          "end": 125.133
+        },
+        {
+          "id": "caption-word-118-1",
+          "text": "momento",
+          "start": 125.133,
+          "end": 125.373
+        }
+      ]
+    },
+    {
+      "id": "caption-group-119",
+      "frame": 5,
+      "start": 125.373,
+      "end": 126.733,
+      "text": "te sientes perdido",
+      "words": [
+        {
+          "id": "caption-word-119-0",
+          "text": "te",
+          "start": 125.373,
+          "end": 125.613
+        },
+        {
+          "id": "caption-word-119-1",
+          "text": "sientes",
+          "start": 125.613,
+          "end": 125.933
+        },
+        {
+          "id": "caption-word-119-2",
+          "text": "perdido",
+          "start": 125.933,
+          "end": 126.653
+        }
+      ]
+    },
+    {
+      "id": "caption-group-120",
+      "frame": 5,
+      "start": 126.733,
+      "end": 127.373,
+      "text": "pregúntale a",
+      "words": [
+        {
+          "id": "caption-word-120-0",
+          "text": "pregúntale",
+          "start": 126.733,
+          "end": 127.213
+        },
+        {
+          "id": "caption-word-120-1",
+          "text": "a",
+          "start": 127.213,
+          "end": 127.373
+        }
+      ]
+    },
+    {
+      "id": "caption-group-121",
+      "frame": 5,
+      "start": 127.373,
+      "end": 127.773,
+      "text": "tu chat",
+      "words": [
+        {
+          "id": "caption-word-121-0",
+          "text": "tu",
+          "start": 127.373,
+          "end": 127.533
+        },
+        {
+          "id": "caption-word-121-1",
+          "text": "chat",
+          "start": 127.533,
+          "end": 127.773
+        }
+      ]
+    },
+    {
+      "id": "caption-group-122",
+      "frame": 5,
+      "start": 127.773,
+      "end": 128.253,
+      "text": "de ia",
+      "words": [
+        {
+          "id": "caption-word-122-0",
+          "text": "de",
+          "start": 127.773,
+          "end": 127.933
+        },
+        {
+          "id": "caption-word-122-1",
+          "text": "ia",
+          "start": 127.933,
+          "end": 128.253
+        }
+      ]
+    },
+    {
+      "id": "caption-group-123",
+      "frame": 5,
+      "start": 128.253,
+      "end": 128.813,
+      "text": "cómo se",
+      "words": [
+        {
+          "id": "caption-word-123-0",
+          "text": "cómo",
+          "start": 128.253,
+          "end": 128.653
+        },
+        {
+          "id": "caption-word-123-1",
+          "text": "se",
+          "start": 128.653,
+          "end": 128.813
+        }
+      ]
+    },
+    {
+      "id": "caption-group-124",
+      "frame": 5,
+      "start": 128.813,
+      "end": 129.453,
+      "text": "hace paso",
+      "words": [
+        {
+          "id": "caption-word-124-0",
+          "text": "hace",
+          "start": 128.813,
+          "end": 129.133
+        },
+        {
+          "id": "caption-word-124-1",
+          "text": "paso",
+          "start": 129.133,
+          "end": 129.453
+        }
+      ]
+    },
+    {
+      "id": "caption-group-125",
+      "frame": 5,
+      "start": 129.453,
+      "end": 130.573,
+      "text": "a paso para",
+      "words": [
+        {
+          "id": "caption-word-125-0",
+          "text": "a",
+          "start": 129.453,
+          "end": 129.693
+        },
+        {
+          "id": "caption-word-125-1",
+          "text": "paso",
+          "start": 129.693,
+          "end": 130.253
+        },
+        {
+          "id": "caption-word-125-2",
+          "text": "para",
+          "start": 130.333,
+          "end": 130.573
+        }
+      ]
+    },
+    {
+      "id": "caption-group-126",
+      "frame": 5,
+      "start": 130.573,
+      "end": 131.653,
+      "text": "eso existe",
+      "words": [
+        {
+          "id": "caption-word-126-0",
+          "text": "eso",
+          "start": 130.573,
+          "end": 130.813
+        },
+        {
+          "id": "caption-word-126-1",
+          "text": "existe",
+          "start": 130.813,
+          "end": 131.533
+        }
+      ]
+    },
+    {
+      "id": "caption-group-127",
+      "frame": 5,
+      "start": 131.853,
+      "end": 132.893,
+      "text": "en unos minutos",
+      "words": [
+        {
+          "id": "caption-word-127-0",
+          "text": "en",
+          "start": 131.853,
+          "end": 132.093
+        },
+        {
+          "id": "caption-word-127-1",
+          "text": "unos",
+          "start": 132.093,
+          "end": 132.413
+        },
+        {
+          "id": "caption-word-127-2",
+          "text": "minutos",
+          "start": 132.413,
+          "end": 132.893
+        }
+      ]
+    },
+    {
+      "id": "caption-group-128",
+      "frame": 5,
+      "start": 132.893,
+      "end": 133.533,
+      "text": "tienes el",
+      "words": [
+        {
+          "id": "caption-word-128-0",
+          "text": "tienes",
+          "start": 132.893,
+          "end": 133.293
+        },
+        {
+          "id": "caption-word-128-1",
+          "text": "el",
+          "start": 133.293,
+          "end": 133.533
+        }
+      ]
+    },
+    {
+      "id": "caption-group-129",
+      "frame": 5,
+      "start": 133.533,
+      "end": 134.013,
+      "text": "audio de",
+      "words": [
+        {
+          "id": "caption-word-129-0",
+          "text": "audio",
+          "start": 133.533,
+          "end": 133.773
+        },
+        {
+          "id": "caption-word-129-1",
+          "text": "de",
+          "start": 133.773,
+          "end": 134.013
+        }
+      ]
+    },
+    {
+      "id": "caption-group-130",
+      "frame": 5,
+      "start": 134.013,
+      "end": 134.933,
+      "text": "todo tu video",
+      "words": [
+        {
+          "id": "caption-word-130-0",
+          "text": "todo",
+          "start": 134.013,
+          "end": 134.333
+        },
+        {
+          "id": "caption-word-130-1",
+          "text": "tu",
+          "start": 134.333,
+          "end": 134.493
+        },
+        {
+          "id": "caption-word-130-2",
+          "text": "video",
+          "start": 134.493,
+          "end": 134.813
+        }
+      ]
+    },
+    {
+      "id": "caption-group-131",
+      "frame": 6,
+      "start": 135.288,
+      "end": 137.728,
+      "text": "día 3 las imágenes",
+      "words": [
+        {
+          "id": "caption-word-131-0",
+          "text": "día",
+          "start": 135.288,
+          "end": 135.768
+        },
+        {
+          "id": "caption-word-131-1",
+          "text": "3",
+          "start": 135.768,
+          "end": 136.408
+        },
+        {
+          "id": "caption-word-131-2",
+          "text": "las",
+          "start": 136.488,
+          "end": 136.808
+        },
+        {
+          "id": "caption-word-131-3",
+          "text": "imágenes",
+          "start": 136.808,
+          "end": 137.608
+        }
+      ]
+    },
+    {
+      "id": "caption-group-132",
+      "frame": 6,
+      "start": 137.768,
+      "end": 138.888,
+      "text": "generas entre 4",
+      "words": [
+        {
+          "id": "caption-word-132-0",
+          "text": "generas",
+          "start": 137.768,
+          "end": 138.248
+        },
+        {
+          "id": "caption-word-132-1",
+          "text": "entre",
+          "start": 138.248,
+          "end": 138.568
+        },
+        {
+          "id": "caption-word-132-2",
+          "text": "4",
+          "start": 138.568,
+          "end": 138.888
+        }
+      ]
+    },
+    {
+      "id": "caption-group-133",
+      "frame": 6,
+      "start": 138.888,
+      "end": 140.088,
+      "text": "y 6 1",
+      "words": [
+        {
+          "id": "caption-word-133-0",
+          "text": "y",
+          "start": 138.888,
+          "end": 139.128
+        },
+        {
+          "id": "caption-word-133-1",
+          "text": "6",
+          "start": 139.128,
+          "end": 139.768
+        },
+        {
+          "id": "caption-word-133-2",
+          "text": "1",
+          "start": 139.768,
+          "end": 140.088
+        }
+      ]
+    },
+    {
+      "id": "caption-group-134",
+      "frame": 6,
+      "start": 140.088,
+      "end": 141.288,
+      "text": "por escena no",
+      "words": [
+        {
+          "id": "caption-word-134-0",
+          "text": "por",
+          "start": 140.088,
+          "end": 140.248
+        },
+        {
+          "id": "caption-word-134-1",
+          "text": "escena",
+          "start": 140.248,
+          "end": 140.888
+        },
+        {
+          "id": "caption-word-134-2",
+          "text": "no",
+          "start": 140.968,
+          "end": 141.288
+        }
+      ]
+    },
+    {
+      "id": "caption-group-135",
+      "frame": 6,
+      "start": 141.288,
+      "end": 143.448,
+      "text": "dibujas nada describes con",
+      "words": [
+        {
+          "id": "caption-word-135-0",
+          "text": "dibujas",
+          "start": 141.288,
+          "end": 141.848
+        },
+        {
+          "id": "caption-word-135-1",
+          "text": "nada",
+          "start": 141.848,
+          "end": 142.488
+        },
+        {
+          "id": "caption-word-135-2",
+          "text": "describes",
+          "start": 142.648,
+          "end": 143.208
+        },
+        {
+          "id": "caption-word-135-3",
+          "text": "con",
+          "start": 143.208,
+          "end": 143.448
+        }
+      ]
+    },
+    {
+      "id": "caption-group-136",
+      "frame": 6,
+      "start": 143.448,
+      "end": 144.488,
+      "text": "palabras y la",
+      "words": [
+        {
+          "id": "caption-word-136-0",
+          "text": "palabras",
+          "start": 143.448,
+          "end": 144.168
+        },
+        {
+          "id": "caption-word-136-1",
+          "text": "y",
+          "start": 144.168,
+          "end": 144.328
+        },
+        {
+          "id": "caption-word-136-2",
+          "text": "la",
+          "start": 144.328,
+          "end": 144.488
+        }
+      ]
+    },
+    {
+      "id": "caption-group-137",
+      "frame": 6,
+      "start": 144.488,
+      "end": 146.248,
+      "text": "ia crea con c",
+      "words": [
+        {
+          "id": "caption-word-137-0",
+          "text": "ia",
+          "start": 144.488,
+          "end": 144.968
+        },
+        {
+          "id": "caption-word-137-1",
+          "text": "crea",
+          "start": 144.968,
+          "end": 145.608
+        },
+        {
+          "id": "caption-word-137-2",
+          "text": "con",
+          "start": 145.768,
+          "end": 146.008
+        },
+        {
+          "id": "caption-word-137-3",
+          "text": "c",
+          "start": 146.008,
+          "end": 146.248
+        }
+      ]
+    },
+    {
+      "id": "caption-group-138",
+      "frame": 6,
+      "start": 146.248,
+      "end": 147.288,
+      "text": "dream cuestan unos",
+      "words": [
+        {
+          "id": "caption-word-138-0",
+          "text": "dream",
+          "start": 146.248,
+          "end": 146.568
+        },
+        {
+          "id": "caption-word-138-1",
+          "text": "cuestan",
+          "start": 146.568,
+          "end": 147.048
+        },
+        {
+          "id": "caption-word-138-2",
+          "text": "unos",
+          "start": 147.048,
+          "end": 147.288
+        }
+      ]
+    },
+    {
+      "id": "caption-group-139",
+      "frame": 6,
+      "start": 147.288,
+      "end": 147.928,
+      "text": "3 centavos",
+      "words": [
+        {
+          "id": "caption-word-139-0",
+          "text": "3",
+          "start": 147.288,
+          "end": 147.528
+        },
+        {
+          "id": "caption-word-139-1",
+          "text": "centavos",
+          "start": 147.528,
+          "end": 147.928
+        }
+      ]
+    },
+    {
+      "id": "caption-group-140",
+      "frame": 6,
+      "start": 147.928,
+      "end": 148.608,
+      "text": "cada una",
+      "words": [
+        {
+          "id": "caption-word-140-0",
+          "text": "cada",
+          "start": 147.928,
+          "end": 148.248
+        },
+        {
+          "id": "caption-word-140-1",
+          "text": "una",
+          "start": 148.248,
+          "end": 148.488
+        }
+      ]
+    },
+    {
+      "id": "caption-group-141",
+      "frame": 6,
+      "start": 148.753,
+      "end": 149.793,
+      "text": "con gemini nano",
+      "words": [
+        {
+          "id": "caption-word-141-0",
+          "text": "con",
+          "start": 148.753,
+          "end": 149.073
+        },
+        {
+          "id": "caption-word-141-1",
+          "text": "gemini",
+          "start": 149.073,
+          "end": 149.553
+        },
+        {
+          "id": "caption-word-141-2",
+          "text": "nano",
+          "start": 149.553,
+          "end": 149.793
+        }
+      ]
+    },
+    {
+      "id": "caption-group-142",
+      "frame": 6,
+      "start": 149.793,
+      "end": 151.553,
+      "text": "banana precio verificado en",
+      "words": [
+        {
+          "id": "caption-word-142-0",
+          "text": "banana",
+          "start": 149.793,
+          "end": 150.433
+        },
+        {
+          "id": "caption-word-142-1",
+          "text": "precio",
+          "start": 150.433,
+          "end": 150.833
+        },
+        {
+          "id": "caption-word-142-2",
+          "text": "verificado",
+          "start": 150.833,
+          "end": 151.313
+        },
+        {
+          "id": "caption-word-142-3",
+          "text": "en",
+          "start": 151.313,
+          "end": 151.553
+        }
+      ]
+    },
+    {
+      "id": "caption-group-143",
+      "frame": 6,
+      "start": 151.553,
+      "end": 152.393,
+      "text": "su página",
+      "words": [
+        {
+          "id": "caption-word-143-0",
+          "text": "su",
+          "start": 151.553,
+          "end": 151.713
+        },
+        {
+          "id": "caption-word-143-1",
+          "text": "página",
+          "start": 151.713,
+          "end": 152.273
+        }
+      ]
+    },
+    {
+      "id": "caption-group-144",
+      "frame": 6,
+      "start": 152.513,
+      "end": 153.153,
+      "text": "pide el",
+      "words": [
+        {
+          "id": "caption-word-144-0",
+          "text": "pide",
+          "start": 152.513,
+          "end": 152.993
+        },
+        {
+          "id": "caption-word-144-1",
+          "text": "el",
+          "start": 152.993,
+          "end": 153.153
+        }
+      ]
+    },
+    {
+      "id": "caption-group-145",
+      "frame": 6,
+      "start": 153.153,
+      "end": 153.793,
+      "text": "mismo estilo",
+      "words": [
+        {
+          "id": "caption-word-145-0",
+          "text": "mismo",
+          "start": 153.153,
+          "end": 153.473
+        },
+        {
+          "id": "caption-word-145-1",
+          "text": "estilo",
+          "start": 153.473,
+          "end": 153.793
+        }
+      ]
+    },
+    {
+      "id": "caption-group-146",
+      "frame": 6,
+      "start": 153.793,
+      "end": 154.353,
+      "text": "en todas",
+      "words": [
+        {
+          "id": "caption-word-146-0",
+          "text": "en",
+          "start": 153.793,
+          "end": 154.033
+        },
+        {
+          "id": "caption-word-146-1",
+          "text": "todas",
+          "start": 154.033,
+          "end": 154.353
+        }
+      ]
+    },
+    {
+      "id": "caption-group-147",
+      "frame": 6,
+      "start": 154.353,
+      "end": 154.833,
+      "text": "para que",
+      "words": [
+        {
+          "id": "caption-word-147-0",
+          "text": "para",
+          "start": 154.353,
+          "end": 154.673
+        },
+        {
+          "id": "caption-word-147-1",
+          "text": "que",
+          "start": 154.673,
+          "end": 154.833
+        }
+      ]
+    },
+    {
+      "id": "caption-group-148",
+      "frame": 6,
+      "start": 154.833,
+      "end": 155.233,
+      "text": "el video",
+      "words": [
+        {
+          "id": "caption-word-148-0",
+          "text": "el",
+          "start": 154.833,
+          "end": 154.993
+        },
+        {
+          "id": "caption-word-148-1",
+          "text": "video",
+          "start": 154.993,
+          "end": 155.233
+        }
+      ]
+    },
+    {
+      "id": "caption-group-149",
+      "frame": 6,
+      "start": 155.233,
+      "end": 155.633,
+      "text": "se vea",
+      "words": [
+        {
+          "id": "caption-word-149-0",
+          "text": "se",
+          "start": 155.233,
+          "end": 155.393
+        },
+        {
+          "id": "caption-word-149-1",
+          "text": "vea",
+          "start": 155.393,
+          "end": 155.633
+        }
+      ]
+    },
+    {
+      "id": "caption-group-150",
+      "frame": 6,
+      "start": 155.633,
+      "end": 156.673,
+      "text": "coherente y no",
+      "words": [
+        {
+          "id": "caption-word-150-0",
+          "text": "coherente",
+          "start": 155.633,
+          "end": 156.193
+        },
+        {
+          "id": "caption-word-150-1",
+          "text": "y",
+          "start": 156.193,
+          "end": 156.433
+        },
+        {
+          "id": "caption-word-150-2",
+          "text": "no",
+          "start": 156.433,
+          "end": 156.673
+        }
+      ]
+    },
+    {
+      "id": "caption-group-151",
+      "frame": 6,
+      "start": 156.673,
+      "end": 157.593,
+      "text": "a parches",
+      "words": [
+        {
+          "id": "caption-word-151-0",
+          "text": "a",
+          "start": 156.673,
+          "end": 156.833
+        },
+        {
+          "id": "caption-word-151-1",
+          "text": "parches",
+          "start": 156.833,
+          "end": 157.473
+        }
+      ]
+    },
+    {
+      "id": "caption-group-152",
+      "frame": 6,
+      "start": 157.793,
+      "end": 159.073,
+      "text": "cuando termines tienes",
+      "words": [
+        {
+          "id": "caption-word-152-0",
+          "text": "cuando",
+          "start": 157.793,
+          "end": 158.033
+        },
+        {
+          "id": "caption-word-152-1",
+          "text": "termines",
+          "start": 158.033,
+          "end": 158.673
+        },
+        {
+          "id": "caption-word-152-2",
+          "text": "tienes",
+          "start": 158.673,
+          "end": 159.073
+        }
+      ]
+    },
+    {
+      "id": "caption-group-153",
+      "frame": 6,
+      "start": 159.073,
+      "end": 161.673,
+      "text": "guion voz e imágenes",
+      "words": [
+        {
+          "id": "caption-word-153-0",
+          "text": "guion",
+          "start": 159.073,
+          "end": 159.953
+        },
+        {
+          "id": "caption-word-153-1",
+          "text": "voz",
+          "start": 160.033,
+          "end": 160.433
+        },
+        {
+          "id": "caption-word-153-2",
+          "text": "e",
+          "start": 160.433,
+          "end": 160.753
+        },
+        {
+          "id": "caption-word-153-3",
+          "text": "imágenes",
+          "start": 160.753,
+          "end": 161.553
+        }
+      ]
+    },
+    {
+      "id": "caption-group-154",
+      "frame": 6,
+      "start": 161.713,
+      "end": 162.273,
+      "text": "el video",
+      "words": [
+        {
+          "id": "caption-word-154-0",
+          "text": "el",
+          "start": 161.713,
+          "end": 161.953
+        },
+        {
+          "id": "caption-word-154-1",
+          "text": "video",
+          "start": 161.953,
+          "end": 162.273
+        }
+      ]
+    },
+    {
+      "id": "caption-group-155",
+      "frame": 6,
+      "start": 162.273,
+      "end": 163.953,
+      "text": "ya existe solo falta",
+      "words": [
+        {
+          "id": "caption-word-155-0",
+          "text": "ya",
+          "start": 162.273,
+          "end": 162.593
+        },
+        {
+          "id": "caption-word-155-1",
+          "text": "existe",
+          "start": 162.593,
+          "end": 163.313
+        },
+        {
+          "id": "caption-word-155-2",
+          "text": "solo",
+          "start": 163.313,
+          "end": 163.633
+        },
+        {
+          "id": "caption-word-155-3",
+          "text": "falta",
+          "start": 163.633,
+          "end": 163.953
+        }
+      ]
+    },
+    {
+      "id": "caption-group-156",
+      "frame": 6,
+      "start": 163.953,
+      "end": 164.553,
+      "text": "juntarlo",
+      "words": [
+        {
+          "id": "caption-word-156-0",
+          "text": "juntarlo",
+          "start": 163.953,
+          "end": 164.433
+        }
+      ]
+    },
+    {
+      "id": "caption-group-157",
+      "frame": 7,
+      "start": 164.824,
+      "end": 166.144,
+      "text": "día 4",
+      "words": [
+        {
+          "id": "caption-word-157-0",
+          "text": "día",
+          "start": 164.824,
+          "end": 165.304
+        },
+        {
+          "id": "caption-word-157-1",
+          "text": "4",
+          "start": 165.304,
+          "end": 166.024
+        }
+      ]
+    },
+    {
+      "id": "caption-group-158",
+      "frame": 7,
+      "start": 166.264,
+      "end": 168.064,
+      "text": "subtítulos y montaje",
+      "words": [
+        {
+          "id": "caption-word-158-0",
+          "text": "subtítulos",
+          "start": 166.264,
+          "end": 166.824
+        },
+        {
+          "id": "caption-word-158-1",
+          "text": "y",
+          "start": 166.824,
+          "end": 167.144
+        },
+        {
+          "id": "caption-word-158-2",
+          "text": "montaje",
+          "start": 167.144,
+          "end": 167.944
+        }
+      ]
+    },
+    {
+      "id": "caption-group-159",
+      "frame": 7,
+      "start": 168.424,
+      "end": 169.704,
+      "text": "1º la transcripción",
+      "words": [
+        {
+          "id": "caption-word-159-0",
+          "text": "1º",
+          "start": 168.424,
+          "end": 168.984
+        },
+        {
+          "id": "caption-word-159-1",
+          "text": "la",
+          "start": 168.984,
+          "end": 169.144
+        },
+        {
+          "id": "caption-word-159-2",
+          "text": "transcripción",
+          "start": 169.144,
+          "end": 169.704
+        }
+      ]
+    },
+    {
+      "id": "caption-group-160",
+      "frame": 7,
+      "start": 169.704,
+      "end": 171.704,
+      "text": "automática con deepgramnova",
+      "words": [
+        {
+          "id": "caption-word-160-0",
+          "text": "automática",
+          "start": 169.704,
+          "end": 170.344
+        },
+        {
+          "id": "caption-word-160-1",
+          "text": "con",
+          "start": 170.344,
+          "end": 170.584
+        },
+        {
+          "id": "caption-word-160-2",
+          "text": "deepgramnova",
+          "start": 170.584,
+          "end": 171.704
+        }
+      ]
+    },
+    {
+      "id": "caption-group-161",
+      "frame": 7,
+      "start": 171.704,
+      "end": 172.104,
+      "text": "te da",
+      "words": [
+        {
+          "id": "caption-word-161-0",
+          "text": "te",
+          "start": 171.704,
+          "end": 171.944
+        },
+        {
+          "id": "caption-word-161-1",
+          "text": "da",
+          "start": 171.944,
+          "end": 172.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-162",
+      "frame": 7,
+      "start": 172.104,
+      "end": 173.304,
+      "text": "los subtítulos palabra",
+      "words": [
+        {
+          "id": "caption-word-162-0",
+          "text": "los",
+          "start": 172.104,
+          "end": 172.264
+        },
+        {
+          "id": "caption-word-162-1",
+          "text": "subtítulos",
+          "start": 172.264,
+          "end": 172.824
+        },
+        {
+          "id": "caption-word-162-2",
+          "text": "palabra",
+          "start": 172.824,
+          "end": 173.304
+        }
+      ]
+    },
+    {
+      "id": "caption-group-163",
+      "frame": 7,
+      "start": 173.304,
+      "end": 174.344,
+      "text": "por palabra a",
+      "words": [
+        {
+          "id": "caption-word-163-0",
+          "text": "por",
+          "start": 173.304,
+          "end": 173.544
+        },
+        {
+          "id": "caption-word-163-1",
+          "text": "palabra",
+          "start": 173.544,
+          "end": 174.184
+        },
+        {
+          "id": "caption-word-163-2",
+          "text": "a",
+          "start": 174.184,
+          "end": 174.344
+        }
+      ]
+    },
+    {
+      "id": "caption-group-164",
+      "frame": 7,
+      "start": 174.344,
+      "end": 174.824,
+      "text": "menos de",
+      "words": [
+        {
+          "id": "caption-word-164-0",
+          "text": "menos",
+          "start": 174.344,
+          "end": 174.584
+        },
+        {
+          "id": "caption-word-164-1",
+          "text": "de",
+          "start": 174.584,
+          "end": 174.824
+        }
+      ]
+    },
+    {
+      "id": "caption-group-165",
+      "frame": 7,
+      "start": 174.824,
+      "end": 175.864,
+      "text": "medio centavo por",
+      "words": [
+        {
+          "id": "caption-word-165-0",
+          "text": "medio",
+          "start": 174.824,
+          "end": 175.224
+        },
+        {
+          "id": "caption-word-165-1",
+          "text": "centavo",
+          "start": 175.224,
+          "end": 175.624
+        },
+        {
+          "id": "caption-word-165-2",
+          "text": "por",
+          "start": 175.624,
+          "end": 175.864
+        }
+      ]
+    },
+    {
+      "id": "caption-group-166",
+      "frame": 7,
+      "start": 175.864,
+      "end": 176.304,
+      "text": "minuto",
+      "words": [
+        {
+          "id": "caption-word-166-0",
+          "text": "minuto",
+          "start": 175.864,
+          "end": 176.184
+        }
+      ]
+    },
+    {
+      "id": "caption-group-167",
+      "frame": 7,
+      "start": 176.839,
+      "end": 179.159,
+      "text": "después juntas voz imágenes",
+      "words": [
+        {
+          "id": "caption-word-167-0",
+          "text": "después",
+          "start": 176.839,
+          "end": 177.559
+        },
+        {
+          "id": "caption-word-167-1",
+          "text": "juntas",
+          "start": 177.559,
+          "end": 177.959
+        },
+        {
+          "id": "caption-word-167-2",
+          "text": "voz",
+          "start": 177.959,
+          "end": 178.679
+        },
+        {
+          "id": "caption-word-167-3",
+          "text": "imágenes",
+          "start": 178.679,
+          "end": 179.159
+        }
+      ]
+    },
+    {
+      "id": "caption-group-168",
+      "frame": 7,
+      "start": 179.159,
+      "end": 180.359,
+      "text": "y subtítulos en",
+      "words": [
+        {
+          "id": "caption-word-168-0",
+          "text": "y",
+          "start": 179.159,
+          "end": 179.479
+        },
+        {
+          "id": "caption-word-168-1",
+          "text": "subtítulos",
+          "start": 179.479,
+          "end": 180.039
+        },
+        {
+          "id": "caption-word-168-2",
+          "text": "en",
+          "start": 180.039,
+          "end": 180.359
+        }
+      ]
+    },
+    {
+      "id": "caption-group-169",
+      "frame": 7,
+      "start": 180.359,
+      "end": 180.759,
+      "text": "un solo",
+      "words": [
+        {
+          "id": "caption-word-169-0",
+          "text": "un",
+          "start": 180.359,
+          "end": 180.519
+        },
+        {
+          "id": "caption-word-169-1",
+          "text": "solo",
+          "start": 180.519,
+          "end": 180.759
+        }
+      ]
+    },
+    {
+      "id": "caption-group-170",
+      "frame": 7,
+      "start": 180.759,
+      "end": 182.239,
+      "text": "archivo mp 4",
+      "words": [
+        {
+          "id": "caption-word-170-0",
+          "text": "archivo",
+          "start": 180.759,
+          "end": 181.079
+        },
+        {
+          "id": "caption-word-170-1",
+          "text": "mp",
+          "start": 181.079,
+          "end": 181.559
+        },
+        {
+          "id": "caption-word-170-2",
+          "text": "4",
+          "start": 181.559,
+          "end": 182.119
+        }
+      ]
+    },
+    {
+      "id": "caption-group-171",
+      "frame": 7,
+      "start": 182.679,
+      "end": 183.919,
+      "text": "aviso honesto",
+      "words": [
+        {
+          "id": "caption-word-171-0",
+          "text": "aviso",
+          "start": 182.679,
+          "end": 183.159
+        },
+        {
+          "id": "caption-word-171-1",
+          "text": "honesto",
+          "start": 183.159,
+          "end": 183.799
+        }
+      ]
+    },
+    {
+      "id": "caption-group-172",
+      "frame": 7,
+      "start": 184.039,
+      "end": 184.599,
+      "text": "este es",
+      "words": [
+        {
+          "id": "caption-word-172-0",
+          "text": "este",
+          "start": 184.039,
+          "end": 184.439
+        },
+        {
+          "id": "caption-word-172-1",
+          "text": "es",
+          "start": 184.439,
+          "end": 184.599
+        }
+      ]
+    },
+    {
+      "id": "caption-group-173",
+      "frame": 7,
+      "start": 184.599,
+      "end": 185.079,
+      "text": "el único",
+      "words": [
+        {
+          "id": "caption-word-173-0",
+          "text": "el",
+          "start": 184.599,
+          "end": 184.759
+        },
+        {
+          "id": "caption-word-173-1",
+          "text": "único",
+          "start": 184.759,
+          "end": 185.079
+        }
+      ]
+    },
+    {
+      "id": "caption-group-174",
+      "frame": 7,
+      "start": 185.079,
+      "end": 185.559,
+      "text": "paso que",
+      "words": [
+        {
+          "id": "caption-word-174-0",
+          "text": "paso",
+          "start": 185.079,
+          "end": 185.399
+        },
+        {
+          "id": "caption-word-174-1",
+          "text": "que",
+          "start": 185.399,
+          "end": 185.559
+        }
+      ]
+    },
+    {
+      "id": "caption-group-175",
+      "frame": 7,
+      "start": 185.559,
+      "end": 186.039,
+      "text": "el equipo",
+      "words": [
+        {
+          "id": "caption-word-175-0",
+          "text": "el",
+          "start": 185.559,
+          "end": 185.719
+        },
+        {
+          "id": "caption-word-175-1",
+          "text": "equipo",
+          "start": 185.719,
+          "end": 186.039
+        }
+      ]
+    },
+    {
+      "id": "caption-group-176",
+      "frame": 7,
+      "start": 186.039,
+      "end": 187.159,
+      "text": "de investigación no",
+      "words": [
+        {
+          "id": "caption-word-176-0",
+          "text": "de",
+          "start": 186.039,
+          "end": 186.199
+        },
+        {
+          "id": "caption-word-176-1",
+          "text": "investigación",
+          "start": 186.199,
+          "end": 186.839
+        },
+        {
+          "id": "caption-word-176-2",
+          "text": "no",
+          "start": 186.839,
+          "end": 187.159
+        }
+      ]
+    },
+    {
+      "id": "caption-group-177",
+      "frame": 7,
+      "start": 187.159,
+      "end": 187.719,
+      "text": "ha verificado",
+      "words": [
+        {
+          "id": "caption-word-177-0",
+          "text": "ha",
+          "start": 187.159,
+          "end": 187.319
+        },
+        {
+          "id": "caption-word-177-1",
+          "text": "verificado",
+          "start": 187.319,
+          "end": 187.719
+        }
+      ]
+    },
+    {
+      "id": "caption-group-178",
+      "frame": 7,
+      "start": 187.719,
+      "end": 188.799,
+      "text": "en el teléfono",
+      "words": [
+        {
+          "id": "caption-word-178-0",
+          "text": "en",
+          "start": 187.719,
+          "end": 187.879
+        },
+        {
+          "id": "caption-word-178-1",
+          "text": "el",
+          "start": 187.879,
+          "end": 188.039
+        },
+        {
+          "id": "caption-word-178-2",
+          "text": "teléfono",
+          "start": 188.039,
+          "end": 188.679
+        }
+      ]
+    },
+    {
+      "id": "caption-group-179",
+      "frame": 7,
+      "start": 188.999,
+      "end": 189.399,
+      "text": "la ruta",
+      "words": [
+        {
+          "id": "caption-word-179-0",
+          "text": "la",
+          "start": 188.999,
+          "end": 189.159
+        },
+        {
+          "id": "caption-word-179-1",
+          "text": "ruta",
+          "start": 189.159,
+          "end": 189.399
+        }
+      ]
+    },
+    {
+      "id": "caption-group-180",
+      "frame": 7,
+      "start": 189.399,
+      "end": 190.439,
+      "text": "probada corre en",
+      "words": [
+        {
+          "id": "caption-word-180-0",
+          "text": "probada",
+          "start": 189.399,
+          "end": 189.799
+        },
+        {
+          "id": "caption-word-180-1",
+          "text": "corre",
+          "start": 189.799,
+          "end": 190.279
+        },
+        {
+          "id": "caption-word-180-2",
+          "text": "en",
+          "start": 190.279,
+          "end": 190.439
+        }
+      ]
+    },
+    {
+      "id": "caption-group-181",
+      "frame": 7,
+      "start": 190.439,
+      "end": 191.559,
+      "text": "un ordenador en",
+      "words": [
+        {
+          "id": "caption-word-181-0",
+          "text": "un",
+          "start": 190.439,
+          "end": 190.599
+        },
+        {
+          "id": "caption-word-181-1",
+          "text": "ordenador",
+          "start": 190.599,
+          "end": 191.319
+        },
+        {
+          "id": "caption-word-181-2",
+          "text": "en",
+          "start": 191.399,
+          "end": 191.559
+        }
+      ]
+    },
+    {
+      "id": "caption-group-182",
+      "frame": 7,
+      "start": 191.559,
+      "end": 192.079,
+      "text": "una hora",
+      "words": [
+        {
+          "id": "caption-word-182-0",
+          "text": "una",
+          "start": 191.559,
+          "end": 191.799
+        },
+        {
+          "id": "caption-word-182-1",
+          "text": "hora",
+          "start": 191.799,
+          "end": 191.959
+        }
+      ]
+    },
+    {
+      "id": "caption-group-183",
+      "frame": 7,
+      "start": 192.504,
+      "end": 193.064,
+      "text": "si solo",
+      "words": [
+        {
+          "id": "caption-word-183-0",
+          "text": "si",
+          "start": 192.504,
+          "end": 192.824
+        },
+        {
+          "id": "caption-word-183-1",
+          "text": "solo",
+          "start": 192.824,
+          "end": 193.064
+        }
+      ]
+    },
+    {
+      "id": "caption-group-184",
+      "frame": 7,
+      "start": 193.064,
+      "end": 194.264,
+      "text": "tienes teléfono usa",
+      "words": [
+        {
+          "id": "caption-word-184-0",
+          "text": "tienes",
+          "start": 193.064,
+          "end": 193.384
+        },
+        {
+          "id": "caption-word-184-1",
+          "text": "teléfono",
+          "start": 193.384,
+          "end": 193.944
+        },
+        {
+          "id": "caption-word-184-2",
+          "text": "usa",
+          "start": 193.944,
+          "end": 194.264
+        }
+      ]
+    },
+    {
+      "id": "caption-group-185",
+      "frame": 7,
+      "start": 194.264,
+      "end": 194.824,
+      "text": "el editor",
+      "words": [
+        {
+          "id": "caption-word-185-0",
+          "text": "el",
+          "start": 194.264,
+          "end": 194.424
+        },
+        {
+          "id": "caption-word-185-1",
+          "text": "editor",
+          "start": 194.424,
+          "end": 194.824
+        }
+      ]
+    },
+    {
+      "id": "caption-group-186",
+      "frame": 7,
+      "start": 194.824,
+      "end": 195.384,
+      "text": "gratis que",
+      "words": [
+        {
+          "id": "caption-word-186-0",
+          "text": "gratis",
+          "start": 194.824,
+          "end": 195.144
+        },
+        {
+          "id": "caption-word-186-1",
+          "text": "que",
+          "start": 195.144,
+          "end": 195.384
+        }
+      ]
+    },
+    {
+      "id": "caption-group-187",
+      "frame": 7,
+      "start": 195.384,
+      "end": 195.784,
+      "text": "ya trae",
+      "words": [
+        {
+          "id": "caption-word-187-0",
+          "text": "ya",
+          "start": 195.384,
+          "end": 195.624
+        },
+        {
+          "id": "caption-word-187-1",
+          "text": "trae",
+          "start": 195.624,
+          "end": 195.784
+        }
+      ]
+    },
+    {
+      "id": "caption-group-188",
+      "frame": 7,
+      "start": 195.784,
+      "end": 196.344,
+      "text": "tu teléfono",
+      "words": [
+        {
+          "id": "caption-word-188-0",
+          "text": "tu",
+          "start": 195.784,
+          "end": 196.024
+        },
+        {
+          "id": "caption-word-188-1",
+          "text": "teléfono",
+          "start": 196.024,
+          "end": 196.344
+        }
+      ]
+    },
+    {
+      "id": "caption-group-189",
+      "frame": 7,
+      "start": 196.344,
+      "end": 196.904,
+      "text": "para poner",
+      "words": [
+        {
+          "id": "caption-word-189-0",
+          "text": "para",
+          "start": 196.344,
+          "end": 196.584
+        },
+        {
+          "id": "caption-word-189-1",
+          "text": "poner",
+          "start": 196.584,
+          "end": 196.904
+        }
+      ]
+    },
+    {
+      "id": "caption-group-190",
+      "frame": 7,
+      "start": 196.904,
+      "end": 197.944,
+      "text": "todo en orden",
+      "words": [
+        {
+          "id": "caption-word-190-0",
+          "text": "todo",
+          "start": 196.904,
+          "end": 197.144
+        },
+        {
+          "id": "caption-word-190-1",
+          "text": "en",
+          "start": 197.144,
+          "end": 197.304
+        },
+        {
+          "id": "caption-word-190-2",
+          "text": "orden",
+          "start": 197.304,
+          "end": 197.944
+        }
+      ]
+    },
+    {
+      "id": "caption-group-191",
+      "frame": 7,
+      "start": 197.944,
+      "end": 198.584,
+      "text": "lo marcamos",
+      "words": [
+        {
+          "id": "caption-word-191-0",
+          "text": "lo",
+          "start": 197.944,
+          "end": 198.184
+        },
+        {
+          "id": "caption-word-191-1",
+          "text": "marcamos",
+          "start": 198.184,
+          "end": 198.584
+        }
+      ]
+    },
+    {
+      "id": "caption-group-192",
+      "frame": 7,
+      "start": 198.584,
+      "end": 199.864,
+      "text": "como punto abierto",
+      "words": [
+        {
+          "id": "caption-word-192-0",
+          "text": "como",
+          "start": 198.584,
+          "end": 198.824
+        },
+        {
+          "id": "caption-word-192-1",
+          "text": "punto",
+          "start": 198.824,
+          "end": 199.144
+        },
+        {
+          "id": "caption-word-192-2",
+          "text": "abierto",
+          "start": 199.144,
+          "end": 199.864
+        }
+      ]
+    },
+    {
+      "id": "caption-group-193",
+      "frame": 7,
+      "start": 199.864,
+      "end": 200.264,
+      "text": "no como",
+      "words": [
+        {
+          "id": "caption-word-193-0",
+          "text": "no",
+          "start": 199.864,
+          "end": 200.024
+        },
+        {
+          "id": "caption-word-193-1",
+          "text": "como",
+          "start": 200.024,
+          "end": 200.264
+        }
+      ]
+    },
+    {
+      "id": "caption-group-194",
+      "frame": 7,
+      "start": 200.264,
+      "end": 201.864,
+      "text": "receta probada si te",
+      "words": [
+        {
+          "id": "caption-word-194-0",
+          "text": "receta",
+          "start": 200.264,
+          "end": 200.664
+        },
+        {
+          "id": "caption-word-194-1",
+          "text": "probada",
+          "start": 200.664,
+          "end": 201.384
+        },
+        {
+          "id": "caption-word-194-2",
+          "text": "si",
+          "start": 201.544,
+          "end": 201.704
+        },
+        {
+          "id": "caption-word-194-3",
+          "text": "te",
+          "start": 201.704,
+          "end": 201.864
+        }
+      ]
+    },
+    {
+      "id": "caption-group-195",
+      "frame": 7,
+      "start": 201.864,
+      "end": 203.144,
+      "text": "atascas este es el",
+      "words": [
+        {
+          "id": "caption-word-195-0",
+          "text": "atascas",
+          "start": 201.864,
+          "end": 202.584
+        },
+        {
+          "id": "caption-word-195-1",
+          "text": "este",
+          "start": 202.584,
+          "end": 202.904
+        },
+        {
+          "id": "caption-word-195-2",
+          "text": "es",
+          "start": 202.904,
+          "end": 203.064
+        },
+        {
+          "id": "caption-word-195-3",
+          "text": "el",
+          "start": 203.064,
+          "end": 203.144
+        }
+      ]
+    },
+    {
+      "id": "caption-group-196",
+      "frame": 7,
+      "start": 203.144,
+      "end": 203.624,
+      "text": "paso para",
+      "words": [
+        {
+          "id": "caption-word-196-0",
+          "text": "paso",
+          "start": 203.144,
+          "end": 203.384
+        },
+        {
+          "id": "caption-word-196-1",
+          "text": "para",
+          "start": 203.384,
+          "end": 203.624
+        }
+      ]
+    },
+    {
+      "id": "caption-group-197",
+      "frame": 7,
+      "start": 203.624,
+      "end": 204.384,
+      "text": "pedir ayuda",
+      "words": [
+        {
+          "id": "caption-word-197-0",
+          "text": "pedir",
+          "start": 203.624,
+          "end": 203.944
+        },
+        {
+          "id": "caption-word-197-1",
+          "text": "ayuda",
+          "start": 203.944,
+          "end": 204.264
+        }
+      ]
+    },
+    {
+      "id": "caption-group-198",
+      "frame": 8,
+      "start": 204.808,
+      "end": 206.128,
+      "text": "día 5",
+      "words": [
+        {
+          "id": "caption-word-198-0",
+          "text": "día",
+          "start": 204.808,
+          "end": 205.288
+        },
+        {
+          "id": "caption-word-198-1",
+          "text": "5",
+          "start": 205.288,
+          "end": 206.008
+        }
+      ]
+    },
+    {
+      "id": "caption-group-199",
+      "frame": 8,
+      "start": 206.568,
+      "end": 207.408,
+      "text": "publica",
+      "words": [
+        {
+          "id": "caption-word-199-0",
+          "text": "publica",
+          "start": 206.568,
+          "end": 207.288
+        }
+      ]
+    },
+    {
+      "id": "caption-group-200",
+      "frame": 8,
+      "start": 207.768,
+      "end": 208.328,
+      "text": "sube tu",
+      "words": [
+        {
+          "id": "caption-word-200-0",
+          "text": "sube",
+          "start": 207.768,
+          "end": 208.168
+        },
+        {
+          "id": "caption-word-200-1",
+          "text": "tu",
+          "start": 208.168,
+          "end": 208.328
+        }
+      ]
+    },
+    {
+      "id": "caption-group-201",
+      "frame": 8,
+      "start": 208.328,
+      "end": 208.968,
+      "text": "mp 4",
+      "words": [
+        {
+          "id": "caption-word-201-0",
+          "text": "mp",
+          "start": 208.328,
+          "end": 208.728
+        },
+        {
+          "id": "caption-word-201-1",
+          "text": "4",
+          "start": 208.728,
+          "end": 208.968
+        }
+      ]
+    },
+    {
+      "id": "caption-group-202",
+      "frame": 8,
+      "start": 208.968,
+      "end": 210.248,
+      "text": "a youtube ponle",
+      "words": [
+        {
+          "id": "caption-word-202-0",
+          "text": "a",
+          "start": 208.968,
+          "end": 209.208
+        },
+        {
+          "id": "caption-word-202-1",
+          "text": "youtube",
+          "start": 209.208,
+          "end": 209.928
+        },
+        {
+          "id": "caption-word-202-2",
+          "text": "ponle",
+          "start": 209.928,
+          "end": 210.248
+        }
+      ]
+    },
+    {
+      "id": "caption-group-203",
+      "frame": 8,
+      "start": 210.248,
+      "end": 210.728,
+      "text": "un título",
+      "words": [
+        {
+          "id": "caption-word-203-0",
+          "text": "un",
+          "start": 210.248,
+          "end": 210.488
+        },
+        {
+          "id": "caption-word-203-1",
+          "text": "título",
+          "start": 210.488,
+          "end": 210.728
+        }
+      ]
+    },
+    {
+      "id": "caption-group-204",
+      "frame": 8,
+      "start": 210.728,
+      "end": 211.448,
+      "text": "claro y",
+      "words": [
+        {
+          "id": "caption-word-204-0",
+          "text": "claro",
+          "start": 210.728,
+          "end": 211.128
+        },
+        {
+          "id": "caption-word-204-1",
+          "text": "y",
+          "start": 211.128,
+          "end": 211.448
+        }
+      ]
+    },
+    {
+      "id": "caption-group-205",
+      "frame": 8,
+      "start": 211.448,
+      "end": 213.368,
+      "text": "una miniatura y responde",
+      "words": [
+        {
+          "id": "caption-word-205-0",
+          "text": "una",
+          "start": 211.448,
+          "end": 211.608
+        },
+        {
+          "id": "caption-word-205-1",
+          "text": "miniatura",
+          "start": 211.608,
+          "end": 212.488
+        },
+        {
+          "id": "caption-word-205-2",
+          "text": "y",
+          "start": 212.648,
+          "end": 212.808
+        },
+        {
+          "id": "caption-word-205-3",
+          "text": "responde",
+          "start": 212.808,
+          "end": 213.368
+        }
+      ]
+    },
+    {
+      "id": "caption-group-206",
+      "frame": 8,
+      "start": 213.368,
+      "end": 214.968,
+      "text": "con honestidad la pregunta",
+      "words": [
+        {
+          "id": "caption-word-206-0",
+          "text": "con",
+          "start": 213.368,
+          "end": 213.608
+        },
+        {
+          "id": "caption-word-206-1",
+          "text": "honestidad",
+          "start": 213.608,
+          "end": 214.408
+        },
+        {
+          "id": "caption-word-206-2",
+          "text": "la",
+          "start": 214.408,
+          "end": 214.728
+        },
+        {
+          "id": "caption-word-206-3",
+          "text": "pregunta",
+          "start": 214.728,
+          "end": 214.968
+        }
+      ]
+    },
+    {
+      "id": "caption-group-207",
+      "frame": 8,
+      "start": 214.968,
+      "end": 216.288,
+      "text": "de la plataforma",
+      "words": [
+        {
+          "id": "caption-word-207-0",
+          "text": "de",
+          "start": 214.968,
+          "end": 215.208
+        },
+        {
+          "id": "caption-word-207-1",
+          "text": "la",
+          "start": 215.208,
+          "end": 215.368
+        },
+        {
+          "id": "caption-word-207-2",
+          "text": "plataforma",
+          "start": 215.368,
+          "end": 216.168
+        }
+      ]
+    },
+    {
+      "id": "caption-group-208",
+      "frame": 8,
+      "start": 216.408,
+      "end": 217.913,
+      "text": "sí tu contenido",
+      "words": [
+        {
+          "id": "caption-word-208-0",
+          "text": "sí",
+          "start": 216.408,
+          "end": 216.808
+        },
+        {
+          "id": "caption-word-208-1",
+          "text": "tu",
+          "start": 216.953,
+          "end": 217.273
+        },
+        {
+          "id": "caption-word-208-2",
+          "text": "contenido",
+          "start": 217.273,
+          "end": 217.913
+        }
+      ]
+    },
+    {
+      "id": "caption-group-209",
+      "frame": 8,
+      "start": 217.913,
+      "end": 218.953,
+      "text": "fue generado con",
+      "words": [
+        {
+          "id": "caption-word-209-0",
+          "text": "fue",
+          "start": 217.913,
+          "end": 218.233
+        },
+        {
+          "id": "caption-word-209-1",
+          "text": "generado",
+          "start": 218.233,
+          "end": 218.633
+        },
+        {
+          "id": "caption-word-209-2",
+          "text": "con",
+          "start": 218.633,
+          "end": 218.953
+        }
+      ]
+    },
+    {
+      "id": "caption-group-210",
+      "frame": 8,
+      "start": 218.953,
+      "end": 220.073,
+      "text": "ia es una",
+      "words": [
+        {
+          "id": "caption-word-210-0",
+          "text": "ia",
+          "start": 218.953,
+          "end": 219.513
+        },
+        {
+          "id": "caption-word-210-1",
+          "text": "es",
+          "start": 219.593,
+          "end": 219.833
+        },
+        {
+          "id": "caption-word-210-2",
+          "text": "una",
+          "start": 219.833,
+          "end": 220.073
+        }
+      ]
+    },
+    {
+      "id": "caption-group-211",
+      "frame": 8,
+      "start": 220.073,
+      "end": 220.873,
+      "text": "regla no",
+      "words": [
+        {
+          "id": "caption-word-211-0",
+          "text": "regla",
+          "start": 220.073,
+          "end": 220.633
+        },
+        {
+          "id": "caption-word-211-1",
+          "text": "no",
+          "start": 220.633,
+          "end": 220.873
+        }
+      ]
+    },
+    {
+      "id": "caption-group-212",
+      "frame": 8,
+      "start": 220.873,
+      "end": 221.873,
+      "text": "es opcional",
+      "words": [
+        {
+          "id": "caption-word-212-0",
+          "text": "es",
+          "start": 220.873,
+          "end": 221.033
+        },
+        {
+          "id": "caption-word-212-1",
+          "text": "opcional",
+          "start": 221.033,
+          "end": 221.753
+        }
+      ]
+    },
+    {
+      "id": "caption-group-213",
+      "frame": 8,
+      "start": 222.073,
+      "end": 222.473,
+      "text": "y no",
+      "words": [
+        {
+          "id": "caption-word-213-0",
+          "text": "y",
+          "start": 222.073,
+          "end": 222.313
+        },
+        {
+          "id": "caption-word-213-1",
+          "text": "no",
+          "start": 222.313,
+          "end": 222.473
+        }
+      ]
+    },
+    {
+      "id": "caption-group-214",
+      "frame": 8,
+      "start": 222.473,
+      "end": 223.593,
+      "text": "esperes números el",
+      "words": [
+        {
+          "id": "caption-word-214-0",
+          "text": "esperes",
+          "start": 222.473,
+          "end": 222.953
+        },
+        {
+          "id": "caption-word-214-1",
+          "text": "números",
+          "start": 222.953,
+          "end": 223.353
+        },
+        {
+          "id": "caption-word-214-2",
+          "text": "el",
+          "start": 223.353,
+          "end": 223.593
+        }
+      ]
+    },
+    {
+      "id": "caption-group-215",
+      "frame": 8,
+      "start": 223.593,
+      "end": 224.873,
+      "text": "1º día la",
+      "words": [
+        {
+          "id": "caption-word-215-0",
+          "text": "1º",
+          "start": 223.593,
+          "end": 223.833
+        },
+        {
+          "id": "caption-word-215-1",
+          "text": "día",
+          "start": 223.833,
+          "end": 224.393
+        },
+        {
+          "id": "caption-word-215-2",
+          "text": "la",
+          "start": 224.553,
+          "end": 224.873
+        }
+      ]
+    },
+    {
+      "id": "caption-group-216",
+      "frame": 8,
+      "start": 224.873,
+      "end": 225.513,
+      "text": "victoria de",
+      "words": [
+        {
+          "id": "caption-word-216-0",
+          "text": "victoria",
+          "start": 224.873,
+          "end": 225.273
+        },
+        {
+          "id": "caption-word-216-1",
+          "text": "de",
+          "start": 225.273,
+          "end": 225.513
+        }
+      ]
+    },
+    {
+      "id": "caption-group-217",
+      "frame": 8,
+      "start": 225.513,
+      "end": 225.993,
+      "text": "hoy es",
+      "words": [
+        {
+          "id": "caption-word-217-0",
+          "text": "hoy",
+          "start": 225.513,
+          "end": 225.753
+        },
+        {
+          "id": "caption-word-217-1",
+          "text": "es",
+          "start": 225.753,
+          "end": 225.993
+        }
+      ]
+    },
+    {
+      "id": "caption-group-218",
+      "frame": 8,
+      "start": 225.993,
+      "end": 227.113,
+      "text": "que ayer no",
+      "words": [
+        {
+          "id": "caption-word-218-0",
+          "text": "que",
+          "start": 225.993,
+          "end": 226.233
+        },
+        {
+          "id": "caption-word-218-1",
+          "text": "ayer",
+          "start": 226.233,
+          "end": 226.793
+        },
+        {
+          "id": "caption-word-218-2",
+          "text": "no",
+          "start": 226.793,
+          "end": 227.113
+        }
+      ]
+    },
+    {
+      "id": "caption-group-219",
+      "frame": 8,
+      "start": 227.113,
+      "end": 229.273,
+      "text": "existía y ahora está",
+      "words": [
+        {
+          "id": "caption-word-219-0",
+          "text": "existía",
+          "start": 227.113,
+          "end": 227.993
+        },
+        {
+          "id": "caption-word-219-1",
+          "text": "y",
+          "start": 228.073,
+          "end": 228.233
+        },
+        {
+          "id": "caption-word-219-2",
+          "text": "ahora",
+          "start": 228.233,
+          "end": 228.953
+        },
+        {
+          "id": "caption-word-219-3",
+          "text": "está",
+          "start": 228.953,
+          "end": 229.273
+        }
+      ]
+    },
+    {
+      "id": "caption-group-220",
+      "frame": 8,
+      "start": 229.273,
+      "end": 229.953,
+      "text": "publicado",
+      "words": [
+        {
+          "id": "caption-word-220-0",
+          "text": "publicado",
+          "start": 229.273,
+          "end": 229.833
+        }
+      ]
+    },
+    {
+      "id": "caption-group-221",
+      "frame": 9,
+      "start": 230.464,
+      "end": 231.784,
+      "text": "día 6",
+      "words": [
+        {
+          "id": "caption-word-221-0",
+          "text": "día",
+          "start": 230.464,
+          "end": 230.944
+        },
+        {
+          "id": "caption-word-221-1",
+          "text": "6",
+          "start": 230.944,
+          "end": 231.664
+        }
+      ]
+    },
+    {
+      "id": "caption-group-222",
+      "frame": 9,
+      "start": 232.144,
+      "end": 232.784,
+      "text": "tu video",
+      "words": [
+        {
+          "id": "caption-word-222-0",
+          "text": "tu",
+          "start": 232.144,
+          "end": 232.464
+        },
+        {
+          "id": "caption-word-222-1",
+          "text": "video",
+          "start": 232.464,
+          "end": 232.784
+        }
+      ]
+    },
+    {
+      "id": "caption-group-223",
+      "frame": 9,
+      "start": 232.784,
+      "end": 233.184,
+      "text": "no es",
+      "words": [
+        {
+          "id": "caption-word-223-0",
+          "text": "no",
+          "start": 232.784,
+          "end": 233.024
+        },
+        {
+          "id": "caption-word-223-1",
+          "text": "es",
+          "start": 233.024,
+          "end": 233.184
+        }
+      ]
+    },
+    {
+      "id": "caption-group-224",
+      "frame": 9,
+      "start": 233.184,
+      "end": 233.744,
+      "text": "un producto",
+      "words": [
+        {
+          "id": "caption-word-224-0",
+          "text": "un",
+          "start": 233.184,
+          "end": 233.424
+        },
+        {
+          "id": "caption-word-224-1",
+          "text": "producto",
+          "start": 233.424,
+          "end": 233.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-225",
+      "frame": 9,
+      "start": 233.744,
+      "end": 234.984,
+      "text": "de un día",
+      "words": [
+        {
+          "id": "caption-word-225-0",
+          "text": "de",
+          "start": 233.744,
+          "end": 233.984
+        },
+        {
+          "id": "caption-word-225-1",
+          "text": "un",
+          "start": 233.984,
+          "end": 234.224
+        },
+        {
+          "id": "caption-word-225-2",
+          "text": "día",
+          "start": 234.224,
+          "end": 234.864
+        }
+      ]
+    },
+    {
+      "id": "caption-group-226",
+      "frame": 9,
+      "start": 235.024,
+      "end": 236.904,
+      "text": "es materia prima",
+      "words": [
+        {
+          "id": "caption-word-226-0",
+          "text": "es",
+          "start": 235.024,
+          "end": 235.344
+        },
+        {
+          "id": "caption-word-226-1",
+          "text": "materia",
+          "start": 235.344,
+          "end": 235.904
+        },
+        {
+          "id": "caption-word-226-2",
+          "text": "prima",
+          "start": 235.904,
+          "end": 236.784
+        }
+      ]
+    },
+    {
+      "id": "caption-group-227",
+      "frame": 9,
+      "start": 237.344,
+      "end": 239.064,
+      "text": "extrae la transcripción",
+      "words": [
+        {
+          "id": "caption-word-227-0",
+          "text": "extrae",
+          "start": 237.344,
+          "end": 237.904
+        },
+        {
+          "id": "caption-word-227-1",
+          "text": "la",
+          "start": 237.904,
+          "end": 238.064
+        },
+        {
+          "id": "caption-word-227-2",
+          "text": "transcripción",
+          "start": 238.064,
+          "end": 238.944
+        }
+      ]
+    },
+    {
+      "id": "caption-group-228",
+      "frame": 9,
+      "start": 239.184,
+      "end": 239.744,
+      "text": "pídele a",
+      "words": [
+        {
+          "id": "caption-word-228-0",
+          "text": "pídele",
+          "start": 239.184,
+          "end": 239.664
+        },
+        {
+          "id": "caption-word-228-1",
+          "text": "a",
+          "start": 239.664,
+          "end": 239.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-229",
+      "frame": 9,
+      "start": 239.744,
+      "end": 240.144,
+      "text": "tu chat",
+      "words": [
+        {
+          "id": "caption-word-229-0",
+          "text": "tu",
+          "start": 239.744,
+          "end": 239.904
+        },
+        {
+          "id": "caption-word-229-1",
+          "text": "chat",
+          "start": 239.904,
+          "end": 240.144
+        }
+      ]
+    },
+    {
+      "id": "caption-group-230",
+      "frame": 9,
+      "start": 240.144,
+      "end": 240.544,
+      "text": "de ia",
+      "words": [
+        {
+          "id": "caption-word-230-0",
+          "text": "de",
+          "start": 240.144,
+          "end": 240.224
+        },
+        {
+          "id": "caption-word-230-1",
+          "text": "ia",
+          "start": 240.224,
+          "end": 240.544
+        }
+      ]
+    },
+    {
+      "id": "caption-group-231",
+      "frame": 9,
+      "start": 240.544,
+      "end": 240.864,
+      "text": "que la",
+      "words": [
+        {
+          "id": "caption-word-231-0",
+          "text": "que",
+          "start": 240.544,
+          "end": 240.704
+        },
+        {
+          "id": "caption-word-231-1",
+          "text": "la",
+          "start": 240.704,
+          "end": 240.864
+        }
+      ]
+    },
+    {
+      "id": "caption-group-232",
+      "frame": 9,
+      "start": 240.864,
+      "end": 242.064,
+      "text": "reescriba en 5",
+      "words": [
+        {
+          "id": "caption-word-232-0",
+          "text": "reescriba",
+          "start": 240.864,
+          "end": 241.504
+        },
+        {
+          "id": "caption-word-232-1",
+          "text": "en",
+          "start": 241.504,
+          "end": 241.744
+        },
+        {
+          "id": "caption-word-232-2",
+          "text": "5",
+          "start": 241.744,
+          "end": 242.064
+        }
+      ]
+    },
+    {
+      "id": "caption-group-233",
+      "frame": 9,
+      "start": 242.064,
+      "end": 243.344,
+      "text": "piezas cortas y",
+      "words": [
+        {
+          "id": "caption-word-233-0",
+          "text": "piezas",
+          "start": 242.064,
+          "end": 242.464
+        },
+        {
+          "id": "caption-word-233-1",
+          "text": "cortas",
+          "start": 242.464,
+          "end": 243.024
+        },
+        {
+          "id": "caption-word-233-2",
+          "text": "y",
+          "start": 243.024,
+          "end": 243.344
+        }
+      ]
+    },
+    {
+      "id": "caption-group-234",
+      "frame": 9,
+      "start": 243.344,
+      "end": 244.624,
+      "text": "publícalas donde ya",
+      "words": [
+        {
+          "id": "caption-word-234-0",
+          "text": "publícalas",
+          "start": 243.344,
+          "end": 244.064
+        },
+        {
+          "id": "caption-word-234-1",
+          "text": "donde",
+          "start": 244.064,
+          "end": 244.304
+        },
+        {
+          "id": "caption-word-234-2",
+          "text": "ya",
+          "start": 244.304,
+          "end": 244.624
+        }
+      ]
+    },
+    {
+      "id": "caption-group-235",
+      "frame": 9,
+      "start": 244.624,
+      "end": 245.544,
+      "text": "tengas audiencia",
+      "words": [
+        {
+          "id": "caption-word-235-0",
+          "text": "tengas",
+          "start": 244.624,
+          "end": 244.944
+        },
+        {
+          "id": "caption-word-235-1",
+          "text": "audiencia",
+          "start": 244.944,
+          "end": 245.424
+        }
+      ]
+    },
+    {
+      "id": "caption-group-236",
+      "frame": 9,
+      "start": 246.059,
+      "end": 248.979,
+      "text": "x whatsapp linkedin",
+      "words": [
+        {
+          "id": "caption-word-236-0",
+          "text": "x",
+          "start": 246.059,
+          "end": 247.019
+        },
+        {
+          "id": "caption-word-236-1",
+          "text": "whatsapp",
+          "start": 247.019,
+          "end": 247.899
+        },
+        {
+          "id": "caption-word-236-2",
+          "text": "linkedin",
+          "start": 247.979,
+          "end": 248.859
+        }
+      ]
+    },
+    {
+      "id": "caption-group-237",
+      "frame": 9,
+      "start": 249.579,
+      "end": 251.059,
+      "text": "detalle honesto",
+      "words": [
+        {
+          "id": "caption-word-237-0",
+          "text": "detalle",
+          "start": 249.579,
+          "end": 250.139
+        },
+        {
+          "id": "caption-word-237-1",
+          "text": "honesto",
+          "start": 250.139,
+          "end": 250.939
+        }
+      ]
+    },
+    {
+      "id": "caption-group-238",
+      "frame": 9,
+      "start": 251.259,
+      "end": 252.379,
+      "text": "en instagram y",
+      "words": [
+        {
+          "id": "caption-word-238-0",
+          "text": "en",
+          "start": 251.259,
+          "end": 251.659
+        },
+        {
+          "id": "caption-word-238-1",
+          "text": "instagram",
+          "start": 251.659,
+          "end": 252.139
+        },
+        {
+          "id": "caption-word-238-2",
+          "text": "y",
+          "start": 252.139,
+          "end": 252.379
+        }
+      ]
+    },
+    {
+      "id": "caption-group-239",
+      "frame": 9,
+      "start": 252.379,
+      "end": 253.499,
+      "text": "tiktok se publica",
+      "words": [
+        {
+          "id": "caption-word-239-0",
+          "text": "tiktok",
+          "start": 252.379,
+          "end": 252.779
+        },
+        {
+          "id": "caption-word-239-1",
+          "text": "se",
+          "start": 252.779,
+          "end": 253.099
+        },
+        {
+          "id": "caption-word-239-2",
+          "text": "publica",
+          "start": 253.099,
+          "end": 253.499
+        }
+      ]
+    },
+    {
+      "id": "caption-group-240",
+      "frame": 9,
+      "start": 253.499,
+      "end": 254.619,
+      "text": "a mano no",
+      "words": [
+        {
+          "id": "caption-word-240-0",
+          "text": "a",
+          "start": 253.499,
+          "end": 253.739
+        },
+        {
+          "id": "caption-word-240-1",
+          "text": "mano",
+          "start": 253.739,
+          "end": 254.299
+        },
+        {
+          "id": "caption-word-240-2",
+          "text": "no",
+          "start": 254.379,
+          "end": 254.619
+        }
+      ]
+    },
+    {
+      "id": "caption-group-241",
+      "frame": 9,
+      "start": 254.619,
+      "end": 255.699,
+      "text": "se puede automatizar",
+      "words": [
+        {
+          "id": "caption-word-241-0",
+          "text": "se",
+          "start": 254.619,
+          "end": 254.779
+        },
+        {
+          "id": "caption-word-241-1",
+          "text": "puede",
+          "start": 254.779,
+          "end": 255.019
+        },
+        {
+          "id": "caption-word-241-2",
+          "text": "automatizar",
+          "start": 255.019,
+          "end": 255.579
+        }
+      ]
+    },
+    {
+      "id": "caption-group-242",
+      "frame": 9,
+      "start": 256.597,
+      "end": 258.037,
+      "text": "un video alimentando",
+      "words": [
+        {
+          "id": "caption-word-242-0",
+          "text": "un",
+          "start": 256.597,
+          "end": 256.917
+        },
+        {
+          "id": "caption-word-242-1",
+          "text": "video",
+          "start": 256.917,
+          "end": 257.317
+        },
+        {
+          "id": "caption-word-242-2",
+          "text": "alimentando",
+          "start": 257.317,
+          "end": 258.037
+        }
+      ]
+    },
+    {
+      "id": "caption-group-243",
+      "frame": 9,
+      "start": 258.037,
+      "end": 259.237,
+      "text": "una semana de",
+      "words": [
+        {
+          "id": "caption-word-243-0",
+          "text": "una",
+          "start": 258.037,
+          "end": 258.517
+        },
+        {
+          "id": "caption-word-243-1",
+          "text": "semana",
+          "start": 258.517,
+          "end": 258.917
+        },
+        {
+          "id": "caption-word-243-2",
+          "text": "de",
+          "start": 258.917,
+          "end": 259.237
+        }
+      ]
+    },
+    {
+      "id": "caption-group-244",
+      "frame": 9,
+      "start": 259.237,
+      "end": 260.157,
+      "text": "contenido",
+      "words": [
+        {
+          "id": "caption-word-244-0",
+          "text": "contenido",
+          "start": 259.237,
+          "end": 260.037
+        }
+      ]
+    },
+    {
+      "id": "caption-group-245",
+      "frame": 9,
+      "start": 260.517,
+      "end": 260.917,
+      "text": "eso es",
+      "words": [
+        {
+          "id": "caption-word-245-0",
+          "text": "eso",
+          "start": 260.517,
+          "end": 260.757
+        },
+        {
+          "id": "caption-word-245-1",
+          "text": "es",
+          "start": 260.757,
+          "end": 260.917
+        }
+      ]
+    },
+    {
+      "id": "caption-group-246",
+      "frame": 9,
+      "start": 260.917,
+      "end": 261.757,
+      "text": "una máquina",
+      "words": [
+        {
+          "id": "caption-word-246-0",
+          "text": "una",
+          "start": 260.917,
+          "end": 261.237
+        },
+        {
+          "id": "caption-word-246-1",
+          "text": "máquina",
+          "start": 261.237,
+          "end": 261.637
+        }
+      ]
+    },
+    {
+      "id": "caption-group-247",
+      "frame": 10,
+      "start": 262.272,
+      "end": 264.632,
+      "text": "día 7 el bucle",
+      "words": [
+        {
+          "id": "caption-word-247-0",
+          "text": "día",
+          "start": 262.272,
+          "end": 262.672
+        },
+        {
+          "id": "caption-word-247-1",
+          "text": "7",
+          "start": 262.672,
+          "end": 263.392
+        },
+        {
+          "id": "caption-word-247-2",
+          "text": "el",
+          "start": 263.552,
+          "end": 263.792
+        },
+        {
+          "id": "caption-word-247-3",
+          "text": "bucle",
+          "start": 263.792,
+          "end": 264.512
+        }
+      ]
+    },
+    {
+      "id": "caption-group-248",
+      "frame": 10,
+      "start": 264.832,
+      "end": 266.232,
+      "text": "mira los números",
+      "words": [
+        {
+          "id": "caption-word-248-0",
+          "text": "mira",
+          "start": 264.832,
+          "end": 265.232
+        },
+        {
+          "id": "caption-word-248-1",
+          "text": "los",
+          "start": 265.232,
+          "end": 265.392
+        },
+        {
+          "id": "caption-word-248-2",
+          "text": "números",
+          "start": 265.392,
+          "end": 266.112
+        }
+      ]
+    },
+    {
+      "id": "caption-group-249",
+      "frame": 10,
+      "start": 266.352,
+      "end": 268.032,
+      "text": "vistas cuáles de tus",
+      "words": [
+        {
+          "id": "caption-word-249-0",
+          "text": "vistas",
+          "start": 266.352,
+          "end": 267.152
+        },
+        {
+          "id": "caption-word-249-1",
+          "text": "cuáles",
+          "start": 267.152,
+          "end": 267.632
+        },
+        {
+          "id": "caption-word-249-2",
+          "text": "de",
+          "start": 267.632,
+          "end": 267.792
+        },
+        {
+          "id": "caption-word-249-3",
+          "text": "tus",
+          "start": 267.792,
+          "end": 268.032
+        }
+      ]
+    },
+    {
+      "id": "caption-group-250",
+      "frame": 10,
+      "start": 268.032,
+      "end": 269.632,
+      "text": "5 publicaciones llamaron la",
+      "words": [
+        {
+          "id": "caption-word-250-0",
+          "text": "5",
+          "start": 268.032,
+          "end": 268.272
+        },
+        {
+          "id": "caption-word-250-1",
+          "text": "publicaciones",
+          "start": 268.272,
+          "end": 269.072
+        },
+        {
+          "id": "caption-word-250-2",
+          "text": "llamaron",
+          "start": 269.072,
+          "end": 269.472
+        },
+        {
+          "id": "caption-word-250-3",
+          "text": "la",
+          "start": 269.472,
+          "end": 269.632
+        }
+      ]
+    },
+    {
+      "id": "caption-group-251",
+      "frame": 10,
+      "start": 269.632,
+      "end": 271.992,
+      "text": "atención qué comentarios llegaron",
+      "words": [
+        {
+          "id": "caption-word-251-0",
+          "text": "atención",
+          "start": 269.632,
+          "end": 270.272
+        },
+        {
+          "id": "caption-word-251-1",
+          "text": "qué",
+          "start": 270.432,
+          "end": 270.672
+        },
+        {
+          "id": "caption-word-251-2",
+          "text": "comentarios",
+          "start": 270.672,
+          "end": 271.152
+        },
+        {
+          "id": "caption-word-251-3",
+          "text": "llegaron",
+          "start": 271.152,
+          "end": 271.872
+        }
+      ]
+    },
+    {
+      "id": "caption-group-252",
+      "frame": 10,
+      "start": 272.112,
+      "end": 273.232,
+      "text": "anótalo todo en",
+      "words": [
+        {
+          "id": "caption-word-252-0",
+          "text": "anótalo",
+          "start": 272.112,
+          "end": 272.752
+        },
+        {
+          "id": "caption-word-252-1",
+          "text": "todo",
+          "start": 272.752,
+          "end": 272.992
+        },
+        {
+          "id": "caption-word-252-2",
+          "text": "en",
+          "start": 272.992,
+          "end": 273.232
+        }
+      ]
+    },
+    {
+      "id": "caption-group-253",
+      "frame": 10,
+      "start": 273.232,
+      "end": 273.552,
+      "text": "un solo",
+      "words": [
+        {
+          "id": "caption-word-253-0",
+          "text": "un",
+          "start": 273.232,
+          "end": 273.392
+        },
+        {
+          "id": "caption-word-253-1",
+          "text": "solo",
+          "start": 273.392,
+          "end": 273.552
+        }
+      ]
+    },
+    {
+      "id": "caption-group-254",
+      "frame": 10,
+      "start": 273.552,
+      "end": 274.767,
+      "text": "lugar y responde",
+      "words": [
+        {
+          "id": "caption-word-254-0",
+          "text": "lugar",
+          "start": 273.552,
+          "end": 274.832
+        },
+        {
+          "id": "caption-word-254-1",
+          "text": "y",
+          "start": 274.047,
+          "end": 274.367
+        },
+        {
+          "id": "caption-word-254-2",
+          "text": "responde",
+          "start": 274.367,
+          "end": 274.767
+        }
+      ]
+    },
+    {
+      "id": "caption-group-255",
+      "frame": 10,
+      "start": 274.767,
+      "end": 276.087,
+      "text": "a cada comentario",
+      "words": [
+        {
+          "id": "caption-word-255-0",
+          "text": "a",
+          "start": 274.767,
+          "end": 275.007
+        },
+        {
+          "id": "caption-word-255-1",
+          "text": "cada",
+          "start": 275.007,
+          "end": 275.247
+        },
+        {
+          "id": "caption-word-255-2",
+          "text": "comentario",
+          "start": 275.247,
+          "end": 275.967
+        }
+      ]
+    },
+    {
+      "id": "caption-group-256",
+      "frame": 10,
+      "start": 276.527,
+      "end": 278.287,
+      "text": "después decide una sola",
+      "words": [
+        {
+          "id": "caption-word-256-0",
+          "text": "después",
+          "start": 276.527,
+          "end": 277.247
+        },
+        {
+          "id": "caption-word-256-1",
+          "text": "decide",
+          "start": 277.327,
+          "end": 277.727
+        },
+        {
+          "id": "caption-word-256-2",
+          "text": "una",
+          "start": 277.727,
+          "end": 278.047
+        },
+        {
+          "id": "caption-word-256-3",
+          "text": "sola",
+          "start": 278.047,
+          "end": 278.287
+        }
+      ]
+    },
+    {
+      "id": "caption-group-257",
+      "frame": 10,
+      "start": 278.287,
+      "end": 280.047,
+      "text": "cosa qué mejorarás en",
+      "words": [
+        {
+          "id": "caption-word-257-0",
+          "text": "cosa",
+          "start": 278.287,
+          "end": 278.927
+        },
+        {
+          "id": "caption-word-257-1",
+          "text": "qué",
+          "start": 279.007,
+          "end": 279.327
+        },
+        {
+          "id": "caption-word-257-2",
+          "text": "mejorarás",
+          "start": 279.327,
+          "end": 279.887
+        },
+        {
+          "id": "caption-word-257-3",
+          "text": "en",
+          "start": 279.887,
+          "end": 280.047
+        }
+      ]
+    },
+    {
+      "id": "caption-group-258",
+      "frame": 10,
+      "start": 280.047,
+      "end": 281.207,
+      "text": "el video 2",
+      "words": [
+        {
+          "id": "caption-word-258-0",
+          "text": "el",
+          "start": 280.047,
+          "end": 280.207
+        },
+        {
+          "id": "caption-word-258-1",
+          "text": "video",
+          "start": 280.207,
+          "end": 280.527
+        },
+        {
+          "id": "caption-word-258-2",
+          "text": "2",
+          "start": 280.527,
+          "end": 281.087
+        }
+      ]
+    },
+    {
+      "id": "caption-group-259",
+      "frame": 10,
+      "start": 281.407,
+      "end": 281.887,
+      "text": "ese es",
+      "words": [
+        {
+          "id": "caption-word-259-0",
+          "text": "ese",
+          "start": 281.407,
+          "end": 281.727
+        },
+        {
+          "id": "caption-word-259-1",
+          "text": "es",
+          "start": 281.727,
+          "end": 281.887
+        }
+      ]
+    },
+    {
+      "id": "caption-group-260",
+      "frame": 10,
+      "start": 281.887,
+      "end": 282.807,
+      "text": "el ciclo",
+      "words": [
+        {
+          "id": "caption-word-260-0",
+          "text": "el",
+          "start": 281.887,
+          "end": 282.047
+        },
+        {
+          "id": "caption-word-260-1",
+          "text": "ciclo",
+          "start": 282.047,
+          "end": 282.687
+        }
+      ]
+    },
+    {
+      "id": "caption-group-261",
+      "frame": 10,
+      "start": 283.007,
+      "end": 283.767,
+      "text": "publicar",
+      "words": [
+        {
+          "id": "caption-word-261-0",
+          "text": "publicar",
+          "start": 283.007,
+          "end": 283.647
+        }
+      ]
+    },
+    {
+      "id": "caption-group-262",
+      "frame": 10,
+      "start": 283.887,
+      "end": 284.807,
+      "text": "aprender",
+      "words": [
+        {
+          "id": "caption-word-262-0",
+          "text": "aprender",
+          "start": 283.887,
+          "end": 284.687
+        }
+      ]
+    },
+    {
+      "id": "caption-group-263",
+      "frame": 10,
+      "start": 285.007,
+      "end": 285.767,
+      "text": "mejorar",
+      "words": [
+        {
+          "id": "caption-word-263-0",
+          "text": "mejorar",
+          "start": 285.007,
+          "end": 285.647
+        }
+      ]
+    },
+    {
+      "id": "caption-group-264",
+      "frame": 10,
+      "start": 285.967,
+      "end": 287.487,
+      "text": "repítelo y dejas de",
+      "words": [
+        {
+          "id": "caption-word-264-0",
+          "text": "repítelo",
+          "start": 285.967,
+          "end": 286.687
+        },
+        {
+          "id": "caption-word-264-1",
+          "text": "y",
+          "start": 286.687,
+          "end": 287.007
+        },
+        {
+          "id": "caption-word-264-2",
+          "text": "dejas",
+          "start": 287.007,
+          "end": 287.327
+        },
+        {
+          "id": "caption-word-264-3",
+          "text": "de",
+          "start": 287.327,
+          "end": 287.487
+        }
+      ]
+    },
+    {
+      "id": "caption-group-265",
+      "frame": 10,
+      "start": 287.487,
+      "end": 288.567,
+      "text": "tener videos sueltos",
+      "words": [
+        {
+          "id": "caption-word-265-0",
+          "text": "tener",
+          "start": 287.487,
+          "end": 287.727
+        },
+        {
+          "id": "caption-word-265-1",
+          "text": "videos",
+          "start": 287.727,
+          "end": 288.047
+        },
+        {
+          "id": "caption-word-265-2",
+          "text": "sueltos",
+          "start": 288.047,
+          "end": 288.447
+        }
+      ]
+    },
+    {
+      "id": "caption-group-266",
+      "frame": 10,
+      "start": 288.925,
+      "end": 290.245,
+      "text": "tienes una máquina",
+      "words": [
+        {
+          "id": "caption-word-266-0",
+          "text": "tienes",
+          "start": 288.925,
+          "end": 289.405
+        },
+        {
+          "id": "caption-word-266-1",
+          "text": "una",
+          "start": 289.405,
+          "end": 289.725
+        },
+        {
+          "id": "caption-word-266-2",
+          "text": "máquina",
+          "start": 289.725,
+          "end": 290.125
+        }
+      ]
+    },
+    {
+      "id": "caption-group-267",
+      "frame": 11,
+      "start": 290.72,
+      "end": 292.72,
+      "text": "7 días un video",
+      "words": [
+        {
+          "id": "caption-word-267-0",
+          "text": "7",
+          "start": 290.72,
+          "end": 291.2
+        },
+        {
+          "id": "caption-word-267-1",
+          "text": "días",
+          "start": 291.2,
+          "end": 291.92
+        },
+        {
+          "id": "caption-word-267-2",
+          "text": "un",
+          "start": 292.08,
+          "end": 292.32
+        },
+        {
+          "id": "caption-word-267-3",
+          "text": "video",
+          "start": 292.32,
+          "end": 292.72
+        }
+      ]
+    },
+    {
+      "id": "caption-group-268",
+      "frame": 11,
+      "start": 292.72,
+      "end": 293.72,
+      "text": "publicado",
+      "words": [
+        {
+          "id": "caption-word-268-0",
+          "text": "publicado",
+          "start": 292.72,
+          "end": 293.6
+        }
+      ]
+    },
+    {
+      "id": "caption-group-269",
+      "frame": 11,
+      "start": 293.84,
+      "end": 294.56,
+      "text": "5 piezas",
+      "words": [
+        {
+          "id": "caption-word-269-0",
+          "text": "5",
+          "start": 293.84,
+          "end": 294.24
+        },
+        {
+          "id": "caption-word-269-1",
+          "text": "piezas",
+          "start": 294.24,
+          "end": 294.56
+        }
+      ]
+    },
+    {
+      "id": "caption-group-270",
+      "frame": 11,
+      "start": 294.56,
+      "end": 295.84,
+      "text": "de contenido y",
+      "words": [
+        {
+          "id": "caption-word-270-0",
+          "text": "de",
+          "start": 294.56,
+          "end": 294.8
+        },
+        {
+          "id": "caption-word-270-1",
+          "text": "contenido",
+          "start": 294.8,
+          "end": 295.52
+        },
+        {
+          "id": "caption-word-270-2",
+          "text": "y",
+          "start": 295.52,
+          "end": 295.84
+        }
+      ]
+    },
+    {
+      "id": "caption-group-271",
+      "frame": 11,
+      "start": 295.84,
+      "end": 296.48,
+      "text": "un bucle",
+      "words": [
+        {
+          "id": "caption-word-271-0",
+          "text": "un",
+          "start": 295.84,
+          "end": 296.08
+        },
+        {
+          "id": "caption-word-271-1",
+          "text": "bucle",
+          "start": 296.08,
+          "end": 296.48
+        }
+      ]
+    },
+    {
+      "id": "caption-group-272",
+      "frame": 11,
+      "start": 296.48,
+      "end": 297.16,
+      "text": "de mejora",
+      "words": [
+        {
+          "id": "caption-word-272-0",
+          "text": "de",
+          "start": 296.48,
+          "end": 296.64
+        },
+        {
+          "id": "caption-word-272-1",
+          "text": "mejora",
+          "start": 296.64,
+          "end": 297.04
+        }
+      ]
+    },
+    {
+      "id": "caption-group-273",
+      "frame": 11,
+      "start": 297.583,
+      "end": 298.063,
+      "text": "eso es",
+      "words": [
+        {
+          "id": "caption-word-273-0",
+          "text": "eso",
+          "start": 297.583,
+          "end": 297.903
+        },
+        {
+          "id": "caption-word-273-1",
+          "text": "es",
+          "start": 297.903,
+          "end": 298.063
+        }
+      ]
+    },
+    {
+      "id": "caption-group-274",
+      "frame": 11,
+      "start": 298.063,
+      "end": 298.303,
+      "text": "lo que",
+      "words": [
+        {
+          "id": "caption-word-274-0",
+          "text": "lo",
+          "start": 298.063,
+          "end": 298.223
+        },
+        {
+          "id": "caption-word-274-1",
+          "text": "que",
+          "start": 298.223,
+          "end": 298.303
+        }
+      ]
+    },
+    {
+      "id": "caption-group-275",
+      "frame": 11,
+      "start": 298.303,
+      "end": 299.223,
+      "text": "te llevas",
+      "words": [
+        {
+          "id": "caption-word-275-0",
+          "text": "te",
+          "start": 298.303,
+          "end": 298.463
+        },
+        {
+          "id": "caption-word-275-1",
+          "text": "llevas",
+          "start": 298.463,
+          "end": 299.103
+        }
+      ]
+    },
+    {
+      "id": "caption-group-276",
+      "frame": 11,
+      "start": 299.343,
+      "end": 299.743,
+      "text": "y la",
+      "words": [
+        {
+          "id": "caption-word-276-0",
+          "text": "y",
+          "start": 299.343,
+          "end": 299.583
+        },
+        {
+          "id": "caption-word-276-1",
+          "text": "la",
+          "start": 299.583,
+          "end": 299.743
+        }
+      ]
+    },
+    {
+      "id": "caption-group-277",
+      "frame": 11,
+      "start": 299.743,
+      "end": 300.743,
+      "text": "buena noticia",
+      "words": [
+        {
+          "id": "caption-word-277-0",
+          "text": "buena",
+          "start": 299.743,
+          "end": 299.983
+        },
+        {
+          "id": "caption-word-277-1",
+          "text": "noticia",
+          "start": 299.983,
+          "end": 300.623
+        }
+      ]
+    },
+    {
+      "id": "caption-group-278",
+      "frame": 11,
+      "start": 300.863,
+      "end": 301.903,
+      "text": "el video 2",
+      "words": [
+        {
+          "id": "caption-word-278-0",
+          "text": "el",
+          "start": 300.863,
+          "end": 301.183
+        },
+        {
+          "id": "caption-word-278-1",
+          "text": "video",
+          "start": 301.183,
+          "end": 301.503
+        },
+        {
+          "id": "caption-word-278-2",
+          "text": "2",
+          "start": 301.503,
+          "end": 301.903
+        }
+      ]
+    },
+    {
+      "id": "caption-group-279",
+      "frame": 11,
+      "start": 301.903,
+      "end": 303.503,
+      "text": "sale más rápido",
+      "words": [
+        {
+          "id": "caption-word-279-0",
+          "text": "sale",
+          "start": 301.903,
+          "end": 302.383
+        },
+        {
+          "id": "caption-word-279-1",
+          "text": "más",
+          "start": 302.383,
+          "end": 302.703
+        },
+        {
+          "id": "caption-word-279-2",
+          "text": "rápido",
+          "start": 302.703,
+          "end": 303.423
+        }
+      ]
+    },
+    {
+      "id": "caption-group-280",
+      "frame": 11,
+      "start": 303.503,
+      "end": 303.983,
+      "text": "porque ya",
+      "words": [
+        {
+          "id": "caption-word-280-0",
+          "text": "porque",
+          "start": 303.503,
+          "end": 303.743
+        },
+        {
+          "id": "caption-word-280-1",
+          "text": "ya",
+          "start": 303.743,
+          "end": 303.983
+        }
+      ]
+    },
+    {
+      "id": "caption-group-281",
+      "frame": 11,
+      "start": 303.983,
+      "end": 305.223,
+      "text": "no estás aprendiendo",
+      "words": [
+        {
+          "id": "caption-word-281-0",
+          "text": "no",
+          "start": 303.983,
+          "end": 304.143
+        },
+        {
+          "id": "caption-word-281-1",
+          "text": "estás",
+          "start": 304.143,
+          "end": 304.303
+        },
+        {
+          "id": "caption-word-281-2",
+          "text": "aprendiendo",
+          "start": 304.303,
+          "end": 305.103
+        }
+      ]
+    },
+    {
+      "id": "caption-group-282",
+      "frame": 11,
+      "start": 305.423,
+      "end": 306.423,
+      "text": "estás repitiendo",
+      "words": [
+        {
+          "id": "caption-word-282-0",
+          "text": "estás",
+          "start": 305.423,
+          "end": 305.823
+        },
+        {
+          "id": "caption-word-282-1",
+          "text": "repitiendo",
+          "start": 305.823,
+          "end": 306.303
+        }
+      ]
+    },
+    {
+      "id": "caption-group-283",
+      "frame": 12,
+      "start": 307.008,
+      "end": 307.488,
+      "text": "y la",
+      "words": [
+        {
+          "id": "caption-word-283-0",
+          "text": "y",
+          "start": 307.008,
+          "end": 307.248
+        },
+        {
+          "id": "caption-word-283-1",
+          "text": "la",
+          "start": 307.248,
+          "end": 307.488
+        }
+      ]
+    },
+    {
+      "id": "caption-group-284",
+      "frame": 12,
+      "start": 307.488,
+      "end": 308.048,
+      "text": "parte que",
+      "words": [
+        {
+          "id": "caption-word-284-0",
+          "text": "parte",
+          "start": 307.488,
+          "end": 307.808
+        },
+        {
+          "id": "caption-word-284-1",
+          "text": "que",
+          "start": 307.808,
+          "end": 308.048
+        }
+      ]
+    },
+    {
+      "id": "caption-group-285",
+      "frame": 12,
+      "start": 308.048,
+      "end": 309.088,
+      "text": "casi nadie te",
+      "words": [
+        {
+          "id": "caption-word-285-0",
+          "text": "casi",
+          "start": 308.048,
+          "end": 308.448
+        },
+        {
+          "id": "caption-word-285-1",
+          "text": "nadie",
+          "start": 308.448,
+          "end": 308.848
+        },
+        {
+          "id": "caption-word-285-2",
+          "text": "te",
+          "start": 308.848,
+          "end": 309.088
+        }
+      ]
+    },
+    {
+      "id": "caption-group-286",
+      "frame": 12,
+      "start": 309.088,
+      "end": 309.768,
+      "text": "dice",
+      "words": [
+        {
+          "id": "caption-word-286-0",
+          "text": "dice",
+          "start": 309.088,
+          "end": 309.648
+        }
+      ]
+    },
+    {
+      "id": "caption-group-287",
+      "frame": 12,
+      "start": 310.048,
+      "end": 312.328,
+      "text": "pasado no es futuro",
+      "words": [
+        {
+          "id": "caption-word-287-0",
+          "text": "pasado",
+          "start": 310.048,
+          "end": 311.008
+        },
+        {
+          "id": "caption-word-287-1",
+          "text": "no",
+          "start": 311.008,
+          "end": 311.248
+        },
+        {
+          "id": "caption-word-287-2",
+          "text": "es",
+          "start": 311.248,
+          "end": 311.488
+        },
+        {
+          "id": "caption-word-287-3",
+          "text": "futuro",
+          "start": 311.488,
+          "end": 312.208
+        }
+      ]
+    },
+    {
+      "id": "caption-group-288",
+      "frame": 12,
+      "start": 312.368,
+      "end": 312.928,
+      "text": "los precios",
+      "words": [
+        {
+          "id": "caption-word-288-0",
+          "text": "los",
+          "start": 312.368,
+          "end": 312.688
+        },
+        {
+          "id": "caption-word-288-1",
+          "text": "precios",
+          "start": 312.688,
+          "end": 312.928
+        }
+      ]
+    },
+    {
+      "id": "caption-group-289",
+      "frame": 12,
+      "start": 312.928,
+      "end": 313.968,
+      "text": "que mencioné son",
+      "words": [
+        {
+          "id": "caption-word-289-0",
+          "text": "que",
+          "start": 312.928,
+          "end": 313.168
+        },
+        {
+          "id": "caption-word-289-1",
+          "text": "mencioné",
+          "start": 313.168,
+          "end": 313.648
+        },
+        {
+          "id": "caption-word-289-2",
+          "text": "son",
+          "start": 313.648,
+          "end": 313.968
+        }
+      ]
+    },
+    {
+      "id": "caption-group-290",
+      "frame": 12,
+      "start": 313.968,
+      "end": 314.208,
+      "text": "los que",
+      "words": [
+        {
+          "id": "caption-word-290-0",
+          "text": "los",
+          "start": 313.968,
+          "end": 314.128
+        },
+        {
+          "id": "caption-word-290-1",
+          "text": "que",
+          "start": 314.128,
+          "end": 314.208
+        }
+      ]
+    },
+    {
+      "id": "caption-group-291",
+      "frame": 12,
+      "start": 314.208,
+      "end": 314.688,
+      "text": "el equipo",
+      "words": [
+        {
+          "id": "caption-word-291-0",
+          "text": "el",
+          "start": 314.208,
+          "end": 314.368
+        },
+        {
+          "id": "caption-word-291-1",
+          "text": "equipo",
+          "start": 314.368,
+          "end": 314.688
+        }
+      ]
+    },
+    {
+      "id": "caption-group-292",
+      "frame": 12,
+      "start": 314.688,
+      "end": 315.328,
+      "text": "midió en",
+      "words": [
+        {
+          "id": "caption-word-292-0",
+          "text": "midió",
+          "start": 314.688,
+          "end": 315.088
+        },
+        {
+          "id": "caption-word-292-1",
+          "text": "en",
+          "start": 315.088,
+          "end": 315.328
+        }
+      ]
+    },
+    {
+      "id": "caption-group-293",
+      "frame": 12,
+      "start": 315.328,
+      "end": 317.288,
+      "text": "agosto de 2026",
+      "words": [
+        {
+          "id": "caption-word-293-0",
+          "text": "agosto",
+          "start": 315.328,
+          "end": 315.648
+        },
+        {
+          "id": "caption-word-293-1",
+          "text": "de",
+          "start": 315.648,
+          "end": 315.888
+        },
+        {
+          "id": "caption-word-293-2",
+          "text": "2026",
+          "start": 315.888,
+          "end": 317.168
+        }
+      ]
+    },
+    {
+      "id": "caption-group-294",
+      "frame": 12,
+      "start": 317.328,
+      "end": 318.768,
+      "text": "y cambian revisa",
+      "words": [
+        {
+          "id": "caption-word-294-0",
+          "text": "y",
+          "start": 317.328,
+          "end": 317.488
+        },
+        {
+          "id": "caption-word-294-1",
+          "text": "cambian",
+          "start": 317.488,
+          "end": 318.208
+        },
+        {
+          "id": "caption-word-294-2",
+          "text": "revisa",
+          "start": 318.288,
+          "end": 318.768
+        }
+      ]
+    },
+    {
+      "id": "caption-group-295",
+      "frame": 12,
+      "start": 318.768,
+      "end": 319.248,
+      "text": "la página",
+      "words": [
+        {
+          "id": "caption-word-295-0",
+          "text": "la",
+          "start": 318.768,
+          "end": 319.008
+        },
+        {
+          "id": "caption-word-295-1",
+          "text": "página",
+          "start": 319.008,
+          "end": 319.248
+        }
+      ]
+    },
+    {
+      "id": "caption-group-296",
+      "frame": 12,
+      "start": 319.248,
+      "end": 320.288,
+      "text": "del proveedor antes",
+      "words": [
+        {
+          "id": "caption-word-296-0",
+          "text": "del",
+          "start": 319.248,
+          "end": 319.488
+        },
+        {
+          "id": "caption-word-296-1",
+          "text": "proveedor",
+          "start": 319.488,
+          "end": 319.888
+        },
+        {
+          "id": "caption-word-296-2",
+          "text": "antes",
+          "start": 319.888,
+          "end": 320.288
+        }
+      ]
+    },
+    {
+      "id": "caption-group-297",
+      "frame": 12,
+      "start": 320.288,
+      "end": 321.208,
+      "text": "de pagar",
+      "words": [
+        {
+          "id": "caption-word-297-0",
+          "text": "de",
+          "start": 320.288,
+          "end": 320.448
+        },
+        {
+          "id": "caption-word-297-1",
+          "text": "pagar",
+          "start": 320.448,
+          "end": 321.088
+        }
+      ]
+    },
+    {
+      "id": "caption-group-298",
+      "frame": 12,
+      "start": 321.328,
+      "end": 322.168,
+      "text": "y sobre todo",
+      "words": [
+        {
+          "id": "caption-word-298-0",
+          "text": "y",
+          "start": 321.328,
+          "end": 321.488
+        },
+        {
+          "id": "caption-word-298-1",
+          "text": "sobre",
+          "start": 321.488,
+          "end": 321.808
+        },
+        {
+          "id": "caption-word-298-2",
+          "text": "todo",
+          "start": 321.808,
+          "end": 322.048
+        }
+      ]
+    },
+    {
+      "id": "caption-group-299",
+      "frame": 12,
+      "start": 322.473,
+      "end": 323.593,
+      "text": "este reto no",
+      "words": [
+        {
+          "id": "caption-word-299-0",
+          "text": "este",
+          "start": 322.473,
+          "end": 322.793
+        },
+        {
+          "id": "caption-word-299-1",
+          "text": "reto",
+          "start": 322.793,
+          "end": 323.353
+        },
+        {
+          "id": "caption-word-299-2",
+          "text": "no",
+          "start": 323.353,
+          "end": 323.593
+        }
+      ]
+    },
+    {
+      "id": "caption-group-300",
+      "frame": 12,
+      "start": 323.593,
+      "end": 325.033,
+      "text": "te promete vistas",
+      "words": [
+        {
+          "id": "caption-word-300-0",
+          "text": "te",
+          "start": 323.593,
+          "end": 323.833
+        },
+        {
+          "id": "caption-word-300-1",
+          "text": "promete",
+          "start": 323.833,
+          "end": 324.153
+        },
+        {
+          "id": "caption-word-300-2",
+          "text": "vistas",
+          "start": 324.153,
+          "end": 325.033
+        }
+      ]
+    },
+    {
+      "id": "caption-group-301",
+      "frame": 12,
+      "start": 325.033,
+      "end": 326.913,
+      "text": "seguidores ni ingresos",
+      "words": [
+        {
+          "id": "caption-word-301-0",
+          "text": "seguidores",
+          "start": 325.033,
+          "end": 325.673
+        },
+        {
+          "id": "caption-word-301-1",
+          "text": "ni",
+          "start": 325.673,
+          "end": 326.073
+        },
+        {
+          "id": "caption-word-301-2",
+          "text": "ingresos",
+          "start": 326.073,
+          "end": 326.793
+        }
+      ]
+    },
+    {
+      "id": "caption-group-302",
+      "frame": 12,
+      "start": 327.033,
+      "end": 328.313,
+      "text": "nadie honesto puede",
+      "words": [
+        {
+          "id": "caption-word-302-0",
+          "text": "nadie",
+          "start": 327.033,
+          "end": 327.513
+        },
+        {
+          "id": "caption-word-302-1",
+          "text": "honesto",
+          "start": 327.513,
+          "end": 327.993
+        },
+        {
+          "id": "caption-word-302-2",
+          "text": "puede",
+          "start": 327.993,
+          "end": 328.313
+        }
+      ]
+    },
+    {
+      "id": "caption-group-303",
+      "frame": 12,
+      "start": 328.313,
+      "end": 329.553,
+      "text": "prometerte eso",
+      "words": [
+        {
+          "id": "caption-word-303-0",
+          "text": "prometerte",
+          "start": 328.313,
+          "end": 328.873
+        },
+        {
+          "id": "caption-word-303-1",
+          "text": "eso",
+          "start": 328.873,
+          "end": 329.433
+        }
+      ]
+    },
+    {
+      "id": "caption-group-304",
+      "frame": 12,
+      "start": 329.753,
+      "end": 330.233,
+      "text": "lo único",
+      "words": [
+        {
+          "id": "caption-word-304-0",
+          "text": "lo",
+          "start": 329.753,
+          "end": 329.993
+        },
+        {
+          "id": "caption-word-304-1",
+          "text": "único",
+          "start": 329.993,
+          "end": 330.233
+        }
+      ]
+    },
+    {
+      "id": "caption-group-305",
+      "frame": 12,
+      "start": 330.233,
+      "end": 330.553,
+      "text": "que te",
+      "words": [
+        {
+          "id": "caption-word-305-0",
+          "text": "que",
+          "start": 330.233,
+          "end": 330.393
+        },
+        {
+          "id": "caption-word-305-1",
+          "text": "te",
+          "start": 330.393,
+          "end": 330.553
+        }
+      ]
+    },
+    {
+      "id": "caption-group-306",
+      "frame": 12,
+      "start": 330.553,
+      "end": 332.993,
+      "text": "garantiza es una habilidad",
+      "words": [
+        {
+          "id": "caption-word-306-0",
+          "text": "garantiza",
+          "start": 330.553,
+          "end": 331.193
+        },
+        {
+          "id": "caption-word-306-1",
+          "text": "es",
+          "start": 331.193,
+          "end": 331.673
+        },
+        {
+          "id": "caption-word-306-2",
+          "text": "una",
+          "start": 331.673,
+          "end": 331.993
+        },
+        {
+          "id": "caption-word-306-3",
+          "text": "habilidad",
+          "start": 331.993,
+          "end": 332.873
+        }
+      ]
+    },
+    {
+      "id": "caption-group-307",
+      "frame": 12,
+      "start": 333.353,
+      "end": 333.833,
+      "text": "pasar de",
+      "words": [
+        {
+          "id": "caption-word-307-0",
+          "text": "pasar",
+          "start": 333.353,
+          "end": 333.673
+        },
+        {
+          "id": "caption-word-307-1",
+          "text": "de",
+          "start": 333.673,
+          "end": 333.833
+        }
+      ]
+    },
+    {
+      "id": "caption-group-308",
+      "frame": 12,
+      "start": 333.833,
+      "end": 334.473,
+      "text": "una idea",
+      "words": [
+        {
+          "id": "caption-word-308-0",
+          "text": "una",
+          "start": 333.833,
+          "end": 333.993
+        },
+        {
+          "id": "caption-word-308-1",
+          "text": "idea",
+          "start": 333.993,
+          "end": 334.473
+        }
+      ]
+    },
+    {
+      "id": "caption-group-309",
+      "frame": 12,
+      "start": 334.473,
+      "end": 334.953,
+      "text": "a un",
+      "words": [
+        {
+          "id": "caption-word-309-0",
+          "text": "a",
+          "start": 334.473,
+          "end": 334.713
+        },
+        {
+          "id": "caption-word-309-1",
+          "text": "un",
+          "start": 334.713,
+          "end": 334.953
+        }
+      ]
+    },
+    {
+      "id": "caption-group-310",
+      "frame": 12,
+      "start": 334.953,
+      "end": 336.233,
+      "text": "video publicado por",
+      "words": [
+        {
+          "id": "caption-word-310-0",
+          "text": "video",
+          "start": 334.953,
+          "end": 335.193
+        },
+        {
+          "id": "caption-word-310-1",
+          "text": "publicado",
+          "start": 335.193,
+          "end": 335.833
+        },
+        {
+          "id": "caption-word-310-2",
+          "text": "por",
+          "start": 335.833,
+          "end": 336.233
+        }
+      ]
+    },
+    {
+      "id": "caption-group-311",
+      "frame": 12,
+      "start": 336.233,
+      "end": 337.433,
+      "text": "alrededor de un",
+      "words": [
+        {
+          "id": "caption-word-311-0",
+          "text": "alrededor",
+          "start": 336.233,
+          "end": 336.793
+        },
+        {
+          "id": "caption-word-311-1",
+          "text": "de",
+          "start": 336.793,
+          "end": 337.113
+        },
+        {
+          "id": "caption-word-311-2",
+          "text": "un",
+          "start": 337.113,
+          "end": 337.433
+        }
+      ]
+    },
+    {
+      "id": "caption-group-312",
+      "frame": 12,
+      "start": 337.433,
+      "end": 337.953,
+      "text": "dólar",
+      "words": [
+        {
+          "id": "caption-word-312-0",
+          "text": "dólar",
+          "start": 337.433,
+          "end": 337.833
+        }
+      ]
+    },
+    {
+      "id": "caption-group-313",
+      "frame": 12,
+      "start": 338.439,
+      "end": 339.799,
+      "text": "eso ya nadie",
+      "words": [
+        {
+          "id": "caption-word-313-0",
+          "text": "eso",
+          "start": 338.439,
+          "end": 339.079
+        },
+        {
+          "id": "caption-word-313-1",
+          "text": "ya",
+          "start": 339.079,
+          "end": 339.399
+        },
+        {
+          "id": "caption-word-313-2",
+          "text": "nadie",
+          "start": 339.399,
+          "end": 339.799
+        }
+      ]
+    },
+    {
+      "id": "caption-group-314",
+      "frame": 12,
+      "start": 339.799,
+      "end": 340.479,
+      "text": "te lo quita",
+      "words": [
+        {
+          "id": "caption-word-314-0",
+          "text": "te",
+          "start": 339.799,
+          "end": 339.959
+        },
+        {
+          "id": "caption-word-314-1",
+          "text": "lo",
+          "start": 339.959,
+          "end": 340.119
+        },
+        {
+          "id": "caption-word-314-2",
+          "text": "quita",
+          "start": 340.119,
+          "end": 340.359
+        }
+      ]
+    },
+    {
+      "id": "caption-group-315",
+      "frame": 13,
+      "start": 340.944,
+      "end": 342.224,
+      "text": "la guía completa",
+      "words": [
+        {
+          "id": "caption-word-315-0",
+          "text": "la",
+          "start": 340.944,
+          "end": 341.264
+        },
+        {
+          "id": "caption-word-315-1",
+          "text": "guía",
+          "start": 341.264,
+          "end": 341.504
+        },
+        {
+          "id": "caption-word-315-2",
+          "text": "completa",
+          "start": 341.504,
+          "end": 342.224
+        }
+      ]
+    },
+    {
+      "id": "caption-group-316",
+      "frame": 13,
+      "start": 342.224,
+      "end": 343.344,
+      "text": "día por día",
+      "words": [
+        {
+          "id": "caption-word-316-0",
+          "text": "día",
+          "start": 342.224,
+          "end": 342.624
+        },
+        {
+          "id": "caption-word-316-1",
+          "text": "por",
+          "start": 342.624,
+          "end": 342.864
+        },
+        {
+          "id": "caption-word-316-2",
+          "text": "día",
+          "start": 342.864,
+          "end": 343.344
+        }
+      ]
+    },
+    {
+      "id": "caption-group-317",
+      "frame": 13,
+      "start": 343.344,
+      "end": 343.904,
+      "text": "con todos",
+      "words": [
+        {
+          "id": "caption-word-317-0",
+          "text": "con",
+          "start": 343.344,
+          "end": 343.584
+        },
+        {
+          "id": "caption-word-317-1",
+          "text": "todos",
+          "start": 343.584,
+          "end": 343.904
+        }
+      ]
+    },
+    {
+      "id": "caption-group-318",
+      "frame": 13,
+      "start": 343.904,
+      "end": 345.104,
+      "text": "los costos está",
+      "words": [
+        {
+          "id": "caption-word-318-0",
+          "text": "los",
+          "start": 343.904,
+          "end": 344.144
+        },
+        {
+          "id": "caption-word-318-1",
+          "text": "costos",
+          "start": 344.144,
+          "end": 344.784
+        },
+        {
+          "id": "caption-word-318-2",
+          "text": "está",
+          "start": 344.784,
+          "end": 345.104
+        }
+      ]
+    },
+    {
+      "id": "caption-group-319",
+      "frame": 13,
+      "start": 345.104,
+      "end": 345.824,
+      "text": "gratis en",
+      "words": [
+        {
+          "id": "caption-word-319-0",
+          "text": "gratis",
+          "start": 345.104,
+          "end": 345.584
+        },
+        {
+          "id": "caption-word-319-1",
+          "text": "en",
+          "start": 345.584,
+          "end": 345.824
+        }
+      ]
+    },
+    {
+      "id": "caption-group-320",
+      "frame": 13,
+      "start": 345.824,
+      "end": 346.304,
+      "text": "el enlace",
+      "words": [
+        {
+          "id": "caption-word-320-0",
+          "text": "el",
+          "start": 345.824,
+          "end": 345.984
+        },
+        {
+          "id": "caption-word-320-1",
+          "text": "enlace",
+          "start": 345.984,
+          "end": 346.304
+        }
+      ]
+    },
+    {
+      "id": "caption-group-321",
+      "frame": 13,
+      "start": 346.304,
+      "end": 347.384,
+      "text": "de la descripción",
+      "words": [
+        {
+          "id": "caption-word-321-0",
+          "text": "de",
+          "start": 346.304,
+          "end": 346.464
+        },
+        {
+          "id": "caption-word-321-1",
+          "text": "la",
+          "start": 346.464,
+          "end": 346.544
+        },
+        {
+          "id": "caption-word-321-2",
+          "text": "descripción",
+          "start": 346.544,
+          "end": 347.264
+        }
+      ]
+    },
+    {
+      "id": "caption-group-322",
+      "frame": 13,
+      "start": 347.504,
+      "end": 348.144,
+      "text": "tienes una",
+      "words": [
+        {
+          "id": "caption-word-322-0",
+          "text": "tienes",
+          "start": 347.504,
+          "end": 347.904
+        },
+        {
+          "id": "caption-word-322-1",
+          "text": "una",
+          "start": 347.904,
+          "end": 348.144
+        }
+      ]
+    },
+    {
+      "id": "caption-group-323",
+      "frame": 13,
+      "start": 348.144,
+      "end": 348.464,
+      "text": "idea en",
+      "words": [
+        {
+          "id": "caption-word-323-0",
+          "text": "idea",
+          "start": 348.144,
+          "end": 348.304
+        },
+        {
+          "id": "caption-word-323-1",
+          "text": "en",
+          "start": 348.304,
+          "end": 348.464
+        }
+      ]
+    },
+    {
+      "id": "caption-group-324",
+      "frame": 13,
+      "start": 348.464,
+      "end": 348.864,
+      "text": "la cabeza",
+      "words": [
+        {
+          "id": "caption-word-324-0",
+          "text": "la",
+          "start": 348.464,
+          "end": 348.544
+        },
+        {
+          "id": "caption-word-324-1",
+          "text": "cabeza",
+          "start": 348.544,
+          "end": 348.864
+        }
+      ]
+    },
+    {
+      "id": "caption-group-325",
+      "frame": 13,
+      "start": 348.864,
+      "end": 349.904,
+      "text": "en este momento",
+      "words": [
+        {
+          "id": "caption-word-325-0",
+          "text": "en",
+          "start": 348.864,
+          "end": 349.104
+        },
+        {
+          "id": "caption-word-325-1",
+          "text": "este",
+          "start": 349.104,
+          "end": 349.264
+        },
+        {
+          "id": "caption-word-325-2",
+          "text": "momento",
+          "start": 349.264,
+          "end": 349.824
+        }
+      ]
+    },
+    {
+      "id": "caption-group-326",
+      "frame": 13,
+      "start": 349.904,
+      "end": 351.824,
+      "text": "día 1 díctala",
+      "words": [
+        {
+          "id": "caption-word-326-0",
+          "text": "día",
+          "start": 349.904,
+          "end": 350.224
+        },
+        {
+          "id": "caption-word-326-1",
+          "text": "1",
+          "start": 350.224,
+          "end": 350.864
+        },
+        {
+          "id": "caption-word-326-2",
+          "text": "díctala",
+          "start": 350.864,
+          "end": 351.744
+        }
+      ]
+    },
+    {
+      "id": "caption-group-327",
+      "frame": 13,
+      "start": 351.824,
+      "end": 352.464,
+      "text": "nos vemos",
+      "words": [
+        {
+          "id": "caption-word-327-0",
+          "text": "nos",
+          "start": 351.824,
+          "end": 352.144
+        },
+        {
+          "id": "caption-word-327-1",
+          "text": "vemos",
+          "start": 352.144,
+          "end": 352.464
+        }
+      ]
+    },
+    {
+      "id": "caption-group-328",
+      "frame": 13,
+      "start": 352.464,
+      "end": 353.544,
+      "text": "en 7 días",
+      "words": [
+        {
+          "id": "caption-word-328-0",
+          "text": "en",
+          "start": 352.464,
+          "end": 352.784
+        },
+        {
+          "id": "caption-word-328-1",
+          "text": "7",
+          "start": 352.784,
+          "end": 353.104
+        },
+        {
+          "id": "caption-word-328-2",
+          "text": "días",
+          "start": 353.104,
+          "end": 353.424
+        }
+      ]
+    }
+  ]
+}
