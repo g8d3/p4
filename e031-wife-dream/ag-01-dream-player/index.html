@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>El Sueño — A Paper-Cutout Dream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream: #f4e6cd;
+    --ink: #2b2118;
+    --accent: #c96f3a;
+    --glass: rgba(43, 33, 24, 0.45);
+    --glass-border: rgba(255, 244, 224, 0.28);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: #1a120b; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--cream);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; }
+
+  /* ---------- Title / scene label ---------- */
+  #title {
+    position: fixed; top: max(14px, env(safe-area-inset-top));
+    left: 16px; z-index: 10; pointer-events: none;
+    font-family: 'Cinzel', serif; font-weight: 800;
+    font-size: clamp(16px, 4.5vw, 26px); letter-spacing: 0.06em;
+    text-shadow: 0 2px 12px rgba(0,0,0,.55);
+  }
+  #scene-label {
+    position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 30px);
+    left: 16px; z-index: 10; pointer-events: none;
+    font-size: clamp(10px, 2.6vw, 13px); font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase; opacity: .85;
+    text-shadow: 0 1px 8px rgba(0,0,0,.6);
+  }
+
+  /* ---------- Subtitles ---------- */
+  #subtitle {
+    position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom));
+    transform: translateX(-50%); z-index: 9;
+    max-width: 92vw; width: max-content;
+    text-align: center;
+    font-size: clamp(15px, 4.2vw, 21px); font-weight: 500; line-height: 1.4;
+    color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.85);
+    background: rgba(20,14,8,.35); border-radius: 12px; padding: 8px 14px;
+    backdrop-filter: blur(3px);
+    opacity: 0; transition: opacity .35s ease;
+  }
+  #subtitle.show { opacity: 1; }
+
+  /* ---------- Loading ---------- */
+  #loading {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    background: radial-gradient(circle at 50% 40%, #3a2a1c, #1a120b 75%);
+    transition: opacity .5s ease;
+  }
+  #loading.hidden { opacity: 0; pointer-events: none; }
+  .loader-ring {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 3px solid rgba(244,230,205,.18); border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading p { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+
+  /* ---------- Intro / start overlay ---------- */
+  #start {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    background: rgba(20, 13, 7, .55); backdrop-filter: blur(6px);
+    opacity: 1; transition: opacity .6s ease;
+    text-align: center; padding: 24px;
+  }
+  #start.hidden { opacity: 0; pointer-events: none; }
+  #start h1 {
+    font-family: 'Cinzel', serif; font-weight: 800;
+    font-size: clamp(26px, 8vw, 44px); letter-spacing: .05em;
+  }
+  #start p { max-width: 420px; font-size: clamp(13px, 3.6vw, 16px); opacity: .85; line-height: 1.5; }
+  #start button, #preload {
+    font-family: inherit; font-size: 15px; font-weight: 600; letter-spacing: .08em;
+    color: var(--ink); background: linear-gradient(180deg, #ffd9a8, var(--accent));
+    border: none; border-radius: 999px; padding: 13px 30px; cursor: pointer;
+    box-shadow: 0 6px 22px rgba(0,0,0,.35); transition: transform .12s ease, filter .12s ease;
+  }
+  #start button:hover, #preload:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  #start button:active, #preload:active { transform: scale(.97); }
+
+  /* ---------- HUD (glassmorphism) ---------- */
+  #hud {
+    position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom));
+    transform: translateX(-50%); z-index: 12;
+    width: min(680px, calc(100vw - 20px));
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    backdrop-filter: blur(14px) saturate(1.3);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    padding: 10px 14px 12px;
+    display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+    box-shadow: 0 10px 34px rgba(0,0,0,.4);
+  }
+  .hud-row-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; }
+  #scrub { flex: 1; }
+  #timecode { font-size: 11px; opacity: .8; min-width: 86px; text-align: right; font-variant-numeric: tabular-nums; }
+  .hud-row-bottom { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  #play {
+    width: 46px; height: 46px; border-radius: 50%;
+    border: none; cursor: pointer;
+    background: linear-gradient(180deg, #ffd9a8, var(--accent));
+    color: var(--ink); display: grid; place-items: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,.35);
+    font-size: 18px; line-height: 1;
+  }
+  #play:active { transform: scale(.94); }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; height: 4px; border-radius: 4px;
+    background: rgba(244,230,205,.28); outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #ffd9a8; border: 2px solid var(--ink);
+    box-shadow: 0 0 6px rgba(0,0,0,.4);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #ffd9a8; border: 2px solid var(--ink); cursor: pointer;
+  }
+  #vol { width: 74px; }
+
+  select {
+    font-family: inherit; font-size: 12px; font-weight: 500;
+    color: var(--cream); background: rgba(255,244,224,.12);
+    border: 1px solid var(--glass-border); border-radius: 999px;
+    padding: 6px 10px; cursor: pointer; outline: none;
+  }
+  select option { color: var(--ink); background: #f4e6cd; }
+
+  #dots { display: flex; gap: 7px; align-items: center; margin-left: auto; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(244,230,205,.3); border: 1px solid rgba(255,244,224,.4);
+    cursor: pointer; padding: 0; transition: all .2s ease;
+  }
+  .dot.active { background: var(--accent); border-color: #ffd9a8; transform: scale(1.3); }
+  .dot:hover { background: rgba(244,230,205,.6); }
+
+  #fullscreen {
+    background: none; border: 1px solid var(--glass-border); border-radius: 10px;
+    color: var(--cream); width: 36px; height: 32px; cursor: pointer; font-size: 15px;
+    display: grid; place-items: center;
+  }
+  #fullscreen:hover { background: rgba(255,244,224,.14); }
+
+  #preload { font-size: 12px; padding: 8px 16px; border-radius: 999px; }
+
+  .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; opacity: .75; }
+
+  @media (max-width: 480px) {
+    #hud { gap: 8px; padding: 9px 10px 11px; }
+    .lbl { display: none; }
+    #vol { width: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stage"></div>
+
+<div id="title">El Sueño</div>
+<div id="scene-label">Acto I · La Montaña</div>
+
+<div id="subtitle"></div>
+
+<div id="loading">
+  <div class="loader-ring"></div>
+  <p>Building the dream…</p>
+</div>
+
+<div id="start">
+  <h1>El Sueño</h1>
+  <p>A nine-act dream in paper-cutout telenovela style. Tap begin, choose your narrator, and press play.</p>
+  <button id="begin">Begin the Dream</button>
+</div>
+
+<div id="hud">
+  <div class="hud-row-top">
+    <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Scrubber" />
+    <span id="timecode">1/9 · 0:00</span>
+  </div>
+  <button id="play" aria-label="Play/Pause">▶</button>
+  <div class="hud-row-bottom">
+    <span class="lbl">Volume</span>
+    <input type="range" id="vol" min="0" max="100" value="90" aria-label="Volume" />
+    <span class="lbl">Narrator</span>
+    <select id="provider" aria-label="TTS provider">
+      <option value="kie">KIE Gemini TTS</option>
+      <option value="deepgram">Deepgram Aura-2</option>
+      <option value="speech">Browser speech</option>
+    </select>
+    <button id="preload">Prepare narration</button>
+    <span id="dots"></span>
+    <button id="fullscreen" aria-label="Fullscreen">⛶</button>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script src="/globals.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ============================================================
+   State
+============================================================ */
+const state = {
+  sceneIdx: 0,
+  playing: false,
+  provider: 'kie',
+  preloading: false,
+  t: 0,
+};
+
+const KIE_BASE = (window.KIE_API_BASE_URL || 'https://api.kie.ai');
+const KIE_VOICE = 'Umbriel'; // p4-preferred narrator voice, kept consistent
+const DG_VOICE = 'aura-2-thalia-en';
+
+/* ============================================================
+   Renderer / scene / camera / lights
+============================================================ */
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#1a120b');
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 120);
+camera.position.set(0, 1.2, 9);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.62;
+controls.minDistance = 2;
+controls.maxDistance = 22;
+controls.enablePan = false;
+controls.target.set(0, 0.6, 0);
+
+const hemi = new THREE.HemisphereLight(0xfff2e0, 0x3a2a20, 1.05);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff0d8, 2.4);
+sun.position.set(3.5, 7, 5);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -9; sun.shadow.camera.right = 9;
+sun.shadow.camera.top = 9; sun.shadow.camera.bottom = -9;
+sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 30;
+sun.shadow.bias = -0.0005;
+scene.add(sun);
+
+/* Persistent paper ground + backdrop */
+function paperGrain(ctx, w, h, alpha) {
+  for (let i = 0; i < w * h * 0.012; i++) {
+    const g = 120 + Math.random() * 100;
+    ctx.fillStyle = `rgba(${g},${g},${g},${alpha})`;
+    ctx.fillRect(Math.random() * w, Math.random() * h, 1.4, 1.4);
+  }
+}
+function makeTexture(w, h, fn) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  fn(ctx, w, h);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+const groundTex = makeTexture(512, 512, (ctx, w, h) => {
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, '#dcc9a4'); g.addColorStop(1, '#b99f78');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  paperGrain(ctx, w, h, 0.05);
+});
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 60),
+  new THREE.MeshLambertMaterial({ map: groundTex })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -2.6;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const backTex = makeTexture(1024, 1024, (ctx, w, h) => {
+  const g = ctx.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, '#f7ecd6'); g.addColorStop(0.55, '#ecd9b4'); g.addColorStop(1, '#d6b98c');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  paperGrain(ctx, w, h, 0.05);
+});
+const backdrop = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 40),
+  new THREE.MeshLambertMaterial({ map: backTex })
+);
+backdrop.position.set(0, 6, -12);
+scene.add(backdrop);
+
+/* ============================================================
+   Cutout helpers
+============================================================ */
+function cutout(texture, { w = 1, h = 1, x = 0, y = 0, z = 0, rot = 0 } = {}) {
+  const m = new THREE.Mesh(
+    new THREE.PlaneGeometry(w, h),
+    new THREE.MeshLambertMaterial({ map: texture, transparent: true, alphaTest: 0.04, side: THREE.DoubleSide })
+  );
+  m.position.set(x, y, z);
+  m.rotation.z = rot;
+  m.castShadow = true;
+  return m;
+}
+function layer(w, h, fn, opts) {
+  return cutout(makeTexture(w, h, fn), opts);
+}
+
+/* ---------- Character painters (paper-cutout style) ---------- */
+function drawHead(ctx, x, y, r, skin, hair, hairFn) {
+  ctx.fillStyle = skin;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  if (hairFn) hairFn(ctx, x, y, r);
+  else {
+    ctx.fillStyle = hair;
+    ctx.beginPath(); ctx.arc(x, y - r * 0.18, r * 1.02, Math.PI, 0); ctx.fill();
+  }
+}
+function drawGlasses(ctx, x, y, r) {
+  ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+  ctx.lineWidth = Math.max(1.5, r * 0.12);
+  ctx.beginPath(); ctx.arc(x - r * 0.55, y, r * 0.42, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(x + r * 0.55, y, r * 0.42, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - r * 0.13, y); ctx.lineTo(x + r * 0.13, y); ctx.stroke();
+  ctx.fillStyle = '#2b2118';
+  ctx.beginPath(); ctx.arc(x - r * 0.55, y, r * 0.07, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + r * 0.55, y, r * 0.07, 0, Math.PI * 2); ctx.fill();
+}
+
+// Protagonist: short dark hair + round clear-frame glasses, everywhere.
+function drawProtagonist(ctx, w, h, { grabbing = false, dress = '#7a3b57', hair = '#2c2220', lookDown = false } = {}) {
+  const cx = w / 2;
+  // legs
+  ctx.fillStyle = '#c98d5f';
+  ctx.fillRect(cx - 24, h - 90, 16, 44);
+  ctx.fillRect(cx + 8, h - 90, 16, 44);
+  // shoes
+  ctx.fillStyle = '#5a3a26';
+  ctx.fillRect(cx - 27, h - 52, 20, 10);
+  ctx.fillRect(cx + 7, h - 52, 20, 10);
+  // dress/torso
+  ctx.fillStyle = dress;
+  ctx.beginPath();
+  ctx.moveTo(cx - 34, h - 150);
+  ctx.lineTo(cx + 34, h - 150);
+  ctx.lineTo(cx + 26, h - 88);
+  ctx.lineTo(cx - 26, h - 88);
+  ctx.closePath(); ctx.fill();
+  // collar
+  ctx.fillStyle = '#f2e6d0';
+  ctx.beginPath(); ctx.moveTo(cx - 12, h - 148); ctx.lineTo(cx, h - 128); ctx.lineTo(cx + 12, h - 148); ctx.closePath(); ctx.fill();
+  // arm (one reaching out when grabbing)
+  ctx.strokeStyle = '#c98d5f'; ctx.lineWidth = 12; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx - 24, h - 132);
+  if (grabbing) { ctx.lineTo(cx - 52, h - 118); }
+  else { ctx.lineTo(cx - 30, h - 104); }
+  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + 24, h - 132); ctx.lineTo(cx + 34, h - 104); ctx.stroke();
+  // head
+  const headY = h - 186, r = 30;
+  ctx.fillStyle = '#e8b98a';
+  ctx.beginPath(); ctx.arc(cx, headY, r, 0, Math.PI * 2); ctx.fill();
+  // short dark hair (bob)
+  ctx.fillStyle = hair;
+  ctx.beginPath(); ctx.arc(cx, headY - r * 0.22, r * 1.06, Math.PI, 0); ctx.fill();
+  ctx.fillRect(cx - r, headY - r * 0.3, r * 0.28, r * 1.35);
+  ctx.fillRect(cx + r * 0.72, headY - r * 0.3, r * 0.28, r * 1.35);
+  // face
+  ctx.fillStyle = '#2b2118';
+  if (lookDown) { ctx.beginPath(); ctx.arc(cx, headY + r * 0.2, r * 0.09, 0, Math.PI * 2); ctx.fill(); }
+  else {
+    ctx.beginPath(); ctx.arc(cx - r * 0.3, headY - r * 0.05, r * 0.08, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r * 0.3, headY - r * 0.05, r * 0.08, 0, Math.PI * 2); ctx.fill();
+  }
+  // the signature round clear-frame glasses
+  drawGlasses(ctx, cx, headY, r);
+  // mouth
+  ctx.strokeStyle = '#a05a3c'; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(cx, headY + r * 0.42, r * 0.22, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke();
+}
+
+// Villain: older man, brown suit, mustache.
+function drawVillain(ctx, w, h, { badge = false, armGrab = false } = {}) {
+  const cx = w / 2;
+  // legs
+  ctx.fillStyle = '#4a3a28';
+  ctx.fillRect(cx - 26, h - 88, 18, 42);
+  ctx.fillRect(cx + 8, h - 88, 18, 42);
+  // shoes
+  ctx.fillStyle = '#1f1810';
+  ctx.fillRect(cx - 30, h - 50, 22, 10);
+  ctx.fillRect(cx + 8, h - 50, 22, 10);
+  // brown suit jacket
+  ctx.fillStyle = '#6b4f2e';
+  ctx.beginPath();
+  ctx.moveTo(cx - 36, h - 152);
+  ctx.lineTo(cx + 36, h - 152);
+  ctx.lineTo(cx + 28, h - 86);
+  ctx.lineTo(cx - 28, h - 86);
+  ctx.closePath(); ctx.fill();
+  // shirt + tie
+  ctx.fillStyle = '#efe6d2';
+  ctx.beginPath(); ctx.moveTo(cx - 13, h - 150); ctx.lineTo(cx + 13, h - 150); ctx.lineTo(cx + 8, h - 96); ctx.lineTo(cx - 8, h - 96); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#8a2f2f';
+  ctx.beginPath(); ctx.moveTo(cx - 5, h - 148); ctx.lineTo(cx + 5, h - 148); ctx.lineTo(cx + 2, h - 118); ctx.lineTo(cx, h - 128); ctx.lineTo(cx - 2, h - 118); ctx.closePath(); ctx.fill();
+  // arm
+  ctx.strokeStyle = '#6b4f2e'; ctx.lineWidth = 13; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx + 26, h - 130);
+  ctx.lineTo(cx + 40, armGrab ? h - 112 : h - 100);
+  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx - 26, h - 130); ctx.lineTo(cx - 38, h - 100); ctx.stroke();
+  // hand
+  ctx.fillStyle = '#e8b98a';
+  ctx.beginPath(); ctx.arc(cx + 40, armGrab ? h - 110 : h - 98, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx - 38, h - 98, 7, 0, Math.PI * 2); ctx.fill();
+  // doctor badge (actor's costume piece)
+  if (badge) {
+    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5;
+    ctx.fillRect(cx + 8, h - 140, 22, 30); ctx.strokeRect(cx + 8, h - 140, 22, 30);
+    ctx.fillStyle = '#c0392b';
+    ctx.fillRect(cx + 12, h - 134, 14, 3); ctx.fillRect(cx + 12, h - 128, 14, 3);
+    ctx.fillStyle = '#555';
+    ctx.fillRect(cx + 12, h - 121, 14, 2);
+  }
+  // head
+  const headY = h - 186, r = 29;
+  ctx.fillStyle = '#e0ab7e';
+  ctx.beginPath(); ctx.arc(cx, headY, r, 0, Math.PI * 2); ctx.fill();
+  // gray receding hair
+  ctx.fillStyle = '#8f8a82';
+  ctx.beginPath(); ctx.arc(cx, headY - r * 0.2, r * 1.02, Math.PI * 0.92, Math.PI * 0.08); ctx.fill();
+  // eyebrows + eyes
+  ctx.fillStyle = '#3a3128';
+  ctx.fillRect(cx - r * 0.62, headY - r * 0.42, r * 0.34, 4);
+  ctx.fillRect(cx + r * 0.28, headY - r * 0.42, r * 0.34, 4);
+  ctx.beginPath(); ctx.arc(cx - r * 0.42, headY - r * 0.08, 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r * 0.42, headY - r * 0.08, 3.5, 0, Math.PI * 2); ctx.fill();
+  // mustache
+  ctx.fillStyle = '#4a3b2c';
+  ctx.beginPath();
+  ctx.moveTo(cx - r * 0.7, headY + r * 0.28);
+  ctx.quadraticCurveTo(cx - r * 0.25, headY + r * 0.52, cx, headY + r * 0.26);
+  ctx.quadraticCurveTo(cx + r * 0.25, headY + r * 0.52, cx + r * 0.7, headY + r * 0.28);
+  ctx.quadraticCurveTo(cx, headY + r * 0.66, cx - r * 0.7, headY + r * 0.28);
+  ctx.fill();
+}
+
+function drawMother(ctx, w, h) {
+  const cx = w / 2;
+  // long skirt
+  ctx.fillStyle = '#3f6b5a';
+  ctx.beginPath(); ctx.moveTo(cx - 30, h - 130); ctx.lineTo(cx + 30, h - 130); ctx.lineTo(cx + 44, h - 40); ctx.lineTo(cx - 44, h - 40); ctx.closePath(); ctx.fill();
+  // shawl top
+  ctx.fillStyle = '#8a5a44';
+  ctx.beginPath(); ctx.moveTo(cx - 28, h - 168); ctx.lineTo(cx + 28, h - 168); ctx.lineTo(cx + 24, h - 126); ctx.lineTo(cx - 24, h - 126); ctx.closePath(); ctx.fill();
+  // head with long dark hair
+  const headY = h - 200, r = 27;
+  ctx.fillStyle = '#e8b98a';
+  ctx.beginPath(); ctx.arc(cx, headY, r, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#2c2220';
+  ctx.beginPath(); ctx.arc(cx, headY - r * 0.2, r * 1.04, Math.PI, 0); ctx.fill();
+  ctx.fillRect(cx - r, headY - r * 0.2, r * 0.35, r * 2.1);
+  ctx.fillRect(cx + r * 0.65, headY - r * 0.2, r * 0.35, r * 2.1);
+  ctx.fillStyle = '#2b2118';
+  ctx.beginPath(); ctx.arc(cx - r * 0.3, headY, r * 0.08, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r * 0.3, headY, r * 0.08, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawWoman(ctx, w, h) {
+  const cx = w / 2;
+  // flirty dress (red)
+  ctx.fillStyle = '#b03a48';
+  ctx.beginPath(); ctx.moveTo(cx - 26, h - 150); ctx.lineTo(cx + 26, h - 150); ctx.lineTo(cx + 20, h - 92); ctx.lineTo(cx - 20, h - 92); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#c98d5f';
+  ctx.fillRect(cx - 20, h - 88, 14, 40); ctx.fillRect(cx + 6, h - 88, 14, 40);
+  // long wavy hair
+  const headY = h - 184, r = 26;
+  ctx.fillStyle = '#e8b98a';
+  ctx.beginPath(); ctx.arc(cx, headY, r, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#7a3b12';
+  ctx.beginPath(); ctx.arc(cx, headY - r * 0.18, r * 1.05, Math.PI, 0); ctx.fill();
+  ctx.fillRect(cx - r, headY - r * 0.18, r * 0.4, r * 2.2);
+  ctx.fillRect(cx + r * 0.6, headY - r * 0.18, r * 0.4, r * 2.2);
+  ctx.fillStyle = '#2b2118';
+  ctx.beginPath(); ctx.arc(cx - r * 0.3, headY, r * 0.07, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + r * 0.3, headY, r * 0.07, 0, Math.PI * 2); ctx.fill();
+  ctx.strokeStyle = '#a05a3c'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.arc(cx, headY + r * 0.42, r * 0.24, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
+}
+
+function drawSilhouettePair(ctx, w, h) {
+  // two embracing silhouettes (dark, backlit)
+  ctx.fillStyle = '#241a12';
+  // left figure
+  ctx.beginPath();
+  ctx.moveTo(w * 0.28, h);
+  ctx.lineTo(w * 0.28, h * 0.42);
+  ctx.arc(w * 0.38, h * 0.42, h * 0.13, Math.PI * 0.5, Math.PI * 1.45);
+  ctx.lineTo(w * 0.44, h * 0.62);
+  ctx.lineTo(w * 0.5, h);
+  ctx.closePath(); ctx.fill();
+  // right figure leaning in
+  ctx.beginPath();
+  ctx.moveTo(w * 0.72, h);
+  ctx.lineTo(w * 0.66, h * 0.4);
+  ctx.arc(w * 0.56, h * 0.42, h * 0.13, Math.PI * 1.5, Math.PI * 0.5, true);
+  ctx.lineTo(w * 0.5, h * 0.62);
+  ctx.closePath(); ctx.fill();
+}
+
+/* ---------- Prop painters ---------- */
+function drawHouse(ctx, w, h, burning = false) {
+  ctx.fillStyle = '#c98f4e';
+  ctx.fillRect(w * 0.12, h * 0.42, w * 0.76, h * 0.48);
+  ctx.fillStyle = '#a8763a';
+  ctx.fillRect(w * 0.12, h * 0.42, w * 0.76, h * 0.08);
+  ctx.fillStyle = '#8a4b2e';
+  ctx.beginPath(); ctx.moveTo(w * 0.05, h * 0.44); ctx.lineTo(w * 0.5, h * 0.1); ctx.lineTo(w * 0.95, h * 0.44); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#5a3a26';
+  ctx.fillRect(w * 0.4, h * 0.6, w * 0.2, h * 0.3);
+  if (burning) {
+    ctx.fillStyle = 'rgba(230,120,40,.95)';
+    ctx.beginPath(); ctx.arc(w * 0.5, h * 0.12, w * 0.12, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(220,60,30,.9)';
+    ctx.beginPath(); ctx.arc(w * 0.5, h * 0.18, w * 0.08, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(90,60,40,.55)';
+    ctx.beginPath(); ctx.arc(w * 0.55, h * 0.02, w * 0.07, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(w * 0.44, h * 0.0, w * 0.05, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function drawArrow(ctx, w, h) {
+  // flying arrow, pointing up-right, with flaming tip
+  ctx.save();
+  ctx.translate(w / 2, h / 2);
+  ctx.rotate(-Math.PI / 4);
+  ctx.strokeStyle = '#6b4f2e'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-w * 0.3, 0); ctx.lineTo(w * 0.3, 0); ctx.stroke();
+  ctx.fillStyle = '#6b4f2e';
+  ctx.beginPath(); ctx.moveTo(w * 0.3, 0); ctx.lineTo(w * 0.18, -8); ctx.lineTo(w * 0.18, 8); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = '#e8e0cc';
+  ctx.beginPath(); ctx.moveTo(-w * 0.3, 0); ctx.lineTo(-w * 0.38, -9); ctx.lineTo(-w * 0.42, 0); ctx.lineTo(-w * 0.38, 9); ctx.closePath(); ctx.fill();
+  // flame tip
+  ctx.fillStyle = 'rgba(240,130,30,.95)';
+  ctx.beginPath(); ctx.ellipse(w * 0.42, -2, w * 0.14, w * 0.07, 0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(220,50,30,.95)';
+  ctx.beginPath(); ctx.ellipse(w * 0.5, 0, w * 0.07, w * 0.04, 0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawHeels(ctx, w, h) {
+  // Two pink fuzzy glitter high heels, toes pointing LEFT — worn backwards.
+  // Each heel: a sole with an obvious high spike at the BACK (right side) and
+  // a rounded toe box at the FRONT (left side), so the wrong-way fit reads.
+  const sparkle = (x, y, r) => {
+    ctx.fillStyle = 'rgba(255,255,255,.9)';
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  };
+  const drawHeel = (ox, oy, s) => {
+    ctx.save();
+    ctx.translate(ox, oy);
+    ctx.scale(s, s);
+    // sole line (the base the foot sits on)
+    ctx.strokeStyle = '#c0487e'; ctx.lineWidth = 8; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-128, 4);
+    ctx.quadraticCurveTo(-40, -2, 46, 6);
+    ctx.stroke();
+    // heel spike at the back (right): tall and narrow, unmistakable
+    ctx.fillStyle = '#d44f96';
+    ctx.beginPath();
+    ctx.moveTo(30, -8);
+    ctx.lineTo(52, -8);
+    ctx.lineTo(46, 58);
+    ctx.lineTo(30, 58);
+    ctx.closePath(); ctx.fill();
+    // spike tip highlight
+    ctx.fillStyle = '#e87ab2';
+    ctx.beginPath(); ctx.moveTo(46, 58); ctx.lineTo(30, 58); ctx.lineTo(34, 30); ctx.closePath(); ctx.fill();
+    // fuzzy pink upper — toe box at the FRONT (left side), no strap (pumps)
+    ctx.fillStyle = '#f27cb0';
+    ctx.beginPath();
+    ctx.moveTo(-128, 2);
+    ctx.quadraticCurveTo(-150, -40, -104, -52);   // rounded toe, pointing left
+    ctx.quadraticCurveTo(-46, -66, 8, -46);       // high vamp
+    ctx.quadraticCurveTo(42, -32, 38, 0);         // dips to the heel cup
+    ctx.closePath(); ctx.fill();
+    // fuzzy fur tufts around the opening + toe
+    ctx.fillStyle = '#ff9ec9';
+    const tufts = [
+      [-120, -34], [-100, -50], [-72, -58], [-40, -60], [-8, -52],
+      [22, -40], [34, -22], [34, -8],
+    ];
+    tufts.forEach(([tx, ty]) => {
+      ctx.beginPath(); ctx.arc(tx, ty, 11, 0, Math.PI * 2); ctx.fill();
+    });
+    // inner shadow under the vamp
+    ctx.fillStyle = 'rgba(160,40,90,.35)';
+    ctx.beginPath();
+    ctx.moveTo(-40, -14);
+    ctx.quadraticCurveTo(0, -8, 30, -4);
+    ctx.quadraticCurveTo(0, 4, -40, -2);
+    ctx.closePath(); ctx.fill();
+    // glitter dots
+    for (let i = 0; i < 46; i++) {
+      sparkle(-140 + Math.random() * 180, -58 + Math.random() * 52, 1 + Math.random() * 2.5);
+    }
+    ctx.restore();
+  };
+  drawHeel(w * 0.6, h * 0.58, 0.85);  // front foot, mid-stride
+  drawHeel(w * 0.26, h * 0.9, 0.85);  // back foot, behind it
+}
+
+/* ============================================================
+   Scene data — the 9-act dream (plan.md §4)
+============================================================ */
+const SCENES = [
+  {
+    id: 'Scene 1', label: 'Acto I · La Montaña',
+    env: 'A quiet mountain night, a small paper house, moonlight.',
+    title: 'Pobreza en el Monte',
+    narration: 'High in the mountains, a girl with round glasses and her mother whisper about a secret project that could change everything.',
+    build(g) {
+      // distant mountain silhouettes (paper layers)
+      g.add(layer(1024, 512, (ctx, w, h) => {
+        ctx.fillStyle = '#b7a184';
+        ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(w * 0.22, h * 0.18); ctx.lineTo(w * 0.4, h * 0.55); ctx.lineTo(w * 0.62, h * 0.1); ctx.lineTo(w * 0.85, h * 0.5); ctx.lineTo(w, h * 0.25); ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
+      }, { w: 16, h: 6, x: 0, y: 1.6, z: -6 }));
+      g.add(layer(1024, 512, (ctx, w, h) => {
+        ctx.fillStyle = '#8f7757';
+        ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(w * 0.3, h * 0.35); ctx.lineTo(w * 0.5, h * 0.7); ctx.lineTo(w * 0.75, h * 0.3); ctx.lineTo(w, h * 0.55); ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
+      }, { w: 18, h: 7, x: 0, y: 0.4, z: -4 }));
+      // moon
+      g.add(layer(128, 128, (ctx, w, h) => {
+        ctx.fillStyle = '#fdf3d7';
+        ctx.beginPath(); ctx.arc(w / 2, h / 2, w * 0.36, 0, Math.PI * 2); ctx.fill();
+      }, { w: 2.2, h: 2.2, x: 4.4, y: 5, z: -5 }));
+      // their small home
+      g.add(layer(300, 260, (ctx, w, h) => drawHouse(ctx, w, h), { w: 3.4, h: 3, x: 2.6, y: -0.9, z: -1.5 }));
+      // protagonist + mother by the house
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h), { w: 1.9, h: 3.8, x: 1.1, y: -0.4, z: -0.5 }));
+      g.add(layer(256, 512, (ctx, w, h) => drawMother(ctx, w, h), { w: 2, h: 4, x: -0.7, y: -0.3, z: -1 }));
+    },
+    cam: { pos: [0, 0.9, 9], look: [0.8, 0.6, -2] },
+  },
+  {
+    id: 'Scene 2', label: 'Acto II · El Hospital',
+    env: 'A cracked hospital lobby after an earthquake.',
+    title: 'Buscando al Oftalmólogo',
+    narration: 'She walks through a cracked hospital lobby, clutching a crumpled note that says: Dr. Bejarano.',
+    build(g) {
+      // cracked teal wall
+      g.add(layer(1024, 640, (ctx, w, h) => {
+        ctx.fillStyle = '#9fbdb4';
+        ctx.fillRect(0, 0, w, h);
+        // cracks
+        ctx.strokeStyle = 'rgba(60,50,40,.7)'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(w * 0.2, 0); ctx.lineTo(w * 0.3, h * 0.3); ctx.lineTo(w * 0.22, h * 0.62); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w * 0.75, 0); ctx.lineTo(w * 0.68, h * 0.4); ctx.lineTo(w * 0.78, h * 0.75); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(w * 0.45, h * 0.2); ctx.lineTo(w * 0.5, h * 0.5); ctx.stroke();
+        // sign
+        ctx.fillStyle = '#f2ead8';
+        ctx.fillRect(w * 0.4, h * 0.06, w * 0.2, h * 0.1);
+        ctx.fillStyle = '#4a5a54'; ctx.font = `bold ${h * 0.05}px Inter, sans-serif`; ctx.textAlign = 'center';
+        ctx.fillText('HOSPITAL', w * 0.5, h * 0.13);
+      }, { w: 14, h: 7.5, x: 0, y: 2.6, z: -6 }));
+      // floor line
+      g.add(layer(1024, 200, (ctx, w, h) => {
+        ctx.fillStyle = '#c4b393';
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(90,70,50,.5)'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(w * 0.1, h); ctx.lineTo(w * 0.5, 0); ctx.moveTo(w * 0.9, h); ctx.lineTo(w * 0.6, 0); ctx.stroke();
+      }, { w: 16, h: 2.4, x: 0, y: -1.7, z: -3 }));
+      // protagonist holding the note
+      g.add(layer(256, 512, (ctx, w, h) => {
+        drawProtagonist(ctx, w, h);
+        // paper note
+        ctx.save(); ctx.translate(w * 0.62, h * 0.42); ctx.rotate(0.15);
+        ctx.fillStyle = '#f7f0dc'; ctx.strokeStyle = '#b7a184'; ctx.lineWidth = 2;
+        ctx.fillRect(-40, -26, 80, 52); ctx.strokeRect(-40, -26, 80, 52);
+        ctx.fillStyle = '#3a3128'; ctx.font = 'bold 15px Inter, sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('Dr. Bejarano', 0, 4);
+        ctx.restore();
+      }, { w: 2.1, h: 4.2, x: 0, y: -1.15, z: -0.5 }));
+    },
+    cam: { pos: [0, 1.4, 7.5], look: [0, 0.9, -3] },
+  },
+  {
+    id: 'Scene 3', label: 'Acto III · La Escalera',
+    env: 'A broken staircase ending in a giant gap, a void below.',
+    title: 'Laberinto de Escaleras',
+    narration: 'A staircase that ends in a void. She looks down, and the dream pulls her deeper.',
+    build(g) {
+      // staircase steps receding
+      for (let i = 0; i < 7; i++) {
+        const z = -1 - i * 1.1;
+        const y = -1.6 + i * 0.55;
+        g.add(layer(256, 96, (ctx, w, h) => {
+          ctx.fillStyle = i % 2 ? '#8a6f52' : '#9a7f62';
+          ctx.fillRect(0, 0, w, h);
+          ctx.fillStyle = 'rgba(0,0,0,.08)';
+          ctx.fillRect(0, 0, w, h * 0.25);
+        }, { w: 4.2 - i * 0.3, h: 0.5, x: 0, y, z }));
+      }
+      // the void
+      g.add(layer(512, 512, (ctx, w, h) => {
+        const grd = ctx.createRadialGradient(w / 2, h * 0.4, 20, w / 2, h * 0.4, w * 0.55);
+        grd.addColorStop(0, '#0c0704'); grd.addColorStop(1, '#2a1c10');
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+      }, { w: 5, h: 5, x: 0, y: -2.2, z: -8.4 }));
+      // protagonist at the edge, looking down
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h, { lookDown: true }), { w: 1.8, h: 3.6, x: 0.4, y: -1.35, z: -0.6 }));
+    },
+    cam: { pos: [2.4, 1.6, 6.5], look: [0.2, -0.4, -4] },
+  },
+  {
+    id: 'Scene 4', label: 'Acto IV · El Café',
+    env: 'A hospital café with a small table, warm light.',
+    title: 'El Encuentro con el Actor',
+    narration: 'In the hospital café, she grabs the arm of the man wearing the doctor\'s badge. He is not a doctor.',
+    build(g) {
+      // warm café backdrop
+      g.add(layer(1024, 640, (ctx, w, h) => {
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, '#d8b98a'); grd.addColorStop(1, '#b08a5c');
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+        // window
+        ctx.fillStyle = '#f7ecd6'; ctx.fillRect(w * 0.1, h * 0.08, w * 0.34, h * 0.5);
+        ctx.strokeStyle = '#7a5c38'; ctx.lineWidth = 6;
+        ctx.strokeRect(w * 0.1, h * 0.08, w * 0.34, h * 0.5);
+        ctx.beginPath(); ctx.moveTo(w * 0.27, h * 0.08); ctx.lineTo(w * 0.27, h * 0.58); ctx.stroke();
+      }, { w: 14, h: 7.5, x: 0, y: 2.4, z: -6 }));
+      // table
+      g.add(layer(256, 128, (ctx, w, h) => {
+        ctx.fillStyle = '#6b4a2c'; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.fillRect(0, 0, w, h * 0.2);
+      }, { w: 3.4, h: 1.1, x: 0, y: -0.55, z: -2 }));
+      g.add(layer(64, 256, (ctx, w, h) => { ctx.fillStyle = '#4a3320'; ctx.fillRect(0, 0, w, h); }, { w: 0.3, h: 2.2, x: -0.2, y: -1.7, z: -2.05 }));
+      g.add(layer(64, 256, (ctx, w, h) => { ctx.fillStyle = '#4a3320'; ctx.fillRect(0, 0, w, h); }, { w: 0.3, h: 2.2, x: 0.2, y: -1.7, z: -2.05 }));
+      // villain with doctor badge + protagonist grabbing his arm
+      g.add(layer(256, 512, (ctx, w, h) => drawVillain(ctx, w, h, { badge: true, armGrab: true }), { w: 1.9, h: 3.8, x: 1.3, y: -1.05, z: -0.8 }));
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h, { grabbing: true }), { w: 1.9, h: 3.8, x: -0.9, y: -1.05, z: -0.4 }));
+    },
+    cam: { pos: [0, 1.3, 6.2], look: [0.2, 0.5, -2.5] },
+  },
+  {
+    id: 'Scene 5', label: 'Acto V · El Monte',
+    env: 'A winding mountain path at dusk, two figures trudging up.',
+    title: 'Caminata al Monte',
+    narration: 'She drags him up the mountain path, blackmailing him to fund the project.',
+    build(g) {
+      // dusk sky
+      g.add(layer(1024, 640, (ctx, w, h) => {
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, '#e8b8a0'); grd.addColorStop(0.5, '#c98a6a'); grd.addColorStop(1, '#8a5a44');
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+      }, { w: 16, h: 8, x: 0, y: 3, z: -7 }));
+      // path
+      g.add(layer(1024, 256, (ctx, w, h) => {
+        ctx.fillStyle = '#9a7a55';
+        ctx.beginPath(); ctx.moveTo(0, h * 0.85); ctx.quadraticCurveTo(w * 0.35, h * 0.4, w * 0.7, h * 0.28); ctx.lineTo(w, h * 0.16); ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath(); ctx.fill();
+      }, { w: 16, h: 4.5, x: 0, y: -1.4, z: -3 }));
+      // rope between them
+      g.add(layer(512, 64, (ctx, w, h) => {
+        ctx.strokeStyle = '#5a3a26'; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.quadraticCurveTo(w * 0.5, h * 0.15, w, h / 2); ctx.stroke();
+      }, { w: 3, h: 0.5, x: -0.05, y: -0.75, z: -0.2 }));
+      // protagonist dragging, villain behind
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h, { grabbing: true }), { w: 1.8, h: 3.6, x: -1.1, y: -1.25, z: -0.4 }));
+      g.add(layer(256, 512, (ctx, w, h) => drawVillain(ctx, w, h, { armGrab: true }), { w: 1.8, h: 3.6, x: 1.2, y: -1.35, z: -0.8 }));
+    },
+    cam: { pos: [0.6, 1.2, 7.8], look: [-0.3, 0.7, -3] },
+  },
+  {
+    id: 'Scene 6', label: 'Acto VI · Las Flechas',
+    env: 'Flaming paper arrows raining down, a small house for cover.',
+    title: 'Ataque de Flechas',
+    narration: 'Flaming arrows rain from the sky. She pulls the aging villain to safety behind a small house.',
+    build(g) {
+      // stormy sky
+      g.add(layer(1024, 640, (ctx, w, h) => {
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, '#5a4a52'); grd.addColorStop(1, '#8a5a3a');
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+      }, { w: 16, h: 8, x: 0, y: 3, z: -7 }));
+      // small house
+      g.add(layer(300, 260, (ctx, w, h) => drawHouse(ctx, w, h), { w: 3, h: 2.6, x: 1.4, y: -1.1, z: -1.6 }));
+      // arrows (animated in update)
+      const arrows = [];
+      for (let i = 0; i < 5; i++) {
+        const a = layer(128, 128, (ctx, w, h) => drawArrow(ctx, w, h), { w: 1.1, h: 1.1, x: -2.5 + i * 1.25, y: 2.6, z: -2 });
+        a.userData = { baseY: 2.6, speed: 0.8 + Math.random() * 0.6, amp: 0.5 + Math.random() * 0.4 };
+        arrows.push(a); g.add(a);
+      }
+      g.userData.arrows = arrows;
+      // the two hiding behind the house
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h, { grabbing: true }), { w: 1.7, h: 3.4, x: 2.6, y: -1.5, z: -1.2 }));
+      g.add(layer(256, 512, (ctx, w, h) => drawVillain(ctx, w, h, { armGrab: true }), { w: 1.7, h: 3.4, x: 3.9, y: -1.55, z: -1.4 }));
+    },
+    update(g, t) {
+      (g.userData.arrows || []).forEach((a, i) => {
+        a.position.y = a.userData.baseY - (t * a.userData.speed + i * 0.4) % 4.4;
+        a.rotation.z = Math.sin(t * 2 + i) * 0.12;
+      });
+    },
+    cam: { pos: [1.6, 1.2, 6.8], look: [1.4, 0.2, -2] },
+  },
+  {
+    id: 'Scene 7', label: 'Acto VII · La Oficina',
+    env: 'A hospital office, a changing screen, another woman flirting.',
+    title: 'Cambio de Ropa y Drama',
+    narration: 'Inside a hospital office, she changes clothes while another woman flirts with the villain.',
+    build(g) {
+      // office wall + window
+      g.add(layer(1024, 640, (ctx, w, h) => {
+        ctx.fillStyle = '#b3a98f';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#e8dcc0'; ctx.strokeStyle = '#7a5c38'; ctx.lineWidth = 6;
+        ctx.fillRect(w * 0.06, h * 0.08, w * 0.3, h * 0.5); ctx.strokeRect(w * 0.06, h * 0.08, w * 0.3, h * 0.5);
+        ctx.beginPath(); ctx.moveTo(w * 0.21, h * 0.08); ctx.lineTo(w * 0.21, h * 0.58); ctx.stroke();
+        // desk
+        ctx.fillStyle = '#7a5c38';
+        ctx.fillRect(w * 0.55, h * 0.62, w * 0.38, h * 0.08);
+      }, { w: 14, h: 7.5, x: 0, y: 2.4, z: -6 }));
+      // changing screen (a paper screen with her behind)
+      g.add(layer(256, 512, (ctx, w, h) => {
+        ctx.fillStyle = '#c96f3a'; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(255,244,224,.9)';
+        ctx.beginPath(); ctx.arc(w / 2, h * 0.5, w * 0.24, 0, Math.PI * 2); ctx.fill();
+      }, { w: 2.2, h: 4.4, x: -3.4, y: -1.2, z: -1 }));
+      // protagonist mid-change (different dress)
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h, { dress: '#2e6b8a' }), { w: 1.6, h: 3.2, x: -4.6, y: -1.4, z: -0.9 }));
+      // villain + flirty woman
+      g.add(layer(256, 512, (ctx, w, h) => drawVillain(ctx, w, h), { w: 1.8, h: 3.6, x: 2.3, y: -1.3, z: -0.8 }));
+      g.add(layer(256, 512, (ctx, w, h) => drawWoman(ctx, w, h), { w: 1.7, h: 3.4, x: 3.9, y: -1.35, z: -1 }));
+    },
+    cam: { pos: [0, 1.4, 7.2], look: [0.5, 0.4, -2.5] },
+  },
+  {
+    id: 'Scene 8', label: 'Acto VIII · Las Sombras',
+    env: 'Behind a frosted glass door, two silhouettes embrace.',
+    title: 'Drama de las Sombras',
+    narration: 'Behind frosted glass, two silhouettes embrace. She watches, her heart in her throat.',
+    build(g) {
+      // dark hallway
+      g.add(layer(1024, 640, (ctx, w, h) => {
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, '#3a2c22'); grd.addColorStop(1, '#241a12');
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+      }, { w: 16, h: 8, x: 0, y: 3, z: -7 }));
+      // backlit silhouettes BEHIND the glass
+      g.add(layer(256, 512, (ctx, w, h) => drawSilhouettePair(ctx, w, h), { w: 3.4, h: 6, x: 0, y: -0.8, z: -2.2 }));
+      // frosted glass plane (semi-transparent, blurred feel via grain)
+      g.add(layer(256, 512, (ctx, w, h) => {
+        ctx.fillStyle = 'rgba(244,238,226,0.55)';
+        ctx.fillRect(0, 0, w, h);
+        // frost speckle
+        for (let i = 0; i < 900; i++) {
+          ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.random() * 0.2})`;
+          ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+        }
+        // frame
+        ctx.strokeStyle = '#5a4a38'; ctx.lineWidth = 10;
+        ctx.strokeRect(5, 5, w - 10, h - 10);
+        ctx.beginPath(); ctx.moveTo(w / 2, 5); ctx.lineTo(w / 2, h - 5); ctx.stroke();
+      }, { w: 3.6, h: 6.4, x: 0, y: -0.8, z: -1.2 }));
+      // eavesdropping protagonist at the side
+      g.add(layer(256, 512, (ctx, w, h) => drawProtagonist(ctx, w, h), { w: 1.6, h: 3.2, x: -3.4, y: -1.5, z: -0.4 }));
+    },
+    cam: { pos: [0, 1.1, 6.4], look: [0, 0.3, -2] },
+  },
+  {
+    id: 'Scene 9', label: 'Acto IX · La Huida',
+    env: 'A close-up on feet: pink fuzzy glitter high heels, worn backwards.',
+    title: 'Huida con Tacones Peludos',
+    narration: 'She runs away — in pink, fuzzy, glittering high heels. Worn backwards.',
+    build(g) {
+      // ground close-up
+      g.add(layer(1024, 512, (ctx, w, h) => {
+        ctx.fillStyle = '#8a6f52';
+        ctx.fillRect(0, 0, w, h);
+        paperGrain(ctx, w, h, 0.05);
+      }, { w: 16, h: 8, x: 0, y: -1.6, z: -4 }));
+      // motion lines
+      g.add(layer(512, 256, (ctx, w, h) => {
+        ctx.strokeStyle = 'rgba(255,244,224,.5)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+        for (let i = 0; i < 6; i++) {
+          const y = h * 0.1 + i * h * 0.16;
+          ctx.beginPath(); ctx.moveTo(w * 0.8, y); ctx.lineTo(w * 0.95, y - 12); ctx.stroke();
+        }
+      }, { w: 6, h: 3, x: 3.2, y: 0.4, z: -2 }));
+      // the heels — BIG, close-up, toes backwards
+      g.add(layer(512, 512, (ctx, w, h) => drawHeels(ctx, w, h), { w: 7, h: 7, x: 0, y: -0.4, z: -1 }));
+      // her legs disappearing off-frame (indicates running)
+      g.add(layer(128, 512, (ctx, w, h) => {
+        ctx.fillStyle = '#c98d5f';
+        ctx.fillRect(w * 0.2, h * 0.2, w * 0.6, h * 0.8);
+      }, { w: 0.9, h: 3.6, x: -1.6, y: -0.6, z: -0.6 }));
+    },
+    cam: { pos: [0, 0.2, 4.6], look: [0, 0.1, -1.5] },
+  },
+];
+
+/* ============================================================
+   Scene management
+============================================================ */
+let currentGroup = null;
+let currentUpdate = null;
+
+function buildScene(i) {
+  const s = SCENES[i];
+  const g = new THREE.Group();
+  s.build(g);
+  g.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  scene.add(g);
+  currentGroup = g;
+  currentUpdate = s.update || null;
+}
+
+function disposeGroup(g) {
+  if (!g) return;
+  g.traverse((o) => {
+    if (o.isMesh) {
+      o.geometry.dispose();
+      const m = o.material;
+      if (m.map) m.map.dispose();
+      m.dispose();
+    }
+  });
+  scene.remove(g);
+}
+
+function fadeOverlay(action, ms = 260) {
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;inset:0;background:#1a120b;opacity:0;z-index:15;pointer-events:none;transition:opacity ${ms}ms ease;`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+  setTimeout(() => {
+    if (action) action();
+    requestAnimationFrame(() => { el.style.opacity = '0'; });
+    setTimeout(() => el.remove(), ms + 60);
+  }, ms);
+}
+
+function enterScene(i, immediate = false) {
+  state.sceneIdx = i;
+  endedGuard = false;
+  const s = SCENES[i];
+  const go = () => {
+    disposeGroup(currentGroup);
+    buildScene(i);
+    const cam = s.cam;
+    const tl = gsap.timeline();
+    tl.to(camera.position, { x: cam.pos[0], y: cam.pos[1], z: cam.pos[2], duration: immediate ? 0 : 2.1, ease: 'power2.inOut' }, 0);
+    tl.to(controls.target, { x: cam.look[0], y: cam.look[1], z: cam.look[2], duration: immediate ? 0 : 2.1, ease: 'power2.inOut' }, 0);
+  };
+  if (immediate) go(); else fadeOverlay(go);
+  document.getElementById('scene-label').textContent = s.label;
+  setSubtitle(s.narration);
+  updateDots();
+  updateTimecode();
+}
+
+/* ============================================================
+   Subtitles
+============================================================ */
+const subEl = document.getElementById('subtitle');
+function setSubtitle(text) {
+  subEl.textContent = text;
+  subEl.classList.add('show');
+}
+function clearSubtitle() { subEl.classList.remove('show'); }
+
+/* ============================================================
+   Audio engine — KIE Gemini TTS / Deepgram / Web Speech
+============================================================ */
+const audio = new Audio();
+audio.preload = 'auto';
+// Once playback truly starts, the ended-event is the source of truth — disarm
+// the fallback timer so it can't cut narration short.
+audio.addEventListener('playing', () => clearTimeout(fallbackTimer));
+// Robust ended detection: some environments (headless Chrome) play to the end
+// without ever firing `ended`. Treat reaching the end as finished too.
+audio.addEventListener('timeupdate', () => {
+  if (audio.readyState >= 3 && audio.duration && audio.currentTime >= audio.duration - 0.15) {
+    onSceneEnded();
+  }
+});
+
+const providerSelect = document.getElementById('provider');
+function apiKey(name) {
+  const v = window[name];
+  if (v) return v;
+  console.warn(`No ${name} found in page globals — falling back to browser speech.`);
+  return null;
+}
+
+async function kieSpeak(text, env) {
+  const key = apiKey('KIE_API_KEY');
+  if (!key) throw new Error('no KIE key');
+  const payload = {
+    model: 'google/gemini-3-1-flash-tts',
+    input: {
+      temperature: 1,
+      scene: env,
+      sample_context: 'A dramatic telenovela dream narrated softly.',
+      speakers: [{
+        speaker_id: 'Speaker 1', voice_name: KIE_VOICE,
+        audio_profile: 'Narrator', accent: 'Neutral', style: 'Empathetic', pace: 'Natural',
+      }],
+      dialogue_turns: [{ speaker_id: 'Speaker 1', text }],
+    },
+  };
+  const create = await fetch(`${KIE_BASE}/api/v1/jobs/createTask`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const j = await create.json();
+  const taskId = j?.data?.taskId;
+  if (!taskId) throw new Error(`KIE createTask failed: ${JSON.stringify(j).slice(0, 200)}`);
+  // poll
+  const deadline = Date.now() + 90000;
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 2500));
+    const r = await fetch(`${KIE_BASE}/api/v1/jobs/recordInfo?taskId=${taskId}`, {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    const d = await r.json();
+    const st = d?.data?.state;
+    if (st === 'success') {
+      const rj = typeof d.data.resultJson === 'string' ? JSON.parse(d.data.resultJson) : d.data.resultJson;
+      const url = rj?.resultUrls?.[0];
+      if (!url) throw new Error('KIE success but no audio URL');
+      // Fetch the audio promptly (KIE URLs expire ~20 min) and return the
+      // blob — the caller stores it forever in IndexedDB.
+      const audioRes = await fetch(url);
+      if (!audioRes.ok) throw new Error(`KIE audio download HTTP ${audioRes.status}`);
+      return await audioRes.blob();
+    }
+    if (st === 'fail') throw new Error(`KIE TTS task failed: ${JSON.stringify(d).slice(0, 200)}`);
+  }
+  throw new Error('KIE TTS poll timeout');
+}
+
+async function deepgramSpeak(text) {
+  const key = apiKey('DEEPGRAM_API_KEY');
+  if (!key) throw new Error('no Deepgram key');
+  const r = await fetch(`https://api.deepgram.com/v1/speak?model=${DG_VOICE}&speed=1.0`, {
+    method: 'POST',
+    headers: { Authorization: `Token ${key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  if (!r.ok) throw new Error(`Deepgram HTTP ${r.status}`);
+  return await r.blob();
+}
+
+function speechSpeak(text, onend) {
+  return new Promise((resolve) => {
+    const u = new SpeechSynthesisUtterance(text);
+    const v = speechSynthesis.getVoices().find((x) => x.lang.startsWith('en'));
+    if (v) u.voice = v;
+    u.rate = 1; u.pitch = 1;
+    u.onend = () => { resolve(); onend(); };
+    u.onerror = () => { resolve(); onend(); };
+    speechSynthesis.speak(u);
+  });
+}
+
+/* ============================================================
+   Persistent audio store (IndexedDB)
+   Generated narration is cached FOREVER, keyed by provider+scene.
+   A scene is generated only once per provider; every later request
+   (play, preload, re-open) loads the stored blob. Provider changes
+   never invalidate anything — each provider keeps its own cache.
+============================================================ */
+const AUDIO_DB = 'e031-dream-audio';
+const AUDIO_STORE = 'clips';
+let audioDB = null;
+
+function openAudioDB() {
+  return new Promise((resolve, reject) => {
+    if (audioDB) return resolve(audioDB);
+    const req = indexedDB.open(AUDIO_DB, 1);
+    req.onupgradeneeded = () => {
+      if (!req.result.objectStoreNames.contains(AUDIO_STORE)) {
+        req.result.createObjectStore(AUDIO_STORE); // key: "provider:sceneIdx"
+      }
+    };
+    req.onsuccess = () => { audioDB = req.result; resolve(audioDB); };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function dbGet(key) {
+  const db = await openAudioDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(AUDIO_STORE, 'readonly');
+    const rq = tx.objectStore(AUDIO_STORE).get(key);
+    rq.onsuccess = () => resolve(rq.result || null);
+    rq.onerror = () => reject(rq.error);
+  });
+}
+
+async function dbSet(key, blob) {
+  const db = await openAudioDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(AUDIO_STORE, 'readwrite');
+    tx.objectStore(AUDIO_STORE).put(blob, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+const memCache = new Map(); // provider:sceneIdx -> blob URL (session fast path)
+
+function cacheKey(i) { return `${state.provider}:${i}`; }
+
+async function getSceneBlob(i) {
+  const key = cacheKey(i);
+  // 1) in-memory fast path
+  if (memCache.has(key)) return memCache.get(key);
+  // 2) IndexedDB — generated once, cached forever
+  const stored = await dbGet(key);
+  if (stored) { memCache.set(key, stored); return stored; }
+  // 3) generate now, store forever
+  const s = SCENES[i];
+  const blob = state.provider === 'kie'
+    ? await kieSpeak(s.narration, s.env)
+    : await deepgramSpeak(s.narration);
+  await dbSet(key, blob);
+  memCache.set(key, blob);
+  return blob;
+}
+
+function blobToUrl(blob) {
+  if (blob._url) return blob._url;
+  blob._url = URL.createObjectURL(blob);
+  return blob._url;
+}
+
+function setSubStatus(msg) {
+  const el = document.getElementById('preload');
+  el.textContent = msg;
+}
+
+async function preloadAll() {
+  if (state.preloading) return;
+  state.preloading = true;
+  try {
+    for (let i = 0; i < SCENES.length; i++) {
+      setSubStatus(`Preparing ${i + 1}/${SCENES.length}…`);
+      try { await getSceneBlob(i); } catch (e) {
+        console.warn(`preload scene ${i + 1} failed:`, e);
+      }
+    }
+    setSubStatus('Ready ✓');
+    setTimeout(() => setSubStatus('Prepare narration'), 2500);
+  } finally {
+    state.preloading = false;
+  }
+}
+
+async function playScene(i) {
+  const s = SCENES[i];
+  setSubtitle(s.narration);
+  // Safety net: if narration cannot actually play (autoplay blocked, API down,
+  // silent failure), advance anyway after a readable beat so the dream never
+  // hangs on a silent scene.
+  const armFallback = () => startFallbackTimer(9000);
+  if (state.provider === 'speech') {
+    await speechSpeak(s.narration, () => onSceneEnded());
+    armFallback();
+    return;
+  }
+  let blob;
+  try { blob = await getSceneBlob(i); }
+  catch (e) {
+    console.warn('TTS failed, falling back to browser speech:', e);
+    await speechSpeak(s.narration, () => onSceneEnded());
+    armFallback();
+    return;
+  }
+  if (blob) {
+    audio.src = blobToUrl(blob);
+    audio.volume = volumeVal();
+    try {
+      await audio.play();
+    } catch (e) {
+      console.warn('autoplay blocked — using fallback timer:', e);
+      armFallback();
+    }
+  } else {
+    onSceneEnded(); // no audio at all → advance (timer below is the real driver)
+  }
+}
+
+let fallbackTimer = null;
+function startFallbackTimer(durMs = 7000) {
+  clearTimeout(fallbackTimer);
+  fallbackTimer = setTimeout(onSceneEnded, durMs);
+}
+
+let endedGuard = false;
+function onSceneEnded() {
+  clearTimeout(fallbackTimer);
+  if (!state.playing || endedGuard) return;
+  endedGuard = true;
+  const next = state.sceneIdx + 1;
+  if (next >= SCENES.length) { stopPlayback(); return; }
+  enterScene(next);
+  playScene(next);
+  preloadNext(next);
+}
+
+function preloadNext(i) {
+  const n = i + 1;
+  if (n < SCENES.length) getSceneBlob(n).catch(() => {});
+}
+
+/* ============================================================
+   HUD wiring
+============================================================ */
+const playBtn = document.getElementById('play');
+const scrub = document.getElementById('scrub');
+const volInput = document.getElementById('vol');
+const timecode = document.getElementById('timecode');
+const dotsWrap = document.getElementById('dots');
+const fullscreenBtn = document.getElementById('fullscreen');
+const beginBtn = document.getElementById('begin');
+
+function volumeVal() { return volInput.value / 100; }
+volInput.addEventListener('input', () => { audio.volume = volumeVal(); });
+
+function updateTimecode() {
+  const secs = Math.floor((state.t % 60));
+  timecode.textContent = `${state.sceneIdx + 1}/9 · 0:${String(secs).padStart(2, '0')}`;
+}
+
+function updateDots() {
+  dotsWrap.innerHTML = '';
+  SCENES.forEach((s, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === state.sceneIdx ? ' active' : '');
+    d.title = s.title;
+    d.addEventListener('click', () => jumpTo(i));
+    dotsWrap.appendChild(d);
+  });
+}
+
+function jumpTo(i) {
+  const wasPlaying = state.playing;
+  stopPlayback(false);
+  audio.pause();
+  if (speechSynthesis) speechSynthesis.cancel();
+  enterScene(i);
+  if (wasPlaying) { startPlayback(); }
+}
+
+function startPlayback() {
+  state.playing = true;
+  playBtn.textContent = '❚❚';
+  enterScene(state.sceneIdx, true);
+  playScene(state.sceneIdx);
+  preloadNext(state.sceneIdx);
+}
+
+function stopPlayback() {
+  state.playing = false;
+  playBtn.textContent = '▶';
+  audio.pause();
+  if (speechSynthesis) speechSynthesis.cancel();
+  clearTimeout(fallbackTimer);
+  clearSubtitle();
+}
+
+playBtn.addEventListener('click', () => {
+  if (state.playing) stopPlayback();
+  else {
+    audio.play().catch(() => {}); // unlock
+    startPlayback();
+  }
+});
+
+scrub.addEventListener('input', () => {
+  const target = Math.min(SCENES.length - 1, Math.floor((scrub.value / 1000) * SCENES.length));
+  if (target !== state.sceneIdx) jumpTo(target);
+  else updateTimecode();
+});
+
+providerSelect.addEventListener('change', () => {
+  state.provider = providerSelect.value;
+  // No cache invalidation: each provider's clips stay in IndexedDB forever.
+  if (speechSynthesis) speechSynthesis.cancel();
+});
+
+document.getElementById('preload').addEventListener('click', preloadAll);
+
+fullscreenBtn.addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(() => {});
+});
+
+beginBtn.addEventListener('click', () => {
+  document.getElementById('start').classList.add('hidden');
+  startPlayback();
+});
+
+/* ============================================================
+   Render loop + resize
+============================================================ */
+const clock = new THREE.Clock();
+function tick() {
+  requestAnimationFrame(tick);
+  const dt = Math.min(clock.getDelta(), 0.05);
+  state.t += dt;
+  controls.update();
+  if (currentUpdate) currentUpdate(currentGroup, state.t);
+  renderer.render(scene, camera);
+}
+tick();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ============================================================
+   Boot
+============================================================ */
+async function boot() {
+  updateDots();
+  enterScene(0, true);
+  // globals.js loads synchronously before the module, so keys are already here
+  await new Promise((r) => setTimeout(r, 400));
+  const load = document.getElementById('loading');
+  load.classList.add('hidden');
+  setTimeout(() => load.remove(), 600);
+  if (!window.KIE_API_KEY && !window.DEEPGRAM_API_KEY) {
+    providerSelect.value = 'speech';
+    state.provider = 'speech';
+    console.warn('[e031] no TTS API keys injected — using browser speech.');
+  }
+  console.log('[e031] dream player ready. provider:', state.provider);
+  // Diagnostic handle (used for headless verification + phone debugging)
+  window.__e031 = {
+    get state() { return state; },
+    get sceneIdx() { return state.sceneIdx; },
+    get provider() { return state.provider; },
+    get audio() { return { src: audio.src, readyState: audio.readyState, paused: audio.paused, currentTime: audio.currentTime, duration: audio.duration }; },
+    get cacheSize() { return memCache.size; },
+    get dbReady() { return !!audioDB; },
+    // Returns how many clips are persisted for a given provider.
+    async countClips(provider) {
+      const db = await openAudioDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(AUDIO_STORE, 'readonly');
+        const rq = tx.objectStore(AUDIO_STORE).getAllKeys();
+        rq.onsuccess = () => resolve(rq.result.filter((k) => k.startsWith(`${provider}:`)).length);
+        rq.onerror = () => reject(rq.error);
+      });
+    },
+  };
+}
+boot();
+</script>
+</body>
+</html>

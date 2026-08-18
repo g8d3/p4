@@ -1,0 +1,36 @@
+# ag-01 done — e031 Dream Player
+
+The paper-cutout 3D dream player is built, served, and verified end-to-end.
+
+## Deliverables
+- `server.js` — Node static server on 0.0.0.0:8788, injects TTS API keys via
+  `/globals.js` from env (never committed).
+- `index.html` — self-contained page: Three.js paper-cutout 3D scenes for all
+  9 acts (protagonist with round glasses everywhere, villain with mustache +
+  brown suit, flaming arrows, frosted glass silhouettes, backwards pink fuzzy
+  heels), GSAP camera moves, glassmorphism HUD (play/pause, scrubber, volume,
+  provider select, scene dots, fullscreen), subtitles, mobile-first.
+- `output/screenshots/` — 6 verified screenshots (scene 1, 2, 6, 7, 9 ×2).
+
+## Verification (headless Chrome, real clicks)
+- Page loads, 3D scene renders (not black), HUD + all 9 scene dots work.
+- KIE Gemini TTS: full 9-act run played start→finish with real narration,
+  auto-advance on end, next-scene preload, clean stop at Acto IX.
+- Deepgram Aura-2: audio fetched (blob URL) and played; direct curl test of the
+  exact payload returned valid MP3 (HTTP 200).
+- Browser speech fallback: worked when no keys injected.
+- Robustness fixes during verification: fallback timer when autoplay is blocked
+  (so a scene never hangs silent), `timeupdate` ended-detection for headless
+  environments that don't fire `ended`, `endedGuard` to prevent double-advance.
+
+## How to run
+```
+cd e031-wife-dream/ag-01-dream-player
+(set -a; . ~/.secrets/.env; set +a; node server.js &)   # keys → /globals.js
+# open http://<lan-ip>:8788/ from phone
+```
+
+## Known notes
+- Without API keys injected, the page auto-selects browser speech and still
+  advances scenes via the fallback timer.
+- Server stays up headless; no client needed to keep it alive.
