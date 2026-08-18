@@ -24,9 +24,9 @@ certs/
 !e027-open-design/**/output/**
 
 # e030 exception: VRM studio screenshots + models.md are the experiment's
-# proof-of-work, keep them versioned
-!e030-vrm-avatar/**/output/
-!e030-vrm-avatar/**/output/**
+# proof-of-work, keep them versioned (only ag-01-avatar-studio)
+!e030-vrm-avatar/ag-01-avatar-studio/output/
+!e030-vrm-avatar/ag-01-avatar-studio/output/**
 
 # Python cache
 __pycache__/
