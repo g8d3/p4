@@ -1,0 +1,10 @@
+# Python virtualenv
+venv/
+__pycache__/
+
+# Downloaded media (Pinterest/Pexels/Pixabay outputs) — binary, regenerable
+downloads/
+repo/downloads/
+
+# Logs
+log/

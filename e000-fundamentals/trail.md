@@ -796,3 +796,30 @@ dropped captions entirely because Kokoro emits no word timestamps.
   LAN exposure is only for trusted networks; self-signed TLS still MITM-able.
 
 
+
+## e033 — VUZA playground (2026-08-18)
+
+Experiment [e033-vuza-playground](../e033-vuza-playground/AGENTS.md): "play with"
+[VUZA](https://github.com/AliRash3ed/VUZA-Free-AI-Video-Creator-and-Pinterest-Video-Scraper)
+— free faceless-video generator that claims a "world's first free Pinterest
+video scraper".
+
+Verified:
+- Install + FastAPI web app + REST routes: WORK (Python 3.12 venv, moviepy 2.2.1,
+  playwright 1.62, edge-tts 7.2.8).
+- **AI brain wired to opencode-go** (`deepseek-v4-flash`) via its OpenAI-compatible
+  endpoint — no OpenRouter key needed. Script gen + per-sentence stock keywords work.
+- Edge-TTS voiceover + moviepy 2.2 assembly: WORK — produced a 7.6s 9:16 captioned
+  video (subtitles + audio). Fixed a real bug first: `ImageClip` re-imported inside
+  `create_video()`'s watermark block shadows the module import → photo path raised
+  `UnboundLocalError` (one-line fix in `repo/video_engine.py`).
+- **Pinterest scraper: BLOCKED.** Headless Chromium gets Pinterest's sign-in modal
+  → 0 pins → the headline claim is false out-of-the-box. Scripts `wait_until=
+  "networkidle"` often yield an empty body (geo-redirect to co.pinterest.com);
+  `"load"` yields real HTML but still the login wall. Needs a signed-in session
+  (drive real chrome-main profile via CDP) — documented as next step, not done.
+- Pexels/Pixabay need API keys (none present) → return [].
+
+Deliverables: `repo/` (with the fix + `.git` stripped), `bin/test_pipeline.py`,
+this AGENTS.md. Uses opencode-go creds instead of OpenRouter; re-encode any kept
+video to h264_vaapi per p4 rule.
