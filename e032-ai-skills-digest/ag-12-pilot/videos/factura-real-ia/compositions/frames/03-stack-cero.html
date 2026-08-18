@@ -1,0 +1,47 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #FFFFFF; color: #1C1410; }
+    .bg { position: absolute; inset: 0; background: #FFFFFF; }
+    .eyebrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 13cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.22em; text-transform: uppercase; color: #D8000F; }
+    .grid { position: absolute; left: 8cqw; right: 8cqw; top: 24cqh; display: grid; grid-template-columns: 1fr 1fr; gap: 2.4cqw; }
+    .cell { border: 0.3cqw solid #1C1410; outline: 0.15cqw solid #1C1410; outline-offset: -0.6cqw; background: #F5F2EF; padding: 4cqw 2.4cqw; text-align: center; will-change: transform, opacity; }
+    .cell-name { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.12em; text-transform: uppercase; color: #1C1410; }
+    .cell-num { font-family: "Shrikhand", serif; font-weight: 400; font-size: 9cqw; line-height: 1.05; color: #D8000F; }
+    .strip { position: absolute; left: 8cqw; right: 8cqw; top: 66cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #D8000F; text-align: center; will-change: transform, opacity; }
+    .total { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 72cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 13cqw; line-height: 1; color: #D8000F; transform: rotate(-5deg); text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #D8000F; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="03-stack-cero" data-width="1080" data-height="1920" data-duration="7.561">
+    <div class="bg clip" id="f03-bg" data-start="0" data-duration="7.561" data-track-index="1"></div>
+    <div class="eyebrow" id="f03-eyebrow">TU STACK: $0/MES</div>
+    <div class="grid">
+      <div class="cell" id="f03-c1"><div class="cell-name">Vercel</div><div class="cell-num">$0</div></div>
+      <div class="cell" id="f03-c2"><div class="cell-name">Clerk</div><div class="cell-num">$0</div></div>
+      <div class="cell" id="f03-c3"><div class="cell-name">Neon</div><div class="cell-num">$0</div></div>
+      <div class="cell" id="f03-c4"><div class="cell-name">Stripe</div><div class="cell-num">% venta</div></div>
+    </div>
+    <div class="strip" id="f03-strip">Solo pagas % por venta</div>
+    <div class="total" id="f03-total">$0/mes</div>
+    <div class="bar clip" id="f03-bar" data-start="0" data-duration="7.561" data-track-index="2" style="width: 37.5%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 7.061;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f03-c1", "#f03-c2", "#f03-c3", "#f03-c4", "#f03-strip", "#f03-total"], { opacity: 0 });
+    tl.fromTo("#f03-eyebrow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.04);
+    tl.fromTo("#f03-c1", { opacity: 0, scale: 0.8, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.8)" }, D * 0.12);
+    tl.fromTo("#f03-c2", { opacity: 0, scale: 0.8, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.8)" }, D * 0.28);
+    tl.fromTo("#f03-c3", { opacity: 0, scale: 0.8, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.8)" }, D * 0.44);
+    tl.fromTo("#f03-c4", { opacity: 0, scale: 0.8, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.8)" }, D * 0.6);
+    tl.fromTo("#f03-strip", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.76);
+    tl.fromTo("#f03-total", { opacity: 0, scale: 0.6, rotation: -5 }, { opacity: 1, scale: 1, rotation: -5, duration: 0.5, ease: "back.out(2)" }, D * 0.88);
+    tl.fromTo("#f03-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["03-stack-cero"] = tl;
+  </script>
+</template>

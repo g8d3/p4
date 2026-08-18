@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El negocio digital con agentes de IA: la factura real (verificada)</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #121821;
+    --ink: #e8edf2;
+    --muted: #93a1b3;
+    --line: #223047;
+    --amber: #f5a623;
+    --green: #37d67a;
+    --red: #ef5350;
+    --blue: #4aa3ff;
+    --purple: #b57bff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
+  .kicker {
+    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--amber); font-weight: 700; margin-bottom: 12px;
+  }
+  h1 { font-size: 34px; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .dek { font-size: 17px; color: var(--muted); margin-bottom: 8px; }
+  .meta { font-size: 13px; color: var(--muted); margin-bottom: 36px; }
+  .meta b { color: var(--green); }
+  h2 { font-size: 22px; margin: 44px 0 6px; letter-spacing: -0.3px; }
+  .sub { color: var(--muted); font-size: 15px; margin-bottom: 20px; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    padding: 24px; margin: 18px 0;
+  }
+  .big { font-size: 52px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .big .unit { font-size: 22px; color: var(--muted); font-weight: 600; margin-left: 4px; }
+  .big.amber { color: var(--amber); }
+  .big.green { color: var(--green); }
+  .big.red { color: var(--red); }
+  .big.blue { color: var(--blue); }
+  .cap { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .cap b { color: var(--ink); }
+  svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .chiprow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .chip {
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px;
+    font-size: 13px; background: #0e141c;
+  }
+  .chip b { color: var(--green); }
+  .nottip { background:#0e141c; border:1px solid var(--line); border-radius:8px; padding:16px 18px; font-size:14px; color:var(--muted); margin:18px 0; }
+  .nottip b { color: var(--red); }
+  .num { font-variant-numeric: tabular-nums; }
+  .verdict {
+    border: 1px solid var(--amber); border-radius: 14px; padding: 20px 22px;
+    background: rgba(245,166,35,0.06); margin: 28px 0; font-size: 15px;
+  }
+  .verdict b { color: var(--amber); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 10px; border-bottom: 1px solid #1a2536; font-variant-numeric: tabular-nums; }
+  td .num { color: var(--amber); font-weight: 700; }
+  .hooks { margin-top: 40px; }
+  .hook {
+    border-left: 3px solid var(--amber); background: var(--panel);
+    border-radius: 0 10px 10px 0; padding: 12px 16px; margin: 10px 0; font-size: 15px;
+  }
+  .hook small { display: block; color: var(--muted); font-size: 11px; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+  .footer { margin-top: 48px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">Datos verificados · 17–18 ago 2026 · e032</div>
+  <h1>El negocio digital con agentes de IA: la factura real</h1>
+  <p class="dek">Cuatro equipos de investigación midieron precios, probaron APIs y corrieron pruebas reales. Esto es lo que cuesta de verdad — no lo que promete el marketing.</p>
+  <p class="meta">Cada cifra viene de una prueba viva o de una página de precios verificada el 17–18 de agosto de 2026. Marca: <b>medido</b> = probado en vivo · verificado = confirmado en la página oficial.</p>
+
+  <!-- ============ CHART 1: 100x ============ -->
+  <h2>1. El artículo que costaba $50 ahora cuesta $0.50</h2>
+  <p class="sub">La habilidad de marketing con mejor ROI para agentes: SEO a escala.</p>
+  <div class="panel">
+    <svg viewBox="0 0 680 300" role="img" aria-label="Costo por artículo: 50 dólares manual, 0.50 dólares con IA">
+      <line x1="60" y1="20" x2="60" y2="250" stroke="#223047" stroke-width="2"/>
+      <text x="60" y="268" fill="#93a1b3" font-size="12" text-anchor="middle">Manual</text>
+      <text x="330" y="268" fill="#93a1b3" font-size="12" text-anchor="middle">Con agentes de IA</text>
+      <line x1="200" y1="255" x2="200" y2="265" stroke="#223047"/>
+      <line x1="460" y1="255" x2="460" y2="265" stroke="#223047"/>
+      <text x="60" y="250" fill="#ef5350" font-size="28" font-weight="700" text-anchor="middle" dy="-8">$50</text>
+      <rect x="40" y="30" width="40" height="220" fill="#ef5350"/>
+      <text x="330" y="250" fill="#37d67a" font-size="28" font-weight="700" text-anchor="middle" dy="-8">$0.50</text>
+      <rect x="310" y="245" width="40" height="5" fill="#37d67a"/>
+      <rect x="310" y="120" width="40" height="125" fill="#37d67a"/>
+      <g>
+        <text x="440" y="95" fill="#f5a623" font-size="22" font-weight="800" text-anchor="middle">100×</text>
+        <text x="440" y="113" fill="#93a1b3" font-size="12" text-anchor="middle">más barato</text>
+      </g>
+      <path d="M 300 100 Q 370 60 440 110" stroke="#f5a623" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+    </svg>
+    <p class="cap">Costo por artículo SEO: <b>$50 manual → $0.50 con IA</b> — reducción de 100× (ag-03, marketing). El ahorro convierte el SEO en un servicio vendible.</p>
+  </div>
+
+  <!-- ============ CHART 2: $0 stack ============ -->
+  <h2>2. El stack de $0: todo un SaaS desde cero, sin pagar mensualidad</h2>
+  <p class="sub">Cuatro servicios gestionados, todos con free tier verificado. La pila completa de un producto no cuesta nada hasta que vendes.</p>
+  <div class="panel">
+    <div class="big green">$0<span class="unit">/mes</span></div>
+    <p class="cap">Para arrancar una landing + auth + base de datos + pagos (ag-02, productos).</p>
+    <div class="chiprow">
+      <span class="chip">Vercel Hobby <b>$0</b></span>
+      <span class="chip">Clerk <b>$0</b> (50k usuarios/mes)</span>
+      <span class="chip">Neon <b>$0</b> (100 CU-h/mes)</span>
+      <span class="chip">Stripe <b>% por venta</b></span>
+    </div>
+    <p class="cap" style="margin-top:14px;">El único costo es un porcentaje por venta (Stripe: 2.9% + $0.30 aprox.). Nada de servidores, nada de nginx, nada de SSL a mano.</p>
+  </div>
+
+  <!-- ============ CHART 3: video <$1 ============ -->
+  <h2>3. Un video explicativo completo: menos de $1</h2>
+  <p class="sub">Guion + voz + imágenes + subtítulos + montaje. Medido en un video real.</p>
+  <div class="panel">
+    <svg viewBox="0 0 680 260" role="img" aria-label="Desglose de costo de un video explicativo con IA">
+      <text x="30" y="30" fill="#93a1b3" font-size="12">Guion</text>
+      <rect x="150" y="18" width="5" height="22" fill="#37d67a"/>
+      <text x="165" y="35" fill="#e8edf2" font-size="13" font-weight="700">$0</text>
+      <text x="30" y="70" fill="#93a1b3" font-size="12">Voz (TTS)</text>
+      <rect x="150" y="58" width="110" height="22" fill="#f5a623"/>
+      <text x="270" y="74" fill="#e8edf2" font-size="13" font-weight="700">$0–0.30</text>
+      <text x="30" y="110" fill="#93a1b3" font-size="12">Imágenes</text>
+      <rect x="150" y="98" width="220" height="22" fill="#4aa3ff"/>
+      <text x="380" y="114" fill="#e8edf2" font-size="13" font-weight="700">$0–0.60</text>
+      <text x="30" y="150" fill="#93a1b3" font-size="12">Subtítulos</text>
+      <rect x="150" y="138" width="18" height="22" fill="#b57bff"/>
+      <text x="178" y="154" fill="#e8edf2" font-size="13" font-weight="700">$0–0.05</text>
+      <text x="30" y="190" fill="#93a1b3" font-size="12">Montaje</text>
+      <rect x="150" y="178" width="5" height="22" fill="#37d67a"/>
+      <text x="165" y="195" fill="#e8edf2" font-size="13" font-weight="700">$0</text>
+      <line x1="30" y1="220" x2="660" y2="220" stroke="#223047"/>
+      <text x="30" y="248" fill="#f5a623" font-size="24" font-weight="800">Total: $0–1</text>
+      <text x="330" y="248" fill="#93a1b3" font-size="13">por video de ~3 min · crédito gratis de $200 en Deepgram</text>
+    </svg>
+    <p class="cap">Voz y subtítulos corren contra los <b>$200 de crédito gratis</b> de Deepgram (medido). El montaje final se hace en un ordenador — el punto abierto honesto.</p>
+  </div>
+
+  <!-- ============ CHART 4: lo que NO vale ============ -->
+  <h2>4. Lo que la investigación NO vale la pena vender</h2>
+  <p class="sub">El otro lado de la factura: tres trampas que cuestan dinero real.</p>
+  <div class="panel">
+    <table>
+      <tr><th>Trampa</th><th>El costo real</th></tr>
+      <tr><td>Video completo con texto→video (1 prompt)</td><td>$18–30 por 3 min <span class="num">(Veo/Sora $0.05–0.10/seg)</span></td></tr>
+      <tr><td>Videos para anuncios</td><td>$500+/mes de presupuesto para probar algo</td></tr>
+      <tr><td>Infraestructura local</td><td>Horas de setup que nadie paga (ag-01/ag-02)</td></tr>
+    </table>
+    <p class="cap">La regla: los clips de 5–10 s a $0.05–0.10/seg <b>sí</b> valen (b-roll); el video largo generado de una sola vez no. (ag-01, video)</p>
+  </div>
+
+  <!-- ============ CHART 5: 9 de 10 ============ -->
+  <h2>5. La cifra que nadie más te dirá: 9 de cada 10</h2>
+  <p class="sub">Corrimos una investigación real de trading con IA. Nueve de cada diez ideas murieron por las comisiones.</p>
+  <div class="panel">
+    <svg viewBox="0 0 680 220" role="img" aria-label="9 de 10 estrategias mueren por comisiones">
+      <text x="30" y="30" fill="#e8edf2" font-size="14" font-weight="700">Estrategias evaluadas: 10</text>
+      <rect x="30" y="50" width="540" height="46" fill="#1a2536"/>
+      <rect x="30" y="50" width="486" height="46" fill="#ef5350"/>
+      <rect x="516" y="50" width="54" height="46" fill="#37d67a"/>
+      <text x="200" y="78" fill="#0b0f14" font-size="18" font-weight="800">9 mueren</text>
+      <text x="530" y="78" fill="#0b0f14" font-size="18" font-weight="800">1</text>
+      <text x="30" y="125" fill="#93a1b3" font-size="13">El asesino: breakeven de comisiones <b style="color:#ef5350">0.09% por viaje redondo</b>.</text>
+      <text x="30" y="150" fill="#93a1b3" font-size="13">La superviviente: +2.38% neto por operación — pero solo ~13 veces al año (ag-04, e025).</text>
+      <text x="30" y="195" fill="#f5a623" font-size="15">Veredicto: no se enseña trading como negocio. Se enseña el método para no caer en la trampa.</text>
+    </svg>
+    <p class="cap">Por eso el plan de e032 <b>descarta el trading como dominio de negocio</b> y lo convierte en una lección de escepticismo: aplica el mismo filtro de comisiones a cualquier "edge" que te vendan.</p>
+  </div>
+
+  <!-- ============ CHART 6: escalera de ingresos ============ -->
+  <h2>6. De la factura al ingreso: la escalera</h2>
+  <p class="sub">El mismo stack de $0–29/mes alimenta toda la escalera de productos.</p>
+  <div class="panel">
+    <svg viewBox="0 0 680 240" role="img" aria-label="Escalera de productos y precios">
+      <rect x="30"  y="180" width="180" height="34" fill="#37d67a" rx="6"/>
+      <text x="120" y="202" fill="#0b0f14" font-size="13" font-weight="700" text-anchor="middle">Gratis · reto 7 días</text>
+      <rect x="30"  y="140" width="180" height="34" fill="#4aa3ff" rx="6"/>
+      <text x="120" y="162" fill="#0b0f14" font-size="13" font-weight="700" text-anchor="middle">$19–49 · guía/plantilla</text>
+      <rect x="30"  y="100" width="180" height="34" fill="#f5a623" rx="6"/>
+      <text x="120" y="122" fill="#0b0f14" font-size="13" font-weight="700" text-anchor="middle">$97–197 · curso</text>
+      <rect x="30"  y="60"  width="180" height="34" fill="#b57bff" rx="6"/>
+      <text x="120" y="82"  fill="#0b0f14" font-size="13" font-weight="700" text-anchor="middle">$297–997 · taller</text>
+      <rect x="30"  y="20"  width="180" height="34" fill="#ef5350" rx="6"/>
+      <text x="120" y="42"  fill="#0b0f14" font-size="13" font-weight="700" text-anchor="middle">$1–3k/mes · hecho por ti</text>
+      <text x="230" y="205" fill="#e8edf2" font-size="14"><b class="num" style="color:#37d67a">$0–1</b> costo de producir</text>
+      <text x="230" y="165" fill="#e8edf2" font-size="14"><b class="num" style="color:#4aa3ff">$0</b> costo, % por venta</text>
+      <text x="230" y="125" fill="#e8edf2" font-size="14">~$1–10 por asset de video</text>
+      <text x="230" y="85"  fill="#e8edf2" font-size="14">1–4 h/semana</text>
+      <text x="230" y="45"  fill="#e8edf2" font-size="14">escala hasta SaaS $19–39/mes</text>
+    </svg>
+    <p class="cap">El eslabón más rápido a dinero real: <b>un video explicativo de 3 min se vende como servicio a $100–500</b> con costo en la nube de &lt;$2 (ag-01).</p>
+  </div>
+
+  <!-- ============ CHART 7: fecha límite ============ -->
+  <h2>7. La fecha que cambia el plan: 1 de febrero de 2027</h2>
+  <p class="sub">YouTube duplica los requisitos de monetización. La ventana para crecer barato es ahora.</p>
+  <div class="panel">
+    <div class="big amber num">8,000 h</div>
+    <p class="cap">Requisito nuevo de watch-hours (sube de 4,000) y <b class="num">20M</b> de vistas de Shorts (sube de 10M), desde <b>2027-02-01</b> (ag-01, verificado). Hoy el umbral es la mitad.</p>
+    <div class="nottip"><b>Acción concreta:</b> publicar contenido ahora, antes de que la barra doble. El email list —no la plataforma— es el activo que sobrevive a estos cambios.</div>
+  </div>
+
+  <!-- ============ VERDICT ============ -->
+  <div class="verdict">
+    <b>La conclusión con números:</b> un negocio digital completo con agentes de IA arranca por <b>$0–29/mes</b> (mayormente créditos gratis), con una habilidad principal vendible (<b>$100–500 por video explicativo</b>), un producto escalable (<b>SEO a 100× más barato</b>) y una regla de honestidad (<b>9/10 edges mueren por comisiones</b>) que separa tu contenido del ruido.
+  </div>
+
+  <!-- ============ HOOKS ============ -->
+  <div class="hooks">
+    <h2>Ganchos listos para redes</h2>
+    <p class="sub">Cinco versiones del mismo contenido, una por plataforma.</p>
+    <div class="hook">El artículo que costaba $50 ahora cuesta $0.50. Eso es 100× más barato — y aquí está la factura completa verificada.<small>X · hilo de datos</small></div>
+    <div class="hook">Monté un negocio digital con agentes de IA por $0/mes. Vercel + Clerk + Neon + Stripe. Ninguna paga mensualidad. Los números, no la teoría.<small>LinkedIn · post</small></div>
+    <div class="hook">9 de cada 10 estrategias con IA que te venden mueren por comisiones. Nosotros lo medimos. El gráfico que nadie te muestra.<small>Instagram · carrusel</small></div>
+    <div class="hook">YouTube duplica el requisito para monetizar el 1-feb-2027. Si ibas a empezar un canal con IA, la cuenta regresiva es real.<small>YouTube Short · 45 s</small></div>
+    <div class="hook">Un video explicativo de 3 min cuesta $0.20–1.00 en la nube. Se vende como servicio a $100–500. El margen no es teoría: es una tabla.<small>TikTok · capturas + números</small></div>
+  </div>
+
+  <div class="footer">
+    e032 — AI Skills Digest. Fuentes: ag-01 (video), ag-02 (productos), ag-03 (marketing), ag-04 (crypto) y ag-05 (síntesis), verificadas el 17–18 de agosto de 2026. Pasado no es futuro: los precios cambian; cada cifra fue medida o contrastada en la página oficial. Este documento no es consejo de inversión.
+  </div>
+
+</div>
+</body>
+</html>

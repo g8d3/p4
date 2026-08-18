@@ -13,3 +13,4 @@
 - [2026-08-18T07:36:44-05:00] **ag-09-engine** → `NOT_STARTED`: no heartbeat, no output (N=60s)
 - [2026-08-18T07:57:05-05:00] **ag-10-engine** → `NOT_STARTED`: no heartbeat, no output (N=60s)
 - [2026-08-18T08:13:20-05:00] **ag-11-engine** → `NOT_STARTED`: no heartbeat, no output (N=60s)
+- [2026-08-18T09:10:26-05:00] **ag-11-engine** → `STUCK`: no evidence for 3136s (>stuck*N=1200.0) (N=300s)

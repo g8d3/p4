@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "preferences": {
+    "destination": {
+      "value": "shorts",
+      "confirmed_in": [
+        "factura-real-ia"
+      ],
+      "updated_at": "2026-08-18T16:30:00.301Z"
+    },
+    "aspect": {
+      "value": "9:16",
+      "confirmed_in": [
+        "factura-real-ia"
+      ],
+      "updated_at": "2026-08-18T16:30:00.338Z"
+    },
+    "language": {
+      "value": "es",
+      "confirmed_in": [
+        "factura-real-ia"
+      ],
+      "updated_at": "2026-08-18T16:30:00.370Z"
+    }
+  },
+  "sightings": {}
+}

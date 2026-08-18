@@ -157,6 +157,8 @@ def live_board(config, state, now_t):
     rows = []
     n_alive = n_work = n_done = n_bad = 0
     for agent, cfg in agent_cfgs:
+        if not cfg.get("enabled", True):
+            continue
         win = cfg.get("window", "?")
         pane_pid = sysrun(f"tmux display-message -t {win} -p '#{{pane_pid}}' 2>/dev/null").strip()
         cpu = ""
@@ -204,6 +206,12 @@ def live_board(config, state, now_t):
             "age_secs": int(age) if age is not None else None,
             "hb_age_secs": hb_age,
             "url": url,
+            # provenance: every live.json row is listed because config.json
+            # registers it (file). `alive`/`cpu` are probed live from tmux/ps
+            # (system); `status`/`step`/`age` are read from monitor-state.json
+            # + progress/<agent>.jsonl + the agent's output/ (files).
+            "source": "system (tmux/ps)" if alive else "file (config.json)",
+            "status_source": "file (monitor-state.json)",
         })
 
     n_busy = n_work + n_bad

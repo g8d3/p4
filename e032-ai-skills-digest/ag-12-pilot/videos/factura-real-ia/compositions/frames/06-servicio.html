@@ -1,0 +1,48 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #FFFFFF; color: #1C1410; }
+    .bg { position: absolute; inset: 0; background: #FFFFFF; }
+    .eyebrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 13cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.22em; text-transform: uppercase; color: #D8000F; }
+    .badge { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1.6cqw; border: 0.3cqw solid #1C1410; background: #F5F2EF; padding: 3cqw 7cqw; will-change: transform, opacity; }
+    .badge-lbl { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.16em; text-transform: uppercase; color: #1C1410; white-space: nowrap; }
+    .badge-num { font-family: "Shrikhand", serif; font-weight: 400; line-height: 1.02; color: #D8000F; }
+    .b-top { top: 26cqh; }
+    .b-top .badge-num { font-size: 9cqw; }
+    .b-bottom { top: 55cqh; border-color: #D8000F; }
+    .b-bottom .badge-lbl { color: #1C1410; }
+    .b-bottom .badge-num { font-size: 11cqw; text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); }
+    .arrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: 6cqw; top: 44cqh; height: 6cqh; will-change: transform, opacity; }
+    .margin { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 50cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.2em; text-transform: uppercase; color: #D8000F; background: #FFFFFF; z-index: 2; padding: 0 2cqw; will-change: transform, opacity; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #D8000F; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="06-servicio" data-width="1080" data-height="1920" data-duration="5.912">
+    <div class="bg clip" id="f06-bg" data-start="0" data-duration="5.912" data-track-index="1"></div>
+    <div class="eyebrow" id="f06-eyebrow">EL MISMO VIDEO</div>
+    <div class="badge b-top" id="f06-top"><div class="badge-lbl">Te costó</div><div class="badge-num">$1</div></div>
+    <svg class="arrow" id="f06-arrow" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+      <line x1="30" y1="0" x2="30" y2="52" stroke="#D8000F" stroke-width="3"/>
+      <polygon points="30,60 22,44 38,44" fill="#D8000F"/>
+    </svg>
+    <div class="margin" id="f06-margin">MARGEN</div>
+    <div class="badge b-bottom" id="f06-bottom"><div class="badge-lbl">Se vende como servicio</div><div class="badge-num">$100–500</div></div>
+    <div class="bar clip" id="f06-bar" data-start="0" data-duration="5.912" data-track-index="2" style="width: 75%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 5.312;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f06-top", "#f06-arrow", "#f06-margin", "#f06-bottom"], { opacity: 0 });
+    tl.fromTo("#f06-eyebrow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.05);
+    tl.fromTo("#f06-top", { opacity: 0, x: -80, rotationY: 40 }, { opacity: 1, x: 0, rotationY: 0, duration: 0.55, ease: "power3.out" }, D * 0.16);
+    tl.fromTo("#f06-arrow", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.4);
+    tl.fromTo("#f06-margin", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, D * 0.48);
+    tl.fromTo("#f06-bottom", { opacity: 0, x: 80, rotationY: -40 }, { opacity: 1, x: 0, rotationY: 0, duration: 0.55, ease: "power3.out" }, D * 0.56);
+    tl.fromTo("#f06-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["06-servicio"] = tl;
+  </script>
+</template>

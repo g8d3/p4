@@ -1,0 +1,54 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #FFFFFF; color: #1C1410; }
+    .bg { position: absolute; inset: 0; background: #FFFFFF; }
+    .eyebrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 12cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.22em; text-transform: uppercase; color: #D8000F; }
+    .row { position: absolute; left: 0; right: 0; width: fit-content; margin: 0 auto; text-align: center; }
+    .lbl { display: block; margin-bottom: 2.6cqw; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.18em; text-transform: uppercase; color: #1C1410; }
+    .num { display: block; font-family: "Shrikhand", serif; font-weight: 400; line-height: 1.2; will-change: transform, opacity; }
+    .row-before { top: 22cqh; }
+    .row-before .num { font-size: 9.5cqw; color: #D8000F; }
+    .row-after { top: 49cqh; }
+    .row-after .num { font-size: 9.5cqw; color: #D8000F; }
+    .barline { position: absolute; left: 0; right: 0; margin: 0 auto; width: 60cqw; height: 1.1cqw; background: #1C1410; transform-origin: left center; will-change: transform; }
+    .barline-before { top: 32cqh; background: #D8000F; }
+    .barline-after { top: 59cqh; background: #1C1410; }
+    .x100 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 38cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 12cqw; line-height: 1; color: #D8000F; transform: rotate(-6deg); text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #D8000F; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="02-100x" data-width="1080" data-height="1920" data-duration="6.047">
+    <div class="bg clip" id="f02-bg" data-start="0" data-duration="6.047" data-track-index="1"></div>
+    <div class="eyebrow" id="f02-eyebrow">UN ARTÍCULO SEO</div>
+    <div class="row row-before" id="f02-before">
+      <div class="lbl">Antes</div>
+      <div class="num" id="f02-num-before">$50</div>
+    </div>
+    <div class="barline barline-before clip" id="f02-line-before" data-start="0" data-duration="6.047" data-track-index="2"></div>
+    <div class="row row-after" id="f02-after">
+      <div class="lbl">Con agentes</div>
+      <div class="num" id="f02-num-after">$0.50</div>
+    </div>
+    <div class="barline barline-after clip" id="f02-line-after" data-start="0" data-duration="6.047" data-track-index="3"></div>
+    <div class="x100" id="f02-x100">100×</div>
+    <div class="bar clip" id="f02-bar" data-start="0" data-duration="6.047" data-track-index="4" style="width: 25%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 5.547;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f02-after", "#f02-x100"], { opacity: 0 });
+    tl.fromTo("#f02-eyebrow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.05);
+    tl.fromTo("#f02-before", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.18);
+    tl.fromTo("#f02-line-before", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power1.inOut" }, D * 0.3);
+    tl.fromTo("#f02-after", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.5);
+    tl.fromTo("#f02-line-after", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power1.inOut" }, D * 0.62);
+    tl.fromTo("#f02-x100", { opacity: 0, scale: 0.5, rotation: -6 }, { opacity: 1, scale: 1, rotation: -6, duration: 0.5, ease: "back.out(2.2)" }, D * 0.78);
+    tl.fromTo("#f02-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["02-100x"] = tl;
+  </script>
+</template>

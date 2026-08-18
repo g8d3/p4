@@ -1,0 +1,50 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #FFFFFF; color: #1C1410; }
+    .bg { position: absolute; inset: 0; background: #FFFFFF; }
+    .eyebrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 13cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.22em; text-transform: uppercase; color: #D8000F; }
+    .ledger { position: absolute; left: 14cqw; right: 14cqw; top: 25cqh; }
+    .row { display: flex; justify-content: space-between; align-items: baseline; padding: 2.4cqw 0; border-bottom: 0.15cqw solid #1C1410; will-change: transform, opacity; }
+    .row-lbl { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.6cqw; letter-spacing: 0.14em; text-transform: uppercase; color: #1C1410; }
+    .row-num { font-family: "Shrikhand", serif; font-weight: 400; font-size: 7cqw; line-height: 1; color: #D8000F; }
+    .rule { position: absolute; left: 14cqw; right: 14cqw; top: 58cqh; height: 0.3cqw; background: #1C1410; transform-origin: left center; will-change: transform; }
+    .total { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 63cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 15cqw; line-height: 1; color: #D8000F; transform: rotate(-6deg); text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .note { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 74cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3cqw; letter-spacing: 0.1em; text-transform: uppercase; color: #1C1410; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #D8000F; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="04-video-dolar" data-width="1080" data-height="1920" data-duration="7.064">
+    <div class="bg clip" id="f04-bg" data-start="0" data-duration="7.064" data-track-index="1"></div>
+    <div class="eyebrow" id="f04-eyebrow">1 VIDEO DE 3 MIN</div>
+    <div class="ledger">
+      <div class="row" id="f04-r1"><span class="row-lbl">Guion</span><span class="row-num">$0</span></div>
+      <div class="row" id="f04-r2"><span class="row-lbl">Voz</span><span class="row-num">$0–0.30</span></div>
+      <div class="row" id="f04-r3"><span class="row-lbl">Imágenes</span><span class="row-num">$0–0.60</span></div>
+      <div class="row" id="f04-r4"><span class="row-lbl">Subtítulos</span><span class="row-num">$0–0.05</span></div>
+    </div>
+    <div class="rule clip" id="f04-rule" data-start="0" data-duration="7.064" data-track-index="2"></div>
+    <div class="total" id="f04-total">$0–1</div>
+    <div class="note" id="f04-note">Crédito gratis $200 · voz y subtítulos</div>
+    <div class="bar clip" id="f04-bar" data-start="0" data-duration="7.064" data-track-index="3" style="width: 50%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 6.464;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f04-r1", "#f04-r2", "#f04-r3", "#f04-r4", "#f04-total", "#f04-note"], { opacity: 0 });
+    tl.fromTo("#f04-eyebrow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.05);
+    tl.fromTo("#f04-r1", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, D * 0.16);
+    tl.fromTo("#f04-r2", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, D * 0.34);
+    tl.fromTo("#f04-r3", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, D * 0.52);
+    tl.fromTo("#f04-r4", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, D * 0.68);
+    tl.fromTo("#f04-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power1.inOut" }, D * 0.8);
+    tl.fromTo("#f04-total", { opacity: 0, scale: 0.6, rotation: -6 }, { opacity: 1, scale: 1, rotation: -6, duration: 0.5, ease: "back.out(2)" }, D * 0.84);
+    tl.fromTo("#f04-note", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.92);
+    tl.fromTo("#f04-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["04-video-dolar"] = tl;
+  </script>
+</template>

@@ -1,0 +1,15 @@
+Factura real del negocio digital con agentes de IA. Datos verificados el 17-18 de agosto de 2026 por cuatro equipos de investigación (e032).
+
+CIFRA 1 — El artículo que costaba $50 ahora cuesta $0.50 con agentes de IA. Reducción de 100×. [ag-03 marketing]
+
+CIFRA 2 — Todo un SaaS arranca en $0/mes: Vercel (frontend), Clerk (auth), Neon (base de datos), Stripe (pagos). Los cuatro con free tier verificado. Solo pagas porcentaje por venta. [ag-02 productos]
+
+CIFRA 3 — Un video explicativo de 3 minutos completo cuesta menos de $1 en la nube: guion $0, voz $0–0.30, imágenes $0–0.60, subtítulos $0–0.05, montaje $0. El crédito gratis de $200 de Deepgram cubre la voz y los subtítulos. [ag-01 video]
+
+CIFRA 4 — 9 de cada 10 estrategias de trading con IA mueren por comisiones. El asesino: breakeven de 0.09% por viaje redondo. La única superviviente: +2.38% neto por operación, pero solo ~13 veces al año. Por eso el trading no se enseña como negocio; se enseña el método de escepticismo. [ag-04 crypto]
+
+CIFRA 5 — Un video explicativo de 3 minutos se vende como servicio entre $100 y $500. Costo en la nube: menos de $2. [ag-01 video]
+
+CIFRA 6 — YouTube duplica los requisitos de monetización el 1 de febrero de 2027: de 4,000 a 8,000 horas, de 10M a 20M de vistas de Shorts. La ventana para crecer barato es ahora. [ag-01 video]
+
+CONCLUSIÓN — Un negocio digital con agentes de IA arranca por $0–29/mes, con una habilidad vendible y una regla de honestidad que separa tu contenido del ruido: los números verificados, no las promesas.

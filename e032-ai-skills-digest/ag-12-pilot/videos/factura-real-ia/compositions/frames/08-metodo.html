@@ -1,0 +1,36 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F2EF; color: #1C1410; }
+    .stripe { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, #F5F2EF 0 38cqh, #FFFFFF 38cqh 76cqh); }
+    .eyebrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 22cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.22em; text-transform: uppercase; color: #D8000F; }
+    .line1 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 84cqw; text-align: center; top: 34cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 7.6cqw; line-height: 1.15; color: #1C1410; will-change: transform, opacity; }
+    .line2 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 50cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 8.6cqw; line-height: 1; color: #D8000F; transform: rotate(-5deg); text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .attrib { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 66cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 2.9cqw; letter-spacing: 0.12em; text-transform: uppercase; color: #D8000F; will-change: transform, opacity; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #D8000F; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="08-metodo" data-width="1080" data-height="1920" data-duration="3.179">
+    <div class="stripe clip" id="f08-bg" data-start="0" data-duration="3.179" data-track-index="1"></div>
+    <div class="eyebrow" id="f08-eyebrow">EL MÉTODO</div>
+    <div class="line1" id="f08-line1">Los números no prometen.</div>
+    <div class="line2" id="f08-line2">Verifican.</div>
+    <div class="attrib" id="f08-attrib">e032 · datos medidos y verificados 17–18 AGO 2026</div>
+    <div class="bar clip" id="f08-bar" data-start="0" data-duration="3.179" data-track-index="2" style="width: 100%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 3.179;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f08-line1", "#f08-line2", "#f08-attrib"], { opacity: 0 });
+    tl.fromTo("#f08-eyebrow", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.06);
+    tl.fromTo("#f08-line1", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.16);
+    tl.fromTo("#f08-line2", { opacity: 0, y: 24, rotation: -5 }, { opacity: 1, y: 0, rotation: -5, duration: 0.45, ease: "back.out(2)" }, D * 0.42);
+    tl.fromTo("#f08-attrib", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, D * 0.68);
+    tl.fromTo("#f08-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["08-metodo"] = tl;
+  </script>
+</template>

@@ -1,0 +1,39 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #F5F2EF; color: #1C1410; }
+    .bg { position: absolute; inset: 0; background: #F5F2EF; }
+    .stripe { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, #F5F2EF 0 38cqh, #FFFFFF 38cqh 76cqh); }
+    .eyebrow { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 17cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.4cqw; letter-spacing: 0.22em; text-transform: uppercase; color: #D8000F; }
+    .line1 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 82cqw; text-align: center; top: 30cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 7.6cqw; line-height: 1.12; color: #1C1410; will-change: transform, opacity; }
+    .line2 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 84cqw; text-align: center; top: 45cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 7.6cqw; line-height: 1.12; color: #1C1410; will-change: transform, opacity; }
+    .ia { display: inline-block; color: #D8000F; transform: rotate(-4deg); }
+    .line3 { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; text-align: center; top: 63cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 6.4cqw; line-height: 1.1; color: #D8000F; transform: rotate(-5deg); text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #D8000F; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="01-pregunta" data-width="1080" data-height="1920" data-duration="6.196">
+    <div class="stripe clip" id="f01-bg" data-start="0" data-duration="6.196" data-track-index="1"></div>
+    <div class="eyebrow" id="f01-eyebrow">NEGOCIO CON IA · LA FACTURA REAL</div>
+    <div class="line1" id="f01-line1">¿Cuánto cuesta de verdad…</div>
+    <div class="line2" id="f01-line2">…un negocio digital con <span class="ia">IA?</span></div>
+    <div class="line3" id="f01-line3">Medimos cada dólar.</div>
+    <div class="bar clip" id="f01-bar" data-start="0" data-duration="6.196" data-track-index="2" style="width: 12.5%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 5.696;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f01-line1", "#f01-line2", "#f01-line3"], { opacity: 0 });
+    tl.fromTo("#f01-eyebrow", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.04);
+    tl.fromTo("#f01-line1", { opacity: 0, y: 36, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out" }, D * 0.14);
+    tl.fromTo("#f01-line2", { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.36);
+    tl.fromTo("#f01-line2 .ia", { opacity: 0, scale: 0.6, rotation: -4 }, { opacity: 1, scale: 1, rotation: -4, duration: 0.45, ease: "back.out(2.2)" }, D * 0.46);
+    tl.fromTo("#f01-line3", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, D * 0.6);
+    tl.fromTo("#f01-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["01-pregunta"] = tl;
+  </script>
+</template>

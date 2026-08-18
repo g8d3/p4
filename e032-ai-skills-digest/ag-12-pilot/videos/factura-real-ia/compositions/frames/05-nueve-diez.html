@@ -1,0 +1,47 @@
+<template>
+  <style>
+    @font-face { font-family: "Shrikhand"; src: url("assets/fonts/Shrikhand_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Libre Baskerville"; src: url("assets/fonts/LibreBaskerville_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Space Grotesk"; src: url("assets/fonts/SpaceGrotesk_600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    #root { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; container-type: size; background: #D8000F; color: #FFFFFF; }
+    .bg { position: absolute; inset: 0; background: #D8000F; }
+    .headline { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 84cqw; text-align: center; top: 16cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 7cqw; line-height: 1.15; color: #FFFFFF; text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .bars { position: absolute; left: 10cqw; right: 10cqw; top: 32cqh; display: flex; gap: 1.6cqw; }
+    .cell { flex: 1; height: 16cqh; background: transparent; border: 0.3cqw solid #FFFFFF; will-change: transform, opacity; }
+    .cell.red { background: #FFFFFF; border-color: #FFFFFF; }
+    .cell.dark { background: #1C1410; border-color: #1C1410; }
+    .counter { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 55cqh; font-family: "Shrikhand", serif; font-weight: 400; font-size: 8cqw; line-height: 1; color: #FFFFFF; text-shadow: 2px 2px 0 rgba(28,20,16,0.25), 4px 4px 0 rgba(28,20,16,0.2), 6px 6px 0 rgba(28,20,16,0.15); will-change: transform, opacity; }
+    .survivor { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: 80cqw; text-align: center; top: 62cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 3.2cqw; letter-spacing: 0.06em; line-height: 1.5; text-transform: uppercase; color: #FFFFFF; will-change: transform, opacity; }
+    .feetag { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; top: 74cqh; font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 2.8cqw; letter-spacing: 0.12em; text-transform: uppercase; color: #1C1410; background: #FFFFFF; border: 0.2cqw solid #1C1410; padding: 1.2cqw 3cqw; will-change: transform, opacity; }
+    .bar { position: absolute; left: 0; bottom: 0; height: 1.1cqw; background: #1C1410; transform-origin: left center; will-change: transform; }
+  </style>
+  <div id="root" data-composition-id="05-nueve-diez" data-width="1080" data-height="1920" data-duration="10.847">
+    <div class="bg clip" id="f05-bg" data-start="0" data-duration="10.847" data-track-index="1"></div>
+    <div class="headline" id="f05-headline">LO QUE NADIE TE CUENTA</div>
+    <div class="bars">
+      <div class="cell" id="f05-c1"></div><div class="cell" id="f05-c2"></div><div class="cell" id="f05-c3"></div><div class="cell" id="f05-c4"></div><div class="cell" id="f05-c5"></div><div class="cell" id="f05-c6"></div><div class="cell" id="f05-c7"></div><div class="cell" id="f05-c8"></div><div class="cell" id="f05-c9"></div><div class="cell dark" id="f05-c10"></div>
+    </div>
+    <div class="counter" id="f05-counter">9/10</div>
+    <div class="survivor" id="f05-survivor">Única superviviente: +2.38% / op · ~13 veces al año</div>
+    <div class="feetag" id="f05-feetag">Asesino: comisiones 0.09% por viaje</div>
+    <div class="bar clip" id="f05-bar" data-start="0" data-duration="10.847" data-track-index="2" style="width: 62.5%;"></div>
+  </div>
+  <script>
+    window.__timelines = window.__timelines || {};
+    const D = 10.347;
+    const tl = gsap.timeline({ paused: true });
+    gsap.set(["#f05-c1", "#f05-c2", "#f05-c3", "#f05-c4", "#f05-c5", "#f05-c6", "#f05-c7", "#f05-c8", "#f05-c9", "#f05-c10", "#f05-counter", "#f05-survivor", "#f05-feetag"], { opacity: 0 });
+    tl.fromTo("#f05-headline", { opacity: 0, y: 30, filter: "blur(12px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.6, ease: "power3.out" }, D * 0.06);
+    const cells = ["#f05-c1","#f05-c2","#f05-c3","#f05-c4","#f05-c5","#f05-c6","#f05-c7","#f05-c8","#f05-c9","#f05-c10"];
+    cells.forEach((sel, i) => {
+      tl.fromTo(sel, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, D * 0.24 + i * 0.22);
+    });
+    tl.fromTo("#f05-counter", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, D * 0.5);
+    tl.fromTo("#f05-survivor", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, D * 0.58);
+    tl.fromTo("#f05-feetag", { opacity: 0, y: 16, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "power3.out" }, D * 0.78);
+    tl.fromTo("#f05-bar", { scaleX: 0 }, { scaleX: 1, duration: D * 0.9, ease: "power1.inOut" }, 0.1);
+    window.__timelines["05-nueve-diez"] = tl;
+  </script>
+</template>

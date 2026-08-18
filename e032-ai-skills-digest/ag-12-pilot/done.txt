@@ -1,0 +1,15 @@
+ag-12-pilot finished.
+
+Headline: Fresh-attempt content pilot shipped — a data-viz Short + the HTML source of truth.
+
+Verdict: The pilot proves the thesis. All numbers come from ag-01..05 (measured/verified
+2026-08-17/18); visuals are built in code (SVG/HTML data-viz), not AI images, so the
+aesthetic is fully controlled. The engine agents (ag-06..11) produced flat text; this
+turns the same verified data into attention-grabbing output (bold numerals, honest
+9-of-10 turn, a concrete deadline).
+
+Deliverables:
+- videos/factura-real-ia/renders/video.mp4 — 52s, 9:16, 1080x1920, 30fps, h264_vaapi (GPU), ~3.9MB
+- piloto.html — the source page with 7 charts + 5 hooks
+
+Wait for user approval before starting the full content cycle (the successor task).
