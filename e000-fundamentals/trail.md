@@ -841,6 +841,8 @@ Experiment [e034-motion-design-skill](../e034-motion-design-skill/AGENTS.md): "p
 - Produced 5 motion graphics (motion-graphics route, silent, 5.5-8s): playful-card,
   premium-reveal, corporate-dashboard, energetic-hero, state-feedback. All pass
   `hyperframes check` with 0 errors / 0 warnings.
+- Joined everything into one demo reel (`output/reel.mp4`): title card (rendered
+  `index.html`) + the 5 animations concatenated, re-encoded to h264_vaapi (42s).
 - Re-encoded all finals to `h264_vaapi` per p4 rule (`encode_vaapi.sh`); verified encoder tag
   with `stream_tags`.
 - Learning: the two skills are complementary — the motion-design-skill supplies the

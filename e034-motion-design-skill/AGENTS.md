@@ -38,6 +38,7 @@ motion graphics, each demonstrating one of the skill's concepts, rendered to GPU
 
 | File | Concept | Skill reference | Duration |
 |---|---|---|---|
+| `output/reel.mp4` | **Full demo reel** — title + all 5 animations concatenated (h264_vaapi) | — | 42.0s |
 | `output/playful-card.mp4` | Card entrance, personality Playful | 8-step checklist, Disney squash & stretch, back.out overshoot | 6.5s |
 | `output/premium-reveal.mp4` | Typographic reveal, personality Premium | Dramatic reveal, zero overshoot, golden hairlines | 8.0s |
 | `output/corporate-dashboard.mp4` | Dashboard load, personality Corporate | Wave stagger, snappy 0.2,0,0,1 curve, linear progress | 7.0s |
@@ -93,3 +94,11 @@ bash ../e023-build-in-public/bin/encode_vaapi.sh animations/renders/playful-card
 ## Session trail
 
 Recorded 2026-08-19. See `e000-fundamentals/trail.md`.
+
+### Demo reel (user request, same session)
+
+User asked to join everything into one demonstrative video. Rendered the title card
+(`animations/renders/title.mp4`, the project's `index.html`), then concatenated
+title + 5 animations with the ffmpeg concat demuxer (`-c copy`) and re-encoded the
+result through `encode_vaapi.sh` → `output/reel.mp4` (42s, 1920×1080, 30 fps, h264_vaapi).
+Frame checks confirm the reel plays (no black segments).
