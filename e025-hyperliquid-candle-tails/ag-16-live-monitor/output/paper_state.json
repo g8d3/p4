@@ -1,5 +1,5 @@
 {
-  "last_day": "2026-08-17",
+  "last_day": "2026-08-18",
   "pending": [
     {
       "coin": "SOL",
@@ -35,6 +35,13 @@
       "exit_day": "2026-08-21",
       "trigger": "T2_lowvol",
       "entry_close": 1875.6
+    },
+    {
+      "coin": "AAVE",
+      "entry_day": "2026-08-18",
+      "exit_day": "2026-08-23",
+      "trigger": "T2_lowvol",
+      "entry_close": 87.487
     }
   ]
 }
