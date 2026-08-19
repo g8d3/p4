@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>State Feedback — Loading · Success · Error</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #EEF1F6;
+      }
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #EEF1F6;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      #card-clip {
+        display: grid;
+        place-items: center;
+      }
+      #card {
+        position: relative;
+        width: 760px;
+        background: #FFFFFF;
+        border-radius: 24px;
+        border: 1px solid #E5EAF2;
+        padding: 54px 58px;
+        box-shadow: 0 22px 50px rgba(23, 43, 84, 0.12);
+      }
+      #card h2 {
+        font-size: 34px;
+        font-weight: 700;
+        color: #0F1B33;
+        letter-spacing: -0.5px;
+      }
+      .hint {
+        font-size: 16px;
+        color: #526074;
+        margin-top: 6px;
+      }
+      .field {
+        margin-top: 34px;
+      }
+      .field label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #3C4A60;
+        margin-bottom: 10px;
+      }
+      #input {
+        width: 100%;
+        height: 62px;
+        border: 2px solid #DCE4EE;
+        border-radius: 14px;
+        padding: 0 20px;
+        font-size: 19px;
+        color: #0F1B33;
+        background-color: #FFFFFF;
+        outline: none;
+      }
+      #btn-wrap {
+        position: relative;
+        width: 100%;
+        height: 64px;
+        margin-top: 30px;
+      }
+      #btn {
+        position: absolute;
+        inset: 0;
+        border: none;
+        border-radius: 14px;
+        background: #1E4FD6;
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        display: grid;
+        place-items: center;
+        visibility: hidden;
+      }
+      /* state overlays — each is its own timed clip, only one is on screen at a time */
+      .state-box {
+        position: absolute;
+        inset: 0;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+      }
+      #loader {
+        background: #1E4FD6;
+      }
+      #spinner {
+        width: 26px;
+        height: 26px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #FFFFFF;
+        border-radius: 50%;
+      }
+      #success {
+        background: #12823B;
+      }
+      #check-wrap {
+        position: relative;
+        width: 34px;
+        height: 34px;
+      }
+      #check-h {
+        position: absolute;
+        width: 20px;
+        height: 5px;
+        top: 16px;
+        left: 2px;
+        border-radius: 3px;
+        background: #fff;
+        transform: rotate(-45deg);
+        transform-origin: left center;
+      }
+      #check-v {
+        position: absolute;
+        width: 32px;
+        height: 5px;
+        top: 26px;
+        left: 14px;
+        border-radius: 3px;
+        background: #fff;
+        transform: rotate(50deg);
+        transform-origin: left center;
+      }
+      #burst {
+        position: absolute;
+        inset: -12px;
+        border: 3px solid #22C55E;
+        border-radius: 14px;
+      }
+      .particle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .p-green { background: #22C55E; }
+      .p-blue { background: #60A5FA; }
+      /* toasts */
+      .toast {
+        position: absolute;
+        left: 50%;
+        margin-left: -350px;
+        top: 90px;
+        width: 700px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #FFFFFF;
+        border: 1px solid #E5EAF2;
+        border-left: 6px solid #16A34A;
+        border-radius: 12px;
+        padding: 18px 22px;
+        font-size: 17px;
+        font-weight: 600;
+        color: #0F1B33;
+        box-shadow: 0 14px 34px rgba(23, 43, 84, 0.14);
+      }
+      .toast.err {
+        border-left-color: #DC2626;
+      }
+      .tag {
+        position: absolute;
+        top: 40px;
+        left: 48px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #5C6880;
+      }
+      .spec {
+        position: absolute;
+        bottom: 36px;
+        right: 48px;
+        font-size: 16px;
+        color: #5C6880;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="state"
+      data-start="0"
+      data-duration="7"
+      data-width="1920"
+      data-height="1080"
+    >
+      <section id="card-clip" class="clip" data-start="0" data-duration="7" data-track-index="1">
+        <div id="card">
+          <h2>Deploy release</h2>
+          <div class="hint">Roll out v2.4.0 to production</div>
+          <div class="field">
+            <label for="input">Version tag</label>
+            <input id="input" type="text" value="v2.4.0" readonly />
+          </div>
+          <div id="btn-wrap">
+            <button id="btn">Deploy</button>
+            <section id="loader-clip" class="clip" data-start="0.95" data-duration="1.3" data-track-index="2">
+              <div id="loader" class="state-box">
+                <div id="spinner"></div>
+                <span>Publishing…</span>
+              </div>
+            </section>
+            <section id="success-clip" class="clip" data-start="2.2" data-duration="1.5" data-track-index="3">
+              <div id="success" class="state-box">
+                <div id="burst"></div>
+                <div id="check-wrap"><div id="check-h"></div><div id="check-v"></div></div>
+                <span>Deployed</span>
+              </div>
+              <div class="particle p-green" id="p1" style="left: 352px; top: 12px"></div>
+              <div class="particle p-green" id="p2" style="left: 398px; top: 6px"></div>
+              <div class="particle p-blue" id="p3" style="left: 338px; top: 40px"></div>
+              <div class="particle p-blue" id="p4" style="left: 414px; top: 38px"></div>
+              <div class="particle p-green" id="p5" style="left: 322px; top: 26px"></div>
+              <div class="particle p-blue" id="p6" style="left: 434px; top: 22px"></div>
+            </section>
+          </div>
+        </div>
+        <div class="tag">motion-design skill · 05</div>
+        <div class="spec">patterns: state feedback</div>
+      </section>
+
+      <section id="toast-clip" class="clip" data-start="0" data-duration="7" data-track-index="5">
+        <div class="toast" id="toast-ok">✓ Deployment successful</div>
+        <div class="toast err" id="toast-err">✕ Version already exists — try another tag</div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* scene entrance */
+      tl.from("#card", { y: 34, autoAlpha: 0, duration: 0.45, ease: "power2.out" }, 0.2);
+      tl.from("#card h2", { y: 12, autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 0.45);
+      tl.from(".hint", { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 0.55);
+      tl.from(".field", { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 0.62);
+      tl.from("#btn", { autoAlpha: 0, duration: 0.3, ease: "power2.out" }, 0.7);
+
+      /* press feedback (<150ms, snappy) */
+      tl.to("#btn", { scale: 0.96, duration: 0.08, ease: "power2.out" }, 0.88);
+      tl.set("#btn", { autoAlpha: 0 }, 0.96);
+      tl.set("#btn", { scale: 1 }, 1.04);
+
+      /* loading — spinner spins twice, label breathes */
+      tl.to("#spinner", { rotation: 720, duration: 1.2, ease: "linear" }, 1.0);
+      tl.fromTo("#loader span", { opacity: 0.5 }, { opacity: 1, duration: 0.3, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1.1);
+
+      /* success — scale pop, ring burst, check draw, particles */
+      tl.set("#success", { scale: 0.7 }, 2.25);
+      tl.to("#success", { scale: 1, duration: 0.35, ease: "back.out(1.8)" }, 2.25);
+      tl.fromTo("#burst", { scale: 0.92, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.2, ease: "power2.out" }, 2.3);
+      tl.to("#burst", { autoAlpha: 0, duration: 0.25, ease: "power2.in" }, 2.6);
+      tl.fromTo("#check-h", { scaleX: 0 }, { scaleX: 1, duration: 0.12, ease: "power2.out" }, 2.4);
+      tl.fromTo("#check-v", { scaleX: 0 }, { scaleX: 1, duration: 0.14, ease: "power2.out" }, 2.47);
+      tl.fromTo("#p1", { x: 0, y: 0, autoAlpha: 1 }, { x: -38, y: -130, scale: 1.8, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 2.3);
+      tl.fromTo("#p2", { x: 0, y: 0, autoAlpha: 1 }, { x: 20, y: -150, scale: 1.6, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 2.35);
+      tl.fromTo("#p3", { x: 0, y: 0, autoAlpha: 1 }, { x: -60, y: -70, scale: 1.5, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 2.4);
+      tl.fromTo("#p4", { x: 0, y: 0, autoAlpha: 1 }, { x: 60, y: -80, scale: 1.5, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 2.4);
+      tl.fromTo("#p5", { x: 0, y: 0, autoAlpha: 1 }, { x: -90, y: -40, scale: 1.4, autoAlpha: 0, duration: 0.65, ease: "power3.out" }, 2.3);
+      tl.fromTo("#p6", { x: 0, y: 0, autoAlpha: 1 }, { x: 95, y: -40, scale: 1.4, autoAlpha: 0, duration: 0.65, ease: "power3.out" }, 2.35);
+
+      /* success toast */
+      tl.from("#toast-ok", { y: -24, autoAlpha: 0, duration: 0.4, ease: "back.out(1.4)" }, 2.4);
+      tl.to("#toast-ok", { autoAlpha: 0, duration: 0.3, ease: "power2.in" }, 3.5);
+
+      /* back to neutral */
+      tl.set("#btn", { autoAlpha: 1, scale: 1 }, 3.7);
+
+      /* error demo — input shakes, 3 firm oscillations, no overshoot */
+      tl.to("#input", { backgroundColor: "#FEF2F2", duration: 0.1 }, 4.15);
+      tl.to("#input", { keyframes: [
+        { x: -12, duration: 0.07, ease: "power1.out" },
+        { x: 12, duration: 0.12, ease: "power1.inOut" },
+        { x: -8, duration: 0.12, ease: "power1.inOut" },
+        { x: 6, duration: 0.1, ease: "power1.inOut" },
+        { x: 0, duration: 0.08, ease: "power1.out" },
+      ] }, 4.15);
+
+      /* error toast */
+      tl.from("#toast-err", { y: -24, autoAlpha: 0, duration: 0.4, ease: "back.out(1.3)" }, 4.3);
+
+      tl.from(".tag", { y: -10, autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 0.1);
+      tl.from(".spec", { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 0.8);
+
+      window.__timelines["state"] = tl;
+    </script>
+  </body>
+</html>

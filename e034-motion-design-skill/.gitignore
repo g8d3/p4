@@ -1,0 +1,9 @@
+animations/renders/
+animations/node_modules/
+animations/.hyperframes/
+animations/.media/
+animations/snapshots/
+output/
+__pycache__/
+*.mp4
+*.webm

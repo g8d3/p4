@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Premium — Elegance Reveal</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #151318;
+      }
+      body {
+        font-family: "Georgia", "Times New Roman", serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #151318;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      #bg {
+        overflow: hidden;
+      }
+      #glow {
+        position: absolute;
+        left: 30%;
+        top: 8%;
+        width: 40%;
+        height: 84%;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(201, 162, 39, 0.16) 0%, rgba(201, 162, 39, 0) 70%);
+      }
+      #content {
+        display: grid;
+        place-items: center;
+      }
+      .block {
+        position: relative;
+        text-align: left;
+        width: 1080px;
+        padding: 0 80px;
+      }
+      #eyebrow {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 10px;
+        text-transform: uppercase;
+        color: #C9A227;
+        margin-bottom: 40px;
+      }
+      #headline {
+        font-size: 136px;
+        font-weight: 400;
+        line-height: 1.04;
+        letter-spacing: -2px;
+        color: #F1EDE4;
+      }
+      #headline .gold {
+        color: #E0C065;
+        font-style: italic;
+      }
+      #hairline-1 {
+        position: absolute;
+        top: -18px;
+        left: 80px;
+        width: 140px;
+        height: 2px;
+        background: linear-gradient(90deg, #C9A227, rgba(201, 162, 39, 0));
+        transform-origin: left center;
+      }
+      #hairline-2 {
+        width: 120px;
+        height: 2px;
+        margin-top: 56px;
+        margin-bottom: 44px;
+        background: linear-gradient(90deg, #C9A227, rgba(201, 162, 39, 0));
+        transform-origin: right center;
+      }
+      #caption {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 22px;
+        color: #9B93A6;
+        letter-spacing: 1px;
+      }
+      #diamond {
+        position: absolute;
+        right: -60px;
+        top: 96px;
+        width: 46px;
+        height: 46px;
+        border: 2px solid #C9A227;
+        transform: rotate(45deg);
+      }
+      .tag {
+        position: absolute;
+        top: 40px;
+        left: 48px;
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #B0A8BD;
+      }
+      .spec {
+        position: absolute;
+        bottom: 34px;
+        right: 48px;
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 16px;
+        letter-spacing: 1px;
+        color: #B0A8BD;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="premium"
+      data-start="0"
+      data-duration="8"
+      data-width="1920"
+      data-height="1080"
+    >
+      <section id="bg" class="clip" data-start="0" data-duration="8" data-track-index="1">
+        <div id="glow"></div>
+      </section>
+
+      <section id="content" class="clip" data-start="0" data-duration="8" data-track-index="2">
+        <div class="block">
+          <div id="hairline-1"></div>
+          <div id="eyebrow">Présentation</div>
+          <div id="headline">
+            Elegance<br />in <span class="gold">motion</span>
+          </div>
+          <div id="hairline-2"></div>
+          <div id="caption">cubic-bezier(0.4, 0, 0.2, 1) · 0% overshoot · 350–800ms</div>
+          <div id="diamond"></div>
+        </div>
+        <div class="tag">motion-design skill · 02</div>
+        <div class="spec">personality: premium</div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* ambient — the glow breathes very slowly */
+      tl.fromTo("#glow", { opacity: 0.5 }, { opacity: 1, duration: 4.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0);
+
+      /* top hairline draws (transform-origin left) */
+      tl.fromTo("#hairline-1", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, 0.3);
+
+      tl.from("#eyebrow", { y: 16, autoAlpha: 0, duration: 0.7, ease: "power2.out" }, 0.8);
+
+      /* headline lines rise gently, no overshoot, staggered */
+      tl.from("#headline", { y: 26, autoAlpha: 0, duration: 0.75, ease: "power2.out" }, 1.1);
+
+      /* diamond emblem settles in slowly, exactly one rotation */
+      tl.fromTo("#diamond", { scale: 0.2, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.9, ease: "power2.inOut" }, 1.75);
+
+      /* closing hairline draws from the right */
+      tl.fromTo("#hairline-2", { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 1.9);
+
+      tl.from("#caption", { y: 14, autoAlpha: 0, duration: 0.7, ease: "power2.out" }, 2.6);
+
+      tl.from(".tag", { y: -12, autoAlpha: 0, duration: 0.8, ease: "power2.out" }, 0.4);
+      tl.from(".spec", { autoAlpha: 0, duration: 0.8, ease: "power2.out" }, 3.0);
+
+      window.__timelines["premium"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Motion Design Skill — specimen index</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0F1115;
+      }
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0F1115;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      #content {
+        display: grid;
+        place-items: center;
+      }
+      .panel {
+        text-align: center;
+      }
+      h1 {
+        font-size: 88px;
+        font-weight: 900;
+        letter-spacing: -2px;
+        color: #F5F1E8;
+      }
+      h1 span {
+        background: linear-gradient(90deg, #FF2FD6, #22E3FF);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .sub {
+        margin-top: 28px;
+        font-size: 30px;
+        color: #C3CAD9;
+        letter-spacing: 1px;
+      }
+      .links {
+        margin-top: 44px;
+        font-size: 20px;
+        color: #909AAE;
+        line-height: 1.9;
+      }
+      .tag {
+        position: absolute;
+        top: 42px;
+        left: 48px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #7C8497;
+      }
+      .spec {
+        position: absolute;
+        bottom: 36px;
+        right: 48px;
+        font-size: 16px;
+        color: #7C8497;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="index"
+      data-start="0"
+      data-duration="8"
+      data-width="1920"
+      data-height="1080"
+    >
+      <section id="content" class="clip" data-start="0" data-duration="8" data-track-index="1">
+        <div class="panel">
+          <h1>LottieFiles<br /><span>motion-design-skill</span></h1>
+          <div class="sub">proven in 5 HyperFrames animations</div>
+          <div class="links">
+            playful-card · premium-reveal · corporate-dashboard · energetic-hero · state-feedback
+          </div>
+        </div>
+        <div class="tag">e034 · playback ready</div>
+        <div class="spec">renders/ + output/ · h264_vaapi</div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.from("h1", { y: 40, autoAlpha: 0, duration: 0.7, ease: "power3.out" }, 0.3);
+      tl.from(".sub", { y: 20, autoAlpha: 0, duration: 0.6, ease: "power2.out" }, 0.8);
+      tl.from(".links", { autoAlpha: 0, duration: 0.6, ease: "power2.out" }, 1.2);
+      tl.from(".tag", { y: -12, autoAlpha: 0, duration: 0.5, ease: "power2.out" }, 0.1);
+      tl.from(".spec", { autoAlpha: 0, duration: 0.5, ease: "power2.out" }, 2.0);
+      window.__timelines["index"] = tl;
+    </script>
+  </body>
+</html>

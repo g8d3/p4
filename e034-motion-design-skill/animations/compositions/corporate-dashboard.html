@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Corporate — Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #F5F7FA;
+      }
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #F5F7FA;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      .page {
+        position: relative;
+        width: 1640px;
+        height: 1080px;
+        margin: 0 auto;
+        padding: 46px 0 40px;
+      }
+      /* top bar */
+      #topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 52px;
+      }
+      #title {
+        font-size: 30px;
+        font-weight: 700;
+        color: #0F172A;
+        letter-spacing: -0.5px;
+      }
+      #title small {
+        font-size: 16px;
+        font-weight: 500;
+        color: #52617A;
+        margin-left: 12px;
+      }
+      #search {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 999px;
+        padding: 10px 22px;
+        font-size: 15px;
+        color: #3F4B5C;
+      }
+      #avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #2563EB;
+      }
+      /* KPI cards */
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+        margin-top: 30px;
+      }
+      .kpi {
+        background: #FFFFFF;
+        border: 1px solid #E8EDF3;
+        border-radius: 16px;
+        padding: 26px 28px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+      .kpi .label {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #52617A;
+      }
+      .kpi .value {
+        font-size: 44px;
+        font-weight: 700;
+        color: #0F172A;
+        margin: 12px 0 10px;
+        letter-spacing: -1px;
+      }
+      .kpi .delta {
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+      .up { background: #DCFCE7; color: #15803D; }
+      .down { background: #FEE2E2; color: #B91C1C; }
+      /* chart card */
+      #chart-card {
+        background: #FFFFFF;
+        border: 1px solid #E8EDF3;
+        border-radius: 16px;
+        margin-top: 22px;
+        padding: 26px 30px 22px;
+      }
+      #chart-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0F172A;
+      }
+      #chart-sub {
+        font-size: 14px;
+        color: #52617A;
+        margin-top: 4px;
+      }
+      .chart-box {
+        position: relative;
+        height: 260px;
+        margin-top: 20px;
+        display: flex;
+        align-items: flex-end;
+        gap: 14px;
+      }
+      .gridline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #EEF2F7;
+      }
+      .bar {
+        position: relative;
+        flex: 1;
+        height: 100%;
+        background: linear-gradient(180deg, #93C5FD, #2563EB);
+        border-radius: 6px 6px 0 0;
+        transform-origin: 50% 100%;
+      }
+      .bar.hot { background: linear-gradient(180deg, #60A5FA, #1D4ED8); }
+      .bar.dim { background: linear-gradient(180deg, #DBEAFE, #BFDBFE); }
+      /* progress card */
+      #progress-card {
+        background: #FFFFFF;
+        border: 1px solid #E8EDF3;
+        border-radius: 16px;
+        margin-top: 22px;
+        padding: 26px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      #progress-label {
+        font-size: 17px;
+        font-weight: 600;
+        color: #0F172A;
+      }
+      #progress-meta {
+        font-size: 14px;
+        color: #52617A;
+        margin-top: 6px;
+      }
+      .bar-track {
+        position: relative;
+        width: 720px;
+        height: 12px;
+        border-radius: 999px;
+        background: #E8EDF3;
+        overflow: hidden;
+      }
+      .bar-fill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        background: linear-gradient(90deg, #3B82F6, #2563EB);
+        border-radius: 999px;
+        transform-origin: left center;
+      }
+      #progress-right {
+        font-size: 26px;
+        font-weight: 700;
+        color: #2563EB;
+        margin-left: 28px;
+      }
+      .stack {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      /* footer */
+      #status {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 26px;
+        font-size: 14px;
+        color: #3F4B5C;
+      }
+      #dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #22C55E;
+      }
+      .tag {
+        position: absolute;
+        top: 12px;
+        left: 42px;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #58667A;
+      }
+      .spec {
+        position: absolute;
+        bottom: 12px;
+        right: 42px;
+        font-size: 16px;
+        color: #58667A;
+      }
+      .progress-wrap {
+        position: relative;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="corporate"
+      data-start="0"
+      data-duration="7"
+      data-width="1920"
+      data-height="1080"
+    >
+      <section id="ui" class="clip" data-start="0" data-duration="7" data-track-index="1">
+        <div class="page">
+          <div id="topbar">
+            <div id="title">Overview <small>Quarterly report</small></div>
+            <div class="stack">
+              <div id="search">Search…</div>
+              <div id="avatar"></div>
+            </div>
+          </div>
+
+          <div class="kpis">
+            <div class="kpi">
+              <div class="label">Revenue</div>
+              <div class="value">$128.4K</div>
+              <span class="delta up">▲ +12.4%</span>
+            </div>
+            <div class="kpi">
+              <div class="label">Users</div>
+              <div class="value">8,412</div>
+              <span class="delta up">▲ +3.1%</span>
+            </div>
+            <div class="kpi">
+              <div class="label">Orders</div>
+              <div class="value">1,203</div>
+              <span class="delta down">▼ −1.2%</span>
+            </div>
+            <div class="kpi">
+              <div class="label">Conversion</div>
+              <div class="value">2.9%</div>
+              <span class="delta up">▲ +0.4%</span>
+            </div>
+          </div>
+
+          <div id="chart-card">
+            <div id="chart-title">Revenue · 3-month</div>
+            <div id="chart-sub">Monthly recurring revenue by week</div>
+            <div class="chart-box">
+              <div class="gridline" style="top: 0"></div>
+              <div class="gridline" style="top: 65px"></div>
+              <div class="gridline" style="top: 130px"></div>
+              <div class="gridline" style="top: 195px"></div>
+              <div class="bar dim" style="height: 42%"></div>
+              <div class="bar dim" style="height: 58%"></div>
+              <div class="bar dim" style="height: 46%"></div>
+              <div class="bar dim" style="height: 70%"></div>
+              <div class="bar dim" style="height: 55%"></div>
+              <div class="bar dim" style="height: 78%"></div>
+              <div class="bar dim" style="height: 62%"></div>
+              <div class="bar" style="height: 88%"></div>
+              <div class="bar" style="height: 74%"></div>
+              <div class="bar hot" style="height: 100%"></div>
+              <div class="bar" style="height: 84%"></div>
+              <div class="bar dim" style="height: 66%"></div>
+            </div>
+          </div>
+
+          <div id="progress-card">
+            <div class="progress-wrap">
+              <div id="progress-label">Quarterly goal</div>
+              <div id="progress-meta">Target: 60 new accounts / quarter</div>
+            </div>
+            <div class="stack">
+              <div class="bar-track"><div class="bar-fill"></div></div>
+              <div id="progress-right">72%</div>
+            </div>
+          </div>
+
+          <div id="status"><div id="dot"></div> All systems operational</div>
+        </div>
+        <div class="tag">motion-design skill · 03</div>
+        <div class="spec">personality: corporate</div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const barEls = gsap.utils.toArray(".bar");
+
+      /* top bar — quick, decisive */
+      tl.from("#topbar", { y: -16, autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 0.15);
+
+      /* KPI cards cascade in with a wave stagger (40ms) */
+      tl.from(".kpi", {
+        y: 16,
+        autoAlpha: 0,
+        duration: 0.32,
+        stagger: 0.04,
+        ease: "power2.out",
+      }, 0.3);
+
+      /* chart card + bars grow from baseline (wave stagger) */
+      tl.from("#chart-card", { y: 14, autoAlpha: 0, duration: 0.32, ease: "power2.out" }, 0.8);
+      tl.fromTo(barEls,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          transformOrigin: "50% 100%",
+          duration: 0.4,
+          stagger: 0.03,
+          ease: "power1.out",
+        },
+        1.0
+      );
+
+      /* progress bar fills, linear is honest for progress */
+      tl.from("#progress-card", { y: 14, autoAlpha: 0, duration: 0.32, ease: "power2.out" }, 1.5);
+      tl.fromTo(".bar-fill", { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: "power1.inOut" }, 1.85);
+
+      /* highlight bar keeps breathing (subtle ambient) */
+      tl.fromTo(".bar.hot", { scaleY: 1 }, { scaleY: 1.04, duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 2.6);
+
+      tl.from("#status", { autoAlpha: 0, duration: 0.4, ease: "power2.out" }, 2.9);
+
+      tl.from(".tag", { y: -10, autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 0.1);
+      tl.from(".spec", { autoAlpha: 0, duration: 0.4, ease: "power2.out" }, 3.1);
+
+      window.__timelines["corporate"] = tl;
+    </script>
+  </body>
+</html>

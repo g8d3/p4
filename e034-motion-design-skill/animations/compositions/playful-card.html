@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Playful — Card Entrance</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #FFF7ED;
+      }
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #FFF7ED;
+      }
+      .clip {
+        position: absolute;
+        inset: 0;
+      }
+      /* --- background layer --- */
+      #bg {
+        overflow: hidden;
+      }
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+      }
+      #orb-a {
+        width: 620px;
+        height: 620px;
+        left: -140px;
+        top: -170px;
+        background: radial-gradient(circle at 35% 35%, #FFCBA8, #FFB37E 68%);
+      }
+      #orb-b {
+        width: 560px;
+        height: 560px;
+        right: -150px;
+        bottom: -180px;
+        background: radial-gradient(circle at 40% 40%, #CDF3E3, #A5E8CC 70%);
+      }
+      .bubble {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.85);
+        border: 2px solid rgba(255, 140, 80, 0.35);
+      }
+      #bub-1 { width: 34px; height: 34px; left: 240px;  top: 620px; }
+      #bub-2 { width: 22px; height: 22px; left: 430px;  top: 760px; }
+      #bub-3 { width: 28px; height: 28px; right: 380px; top: 560px; }
+      #bub-4 { width: 18px; height: 18px; right: 260px; top: 720px; }
+      #bub-5 { width: 40px; height: 40px; left: 820px;  top: 70px; }
+      /* --- card stage --- */
+      #stage {
+        display: grid;
+        place-items: center;
+      }
+      .card-wrap {
+        position: relative;
+        width: 620px;
+        height: 400px;
+      }
+      #card-shadow {
+        position: absolute;
+        left: 26px;
+        right: 26px;
+        bottom: -18px;
+        height: 46px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(190, 90, 40, 0.28) 0%, rgba(190, 90, 40, 0) 70%);
+      }
+      #card {
+        position: absolute;
+        inset: 0;
+        background: #FFFFFF;
+        border-radius: 30px;
+        border: 3px solid #FFE3C6;
+        box-shadow: 0 22px 40px rgba(190, 90, 40, 0.18);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+      }
+      #face {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: #FFE9A8;
+        display: grid;
+        place-items: center;
+        position: relative;
+      }
+      #face span {
+        font-size: 54px;
+        line-height: 1;
+      }
+      #pop-ring {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        border: 4px dashed #FFB84D;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        margin: -75px 0 0 -75px;
+        pointer-events: none;
+      }
+      .title {
+        font-size: 64px;
+        font-weight: 800;
+        letter-spacing: -1.5px;
+        color: #2A2118;
+      }
+      .sub {
+        font-size: 24px;
+        color: #8A6F5B;
+        letter-spacing: 0.3px;
+      }
+      .chips {
+        display: flex;
+        gap: 12px;
+        margin-top: 6px;
+      }
+      .chip {
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-size: 19px;
+        font-weight: 700;
+        color: #fff;
+      }
+      #chip-1 { background: #C24B0A; }
+      #chip-2 { background: #0B8068; }
+      #chip-3 { background: #181D6E; }
+      .tag {
+        position: absolute;
+        top: 34px;
+        left: 42px;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #8F3808;
+      }
+      .spec {
+        position: absolute;
+        bottom: 30px;
+        right: 42px;
+        font-size: 17px;
+        color: #8A5230;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="playful"
+      data-start="0"
+      data-duration="6.5"
+      data-width="1920"
+      data-height="1080"
+    >
+      <section id="bg" class="clip" data-start="0" data-duration="6.5" data-track-index="1">
+        <div id="orb-a" class="orb"></div>
+        <div id="orb-b" class="orb"></div>
+        <div id="bub-1" class="bubble"></div>
+        <div id="bub-2" class="bubble"></div>
+        <div id="bub-3" class="bubble"></div>
+        <div id="bub-4" class="bubble"></div>
+        <div id="bub-5" class="bubble"></div>
+      </section>
+
+      <section id="stage" class="clip" data-start="0" data-duration="6.5" data-track-index="2">
+        <div class="card-wrap">
+          <div id="card-shadow"></div>
+          <div id="card">
+            <div id="face"><span>😊</span><div id="pop-ring"></div></div>
+            <div class="title">playful</div>
+            <div class="sub">ease-out-back · 20% overshoot</div>
+            <div class="chips">
+              <div class="chip" id="chip-1">150ms</div>
+              <div class="chip" id="chip-2">stagger 60</div>
+              <div class="chip" id="chip-3">squash</div>
+            </div>
+          </div>
+        </div>
+        <div class="tag">motion-design skill · 01</div>
+        <div class="spec">personality: playful</div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      /* ambient — breathing orbs (secondary + ambient layers) */
+      tl.fromTo("#orb-a", { y: 60, scale: 1 }, { y: -40, scale: 1.08, duration: 3.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0);
+      tl.fromTo("#orb-b", { y: -40, scale: 1.05 }, { y: 40, scale: 1, duration: 3.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.2);
+
+      tl.fromTo("#bub-1", { y: 24 }, { y: -90, duration: 3.0, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.4);
+      tl.fromTo("#bub-2", { y: 16, x: -8 }, { y: -70, x: 14, duration: 2.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.8);
+      tl.fromTo("#bub-3", { y: 20 }, { y: -80, duration: 3.4, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.3);
+      tl.fromTo("#bub-4", { y: 14, x: 10 }, { y: -60, x: -12, duration: 2.8, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.9);
+      tl.fromTo("#bub-5", { y: 26 }, { y: -70, duration: 3.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.6);
+
+      /* primary — card entrance (drops in with bounce) */
+      tl.fromTo("#card", { y: -170, scale: 1.14, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.65, ease: "back.out(1.5)" }, 0.4);
+
+      /* squash & stretch at landing (Disney principle) */
+      tl.fromTo("#card", { scaleX: 1, scaleY: 1 }, { scaleX: 1.035, scaleY: 0.96, duration: 0.1, ease: "circ.in" }, 1.02);
+      tl.to("#card", { scaleX: 1, scaleY: 1, duration: 0.22, ease: "back.out(2.2)" }, 1.12);
+
+      /* secondary — shadow arrives just after the card */
+      tl.fromTo("#card-shadow", { autoAlpha: 0, scaleY: 0.7, transformOrigin: "center top" }, { autoAlpha: 1, scaleY: 1, duration: 0.4, ease: "power2.out" }, 0.55);
+
+      /* face pops in with an expanding ring (follow-through) */
+      tl.fromTo("#face", { scale: 0.3, rotation: -14, autoAlpha: 0 }, { scale: 1, rotation: 0, autoAlpha: 1, duration: 0.5, ease: "back.out(2.4)" }, 1.2);
+      tl.fromTo("#pop-ring", { scale: 0.4, autoAlpha: 0, transformOrigin: "center center" }, { scale: 1.25, autoAlpha: 0, duration: 0.7, ease: "power2.out" }, 1.2);
+
+      /* text cascade + chips */
+      tl.from(".title", { y: 28, autoAlpha: 0, duration: 0.4, ease: "back.out(1.4)" }, 1.35);
+      tl.from(".sub", { y: 20, autoAlpha: 0, duration: 0.35, ease: "power3.out" }, 1.5);
+      tl.from(".chip", { y: 18, autoAlpha: 0, duration: 0.32, stagger: 0.06, ease: "back.out(1.7)" }, 1.65);
+
+      tl.from(".tag", { y: -14, autoAlpha: 0, duration: 0.4, ease: "back.out(1.5)" }, 0.7);
+      tl.from(".spec", { y: 12, autoAlpha: 0, duration: 0.4, ease: "power3.out" }, 1.9);
+
+      window.__timelines["playful"] = tl;
+    </script>
+  </body>
+</html>

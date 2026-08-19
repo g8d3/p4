@@ -823,3 +823,36 @@ Verified:
 Deliverables: `repo/` (with the fix + `.git` stripped), `bin/test_pipeline.py`,
 this AGENTS.md. Uses opencode-go creds instead of OpenRouter; re-encode any kept
 video to h264_vaapi per p4 rule.
+
+---
+
+## e034 — Motion Design Skill playground (2026-08-19)
+
+Experiment [e034-motion-design-skill](../e034-motion-design-skill/AGENTS.md): "play with"
+[LottieFiles/motion-design-skill](https://github.com/LottieFiles/motion-design-skill) and
+**make several animations** with it.
+
+### Findings
+
+- The skill is a self-contained MIT package (80K): `SKILL.md` (8-step checklist, 4 motion
+  personalities with duration/easing/overshoot budgets, property table, 1/3 rules) + `director/`
+  + `patterns/` + `reference/`. It is implementation-agnostic and maps 1:1 onto HyperFrames
+  authoring.
+- Produced 5 motion graphics (motion-graphics route, silent, 5.5-8s): playful-card,
+  premium-reveal, corporate-dashboard, energetic-hero, state-feedback. All pass
+  `hyperframes check` with 0 errors / 0 warnings.
+- Re-encoded all finals to `h264_vaapi` per p4 rule (`encode_vaapi.sh`); verified encoder tag
+  with `stream_tags`.
+- Learning: the two skills are complementary — the motion-design-skill supplies the
+  *why* (personality, physics, layering), `/hyperframes-core` supplies the *how* (determinism,
+  single paused timeline, clip windows, layout/contrast gates). The biggest quality lift was
+  the mandatory three layers (primary/secondary/ambient) and table-driven durations/easing.
+- Gaps: the skill has no accessibility guidance (HyperFrames' WCAG checker is the stricter gate)
+  and no determinism constraints — those come from the framework.
+
+### Render loop
+
+`check`/`lint` only lint the project's `index.html` (no `-c` flag) → validating N standalone
+compositions means `cp compositions/<name>.html index.html && npm run check` per file, serially.
+Render with `npx hyperframes render -c compositions/<name>.html -o renders/<name>.mp4`, then
+re-encode with `encode_vaapi.sh`.
