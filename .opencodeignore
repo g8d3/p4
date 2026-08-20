@@ -1,0 +1,21 @@
+# Ignore large data/video dirs from opencode file watcher (15G scan -> 45% CPU)
+e018-hyprframes-browser-video/
+e027-open-design/
+e024-diffusion-studio/
+e023-build-in-public/storage/
+e033-vuza-playground/
+e012-p3-project-agents/
+e015-video-pipeline/
+# Generic large outputs
+**/storage/
+**/output/
+**/.venv/
+**/node_modules/
+**/.git/
+*.mp4
+*.avi
+*.mkv
+*.png
+*.raw
+*.mp3
+*.wav
