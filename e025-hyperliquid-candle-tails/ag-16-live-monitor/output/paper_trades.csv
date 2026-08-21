@@ -1,2 +1,5 @@
 coin,entry_day,exit_day,trigger,entry_close,exit_close,ret_pct,fees_pct,net_pct,status
 AAVE,2026-08-13,2026-08-18,T2_lowvol,87.869,88.299,0.489,0.09,0.399,closed
+SOL,2026-08-15,2026-08-20,T2_lowvol,75.318,84.902,12.725,0.09,12.635,closed
+ZEC,2026-08-15,2026-08-20,T2_lowvol,487.68,553.05,13.404,0.09,13.314,closed
+DOGE,2026-08-15,2026-08-20,T2_lowvol,0.069593,0.0747,7.338,0.09,7.248,closed
