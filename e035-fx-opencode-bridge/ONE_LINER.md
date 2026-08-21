@@ -42,3 +42,5 @@ tmux new-window -n fx2 -d; tmux send-keys -t fx2 "fx" Enter
 ```
 
 Note: bridge until `fx` supports `opencode-go` natively. Long-term fix is `isLoopbackHttpUrl` → allow `https://opencode.ai`.
+
+> **Note for readers:** This patch assumes your `opencode-go` subscription ($10/mo) is already configured (`OPENCODE_GO_API_KEY`, `OPENCODE_GO_BASE_URL`, `OPENCODE_GO_MODEL` — in p4 from `~/.hermes/.env`). If you don't have the env, pass literals: `OPENCODE_GO_BASE_URL=https://opencode.ai/zen/go/v1/ OPENCODE_GO_API_KEY=sk-... OPENCODE_GO_MODEL=muse-spark-1.2-contributor bash e035-fx-opencode-bridge/bin/install.sh` or `bash install.sh patch https://... sk-... model`. Without an API key you'll get `401`.
