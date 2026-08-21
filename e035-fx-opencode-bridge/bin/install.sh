@@ -1,10 +1,25 @@
 #!/usr/bin/env bash
-# Install the fx -> opencode bridge
-# Replicates what we did on 2026-08-20 (2h21m wall, see ../TIMELINE.md)
+# Install/unpatch the fx -> opencode bridge (one-liner capable)
+# Usage: bash install.sh [patch [BASE_URL API_KEY MODEL]] | bash install.sh unpatch
+#   patch uses OPENCODE_GO_* env or literal args; unpatch restores Vercel.
+# Replicates 2026-08-20 (2:21 wall, see ../TIMELINE.md). Until fx adds native opencode support.
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BIN_DIR="$HOME/.local/bin"
 CACHE_LOG="$HOME/.cache/fx-proxy.log"
+# Support: bash install.sh patch https://... sk-... model  OR  bash install.sh unpatch
+if [ "$1" = "unpatch" ]; then
+  echo "=== unpatch fx ==="
+  if [ -f "$BIN_DIR/fx.real" ]; then mv "$BIN_DIR/fx.real" "$BIN_DIR/fx"; echo "restored fx.real -> fx"; else echo "no backup"; fi
+  rm -f "$BIN_DIR/fx-opencode-proxy.py"
+  if ss -tln 2>/dev/null | grep -q 8765; then echo "proxy still running on 8765 (kill \$(ps -o pid,args | grep fx-opencode | awk '{print \$1}')) or keep for other windows"; fi
+  echo "Done. fx now uses Vercel. Verify: fx status"
+  exit 0
+fi
+if [ "$1" = "patch" ]; then shift; fi
+if [ -n "$1" ]; then export OPENCODE_GO_BASE_URL="$1"; fi
+if [ -n "$2" ]; then export OPENCODE_GO_API_KEY="$2"; fi
+if [ -n "$3" ]; then export OPENCODE_GO_MODEL="$3"; fi
 
 echo "=== fx-opencode bridge installer ==="
 echo "SCRIPT_DIR=$SCRIPT_DIR"
