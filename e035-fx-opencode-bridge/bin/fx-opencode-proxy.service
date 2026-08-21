@@ -1,0 +1,15 @@
+[Unit]
+Description=fx -> opencode gateway translation proxy (loopback 8765)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/vuos/.local/bin/fx-opencode-proxy.py
+Restart=on-failure
+RestartSec=2
+Environment=FX_PROXY_PORT=8765
+# Pass through OPENCODE vars - they are read from environment, so ensure they are set in user session
+# If using systemctl --user, set via `systemctl --user set-environment OPENCODE_GO_API_KEY=...` or via EnvironmentFile
+
+[Install]
+WantedBy=default.target

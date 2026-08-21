@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# fx wrapper that maps OPENCODE* env vars to fx's expected vars
+# Usage: source this file or use as `fx-wrapper.sh` before running fx
+# It handles:
+#   OPENCODE_GO_BASE_URL -> FX_GATEWAY_BASE_URL + FX_GATEWAY_CHAT_URL (via loopback proxy if https)
+#   OPENCODE_GO_API_KEY / OPENCODE_API_KEY -> AI_GATEWAY_API_KEY
+#   OPENCODE_GO_MODEL -> FX_MODEL
+#
+# fx only allows loopback http overrides (isLoopbackHttpUrl checks for http://127.0.0.1 or localhost with port).
+# So an external https URL like https://opencode.ai/zen/go/v1/ cannot be set directly – it is ignored.
+# This wrapper detects that case and starts a local translation proxy at 127.0.0.1:8765 that forwards to opencode.
+
+set -e
+
+# Resolve proxy port
+PROXY_PORT="${FX_PROXY_PORT:-8765}"
+PROXY_URL="http://127.0.0.1:${PROXY_PORT}"
+PROXY_PY="$HOME/.local/bin/fx-opencode-proxy.py"
+REAL_FX="$HOME/.local/bin/fx.real"
+
+# Map API key
+if [[ -n "$OPENCODE_GO_API_KEY" ]]; then
+  export AI_GATEWAY_API_KEY="$OPENCODE_GO_API_KEY"
+elif [[ -n "$OPENCODE_API_KEY" ]]; then
+  export AI_GATEWAY_API_KEY="$OPENCODE_API_KEY"
+fi
+
+# Map model
+if [[ -n "$OPENCODE_GO_MODEL" ]]; then
+  export FX_MODEL="$OPENCODE_GO_MODEL"
+fi
+
+# Map base URL
+if [[ -n "$OPENCODE_GO_BASE_URL" ]]; then
+  BASE="$OPENCODE_GO_BASE_URL"
+  # trim trailing slash
+  BASE="${BASE%/}"
+  if [[ "$BASE" == http://127.0.0.1* ]] || [[ "$BASE" == http://localhost* ]] || [[ "$BASE" == http://\[::1\]* ]]; then
+    # Already loopback http – fx will accept it directly
+    export FX_GATEWAY_BASE_URL="$BASE"
+    export FX_GATEWAY_CHAT_URL="${BASE}/v3/ai/language-model"
+    # Also set E2E overrides as fallback
+    export FX_E2E_GATEWAY_CHAT_URL="${BASE}/v3/ai/language-model"
+    export FX_E2E_GATEWAY_MODELS_URL="${BASE}/coding-agent/v1/models"
+    export FX_E2E_GATEWAY_CREDITS_URL="${BASE}/coding-agent/v1/credits"
+  else
+    # External https – need proxy
+    # Start proxy if not running
+    if ! ss -tlnp 2>/dev/null | grep -q "127.0.0.1:${PROXY_PORT}"; then
+      echo "[fx-wrapper] OPENCODE_GO_BASE_URL is external ($BASE), starting loopback proxy at $PROXY_URL -> $BASE" >&2
+      # Ensure proxy sees the OPENCODE vars
+      nohup python3 "$PROXY_PY" > "$HOME/.cache/fx-proxy.log" 2>&1 &
+      # wait for proxy to listen
+      for i in {1..10}; do
+        if ss -tlnp 2>/dev/null | grep -q "127.0.0.1:${PROXY_PORT}"; then
+          echo "[fx-wrapper] proxy ready" >&2
+          break
+        fi
+        sleep 0.5
+      done
+      if ! ss -tlnp 2>/dev/null | grep -q "127.0.0.1:${PROXY_PORT}"; then
+        echo "[fx-wrapper] WARNING: proxy failed to start, check $HOME/.cache/fx-proxy.log" >&2
+      fi
+    else
+      echo "[fx-wrapper] proxy already running at $PROXY_URL" >&2
+    fi
+    export FX_GATEWAY_BASE_URL="$PROXY_URL"
+    export FX_GATEWAY_CHAT_URL="$PROXY_URL/v3/ai/language-model"
+    export FX_E2E_GATEWAY_CHAT_URL="$PROXY_URL/v3/ai/language-model"
+    # For model catalog, fx uses base_url + /coding-agent/v1/models, but we also set E2E var for safety
+    export FX_E2E_GATEWAY_MODELS_URL="$PROXY_URL/coding-agent/v1/models"
+    export FX_E2E_GATEWAY_CREDITS_URL="$PROXY_URL/coding-agent/v1/credits"
+  fi
+fi
+
+# Debug
+if [[ -n "$FX_DEBUG" ]]; then
+  echo "[fx-wrapper] AI_GATEWAY_API_KEY=${AI_GATEWAY_API_KEY:0:12}... FX_MODEL=$FX_MODEL FX_GATEWAY_BASE_URL=$FX_GATEWAY_BASE_URL FX_GATEWAY_CHAT_URL=$FX_GATEWAY_CHAT_URL" >&2
+fi
+
+# Exec real fx
+exec "$REAL_FX" "$@"
