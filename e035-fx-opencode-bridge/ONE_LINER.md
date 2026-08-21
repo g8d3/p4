@@ -15,9 +15,11 @@ OPENCODE_GO_BASE_URL=https://opencode.ai/zen/go/v1/ OPENCODE_GO_API_KEY=sk-... O
 # unpatch (restore Vercel)
 bash e035-fx-opencode-bridge/bin/install.sh unpatch
 
-# via curl (no clone)
-curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e035-fx-opencode-bridge/bin/install.sh | bash
-curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e035-fx-opencode-bridge/bin/install.sh | bash -s unpatch
+# via curl (no clone) — short URL:
+curl -fsSL https://tinyurl.com/283mqya5 | bash
+curl -fsSL https://tinyurl.com/283mqya5 | bash -s unpatch
+# long URL also works:
+# curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e035-fx-opencode-bridge/bin/install.sh | bash
 ```
 
 The patch is a `PATH` shadow (`~/.local/bin/fx` → `fx.real` + proxy at `127.0.0.1:8765`), not a recompile. To update `fx` later: `fx upgrade` (wrapper survives), or `bash install.sh unpatch` before.
