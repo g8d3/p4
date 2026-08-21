@@ -1,20 +1,6 @@
 {
-  "last_day": "2026-08-19",
+  "last_day": "2026-08-20",
   "pending": [
-    {
-      "coin": "BTC",
-      "entry_day": "2026-08-16",
-      "exit_day": "2026-08-21",
-      "trigger": "T2_lowvol",
-      "entry_close": 62873.0
-    },
-    {
-      "coin": "ETH",
-      "entry_day": "2026-08-16",
-      "exit_day": "2026-08-21",
-      "trigger": "T2_lowvol",
-      "entry_close": 1875.6
-    },
     {
       "coin": "AAVE",
       "entry_day": "2026-08-18",
