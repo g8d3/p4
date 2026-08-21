@@ -20,4 +20,6 @@
 
 10/10 Fix: parse `tool-result`, orphan→`user`, filter `<network_recovery>`. Wrapper `~/.local/bin/fx` maps `OPENCODE_*→FX_*`.
 
+11/11 Patch + install: github.com/g8d3/p4/tree/master/e035-fx-opencode-bridge — replicate in 2 cmds.
+
 Bonus: `main:1` → `fx` (`tmux send-keys -t main:1 "fx" Enter`), proxy bg `33716`. `fx status` → `muse-spark-1.2-contributor`

@@ -18,4 +18,6 @@
 
 9/10 Result: `fx status` → `muse-spark-1.2-contributor`, `fx ask --yolo "list files"` works. Any tmux window: `fx`.
 
-10/10 If your AI tool ignores `BASE_URL`: check localhost-only, `User-Agent` blocks, and SSE dialect. Wrapper at `~/.local/bin/fx`.
+10/10 If your AI tool ignores `BASE_URL`: check localhost-only, `User-Agent` blocks, SSE dialect. Wrapper at `~/.local/bin/fx`.
+
+11/11 Code + 2-command install: github.com/g8d3/p4/tree/master/e035-fx-opencode-bridge — patch fx to use opencode-go.

@@ -17,3 +17,5 @@
 8/9 Then ghost messages — empty names, missing pieces. The AI went silent. Fixed the translator again.
 
 9/9 Now I just type `fx` in a new window and it works. With my $10 credit. 2 hours, 3 invisible walls — worth it.
+
+10/10 Try it: github.com/g8d3/p4/tree/master/e035-fx-opencode-bridge — patch + 2 cmds, no Zig needed.
