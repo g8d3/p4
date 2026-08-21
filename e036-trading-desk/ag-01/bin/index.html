@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trading Desk — e025 paper</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --dim: #8b949e; --green: #3fb950; --red: #f85149; --accent: #58a6ff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", Roboto, sans-serif; padding: 12px; font-size: 15px; }
+  h1 { font-size: 18px; margin-bottom: 2px; }
+  .sub { color: var(--dim); font-size: 12px; margin-bottom: 12px; }
+  .sub .stale { color: var(--red); }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+  .card .label { color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  .card .value { font-size: 22px; font-weight: 700; margin-top: 2px; }
+  .green { color: var(--green); } .red { color: var(--red); }
+  h2 { font-size: 14px; margin: 14px 0 6px; color: var(--dim); text-transform: uppercase; letter-spacing: .05em; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+  th { text-align: left; font-size: 11px; color: var(--dim); text-transform: uppercase; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  .pos { color: var(--green); font-weight: 600; } .neg { color: var(--red); font-weight: 600; }
+  #chart { width: 100%; height: 140px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
+  pre { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-size: 11px; color: var(--dim); overflow-x: auto; white-space: pre-wrap; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; border: 1px solid var(--border); color: var(--dim); }
+</style>
+</head>
+<body>
+<h1>Trading Desk</h1>
+<div class="sub">e025 paper desk · <span id="updated">loading…</span> · <span id="stale" class="stale" hidden>STALE PRICES</span></div>
+
+<div class="cards">
+  <div class="card"><div class="label">Equity</div><div class="value" id="equity">—</div></div>
+  <div class="card"><div class="label">Total net</div><div class="value" id="total">—</div></div>
+  <div class="card"><div class="label">Closed / win rate</div><div class="value" id="wr">—</div></div>
+  <div class="card"><div class="label">Unrealized</div><div class="value" id="unreal">—</div></div>
+</div>
+
+<h2>Equity curve</h2>
+<svg id="chart" viewBox="0 0 300 100" preserveAspectRatio="none"></svg>
+
+<h2>Open positions <span class="badge" id="open-count">0</span></h2>
+<table id="open-table"><thead><tr><th>Coin</th><th>Entry</th><th>Now</th><th>P/L</th><th>Exit</th></tr></thead><tbody></tbody></table>
+
+<h2>Closed trades <span class="badge" id="closed-count">0</span></h2>
+<table id="closed-table"><thead><tr><th>Coin</th><th>Entry→Exit</th><th>Net</th></tr></thead><tbody></tbody></table>
+
+<h2>Monitor log</h2>
+<pre id="log">—</pre>
+
+<script>
+const fmt = (v, d=2) => v == null ? "—" : Number(v).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+const cls = v => v == null ? "" : (v >= 0 ? "pos" : "neg");
+
+async function refresh() {
+  try {
+    const d = await (await fetch("/api/data")).json();
+    document.getElementById("updated").textContent = d.updated;
+    document.getElementById("stale").hidden = !d.stale;
+    const eqEl = document.getElementById("equity");
+    eqEl.textContent = "$" + fmt(d.current_equity);
+    eqEl.className = "value " + (d.current_equity >= d.start_equity ? "green" : "red");
+    const totEl = document.getElementById("total");
+    totEl.textContent = (d.total_net_pct >= 0 ? "+" : "") + fmt(d.total_net_pct) + "%";
+    totEl.className = "value " + cls(d.total_net_pct);
+    document.getElementById("wr").textContent = d.closed_count + " · " + (d.win_rate == null ? "—" : d.win_rate + "%");
+    const uEl = document.getElementById("unreal");
+    uEl.textContent = (d.unrealized_pct >= 0 ? "+" : "") + fmt(d.unrealized_pct) + "%";
+    uEl.className = "value " + cls(d.unrealized_pct);
+
+    // equity chart
+    const svg = document.getElementById("chart");
+    if (d.equity.length > 1) {
+      const vals = d.equity.map(p => p.equity);
+      const min = Math.min(...vals, d.start_equity), max = Math.max(...vals, d.start_equity);
+      const span = (max - min) || 1, W = 300, H = 100, pad = 6;
+      const xy = (i, v) => [pad + i * (W - 2*pad) / (vals.length - 1), H - pad - (v - min) * (H - 2*pad) / span];
+      let path = "", area = `M ${pad},${H - pad} `;
+      d.equity.forEach((p, i) => { const [x, y] = xy(i, p.equity); path += (i ? "L" : "M") + x.toFixed(1) + "," + y.toFixed(1); area += `L ${x.toFixed(1)},${y.toFixed(1)} `; });
+      const [ex] = xy(vals.length - 1, vals[vals.length - 1]);
+      const [, sy] = xy(0, d.start_equity);
+      svg.innerHTML = `<line x1="${pad}" y1="${sy.toFixed(1)}" x2="${W-pad}" y2="${sy.toFixed(1)}" stroke="#30363d" stroke-dasharray="3,3"/>` +
+        `<path d="${area}L ${ex.toFixed(1)},${H-pad} Z" fill="rgba(63,185,80,.12)"/>` +
+        `<path d="${path}" fill="none" stroke="#3fb950" stroke-width="1.6"/>`;
+    } else { svg.innerHTML = `<text x="150" y="55" fill="#8b949e" font-size="9" text-anchor="middle">not enough closed trades</text>`; }
+
+    const openBody = document.querySelector("#open-table tbody");
+    openBody.innerHTML = d.open.map(p =>
+      `<tr><td><b>${p.coin}</b></td><td>${fmt(p.entry_close, p.entry_close < 10 ? 4 : 1)}</td><td>${fmt(p.current, p.current < 10 ? 4 : 1)}</td>` +
+      `<td class="${cls(p.unrealized_pct)}">${p.unrealized_pct == null ? "—" : (p.unrealized_pct >= 0 ? "+" : "") + fmt(p.unrealized_pct) + "%"}</td><td>${p.exit_day}</td></tr>`
+    ).join("") || `<tr><td colspan="5" style="color:var(--dim)">no open positions</td></tr>`;
+    document.getElementById("open-count").textContent = d.open.length;
+
+    document.querySelector("#closed-table tbody").innerHTML = d.closed.map(t =>
+      `<tr><td><b>${t.coin}</b></td><td>${t.entry_day.slice(5)}→${t.exit_day.slice(5)}</td>` +
+      `<td class="${cls(t.net_pct)}">${t.net_pct >= 0 ? "+" : ""}${fmt(t.net_pct)}%</td></tr>`
+    ).join("") || `<tr><td colspan="3" style="color:var(--dim)">no closed trades yet</td></tr>`;
+    document.getElementById("closed-count").textContent = d.closed.length;
+
+    document.getElementById("log").textContent = d.log.join("\n");
+  } catch (e) {
+    document.getElementById("updated").textContent = "fetch failed: " + e;
+  }
+}
+refresh();
+setInterval(refresh, 60000);
+</script>
+</body>
+</html>
