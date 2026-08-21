@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>SOL SUPPORT TEST</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: #05070b; }
+      body { font-family: Inter, system-ui, sans-serif; color: #e6edf3; }
+      .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+      #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+      .clip { position: absolute; }
+
+      /* background */
+      #bg-fill { position: absolute; inset: 0;
+        background: radial-gradient(900px 600px at 50% 18%, #101823 0%, #0a0e14 55%, #05070b 100%); }
+      #bg-grid { position: absolute; inset: 0; opacity: .5;
+        background-image: linear-gradient(rgba(148,163,184,.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148,163,184,.05) 1px, transparent 1px);
+        background-size: 90px 90px; }
+
+      /* header */
+      #header { left: 0; top: 96px; width: 1080px; padding: 0 64px; }
+      #coin-row { display: flex; align-items: center; gap: 20px; }
+      #coin-badge { font-size: 44px; font-weight: 800; letter-spacing: 2px; }
+      #tf-chip { font-size: 26px; font-weight: 700; color: #8b98a5;
+        border: 2px solid rgba(139,152,165,.35); border-radius: 12px; padding: 4px 16px; }
+      #src-chip { margin-left: auto; font-size: 24px; color: #8b98a5; font-weight: 600; }
+      #price-row { display: flex; align-items: baseline; gap: 28px; margin-top: 18px; }
+      #price { font-size: 128px; font-weight: 800; letter-spacing: -2px; }
+      #chg { font-size: 40px; font-weight: 800; border-radius: 14px; padding: 6px 20px; }
+      .chip-up { color: #4ade80; background: rgba(34,197,94,.12); }
+      .chip-dn { color: #f87171; background: rgba(239,68,68,.12); }
+      #setup-pill { display: inline-block; margin-top: 26px; font-size: 34px; font-weight: 800;
+        letter-spacing: 3px; color: #05070b; background: #22d3ee;
+        border-radius: 14px; padding: 12px 28px; }
+
+      /* chart */
+      #chart-wrap { left: 0; top: 0; width: 1080px; height: 1920px; }
+      #chart-panel { position: absolute; left: 40px; top: 414px;
+        width: 1000px; height: 960px;
+        background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07);
+        border-radius: 24px; }
+      #chart { position: absolute; left: 60px; top: 470px;
+        width: 960px; height: 850px; }
+      .candle { position: absolute; }
+      .candle .wick { position: absolute; top: 0; background: inherit; }
+      .candle .body { position: absolute; left: 0; width: 100%; border-radius: 2px; }
+      .candle.up { background: #26a69a; } .candle.up .body { background: #26a69a; }
+      .candle.down { background: #ef5350; } .candle.down .body { background: #ef5350; }
+      .level { position: absolute; left: 0; width: 100%; height: 3px; border-radius: 2px; }
+      .level.cyan { background: #22d3ee; box-shadow: 0 0 18px rgba(34,211,238,.55); }
+      .level.amber { background: #f59e0b; box-shadow: 0 0 14px rgba(245,158,11,.4); }
+      .lv-label { position: absolute; right: 8px; font-size: 27px; font-weight: 800; }
+      .lv-label.cyan { color: #22d3ee; } .lv-label.amber { color: #f59e0b; }
+      #price-dot { position: absolute; width: 22px; height: 22px; border-radius: 50%;
+        background: #fff; box-shadow: 0 0 16px rgba(255,255,255,.8); }
+      #bracket { position: absolute; width: 0; border-left: 4px dashed #22d3ee; opacity: .9; }
+      #dist-chip { position: absolute; font-size: 30px; font-weight: 800; color: #05070b;
+        background: #22d3ee; border-radius: 12px; padding: 8px 18px; white-space: nowrap; }
+
+      /* callout */
+      #callout { left: 64px; top: 1430px; width: 952px; }
+      #callout-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+        border-left: 8px solid #22d3ee; border-radius: 20px; padding: 30px 36px; }
+      #callout-h { font-size: 40px; font-weight: 800; line-height: 1.25; }
+      #callout-sub { margin-top: 12px; font-size: 28px; color: #8b98a5; line-height: 1.35; }
+
+      /* scenarios */
+      #scenarios { left: 64px; top: 1660px; width: 952px; display: flex; gap: 24px; }
+      .scen { flex: 1; border-radius: 18px; padding: 24px 26px;
+        background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); }
+      .scen h3 { font-size: 27px; font-weight: 800; letter-spacing: 1px; }
+      .scen p { margin-top: 8px; font-size: 23px; color: #9aa7b4; line-height: 1.3; }
+      #scen-a h3 { color: #4ade80; } #scen-b h3 { color: #f87171; }
+
+      /* outro */
+      #outro-veil { position: absolute; inset: 0; background: rgba(5,7,11,.88); }
+      #outro-inner { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px; }
+      #outro-big { font-size: 84px; font-weight: 800; letter-spacing: 2px; text-align: center; }
+      #outro-sub { font-size: 42px; font-weight: 700; color: #22d3ee; }
+      #outro-fine { font-size: 26px; color: #8b98a5; text-align: center; line-height: 1.5; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0"
+         data-width="1080" data-height="1920" data-duration="34">
+
+      <div id="bg" class="clip" data-start="0" data-duration="34" data-track-index="0">
+        <div id="bg-fill"></div>
+        <div id="bg-grid"></div>
+      </div>
+
+      <div id="stage">
+        <div id="header" class="clip" data-start="0" data-duration="34" data-track-index="1">
+          <div id="coin-row">
+            <span id="coin-badge">SOL<span style="color:#8b98a5">-USDT</span></span>
+            <span id="tf-chip" class="mono">1H</span>
+            <span id="src-chip">Hyperliquid</span>
+          </div>
+          <div id="price-row">
+            <span id="price" class="mono">$89.60</span>
+            <span id="chg" class="mono chip-up">&#9650; +5.67% 24h</span>
+          </div>
+          <span id="setup-pill">SUPPORT TEST</span>
+        </div>
+
+        <div id="chart-wrap" class="clip" data-start="3.5" data-duration="30.5" data-track-index="2">
+          <div id="chart-panel"></div>
+          <div id="chart">
+        <div class="candle up" style="left:2.5px;top:804.2px;width:8.3px;height:14.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.4px;height:12.0px;"></div></div>
+        <div class="candle up" style="left:15.9px;top:788.9px;width:8.3px;height:21.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.2px;height:16.6px;"></div></div>
+        <div class="candle down" style="left:29.2px;top:783.1px;width:8.3px;height:19.4px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:6.0px;height:4.8px;"></div></div>
+        <div class="candle up" style="left:42.5px;top:777.8px;width:8.3px;height:20.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:2.0px;height:14.1px;"></div></div>
+        <div class="candle up" style="left:55.9px;top:768.0px;width:8.3px;height:15.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:8.2px;height:3.5px;"></div></div>
+        <div class="candle up" style="left:69.2px;top:771.0px;width:8.3px;height:17.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.8px;height:4.5px;"></div></div>
+        <div class="candle down" style="left:82.5px;top:771.8px;width:8.3px;height:14.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.0px;height:11.1px;"></div></div>
+        <div class="candle down" style="left:95.9px;top:781.7px;width:8.3px;height:8.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.2px;height:5.6px;"></div></div>
+        <div class="candle up" style="left:109.2px;top:756.1px;width:8.3px;height:33.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:7.7px;height:24.7px;"></div></div>
+        <div class="candle down" style="left:122.5px;top:754.1px;width:8.3px;height:13.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:9.7px;height:3.6px;"></div></div>
+        <div class="candle down" style="left:135.9px;top:765.8px;width:8.3px;height:12.6px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.7px;height:2.4px;"></div></div>
+        <div class="candle up" style="left:149.2px;top:713.2px;width:8.3px;height:60.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:26.2px;height:30.5px;"></div></div>
+        <div class="candle up" style="left:162.5px;top:715.7px;width:8.3px;height:24.2px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:3.1px;height:21.1px;"></div></div>
+        <div class="candle down" style="left:175.9px;top:712.8px;width:8.3px;height:23.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:6.0px;height:6.5px;"></div></div>
+        <div class="candle down" style="left:189.2px;top:724.9px;width:8.3px;height:10.2px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.3px;height:8.8px;"></div></div>
+        <div class="candle up" style="left:202.5px;top:714.1px;width:8.3px;height:21.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.0px;height:18.9px;"></div></div>
+        <div class="candle down" style="left:215.9px;top:708.1px;width:8.3px;height:16.8px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:7.2px;height:4.8px;"></div></div>
+        <div class="candle down" style="left:229.2px;top:717.8px;width:8.3px;height:24.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:2.3px;height:14.9px;"></div></div>
+        <div class="candle up" style="left:242.5px;top:723.0px;width:8.3px;height:12.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:6.4px;height:5.7px;"></div></div>
+        <div class="candle down" style="left:255.9px;top:719.1px;width:8.3px;height:15.6px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:10.2px;height:2.0px;"></div></div>
+        <div class="candle up" style="left:269.2px;top:716.0px;width:8.3px;height:15.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:9.6px;height:6.1px;"></div></div>
+        <div class="candle down" style="left:282.5px;top:723.4px;width:8.3px;height:14.6px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.6px;height:8.5px;"></div></div>
+        <div class="candle down" style="left:295.9px;top:726.5px;width:8.3px;height:17.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:7.3px;height:5.5px;"></div></div>
+        <div class="candle up" style="left:309.2px;top:733.3px;width:8.3px;height:10.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:5.3px;height:2.0px;"></div></div>
+        <div class="candle up" style="left:322.5px;top:723.5px;width:8.3px;height:20.4px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:6.2px;height:8.9px;"></div></div>
+        <div class="candle down" style="left:335.9px;top:722.6px;width:8.3px;height:16.8px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:7.1px;height:6.5px;"></div></div>
+        <div class="candle down" style="left:349.2px;top:725.5px;width:8.3px;height:15.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:10.7px;height:3.6px;"></div></div>
+        <div class="candle up" style="left:362.5px;top:721.2px;width:8.3px;height:26.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:4.5px;height:14.1px;"></div></div>
+        <div class="candle down" style="left:375.9px;top:724.6px;width:8.3px;height:7.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.6px;height:6.5px;"></div></div>
+        <div class="candle up" style="left:389.2px;top:698.4px;width:8.3px;height:35.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:10.9px;height:22.6px;"></div></div>
+        <div class="candle down" style="left:402.5px;top:704.8px;width:8.3px;height:13.2px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:4.7px;height:3.8px;"></div></div>
+        <div class="candle up" style="left:415.9px;top:709.4px;width:8.3px;height:7.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.1px;height:3.8px;"></div></div>
+        <div class="candle up" style="left:429.2px;top:698.3px;width:8.3px;height:11.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:3.1px;height:8.1px;"></div></div>
+        <div class="candle up" style="left:442.5px;top:638.4px;width:8.3px;height:68.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:20.5px;height:42.6px;"></div></div>
+        <div class="candle up" style="left:455.9px;top:643.3px;width:8.3px;height:26.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:14.7px;height:2.0px;"></div></div>
+        <div class="candle up" style="left:469.2px;top:525.5px;width:8.3px;height:134.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:5.6px;height:127.0px;"></div></div>
+        <div class="candle up" style="left:482.5px;top:424.9px;width:8.3px;height:116.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:54.6px;height:50.6px;"></div></div>
+        <div class="candle down" style="left:495.9px;top:453.5px;width:8.3px;height:42.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:26.4px;height:13.1px;"></div></div>
+        <div class="candle up" style="left:509.2px;top:486.8px;width:8.3px;height:36.4px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:3.7px;height:2.5px;"></div></div>
+        <div class="candle up" style="left:522.5px;top:458.3px;width:8.3px;height:52.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.6px;height:31.5px;"></div></div>
+        <div class="candle up" style="left:535.9px;top:447.5px;width:8.3px;height:24.8px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:7.2px;height:4.1px;"></div></div>
+        <div class="candle up" style="left:549.2px;top:351.5px;width:8.3px;height:106.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:31.3px;height:71.9px;"></div></div>
+        <div class="candle up" style="left:562.5px;top:199.3px;width:8.3px;height:183.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:34.3px;height:147.4px;"></div></div>
+        <div class="candle down" style="left:575.9px;top:222.5px;width:8.3px;height:96.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:10.3px;height:59.4px;"></div></div>
+        <div class="candle down" style="left:589.2px;top:278.3px;width:8.3px;height:36.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:13.9px;height:5.8px;"></div></div>
+        <div class="candle down" style="left:602.5px;top:276.8px;width:8.3px;height:45.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:21.3px;height:19.0px;"></div></div>
+        <div class="candle up" style="left:615.9px;top:296.5px;width:8.3px;height:38.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:2.4px;height:18.3px;"></div></div>
+        <div class="candle down" style="left:629.2px;top:294.2px;width:8.3px;height:38.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:3.7px;height:30.8px;"></div></div>
+        <div class="candle down" style="left:642.5px;top:327.9px;width:8.3px;height:40.2px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.3px;height:14.2px;"></div></div>
+        <div class="candle up" style="left:655.9px;top:320.3px;width:8.3px;height:26.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:5.1px;height:17.7px;"></div></div>
+        <div class="candle up" style="left:669.2px;top:312.4px;width:8.3px;height:13.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:7.9px;height:3.6px;"></div></div>
+        <div class="candle up" style="left:682.5px;top:269.1px;width:8.3px;height:62.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:0.8px;height:49.7px;"></div></div>
+        <div class="candle up" style="left:695.9px;top:256.1px;width:8.3px;height:20.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:1.5px;height:12.3px;"></div></div>
+        <div class="candle up" style="left:709.2px;top:164.5px;width:8.3px;height:99.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:24.5px;height:68.6px;"></div></div>
+        <div class="candle down" style="left:722.5px;top:173.6px;width:8.3px;height:37.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:15.4px;height:9.0px;"></div></div>
+        <div class="candle up" style="left:735.9px;top:173.5px;width:8.3px;height:41.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:18.3px;height:6.1px;"></div></div>
+        <div class="candle down" style="left:749.2px;top:156.1px;width:8.3px;height:54.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:36.0px;height:12.5px;"></div></div>
+        <div class="candle down" style="left:762.5px;top:194.4px;width:8.3px;height:44.7px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:10.4px;height:7.0px;"></div></div>
+        <div class="candle down" style="left:775.9px;top:191.0px;width:8.3px;height:63.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:20.7px;height:26.6px;"></div></div>
+        <div class="candle up" style="left:789.2px;top:221.9px;width:8.3px;height:37.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:14.0px;height:2.0px;"></div></div>
+        <div class="candle up" style="left:802.5px;top:192.3px;width:8.3px;height:45.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:4.9px;height:38.7px;"></div></div>
+        <div class="candle up" style="left:815.9px;top:170.8px;width:8.3px;height:52.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:6.8px;height:19.6px;"></div></div>
+        <div class="candle down" style="left:829.2px;top:167.5px;width:8.3px;height:32.5px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:9.9px;height:12.1px;"></div></div>
+        <div class="candle down" style="left:842.5px;top:181.7px;width:8.3px;height:50.9px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:8.1px;height:32.4px;"></div></div>
+        <div class="candle up" style="left:855.9px;top:189.6px;width:8.3px;height:33.6px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:12.0px;height:21.4px;"></div></div>
+        <div class="candle up" style="left:869.2px;top:180.9px;width:8.3px;height:22.3px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:4.4px;height:15.7px;"></div></div>
+        <div class="candle down" style="left:882.5px;top:170.4px;width:8.3px;height:23.1px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:14.9px;height:4.8px;"></div></div>
+        <div class="candle down" style="left:895.9px;top:186.0px;width:8.3px;height:18.8px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:3.9px;height:13.4px;"></div></div>
+        <div class="candle up" style="left:909.2px;top:163.6px;width:8.3px;height:40.0px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:17.9px;height:21.8px;"></div></div>
+        <div class="candle up" style="left:922.5px;top:122.8px;width:8.3px;height:63.4px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:28.0px;height:31.3px;"></div></div>
+        <div class="candle up" style="left:935.9px;top:76.0px;width:8.3px;height:81.2px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:34.2px;height:41.2px;"></div></div>
+        <div class="candle up" style="left:949.2px;top:31.5px;width:8.3px;height:103.4px;"><div class="wick" style="left:3.1px;width:2px;height:100%;"></div><div class="body" style="top:50.8px;height:27.9px;"></div></div>
+        <div id="lv-0" class="level target cyan" style="top:161.6px;"></div>
+        <div id="lv-1" class="level cyan" style="top:713.6px;"></div>
+        <div id="lv-2" class="level cyan" style="top:745.4px;"></div>
+        <div id="lv-3" class="level cyan" style="top:759.7px;"></div>
+            <div id="price-dot" style="left:946px;top:71.2px;"></div>
+            <div id="bracket" style="left:954px;top:82.2px;height:79.4px;"></div>
+            <div id="dist-chip" style="right:70px;top:97.9px;">1.73% ABOVE</div>
+          </div>
+        <div id="lvx-0" class="lv-label cyan tgt-lb" style="top:597.6px;">88.05</div>
+        <div id="lvx-1" class="lv-label cyan" style="top:1149.6px;">77.27</div>
+        <div id="lvx-2" class="lv-label cyan" style="top:1189.6px;">76.65</div>
+        <div id="lvx-3" class="lv-label cyan" style="top:1229.6px;">76.37</div>
+        </div>
+
+        <div id="callout" class="clip" data-start="13.5" data-duration="20.5" data-track-index="3">
+          <div id="callout-card">
+            <div id="callout-h">SOL is testing support at $88.05</div>
+            <div id="callout-sub">Last 72&times;1h candles &middot; level touched 2&times;
+              &middot; ATR 1.04%/bar &middot; fractal pivots, 14&nbsp;days</div>
+          </div>
+        </div>
+
+        <div id="scenarios" class="clip" data-start="24" data-duration="10" data-track-index="4">
+          <div id="scen-a" class="scen"><h3>BUYERS DEFEND</h3><p>Level holds as floor; bounces stay buyable.</p></div>
+          <div id="scen-b" class="scen"><h3>LEVEL FLIPS</h3><p>A close beyond 88.05 flips it to resistance.</p></div>
+        </div>
+      </div>
+
+      <div id="outro" class="clip" data-start="29.5" data-duration="4.5" data-track-index="5">
+        <div id="outro-veil"></div>
+        <div id="outro-inner">
+          <div id="outro-big">WATCH<br>THE LEVEL</div>
+          <div id="outro-sub" class="mono">SOL support $88.05</div>
+          <div id="outro-fine">Hyperliquid &middot; 1h candles &middot; generated 2026-08-21 &middot; DRILL (no live trigger)<br>
+            Level-proximity alert, not a trade signal &middot; not financial advice</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+
+      // header
+      tl.from("#coin-badge", { y: -40, autoAlpha: 0, duration: 0.5, ease: E }, 0.15);
+      tl.from(["#tf-chip", "#src-chip"], { y: -30, autoAlpha: 0, duration: 0.45, ease: E, stagger: 0.08 }, 0.3);
+      tl.from("#price", { y: 36, autoAlpha: 0, duration: 0.55, ease: E }, 0.55);
+      tl.from("#chg", { scale: 0.6, autoAlpha: 0, duration: 0.45, ease: "back.out(2)" }, 0.95);
+      tl.from("#setup-pill", { y: 30, autoAlpha: 0, duration: 0.5, ease: E }, 1.25);
+
+      // chart build
+      tl.from("#chart-panel", { autoAlpha: 0, duration: 0.4, ease: E }, 3.7);
+      tl.from(".candle", {
+        scaleY: 0, transformOrigin: "50% 100%", duration: 0.28, ease: "power2.out",
+        stagger: { each: 0.055 },
+      }, 4.1);
+      tl.from(".level", { scaleX: 0, transformOrigin: "0% 50%", duration: 0.5, ease: E, stagger: 0.12 }, 8.7);
+      tl.from(".lv-label", { autoAlpha: 0, x: 24, duration: 0.4, ease: E, stagger: 0.1 }, 9.3);
+      tl.from("#price-dot", { scale: 0, autoAlpha: 0, duration: 0.4, ease: "back.out(2)" }, 10.2);
+
+      // focus
+      tl.to(".level:not(.target)", { opacity: 0.18, duration: 0.5, ease: E }, 13.8);
+      tl.to(".lv-label:not(.tgt-lb)", { opacity: 0.18, duration: 0.5, ease: E }, 13.8);
+      tl.from("#callout-card", { y: 48, autoAlpha: 0, duration: 0.55, ease: E }, 14.2);
+      tl.from("#bracket", { scaleY: 0, transformOrigin: "50% 0%", duration: 0.6, ease: E }, 15.4);
+      tl.from("#dist-chip", { scale: 0.6, autoAlpha: 0, duration: 0.45, ease: "back.out(2)" }, 16.1);
+      tl.to(".level.target", { opacity: 0.55, duration: 0.45, yoyo: true, repeat: 3, ease: "sine.inOut" }, 17.2);
+
+      // scenarios
+      tl.from("#scen-a", { x: -70, autoAlpha: 0, duration: 0.5, ease: E }, 24.3);
+      tl.from("#scen-b", { x: 70, autoAlpha: 0, duration: 0.5, ease: E }, 24.9);
+
+      // outro
+      tl.to("#stage", { autoAlpha: 0, duration: 0.7, ease: E }, 29.6);
+      tl.from("#outro-veil", { autoAlpha: 0, duration: 0.6, ease: E }, 29.6);
+      tl.from("#outro-big", { y: 50, autoAlpha: 0, duration: 0.6, ease: E }, 30.0);
+      tl.from("#outro-sub", { y: 36, autoAlpha: 0, duration: 0.5, ease: E }, 30.4);
+      tl.from("#outro-fine", { autoAlpha: 0, duration: 0.5, ease: E }, 30.8);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
