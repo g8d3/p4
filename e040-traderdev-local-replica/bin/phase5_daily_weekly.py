@@ -61,8 +61,13 @@ def bar_level(df, window, mult=0.02, vwap_mode="weekly", ema=5):
     net = eq / start - 1
     eqc = start + tdf.pnl_usd.cumsum()
     dd = round(100 * float(((eqc - eqc.cummax()) / eqc.cummax()).min()), 2)
-    return {"trades": len(tdf), "per_day": round(((1 + net) ** (1 / days) - 1) * 100, 4),
-            "pf": pf, "dd": dd, "net_pct": round(net * 100, 1)}
+    d = {"trades": len(tdf), "per_day": round(((1 + net) ** (1 / days) - 1) * 100, 4),
+         "pf": pf, "dd": dd, "net_pct": round(net * 100, 1)}
+    if tdf.empty:
+        d["returns_"] = []
+    else:
+        d["returns_"] = rets
+    return d
 
 
 def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
@@ -128,7 +133,7 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
             pnl = notional * (exit_px - entry_price) / entry_price * pos - 2 * commission * notional
             equity += pnl
             trades.append({"bar": bar_id, "side": "L" if pos == 1 else "S",
-                           "pnl_usd": round(pnl, 2)})
+                           "pnl_usd": round(pnl, 2), "equity": round(equity, 2)})
             pos = 0
         if pos != 0:
             c_1d = grp["c_1d"].iloc[0]
@@ -139,7 +144,7 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
                 pnl = notional * (c_1d - entry_price) / entry_price * pos - 2 * commission * notional
                 equity += pnl
                 trades.append({"bar": bar_id, "side": "L" if pos == 1 else "S",
-                               "pnl_usd": round(pnl, 2)})
+                               "pnl_usd": round(pnl, 2), "equity": round(equity, 2)})
                 pos = 0
     if pos != 0:
         notional = equity
@@ -147,8 +152,12 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
         pnl = notional * (c_last - entry_price) / entry_price * pos - 2 * commission * notional
         equity += pnl
         trades.append({"bar": len(h1d) - 1, "side": "L" if pos == 1 else "S",
-                       "pnl_usd": round(pnl, 2)})
+                       "pnl_usd": round(pnl, 2), "equity": round(equity, 2)})
     tdf = pd.DataFrame(trades)
+    rets = []
+    for row in tdf.itertuples():
+        prev_eq = row.equity - row.pnl_usd
+        rets.append(row.pnl_usd / prev_eq if prev_eq > 0 else 0.0)
     days = max(1.0, (h1d["ts"].iloc[-1] - h1d["ts"].iloc[0]).total_seconds() / 86400)
     gp = tdf[tdf.pnl_usd > 0].pnl_usd.sum()
     gl = -tdf[tdf.pnl_usd <= 0].pnl_usd.sum()
@@ -156,8 +165,13 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
     net = equity / start_cap - 1
     eqc = start_cap + tdf.pnl_usd.cumsum()
     dd = round(100 * float(((eqc - eqc.cummax()) / eqc.cummax()).min()), 2)
-    return {"trades": len(tdf), "per_day": round(((1 + net) ** (1 / days) - 1) * 100, 4),
-            "pf": pf, "dd": dd, "net_pct": round(net * 100, 1)}
+    d = {"trades": len(tdf), "per_day": round(((1 + net) ** (1 / days) - 1) * 100, 4),
+         "pf": pf, "dd": dd, "net_pct": round(net * 100, 1)}
+    if tdf.empty:
+        d["returns_"] = []
+    else:
+        d["returns_"] = rets
+    return d
 
 
 def hl_1d(coins=("BTC", "ETH", "SOL")):

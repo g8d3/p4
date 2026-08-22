@@ -213,3 +213,26 @@ paper-trade.
 | `bin/backtest.py` | Our honest simulator (the tool you can reuse) |
 
 *Made in e040-traderdev-local-replica, 2026-08-22.*
+
+
+## 7. Chapter 7 — Robustness test (Monte Carlo) and the stop-loss question
+
+**Your question: what stop loss do we use? — NONE.** The strategy has no
+stop loss at all: the trailing order only protects AFTER it arms
+(price went in your favor first), and losing trades normally exit when the
+opposite signal fires at the next day's close. This is why the equity DDs
+exist. BUT the Monte Carlo test found: clipping any trade's loss at 2%
+changes NOTHING — the worst realized trade already loses less than 2% of
+equity. On 1-day bars the risk tail is small by construction.
+
+**Monte Carlo (10,000 reshuffles of the trade order):**
+- Chance of ending the 2 years negative: **0.0%** (both coins).
+- Worst 5% of paths still end with 2.3x-4.9x capital.
+- Max drawdown median -2.2% (BTC) / -3.6% (ETH), 5th percentile -3.8%/-5.9%.
+- Reshuffling in blocks (3 consecutive trades kept together): identical
+  result -> no hidden path-dependence.
+
+**What this means:** the 150-157 trades are not a lucky sequence — the
+per-trade distribution is strong enough that ANY ordering makes money.
+What it does NOT test: a different future market regime (a trending market
+that stops trending). That is exactly what paper-trading is for.
