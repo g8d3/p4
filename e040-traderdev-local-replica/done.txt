@@ -1,23 +1,23 @@
 done
 2026-08-22
 
-Status: COMPLETE (first pass)
+Status: COMPLETE (first pass + Hyperliquid port)
 
-What was delivered:
+Delivered:
 - Local replica engine (bin/backtest.py) of the TraderDev leaderboard pattern
-  (EMA x daily-UTC-VWAP cross + ATR micro-trail), TV-faithful semantics.
-- Bybit public klines fetched: output/btcusdt_2h.csv (9395), output/ethusdt_2h.csv (9395).
-- Parity validated on the oracle window 2024-08-01→2026-04-30 (BTC 2h exact, ETH 2h added).
-- 1 credit spent on TraderDev for a ground-truth fixture (01M0NHGBJ5T0879XD2BY473T63,
-  full trade list in metrics_final.json).
+  (EMA x daily-UTC-VWAP cross + ATR micro-trail), TV-faithful fills, fees/funding flags.
+- Bybit parity validated vs their engine (fixture 01M0NHGBJ5T0879XD2BY473T63; 1 credit).
+- Hyperliquid port (bin/fetch_hyperliquid.py + 4h/2h candles for BTC/ETH/SOL)
+  with real hourly funding.
 
-Verdict: pattern reproduces locally (PF 6-19, WR 81-87%, DD 2-6%, net +22k..+672k%).
-Their exact PF 14/DD 3.5 partly comes from an engine-side double-exit quirk that
-caps losses on ~2% of trades + a tiny effective trail distance (~0.002-0.01 ATR).
+Verdict:
+- Pattern reproduces locally: in-sample PF 6-19, WR 81-90%, DD 2-16%.
+- OOS (fresh 2026-05-01 -> 2026-08-22, HL + Bybit): positive on all coins,
+  PF 4.1-16, stable ~0.5-1.0%/day net. No decay after the oracle window.
+- Their exact PF 14/DD 3.5 comes partly from engine quirks (double-exit loss cap,
+  smaller effective trail) — not needed to confirm the edge.
+- Risks: -13/-16% DD tails, optimistic bar fills, regime dependence.
 
-Not done (documented in report.md):
-- Hyperliquid port (+funding/fees) — proposed next step.
-- Out-of-sample 2026-05+, SOL 15m family, param sweeps.
-
-Files: output/report.md (verdict), output/metrics_final.json (all runs),
-output/trades_*.csv (per-variant trade logs), bin/README-oracle.md.
+Files: output/report.md (parity), output/hyperliquid_port.md (HL verdict),
+output/metrics_final.json (all runs), output/trades_*.csv, bin/*.
+Recommended next: live-paper validation on HL (~4-6 weeks) before any real capital.

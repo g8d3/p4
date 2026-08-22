@@ -68,7 +68,7 @@ def close_position(trades, equity, times, entry_i, i, times_enter, times_exit,
 
 def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
         commission=0.0005, leverage=1, start_capital=10_000.0,
-        trail="high", double_exit=False):
+        trail="high", double_exit=False, funding_hour=0.0):
     df = df.copy()
     df = add_indicators(df, ema_len, atr_len, vwap_mode)
     n = len(df)
@@ -92,6 +92,8 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
     emas = df["ema"].to_numpy()
     vwaps = df["vwap"].to_numpy()
     times = df["ts"].to_numpy()
+    freq_ms = int(pd.Timedelta(df["ts"].diff().dropna().min()).total_seconds() * 1000)
+    funding_paid = 0.0
 
     for i in range(n):
         c, h, lo, op = closes[i], highs[i], lows[i], opens[i]
@@ -147,6 +149,15 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
                                     fill, pos, commission, leverage)
             pos = 0; armed = False; stop = math.inf; best = math.nan
             m_armed = False; m_stop = math.inf
+        # --- 1c. funding (hourly boundaries crossed while in position) ---
+        if pos != 0 and funding_hour > 0:
+            t0 = int(times[i].value // 1_000_000)
+            t1 = t0 + freq_ms
+            crosses = int(t1 // 3_600_000) - int(t0 // 3_600_000)
+            if crosses > 0:
+                fee = crosses * funding_hour * leverage * equity
+                equity -= fee
+                funding_paid += fee
         # --- 2. signals at bar close (reverse = close at close + new entry) ---
         prev_ema = emas[i - 1] if i > 0 else math.nan
         prev_vwap = vwaps[i - 1] if i > 0 else math.nan
@@ -203,7 +214,7 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
         equity = close_position(trades, equity, times, entry_i, n - 1,
                                 None, None, "L" if pos == 1 else "S",
                                 entry_price, c, pos, commission, leverage)
-    return trades, equity, start_capital
+    return trades, equity, start_capital, funding_paid
 
 
 def metrics(trades, end_equity, start_capital):
@@ -245,6 +256,9 @@ def main():
     ap.add_argument("--trail", default="high", choices=["high", "close"])
     ap.add_argument("--double", action="store_true",
                     help="mirror second exit order applied to position")
+    ap.add_argument("--commission", type=float, default=0.0005)
+    ap.add_argument("--funding-hour", type=float, default=0.0,
+                    help="funding rate per hour while in position (e.g. 0.0000125)")
     ap.add_argument("--window", default=None, help="YYYY-MM-DD:YYYY-MM-DD")
     ap.add_argument("--tag", default="run")
     ap.add_argument("--outdir", default="output")
@@ -257,10 +271,12 @@ def main():
                 (df["ts"] < pd.Timestamp(b, tz="UTC"))].reset_index(drop=True)
     print(f"bars={len(df)}  {df['ts'].iloc[0]} -> {df['ts'].iloc[-1]}")
 
-    trades, end_equity, start_cap = run(
+    trades, end_equity, start_cap, funding_paid = run(
         df, ema_len=args.ema, atr_mult=args.mult, vwap_mode=args.vwap,
-        atr_len=args.atr_len, trail=args.trail, double_exit=args.double)
+        atr_len=args.atr_len, trail=args.trail, double_exit=args.double,
+        commission=args.commission, funding_hour=args.funding_hour)
     m = metrics(trades, end_equity, start_cap)
+    m["funding_paid_usd"] = round(funding_paid, 2)
     print(json.dumps(m, indent=2))
 
     os.makedirs(args.outdir, exist_ok=True)
