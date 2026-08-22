@@ -40,6 +40,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e033-vuza-playground/](e033-vuza-playground/) — VUZA free AI video creator + Pinterest scraper: verify the claims, wire the AI brain to opencode-go, fix the moviepy ImageClip bug
 - [e034-motion-design-skill/](e034-motion-design-skill/) — LottieFiles motion-design-skill playground: 5 HyperFrames motion graphics (4 personalities + state feedback), rendered to h264_vaapi MP4
 - [e035-trading-video-alerts/](e035-trading-video-alerts/) — trading video alerts: live Hyperliquid S/R proximity detection → auto-rendered 9:16 chart-explainer short
+- [e038-agent-fleet/](e038-agent-fleet/) — 5-agent tmux fleet: state table, harness/model/provider inference methodology, collaborative pipeline ideas
 
 ## Language
 
