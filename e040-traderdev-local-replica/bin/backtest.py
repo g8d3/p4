@@ -51,10 +51,11 @@ def add_indicators(df, ema_len, atr_len, vwap_mode):
 
 
 def close_position(trades, equity, times, entry_i, i, times_enter, times_exit,
-                   side, entry_price, fill, pos, commission, leverage):
+                   side, entry_price, fill, pos, commission, leverage,
+                   slippage=0.0):
     notional = leverage * equity
     pnl_usd = notional * (fill - entry_price) / entry_price * pos
-    pnl_usd -= 2 * commission * notional
+    pnl_usd -= (2 * commission + 2 * slippage) * notional
     equity += pnl_usd
     trades.append({
         "entry_i": entry_i, "exit_i": i,
@@ -68,7 +69,10 @@ def close_position(trades, equity, times, entry_i, i, times_enter, times_exit,
 
 def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
         commission=0.0005, leverage=1, start_capital=10_000.0,
-        trail="high", double_exit=False, funding_hour=0.0):
+        trail="high", double_exit=False, funding_hour=0.0,
+        direction="both", slippage=0.0,
+        long_sig_ov=None, short_sig_ov=None,
+        vol_min_ratio=0.0, trend_len=0):
     df = df.copy()
     df = add_indicators(df, ema_len, atr_len, vwap_mode)
     n = len(df)
@@ -93,6 +97,15 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
     vwaps = df["vwap"].to_numpy()
     times = df["ts"].to_numpy()
     freq_ms = int(pd.Timedelta(df["ts"].diff().dropna().min()).total_seconds() * 1000)
+    if trend_len > 0:
+        df["ema_trend"] = df["c"].ewm(span=trend_len, adjust=False).mean()
+    if vol_min_ratio > 0:
+        df["atr_pct"] = df["atr"] / df["c"]
+        vol_win = max(100, int(675.0 / (freq_ms / 7_200_000)))
+        df["vol_med"] = df["atr_pct"].rolling(vol_win, min_periods=120).median()
+    ema_trends = df["ema_trend"].to_numpy() if trend_len > 0 else None
+    atr_pcts = df["atr_pct"].to_numpy() if vol_min_ratio > 0 else None
+    vol_meds = df["vol_med"].to_numpy() if vol_min_ratio > 0 else None
     funding_paid = 0.0
 
     for i in range(n):
@@ -146,7 +159,7 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
         if fill is not None:
             equity = close_position(trades, equity, times, entry_i, i, None, None,
                                     "L" if pos == 1 else "S", entry_price,
-                                    fill, pos, commission, leverage)
+                                    fill, pos, commission, leverage, slippage=slippage)
             pos = 0; armed = False; stop = math.inf; best = math.nan
             m_armed = False; m_stop = math.inf
         # --- 1c. funding (hourly boundaries crossed while in position) ---
@@ -162,32 +175,42 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
         prev_ema = emas[i - 1] if i > 0 else math.nan
         prev_vwap = vwaps[i - 1] if i > 0 else math.nan
         if not math.isnan(prev_ema) and not math.isnan(prev_vwap):
-            long_sig = prev_ema < prev_vwap and ema_i >= vwap_i
-            short_sig = prev_ema > prev_vwap and ema_i <= vwap_i
+            if long_sig_ov is not None:
+                long_sig = bool(long_sig_ov[i])
+                short_sig = bool(short_sig_ov[i])
+            else:
+                long_sig = prev_ema < prev_vwap and ema_i >= vwap_i
+                short_sig = prev_ema > prev_vwap and ema_i <= vwap_i
             if long_sig and short_sig:
                 long_sig = short_sig = False
-            if pos == 0 and long_sig:
+            blocked = (atr_pcts is not None and atr_pcts[i] < vol_min_ratio * vol_meds[i]) or \
+                       (ema_trends is not None and (
+                            (long_sig and c < ema_trends[i]) or
+                            (short_sig and c > ema_trends[i])))
+            if blocked:
+                long_sig = short_sig = False
+            if pos == 0 and long_sig and direction in ("both", "long"):
                 pos = 1; entry_price = c; entry_i = i
                 armed = False; stop = math.inf; best = c
                 m_armed = False; m_stop = math.inf
                 entered_this_bar = True
-            elif pos == 0 and short_sig:
+            elif pos == 0 and short_sig and direction in ("both", "short"):
                 pos = -1; entry_price = c; entry_i = i
                 armed = False; stop = math.inf; best = c
                 m_armed = False; m_stop = math.inf
                 entered_this_bar = True
-            elif pos == 1 and short_sig:
+            elif pos == 1 and short_sig and direction in ("both", "short"):
                 equity = close_position(trades, equity, times, entry_i, i,
                                         None, None, "L", entry_price, c,
-                                        1, commission, leverage)
+                                        1, commission, leverage, slippage=slippage)
                 pos = -1; entry_price = c; entry_i = i
                 armed = False; stop = math.inf; best = c
                 m_armed = False; m_stop = math.inf
                 entered_this_bar = True
-            elif pos == -1 and long_sig:
+            elif pos == -1 and long_sig and direction in ("both", "long"):
                 equity = close_position(trades, equity, times, entry_i, i,
                                         None, None, "S", entry_price, c,
-                                        -1, commission, leverage)
+                                        -1, commission, leverage, slippage=slippage)
                 pos = 1; entry_price = c; entry_i = i
                 armed = False; stop = math.inf; best = c
                 m_armed = False; m_stop = math.inf
@@ -213,7 +236,7 @@ def run(df, ema_len, atr_mult, vwap_mode="daily", atr_len=14,
         c = closes[n - 1]
         equity = close_position(trades, equity, times, entry_i, n - 1,
                                 None, None, "L" if pos == 1 else "S",
-                                entry_price, c, pos, commission, leverage)
+                                entry_price, c, pos, commission, leverage, slippage=slippage)
     return trades, equity, start_capital, funding_paid
 
 
@@ -259,6 +282,13 @@ def main():
     ap.add_argument("--commission", type=float, default=0.0005)
     ap.add_argument("--funding-hour", type=float, default=0.0,
                     help="funding rate per hour while in position (e.g. 0.0000125)")
+    ap.add_argument("--dir", default="both", choices=["both", "long", "short"])
+    ap.add_argument("--slippage", type=float, default=0.0,
+                    help="per-side adverse fill fraction (e.g. 0.001 = 0.1%)")
+    ap.add_argument("--vol-min", type=float, default=0.0,
+                    help="skip entries when ATR%% below ratio x rolling median")
+    ap.add_argument("--trend", type=int, default=0,
+                    help="require close > EMA(n) for longs (mirror for shorts)")
     ap.add_argument("--window", default=None, help="YYYY-MM-DD:YYYY-MM-DD")
     ap.add_argument("--tag", default="run")
     ap.add_argument("--outdir", default="output")
@@ -274,7 +304,9 @@ def main():
     trades, end_equity, start_cap, funding_paid = run(
         df, ema_len=args.ema, atr_mult=args.mult, vwap_mode=args.vwap,
         atr_len=args.atr_len, trail=args.trail, double_exit=args.double,
-        commission=args.commission, funding_hour=args.funding_hour)
+        commission=args.commission, funding_hour=args.funding_hour,
+        direction=args.dir, slippage=args.slippage,
+        vol_min_ratio=args.vol_min, trend_len=args.trend)
     m = metrics(trades, end_equity, start_cap)
     m["funding_paid_usd"] = round(funding_paid, 2)
     print(json.dumps(m, indent=2))

@@ -1,23 +1,15 @@
 done
-2026-08-22
+2026-08-22 (final)
 
-Status: COMPLETE (first pass + Hyperliquid port)
+Investigation completed through 4 sequenced phases. Bottom line:
+the trader.dev leaderboard's top strategies are a bar-optimism illusion.
+True edge with realistic intrabar fills: 0.11-0.20%/day gross (PF 1.36-1.58);
+zero to negative after realistic taker costs. The engine quirks + bar-fill
+assumption explain their PF 8-16 numbers.
 
-Delivered:
-- Local replica engine (bin/backtest.py) of the TraderDev leaderboard pattern
-  (EMA x daily-UTC-VWAP cross + ATR micro-trail), TV-faithful fills, fees/funding flags.
-- Bybit parity validated vs their engine (fixture 01M0NHGBJ5T0879XD2BY473T63; 1 credit).
-- Hyperliquid port (bin/fetch_hyperliquid.py + 4h/2h candles for BTC/ETH/SOL)
-  with real hourly funding.
+Deliverables: FINAL_REPORT.md (verdict), falsification battery, filter
+matrix, family screening (0 credits), 5m intrabar fill tests,
+hyperliquid_port.md, report.md (parity), honest bin/* engine with
+--dir/--vol-min/--trend/--slippage/--funding-hour flags.
 
-Verdict:
-- Pattern reproduces locally: in-sample PF 6-19, WR 81-90%, DD 2-16%.
-- OOS (fresh 2026-05-01 -> 2026-08-22, HL + Bybit): positive on all coins,
-  PF 4.1-16, stable ~0.5-1.0%/day net. No decay after the oracle window.
-- Their exact PF 14/DD 3.5 comes partly from engine quirks (double-exit loss cap,
-  smaller effective trail) — not needed to confirm the edge.
-- Risks: -13/-16% DD tails, optimistic bar fills, regime dependence.
-
-Files: output/report.md (parity), output/hyperliquid_port.md (HL verdict),
-output/metrics_final.json (all runs), output/trades_*.csv, bin/*.
-Recommended next: live-paper validation on HL (~4-6 weeks) before any real capital.
+Spent: 1 TraderDev credit total across the whole investigation.
