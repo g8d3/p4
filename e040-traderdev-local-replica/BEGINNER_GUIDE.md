@@ -38,6 +38,81 @@ come from optimistic assumptions (not from real money-making).**
 
 ---
 
+
+## 1b. How the trailing machine works (step by step) — the heart of the strategy
+
+**One number rules everything:** `T = ATR(14) x 0.02`
+
+- **ATR(14)** = the average "true range" of the last 14 bars (a volatility
+  meter: how far price typically moves in one bar).
+- **T** = 2% of that. On 1-day BTC bars ATR is ~$2,500-3,500, so T ~ $50-70
+  (about 0.08% of the price) — tiny compared to a daily swing of 2-4%.
+
+### Step 1 — Arming ("armado")
+
+For a LONG entered at `entry`:
+
+> **Not armed:** as long as every bar's HIGH stays below `entry + T`,
+> there is **NO stop at all**. Nothing protects the trade.
+
+- Each bar you check: `if high >= entry + T  ->  ARMED`
+- *"Armed"* = "price has moved T in my favor at least once." Until then,
+  the position has zero protection.
+- The moment it arms, the stop appears at `best_high - T`.
+
+Real example (their engine's own trade list, trade #2 — a short):
+- Entry short at 63,395.70. T = 6.62 (ATR 331 x 0.02).
+- Next bar's LOW = 63,300.20. For a short, arming uses the low:
+  `63,300.20 <= 63,395.70 - 6.62` -> **ARMED**. Stop = 63,300.20 + 6.62 = 63,306.82.
+- The same bar's high crossed back up through the stop -> exit at ~63,301.70.
+- Result: short in at 63,395.7, out at 63,301.7 -> captured the $94 favorable move.
+
+### Step 2 — The ratchet (the "trailing" part)
+
+Every new bar updates the stop, but **only in your favor**:
+
+```
+LONG:  stop = max(previous stop, highest_high_since_entry - T)
+SHORT: stop = min(previous stop, lowest_low_since_entry  + T)
+```
+
+The stop never moves against you. This creates two properties:
+
+1. **Once armed, the stop sits at or better than your entry** (because
+   `best >= entry + T` implies `best - T >= entry`). So **every armed exit
+   is a small profit** (before fees). It is a *take profit* in disguise:
+   "let the winner run; close the moment price pulls back T from the extreme."
+   The win = `(highest reached - T) - entry`.
+2. **It protects the gain, not the entry.** Before arming: no floor at all.
+
+### Step 3 — Where the LOSSES come from (the "reversal exit")
+
+No stop before arming means a losing trade can only end one way:
+
+```
+When the opposite signal fires (EMA crosses back under VWAP for a long),
+close the position at that bar's CLOSE — whatever price it is.
+```
+
+Real example (our 2h test): short entered at 63,395.7 at 18:00; the next
+bar pumped to 64,849.9 (price never went down T, so it never armed); the
+signal flipped long at 20:00 -> the short closed at 64,849.9 = a -1.4% loss.
+
+### One-sentence summary of the whole edge
+
+> Entries are barely special. The machine is:
+> **enter -> hope price ticks T in your favor (arming) -> if yes, lock in
+> everything above `best - T` while riding the trend; if no, wait until
+> the opposite signal drags you out at some close.**
+
+### Why the 1-day version has no tail risk
+
+On 1d bars the reversal exit happens at the *next day's close*, so a bad
+trade loses roughly one day's adverse move (~0.5-1.5%). That's why the
+Monte Carlo showed that clipping losses at 2% changes nothing: the worst
+realized trade was already better than -2%. On 2h bars reversals could
+catch bigger swings (drawdowns -15% to -25%).
+
 ## 2. The story, chapter by chapter
 
 ### Chapter 1 — We found a "top strategy" advertised on the website
