@@ -157,3 +157,19 @@ This experiment runs as short orchestrator-led py runs (seconds). If
 spawned as tmux agents later, give each a 60-min deadline, window `40-<n>`,
 and self-wake after every command (see baseline pattern in
 [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md)).
+
+
+## Paper-trading monitor (1-day version, live)
+
+`bin/paper_1d.py` — runs daily at 00:15 UTC via cron
+(`bin/paper_1d_cron.sh`, installed). For BTC/ETH/SOL with $10k paper each:
+- signal: EMA5 x weekly-anchored VWAP cross on the last CLOSED daily candle
+  (same as backtest), entry at that close.
+- exit: trail only (arm at high >= entry + ATR*0.02, stop = best - T,
+  gap -> open) or reversal at close. NO stop loss (by design — MC showed
+  worst realized trade < 2% of equity).
+- fees 0.05% per side, 1x sizing, notifications via notify.sh on every
+  open/close, state in output/paper_state.json, log output/paper_trades_1d.csv.
+
+Purpose: compare live drift vs the 0.15-0.29%/day backtest expectation and
+catch a regime change (the one risk Monte Carlo cannot test). Check weekly.
