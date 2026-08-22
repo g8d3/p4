@@ -173,3 +173,13 @@ and self-wake after every command (see baseline pattern in
 
 Purpose: compare live drift vs the 0.15-0.29%/day backtest expectation and
 catch a regime change (the one risk Monte Carlo cannot test). Check weekly.
+
+
+## Notification discipline for monitors (learned 2026-08-22)
+
+- A monitor script that can notify the phone MUST be validated with a FULL
+  end-to-end run (not only dry-run) before being enabled; dry-runs that
+  happen to have no open position do NOT exercise the trading arithmetic.
+- Error notifications: at most ONE per day per monitor (dedupe via state),
+  all details only in the local log.
+- Never notify errors for a code path that hasn't been exercised by a test.

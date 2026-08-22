@@ -93,7 +93,7 @@ def save_state(s):
 
 def run_day(coin, acc, today):
     daily = fetch_candles(coin)
-    if len(daily) < 40:
+    if len(daily) < 40 or not isinstance(daily[-1].get("c"), (int, float)):
         return None
     df = to_df(daily)
     last = df.iloc[-1]
@@ -190,13 +190,21 @@ def main():
         print("DRY-RUN (no state write)")
     state = load_state()
     today = time.strftime("%Y-%m-%d", time.gmtime(time.time()))
+    errors = []
     for coin in COINS:
         acc = state["accounts"].setdefault(
             coin, {"equity": START_EQUITY, "pos": None, "last_day": None})
         try:
             run_day(coin, acc, today)
         except Exception as e:
-            notify("error", f"e040 paper {coin} failed: {e}")
+            errors.append(f"{coin}: {e}")
+    if errors:
+        # one phone notification per DAY max; full details in the log
+        since = state.get("error_notified_day")
+        state["error_notified_day"] = today
+        if since != today:
+            notify("error", f"e040 paper errors ({len(errors)}): " + "; ".join(errors[:3]))
+        print("ERRORS:", "; ".join(errors))
     if not DRY:
         save_state(state)
     for coin, acc in state["accounts"].items():
