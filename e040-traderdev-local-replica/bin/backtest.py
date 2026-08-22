@@ -41,6 +41,13 @@ def add_indicators(df, ema_len, atr_len, vwap_mode):
         pv = (df["c"] * df["v"]).groupby(day).cumsum()
         vv = df["v"].groupby(day).cumsum()
         df["vwap"] = np.where(vv > 0, pv / vv, np.nan)
+    elif vwap_mode == "weekly":
+        wk = df["ts"].dt.to_period("W").dt.to_timestamp()
+        pv = (df["c"] * df["v"]).groupby(wk).cumsum()
+        vv = df["v"].groupby(wk).cumsum()
+        df["vwap"] = np.where(vv > 0, pv / vv, np.nan)
+    elif vwap_mode == "degenerate":
+        df["vwap"] = df["c"]
     elif vwap_mode == "rolling_100":
         pv = (df["c"] * df["v"]).rolling(100).sum()
         vv = df["v"].rolling(100).sum()

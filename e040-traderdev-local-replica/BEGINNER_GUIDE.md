@@ -154,6 +154,41 @@ signal family — and it LOST money (PF 0.53). No variant survives.)*
 
 ---
 
+
+## 6. Chapter 6 — The big-timeframe test (1 day / 1 week)
+
+**The idea (your half-right intuition):** bigger timeframes → bigger % moves
+→ the same fixed fees become a smaller bite. That part is right. The part
+that needed testing: on bigger bars there is MORE "inside story" per bar,
+so the fill-optimism risk grows. We tested both levels honestly.
+
+**Results (1-day bars, weekly-anchored VWAP, same micro-trail):**
+
+| Version | PF | %/day (after commissions) | Worst drawdown |
+|---|---|---|---|
+| Bar-level (optimistic) — BTC | 5.0 | 0.30 | -15% |
+| Bar-level — ETH | 5.2 | 0.50 | -22% |
+| Bar-level — SOL | 3.1 | 0.59 | -25% |
+| **Realistic 5m fills — BTC** | **6.4** | **0.15** | **-2%** |
+| **Realistic 5m fills — ETH** | **7.4-9.6** | **0.28-0.29** | **-5%** |
+
+**The surprise:** on 1-day bars the REALISTIC version got a BETTER PF
+(6.4 vs 5.0 at bar level) and a much smaller drawdown (-2% vs -15%).
+Why? On daily bars the trail is so small (0.05% of price) that the 5-minute
+path matters less — the trade either runs the day trend or gets clipped
+small. The optimistic assumption had LOWERED the PF (it let pumped-and-
+dumped days count as wins).
+
+**Weekly (1w):** only 31 trades in 2 years — too few to conclude anything.
+Reported for completeness only (PF 6.5 at bar level, but n=31 is noise).
+
+**Meaning:** the 1-day version is the ONLY configuration where the edge
+survives the whole honesty chain: real fills, real fees, and it still nets
+**~0.15% per day with PF 6.4, drawdown -2%**. That is small but real;
+slippage of another 0.2% per round trip would still leave it near
+breakeven, so it remains marginal — but it is the direction worth a
+paper-trade.
+
 ## 4. What this means practically
 
 - The website's +16,000%: **not real money**. It's a chain of optimistic

@@ -15,12 +15,18 @@ import urllib.request
 
 API = "https://api.bybit.com/v5/market/kline"
 PAGE = 1000
+INTERVAL_MS = {15: 900_000, 30: 1_800_000, 60: 3_600_000, 120: 7_200_000,
+               240: 14_400_000, "D": 86_400_000, "W": 604_800_000}
 
 
 def fetch(symbol, interval, start_ms, end_ms):
     """Paginate BACKWARD: the API returns the most recent ~1000 candles of
     the [start, end] window, so step `end` down page by page."""
-    step = interval * 60_000
+    try:
+        iv = int(interval) if str(interval).isdigit() else interval
+    except Exception:
+        iv = interval
+    step = INTERVAL_MS[iv] if iv in INTERVAL_MS else iv * 60_000
     rows = []
     seen = set()
     window_end = end_ms
@@ -28,7 +34,7 @@ def fetch(symbol, interval, start_ms, end_ms):
         params = {
             "category": "linear",
             "symbol": symbol,
-            "interval": str(interval),
+            "interval": str(iv),
             "start": str(start_ms),
             "end": str(window_end),
             "limit": str(PAGE),
@@ -76,7 +82,7 @@ def json_loads(s):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--symbol", default="BTCUSDT")
-    ap.add_argument("--interval", type=int, default=120, help="minutes")
+    ap.add_argument("--interval", default=120, help="minutes or D/W")
     ap.add_argument("--start", required=True, help="YYYY-MM-DD (UTC)")
     ap.add_argument("--end", default=None, help="YYYY-MM-DD (UTC)")
     ap.add_argument("--out", default=None)

@@ -1,15 +1,17 @@
 done
-2026-08-22 (final)
+2026-08-22 (final + phase5)
 
-Investigation completed through 4 sequenced phases. Bottom line:
-the trader.dev leaderboard's top strategies are a bar-optimism illusion.
-True edge with realistic intrabar fills: 0.11-0.20%/day gross (PF 1.36-1.58);
-zero to negative after realistic taker costs. The engine quirks + bar-fill
-assumption explain their PF 8-16 numbers.
+Status: COMPLETE. Investigation chain finished with Phase 5 (1d/1w test).
 
-Deliverables: FINAL_REPORT.md (verdict), falsification battery, filter
-matrix, family screening (0 credits), 5m intrabar fill tests,
-hyperliquid_port.md, report.md (parity), honest bin/* engine with
---dir/--vol-min/--trend/--slippage/--funding-hour flags.
+Bottom line: the leaderboard's 2h strategies die under realistic fills and
+costs (PF 1.4-1.6 gross, negative net at taker costs). The 1-DAY version
+is the only survivor of the honesty chain:
+  BTC 1d intrabar: PF 6.4, 0.149%/day, DD -2.0%
+  ETH 1d intrabar: PF 7.4-9.6, 0.28-0.29%/day, DD -4.7/-5.6%
+(commissions included; margin left for ~0.1%+/side slippage).
+1w: 31 trades — meaningless sample, report only.
 
-Spent: 1 TraderDev credit total across the whole investigation.
+Deliverables: FINAL_REPORT.md, BEGINNER_GUIDE.md (layman version),
+hyperliquid_port.md, report.md, phase5.json/phase5_eth.json, falsification.*,
+bin/* (honest engine + all test scripts).
+Spent: 1 TraderDev credit total.
