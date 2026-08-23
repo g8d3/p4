@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>e040 — TraderDev Investigation Report</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>/*__CHARTJS__*/</script>
+<script>
+window.__e040errs = [];
+window.onerror = function(msg, src, line) {
+  window.__e040errs.push(msg + ' @' + src + ':' + line);
+  var el = document.getElementById('errbar');
+  if (el) { el.style.display = 'block'; el.textContent = 'JS error: ' + msg; }
+};
+</script>
 <style>
   :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3;
           --muted:#8b949e; --green:#3fb950; --red:#f85149; --blue:#58a6ff;
@@ -43,6 +51,7 @@
 </head>
 <body>
 <div class="wrap">
+<div id="errbar" style="display:none;background:#2d1518;color:#f85149;border:1px solid #f85149;border-radius:8px;padding:8px 12px;font-size:12px;margin:8px 0;"></div>
 
 <h1>e040 — TraderDev Investigation</h1>
 <p class="muted">Interactive report · 2026-08-22 · data: Bybit &amp; Hyperliquid public candles · every number reproducible with <code>bin/*.py</code></p>
@@ -269,7 +278,7 @@ document.getElementById('intrabar').innerHTML =
             backgroundColor:'#3fb950', pointStyle:'triangle', pointRadius:7 },
           { label:'exit', data: dm.close.map((v,i)=> i===exit_i?v:null), borderColor:'#f85149',
             backgroundColor:'#f85149', pointStyle:'triangle', pointRadius:7, rotation:180 },
-          { label:'volume', data: dm.volume, type:'bar', yAxisID:'y1', backgroundColor:'rgba(139,148,158,.25)', xAxisID:null }
+          { label:'volume', data: dm.volume, type:'bar', yAxisID:'y1', backgroundColor:'rgba(139,148,158,.25)' }
         ]
       },
       options: { scales:{ y:{position:'left'}, y1:{position:'right', display:false},

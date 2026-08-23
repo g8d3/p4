@@ -103,7 +103,9 @@ def main():
 
 
     html_template = open(os.path.join(ROOT, "bin", "report_template.html")).read()
-    html = html_template.replace("__DATA__", json.dumps(data))
+    chartjs = open(os.path.join(ROOT, "bin", "vendor", "chart.umd.min.js")).read()
+    html = html_template.replace("__DATA__", json.dumps(data)) \
+                        .replace("/*__CHARTJS__*/", chartjs)
     path = os.path.join(ROOT, "REPORT.html")
     with open(path, "w") as f:
         f.write(html)
