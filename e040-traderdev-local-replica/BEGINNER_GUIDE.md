@@ -371,3 +371,25 @@ Each honest layer removed an order of magnitude. What remains: essentially
 nothing, except the methodology — which is exactly what you asked for.
 A quant pipeline is mostly about distrust: every number must be
 re-producible AND every shortcut must be found.
+
+
+## 11. Chapter 11 — The hunt: one rejected, ONE SURVIVOR
+
+We applied the pipeline to two classic lower-frequency families (soundness:
+they must have big moves per trade and honest daily-close fills):
+
+1. **Cross-sectional momentum (rank coins, long top, short bottom) — REJECTED.**
+   The permutation null gave p = 1.0: random ranking was as good as the momentum
+   ranking. The apparent profit was just "long stuff in a bull market".
+2. **Time-series momentum (per coin: if 30-day trend is up, own it at 20%
+   volatility target, else cash) — SURVIVED every test**:
+   - +0.16%/day with PF 2.0 and drawdown -3.7% (vs BTC buy&hold +0.27%/day
+     with -53% drawdown: the strategy trades a bit of return for 10x less risk)
+   - profitable in every one of the 4 test years
+   - null test: p = 0.0 (the trend sign is real information)
+   - Monte Carlo: 0% chance of losing over the period; worst 5% still 2.4x
+   - fees 3x higher barely matter (0.164 -> 0.149%/day)
+
+**This is the first candidate in the whole project that survived the honest
+pipeline.** It is now running as a weekly paper trade ($30k paper account,
+majors only) — the live arbiter.

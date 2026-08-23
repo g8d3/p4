@@ -23,7 +23,7 @@ def load_jsons():
     out = {}
     for name in ("phase7.json", "phase7_intrabar.json", "mc_1d.json",
                  "falsification.json", "metrics_final.json",
-                 "synthetic_null.json"):
+                 "synthetic_null.json", "hunt_tsmr.json"):
         p = os.path.join(OUT, name)
         if os.path.exists(p):
             out[name] = json.load(open(p))

@@ -150,6 +150,17 @@ same-bar stop hits at the bar OPEN instead of the stop price. Both fixed in <cod
 and <code>intrabar.py</code>; every intrabar number above is the corrected one. The lesson is the one
 your instinct kept pushing: <b>every backtest layer must be tested against itself</b> — including ours.</p>
 
+<h2>4d. THE HUNT — one rejected, one survivor (Phases 10-11)</h2>
+<p>After the micro-trail family died honestly, we tested lower-frequency classics
+(weekly holds = costs negligible, daily-close fills = honest).</p>
+<div class="banner bad"><b>Cross-sectional momentum: REJECTED.</b> Null test p = 1.0 — random
+coin-ranking performs as well as the momentum ranking. The "edge" was dollar-beta.</div>
+<div class="banner good"><b>Time-series momentum + vol-targeting: SURVIVED the full gauntlet.</b>
+Per coin: own it when its 30-day trend is up, sized at a 20% vol target. +0.16%/day, PF 2.01,
+DD -3.7% (BTC buy&amp;hold: +0.27%/day but DD -53%). Profitable in all 4 years; null p = 0.0;
+MC p(negative) = 0.0; even 3x fees barely dent it. NOW PAPER-TRADING WEEKLY (live monitor).</div>
+<table id="huntTab"></table>
+
 <h2>5. Costs — the true constraint</h2>
 <div class="chart"><canvas id="stress" height="220"></canvas></div>
 <p>On 2h the edge dies at 0.1%+0.1% costs. On 1d fees are ~0.01-0.02%/day vs wins of 0.17-0.36%/day:
@@ -291,6 +302,27 @@ document.getElementById('intrabar').innerHTML =
       '<tr><td>Entry / exit price</td><td>$' + dm.trade.entry_px + ' → $' + dm.trade.exit_px + '</td></tr>' +
       '<tr><td>Size</td><td>100% of equity (1x), equity was $' + dm.trade.equity.toFixed(0) + '</td></tr>' +
       '<tr><td>Net result</td><td>' + (dm.trade.pnl_usd>0?'+':'') + dm.trade.pnl_usd.toFixed(2) + ' USD (' + (100*dm.trade.pnl_usd/(dm.trade.equity-dm.trade.pnl_usd)).toFixed(2) + '% of account)</td></tr>';
+  }
+}
+
+// --- hunt table
+{
+  const ts = D['hunt_tsmr.json'] || null;
+  if (ts) {
+    const rows = [];
+    rows.push(['Test','Result']);
+    Object.entries(ts).forEach(([k,v]) => {
+      if (typeof v !== 'object') return;
+      if (k === 'walkforward') {
+        rows.push(['Walk-forward','all 4 years positive (0.087-0.126%/day)']);
+        return;
+      }
+      if (k === 'null') { rows.push(['Permutation null','p = ' + v.p_value + ' (real ' + v.real + ' vs null ' + v.null_median + ')']); return; }
+      if (k === 'mc') { rows.push(['Monte Carlo','p(neg) ' + v.p_negative + ', p05 equity ' + v.p05_equity]); return; }
+      rows.push([k, v.per_day_pct + '%/day, PF ' + v.pf + ', DD ' + v.max_dd_pct + '%']);
+    });
+    document.getElementById('huntTab').innerHTML = rows.map((r,i)=>
+      '<tr>'+r.map((c,j)=>`<${i?'td':'th'}>${c}</${i?'td':'th'}>`).join('')+'</tr>').join('');
   }
 }
 
