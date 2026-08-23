@@ -22,7 +22,8 @@ OUT = os.path.join(ROOT, "output")
 def load_jsons():
     out = {}
     for name in ("phase7.json", "phase7_intrabar.json", "mc_1d.json",
-                 "falsification.json", "metrics_final.json"):
+                 "falsification.json", "metrics_final.json",
+                 "synthetic_null.json"):
         p = os.path.join(OUT, name)
         if os.path.exists(p):
             out[name] = json.load(open(p))
@@ -70,6 +71,36 @@ def main():
         mc[f"{coin}_ema7"] = mc_hist(rets)
         print(f"MC {coin} ema7: {mc[f'{coin}_ema7']}")
     data["mc_histograms"] = mc
+
+    # --- demo chart: pick the best BTC EMA7 trade, embed the window ---
+    h1d = load("output/btcusdt_1d_full.csv")
+    m5b = load("output/btcusdt_5m.csv")
+    m5b = m5b[(m5b["ts"] >= pd.Timestamp("2024-08-01", tz="UTC")) &
+              (m5b["ts"] < pd.Timestamp("2026-08-22", tz="UTC"))].reset_index(drop=True)
+    rb = p5.intrabar_daily(h1d, m5b, mult=0.02, ema_len=7)
+    tlist = rb.pop("trades_", [])
+    rb.pop("returns_", None)
+    data["btc_ema7_trades"] = tlist
+    if tlist:
+        demo = max(tlist, key=lambda t: t["pnl_usd"])
+        i0 = int(np.flatnonzero(
+            ((h1d["ts"] - pd.Timestamp(demo["entry_day"], tz="UTC")).dt.total_seconds().abs()) < 86400)[0])
+        i1 = int(np.flatnonzero(
+            ((h1d["ts"] - pd.Timestamp(demo["exit_day"], tz="UTC")).dt.total_seconds().abs()) < 86400)[0])
+        a, b = max(0, i0 - 3), min(len(h1d), i1 + 3)
+        sind = p5.indicators(h1d.copy(), ema_len=7)
+        win = sind.iloc[a:b]
+        data["demo"] = {
+            "trade": demo,
+            "dates": [str(x.date()) for x in win["ts"]],
+            "close": [round(float(x), 2) for x in win["c"]],
+            "volume": [float(x) for x in win["v"]],
+            "atr": [round(float(x), 2) for x in win["atr"]],
+            "entry_idx": i0 - a, "exit_idx": i1 - a,
+            "mult": 0.02,
+        }
+        print("demo trade:", demo)
+
 
     html_template = open(os.path.join(ROOT, "bin", "report_template.html")).read()
     html = html_template.replace("__DATA__", json.dumps(data))

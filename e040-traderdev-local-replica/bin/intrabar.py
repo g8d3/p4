@@ -41,7 +41,6 @@ def run_intrabar(h2, m5, start_cap=START, commission=COMMISSION, signal="cross")
     armed = False
     entry_price = np.nan
     entry_bar_idx = -1
-    logs = []
 
     g = merged.groupby("bar", dropna=True)
     for bar_id, grp in g:
@@ -76,19 +75,22 @@ def run_intrabar(h2, m5, start_cap=START, commission=COMMISSION, signal="cross")
             pos = -1; entry_price = grp["c_2h"].iloc[0]
             armed = False; stop = np.inf
             entry_bar_idx = bar_id
+        # entry fills at bucket CLOSE -> the trail may only act from the NEXT bucket
+        pos_walk = pos != 0 and bar_id > entry_bar_idx
         # walk the 5m path inside this 2h bar
         exit_px = None
         for row in grp.itertuples():
-            if pos == 0:
+            if pos == 0 or not pos_walk:
                 break
             h_, l_, o_, c_ = row.h, row.l, row.o, row.c
+            wasA = armed
             if pos == 1:
                 if not armed and h_ >= entry_price + T:
                     armed = True; stop = h_ - T
                 elif armed:
                     stop = max(stop, h_ - T)
                 if armed and l_ <= stop:
-                    exit_px = stop if o_ >= stop else o_
+                    exit_px = (o_ if (wasA and o_ < stop) else stop)
                     break
             else:
                 if not armed and l_ <= entry_price - T:
@@ -96,7 +98,7 @@ def run_intrabar(h2, m5, start_cap=START, commission=COMMISSION, signal="cross")
                 elif armed:
                     stop = min(stop, l_ + T)
                 if armed and h_ >= stop:
-                    exit_px = stop if o_ <= stop else o_
+                    exit_px = (o_ if (wasA and o_ > stop) else stop)
                     break
         if exit_px is not None:
             notional = LEVERAGE * equity

@@ -67,18 +67,44 @@
 <div class="chart"><canvas id="chain" height="200"></canvas></div>
 <table id="chainTable"></table>
 
-<h2>2. What is Monte Carlo? (and what we actually did)</h2>
-<p>Monte Carlo here is <b>not</b> generating fake signals. We took the <b>real 112-132 realized trades</b>
-of the EMA7 1-day version and asked: <i>"if these exact trades had happened in a different ORDER
-(10,000 random shuffles), what would happen?"</i> This tests whether the result depends on a lucky
-sequence. It does not: not one of the 10,000 shuffled paths ends negative.</p>
-<div class="banner good"><b>p(negative) = 0.0</b> on all three coins. Worst 5% of paths still ends with 2.3-4.9x the starting capital. Median final equity (from $10k): <b id="mcMed"></b></div>
+<h2>2. The strategy on a real chart — one example trade</h2>
+<p>Rules in practice (BTC, EMA7, 1d, 1x sizing): the <b>signal</b> is EMA7 crossing the
+weekly VWAP at the daily close — you enter the <b>entire account</b> (1x, no margin) at that
+close. The <b>exit</b> is only the trailing stop (T = ATR&times;0.02): it activates when price
+first moves T in your favor ("armed"), then follows the best price at distance T (dashed line
+below). No fixed take profit, no stop loss; if the opposite signal fires before arming, the
+position closes at that day's close (reversal exit).</p>
+<div class="chart"><canvas id="demo" height="260"></canvas>
+<p class="muted">Real example (best BTC trade, corrected run): LONG 2026-04-05 @ $69,002.4,
+trailed out 2026-04-06 @ $69,514.9 → <b>+$64.61 on $10k of equity (+0.64%)</b>. Size: 100%
+of the account (10,016 by then). Note how small the honest wins are — the machine clips tiny
+profits; the big published numbers needed the engine's help.</p></div>
+<table id="demoTab"></table>
+
+<h2>3. What is Monte Carlo? (and what we actually did)</h2>
+<h3>How the shuffle works, exactly</h3>
+<p>We take the <b>REAL trades the strategy actually made</b> (e.g. the 108 BTC trades of the EMA7 1d run)
+and write down each one's return (a list of ~108 small percentages). Then:</p>
+<pre style="background:#21262d;padding:10px;border-radius:8px;overflow-x:auto;font-size:12px">trades = [your 108 realized returns]          # real trades, nothing synthetic
+repeat 10,000 times:
+    order  = random_shuffle(trades)           # a new random ORDER of the same trades
+    equity = 10,000
+    for r in order:
+        equity *= (1 + r)                     # compounding, 1x sizing
+    record (final equity, max drawdown) of this path
+p(negative) = fraction of the 10,000 paths that end below 10,000</pre>
+<p>Why: the real world played ONE of 108! possible orderings. Reshuffling asks "is my result
+dependent on the lucky order?" If almost every shuffle loses, the per-trade edge is absent —
+which is exactly what the corrected data shows below.</p>
+<div class="banner bad"><b>With corrected fills the honest answer is: edge &asymp; 0.</b> BTC EMA7: p(negative)
+<span id="mcNeg"></span>; median final equity <span id="mcMed"></span> (from $10k). The earlier
+"p(negative)=0.0" belonged to the contaminated (look-ahead) trade list — another layer of the same lesson.</div>
 <div class="chart"><canvas id="mcHist" height="220"></canvas></div>
 <p class="muted">Separately (falsification battery): a PERMUTATION test with RANDOM signals showed
 random timing + the same trailing exit already earns ~80% of the bar-level profit — i.e. the signal
 adds ~22%, the trailing exit does most of the work.</p>
 
-<h2>3. Phase 7 — FULL history (2023 → 2026) &amp; the winners</h2>
+<h2>4. Phase 7 — FULL history (2023 → 2026) &amp; the winners</h2>
 <h3>3a. Regime check (bar-level, Bybit 1d, EMA5/0.02)</h3>
 <table id="regime"></table>
 <p class="muted">Bar-level is optimistic, but relative reading matters: 2023-24 and 2024-26 were strong;
@@ -90,9 +116,8 @@ may be cooling (the live paper monitor is watching exactly this).</p>
 
 <h3>3c. Honest-fill validation of the candidates (5m intrabar, 2024-08 → 2026-08)</h3>
 <table id="intrabar"></table>
-<p class="muted">SOL EMA9 was missing earlier because the sweep flagged EMA9's bar-level
-PF 2466 (too good = red flag), so it was only validated on BTC/ETH first. Now run:
-PF 20.14, 100 trades — high PF but fewer trades = more fragile, same pattern as BTC/ETH.</p>
+<p class="muted">SOL EMA9 was run later for completeness (first version PF 20.14, 100 trades).
+All these numbers are the <b>post-correction</b> values (see note below).</p>
 <p><span class="tag g">WINNER</span> <b>EMA7 / ATR×0.02</b>: best PF on every coin (8.9 BTC, 12.4 ETH,
 14.1 SOL), tight drawdowns (-2.3 / -6.3 / -2.6%), stable across multipliers 0.01-0.05 in the sweep.
 EMA9 has a higher PF but only 78-88 trades (fragile, and its bar-level PF 2466 warns of look-ahead-ish
@@ -107,6 +132,14 @@ machine prints profits on garbage, most of the edge is the machine, not the sign
 series profitable)</b> — it is a drift-harvester. The real market structure is what
 lifts it to PF 14.4 (real BTC). The full chain:
 noise (PF 1.4) &lt; random entries on real data (PF 9.9) &lt; real signal (PF 14.4).</p>
+
+<h2>4b. The two bugs we found in our own test (and fixed)</h2>
+<p>When you asked for the strategy example, the demo trade revealed it: our intraday walker was
+(1) <b>walking the same 5-minute bars that happened BEFORE the entry</b> (entry at day close, but
+the stop could trade on that morning's bars — a look-ahead that invented trades), and (2) filling
+same-bar stop hits at the bar OPEN instead of the stop price. Both fixed in <code>phase5_daily_weekly.py</code>
+and <code>intrabar.py</code>; every intrabar number above is the corrected one. The lesson is the one
+your instinct kept pushing: <b>every backtest layer must be tested against itself</b> — including ours.</p>
 
 <h2>5. Costs — the true constraint</h2>
 <div class="chart"><canvas id="stress" height="220"></canvas></div>
@@ -206,6 +239,51 @@ document.getElementById('intrabar').innerHTML =
  ['BTC','ETH','SOL'].map(c=>'<tr><td>'+c+'</td>'+[5,7,9].map(e=>{
    const v=ib[`${c}_ema${e}`]; if(!v) return '<td>—</td>';
    return `<td>${e===7?'<b>':''}PF ${v.pf}<br><span class="muted">${v.per_day}%/d · DD ${v.dd}% · ${v.trades} tr</span>${e===7?'</b>':''}</td>`;}).join('')+'</tr>').join('');
+
+// --- demo chart: price + trail + entry/exit + volume
+{
+  const dm = D.demo;
+  if (dm) {
+    const T = dm.mult, entry_i = dm.entry_idx, exit_i = dm.exit_idx;
+    const entry = dm.close[entry_i];
+    // reconstruct the ratchet trail (same rules as the sim)
+    let best = entry, armed = false, stop = null;
+    const trail = dm.close.map((c, i) => {
+      if (i <= entry_i) return null;
+      const Tt = dm.atr[i] * T;
+      armed = armed || dm.close[i] >= entry + Tt;
+      if (!armed) return null;
+      best = Math.max(best, dm.close[i]);
+      stop = best - Tt;
+      return stop;
+    });
+    const mid = (arr) => arr.map(v => v);
+    new Chart(document.getElementById('demo'), {
+      type: 'line',
+      data: {
+        labels: dm.dates,
+        datasets: [
+          { label:'close', data: dm.close, borderColor:'#58a6ff', pointRadius:0, tension:.15 },
+          { label:'trail stop', data: trail, borderColor:'#d29922', borderDash:[5,4], pointRadius:0, tension:.15 },
+          { label:'entry', data: dm.close.map((v,i)=> i===entry_i?v:null), borderColor:'#3fb950',
+            backgroundColor:'#3fb950', pointStyle:'triangle', pointRadius:7 },
+          { label:'exit', data: dm.close.map((v,i)=> i===exit_i?v:null), borderColor:'#f85149',
+            backgroundColor:'#f85149', pointStyle:'triangle', pointRadius:7, rotation:180 },
+          { label:'volume', data: dm.volume, type:'bar', yAxisID:'y1', backgroundColor:'rgba(139,148,158,.25)', xAxisID:null }
+        ]
+      },
+      options: { scales:{ y:{position:'left'}, y1:{position:'right', display:false},
+                          x:{ticks:{maxTicksLimit:8}} },
+                 plugins:{legend:{position:'bottom'}, tooltip:{mode:'index', intersect:false}} }
+    });
+    document.getElementById('demoTab').innerHTML =
+      '<tr><th>Fileld</th><th>Value</th></tr>' +
+      '<tr><td>Side / entry day / exit day</td><td>' + dm.trade.side + ' · ' + dm.trade.entry_day + ' → ' + dm.trade.exit_day + '</td></tr>' +
+      '<tr><td>Entry / exit price</td><td>$' + dm.trade.entry_px + ' → $' + dm.trade.exit_px + '</td></tr>' +
+      '<tr><td>Size</td><td>100% of equity (1x), equity was $' + dm.trade.equity.toFixed(0) + '</td></tr>' +
+      '<tr><td>Net result</td><td>' + (dm.trade.pnl_usd>0?'+':'') + dm.trade.pnl_usd.toFixed(2) + ' USD (' + (100*dm.trade.pnl_usd/(dm.trade.equity-dm.trade.pnl_usd)).toFixed(2) + '% of account)</td></tr>';
+  }
+}
 
 // --- synth null chart
 const synth = D['synthetic_null.json'];

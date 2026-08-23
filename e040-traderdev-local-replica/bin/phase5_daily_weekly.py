@@ -65,8 +65,12 @@ def bar_level(df, window, mult=0.02, vwap_mode="weekly", ema=5):
          "pf": pf, "dd": dd, "net_pct": round(net * 100, 1), "days": round(days, 1)}
     if tdf.empty:
         d["returns_"] = []
+        d["trades_"] = []
     else:
         d["returns_"] = rets
+        d["trades_"] = [{"side": r.side, "entry_day": r.entry_day, "exit_day": r.exit_day,
+                         "entry_px": r.entry_px, "exit_px": r.exit_px,
+                         "pnl_usd": r.pnl_usd, "equity": r.equity} for r in tdf.itertuples()]
     return d
 
 
@@ -87,6 +91,8 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
     stop = np.inf
     armed = False
     entry_price = np.nan
+    entry_day = None
+    entry_bar = -1
     for bar_id, grp in merged.groupby("bar", dropna=True):
         if np.isnan(grp["atr"].iloc[0]):
             continue
@@ -104,22 +110,31 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
             short_sig = prev_ema > prev_vwap and ema_i <= vwap_i
         if pos == 0 and long_sig:
             pos = 1; entry_price = grp["c_1d"].iloc[0]
+            entry_day = str(h1d.iloc[bar_id]["ts"].date())
+            entry_bar = bar_id
             armed = False; stop = np.inf
         elif pos == 0 and short_sig:
             pos = -1; entry_price = grp["c_1d"].iloc[0]
+            entry_day = str(h1d.iloc[bar_id]["ts"].date())
+            entry_bar = bar_id
             armed = False; stop = np.inf
         exit_px = None
+        if pos != 0 and bar_id <= entry_bar:
+            pos_walk = False
+        else:
+            pos_walk = True
         for row in grp.itertuples():
-            if pos == 0:
+            if pos == 0 or not pos_walk:
                 break
             h_, l_, o_, c_ = row.h, row.l, row.o, row.c
+            wasA = armed
             if pos == 1:
                 if not armed and h_ >= entry_price + T:
                     armed = True; stop = h_ - T
                 elif armed:
                     stop = max(stop, h_ - T)
                 if armed and l_ <= stop:
-                    exit_px = stop if o_ >= stop else o_
+                    exit_px = (o_ if (wasA and o_ < stop) else stop)
                     break
             else:
                 if not armed and l_ <= entry_price - T:
@@ -127,14 +142,16 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
                 elif armed:
                     stop = min(stop, l_ + T)
                 if armed and h_ >= stop:
-                    exit_px = stop if o_ <= stop else o_
+                    exit_px = (o_ if (wasA and o_ > stop) else stop)
                     break
         if exit_px is not None:
             notional = equity
             pnl = notional * (exit_px - entry_price) / entry_price * pos - 2 * commission * notional
             equity += pnl
             trades.append({"bar": bar_id, "side": "L" if pos == 1 else "S",
-                           "pnl_usd": round(pnl, 2), "equity": round(equity, 2)})
+                           "pnl_usd": round(pnl, 2), "equity": round(equity, 2),
+                           "entry_day": entry_day, "exit_day": str(h1d.iloc[bar_id]["ts"].date()),
+                           "entry_px": round(entry_price, 2), "exit_px": round(exit_px, 2)})
             pos = 0
         if pos != 0:
             c_1d = grp["c_1d"].iloc[0]
@@ -145,7 +162,9 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
                 pnl = notional * (c_1d - entry_price) / entry_price * pos - 2 * commission * notional
                 equity += pnl
                 trades.append({"bar": bar_id, "side": "L" if pos == 1 else "S",
-                               "pnl_usd": round(pnl, 2), "equity": round(equity, 2)})
+                               "pnl_usd": round(pnl, 2), "equity": round(equity, 2),
+                               "entry_day": entry_day, "exit_day": str(h1d.iloc[bar_id]["ts"].date()),
+                               "entry_px": round(entry_price, 2), "exit_px": round(c_1d, 2)})
                 pos = 0
     if pos != 0:
         notional = equity
@@ -153,7 +172,9 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
         pnl = notional * (c_last - entry_price) / entry_price * pos - 2 * commission * notional
         equity += pnl
         trades.append({"bar": len(h1d) - 1, "side": "L" if pos == 1 else "S",
-                       "pnl_usd": round(pnl, 2), "equity": round(equity, 2)})
+                       "pnl_usd": round(pnl, 2), "equity": round(equity, 2),
+                       "entry_day": entry_day, "exit_day": str(h1d.iloc[-1]["ts"].date()),
+                       "entry_px": round(entry_price, 2), "exit_px": round(c_last, 2)})
     tdf = pd.DataFrame(trades)
     rets = []
     for row in tdf.itertuples():
@@ -170,8 +191,12 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
          "pf": pf, "dd": dd, "net_pct": round(net * 100, 1), "days": round(days, 1)}
     if tdf.empty:
         d["returns_"] = []
+        d["trades_"] = []
     else:
         d["returns_"] = rets
+        d["trades_"] = [{"side": r.side, "entry_day": r.entry_day, "exit_day": r.exit_day,
+                         "entry_px": r.entry_px, "exit_px": r.exit_px,
+                         "pnl_usd": r.pnl_usd, "equity": r.equity} for r in tdf.itertuples()]
     return d
 
 

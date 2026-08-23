@@ -344,3 +344,30 @@ different kind of lie:
 Your instinct was right: **this is a quantitative (systematic) trading
 research pipeline**. The standard order is: data -> hypothesis ->
 backtest -> realism -> robustness -> nulls -> costs -> paper -> live.
+
+
+## 10. Chapter 10 — The last two bugs (and the final truth)
+
+Building the example chart revealed our OWN simulator was still cheating:
+1. **Look-ahead**: after entering "at the close of the day", the simulator
+   walked the 5-minute bars of THAT SAME day — bars that happened BEFORE the
+   entry. The stop could "act" on prices that didn't exist after the entry
+   (that's called look-ahead bias).
+2. **Wrong fill rule**: stop hits within the same bar were filled at the
+   bar's OPEN instead of the stop price.
+
+Both fixed. The corrected results ended the story:
+
+| Version (honest fills) | Result |
+|---|---|
+| 2h | loses (PF 0.72 in / 0.28 OOS) |
+| 1d EMA5 | loses |
+| 1d EMA7 | flat (BTC/ETH ~0.001%/day; SOL 0.011%/day, PF 3.77) |
+| 1d EMA9 | tiny positive but only 62-80 trades |
+
+**The truth after the whole pipeline:** the marketplace's +16,000% was four
+layers of illusion (engine quirks, fill optimism, look-ahead, wrong fills).
+Each honest layer removed an order of magnitude. What remains: essentially
+nothing, except the methodology — which is exactly what you asked for.
+A quant pipeline is mostly about distrust: every number must be
+re-producible AND every shortcut must be found.
