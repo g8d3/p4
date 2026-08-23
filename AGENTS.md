@@ -42,6 +42,8 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e035-trading-video-alerts/](e035-trading-video-alerts/) — trading video alerts: live Hyperliquid S/R proximity detection → auto-rendered 9:16 chart-explainer short
 - [e038-agent-fleet/](e038-agent-fleet/) — 5-agent tmux fleet: state table, harness/model/provider inference methodology, collaborative pipeline ideas
 - [e040-traderdev-local-replica/](e040-traderdev-local-replica/) — local replica of TraderDev leaderboard strategies (EMA×VWAP cross + ATR micro-trail), validated vs their engine on Bybit data
+- [e041-web-access-agents/](e041-web-access-agents/) — web access for agents (unlisted; has its own repo)
+- [e042-bk2/](e042-bk2/) — Banco Comunal web app for the user's dad (private repo `banco-comunal`, ignored here)
 
 ## Language
 

@@ -35,6 +35,9 @@ __pycache__/
 e008-asistente-ht/
 *.otav-current
 
+# Experiment 42 - private app, lives in its own private repo
+e042-bk2/
+
 # Experiment 11 - cloned repos
 e011-gh-repo-analysis/ag-*/
 
