@@ -325,3 +325,22 @@ that stops trending). That is exactly what paper-trading is for.
   distribution, the sweep, the cost-stress chart and all tables. All numbers
   embedded; no internet needed after the first load (CDN only).
   Tip: copy it to the phone or `python3 -m http.server` to share on LAN.
+
+
+## 9. Chapter 9 — The robustness test family (the professional names)
+
+A quant research pipeline uses several DIFFERENT tests, each destroying a
+different kind of lie:
+
+| Test | What it destroys | What we did |
+|---|---|---|
+| **Permutation / null signals** | "the signal is smart" | 120 runs with RANDOM entries, same exits. Random still made 0.65%/day; real 0.80% (p=0.0). Signal = +22% of the profit. |
+| **Monte Carlo bootstrap** | "we were lucky with the order of trades" | Shuffled the 112-132 REAL trades 10,000 times. p(negative)=0.0. |
+| **Walk-forward** | "it only worked in one period" | Every 90-day window positive at 2h; 1d flat in the fresh May-Aug 2026 slice. |
+| **Transaction-cost stress** | "fees don't matter" | 2h dies at realistic taker costs; 1d survives with ~10% of edge in fees. |
+| **Synthetic-data negative control** | "the machine is real, not just lucky with structure" | 60 pure-noise series: PF 1.42 median, 90% positive. The machine harvests drift even from garbage; the market structure gives the rest (real PF 14.4). |
+| **Fill realism (intrabar)** | "the best price happened first" | 5m path within each daily bar. Killed the 2h version, saved the 1d one. |
+
+Your instinct was right: **this is a quantitative (systematic) trading
+research pipeline**. The standard order is: data -> hypothesis ->
+backtest -> realism -> robustness -> nulls -> costs -> paper -> live.
