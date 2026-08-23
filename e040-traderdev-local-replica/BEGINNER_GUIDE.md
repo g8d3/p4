@@ -311,3 +311,17 @@ equity. On 1-day bars the risk tail is small by construction.
 per-trade distribution is strong enough that ANY ordering makes money.
 What it does NOT test: a different future market regime (a trending market
 that stops trending). That is exactly what paper-trading is for.
+
+
+## 8. Chapter 8 — The winner: EMA7, and the new interactive report
+
+- **EMA7 beats EMA5** everywhere once fills are realistic: PF 8.9 (BTC),
+  12.4 (ETH), 14.1 (SOL) vs 6.4/7.4/7.2. Same %/day, higher PF, tight DD.
+  (A sliitly SLOWER cross averages out more noise before committing.)
+- **Regime warning:** the fresh May-Aug 2026 window (19-25 trades/coin) is
+  flat/negative — the edge may be cooling. The paper monitor watches this.
+- **Interactive report:** `REPORT.html` in this folder — open it in your
+  phone browser. It has the honesty chain chart, the Monte Carlo
+  distribution, the sweep, the cost-stress chart and all tables. All numbers
+  embedded; no internet needed after the first load (CDN only).
+  Tip: copy it to the phone or `python3 -m http.server` to share on LAN.

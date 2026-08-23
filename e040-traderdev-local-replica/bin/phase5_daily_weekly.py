@@ -62,7 +62,7 @@ def bar_level(df, window, mult=0.02, vwap_mode="weekly", ema=5):
     eqc = start + tdf.pnl_usd.cumsum()
     dd = round(100 * float(((eqc - eqc.cummax()) / eqc.cummax()).min()), 2)
     d = {"trades": len(tdf), "per_day": round(((1 + net) ** (1 / days) - 1) * 100, 4),
-         "pf": pf, "dd": dd, "net_pct": round(net * 100, 1)}
+         "pf": pf, "dd": dd, "net_pct": round(net * 100, 1), "days": round(days, 1)}
     if tdf.empty:
         d["returns_"] = []
     else:
@@ -70,9 +70,10 @@ def bar_level(df, window, mult=0.02, vwap_mode="weekly", ema=5):
     return d
 
 
-def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
+def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0,
+                  ema_len=5):
     """1d signals/ATR, fills on 5m path inside each daily bucket."""
-    h1d = indicators(h1d.copy())
+    h1d = indicators(h1d.copy(), ema_len=ema_len)
     h1d["bucket"] = h1d["ts"].dt.floor("D")
     h1d["bar"] = range(len(h1d))
     m5 = m5.copy()
@@ -158,7 +159,7 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
     for row in tdf.itertuples():
         prev_eq = row.equity - row.pnl_usd
         rets.append(row.pnl_usd / prev_eq if prev_eq > 0 else 0.0)
-    days = max(1.0, (h1d["ts"].iloc[-1] - h1d["ts"].iloc[0]).total_seconds() / 86400)
+    days = max(1.0, (m5["ts"].iloc[-1] - m5["ts"].iloc[0]).total_seconds() / 86400)
     gp = tdf[tdf.pnl_usd > 0].pnl_usd.sum()
     gl = -tdf[tdf.pnl_usd <= 0].pnl_usd.sum()
     pf = round(gp / gl, 2) if gl > 0 else None
@@ -166,7 +167,7 @@ def intrabar_daily(h1d, m5, mult=0.02, commission=0.0005, start_cap=10_000.0):
     eqc = start_cap + tdf.pnl_usd.cumsum()
     dd = round(100 * float(((eqc - eqc.cummax()) / eqc.cummax()).min()), 2)
     d = {"trades": len(tdf), "per_day": round(((1 + net) ** (1 / days) - 1) * 100, 4),
-         "pf": pf, "dd": dd, "net_pct": round(net * 100, 1)}
+         "pf": pf, "dd": dd, "net_pct": round(net * 100, 1), "days": round(days, 1)}
     if tdf.empty:
         d["returns_"] = []
     else:

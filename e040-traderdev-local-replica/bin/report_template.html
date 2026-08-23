@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>e040 — TraderDev Investigation Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --border:#30363d; --text:#e6edf3;
+          --muted:#8b949e; --green:#3fb950; --red:#f85149; --blue:#58a6ff;
+          --yellow:#d29922; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--bg); color:var(--text); padding-bottom:60px; }
+  .wrap { max-width:760px; margin:0 auto; padding:16px; }
+  h1 { font-size:22px; margin:12px 0 4px; }
+  h2 { font-size:18px; margin:28px 0 8px; border-bottom:1px solid var(--border); padding-bottom:6px; }
+  h3 { font-size:15px; margin:16px 0 6px; color:var(--blue); }
+  p, li { font-size:14px; line-height:1.55; color:var(--text); }
+  .muted { color:var(--muted); font-size:12.5px; }
+  .banner { padding:12px 14px; border-radius:10px; margin:14px 0; border:1px solid var(--border); }
+  .verdict { background:linear-gradient(135deg,#1f2937,#161b22); border-left:4px solid var(--yellow); }
+  .good { background:#12261a; border-left:4px solid var(--green); }
+  .bad  { background:#2d1518; border-left:4px solid var(--red); }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0; }
+  th, td { padding:6px 8px; text-align:right; border-bottom:1px solid var(--border); }
+  th:first-child, td:first-child { text-align:left; }
+  th { color:var(--muted); font-weight:600; }
+  .big { font-size:24px; font-weight:700; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin:12px 0; }
+  .kpi { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px; }
+  .kpi .v { font-size:20px; font-weight:700; }
+  .kpi .l { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+  .chart { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; margin:12px 0; }
+  .tag { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; }
+  .tag.g { background:#12261a; color:var(--green); }
+  .tag.y { background:#2d2113; color:var(--yellow); }
+  .tag.r { background:#2d1518; color:var(--red); }
+  details { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; margin:8px 0; }
+  summary { cursor:pointer; font-weight:600; font-size:14px; }
+  code { background:#21262d; padding:1px 5px; border-radius:4px; font-size:12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>e040 — TraderDev Investigation</h1>
+<p class="muted">Interactive report · 2026-08-22 · data: Bybit &amp; Hyperliquid public candles · every number reproducible with <code>bin/*.py</code></p>
+
+<div class="banner verdict">
+  <b>Verdict:</b> the leaderboard's +16,000% is a chain of optimistic assumptions.
+  With realistic intrabar fills and real fees, the 2-hour versions earn ~0.1-0.2%/day gross
+  (≈ zero net). The <b>1-DAY version survives</b> the whole honesty chain, and
+  <b>EMA7 is better than EMA5</b>: <b>PF 8.9-14.1, 0.17-0.36%/day, DD -2 to -6%</b>
+  across BTC/ETH/SOL (sample: 112-132 trades, results below).
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">6.4 → 14.1</div><div class="l">PF (honest fills) EMA5→EMA7</div></div>
+  <div class="kpi"><div class="v">0.17 - 0.36%</div><div class="l">per day (1d, net, 1x)</div></div>
+  <div class="kpi"><div class="v">0.0%</div><div class="l">p(negative) Monte Carlo</div></div>
+  <div class="kpi"><div class="v">1</div><div class="l">TraderDev credits spent</div></div>
+</div>
+
+<h2>1. The honesty chain — how the numbers died</h2>
+<p>Each step makes the simulation more honest; each one destroyed an order of magnitude of edge.</p>
+<div class="chart"><canvas id="chain" height="200"></canvas></div>
+<table id="chainTable"></table>
+
+<h2>2. What is Monte Carlo? (and what we actually did)</h2>
+<p>Monte Carlo here is <b>not</b> generating fake signals. We took the <b>real 112-132 realized trades</b>
+of the EMA7 1-day version and asked: <i>"if these exact trades had happened in a different ORDER
+(10,000 random shuffles), what would happen?"</i> This tests whether the result depends on a lucky
+sequence. It does not: not one of the 10,000 shuffled paths ends negative.</p>
+<div class="banner good"><b>p(negative) = 0.0</b> on all three coins. Worst 5% of paths still ends with 2.3-4.9x the starting capital. Median final equity (from $10k): <b id="mcMed"></b></div>
+<div class="chart"><canvas id="mcHist" height="220"></canvas></div>
+<p class="muted">Separately (falsification battery): a PERMUTATION test with RANDOM signals showed
+random timing + the same trailing exit already earns ~80% of the bar-level profit — i.e. the signal
+adds ~22%, the trailing exit does most of the work.</p>
+
+<h2>3. Phase 7 — FULL history (2023 → 2026) &amp; the winners</h2>
+<h3>3a. Regime check (bar-level, Bybit 1d, EMA5/0.02)</h3>
+<table id="regime"></table>
+<p class="muted">Bar-level is optimistic, but relative reading matters: 2023-24 and 2024-26 were strong;
+the fresh May-Aug 2026 slice is flat/negative with only 19-25 trades per coin — first sign the 1d edge
+may be cooling (the live paper monitor is watching exactly this).</p>
+
+<h3>3b. Parameter sweep (BTC 1d full window, bar-level)</h3>
+<div class="chart"><canvas id="sweep" height="200"></canvas></div>
+
+<h3>3c. Honest-fill validation of the candidates (5m intrabar, 2024-08 → 2026-08)</h3>
+<table id="intrabar"></table>
+<p><span class="tag g">WINNER</span> <b>EMA7 / ATR×0.02</b>: best PF on every coin (8.9 BTC, 12.4 ETH,
+14.1 SOL), tight drawdowns (-2.3 / -6.3 / -2.6%), stable across multipliers 0.01-0.05 in the sweep.
+EMA9 has a higher PF but only 78-88 trades (fragile, and its bar-level PF 2466 warns of look-ahead-ish
+sample effects: validate before trusting).</p>
+
+<h2>4. Costs — the true constraint</h2>
+<div class="chart"><canvas id="stress" height="220"></canvas></div>
+<p>On 2h the edge dies at 0.1%+0.1% costs. On 1d fees are ~0.01-0.02%/day vs wins of 0.17-0.36%/day:
+cos <b>single-digit % of the edge</b> (maker simulation: fee0 adds only ~0.02%/day — nice, not decisive).</p>
+
+<h2>5. Live paper monitor</h2>
+<p><code>bin/paper_1d.py</code> runs daily at 00:15 UTC (cron) on $10k paper per coin (BTC/ETH/SOL),
+same EMA7 signals — switch coming for EMA7. Phone notifications on every open/close; state in
+<code>output/paper_state.json</code>. Purpose: catch regime decay. Backtest expectation to compare
+against: <b>0.17-0.36%/day, worst DD -6%</b>.</p>
+
+<h2>6. Files &amp; reproducibility</h2>
+<ul>
+<li><code>bin/backtest.py</code> — honest engine (trail semantics, fees, slippage, funding, filters)</li>
+<li><code>bin/falsification.py</code> · <code>bin/phase2_filters.py</code> · <code>bin/intrabar.py</code>
+    · <code>bin/phase5_daily_weekly.py</code> · <code>bin/phase7_extended.py</code>
+    · <code>bin/montecarlo_1d.py</code> · <code>bin/paper_1d.py</code></li>
+<li><code>BEGINNER_GUIDE.md</code> — the whole story explained for a beginner (with analogies)</li>
+</ul>
+<p class="muted">All data public (Bybit/Hyperliquid klines). Output CSVs/JSONs in <code>output/</code>.</p>
+
+</div>
+<script>
+const D = __DATA__;
+const G = 'rgba(63,185,80,.85)', R = 'rgba(248,81,73,.85)', Y = 'rgba(210,153,34,.85)',
+      B = 'rgba(88,166,255,.85)', GRID = 'rgba(139,148,158,.15)', TXT = '#8b949e';
+Chart.defaults.color = TXT; Chart.defaults.borderColor = GRID;
+
+// --- 1. honesty chain
+const chainData = [
+ {label:'Their engine (published)', pf:14.2, tag:'y', note:'includes engine quirks + optimal fills'},
+ {label:'Local replica, bar fills', pf:11.2, tag:'y', note:'assumes favorable extreme first in each 2h bar'},
+ {label:'Realistic 5m fills (2h)', pf:1.55, tag:'r', note:'true gross edge before slippage'},
+ {label:'+ real taker costs (2h)', pf:0.6, tag:'r', note:'≈ zero to slightly negative'},
+ {label:'1d EMA7, realistic fills', pf:12.4, tag:'g', note:'the survivor (ETH shown; BTC 8.9, SOL 14.1)'}
+];
+new Chart(document.getElementById('chain'), {type:'bar', data:{labels:chainData.map(d=>d.label),
+ datasets:[{data:chainData.map(d=>d.pf), backgroundColor:[Y,Y,R,R,G]}]},
+ options:{indexAxis:'y', scales:{x:{type:'logarithmic', min:0.3}},
+          plugins:{legend:{display:false}, tooltip:{callbacks:{afterLabel:c=>chainData[c.dataIndex].note}}}}});
+document.getElementById('chainTable').innerHTML =
+ '<tr><th>Stage</th><th>PF</th><th>Honest?</th></tr>' +
+ chainData.map(d=>`<tr><td>${d.label}</td><td>${d.pf}</td><td><span class="tag ${d.tag}">${d.note.split(' ')[0]==='includes'?'engine-yes':'see note'}</span> ${d.note}</td></tr>`).join('');
+
+// --- 2. MC histogram (BTC ema7)
+const mc = D.mc_histograms['BTC_ema7'];
+document.getElementById('mcMed').textContent = '$'+Math.round(mc.median).toLocaleString();
+new Chart(document.getElementById('mcHist'), {type:'bar',
+ data:{labels:mc.edges.slice(0,-1).map(e=>'$'+Math.round(e/1000)+'k'),
+       datasets:[{data:mc.bins, backgroundColor:B}]},
+ options:{plugins:{legend:{display:false}, tooltip:{callbacks:{title:null}}},
+          scales:{y:{title:{display:true,text:'paths of 10,000'}}}}});
+
+// --- 3a. regime table
+const ph = D['phase7.json'].full_history;
+const rRows = [['Period','BTC','ETH','SOL']];
+Object.keys(ph.BTC).forEach(period=>{
+  const row=[period];
+  ['BTC','ETH','SOL'].forEach(c=>{const v=ph[c][period]; row.push(v?`${v.per_day}%/d · PF ${v.pf}`:'—')});
+  rRows.push(row);
+});
+document.getElementById('regime').innerHTML =
+ rRows.map((r,i)=>'<tr>'+r.map((c,j)=>`<${i? 'td':'th'}>${c}</${i?'td':'th'}>`).join('')+'</tr>').join('');
+
+// --- 3b. sweep chart
+const sweep = D['phase7.json'].sweep;
+const emas=[3,5,7,9], mults=[0.01,0.02,0.05,0.1];
+new Chart(document.getElementById('sweep'), {type:'line',
+ data:{labels:mults.map(m=>m*100+'%'),
+   datasets:emas.map((e,i)=>({label:'EMA'+e, data:mults.map(m=>sweep[`ema${e}_m${m}`].per_day),
+                              borderColor:[B,G,Y,'#bc8cff'][i], tension:.25}))},
+ options:{plugins:{legend:{position:'bottom'}}, scales:{y:{title:{display:true,text:'%/day (bar-level)'}}}}});
+
+// --- 3c. intrabar table
+const ib = D['phase7_intrabar.json'];
+document.getElementById('intrabar').innerHTML =
+ '<tr><th>Coin</th><th>EMA5</th><th>EMA7 ★</th><th>EMA9</th></tr>' +
+ ['BTC','ETH','SOL'].map(c=>'<tr><td>'+c+'</td>'+[5,7,9].map(e=>{
+   const v=ib[`${c}_ema${e}`]; if(!v) return '<td>—</td>';
+   return `<td>${e===7?'<b>':''}PF ${v.pf}<br><span class="muted">${v.per_day}%/d · DD ${v.dd}% · ${v.trades} tr</span>${e===7?'</b>':''}</td>`;}).join('')+'</tr>').join('');
+
+// --- 4. cost stress
+const stress = D['falsification.json'].stress;
+const labels=Object.keys(stress), perDay=labels.map(k=>stress[k].per_day), pfs=labels.map(k=>stress[k].pf);
+new Chart(document.getElementById('stress'), {type:'bar',
+ data:{labels, datasets:[{label:'%/day', data:perDay, backgroundColor:perDay.map(v=>v>=0?G:R), yAxisID:'y'}]},
+ options:{indexAxis:'y', plugins:{legend:{display:false}}, scales:{x:{min:-0.5}}}});
+document.querySelectorAll('canvas').forEach(c=>c.parentElement.style.height='auto');
+</script>
+</body>
+</html>

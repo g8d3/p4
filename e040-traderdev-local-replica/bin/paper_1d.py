@@ -36,7 +36,7 @@ NOTIFY = os.path.join(ROOT, "..", "e000-fundamentals", "bin", "notify.sh")
 
 COINS = ["BTC", "ETH", "SOL"]
 FETCH_DAYS = 120
-EMA_LEN = 5
+EMA_LEN = 7
 ATR_LEN = 14
 MULT = 0.02
 FEE = 0.0005       # per side (same as backtest)
