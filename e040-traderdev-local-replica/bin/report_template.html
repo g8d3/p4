@@ -90,12 +90,25 @@ may be cooling (the live paper monitor is watching exactly this).</p>
 
 <h3>3c. Honest-fill validation of the candidates (5m intrabar, 2024-08 → 2026-08)</h3>
 <table id="intrabar"></table>
+<p class="muted">SOL EMA9 was missing earlier because the sweep flagged EMA9's bar-level
+PF 2466 (too good = red flag), so it was only validated on BTC/ETH first. Now run:
+PF 20.14, 100 trades — high PF but fewer trades = more fragile, same pattern as BTC/ETH.</p>
 <p><span class="tag g">WINNER</span> <b>EMA7 / ATR×0.02</b>: best PF on every coin (8.9 BTC, 12.4 ETH,
 14.1 SOL), tight drawdowns (-2.3 / -6.3 / -2.6%), stable across multipliers 0.01-0.05 in the sweep.
 EMA9 has a higher PF but only 78-88 trades (fragile, and its bar-level PF 2466 warns of look-ahead-ish
 sample effects: validate before trusting).</p>
 
-<h2>4. Costs — the true constraint</h2>
+<h2>4. The synthetic-data negative control (Phase 8)</h2>
+<p>The missing null: <b>60 pure-noise price series</b> (random walk with BTC's real
+daily volatility, 2.47%/day) run through the same EMA7 daily machinery. If the
+machine prints profits on garbage, most of the edge is the machine, not the signal.</p>
+<div class="chart"><canvas id="synth" height="200"></canvas></div>
+<p><b>Result:</b> on pure noise the machine still shows <b>PF 1.42 median (90% of noise
+series profitable)</b> — it is a drift-harvester. The real market structure is what
+lifts it to PF 14.4 (real BTC). The full chain:
+noise (PF 1.4) &lt; random entries on real data (PF 9.9) &lt; real signal (PF 14.4).</p>
+
+<h2>5. Costs — the true constraint</h2>
 <div class="chart"><canvas id="stress" height="220"></canvas></div>
 <p>On 2h the edge dies at 0.1%+0.1% costs. On 1d fees are ~0.01-0.02%/day vs wins of 0.17-0.36%/day:
 cos <b>single-digit % of the edge</b> (maker simulation: fee0 adds only ~0.02%/day — nice, not decisive).</p>
@@ -114,6 +127,24 @@ against: <b>0.17-0.36%/day, worst DD -6%</b>.</p>
     · <code>bin/montecarlo_1d.py</code> · <code>bin/paper_1d.py</code></li>
 <li><code>BEGINNER_GUIDE.md</code> — the whole story explained for a beginner (with analogies)</li>
 </ul>
+<h2>7. Glossary — the robustness test family</h2>
+<table>
+<tr><th>Test</th><th>Kills this lie</th></tr>
+<tr><td>Permutation / null signals</td><td>"the signal is smart" — random entries still earn 0.65%/day vs real 0.80% (p=0.0) → signal = +22%</td></tr>
+<tr><td>Monte Carlo bootstrap</td><td>"we were lucky with trade order" — shuffles your real trades 10k times</td></tr>
+<tr><td>Walk-forward</td><td>"it only worked in one period" — every 90-day window</td></tr>
+<tr><td>Transaction-cost stress</td><td>"fees don't matter"</td></tr>
+<tr><td>Synthetic-data control</td><td>"the machine is real, not lucky with structure"</td></tr>
+<tr><td>Fill realism (intrabar)</td><td>"the best price happened first" — 5m path inside each bar</td></tr>
+</table>
+<p class="muted">Terms: permutation = random signals; bootstrap = reshuffle your own trades;
+walk-forward = out-of-sample window-by-window; null model = "what does pure luck produce?".
+Full beginner story: <code>BEGINNER_GUIDE.md</code>.</p>
+
+<div class="banner verdict"><b>Live status:</b> paper monitor running daily (00:15 UTC) on
+BTC/ETH/SOL, EMA7/0.02, $10k each. Watch for deviation from the backtest expectation
+(0.17-0.36%/day, DD ≤ 6%) — it is the regime detector.</div>
+
 <p class="muted">All data public (Bybit/Hyperliquid klines). Output CSVs/JSONs in <code>output/</code>.</p>
 
 </div>
@@ -176,7 +207,17 @@ document.getElementById('intrabar').innerHTML =
    const v=ib[`${c}_ema${e}`]; if(!v) return '<td>—</td>';
    return `<td>${e===7?'<b>':''}PF ${v.pf}<br><span class="muted">${v.per_day}%/d · DD ${v.dd}% · ${v.trades} tr</span>${e===7?'</b>':''}</td>`;}).join('')+'</tr>').join('');
 
-// --- 4. cost stress
+// --- synth null chart
+const synth = D['synthetic_null.json'];
+const trials = synth.trials;
+new Chart(document.getElementById('synth'), {type:'bar',
+ data:{labels:trials.map(t=>t.drift==='zero_drift'?'Noise (zero drift)':'Noise (real drift)'),
+       datasets:[{label:'median PF', data:trials.map(t=>t.median_pf), backgroundColor:[Y,Y]},
+                 {label:'real BTC PF', data:[14.4,14.4], backgroundColor:[G], type:'line'}]},
+ options:{plugins:{legend:{position:'bottom'}}, scales:{y:{min:0}}}});
+document.getElementById('synth').dataset.note = synth.note;
+
+// --- 5. cost stress
 const stress = D['falsification.json'].stress;
 const labels=Object.keys(stress), perDay=labels.map(k=>stress[k].per_day), pfs=labels.map(k=>stress[k].pf);
 new Chart(document.getElementById('stress'), {type:'bar',
