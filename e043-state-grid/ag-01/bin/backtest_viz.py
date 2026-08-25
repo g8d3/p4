@@ -80,12 +80,17 @@ def reconstruct_trades(fills):
             fee_in = l["fee"] * (take / l["qty"])
             fee_out = f["fee"] * (take / qty)
             net = pnl - fee_in - fee_out
+            entry_notional = take * l["px"]
+            net_ret = net / entry_notional          # net return on closed portion
+            # log return: ln(1 + net return); additive + symmetric vs plain %
+            log_r = math.log(1 + net_ret) * 100.0 if net_ret > -0.999 else -99.0
             trades.append(dict(bar=f["bar"], kind=f["kind"],
                                closed_qty=round(take, 8),
                                entry_px=round(l["px"], 2),
                                exit_px=round(f["price"], 2),
                                pnl=round(net, 2),
-                               pnl_pct=round(net / (take * l["px"]) * 100, 3)))
+                               pnl_pct=round(net_ret * 100, 3),
+                               log_r_pct=round(log_r, 3)))
             l["qty"] -= take
             l["fee"] -= fee_in
             if l["qty"] <= 1e-9:
@@ -111,7 +116,11 @@ def reconstruct_trades(fills):
     return trades, dict(pf=pf, pf_pct=pf_pct, gross_win=round(gross_win, 2),
                         gross_loss=round(gross_loss, 2), n_trades=len(trades),
                         n_wins=sum(1 for t in trades if t["pnl"] > 0),
-                        n_losses=sum(1 for t in trades if t["pnl"] < 0))
+                        n_losses=sum(1 for t in trades if t["pnl"] < 0),
+                        expectancy_usd=round(np.mean([t["pnl"] for t in trades]), 2) if trades else 0.0,
+                        expectancy_pct=round(np.mean([t["pnl_pct"] for t in trades]), 4) if trades else 0.0,
+                        log_exp_pct=round(np.mean([t["log_r_pct"] for t in trades]), 4) if trades else 0.0,
+                        log_sum_pct=round(sum(t["log_r_pct"] for t in trades), 2))
 
 
 # --------------------------------------------------------------------------- #
@@ -119,19 +128,21 @@ def reconstruct_trades(fills):
 # --------------------------------------------------------------------------- #
 GLOSSARY = [
     ("Return %", "How much the 100,000 start money grew or shrank at the end, in percent. Growth compounds here, so it already includes everything that happened in between."),
-    ("Profit factor", "Gross dollars won ÷ gross dollars lost, for ALL trades of this test. 1.0 = breakeven. It does NOT know about order, time, or compounding — that's why it is read next to the other metrics."),
+    ("Expectancy / trade", "The AVERAGE net result of one trade, in dollars and in % of the money used in that trade. The best single number about your edge: positive = each trade pays on average, negative = each trade costs on average."),
+    ("Log expectancy / trade", "Average log return per trade (ln of 1 + net %). Log returns are additive and symmetric: +50% then -50% is -ln(1.5·0.5) < 0 for log, instead of looking like 0 with plain %. The statistically 'easiest to read' version."),
+    ("Log sum (additive %)", "Adding up all per-trade log returns. Unlike plain %, this addition is mathematically honest across order and compounding — a positive sum means the whole sequence grew."),
+    ("Profit factor", "Gross dollars won ÷ gross dollars lost, for ALL trades of this test. 1.0 = breakeven. Weak alone: it is in dollars (bigger trades count more), it forgets order, time and compounding, and a few huge winners can hide many losses. Read it only NEXT TO expectancy and log returns."),
     ("Max drawdown %", "The worst dip from a high point to a low point of the account, in percent. It answers: \"how painful was the worst moment?\" A -50% dip needs +100% to recover."),
     ("Sharpe", "Average return per unit of risk (how wobbly the equity was). Above ~1 is decent; negative means the ride was bumpy and losing. Not a guarantee — history only."),
-    ("Win rate %", "Share of trades that ended in profit. A low win rate is NOT automatically bad: big wins can beat many small losses. Always read it next to Profit factor."),
+    ("Win rate %", "Share of trades that ended in profit. A low win rate is NOT automatically bad: big wins can beat many small losses. Always read it next to Expectancy."),
     ("Commissions", "Money paid to the exchange for every fill, summed (maker/taker fees). Grids trade a lot, so fees are often the difference between profit and loss."),
     ("Fills", "How many times orders actually got filled (bought or sold). More fills = more fees; fewer fills = the grid may not be doing much."),
     ("Regime flips", "How many times the filter switched between 'range' and 'trend'. Each switch can cost a flatten fee, so a nervous filter bleeds money."),
-    ("Exposure time", "How much of the time the account actually held a position (as % of starting capital). Low = the strategy sits in cash most of the time."),
 ]
 
 PF_HTML = """
 <div class="card">
-  <h2>📖 Profit factor, explained for a beginner</h2>
+  <h2>📖 Profit factor — and the better alternatives</h2>
   <p><b>Profit factor = money won ÷ money lost</b> (in dollars / USDT), counting
   <b>every</b> trade of the <b>whole test</b> — not each single trade.</p>
   <table class="mini">
@@ -142,20 +153,28 @@ PF_HTML = """
     <tr><td><b>Totals</b></td><td><b>$70</b></td><td><b>$10</b></td></tr>
   </table>
   <p><b>Profit factor = 70 / 10 = 7.0</b> — you won 7 dollars for every 1 you lost.</p>
+  <h3>Is it a good measure? Honestly — NOT alone.</h3>
   <ul>
-    <li><b>Is it per backtest or per trade?</b> One number PER TEST. It changes
-        only when you change the strategy parameters and run again. The chart
-        below shows how it <i>builds up</i> trade by trade to that final number.</li>
-    <li><b>Dollars or percentages?</b> <b>Dollars.</b> Because it's a ratio
-        (won ÷ lost, same currency), it has no units and it ignores the size of
-        the account: if every trade doubles, the ratio stays the same. A
-        percentage version would change with account size — the page shows both
-        (Profit factor vs %-based) so you can see they differ.</li>
-    <li><b>Does it care that the account grows or shrinks?</b> <b>No — on
-        purpose.</b> It just adds dollars. It forgets the order of trades,
-        compounding, and time. That's why it's NEVER read alone: Return % knows
-        compounding, Sharpe knows time, Max drawdown knows the risky path.</li>
+    <li><b>In dollars, not %</b> — bigger trades count more, so two strategies with
+        the same edge look different just because of size. Your instinct is right.</li>
+    <li><b>It forgets everything about time</b> — order of trades, how long money was
+        stuck, compounding. Two tests with PF 2.0 can feel completely different.</li>
+    <li><b>Huge winners can hide many losses.</b> So we do NOT drop it — we demote it
+        and use instead, in every page:</li>
   </ul>
+  <table class="mini">
+    <tr><th>Better tool</th><th>What it fixes</th></tr>
+    <tr><td><b>Expectancy per trade</b> (in $ and in % of the money used)</td>
+        <td>The true edge per trade, size-free.</td></tr>
+    <tr><td><b>Log returns per trade</b> (ln of 1 + net %)</td>
+        <td>Additive and symmetric: +50% then −50% is NOT zero for log returns,
+        it is a real loss. Plain % hides that.</td></tr>
+    <tr><td><b>Log sum</b> (adds all log returns)</td>
+        <td>The honest total growth of the whole sequence, order- and
+        compounding-aware.</td></tr>
+  </table>
+  <p>Read order: <b>Log sum</b> → <b>Expectancy per trade</b> → <b>Max drawdown</b>
+  → <b>Sharpe</b>. Profit factor stays as a quick sanity number only.</p>
   <div class="calc">
     <h3>Try it yourself</h3>
     <label>Money won: <input type="number" id="cw" value="70" step="1"></label>
@@ -173,26 +192,29 @@ def build_html(title, m, trades, pf, eq, fills, closes):
               ("🟡 Breakeven — it roughly paid its own fees, nothing more." if abs(m.get("total_return_pct", 0)) < 1.5 else
                "❌ Losing after fees. Study the equity curve: is it a slow bleed (fees/geometry) or one big drop (trend)?")
     max_rows = 400
-    shown = trades if len(trades) <= max_rows else trades[: max_rows // 2] + trades[-max_rows // 2:]
+    indexed = list(enumerate(trades))   # (original index, trade)
+    shown = indexed if len(indexed) <= max_rows else indexed[: max_rows // 2] + indexed[-max_rows // 2:]
     cap_note = f"<div class='legend'>Showing {len(shown)} of {len(trades)} trades (trimmed for mobile).</div>" if len(trades) > max_rows else ""
     trade_rows = "".join(
-        f"<tr><td>{t['bar']}</td><td>{t['kind']}</td><td>{t['entry_px']} → {t['exit_px']}</td>"
+        f"<tr><td>{i}</td><td>{t['bar']}</td><td>{t['kind']}</td><td>{t['entry_px']} → {t['exit_px']}</td>"
         f"<td class=\"{'pos' if t['pnl'] >= 0 else 'neg'}\">{t['pnl']:+.2f}</td>"
         f"<td class=\"{'pos' if t['pnl'] >= 0 else 'neg'}\">{t['pnl_pct']:+.3f}%</td>"
+        f"<td class=\"{'pos' if t['pnl'] >= 0 else 'neg'}\">{t['log_r_pct']:+.3f}%</td>"
         f"<td>{t['run_pf']:.2f}</td></tr>"
-        for t in shown)
+        for i, t in shown)
     chips = "".join(
         f"<div class=\"chip\"><div class=\"k\">{k}</div><div class=\"v\">{v}</div>"
         f"<div class=\"d\">{dict(GLOSSARY).get(k, '')}</div></div>"
         for k, v in [("Return %", f"{m.get('total_return_pct', 0):.2f}%"),
+                     ("Expectancy / trade", f"{pf['expectancy_usd']:+.2f}$ · {pf['expectancy_pct']:+.4f}%"),
+                     ("Log expectancy / trade", f"{pf['log_exp_pct']:+.4f}%"),
+                     ("Log sum (additive %)", f"{pf['log_sum_pct']:+.2f}%"),
                      ("Profit factor", "∞" if pf["pf"] == float("inf") else f"{pf['pf']:.2f}"),
-                     ("PF (% based)", "∞" if pf["pf_pct"] == float("inf") else f"{pf['pf_pct']:.2f}"),
                      ("Max drawdown", f"{m.get('max_drawdown_pct', 0):.2f}%"),
                      ("Sharpe", f"{m.get('sharpe', 0):.2f}"),
                      ("Win rate", f"{wins}/{n} = {100*wins/n if n else 0:.0f}%"),
                      ("Commissions", f"${m.get('total_commissions_usdt', m.get('commissions', 0)):,.0f}"),
-                     ("Fills", f"{m.get('n_fills', 0):,}"),
-                     ("Final equity", f"${m.get('final_equity_usdt', m.get('final_equity', 0)):,.0f}")])
+                     ("Fills", f"{m.get('n_fills', 0):,}")])
     gloss = "".join(f"<tr><td><b>{k}</b></td><td>{v}</td></tr>" for k, v in GLOSSARY)
     data = {
         "title": title, "verdict": verdict, "n_end": len(eq) - 1,
@@ -267,7 +289,7 @@ HTML_TPL = """<!doctype html>
   <h2>Trades list</h2>
   /*CAP*/
   <div class="scroll"><table>
-    <tr><th>#</th><th>Bar</th><th>Exit kind</th><th>Path</th><th>PnL $</th><th>PnL %</th><th>PF so far</th></tr>
+    <tr><th>#</th><th>Bar</th><th>Exit kind</th><th>Path</th><th>PnL $</th><th>PnL %</th><th>Log ret %</th><th>PF so far</th></tr>
     /*TRADES*/
   </table></div>
 

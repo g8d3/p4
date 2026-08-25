@@ -24,18 +24,27 @@ backed by a real backtest in this experiment (`ag-01/output/viz_*.html`).
 
 ## Lesson 1: one number never tells the whole story
 
-We looked at 5 numbers together, not one:
+We look at a group of numbers, in this order:
 
-1. **Return %** — did the money grow (compounds everything).
-2. **Profit factor** — $ won ÷ $ lost, for the whole test. Simple but blind to
-   order, time and compounding.
+1. **Log sum %** — all per-trade log returns added up. Log returns are the
+   honest way to add percentages: +50% then −50% equals 0 if you just add
+   (WRONG — you actually lost 25%), but the log version shows a real loss.
+2. **Expectancy per trade** — the average result of one trade, in % of the
+   money used in it. Positive = each trade pays on average; the cleanest
+   "edge per trade" number.
 3. **Max drawdown** — the worst dip. Pain matters: −50% needs +100% to recover.
 4. **Sharpe** — return per unit of wobble (risk).
 5. **Win rate** — how many trades won. Low win rate can still be profitable if
-   wins are big; read it with Profit factor, never alone.
+   wins are big; read it with Expectancy, never alone.
 
-The Profit factor page (`viz_*.html`) shows it *growing trade by trade* and a
-calculator you can play with.
+**Profit factor** ($ won ÷ $ lost) is demoted to a quick sanity check, NOT a
+hero: it's in dollars (bigger trades count more), it forgets order, time and
+compounding, and one huge winner can hide many losses. Every page shows both,
+so you can see them disagree.<br><br>
+
+The Profit factor page (`viz_*.html`) shows it *growing trade by trade*, a
+calculator, and the per-trade **Log return** column next to PnL % so you can
+compare plain % vs log % on the same trades.
 
 ## Lesson 2: "buy the dip" sounds smart and loses money (measured)
 
