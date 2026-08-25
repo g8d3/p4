@@ -9,8 +9,9 @@ variables, not calendar time).
 ## Status
 
 - **Fase 0 — SPEC (in progress):** the full design living in [SPEC.md](SPEC.md).
-  This is the current deliverable. The user is resolving the remaining open
-  decisions (marked `TODO` in the SPEC).
+  This is the current deliverable. **Everything is a runtime parameter with a
+  default — nothing is hardcoded.** The user's remaining input is *default
+  values / preferred shapes*, not structural decisions.
 - **Fase 1 — Backtest (next):** bar-by-bar event-driven simulation on real BTC,
   benchmarked against e022's post-fee results. Not started.
 - **Fase 2 — Adaptive mappings (later):** one state→parameter mapping at a time,
@@ -60,8 +61,9 @@ variables, not calendar time).
 - **Lot-based exits:** "multiple stop losses at one price with different
   volumes" is implemented by pre-splitting the entry into lots with distinct
   (volume, stop, target) — the SL/V/Q ladders. No fractional-exit machinery.
-- **Everything is a parameter in the framework, but few are swept at once**
-  (three-tier rule).
+- **Everything is a runtime parameter with a default** — structural choices,
+  ladder shapes, and adaptive mappings alike. The three tiers govern how many
+  are *swept* at once, never whether they exist.
 
 ## How to run
 
