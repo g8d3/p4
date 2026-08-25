@@ -226,14 +226,25 @@ def build_html(title, m, trades, pf, eq, fills, closes, plan=None):
     }
     plan_html = ""
     if plan:
-        rows = "".join(f"<tr><td><b>{k}</b></td><td>{v}</td></tr>" for k, v in plan.get("params", []))
+        params = plan.get("params", [])
+        if params and isinstance(params[0], dict):   # beginner schema: name/plain/why
+            rows = "".join(
+                f"<tr><td><b>{p.get('name', '')}</b></td><td>{p.get('plain', '')}</td>"
+                f"<td class=\"why\">{p.get('why', '')}</td></tr>" for p in params)
+            head = "<tr><th>Setting</th><th>In plain words</th><th>Why it matters</th></tr>"
+        else:                                        # legacy: name/value
+            rows = "".join(f"<tr><td><b>{k}</b></td><td>{v}</td></tr>" for k, v in params)
+            head = ""
+        how = (f"<div class=\"how\"><b>How it works:</b> {plan.get('how_it_works', '')}</div>"
+               if plan.get("how_it_works") else "")
         badge_cls = "badge-grid" if plan.get("kind") == "grid" else "badge-ladder"
         plan_html = f"""
 <div class="card plan">
   <span class="badge {badge_cls}">{plan.get('family', 'Strategy')}</span>
   <h2 style="margin-top:6px">What this plan does</h2>
   <p class="oneliner">{plan.get('one_liner', '')}</p>
-  <table>{rows}</table>
+  {how}
+  <table>{head}{rows}</table>
   <div class="sub" style="margin-top:8px">📊 Data tested: {plan.get('data', '')}</div>
 </div>"""
     return HTML_TPL.replace("//TITLE//", title).replace("//VERDICT//", verdict).replace(
@@ -262,6 +273,9 @@ HTML_TPL = """<!doctype html>
   .badge-ladder{background:#2d1b1b;color:#f85149;border:1px solid #f8514955}
   .badge-grid{background:#0d2a1d;color:#3fb950;border:1px solid #3fb95055}
   .oneliner{font-size:1rem;color:var(--fg);background:#0a0e14;border-left:3px solid var(--acc);padding:10px 12px;border-radius:6px}
+  .how{background:#0a0e14;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0;font-size:.95rem}
+  td.why{color:var(--mut);font-size:.8rem}
+  td{vertical-align:top}
   .chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}
   .chip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
   .chip .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}

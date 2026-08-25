@@ -21,6 +21,8 @@ backed by a real backtest in this experiment (`ag-01/output/viz_*.html`).
 | **Anchor** | The reference point the ladder is measured from (e.g. the recent highest price) |
 | **Maker fee** | Fee you pay when YOUR order waits at a price and someone else fills it (cheaper) |
 | **Taker fee** | Fee you pay when you take someone else's resting order immediately (more expensive) |
+| **EMA (moving average)** | Average of recent prices, where newer prices count a bit more. "EMA 50 vs EMA 100" = short-term mood vs long-term mood. If they drift apart, a trend is forming |
+| **Exposure cap** | A speed limit: how much money the plan is allowed to have in positions at once. If a big move pushes past it, the plan sells a bit to get back under |
 
 ## Lesson 1: one number never tells the whole story
 
