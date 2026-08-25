@@ -1,0 +1,9 @@
+{
+  "tier1": {
+    "anchor_mode": "rolling_high",
+    "sl_anchor": "fixed_from_buy",
+    "trail_dist_mode": "none",
+    "regime": {"ema_fast": 50, "ema_slow": 100, "enter_pct": 0.002, "exit_pct": 0.001}
+  },
+  "tier2": {"C": [0.08, 0.16, 0.24], "V": [0.05], "SL": [0.10], "R": [0.0075]}
+}

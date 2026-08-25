@@ -47,6 +47,7 @@ DEFAULTS = {
         },
         "regime": {"ema_fast": 50, "ema_slow": 100,
                    "enter_pct": 0.010, "exit_pct": 0.005},
+        "confirm": {"on": False, "ema_period": 20},
     },
     "tier2": {
         "C": [0.005, 0.010, 0.020, 0.030],
@@ -67,6 +68,7 @@ def add_indicators(df, cfg):
     df = df.copy()
     df["ema_fast"] = df["close"].ewm(span=r["ema_fast"], adjust=False).mean()
     df["ema_slow"] = df["close"].ewm(span=r["ema_slow"], adjust=False).mean()
+    df["ema_conf"] = df["close"].ewm(span=20, adjust=False).mean()
     pc = df["close"].shift(1)
     tr = pd.concat([df["high"] - df["low"],
                     (df["high"] - pc).abs(),
@@ -156,6 +158,14 @@ class Grid:
         return sum(l.q for l in self.lots if l.state == "BOUGHT")
 
     # ---- order / position lifecycle ---------------------------------------
+    def _confirmed(self, c):
+        """Entry confirmation gate (Option B): only buy when price has
+        stabilized above a fast EMA (not while still falling)."""
+        if not (self.t1.get("confirm") and self.t1["confirm"]["on"]):
+            return True
+        ema = getattr(self, "ema_conf_now", None)
+        return True if ema is None else c > ema
+
     def set_buy_limits(self):
         for lot in self.lots:
             if lot.state not in ("ARMED", "REBUYING"):
@@ -216,6 +226,7 @@ class Grid:
         self.n_bars += 1
         h, l, c = row["high"], row["low"], row["close"]
         self.atr_now = float(row["atr"]) if row["atr"] == row["atr"] else 0.0
+        self.ema_conf_now = float(row.get("ema_conf", c))
 
         slope = (row["ema_fast"] - row["ema_slow"]) / row["ema_slow"]
         rg = self.t1["regime"]
@@ -266,7 +277,9 @@ class Grid:
                      if lot.state == "ARMED" and lot.side == side
                      and lot.buy_px is not None
                      and ((side == 1 and l <= lot.buy_px)
-                          or (side == -1 and h >= lot.buy_px))]
+                          or (side == -1 and h >= lot.buy_px))
+                     and (not (self.t1.get("confirm") and self.t1["confirm"]["on"])
+                          or self._confirmed(c))]
             if armed and exposure < self.t1["max_exposure"]:
                 pick = min(armed, key=lambda x: x.c)   # shallowest level first
                 self.open_pos(i, pick, pick.buy_px)

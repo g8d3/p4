@@ -49,6 +49,7 @@ class Config:
     taker_fee: float = 0.0006
     start_cash: float = 100_000
     vp_window: int = 400
+    flatten_min_notional: float = 0.0   # skip regime-flatten if inventory < this
 
 
 @dataclass
@@ -218,7 +219,8 @@ class RangeGrid:
             self.last_rebalance = -10**9
             self.last_rebalance_attempt = -10**9
             if self.regime != "RANGE":
-                self._flatten(bar, close, market=True)
+                if abs(self.pos_qty) * close >= self.cfg.flatten_min_notional:
+                    self._flatten(bar, close, market=True)
 
         if self.regime == "RANGE":
             if self.bar_count - self.last_rebalance_attempt >= self.cfg.rebalance:

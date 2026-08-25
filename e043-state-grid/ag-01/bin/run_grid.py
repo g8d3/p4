@@ -99,6 +99,7 @@ def main():
     ap.add_argument("--trend-enter", type=float, default=0.5)
     ap.add_argument("--trend-exit", type=float, default=0.2)
     ap.add_argument("--liquidation-mult", type=float, default=1.0)
+    ap.add_argument("--flatten-min-notional", type=float, default=0.0)
     ap.add_argument("--min-order", type=float, default=500)
     ap.add_argument("--max-order", type=float, default=10_000)
     args = ap.parse_args()
@@ -108,7 +109,8 @@ def main():
                  trend_fast=args.trend_fast, trend_slow=args.trend_slow,
                  trend_enter=args.trend_enter / 100.0, trend_exit=args.trend_exit / 100.0,
                  liquidation_mult=args.liquidation_mult,
-                 min_order=args.min_order, max_order=args.max_order)
+                 min_order=args.min_order, max_order=args.max_order,
+                 flatten_min_notional=args.flatten_min_notional)
     df = pd.read_csv(args.data)
     ema_f, ema_s, atr = load(df, cfg, args.start)
     g, m = run(df, cfg, args.start, ema_f, ema_s, atr, out_dir=args.out_dir,
