@@ -72,6 +72,12 @@ variables, not calendar time).
   ladder shapes, and adaptive mappings alike. The three tiers govern how many
   are *swept* at once, never whether they exist.
 
+## Model
+
+`opencode-go/deepseek-v4-flash-vision-exp` — user-required default for any
+spawned agent in this experiment (launchers: `continue.sh`, and any fleet
+spawn should pass `-m opencode-go/deepseek-v4-flash-vision-exp`).
+
 ## How to run
 
 Fase 1 (not yet built). When the SPEC TODOs are resolved, implement a
