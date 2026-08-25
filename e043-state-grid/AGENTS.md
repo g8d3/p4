@@ -10,16 +10,19 @@ variables, not calendar time).
 
 - **Fase 0 — SPEC: DONE.** Full parameterized design in [SPEC.md](SPEC.md);
   everything is a runtime parameter with a default.
-- **Fase 1 — Backtest harness: DONE.** `ag-01/bin/sim.py` (bar-by-bar, causal,
-  verified accounting) + `ag-01/bin/sweep.py`. Results on real BTC are HONEST
-  and negative — see [ag-01/output/FASE1_FINDINGS.md](ag-01/output/FASE1_FINDINGS.md):
-  best config ≈ breakeven (−0.9%) while almost never trading; the bottleneck is
-  the entry win rate (~20–42%), not tuning. Does not beat e022 (+3.6% 5m /
-  +1.7% 1h).
-- **Fase 2 — Design pivot (NEXT, decision needed):** recommended option A — in
-  RANGE state run e022's proven two-sided ATR-spaced grid as the base edge, and
-  layer the user's R-recycle, multi-volume `Q`, and multi-stop `SL`/`V` ladders
-  on top. Options B/C in the findings doc.
+- **Fase 1 — Ladder backtest: DONE.** `ag-01/bin/sim.py` (bar-by-bar, causal,
+  verified) + `sweep.py`. One-sided %-ladder is **structurally negative** on
+  real BTC — see [ag-01/output/FASE1_FINDINGS.md](ag-01/output/FASE1_FINDINGS.md).
+  Bottleneck: entry win rate (~20–42%), not tuning.
+- **Fase 2 — Base-edge search on e022's two-sided ATR grid: DONE, exhausted.**
+  [ag-01/output/FASE2_FINDINGS.md](ag-01/output/FASE2_FINDINGS.md). Port
+  (`range_grid.py`) makes money on synthetic range but loses on real BTC; the
+  e022-published +1.7%/+3.6% does NOT reproduce in a simplified harness.
+  Quantified design leak: taker-flatten churn from regime flapping (2× maker
+  fees). Stopping rule reached — bounded search exhausted.
+- **Next (recommended): layer the user's ladder features inside e022's ACTUAL
+  Nautilus harness** (the only judge where the thin base edge demonstrably
+  exists), A/B each feature against v2's +3.6%/+1.7%. See FASE2 recommendation.
 
 ## What makes this different from a plain grid
 
