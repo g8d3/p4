@@ -185,7 +185,7 @@ PF_HTML = """
 """
 
 
-def build_html(title, m, trades, pf, eq, fills, closes):
+def build_html(title, m, trades, pf, eq, fills, closes, plan=None):
     n = len(trades)
     wins = pf["n_wins"]
     verdict = "✅ This config made money after fees." if (m.get("total_return_pct", 0) > 0 and pf["pf"] >= 1.02) else \
@@ -224,8 +224,20 @@ def build_html(title, m, trades, pf, eq, fills, closes):
         "trades": [[t["bar"], t["pnl"], t["run_pf"]] for t in trades],
         "pf": pf, "start_cash": 100_000,
     }
+    plan_html = ""
+    if plan:
+        rows = "".join(f"<tr><td><b>{k}</b></td><td>{v}</td></tr>" for k, v in plan.get("params", []))
+        badge_cls = "badge-grid" if plan.get("kind") == "grid" else "badge-ladder"
+        plan_html = f"""
+<div class="card plan">
+  <span class="badge {badge_cls}">{plan.get('family', 'Strategy')}</span>
+  <h2 style="margin-top:6px">What this plan does</h2>
+  <p class="oneliner">{plan.get('one_liner', '')}</p>
+  <table>{rows}</table>
+  <div class="sub" style="margin-top:8px">📊 Data tested: {plan.get('data', '')}</div>
+</div>"""
     return HTML_TPL.replace("//TITLE//", title).replace("//VERDICT//", verdict).replace(
-        "/*CAP*/", cap_note).replace(
+        "/*CAP*/", cap_note).replace("//PLAN//", plan_html).replace(
         "/*DATA*/", json.dumps(data)).replace(
         "/*CHIPS*/", chips).replace("/*TRADES*/", trade_rows).replace(
         "/*GLOSS*/", gloss).replace("/*PF*/", PF_HTML)
@@ -245,6 +257,11 @@ HTML_TPL = """<!doctype html>
   h2{font-size:1.15rem;margin:26px 0 8px}
   .sub{color:var(--mut);font-size:.92rem}
   .verdict{background:#1f2937;border-left:4px solid var(--acc);padding:10px 14px;border-radius:8px;margin:12px 0}
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+  .badge-ladder{background:#2d1b1b;color:#f85149;border:1px solid #f8514955}
+  .badge-grid{background:#0d2a1d;color:#3fb950;border:1px solid #3fb95055}
+  .oneliner{font-size:1rem;color:var(--fg);background:#0a0e14;border-left:3px solid var(--acc);padding:10px 12px;border-radius:6px}
   .chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}
   .chip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
   .chip .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
@@ -267,6 +284,7 @@ HTML_TPL = """<!doctype html>
 </style></head><body><div class="wrap">
   <h1>//TITLE// — backtest explainer</h1>
   <div class="sub">e043 · state grid · one self-contained page · open offline</div>
+  //PLAN//
   <div class="verdict"><b>Verdict:</b> //VERDICT//</div>
   <div class="chips">/*CHIPS*/</div>
 
@@ -364,6 +382,10 @@ def main():
     args = ap.parse_args()
 
     m = json.load(open(f"{args.dir}/metrics.json"))
+    plan = None
+    plan_path = f"{args.dir}/plan.json"
+    if os.path.exists(plan_path):
+        plan = json.load(open(plan_path))
     eq = pd.read_csv(f"{args.dir}/equity_curve.csv")["equity"].astype(float).tolist()
     fills = normalize_fills(f"{args.dir}/fills_report.csv")
     trades, pf = reconstruct_trades(fills)
@@ -377,7 +399,7 @@ def main():
     price = pd.read_csv(args.data)
     closes = price["close"].astype(float).tolist()
 
-    html = build_html(args.title, m, trades, pf, eq, fills, closes)
+    html = build_html(args.title, m, trades, pf, eq, fills, closes, plan=plan)
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     open(args.out, "w").write(html)
     print(f"Wrote {args.out}  ({len(html)} bytes)")
