@@ -63,17 +63,36 @@ single habit converts solo work from risky to viable.
 
 ## Templates
 
-**Hypothesis card**
+**Candidate card** (write BEFORE any compute; the prior comes from
+BASE_RATES.md, the screens from `bin/screen.py`):
 ```
+ID: ___                      (one idea = one card = one A/B)
 HYPOTHESIS: ___
 SIGNAL (what I measure): ___
 MECHANISM (why it might work): ___
-DATA + TIMEFRAME: ___
-WOULD CONVINCE ME IF: ___        ← write BEFORE running
+WHO PAYS? (what counterpart, what asymmetry): ___   ← empty = reject on sight
+DATA SOURCE + TIMEFRAME: ___                        (see Data-source card)
+PRIOR (from BASE_RATES + screens A/B/C): ___        (cheap screens, no engine)
+INTERESTING ONLY IF: ___                            (page: WR > breakeven_B etc)
+WOULD CONVINCE ME IF: ___      ← write BEFORE running
 RESULT (after fees): ___
-OOS CHECK: ___
+OOS CHECK (60/40): ___
 VERDICT: keep / reject — because ___
 ```
+
+**Data-source card** — the data layer is picked by the SAME discipline, so the
+"good data needs good intuition" recursion breaks:
+```
+VARIABLE + what human-opinion fact it measures: ___
+CRYPTO ANALOG of equity ratio (if any): ___    (P/E→miner rev, P/B→MVRV, P/S→fee rev, PEG→fee growth, comps→BTC vs ETH/gold/NDX)
+SCALE it can influence: ___    (5m entry / 1h allocation / weekly regime) — never mix
+AVAILABILITY + cost: ___
+FALSIFIER (cheapest test, e.g. "funding z>1 predicts 30d OOS?"): ___
+STATUS: candidate / screened / rejected (— why)
+```
+Rule that kills the recursion: a data source earns its place only after its
+falsifier passes — you do NOT need intuition to choose data; you need a cheap
+test. Intuition is only needed to *name candidates*; the screens vet them.
 
 **Reject log** (append-only)
 ```
