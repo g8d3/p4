@@ -8,14 +8,18 @@ variables, not calendar time).
 
 ## Status
 
-- **Fase 0 — SPEC (in progress):** the full design living in [SPEC.md](SPEC.md).
-  This is the current deliverable. **Everything is a runtime parameter with a
-  default — nothing is hardcoded.** The user's remaining input is *default
-  values / preferred shapes*, not structural decisions.
-- **Fase 1 — Backtest (next):** bar-by-bar event-driven simulation on real BTC,
-  benchmarked against e022's post-fee results. Not started.
-- **Fase 2 — Adaptive mappings (later):** one state→parameter mapping at a time,
-  A/B against the static version, out-of-sample validated.
+- **Fase 0 — SPEC: DONE.** Full parameterized design in [SPEC.md](SPEC.md);
+  everything is a runtime parameter with a default.
+- **Fase 1 — Backtest harness: DONE.** `ag-01/bin/sim.py` (bar-by-bar, causal,
+  verified accounting) + `ag-01/bin/sweep.py`. Results on real BTC are HONEST
+  and negative — see [ag-01/output/FASE1_FINDINGS.md](ag-01/output/FASE1_FINDINGS.md):
+  best config ≈ breakeven (−0.9%) while almost never trading; the bottleneck is
+  the entry win rate (~20–42%), not tuning. Does not beat e022 (+3.6% 5m /
+  +1.7% 1h).
+- **Fase 2 — Design pivot (NEXT, decision needed):** recommended option A — in
+  RANGE state run e022's proven two-sided ATR-spaced grid as the base edge, and
+  layer the user's R-recycle, multi-volume `Q`, and multi-stop `SL`/`V` ladders
+  on top. Options B/C in the findings doc.
 
 ## What makes this different from a plain grid
 
