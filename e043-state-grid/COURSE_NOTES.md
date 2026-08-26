@@ -75,6 +75,17 @@ years) are THIN and fragile: tiny advantages, easily lost to imperfect
 execution. Be suspicious of any backtest showing 50%+ returns: either fees are
 hidden or the past pattern won't repeat.
 
+## Lesson 5: "wait for confirmation before re-buying" is insurance, not profit
+
+We made the grid wait R% before re-investing freed capital. Result: look at
+the shape — the biggest loss in the plan got 39% smaller (max drawdown −7.7%
+→ −4.9% on 1h data) but the profit only improved in recent sideways years. In
+strong bull phases (2022-2024) the waiting hurt by leaving capital in the
+pocket during the trend. Moral: features that improve the DANGER side
+(drawdown) are cheap insurance; features that must also IMPROVE the return
+side are rare. When you see a knob that makes your plan "safer", it usually
+buys safety with unearned upside — decide soberly if that is worth it.
+
 ## How to read the 4 example pages in this experiment
 
 | File | What it teaches |

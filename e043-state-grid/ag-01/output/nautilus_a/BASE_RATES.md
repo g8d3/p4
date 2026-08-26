@@ -19,6 +19,7 @@ C = regime churn (see `ag-01/bin/screen.py`).
 | 4 | e043 Fase 2: two-sided ATR grid port | −0.01% best (1h), −3..−4% 5m | — | 1.00 | taker-flatten churn | none | 0 |
 | 5 | **Nautilus-A Test 1: maker-limit flatten** | **+4.18% (5m) / +3.29% (1h)** | −6.9/−7.3 | 1.16/1.08 | fees −10%/−38.6%, 4/4 OOS splits better | venue (fee-bleed only) — pure cost fix | **KEEP** |
 | **Nautilus-A Test 2: regime enter 0.8 (5m) / 1.5 (1h)** | **+5.53% (5m) / +7.23% (1h)** full; stacks: **+7.07/+8.41** | −5.9/−7.9 | 1.19/1.17 | OOS: 0.8 wins 5m both splits; 1.5 returns better both splits, DD deeper ~1.1pp (flags) | opportunistic — more range time / fewer flattens | **KEEP (1h conditional)** |
+| **Nautilus-A Test 3 F1: R-recycle (freed capital re-arms opposite side only after R% retrace)** | 5m: +5.84 (R0.5) / −3.66 (R1.5) vs stack +7.07. 1h: +9.46/−4.95 (R1.5) vs stack +8.41/−7.73; ret/DD 1.91 vs 1.09 | −4.95 (1h R1.5) vs −7.73 | 1.254 | OOS 60/40 1h R1.5: DD better BOTH splits (−4.22/−5.13 vs −7.73/−7.15); return better test (+5.58 vs +1.21) worse train (+3.87 vs +7.40) | chop-protector: parks freed capital during trends (DD insurance, gives up trend upside). NOT alpha; it's a risk-shape tool, R-specific (0.5 hurts, 1.5 works) | **REJECT 5m; 1h R1.5 KEEP-CONDITIONAL** (user's call; DD robust, return regime-dependent) |
 
 ## Base rates — data sources (each needs a falsifier card, see SOLO_PROTOCOL)
 
@@ -81,3 +82,12 @@ regime-switch churn estimate: use the recursive EMA, split the difference.
 6. Regime thresholds are **dataset-specific** (0.8 on 5m vs 1.5 on 1h): that is
    a fragile-family red flag for Test 3 — never apply one "best config" as if
    it generalized.
+7. R-recycle (retrace-gated re-arming) prior: **DD-insurance, not alpha** —
+   better maxDD/ret both OOS splits on 1h R1.5, better return only on the
+   recent-chop split. Retrace waits hand capital to the side that wants
+   confirmation: great in chop, miss in strong trends. R is a THRESHOLD knob
+   (0.5% ≈ no-op, 1.5% polarizes; no monotone scaling).
+8. **Visible metrics are code paths too**: a "collapse" in n_fills/fees was a
+   counter bug (early return skipped super(); counters never updated) while
+   the fills report showed ~2,096 fills. Before suspecting the engine, verify
+   the COUNTER matches the REPORT. Rule 7 applies to instrumentation first.

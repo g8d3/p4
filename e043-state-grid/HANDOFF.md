@@ -39,22 +39,22 @@ harness, copy-then-improve, one change at a time). Progress:
 - **Stack T1+T2 (the current base for everything forward)**: 5m **+7.0705%** /
   DD −5.5684 / PF 1.2526 / fees 2,315.48; 1h **+8.4057%** / DD −7.7290 /
   PF 1.2013 / fees 1,191.11. Exact commands at bottom.
-- **Test 3 (user features): Feature 1 (R-recycle) IN PROGRESS, PAUSED.**
-  - Code: sr_grid_strategy_user.py has `recycle_enabled`/`recycle_pct` flags.
-  - Interpretation 1 (re-arm SAME side after R% retrace): REJECTED —
-    starves the sell side, grid breaks (5m −2.37%, 77 fills vs 2,315).
-  - Interpretation 2 (freed capital feeds OPPOSITE side only after price
-    moves R% in its favor): VERDICT BLOCKED — bookkeeping leak.
-  - THE BLOCKER (fix before any rerun): `_rebalance_grid` computes
-    total_budget from grid_budget + _unallocated + _pending_redistribute but
-    is BLIND to `_recycle_queue` (the freed capital in the queue is
-    invisible) → each rebalance re-arms a smaller grid; v2's
-    `on_order_rejected` also never refunds `reserved` into `_unallocated`
-    (pre-existing, never fired before because freed capital always flowed
-    through `pending`). Symptom: fills collapse 2,315 → 78-110 in ALL
-    recycle runs; 1h R=1.5% +9.46%/DD −4.95 is NOT evidence (lottery
-    artifact, PF-rule 5b). Full doc:
-    output/nautilus_a/test3_r_recycle_paused.md.
+- **Test 3 (user features): Feature 1 (R-recycle) RESOLVED — verdict done.**
+  Doc: output/nautilus_a/test3_r_recycle_verdict.md.
+  - The whole "bookkeeping leak" from last night was mostly MYTH: fills
+    report rows were normal (2,096 / 1,142 / 1,060) — the 78-110 numbers were
+    broken strategy counters (recycle path early-returns before super();
+    n_fills/total_commissions never updated). Fixed now (counters + rejection
+    refund + n_rejections), v2 untouched.
+  - **Config correction (important): the real 1h stack uses
+    `--rebalance 96` (default), NOT 192.** The doc'd 1h command was wrong;
+    betrayed by n_rebalances 329 vs 199 on same flags. 5m uses 192.
+  - A/B: 5m REJECT (R0.5 +5.84 vs +7.07; R1.5 −3.66). 1h R0.5 REJECT
+    (+3.20). **1h R=1.5% KEEP-CONDITIONAL**: +9.46/−4.95/retDD 1.91 vs stack
+    +8.41/−7.73/1.09 (better on ALL three); OOS: DD better BOTH splits
+    (−4.22/−5.13), return better test (+5.58 vs +1.21), worse train (+3.87 vs
+    +7.40) → it is DD insurance / chop-protector, not alpha. User's call on
+    the keep (same grade as Test 2's 1h enter 1.5).
 - **Intuition engine (from the "no intuition" conversation)**: 
   - `ag-01/bin/screen.py` — 3 cheap causal screens: A entry win rate
     (e.g. none of the simple (C,V,SL) bands clears fees on BTC), B fee
@@ -72,21 +72,11 @@ harness, copy-then-improve, one change at a time). Progress:
 
 ## NEXT STEP — ordered, when the user says "continue"
 
-1. **Fix the R-recycle bookkeeping** (sr_grid_strategy_user.py or a new
-   patched path — never touch v2):
-   a. `_flush_recycle` or `_rebalance_grid`: count sum(_recycle_queue)
-      amounts as part of the rebalance budget so the free cash math stays
-      consistent (deposit released items into `_unallocated` or
-      `_pending_redistribute` only once; do not double count).
-   b. `on_order_rejected`: refund `lv.reserved` into `_unallocated`.
-   c. Add `n_rejections` counter to metrics.
-2. **Diagnostic + rerun A/B interpretation 2** with R ∈ {0.5, 1.5} × {5m, 1h}
-   (4 runs, ~1 min each; reuse the stack commands + `--recycle-enabled`).
-   Verdict rules: return % + DD not worse than stack (5m +7.07/−5.57,
-   1h +8.41/−7.73) AND fills NOT collapsed (<500 is suspicious again) AND
-   OOS 60/40 if it looks good. Then update BASE_RATES + one course lesson.
-3. **Test 3 remaining features** (one at a time, candidate card + screen
-   before engine):
+1. **User's call on Test 3 F1 KEEP-CONDITIONAL** (1h R=1.5%, same grade as
+   Test 2's 1h enter 1.5): keep as part of the 1h base, or leave it out.
+   Nothing blocked meanwhile.
+2. **Test 3 remaining features** (one at a time, candidate card + screen
+   before engine; candidate card template in SOLO_PROTOCOL.md):
    - **Q multi-volume** (depth_scaled Q): screen prior LOW (sizing-only);
      one A/B then likely reject-documented.
    - **SL/V per-lot ladders** (each level own target/stop): screen prior LOW
@@ -95,7 +85,7 @@ harness, copy-then-improve, one change at a time). Progress:
    - **State allocation targets** (side multipliers per regime): HIGHEST
      prior of the four (regime disarming already helped in Test 2) — do this
      one if time only allows one.
-4. After Test 3: reopen the idea of the slow state layer (funding rate from
+3. After Test 3: reopen the idea of the slow state layer (funding rate from
    Hyperliquid is free NOW; falsifier card first), since valuation-style /
    opinion data (user's ask: P/E P/S PEG comps → mapped: fee revenue, miner
    revenue, MVRV) belongs to the SLOW regime/allocation layer, not entries.
@@ -110,7 +100,14 @@ python3 e043-state-grid/ag-01/bin/run_backtest_user.py --strategy user \
   --atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 \
   --trend-enter 0.8 --trend-exit 0.5 --rebalance 192 \
   --flatten-mode limit_first --flatten-limit-offset-pct 0.05 --flatten-fallback-bars 3
-# 1h stack: --data real_btc_1h.csv --trend-enter 1.5 --max-exposure-mult 4.0
+# 1h stack (T1+T2) — CORRECTED 2026-08-26: --rebalance 96 (default!), NOT 192.
+#   n_rebalances=329 is the canary; with 192 you get 199 and different results.
+python3 e043-state-grid/ag-01/bin/run_backtest_user.py --strategy user \
+  --data ../e022-nautilus-sr-grid/ag-01/data/real_btc_1h.csv \
+  --out-dir output/nautilus_a/t12_1h \
+  --atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 \
+  --trend-enter 1.5 --trend-exit 0.5 --rebalance 96 --max-exposure-mult 4.0 \
+  --flatten-mode limit_first --flatten-limit-offset-pct 0.05 --flatten-fallback-bars 3
 # parity/screens quick check:
 python3 e043-state-grid/ag-01/bin/screen.py --data <csv> --n-bars-per-year <105120|8760>
 ```
@@ -132,6 +129,10 @@ python3 e043-state-grid/ag-01/bin/screen.py --data <csv> --n-bars-per-year <1051
   (Test 0) and our stack is +7.1/+8.4 on the same engine.
 - Unbounded sweeps; anchor_mode=activation_price without re-anchoring;
   cold-start causal EMA (use recursive ewm); PF as decisive metric.
+- 1h runs with --rebalance 192 thinking it's the stack — the real 1h stack
+  is rebalance 96 (default). Always cross-check n_rebalances, not flags.
+- Reading a metrics counter as market behavior — n_fills/fees were counters;
+  the fills REPORT is ground truth (rule 8 in BASE_RATES).
 
 ## FILES MAP (updated)
 
@@ -143,7 +144,7 @@ python3 e043-state-grid/ag-01/bin/screen.py --data <csv> --n-bars-per-year <1051
 | `ag-01/bin/screen.py` | The 3 cheap causal screens (A/B/C) — run before any new idea |
 | `ag-01/bin/run_backtest_user.py` | e022 runner copy + user strategy flags |
 | `../e022-nautilus-sr-grid/ag-01/bin/sr_grid_strategy_user.py` | v2 subclass: flatten limit_first + recycle flag (v2 untouched) |
-| `ag-01/output/nautilus_a/` | baseline_parity, benchmarks, test1/2 docs, test3_r_recycle_paused, BASE_RATES.md, GLOSARIO.md, all runs |
+| `ag-01/output/nautilus_a/` | baseline_parity, benchmarks, test1/2 docs, test3_r_recycle_verdict (replaces paused), BASE_RATES.md, GLOSARIO.md, all runs |
 | `../e022-nautilus-sr-grid/ag-01/bin/run_backtest.py` (v2 harness) | untouched engine; only the user subclass was added next to it |
 
 ## GUARDRAILS

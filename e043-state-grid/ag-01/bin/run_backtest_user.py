@@ -327,7 +327,7 @@ def main() -> None:
     metrics["n_resyncs"] = strategy.n_resyncs
     metrics["n_fills"] = strategy.n_fills
     metrics["total_commissions_usdt"] = round(strategy.total_commissions, 2)
-    for attr in ("n_regime_flips", "n_liquidations", "n_cap_enforcements"):
+    for attr in ("n_regime_flips", "n_liquidations", "n_cap_enforcements", "n_rejections"):
         if hasattr(strategy, attr):
             metrics[attr] = getattr(strategy, attr)
 

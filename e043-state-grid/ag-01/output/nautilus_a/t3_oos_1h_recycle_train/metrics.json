@@ -1,0 +1,20 @@
+{
+  "total_return_pct": 3.8699,
+  "total_pnl_usdt": 3869.92,
+  "sharpe": 2.4618,
+  "max_drawdown_pct": -4.2158,
+  "n_fills": 619,
+  "n_positions": 145,
+  "total_commissions_usdt": 645.63,
+  "gross_win_usdt": 28143.46,
+  "gross_loss_usdt": 24273.58,
+  "profit_factor": 1.1594,
+  "win_rate_pct": 62.069,
+  "final_equity_usdt": 103869.92,
+  "n_rebalances": 195,
+  "n_resyncs": 211,
+  "n_regime_flips": 144,
+  "n_liquidations": 0,
+  "n_cap_enforcements": 0,
+  "n_rejections": 0
+}

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from nautilus_trader.config import PositiveFloat, PositiveInt
 from nautilus_trader.model.enums import OrderSide, PositionSide, TimeInForce
-from nautilus_trader.model.events import OrderFilled
+from nautilus_trader.model.events import OrderFilled, OrderRejected
 from nautilus_trader.model.identifiers import ClientOrderId
 from nautilus_trader.model.orders import LimitOrder, MarketOrder
 
@@ -43,6 +43,7 @@ class SRGridStrategyUser(SRGridStrategyV2):
         self._flatten_limit_cid: str | None = None
         self._flatten_limit_bar = 0
         self._recycle_queue: list[dict[str, float | str]] = []
+        self.n_rejections = 0
 
     # -- Test 1: flatten limit-first -----------------------------------------
 
@@ -122,8 +123,15 @@ class SRGridStrategyUser(SRGridStrategyV2):
         self.log.info(f"FLATTEN fallback to market reduce_only (limit unfilled)")
 
     def _flush_recycle(self) -> None:
-        """Recycle queue: free the 'freed capital' only when price retraces
-        R% beyond the fill price, then re-arm on the SAME side."""
+        """Recycle queue (interpretation 2): the capital freed by a grid fill
+        feeds the OPPOSITE side (as v2 does) but only after price moves R% in
+        that side's favour (a sell after a buy fill waits for a +R% bounce).
+
+        The queue is parked capital: it is intentionally NOT part of the
+        rebalance budget (that would re-arm it immediately and cancel the
+        retrace wait). When the retrace hits, the amount moves into
+        ``_pending_redistribute`` and becomes visible to the normal
+        redistribution machinery."""
         if not self.config.recycle_enabled or not self._recycle_queue:
             return
         price = self._closes[-1]
@@ -154,6 +162,11 @@ class SRGridStrategyUser(SRGridStrategyV2):
         if cid == self._flatten_limit_cid:
             self._flatten_limit_cid = None
         if self.config.recycle_enabled and cid in self._level_by_order:
+            # Count fill stats here: the recycle path returns early and must
+            # not rely on super() (whose early-return used to drop them,
+            # falsifying n_fills / total_commissions).
+            self.n_fills += 1
+            self.total_commissions += float(event.commission.as_double())
             level = self._level_by_order.pop(cid)
             self._levels.pop((level.side, level.price), None)
             freed = level.reserved
@@ -168,3 +181,19 @@ class SRGridStrategyUser(SRGridStrategyV2):
                 )
             return
         super().on_order_filled(event)
+
+    def on_order_rejected(self, event: OrderRejected) -> None:
+        """v2 drops the rejected level but never refunds its ``reserved``
+        notional, silently leaking capital from the pool. Never fired in the
+        baseline (SIM engine accepts everything) but must be correct: refund
+        and count."""
+        cid = event.client_order_id.value
+        lv = self._level_by_order.get(cid)
+        super().on_order_rejected(event)
+        self.n_rejections += 1
+        if lv is not None:
+            self._unallocated += float(lv.reserved)
+            self.log.warning(
+                f"ORDER REJECTED {lv.side}@{lv.price:.2f}: refunded reserved="
+                f"{float(lv.reserved):.2f} into unallocated (reason={event.reason})"
+            )
