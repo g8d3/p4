@@ -1,1 +1,8 @@
 .pi/
+.venv/
+__pycache__/
+*.pyc
+.cache/
+.claude/
+.commandcode/
+.remotion/
