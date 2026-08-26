@@ -1,0 +1,18 @@
+{
+  "host": "127.0.0.1",
+  "port": 8177,
+  "data_dir": "data",
+  "max_concurrent_jobs": 1,
+  "max_entries_per_url": 50,
+  "detection": {
+    "browser": true,
+    "browser_timeout_s": 30
+  },
+  "resource": {
+    "cpu_percent": 50,
+    "nice": 10,
+    "download_speed_limit_kbps": 0
+  },
+  "time_windows": [],
+  "allow_origins": []
+}

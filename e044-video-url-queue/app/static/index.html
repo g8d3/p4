@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URL Video Queue</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3;
+    padding: 16px; max-width: 640px; margin-inline: auto;
+  }
+  h1 { font-size: 1.3rem; margin: 0 0 12px; }
+  form { display: flex; gap: 8px; margin-bottom: 24px; }
+  input[type=url] {
+    flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid #30363d;
+    background: #161b22; color: #e6edf3; font-size: 16px;
+  }
+  button {
+    padding: 10px 16px; border-radius: 8px; border: 1px solid #238636;
+    background: #238636; color: #fff; font-size: 16px; cursor: pointer;
+  }
+  button:hover { background: #2ea043; }
+  .job {
+    background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .url { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .status { font-size: 12px; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .s-done { background: #1f6feb33; color: #58a6ff; }
+  .s-error { background: #f8514922; color: #f85149; }
+  .s-cancelled, .s-cancelling { background: #d2992222; color: #d29922; }
+  .s-waiting_window { background: #6e768122; color: #8b949e; }
+  .s-queued { background: #6e768122; color: #c9d1d9; }
+  .s-detecting, .s-downloading, .s-merging { background: #23863622; color: #3fb950; }
+  .bar { height: 6px; background: #30363d; border-radius: 4px; margin: 10px 0 6px; overflow: hidden; }
+  .bar > div { height: 100%; background: #3fb950; width: 0; transition: width .4s; }
+  .meta { font-size: 11px; color: #8b949e; }
+  .items { margin-top: 8px; display: grid; gap: 4px; }
+  .item { font-size: 12px; color: #8b949e; display: flex; gap: 6px; align-items: center; }
+  .item .n { color: #3fb950; font-weight: 600; }
+  .error { font-size: 12px; color: #f85149; margin-top: 6px; word-break: break-word; }
+  a.dl { font-size: 12px; color: #58a6ff; text-decoration: none; }
+  .actions { display: flex; gap: 6px; align-items: center; }
+  .cancel { font-size: 11px; color: #d29922; background: none; border: 1px solid #d2992266;
+    border-radius: 6px; cursor: pointer; padding: 3px 8px; }
+  .empty { text-align: center; color: #8b949e; padding: 40px 0; font-size: 14px; }
+  footer { font-size: 11px; color: #484f58; text-align: center; margin-top: 30px; }
+</style>
+</head>
+<body>
+<h1>URL Video Queue</h1>
+<form id="f">
+  <input type="url" id="u" placeholder="https://... (page with videos)" required>
+  <button>Add</button>
+</form>
+<div id="list"></div>
+<footer>detect → download → merge</footer>
+<script>
+const $ = (s) => document.querySelector(s);
+const fmtBytes = (n) => !n ? "" : n > 1e6 ? (n/1e6).toFixed(1)+" MB" : (n/1e3).toFixed(0)+" KB";
+async function refresh() {
+  const r = await fetch("api/jobs");
+  const d = await r.json();
+  const list = $("#list");
+  if (!d.jobs.length) { list.innerHTML = '<div class="empty">No jobs yet. Paste a URL above.</div>'; return; }
+  list.innerHTML = d.jobs.map(job => {
+    const p = (job.progress || {});
+    const pc = p.percent || 0;
+    const items = (job.items || []).map(it =>
+      `<div class="item"><span class="n">${it.index+1}</span><span>${itstatus(it)} ${it.pct != null && it.status==="downloading" ? Math.round((it.pct||0)*100)+"%" : ""}</span>${it.error?` <span style="color:#f85149">${esc(it.error)}</span>`:""}</div>`).join("");
+    const dl = job.status === "done"
+      ? `<a class="dl" href="api/jobs/${job.id}/video">⬇ merged.mp4</a>`
+      : (job.status==="cancelling" || job.status==="queued" || job.status==="waiting_window")
+        ? `<button class="cancel" onclick="cancelJob('${job.id}')">cancel</button>` : "";
+    return `<div class="job">
+      <div class="row"><div class="url" title="${esc(job.url)}">${esc(job.url)}</div>
+        <div class="actions"><span class="status s-${job.status}">${esc(job.status)}</span>${dl}</div></div>
+      ${job.status==="downloading"||job.status==="detecting"||job.status==="merging" ? `<div class="bar"><div style="width:${pc}%"></div></div>` : ""}
+      <div class="meta">${new Date(job.created_at*1000).toLocaleString()}${job.status!=="queued"&&job.status!=="waiting_window" ? ` · ${new Date(job.started_at*1000).toLocaleTimeString()}` : ""}</div>
+      <div class="items">${items}</div>
+      ${job.error ? `<div class="error">${esc(job.error)}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+function itstatus(it) {
+  return {downloading:"downloading", done:"✓", error:"✗"}[it.status] || it.status;
+}
+const esc = (s) => String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function cancelJob(id) {
+  await fetch("api/jobs/"+id, {method:"DELETE"});
+  refresh();
+}
+$("#f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const u = $("#u").value;
+  await fetch("api/jobs", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({url:u})});
+  $("#u").value = "";
+  refresh();
+});
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
