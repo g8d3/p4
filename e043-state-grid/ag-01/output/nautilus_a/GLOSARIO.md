@@ -19,6 +19,10 @@ Cada palabra que aparece en las tablas de este experimento, en una frase.
 - **ATR** — Cuánto se mueve el precio normalmente (como el "cuánta ola hay" promedio).
 - **Win rate** — % de operaciones que terminaron ganando.
 - **Fee / Comisión** — La tarifa del mercado por cada operación: barata si ELIGES el precio (maker, 0.02%) y cara si TOMAS el precio al instante (taker, 0.06%).
+- **R-recycle ("reinversión con espera R%")** — Regla EXACTA, sin dejar huecos: cada vez que se ejecuta una orden de la cuadrícula, el dinero liberado se aparta con su PROPIO punto de comparación = el precio de ejecución de ESA orden (P).
+  - Si se ejecutó una COMPRA a P: el dinero asignado al lado de VENTA solo se suelta cuando el precio toca **P × (1 + R/100)**, es decir **R% por encima de lo que pagaste**. Ejemplo R=1.5%, P=100,000 → se suelta solo al llegar a 101,500.
+  - Si se ejecutó una VENTA a P: el dinero asignado al lado de COMPRA solo se suelta cuando el precio toca **P × (1 − R/100)**, es decir **R% por debajo de lo que cobraste**. Ejemplo R=1.5%, P=100,000 → se suelta solo al caer a 98,500.
+  - El dinero suelto puede esperar indefinidamente; mientras espera la cuadrícula sigue operando con lo que ya tiene. La dirección es siempre la del ciclo sano: compraste → espera que suba; vendiste → espera que baje. NO depende del precio actual: cada dinero suelto solo mira su propio P.
 
 ## Los números (métricas)
 - **Retorno %** — Cuánto creció el dinero. El número principal.
