@@ -1,111 +1,156 @@
 # e043 — HANDOFF (session handoff for a FRESH agent)
 
-Read this file instead of the chat history. It contains everything a new agent
-needs to continue autonomously without talking to the user. Follow Conventional
-**AGENTS.md** + **e000-fundamentals** (timeouts, quiet machine, kill by PID,
-notify on completion).
+Read this file instead of the chat history. It contains everything a new
+agent needs to continue autonomously. If the user just says "continue", after
+AGENTS.md read THIS FILE next. Follow AGENTS.md + e000-fundamentals
+(timeouts, quiet machine, kill by PID, notify on completion, commit every
+meaningful step).
 
 ## MISSION
 
-Find a **statistically validated edge** in crypto (fee-aware, maker/taker
-charged, out-of-sample checked) for a grid/ladder strategy family — and in
-parallel, build the **trading course content** explaining everything in plain
-language for a beginner. The course is as valuable as the edge.
+Find a fee-aware, out-of-sample-validated edge in the grid/ladder family
+(course material in parallel). Two non-negotiable rules from our own history:
+(1) every claim gets an OOS check (60/40); (2) fees charged in every test.
+The user's stated deeper goal: an AUTONOMOUS system that keeps screening and
+testing candidate strategies (intuition engine = screen.py + BASE_RATES).
 
-Two rules that are NOT negotiable (proven by our own history):
-1. Every claim needs an **out-of-sample check** (60/40 split). We caught our
-   own fake +0.93% edge that was a cold-EMA bug.
-2. **Fees are charged in every test** (maker 0.02%, taker 0.06%). A strategy
-   that wins before fees and loses after is not a strategy.
+## WHERE WE ARE (2026-08-26) — current truth
 
-## WHERE WE ARE (date 2026-08) — one paragraph each
+We are inside NAUTILUS_A_PLAN.md (A/B protocol on e022's real Nautilus
+harness, copy-then-improve, one change at a time). Progress:
 
-- **SPEC (done)**: `SPEC.md` — full parameterized design of the user's ladder
-  grid: four ladders C (buy depth) / V (take-profit) / R (rebuy) / SL (stop),
-  per-level volume Q, long+short mirror, state allocation targets
-  (allocation_map), dynamic trailing stop, three-tier parameter discipline.
-  Everything is a runtime parameter with a default. NOTHING is hardcoded.
-- **Fase 1 (done, honest NEGATIVE)**: `ag-01/bin/sim.py` + `sweep.py` — the
-  one-sided %-ladder "buy C% dip below rolling high, exit +V%, stop −SL%,
-  rebuy on −R% after win" is **structurally negative** on real BTC (1h 4y and
-  5m 1y). Best ≈ breakeven while doing almost nothing. Bottleneck: entry win
-  rate ~20–42% (needed ~50–67%). Not a tuning problem → see FASE1_FINDINGS.md.
-- **Fase 2 (done, honest NEGATIVE)**: `ag-01/bin/range_grid.py` (standalone
-  port of e022 v2 two-sided ATR grid) + sweeps. Makes money on synthetic
-  range (gross), loses on real BTC. The e022-published edge (+3.6% 5m / +1.7%
-  1h) does NOT reproduce in a simplified harness — it only lives in e022's
-  exact Nautilus engine, and is thin even there (PF 1.04–1.14). Quantified
-  leak found: taker-flatten churn from regime flapping (FLAT fees ~2× GRID
-  fees). See FASE2_FINDINGS.md.
-- **Levers tested (mixed)**: flatten threshold 1h −4.9→−2.2% (helps, not
-  enough); entry confirmation "buy only above fast EMA" FAILED (win rate
-  39→17%); stricter regime filter = dominant control.
-- **Visualizer (done, course artifact)**: `ag-01/bin/backtest_viz.py` →
-  `output/viz_*.html` — 4 self-contained mobile-first pages, each explaining
-  in plain language: what the plan does (plan.json card: one-liner, "how it
-  works" analogy, 3-column params table Setting→Plain words→Why), verdict,
-  equity, price+fills, trades with fee-inclusive PnL $/%/log%, running PF,
-  demoted-PF explainer with expectancy & log returns, glossary.
-- **Decision taken (NEXT STEP, committed)**: `NAUTILUS_A_PLAN.md` —
-  layer the user's features on e022's REAL Nautilus harness
-  (`../e022-nautilus-sr-grid/ag-01/bin/run_backtest.py --strategy v2`).
-  Protocol: copy-then-improve, ONE change at a time, OOS per change.
-  3 tests: (1) flatten-maker vs taker, (2) stricter weather check,
-  (3) user features (R-recycle depth, Q multi-volume, SL/V per-lot ladders,
-  state allocation targets). Deliverables in output/nautilus_a/ + one course
-  lesson each.
+- **Test 0 baseline parity: DONE, exact.** e022 v2: 5m +3.6449% / DD −7.1628 /
+  PF 1.1386 (2,158 fills, fees 2,392.78); 1h +1.7133% / −7.5511 / 1.0418
+  (1,103 fills, 1,974.96). Doc: output/nautilus_a/baseline_parity.md.
+  **Correction captured**: e022 baselines actually use trend EMA 50/100,
+  enter 1.0 / exit 0.5 (not 20/100/0.5/0.2 as the old plan table said) and
+  1h uses --max-exposure-mult 4.0 ("cap 4x").
+- **Test 1 (flatten maker vs taker): KEPT.** Config `flatten_mode=limit_first`,
+  `--flatten-limit-offset-pct 0.05 --flatten-fallback-bars 3`. 5m +4.18%
+  (fees −10%), 1h +3.29% (fees −38.6%); OOS better in 4/4 splits. Variant
+  "far-grid limit" rejected (1h −13.8%). Doc: test1_flatten_maker.md.
+  KEY LESSON: Nautilus executes marketable-side limits as TAKER (my first
+  sign was wrong); maker limits must sit on the NON-marketable side.
+- **Test 2 (regime enter threshold): KEPT per dataset.** 5m enter **0.8**
+  (full +5.53%, OOS better both splits), 1h enter **1.5** (full +7.23%,
+  OOS better return, DD deeper ~1.1pp = KEEP-CONDITIONAL flagged). Screen C
+  predicted 1.5; engine chose 0.8 on 5m → rule 5: screens filter, engines
+  decide, OOS certifies. Doc: test2_regime_stricter.md.
+- **Stack T1+T2 (the current base for everything forward)**: 5m **+7.0705%** /
+  DD −5.5684 / PF 1.2526 / fees 2,315.48; 1h **+8.4057%** / DD −7.7290 /
+  PF 1.2013 / fees 1,191.11. Exact commands at bottom.
+- **Test 3 (user features): Feature 1 (R-recycle) IN PROGRESS, PAUSED.**
+  - Code: sr_grid_strategy_user.py has `recycle_enabled`/`recycle_pct` flags.
+  - Interpretation 1 (re-arm SAME side after R% retrace): REJECTED —
+    starves the sell side, grid breaks (5m −2.37%, 77 fills vs 2,315).
+  - Interpretation 2 (freed capital feeds OPPOSITE side only after price
+    moves R% in its favor): VERDICT BLOCKED — bookkeeping leak.
+  - THE BLOCKER (fix before any rerun): `_rebalance_grid` computes
+    total_budget from grid_budget + _unallocated + _pending_redistribute but
+    is BLIND to `_recycle_queue` (the freed capital in the queue is
+    invisible) → each rebalance re-arms a smaller grid; v2's
+    `on_order_rejected` also never refunds `reserved` into `_unallocated`
+    (pre-existing, never fired before because freed capital always flowed
+    through `pending`). Symptom: fills collapse 2,315 → 78-110 in ALL
+    recycle runs; 1h R=1.5% +9.46%/DD −4.95 is NOT evidence (lottery
+    artifact, PF-rule 5b). Full doc:
+    output/nautilus_a/test3_r_recycle_paused.md.
+- **Intuition engine (from the "no intuition" conversation)**: 
+  - `ag-01/bin/screen.py` — 3 cheap causal screens: A entry win rate
+    (e.g. none of the simple (C,V,SL) bands clears fees on BTC), B fee
+    breakeven, C regime churn (recursive EMA; regime is STICKY: 76-103 bars,
+    P(flip ≤5 bars) ≈ 0 — the Fase-2 "flapping leak" was engine-EMA noise).
+  - `BASE_RATES.md` — prior table + rules 1-6 + "WHO PAYS?" per idea.
+    Rule 6: regime thresholds are dataset-specific (0.8 5m / 1.5 1h).
+  - `SOLO_PROTOCOL.md` — candidate card + data-source card (data choice also
+    needs a falsifier → breaks the "choosing data needs intuition" loop);
+    rule 5b: verdicts on %-based metrics (return %, max DD, return/MaxDD),
+    PF is informational only.
+  - `output/nautilus_a/GLOSARIO.md` — one-page plain-language glossary
+    (SPANISH, user-facing), plus benchmarks.md (B&H 5m −44% / 1h +181%,
+    DCA, T-bills) — the honest context for all returns.
 
-## DO NOT REDO (reject log — proven failures)
+## NEXT STEP — ordered, when the user says "continue"
 
-- ❌ More parameter sweeping on the one-sided ladder — the family is
-  structurally negative; the entry (win rate) is the bottleneck.
-- ❌ Blaming standard-ish backtest harnesses for thin-family results — verify
-  against e022's Nautilus harness before claiming parity.
-- ❌ `anchor_mode = activation_price` without re-anchoring — unusable on long
-  multi-x datasets (−17,000%, infinite re-churn).
-- ❌ Cold-start-EMA bugs: regime EMA must be computed causally (raw windowed
-  cold-start EMA mislabeled early bars as RANGE and faked +0.93%). Use
-  precomputed causal arrays (see run_grid.py: ema_window_series).
-- ❌ Unbounded searches: every campaign declares a config budget + stopping
-  rule BEFORE running.
+1. **Fix the R-recycle bookkeeping** (sr_grid_strategy_user.py or a new
+   patched path — never touch v2):
+   a. `_flush_recycle` or `_rebalance_grid`: count sum(_recycle_queue)
+      amounts as part of the rebalance budget so the free cash math stays
+      consistent (deposit released items into `_unallocated` or
+      `_pending_redistribute` only once; do not double count).
+   b. `on_order_rejected`: refund `lv.reserved` into `_unallocated`.
+   c. Add `n_rejections` counter to metrics.
+2. **Diagnostic + rerun A/B interpretation 2** with R ∈ {0.5, 1.5} × {5m, 1h}
+   (4 runs, ~1 min each; reuse the stack commands + `--recycle-enabled`).
+   Verdict rules: return % + DD not worse than stack (5m +7.07/−5.57,
+   1h +8.41/−7.73) AND fills NOT collapsed (<500 is suspicious again) AND
+   OOS 60/40 if it looks good. Then update BASE_RATES + one course lesson.
+3. **Test 3 remaining features** (one at a time, candidate card + screen
+   before engine):
+   - **Q multi-volume** (depth_scaled Q): screen prior LOW (sizing-only);
+     one A/B then likely reject-documented.
+   - **SL/V per-lot ladders** (each level own target/stop): screen prior LOW
+     (no flat band clears fees), but ladder-over-grid is different geometry —
+     one A/B to confirm/disprove.
+   - **State allocation targets** (side multipliers per regime): HIGHEST
+     prior of the four (regime disarming already helped in Test 2) — do this
+     one if time only allows one.
+4. After Test 3: reopen the idea of the slow state layer (funding rate from
+   Hyperliquid is free NOW; falsifier card first), since valuation-style /
+   opinion data (user's ask: P/E P/S PEG comps → mapped: fee revenue, miner
+   revenue, MVRV) belongs to the SLOW regime/allocation layer, not entries.
 
-## Key numbers to re-verify before trusting anything
+## Exact stack commands (the base to beat / to build on)
 
-- e022 v2 baseline: 5m +3.65% / DD −7.16% / PF 1.14; 1h +1.71% / DD −7.55% /
-  PF 1.04. Configs: 5m atr 2.5 lv 2 reb 192 trend 50/100; 1h reb 96 cap 4×
-  trend 20/100.
-- Our best honest results: ladder ≈ breakeven-without-trading; two-sided grid
-  best 1h −0.01% (PF 1.00), 5m −3.1%..−4.4%. All after fees, real BTC.
-- Fees example: 5m ladder default = 18–20k fills → $15k+ fees on $100k.
+```bash
+# 5m stack (T1+T2):
+python3 e043-state-grid/ag-01/bin/run_backtest_user.py --strategy user \
+  --data ../e022-nautilus-sr-grid/ag-01/data/real_btc_5m.csv \
+  --out-dir output/nautilus_a/t12_5m \
+  --atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 \
+  --trend-enter 0.8 --trend-exit 0.5 --rebalance 192 \
+  --flatten-mode limit_first --flatten-limit-offset-pct 0.05 --flatten-fallback-bars 3
+# 1h stack: --data real_btc_1h.csv --trend-enter 1.5 --max-exposure-mult 4.0
+# parity/screens quick check:
+python3 e043-state-grid/ag-01/bin/screen.py --data <csv> --n-bars-per-year <105120|8760>
+```
 
-## COURSE NOTES (already committed — keep extending)
+## Core numbers you must compare against
 
-`COURSE_NOTES.md` (plain glossary + 4 lessons), `SOLO_PROTOCOL.md` (method:
-hypothesis card, 7 rules, reject log, falsifier habit), `SPEC.md`, the 4 viz
-pages. NEW findings must be added in the same plain-language style.
+- Benchmarks: B&H 5m-yr **−44.0%** (grid +7.07 after stack), B&H 4y **+181%**,
+  DCA30 4y +47.5%, T-bills ≈4-5%/yr. The 1h stack (+8.41%) is near T-bills(4y
+  ≈+17-20%) but NOT above buy-hold — still a thin validated edge, no
+  money-printer (Level 2 in SOLO_PROTOCOL, not Level 3).
+- Never trust: PF alone (rule 5b), low-fill results (<500 fills year-should
+  flag; <200 impossible to judge), same-idea reruns until verdict.
 
-## FILES MAP
+## DO NOT REDO (reject log, append even during pauses)
+
+- same-side-only R-recycle (starves one side) — interpretation 1 data above.
+- "marketable-side limits are maker" — they are TAKER in Nautilus matcher.
+- Blaming harness for thin-family results — we reproduced e022 exactly
+  (Test 0) and our stack is +7.1/+8.4 on the same engine.
+- Unbounded sweeps; anchor_mode=activation_price without re-anchoring;
+  cold-start causal EMA (use recursive ewm); PF as decisive metric.
+
+## FILES MAP (updated)
 
 | File | What it is |
 |---|---|
-| `SPEC.md` | The parameterized design (all params + defaults + config JSON shape) |
-| `NAUTILUS_A_PLAN.md` | The committed next step (3 A/B tests, protocol) |
-| `SOLO_PROTOCOL.md` | Method for solo strategy work (course + governance) |
-| `COURSE_NOTES.md` | Plain-language course content |
-| `ag-01/bin/sim.py` | One-sided %-ladder simulator (working, verified) |
-| `ag-01/bin/sweep.py` | Ladder Tier-2 sweeper |
-| `ag-01/bin/range_grid.py` | Two-sided ATR grid port (working, verified) |
-| `ag-01/bin/run_grid.py`, `sweep_grid.py` | Grid driver + sweeper (causal precomputed EMA/ATR) |
-| `ag-01/bin/backtest_viz.py` | Educational HTML generator (plan.json aware) |
-| `ag-01/output/` | metrics.json / fills / equity / viz html / FASE1+2 findings |
-| `data/` inputs | `../e022-nautilus-sr-grid/ag-01/data/real_btc_5m.csv`, `real_btc_1h.csv`, `synthetic_5m_range.csv` |
+| `NAUTILUS_A_PLAN.md` | Protocol + tests 1-3 definitions (baseline table needs the Test-0 corrections) |
+| `SOLO_PROTOCOL.md` | Method: candidate card, data-source card, 7 rules + 5b |
+| `COURSE_NOTES.md`, `SPEC.md` | Course + full parameterized design |
+| `ag-01/bin/screen.py` | The 3 cheap causal screens (A/B/C) — run before any new idea |
+| `ag-01/bin/run_backtest_user.py` | e022 runner copy + user strategy flags |
+| `../e022-nautilus-sr-grid/ag-01/bin/sr_grid_strategy_user.py` | v2 subclass: flatten limit_first + recycle flag (v2 untouched) |
+| `ag-01/output/nautilus_a/` | baseline_parity, benchmarks, test1/2 docs, test3_r_recycle_paused, BASE_RATES.md, GLOSARIO.md, all runs |
+| `../e022-nautilus-sr-grid/ag-01/bin/run_backtest.py` (v2 harness) | untouched engine; only the user subclass was added next to it |
 
-## GUARDRAILS (re-read e000-fundamentals)
+## GUARDRAILS
 
-- Quiet machine: check `uptime`/`free -h` before heavy work; batch, don't
-  parallelize; Nautilus runs are ~4s each — run them one at a time.
-- Every command: timeout wrapped. Kill by PID, never pkill.
-- Commit after each meaningful step (`e043: ...`). Notify on completion
-  (`e000-fundamentals/bin/notify.sh`).
-- If a decision is needed that you cannot make: `notify.sh ... --ask` with
-  evidence, then stop and wait.
+- Quiet machine for big runs; runs are ~10 s each — never parallelize more
+  than 1-2 jobs; timeout-wrap everything; kill by PID.
+- Commit after every meaningful step (`e043: ...`); notify done/error with
+  `../e000-fundamentals/bin/notify.sh <done|error|info> "message"` (takes TWO
+  args: level first).
+- Night quiet: 21:00-10:00 — no heavy jobs, commit + notify + stop.
