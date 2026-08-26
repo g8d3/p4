@@ -18,6 +18,7 @@ C = regime churn (see `ag-01/bin/screen.py`).
 | 3 | e043 Fase 1: one-sided %-ladder | ≈ breakeven doing nothing | — | ~1.0 | fees + low win rate | none — structural | 0 |
 | 4 | e043 Fase 2: two-sided ATR grid port | −0.01% best (1h), −3..−4% 5m | — | 1.00 | taker-flatten churn | none | 0 |
 | 5 | **Nautilus-A Test 1: maker-limit flatten** | **+4.18% (5m) / +3.29% (1h)** | −6.9/−7.3 | 1.16/1.08 | fees −10%/−38.6%, 4/4 OOS splits better | venue (fee-bleed only) — pure cost fix | **KEEP** |
+| **Nautilus-A Test 2: regime enter 0.8 (5m) / 1.5 (1h)** | **+5.53% (5m) / +7.23% (1h)** full; stacks: **+7.07/+8.41** | −5.9/−7.9 | 1.19/1.17 | OOS: 0.8 wins 5m both splits; 1.5 returns better both splits, DD deeper ~1.1pp (flags) | opportunistic — more range time / fewer flattens | **KEEP (1h conditional)** |
 
 ## Base rates — data sources (each needs a falsifier card, see SOLO_PROTOCOL)
 
@@ -74,3 +75,9 @@ regime-switch churn estimate: use the recursive EMA, split the difference.
    finding the edge.
 4. P(new DATA layer (fundings/flow/MVRV) adds state) ≈ **medium-high** but only
    after a falsifier card passes — target: allocation target layer, not entry.
+5. **A screen is a filter, not a judge**: screen C (churn) predicted enter 1.5,
+   the engine preferred 0.8 (5m). Screens answer ONE dimension; the engine A/B
+   answers return-after-fees. Screens kill; engines decide; OOS certifies.
+6. Regime thresholds are **dataset-specific** (0.8 on 5m vs 1.5 on 1h): that is
+   a fragile-family red flag for Test 3 — never apply one "best config" as if
+   it generalized.
