@@ -21,11 +21,15 @@ fi
 
 tmux new-window -n "$WIN" -d
 MODEL="opencode-go/deepseek-v4-flash-vision-exp"   # user-required default
+PROMPT="Read AGENTS.md, then read HANDOFF.md. Follow its NEXT STEP exactly. \
+Follow e000-fundamentals guardrails (timeouts, quiet, kill by PID, commit, notify). \
+If you need the user: notify.sh --ask with evidence and stop. ${EXTRA}"
+# harness = opencode INTERACTIVE in the window (user decision; NOT `opencode run`).
 tmux send-keys -t "$WIN" "cd $EXP_DIR && opencode -m $MODEL" Enter
-# opencode (interactive) needs a few seconds to load, then send the prompt
-sleep 6
+# interactive needs load time, then send the prompt (always with Enter)
+sleep 8
 PROMPT="Read AGENTS.md, then read HANDOFF.md. Follow its NEXT STEP exactly. \
 Follow e000-fundamentals guardrails (timeouts, quiet, kill by PID, commit, notify). \
 If you need the user: notify.sh --ask with evidence and stop. ${EXTRA}"
 tmux send-keys -t "$WIN" "$PROMPT" Enter
-echo "launched agent in window '$WIN' (prompt sent). Watch: tmux attach -t $WIN"
+echo "launched interactive agent in window '$WIN' (opencode -m $MODEL). Watch: tmux attach -t $WIN"
