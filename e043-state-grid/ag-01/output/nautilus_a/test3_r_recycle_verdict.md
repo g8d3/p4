@@ -15,7 +15,7 @@ stacked fills, less trend bleed."
 | Claim (paused doc) | Actual (this session) |
 |---|---|
 | fills collapse 2,315 -> 78-110 in ALL recycle runs | **False**: fills_report rows were normal (2,096 / 1,142 / 1,060). The 78-110 numbers were `strategy.n_fills` + `total_commissions` DISPLAY artfifacts: the recycle path in `on_order_filled` early-returns without calling `super()`, so the counters (and the fees column) never counted grid fills. |
-| the machine idles small (grid progressively smaller) | **False**: grid budget stays nominal; the parqued queue simply is not redeployed — that IS the feature. |
+| the machine idles small (grid progressively smaller) | **False**: grid budget stays nominal; the parked queue simply is not redeployed — that IS the feature. |
 | rebalance budget blind to `_recycle_queue` | Part of the design, not a leak: queue = capital WAITING for the R% retrace; on release it moves to `_pending_redistribute` and becomes visible. Adding sum(queue) to the rebalance budget would re-arm it immediately and cancel the retrace wait. |
 | `on_order_rejected` never refunds `reserved` (pre-existing defect) | Real defect, **dormant**: 0 rejections in every run (SIM engine accepts everything). Fixed anyway (refund + counter), v2 untouched. |
 
