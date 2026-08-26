@@ -159,10 +159,26 @@ and self-wake after every command (see baseline pattern in
 [../../e000-fundamentals/AGENTS.md](../../e000-fundamentals/AGENTS.md)).
 
 
-## Paper-trading monitor (1-day version, live)
+## Paper-trading monitors (live)
 
-`bin/paper_1d.py` — runs daily at 00:15 UTC via cron
-(`bin/paper_1d_cron.sh`, installed). For BTC/ETH/SOL with $10k paper each:
+### TSMR vol-targeting monitor (current, live)
+
+`bin/paper_tsmr.py` — runs daily at 00:30 via cron
+(`bin/paper_tsmr_cron.sh`, installed). $30k paper, BTC/ETH/SOL/XRP/DOGE:
+- weekly rebalance at the last CLOSED daily candle; signal per coin: 30d
+  return > 0 -> long at vol-targeted weight (20% annualized, 30d realized
+  vol, capped 1.0), else flat; equal allocation; 0.035% taker fee per side.
+- daily mark-to-market at closes; state in output/tsmr_paper_state.json,
+  log output/tsmr_paper.log, phone notification on each rebalance.
+- **Auto-commit/push**: the cron wrapper commits any output changes and
+  pushes to GitHub (same pattern as
+  `e025/ag-16-live-monitor/bin/paper_trade_cron.sh`) — check `tsmr_paper.log`
+  for `auto-push OK`. If a change sits uncommitted, the cron didn't push.
+
+### 1-day EMA×VWAP monitor (superseded)
+
+`bin/paper_1d.py` — replaced by the TSMR monitor; no longer in crontab.
+For BTC/ETH/SOL with $10k paper each:
 - signal: EMA5 x weekly-anchored VWAP cross on the last CLOSED daily candle
   (same as backtest), entry at that close.
 - exit: trail only (arm at high >= entry + ATR*0.02, stop = best - T,
