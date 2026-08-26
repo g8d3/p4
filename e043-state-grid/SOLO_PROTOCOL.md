@@ -43,6 +43,11 @@ fantasy you should hunt to DISPROVE, not to confirm.**
 5. **Bound every search with a stopping rule.** Ours: stop at "edge found" OR
    "budget exhausted" — whichever first. A search without a budget is a
    treadmill. Write the budget BEFORE starting.
+5b. **Judges, not assistants — choose %-based verdict metrics.** PF is
+   informational only (ignores trade count, DD, and blows up on tiny
+   denominators). Verdicts are decided by: TOTAL RETURN %, MAX DD %, and
+   RETURN / MAX DD (how many % earned per % risked). Sharpe reported too (a
+   %-per-wobble measure), never as the sole winner criterion.
 6. **Keep a reject log.** Every failed idea, with why. It is your real
    intellectual capital — most traders never build one, and it is why you'll
    get better and they won't.
