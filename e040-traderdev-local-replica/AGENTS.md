@@ -174,6 +174,14 @@ and self-wake after every command (see baseline pattern in
   pushes to GitHub (same pattern as
   `e025/ag-16-live-monitor/bin/paper_trade_cron.sh`) — check `tsmr_paper.log`
   for `auto-push OK`. If a change sits uncommitted, the cron didn't push.
+- **PC off at run time**: cron does not run missed jobs and does not catch
+  up. A `@reboot` entry re-runs the wrapper on next boot (idempotent per
+  processed day — `paper_tsmr.py` skips a day already in `nav_hist`).
+  Consequence of a multi-day gap: the missed days' returns are NOT
+  compounded, the next run marks to the current snapshot — NAV can drift
+  slightly vs the true daily path (bounded, days-scale; acceptable for a
+  paper monitor checked weekly). The daily auto-commit doubles as a
+  heartbeat: no commit on a given date = the PC was off that day.
 
 ### 1-day EMA×VWAP monitor (superseded)
 

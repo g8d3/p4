@@ -97,6 +97,13 @@ def main():
     today = pd.Timestamp.now(tz="UTC").normalize() + pd.Timedelta(days=1)
     closed = m[m.index < today]
     last = closed.index[-1]
+    # idempotent per processed day: a second run the same day (manual, or the
+    # @reboot catch-up after the PC was off) must not re-apply the day's return
+    # (that would double-compound the same move). Skip if the day is already
+    # in nav_hist.
+    if state.get("nav_hist") and str(last.date()) == state["nav_hist"][-1]["date"]:
+        print(f"already processed {last.date()}, skipping")
+        return
     week = last.to_period("W")
     mom, w = signals_and_weights(closed)
     w_reb = w.iloc[-1]

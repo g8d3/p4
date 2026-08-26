@@ -50,6 +50,13 @@ After the daily run (or a manual `zsh -c 'cd ... && python3 bin/paper_trade.py'`
 - On any trigger: a phone push arrives, and the pending trade appears in
   state. If the cron never fires (new machine), reinstall:
   `crontab -l | { cat; echo "15 0 * * * /usr/bin/zsh -c 'cd /home/vuos/code/p4/e025-hyperliquid-candle-tails/ag-16-live-monitor && python3 bin/paper_trade.py >> output/monitor.log 2>&1'"; } | crontab -`
+- **PC off at run time**: cron does not run missed jobs. A `@reboot` entry
+  re-runs the wrapper on next boot (it is idempotent per day and safe to
+  re-run). Consequences: a missed trigger day is NOT backfilled (the
+  monitor evaluates only the newest closed day — honouring the
+  no-fake-trades rule and the forward-test design); pending exits DO catch
+  up because they close by date (`exit_day <= today`). The daily auto-push
+  is also a heartbeat: no commit on a date = the PC was off.
 
 ## Integrity rules
 
