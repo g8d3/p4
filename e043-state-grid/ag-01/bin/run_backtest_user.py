@@ -209,6 +209,8 @@ def main() -> None:
     parser.add_argument("--flatten-mode", choices=["market", "limit_first"], default="market", help="flatten order type (user strategy)")
     parser.add_argument("--flatten-limit-offset-pct", type=float, default=0.05, help="maker limit offset % (0.0 = far grid level = grid_atr_mult x ATR) (user strategy)")
     parser.add_argument("--flatten-fallback-bars", type=int, default=3, help="bars before market fallback (user strategy)")
+    parser.add_argument("--recycle-enabled", action="store_true", help="R-recycle: freed capital re-arms same side only after R% retrace (user strategy)")
+    parser.add_argument("--recycle-pct", type=float, default=0.5, help="R% retracement depth (user strategy)")
     parser.add_argument("--log-level", default="ERROR")
     args = parser.parse_args()
 
@@ -241,6 +243,8 @@ def main() -> None:
             flatten_mode=args.flatten_mode,
             flatten_limit_offset_pct=args.flatten_limit_offset_pct,
             flatten_fallback_bars=args.flatten_fallback_bars,
+            recycle_enabled=args.recycle_enabled,
+            recycle_pct=args.recycle_pct,
         )
         config = config_cls(**kwargs)
         strategy = strategy_cls(config=config)

@@ -33,6 +33,8 @@ class SRGridConfigUser(SRGridConfigV2, frozen=True):
     flatten_mode: str = "market"  # "market" (v2 exact) | "limit_first"
     flatten_limit_offset_pct: PositiveFloat = 0.05
     flatten_fallback_bars: PositiveInt = 3
+    recycle_enabled: bool = False  # Test 3 feature 1
+    recycle_pct: PositiveFloat = 0.5  # retracement R% before re-arming
 
 
 class SRGridStrategyUser(SRGridStrategyV2):
@@ -40,6 +42,7 @@ class SRGridStrategyUser(SRGridStrategyV2):
         super().__init__(config)
         self._flatten_limit_cid: str | None = None
         self._flatten_limit_bar = 0
+        self._recycle_queue: list[dict[str, float | str]] = []
 
     # -- Test 1: flatten limit-first -----------------------------------------
 
@@ -90,9 +93,12 @@ class SRGridStrategyUser(SRGridStrategyV2):
     def on_bar(self, bar: object) -> None:
         super().on_bar(bar)
         if self._flatten_limit_cid is None:
-            return
-        if self._bar_count - self._flatten_limit_bar < self.config.flatten_fallback_bars:
-            return
+            pass
+        elif self._bar_count - self._flatten_limit_bar >= self.config.flatten_fallback_bars:
+            self._fallback_flatten_market()
+        self._flush_recycle()
+
+    def _fallback_flatten_market(self) -> None:
         order = self.cache.order(ClientOrderId(self._flatten_limit_cid))
         if order is None or not order.is_active_local:
             self._flatten_limit_cid = None
@@ -115,8 +121,50 @@ class SRGridStrategyUser(SRGridStrategyV2):
         self._flatten_order_id = mkt.client_order_id.value
         self.log.info(f"FLATTEN fallback to market reduce_only (limit unfilled)")
 
+    def _flush_recycle(self) -> None:
+        """Recycle queue: free the 'freed capital' only when price retraces
+        R% beyond the fill price, then re-arm on the SAME side."""
+        if not self.config.recycle_enabled or not self._recycle_queue:
+            return
+        price = self._closes[-1]
+        pct = self.config.recycle_pct / 100.0
+        still: list[dict[str, float | str]] = []
+        for item in self._recycle_queue:
+            fp = float(item["fill_price"])
+            hit = (
+                price <= fp * (1.0 - pct)
+                if item["side"] == "BUY"
+                else price >= fp * (1.0 + pct)
+            )
+            if hit:
+                side = str(item["side"])
+                self._pending_redistribute[side] = (
+                    self._pending_redistribute.get(side, 0.0) + float(item["amount"])
+                )
+                self.log.info(
+                    f"RECYCLE filled release: {side} freed={float(item['amount']):.2f} "
+                    f"@ fill {fp:.2f} price now {price:.2f}"
+                )
+            else:
+                still.append(item)
+        self._recycle_queue = still
+
     def on_order_filled(self, event: OrderFilled) -> None:
         cid = event.client_order_id.value
         if cid == self._flatten_limit_cid:
             self._flatten_limit_cid = None
+        if self.config.recycle_enabled and cid in self._level_by_order:
+            level = self._level_by_order.pop(cid)
+            self._levels.pop((level.side, level.price), None)
+            freed = level.reserved
+            if freed > 0:
+                other = "SELL" if level.side == "BUY" else "BUY"
+                self._recycle_queue.append(
+                    {"side": other, "fill_price": level.price, "amount": freed}
+                )
+                self.log.info(
+                    f"FILL {level.side}@{level.price:.2f} freed={freed:.2f} -> recycle {other} "
+                    f"(R={self.config.recycle_pct}%)"
+                )
+            return
         super().on_order_filled(event)
