@@ -1,0 +1,19 @@
+{
+  "accounts": {
+    "BTC": {
+      "equity": 10000.0,
+      "pos": null,
+      "last_day": "2026-08-21"
+    },
+    "ETH": {
+      "equity": 10000.0,
+      "pos": null,
+      "last_day": "2026-08-21"
+    },
+    "SOL": {
+      "equity": 10000.0,
+      "pos": null,
+      "last_day": "2026-08-21"
+    }
+  }
+}

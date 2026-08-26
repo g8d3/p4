@@ -1,0 +1,26 @@
+[0m
+> build · mimo-v2.5
+[0m
+## Chart Review
+
+### v2_5m (BTC 5m, 1y)
+1. **Equity**: Jagged but coherent — starts 100k, peaks ~106k, ends ~103.6k. Not monotonic; clear drawdowns visible (mid-2026 dip to ~99k).
+2. **Render**: Clean. All 3 subplots properly labeled, axes in range, no garbling.
+3. **Inventory**: Bounded 0–0.7 BTC. No blowout. Frequent flips consistent with grid trading.
+4. **Return**: Chart says +3.64%; CSV says 3.6449%. Match.
+
+**Verdict: PASS** — sane equity, bounded inventory, return consistent.
+
+---
+
+### v2_1h (BTC 1h, 4y)
+1. **Equity**: Step-like pattern (discrete rebalance events). Early spike to ~106k, drifts down, recovers. Not spiky or broken — the steps reflect lower-frequency trading on 1h.
+2. **Render**: Clean. All subplots intact, price axis correctly spans 20k–70k (real BTC range 2022–2026).
+3. **Inventory**: Bounded 0–2.3 BTC. No runaway accumulation. Higher peak than 5m but expected given 4-year horizon and larger notional.
+4. **Return**: Chart says +1.71%; CSV says 1.7133%. Match.
+
+**Verdict: PASS** — step-like equity is expected for 1h grid; inventory controlled; return consistent.
+
+---
+
+Both charts: **PASS**

@@ -1,0 +1,82 @@
+{
+ "tsmr_L30": {
+  "per_day_pct": 0.164,
+  "pf": 2.01,
+  "max_dd_pct": -3.67,
+  "final_equity": 95449.0,
+  "net_pct": 218.2
+ },
+ "tsmr_L60": {
+  "per_day_pct": 0.1107,
+  "pf": 1.7,
+  "max_dd_pct": -5.14,
+  "final_equity": 74173.0,
+  "net_pct": 147.2
+ },
+ "tsmr_L90": {
+  "per_day_pct": 0.0795,
+  "pf": 1.54,
+  "max_dd_pct": -4.72,
+  "final_equity": 61717.0,
+  "net_pct": 105.7
+ },
+ "tsmr_L120": {
+  "per_day_pct": 0.0739,
+  "pf": 1.51,
+  "max_dd_pct": -6.69,
+  "final_equity": 59501.0,
+  "net_pct": 98.3
+ },
+ "tsmr_L180": {
+  "per_day_pct": 0.062,
+  "pf": 1.45,
+  "max_dd_pct": -5.72,
+  "final_equity": 54732.0,
+  "net_pct": 82.4
+ },
+ "walkforward": {
+  "2023-01-01_2023-12-31": {
+   "per_day_pct": 0.0865,
+   "pf": 1.89,
+   "max_dd_pct": -2.5,
+   "final_equity": 39422.0,
+   "net_pct": 31.4
+  },
+  "2024-01-01_2024-12-31": {
+   "per_day_pct": 0.121,
+   "pf": 2.12,
+   "max_dd_pct": -3.16,
+   "final_equity": 43211.0,
+   "net_pct": 44.0
+  },
+  "2025-01-01_2025-12-31": {
+   "per_day_pct": 0.0843,
+   "pf": 1.91,
+   "max_dd_pct": -3.67,
+   "final_equity": 39184.0,
+   "net_pct": 30.6
+  },
+  "2026-01-01_2026-08-23": {
+   "per_day_pct": 0.1261,
+   "pf": 2.2,
+   "max_dd_pct": -2.38,
+   "final_equity": 38816.0,
+   "net_pct": 29.4
+  }
+ },
+ "null": {
+  "n": 200,
+  "real": 0.164,
+  "null_median": 0.0007,
+  "null_p95": 0.0077,
+  "p_value": 0.0
+ },
+ "mc": {
+  "p_negative": 0.0,
+  "median_equity": 94571.0,
+  "p05_equity": 71097.0,
+  "dd_median": -3.06,
+  "dd_p05": -5.08
+ },
+ "best_L": 30
+}

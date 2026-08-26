@@ -1,0 +1,240 @@
+{
+ "permutation": {
+  "real": {
+   "trades": 1680,
+   "net": 39281.77,
+   "per_day_pct": 0.799,
+   "pf": 5.127
+  },
+  "random_trials": 120,
+  "random_net_p50": 13167.88,
+  "random_perday_p50": 0.6531,
+  "random_pf_p50": 9.879,
+  "p_value_perday": 0.0,
+  "random_net_p95": 19675.08
+ },
+ "shift": {
+  "0": {
+   "trades": 1680,
+   "net": 39281.77,
+   "per_day_pct": 0.799,
+   "pf": 5.127
+  },
+  "1": {
+   "trades": 1680,
+   "net": 26548.28,
+   "per_day_pct": 0.7466,
+   "pf": 6.09
+  },
+  "2": {
+   "trades": 1680,
+   "net": 45977.41,
+   "per_day_pct": 0.8201,
+   "pf": 11.67
+  },
+  "3": {
+   "trades": 1680,
+   "net": 23948.41,
+   "per_day_pct": 0.7328,
+   "pf": 6.876
+  }
+ },
+ "direction_bybit": {
+  "both": {
+   "trades": 1680,
+   "net": 39281.77,
+   "per_day_pct": 0.799,
+   "pf": 5.127
+  },
+  "long": {
+   "trades": 544,
+   "net": 607.72,
+   "per_day_pct": 0.2609,
+   "pf": 5.799
+  },
+  "short": {
+   "trades": 616,
+   "net": 1228.79,
+   "per_day_pct": 0.3451,
+   "pf": 4.208
+  }
+ },
+ "direction_hl_eth": {
+  "both": {
+   "trades": 756,
+   "net": 25811.87,
+   "per_day_pct": 0.8765,
+   "pf": 16.285
+  },
+  "long": {
+   "trades": 363,
+   "net": 2232.91,
+   "per_day_pct": 0.4958,
+   "pf": 158.414
+  },
+  "short": {
+   "trades": 241,
+   "net": 732.26,
+   "per_day_pct": 0.3333,
+   "pf": 143.884
+  }
+ },
+ "stress": {
+  "comm0.05%_slip0.0%": {
+   "trades": 544,
+   "net": 607.72,
+   "per_day_pct": 0.2609,
+   "pf": 5.799
+  },
+  "comm0.05%_slip0.1%": {
+   "trades": 544,
+   "net": 139.09,
+   "per_day_pct": 0.1161,
+   "pf": 2.222
+  },
+  "comm0.05%_slip0.3%": {
+   "trades": 544,
+   "net": -72.89,
+   "per_day_pct": -0.1737,
+   "pf": 0.391
+  },
+  "comm0.10%_slip0.0%": {
+   "trades": 544,
+   "net": 311.46,
+   "per_day_pct": 0.1886,
+   "pf": 3.723
+  },
+  "comm0.10%_slip0.1%": {
+   "trades": 544,
+   "net": 38.85,
+   "per_day_pct": 0.0437,
+   "pf": 1.331
+  },
+  "comm0.10%_slip0.3%": {
+   "trades": 544,
+   "net": -84.29,
+   "per_day_pct": -0.2462,
+   "pf": 0.288
+  },
+  "comm0.20%_slip0.0%": {
+   "trades": 544,
+   "net": 38.85,
+   "per_day_pct": 0.0437,
+   "pf": 1.331
+  },
+  "comm0.20%_slip0.1%": {
+   "trades": 544,
+   "net": -53.24,
+   "per_day_pct": -0.1012,
+   "pf": 0.556
+  },
+  "comm0.20%_slip0.3%": {
+   "trades": 544,
+   "net": -94.73,
+   "per_day_pct": -0.3912,
+   "pf": 0.167
+  }
+ },
+ "walkforward_bybit": [
+  {
+   "window": "2024-08-01:2024-10-31",
+   "trades": 184,
+   "net": 139.92,
+   "per_day_pct": 0.9672,
+   "pf": 18.615
+  },
+  {
+   "window": "2024-10-30:2025-01-29",
+   "trades": 209,
+   "net": 166.41,
+   "per_day_pct": 1.0836,
+   "pf": 21.871
+  },
+  {
+   "window": "2025-01-28:2025-04-29",
+   "trades": 198,
+   "net": 168.57,
+   "per_day_pct": 1.0926,
+   "pf": 30.136
+  },
+  {
+   "window": "2025-04-28:2025-07-28",
+   "trades": 201,
+   "net": 52.32,
+   "per_day_pct": 0.4639,
+   "pf": 4.679
+  },
+  {
+   "window": "2025-07-27:2025-10-26",
+   "trades": 203,
+   "net": 88.36,
+   "per_day_pct": 0.6989,
+   "pf": 19.986
+  },
+  {
+   "window": "2025-10-25:2026-01-24",
+   "trades": 216,
+   "net": 93.24,
+   "per_day_pct": 0.7272,
+   "pf": 5.872
+  },
+  {
+   "window": "2026-01-23:2026-04-24",
+   "trades": 227,
+   "net": 137.04,
+   "per_day_pct": 0.9538,
+   "pf": 6.132
+  },
+  {
+   "window": "2026-04-23:2026-07-23",
+   "trades": 202,
+   "net": 76.01,
+   "per_day_pct": 0.6238,
+   "pf": 7.35
+  }
+ ],
+ "walkforward_hl": [
+  {
+   "window": "2024-08-01:2024-10-31",
+   "trades": 93,
+   "net": 64.84,
+   "per_day_pct": 0.5517,
+   "pf": 9.414
+  },
+  {
+   "window": "2024-10-30:2025-01-29",
+   "trades": 113,
+   "net": 113.95,
+   "per_day_pct": 0.8408,
+   "pf": 3.983
+  },
+  {
+   "window": "2025-01-28:2025-04-29",
+   "trades": 112,
+   "net": 279.64,
+   "per_day_pct": 1.4795,
+   "pf": 19.383
+  },
+  {
+   "window": "2025-04-28:2025-07-28",
+   "trades": 87,
+   "net": 77.83,
+   "per_day_pct": 0.6358,
+   "pf": 3.018
+  },
+  {
+   "window": "2025-07-27:2025-10-26",
+   "trades": 128,
+   "net": 116.68,
+   "per_day_pct": 0.8549,
+   "pf": 6.349
+  },
+  {
+   "window": "2025-10-25:2026-01-24",
+   "trades": 109,
+   "net": 127.42,
+   "per_day_pct": 0.9087,
+   "pf": 16.398
+  }
+ ]
+}

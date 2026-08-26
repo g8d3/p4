@@ -1,0 +1,157 @@
+{
+ "note": "Local replica runs \u2014 window 2024-08-01 \u2192 2026-04-30 (oracle window), BTCUSDT/ETHUSDT 2h, Bybit public klines, commission 0.05%/side, 1x equity sizing, daily-UTC VWAP anchor",
+ "local_runs": {
+  "btc_ema5_atr002": {
+   "ema": 5,
+   "mult": 0.02,
+   "trades": 1439,
+   "win_pct": 81.03,
+   "pf": 6.458,
+   "net_pct": 22024.5,
+   "dd_pct": -5.53,
+   "sharpe": 19.29
+  },
+  "btc_ema5_atr001": {
+   "ema": 5,
+   "mult": 0.01,
+   "trades": 1439,
+   "win_pct": 82.9,
+   "pf": 12.629,
+   "net_pct": 30709.3,
+   "dd_pct": -2.14,
+   "sharpe": 21.35
+  },
+  "btc_ema5_atr0002": {
+   "ema": 5,
+   "mult": 0.002,
+   "trades": 1439,
+   "win_pct": 83.81,
+   "pf": 18.519,
+   "net_pct": 36077.8,
+   "dd_pct": -2.14,
+   "sharpe": 22.1
+  },
+  "btc_ema4_atr0015": {
+   "ema": 4,
+   "mult": 0.015,
+   "trades": 1491,
+   "win_pct": 81.82,
+   "pf": 9.447,
+   "net_pct": 29848.2,
+   "dd_pct": -2.25,
+   "sharpe": 24.59
+  },
+  "eth_ema5_atr002": {
+   "ema": 5,
+   "mult": 0.02,
+   "trades": 1382,
+   "win_pct": 86.98,
+   "pf": 14.961,
+   "net_pct": 672423.2,
+   "dd_pct": -6.16,
+   "sharpe": 20.11
+  }
+ },
+ "oracle_published": {
+  "btc_ema5_atr002": {
+   "trades": 1729,
+   "win_pct": 66.74,
+   "pf": 14.21,
+   "net_pct": 16323.6,
+   "dd_pct": -3.5,
+   "sharpe": 13.46
+  },
+  "btc_ema4_atr0015": {
+   "trades": 1805,
+   "win_pct": 65.0,
+   "pf": 8.65,
+   "net_pct": 16193.8,
+   "dd_pct": -2.3,
+   "sharpe": 14.4
+  }
+ },
+ "engine_fixture": {
+  "job": "adhoc_01M0NHGBJ5R64JC92MPFEEAWAZ",
+  "result_id": "01M0NHGBJ5T0879XD2BY473T63",
+  "trades_url": "https://pub-5880a55c41fd4cd1a11146f4fd522fbe.r2.dev/backtests/01M0NHGBJ5T0879XD2BY473T63.json.gz",
+  "notes": "ground truth trade list used for forensics; credits spent: 1 (quick_backtest) + 0 reads"
+ },
+ "hyperliquid_port": {
+  "note": "same engine (EMA5/0.02, daily-UTC VWAP, 1x, 0.05% comm), HL public candles + real funding",
+  "in_sample_4h": {
+   "BTC": {
+    "trades": 778,
+    "win_pct": 85.48,
+    "pf": 11.248,
+    "net_pct": 3421.36,
+    "dd_pct": -6.38,
+    "sharpe": 15.38,
+    "funding_usd": 101.18
+   },
+   "ETH": {
+    "trades": 756,
+    "win_pct": 86.77,
+    "pf": 16.285,
+    "net_pct": 25811.87,
+    "dd_pct": -13.11,
+    "sharpe": 14.73,
+    "funding_usd": 735.09
+   },
+   "SOL": {
+    "trades": 777,
+    "win_pct": 89.83,
+    "pf": 4.652,
+    "net_pct": 46237.07,
+    "dd_pct": -15.76,
+    "sharpe": 13.44,
+    "funding_usd": 3329.26
+   }
+  },
+  "oos_2h_2026_05_0818": {
+   "HL_BTC": {
+    "trades": 229,
+    "win_pct": 80.35,
+    "pf": 4.562,
+    "net_pct": 84.66,
+    "dd_pct": -7.47,
+    "sharpe": 5.11,
+    "funding_usd": 1.29
+   },
+   "HL_ETH": {
+    "trades": 243,
+    "win_pct": 80.25,
+    "pf": 15.965,
+    "net_pct": 189.09,
+    "dd_pct": -3.12,
+    "sharpe": 7.09,
+    "funding_usd": 1.29
+   },
+   "HL_SOL": {
+    "trades": 235,
+    "win_pct": 80.0,
+    "pf": 8.38,
+    "net_pct": 184.32,
+    "dd_pct": -6.07,
+    "sharpe": 7.93,
+    "funding_usd": 5.07
+   },
+   "Bybit_BTC": {
+    "trades": 239,
+    "win_pct": 77.41,
+    "pf": 4.137,
+    "net_pct": 77.54,
+    "dd_pct": -7.34,
+    "sharpe": 5.17
+   }
+  },
+  "daily_rate_pct": {
+   "BTC_IN": 0.559,
+   "ETH_IN": 0.873,
+   "SOL_IN": 0.965,
+   "BTC_OOS": 0.539,
+   "ETH_OOS": 0.936,
+   "SOL_OOS": 0.921,
+   "BYBT_OOS": 0.505
+  }
+ }
+}

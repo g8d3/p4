@@ -1,3 +1,4 @@
+# environment / caches
 .pi/
 .venv/
 __pycache__/
@@ -6,3 +7,59 @@ __pycache__/
 .claude/
 .commandcode/
 .remotion/
+
+# embedded standalone repos (own remotes), never tracked by p4
+e042-bk2/
+e008-asistente-ht/
+e041-web-access-agents/
+
+# vendored and heavy third-party
+node_modules/
+upstream/
+/sites/
+certs/
+
+# generated pipeline outputs (except experiments whose deliverables live in output/)
+output/
+!e040-traderdev-local-replica/output/
+!e025-hyperliquid-candle-tails/ag-01-data/output/
+!e043-state-grid/ag-01/output/
+!e022-nautilus-sr-grid/ag-01/output/
+
+# render/frame pipeline dirs
+snapshots/
+renders/
+frames_simple/
+frames_terminal/
+segments/
+
+# generated media, logs, subtitle intermediates
+*.mp4
+*.mkv
+*.mov
+*.avi
+*.webm
+*.mp3
+*.wav
+*.flac
+*.pcm
+*.log
+*.ass
+*.vtt
+
+# agent scratch, never tracked by p4
+e011-gh-repo-analysis/ag-01/
+e011-gh-repo-analysis/ag-02/
+e011-gh-repo-analysis/ag-03/
+e012-p3-project-agents/*.png
+.otav-current
+e007-agent-self-documentation/ag-01/
+e012-p3-project-agents/ag-01/
+e014-higgsfield-video-api/ag-01/output/
+e018-hyprframes-browser-video/ag-02/ai-news/index.html.bak
+e030-vrm-avatar/ag-01-avatar-core/
+e030-vrm-avatar/ag-02-client-b/
+e030-vrm-avatar/ag-03-video/
+e030-vrm-avatar/media/
+e015-video-pipeline/ag-02-pipeline/agent-00*/
+e032-ai-skills-digest/ag-12-pilot/*.png

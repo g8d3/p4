@@ -1,0 +1,51 @@
+{
+ "majors_L21": {
+  "per_day_pct": 0.3089,
+  "pf": 2.12,
+  "max_dd_pct": -4.72,
+  "final_equity": 153264.0,
+  "net_pct": 410.9
+ },
+ "majors_L30": {
+  "per_day_pct": 0.2478,
+  "pf": 1.9,
+  "max_dd_pct": -5.97,
+  "final_equity": 128867.0,
+  "net_pct": 329.6
+ },
+ "majors_L45": {
+  "per_day_pct": 0.1818,
+  "pf": 1.7,
+  "max_dd_pct": -5.96,
+  "final_equity": 102518.0,
+  "net_pct": 241.7
+ },
+ "fee_0.00035": {
+  "per_day_pct": 0.164,
+  "pf": 2.01,
+  "max_dd_pct": -3.67,
+  "final_equity": 95449.0,
+  "net_pct": 218.2
+ },
+ "fee_0.0007": {
+  "per_day_pct": 0.1559,
+  "pf": 1.96,
+  "max_dd_pct": -3.7,
+  "final_equity": 92222.0,
+  "net_pct": 207.4
+ },
+ "fee_0.001": {
+  "per_day_pct": 0.1492,
+  "pf": 1.93,
+  "max_dd_pct": -3.73,
+  "final_equity": 89543.0,
+  "net_pct": 198.5
+ },
+ "btc_only": {
+  "per_day_pct": 0.289,
+  "pf": 1.78,
+  "max_dd_pct": -6.48,
+  "final_equity": 145322.0,
+  "net_pct": 384.4
+ }
+}

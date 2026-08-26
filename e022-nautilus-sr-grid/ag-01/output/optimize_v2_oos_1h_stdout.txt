@@ -1,0 +1,90 @@
+real_btc_1h.csv: 35064 bars -> 21038 train / 14026 test
+searching 72 configs on TRAIN (5 workers)
+train sweep -> /home/vuos/code/p4/e022-nautilus-sr-grid/ag-01/output/optimize_v2_oos/real_btc_1h/train_results.csv
+    total_return_pct  max_drawdown_pct  n_fills  commissions_usdt  final_equity_usdt  grid_atr_mult  max_levels_per_side  rebalance_interval_bars  max_exposure_budget_mult  trend_enter_pct  trend_exit_pct  split
+21            5.9588           -3.1690      949           1689.88          105958.83            2.0                    3                      192                       3.0              1.5             0.7  train
+23            5.9514           -3.1690      949           1690.22          105951.39            2.0                    3                      192                       4.0              1.5             0.7  train
+7             4.5795           -2.5964      729           1353.89          104579.46            2.0                    2                      192                       3.0              1.5             0.7  train
+11            4.5795           -2.5964      729           1353.89          104579.46            2.0                    2                      192                       4.0              1.5             0.7  train
+19            2.8459           -6.6515      958           1729.26          102845.87            2.0                    3                      144                       4.0              1.5             0.7  train
+18            2.5184           -6.6515      952           1725.74          102518.43            2.0                    3                      144                       3.0              1.5             0.7  train
+9             1.8664           -5.4792      752           1442.60          101866.40            2.0                    2                      144                       4.0              1.5             0.7  train
+5             1.8664           -5.4792      752           1442.60          101866.40            2.0                    2                      144                       3.0              1.5             0.7  train
+14            1.3527           -6.1081     1059           1857.10          101352.70            2.0                    3                       96                       3.0              1.5             0.7  train
+16            1.3224           -6.1568     1061           1862.07          101322.41            2.0                    3                       96                       4.0              1.5             0.7  train
+validating top 5 on TEST
+test validation -> /home/vuos/code/p4/e022-nautilus-sr-grid/ag-01/output/optimize_v2_oos/real_btc_1h/test_results.csv
+OOS summary -> /home/vuos/code/p4/e022-nautilus-sr-grid/ag-01/output/optimize_v2_oos/real_btc_1h/oos_summary.csv
+    grid_atr_mult  max_levels_per_side  rebalance_interval_bars  max_exposure_budget_mult  trend_enter_pct  trend_exit_pct  train_return  test_return  test_dd  test_fills  test_commissions
+0             2.0                    2                       96                       3.0              1.0             0.5       -4.9409          NaN      NaN         NaN               NaN
+1             2.0                    2                       96                       3.0              1.5             0.7       -1.0057          NaN      NaN         NaN               NaN
+2             2.0                    2                       96                       4.0              1.0             0.5       -4.9409          NaN      NaN         NaN               NaN
+3             2.0                    2                       96                       4.0              1.5             0.7       -1.0057          NaN      NaN         NaN               NaN
+4             2.0                    2                      144                       3.0              1.0             0.5       -2.6297          NaN      NaN         NaN               NaN
+5             2.0                    2                      144                       3.0              1.5             0.7        1.8664          NaN      NaN         NaN               NaN
+6             2.0                    2                      144                       4.0              1.0             0.5       -2.6297          NaN      NaN         NaN               NaN
+7             2.0                    2                      144                       4.0              1.5             0.7        1.8664          NaN      NaN         NaN               NaN
+8             2.0                    2                      192                       3.0              1.0             0.5       -1.9746          NaN      NaN         NaN               NaN
+9             2.0                    2                      192                       3.0              1.5             0.7        4.5795       3.2962  -2.1774       467.0            874.65
+10            2.0                    2                      192                       4.0              1.0             0.5       -1.9746          NaN      NaN         NaN               NaN
+11            2.0                    2                      192                       4.0              1.5             0.7        4.5795       3.2962  -2.1774       467.0            874.65
+12            2.0                    3                       96                       3.0              1.0             0.5       -5.6344          NaN      NaN         NaN               NaN
+13            2.0                    3                       96                       3.0              1.5             0.7        1.3527          NaN      NaN         NaN               NaN
+14            2.0                    3                       96                       4.0              1.0             0.5       -5.6344          NaN      NaN         NaN               NaN
+15            2.0                    3                       96                       4.0              1.5             0.7        1.3224          NaN      NaN         NaN               NaN
+16            2.0                    3                      144                       3.0              1.0             0.5       -2.5443          NaN      NaN         NaN               NaN
+17            2.0                    3                      144                       3.0              1.5             0.7        2.5184          NaN      NaN         NaN               NaN
+18            2.0                    3                      144                       4.0              1.0             0.5       -2.5443          NaN      NaN         NaN               NaN
+19            2.0                    3                      144                       4.0              1.5             0.7        2.8459       0.7485  -4.2630       658.0           1134.75
+20            2.0                    3                      192                       3.0              1.0             0.5       -2.1369          NaN      NaN         NaN               NaN
+21            2.0                    3                      192                       3.0              1.5             0.7        5.9588       1.7663  -2.8562       599.0           1049.01
+22            2.0                    3                      192                       4.0              1.0             0.5       -2.1369          NaN      NaN         NaN               NaN
+23            2.0                    3                      192                       4.0              1.5             0.7        5.9514       1.7663  -2.8562       599.0           1049.01
+24            2.5                    2                       96                       3.0              1.0             0.5       -2.7859          NaN      NaN         NaN               NaN
+25            2.5                    2                       96                       3.0              1.5             0.7       -5.9334          NaN      NaN         NaN               NaN
+26            2.5                    2                       96                       4.0              1.0             0.5       -2.7859          NaN      NaN         NaN               NaN
+27            2.5                    2                       96                       4.0              1.5             0.7       -5.9334          NaN      NaN         NaN               NaN
+28            2.5                    2                      144                       3.0              1.0             0.5       -0.6741          NaN      NaN         NaN               NaN
+29            2.5                    2                      144                       3.0              1.5             0.7       -3.7793          NaN      NaN         NaN               NaN
+30            2.5                    2                      144                       4.0              1.0             0.5       -0.6741          NaN      NaN         NaN               NaN
+31            2.5                    2                      144                       4.0              1.5             0.7       -3.7793          NaN      NaN         NaN               NaN
+32            2.5                    2                      192                       3.0              1.0             0.5       -1.2635          NaN      NaN         NaN               NaN
+33            2.5                    2                      192                       3.0              1.5             0.7       -4.2932          NaN      NaN         NaN               NaN
+34            2.5                    2                      192                       4.0              1.0             0.5       -1.2635          NaN      NaN         NaN               NaN
+35            2.5                    2                      192                       4.0              1.5             0.7       -4.2932          NaN      NaN         NaN               NaN
+36            2.5                    3                       96                       3.0              1.0             0.5       -3.3216          NaN      NaN         NaN               NaN
+37            2.5                    3                       96                       3.0              1.5             0.7       -4.2587          NaN      NaN         NaN               NaN
+38            2.5                    3                       96                       4.0              1.0             0.5       -3.3216          NaN      NaN         NaN               NaN
+39            2.5                    3                       96                       4.0              1.5             0.7       -4.2351          NaN      NaN         NaN               NaN
+40            2.5                    3                      144                       3.0              1.0             0.5       -0.9940          NaN      NaN         NaN               NaN
+41            2.5                    3                      144                       3.0              1.5             0.7       -2.4468          NaN      NaN         NaN               NaN
+42            2.5                    3                      144                       4.0              1.0             0.5       -0.9940          NaN      NaN         NaN               NaN
+43            2.5                    3                      144                       4.0              1.5             0.7       -2.2834          NaN      NaN         NaN               NaN
+44            2.5                    3                      192                       3.0              1.0             0.5       -1.7490          NaN      NaN         NaN               NaN
+45            2.5                    3                      192                       3.0              1.5             0.7       -2.6075          NaN      NaN         NaN               NaN
+46            2.5                    3                      192                       4.0              1.0             0.5       -1.7490          NaN      NaN         NaN               NaN
+47            2.5                    3                      192                       4.0              1.5             0.7       -2.6271          NaN      NaN         NaN               NaN
+48            3.0                    2                       96                       3.0              1.0             0.5       -2.6323          NaN      NaN         NaN               NaN
+49            3.0                    2                       96                       3.0              1.5             0.7       -3.0070          NaN      NaN         NaN               NaN
+50            3.0                    2                       96                       4.0              1.0             0.5       -2.6323          NaN      NaN         NaN               NaN
+51            3.0                    2                       96                       4.0              1.5             0.7       -3.0070          NaN      NaN         NaN               NaN
+52            3.0                    2                      144                       3.0              1.0             0.5       -2.3040          NaN      NaN         NaN               NaN
+53            3.0                    2                      144                       3.0              1.5             0.7       -1.3650          NaN      NaN         NaN               NaN
+54            3.0                    2                      144                       4.0              1.0             0.5       -2.3040          NaN      NaN         NaN               NaN
+55            3.0                    2                      144                       4.0              1.5             0.7       -1.3650          NaN      NaN         NaN               NaN
+56            3.0                    2                      192                       3.0              1.0             0.5       -2.2210          NaN      NaN         NaN               NaN
+57            3.0                    2                      192                       3.0              1.5             0.7       -0.3773          NaN      NaN         NaN               NaN
+58            3.0                    2                      192                       4.0              1.0             0.5       -2.2210          NaN      NaN         NaN               NaN
+59            3.0                    2                      192                       4.0              1.5             0.7       -0.3773          NaN      NaN         NaN               NaN
+60            3.0                    3                       96                       3.0              1.0             0.5       -3.2276          NaN      NaN         NaN               NaN
+61            3.0                    3                       96                       3.0              1.5             0.7       -2.9078          NaN      NaN         NaN               NaN
+62            3.0                    3                       96                       4.0              1.0             0.5       -3.2276          NaN      NaN         NaN               NaN
+63            3.0                    3                       96                       4.0              1.5             0.7       -2.9078          NaN      NaN         NaN               NaN
+64            3.0                    3                      144                       3.0              1.0             0.5       -2.6195          NaN      NaN         NaN               NaN
+65            3.0                    3                      144                       3.0              1.5             0.7        0.2041          NaN      NaN         NaN               NaN
+66            3.0                    3                      144                       4.0              1.0             0.5       -2.6195          NaN      NaN         NaN               NaN
+67            3.0                    3                      144                       4.0              1.5             0.7        0.2041          NaN      NaN         NaN               NaN
+68            3.0                    3                      192                       3.0              1.0             0.5       -2.7094          NaN      NaN         NaN               NaN
+69            3.0                    3                      192                       3.0              1.5             0.7        1.0499          NaN      NaN         NaN               NaN
+70            3.0                    3                      192                       4.0              1.0             0.5       -2.7094          NaN      NaN         NaN               NaN
+71            3.0                    3                      192                       4.0              1.5             0.7        1.0499          NaN      NaN         NaN               NaN

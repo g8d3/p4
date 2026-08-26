@@ -1,0 +1,9 @@
+RUN range
+  range: return=13.7984% dd=-0.8885% fills=483 fees=548.64 pf=7.1959
+RUN trend
+  trend: return=-10.8911% dd=-11.4845% fills=362 fees=653.74 pf=0.4209
+RUN downtrend
+  downtrend: return=4.2207% dd=-2.2835% fills=539 fees=975.25 pf=1.2509
+RUN mixed
+  mixed: return=-3.8117% dd=-5.2639% fills=449 fees=712.28 pf=0.7464
+DONE

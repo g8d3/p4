@@ -1,0 +1,5 @@
+mode,total_return_pct,total_pnl_usdt,sharpe,max_drawdown_pct,n_fills,n_positions,total_commissions_usdt,profit_factor,win_rate_pct,final_equity_usdt
+range,20.9167,20917.58,29.4975,-4.1418,3186,216,3730.72,2.7005,75.0,120921.57
+trend,15.3281,15327.14,12.7842,-7.5388,2388,136,2574.75,1.5093,68.3824,115320.87
+downtrend,6.6133,6614.52,6.0264,-7.1598,2310,142,2491.02,1.1844,71.831,106632.71
+mixed,-15.7919,-15791.54,-11.0579,-18.3457,2327,143,2780.29,0.6676,61.5385,84205.98

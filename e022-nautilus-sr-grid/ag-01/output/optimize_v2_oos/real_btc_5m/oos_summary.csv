@@ -1,0 +1,6 @@
+grid_atr_mult,max_levels_per_side,rebalance_interval_bars,max_exposure_budget_mult,trend_enter_pct,trend_exit_pct,train_return,test_return,test_dd,test_fills,test_commissions
+2.5,2,192,4.0,1.5,0.7,11.8828,-2.8252,-16.02,1052,1226.7
+2.0,3,96,4.0,1.5,0.7,8.7458,-0.428,-16.1096,2487,2647.31
+2.0,2,192,4.0,1.5,0.7,8.2945,6.763,-6.4289,1172,1298.49
+2.5,3,192,4.0,1.5,0.7,7.0076,-0.9135,-15.4445,1443,1556.12
+3.0,3,192,4.0,1.5,0.7,6.8032,1.5617,-10.6205,1329,1351.88

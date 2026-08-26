@@ -1,0 +1,6 @@
+total_return_pct,max_drawdown_pct,n_fills,commissions_usdt,final_equity_usdt,grid_atr_mult,max_levels_per_side,rebalance_interval_bars,max_exposure_budget_mult,trend_enter_pct,trend_exit_pct,split
+-2.8252,-16.02,1052,1226.7,97174.77,2.5,2,192,4.0,1.5,0.7,test
+6.763,-6.4289,1172,1298.49,106763.02,2.0,2,192,4.0,1.5,0.7,test
+1.5617,-10.6205,1329,1351.88,101561.69,3.0,3,192,4.0,1.5,0.7,test
+-0.9135,-15.4445,1443,1556.12,99086.52,2.5,3,192,4.0,1.5,0.7,test
+-0.428,-16.1096,2487,2647.31,99571.99,2.0,3,96,4.0,1.5,0.7,test

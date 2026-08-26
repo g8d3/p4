@@ -1,0 +1,40 @@
+{
+  "name": "Ladder (dip-buyer), 1-hour BTC",
+  "family": "Ladder · one-sided dip-buyer · long+short mirrored",
+  "kind": "ladder",
+  "one_liner": "Buys Bitcoin when it dips 8, 16 or 24 percent below its recent highest price, sells when it bounces +5%, stops if it keeps falling −10%, and after a win waits for a small 0.75% dip to buy again. It only trades while the market is calm.",
+  "how_it_works": "Think of a person waiting at a staircase hoping for bounces. Three steps below the recent high: if price falls to step 1 it buys; if it keeps falling it buys at steps 2 and 3 too (this is called averaging down). Each buy waits for a +5% bounce to sell; if price instead falls 10% from that buy, it sells to limit the damage. When a trade wins and sells, it waits for a small dip and buys again, recycling the same money.",
+  "data": "BTC 1h · 4 years · ~35,000 candles · started with $100,000",
+  "params": [
+    {
+      "name": "When it buys",
+      "plain": "When price falls to 8%, 16% or 24% below the highest price of the last ~12 days. Each is a separate order with its own money.",
+      "why": "Three buy steps = three chances, but also three amounts of money at risk at once."
+    },
+    {
+      "name": "When it sells (profit)",
+      "plain": "Always +5% above each buy price.",
+      "why": "A fixed, small goal: +5% before the stop. This is the 'reward' of the trade."
+    },
+    {
+      "name": "When it cuts losses (stop)",
+      "plain": "Always −10% below each buy price.",
+      "why": "The 'brake': if a buy keeps falling, it accepts −10% instead of an unknown bigger loss."
+    },
+    {
+      "name": "Buy again after a win",
+      "plain": "After a profitable sell, it waits for a 0.75% dip and buys again with the same money.",
+      "why": "Recycles the money so one lot of capital can trade many cycles."
+    },
+    {
+      "name": "Only in calm markets",
+      "plain": "It compares the average price of the last 50 candles with the average of the last 100. If they drift apart more than 0.2%, it treats it as a 'trend' and does nothing. It only trades again when they are nearly together.",
+      "why": "This strategy makes money when prices go back and forth. In a one-way trend, 'buy the dip' keeps buying a falling knife — so it refuses to trade in trends."
+    },
+    {
+      "name": "Why this page exists",
+      "plain": "Your original idea, made wide and careful.",
+      "why": "It shows how little a careful dip-buying ladder trades (33 rounds in 4 years) and that it still loses (profit factor 0.62)."
+    }
+  ]
+}

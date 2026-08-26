@@ -1,0 +1,18 @@
+{
+  "total_return_pct": -744.5222,
+  "total_pnl_usdt": -744522.18,
+  "sharpe": 0.0534,
+  "max_drawdown_pct": -744.5857,
+  "n_fills": 18254,
+  "n_lots": 8,
+  "total_commissions_usdt": 13690.5,
+  "realized_pnl_usdt": -744522.18,
+  "final_equity_usdt": -644522.18,
+  "exposure_time_pct": 2.5617,
+  "n_bars": 103121,
+  "final_state": "RANGE",
+  "n_win": 336,
+  "n_loss": 8791,
+  "wins_pnl_usdt": 7322.52,
+  "losses_pnl_usdt": -738154.21
+}

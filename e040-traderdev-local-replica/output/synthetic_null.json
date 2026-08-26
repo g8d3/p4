@@ -1,0 +1,28 @@
+{
+ "real": {
+  "pf": 14.4,
+  "per_day": 0.3022,
+  "trades": 240
+ },
+ "trials": [
+  {
+   "drift": "zero_drift",
+   "n": 60,
+   "median_pf": 1.42,
+   "pf_p05": 0.88,
+   "pf_p95": 2.19,
+   "median_per_day": 0.0707,
+   "positive_fraction": 0.9
+  },
+  {
+   "drift": "real_drift",
+   "n": 60,
+   "median_pf": 1.36,
+   "pf_p05": 0.91,
+   "pf_p95": 1.93,
+   "median_per_day": 0.0587,
+   "positive_fraction": 0.85
+  }
+ ],
+ "note": "negative control: pure noise series"
+}

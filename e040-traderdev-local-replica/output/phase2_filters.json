@@ -1,0 +1,345 @@
+{
+ "OOS 2h HL|BTC|both": {
+  "trades": 229,
+  "per_day": 0.5447,
+  "pf": 4.56,
+  "dd": -7.47,
+  "net": 84.7
+ },
+ "OOS 2h HL|BTC|long": {
+  "trades": 115,
+  "per_day": 0.3319,
+  "pf": 30.66,
+  "dd": -0.17,
+  "net": 45.4
+ },
+ "OOS 2h HL|BTC|long+trend100": {
+  "trades": 54,
+  "per_day": 0.1163,
+  "pf": 21.31,
+  "dd": -0.1,
+  "net": 14.0
+ },
+ "OOS 2h HL|BTC|long+vol090": {
+  "trades": 76,
+  "per_day": 0.2652,
+  "pf": 45.33,
+  "dd": -0.1,
+  "net": 34.9
+ },
+ "OOS 2h HL|BTC|long+tr+vol": {
+  "trades": 34,
+  "per_day": 0.0808,
+  "pf": 27.93,
+  "dd": -0.1,
+  "net": 9.6
+ },
+ "OOS 2h HL|BTC|short": {
+  "trades": 112,
+  "per_day": 0.1083,
+  "pf": 1.42,
+  "dd": -20.72,
+  "net": 13.0
+ },
+ "OOS 2h HL|BTC|long+trend200": {
+  "trades": 47,
+  "per_day": 0.0956,
+  "pf": 22.51,
+  "dd": -0.1,
+  "net": 11.4
+ },
+ "OOS 2h HL|ETH|both": {
+  "trades": 243,
+  "per_day": 0.9446,
+  "pf": 15.96,
+  "dd": -3.12,
+  "net": 189.1
+ },
+ "OOS 2h HL|ETH|long": {
+  "trades": 101,
+  "per_day": 0.4814,
+  "pf": 69.57,
+  "dd": -0.17,
+  "net": 72.0
+ },
+ "OOS 2h HL|ETH|long+trend100": {
+  "trades": 46,
+  "per_day": 0.3104,
+  "pf": 88.17,
+  "dd": -0.17,
+  "net": 41.9
+ },
+ "OOS 2h HL|ETH|long+vol090": {
+  "trades": 53,
+  "per_day": 0.3245,
+  "pf": 109.5,
+  "dd": -0.1,
+  "net": 44.2
+ },
+ "OOS 2h HL|ETH|long+tr+vol": {
+  "trades": 24,
+  "per_day": 0.2047,
+  "pf": 209.02,
+  "dd": -0.09,
+  "net": 26.0
+ },
+ "OOS 2h HL|ETH|short": {
+  "trades": 119,
+  "per_day": 0.4738,
+  "pf": 47.85,
+  "dd": -0.14,
+  "net": 70.5
+ },
+ "OOS 2h HL|ETH|long+trend200": {
+  "trades": 51,
+  "per_day": 0.323,
+  "pf": 84.02,
+  "dd": -0.2,
+  "net": 43.9
+ },
+ "OOS 2h HL|SOL|both": {
+  "trades": 235,
+  "per_day": 0.9297,
+  "pf": 8.38,
+  "dd": -6.07,
+  "net": 184.3
+ },
+ "OOS 2h HL|SOL|long": {
+  "trades": 26,
+  "per_day": 0.0824,
+  "pf": 39.97,
+  "dd": -0.1,
+  "net": 9.8
+ },
+ "OOS 2h HL|SOL|long+trend100": {
+  "trades": 17,
+  "per_day": 0.0488,
+  "pf": 50.44,
+  "dd": -0.06,
+  "net": 5.7
+ },
+ "OOS 2h HL|SOL|long+vol090": {
+  "trades": 25,
+  "per_day": 0.0822,
+  "pf": 39.86,
+  "dd": -0.1,
+  "net": 9.7
+ },
+ "OOS 2h HL|SOL|long+tr+vol": {
+  "trades": 17,
+  "per_day": 0.0488,
+  "pf": 50.44,
+  "dd": -0.06,
+  "net": 5.7
+ },
+ "OOS 2h HL|SOL|short": {
+  "trades": 111,
+  "per_day": 0.533,
+  "pf": 58.58,
+  "dd": -0.21,
+  "net": 82.3
+ },
+ "OOS 2h HL|SOL|long+trend200": {
+  "trades": 42,
+  "per_day": 0.1727,
+  "pf": 44.02,
+  "dd": -0.1,
+  "net": 21.5
+ },
+ "IN 4h HL|BTC|both": {
+  "trades": 778,
+  "per_day": 0.5608,
+  "pf": 11.25,
+  "dd": -6.38,
+  "net": 3421.4
+ },
+ "IN 4h HL|BTC|long": {
+  "trades": 314,
+  "per_day": 0.2164,
+  "pf": 3.77,
+  "dd": -20.75,
+  "net": 296.1
+ },
+ "IN 4h HL|BTC|long+trend100": {
+  "trades": 168,
+  "per_day": 0.0868,
+  "pf": 2.59,
+  "dd": -20.76,
+  "net": 73.7
+ },
+ "IN 4h HL|BTC|long+vol090": {
+  "trades": 233,
+  "per_day": 0.2053,
+  "pf": 101.01,
+  "dd": -0.19,
+  "net": 269.1
+ },
+ "IN 4h HL|BTC|long+tr+vol": {
+  "trades": 100,
+  "per_day": 0.0746,
+  "pf": 87.22,
+  "dd": -0.09,
+  "net": 60.8
+ },
+ "IN 4h HL|BTC|short": {
+  "trades": 377,
+  "per_day": 0.3211,
+  "pf": 89.29,
+  "dd": -0.13,
+  "net": 670.2
+ },
+ "IN 4h HL|BTC|long+trend200": {
+  "trades": 164,
+  "per_day": 0.0779,
+  "pf": 2.46,
+  "dd": -20.75,
+  "net": 64.2
+ },
+ "IN 4h HL|ETH|both": {
+  "trades": 756,
+  "per_day": 0.8765,
+  "pf": 16.29,
+  "dd": -13.11,
+  "net": 25811.9
+ },
+ "IN 4h HL|ETH|long": {
+  "trades": 363,
+  "per_day": 0.4958,
+  "pf": 158.41,
+  "dd": -0.28,
+  "net": 2232.9
+ },
+ "IN 4h HL|ETH|long+trend100": {
+  "trades": 160,
+  "per_day": 0.2209,
+  "pf": 127.74,
+  "dd": -0.1,
+  "net": 307.6
+ },
+ "IN 4h HL|ETH|long+vol090": {
+  "trades": 232,
+  "per_day": 0.3484,
+  "pf": 184.1,
+  "dd": -0.28,
+  "net": 815.7
+ },
+ "IN 4h HL|ETH|long+tr+vol": {
+  "trades": 97,
+  "per_day": 0.1476,
+  "pf": 167.12,
+  "dd": -0.1,
+  "net": 155.8
+ },
+ "IN 4h HL|ETH|short": {
+  "trades": 241,
+  "per_day": 0.3333,
+  "pf": 143.88,
+  "dd": -0.11,
+  "net": 732.3
+ },
+ "IN 4h HL|ETH|long+trend200": {
+  "trades": 154,
+  "per_day": 0.2152,
+  "pf": 140.52,
+  "dd": -0.18,
+  "net": 293.2
+ },
+ "IN 4h HL|SOL|both": {
+  "trades": 777,
+  "per_day": 0.9686,
+  "pf": 4.65,
+  "dd": -15.76,
+  "net": 46237.1
+ },
+ "IN 4h HL|SOL|long": {
+  "trades": 308,
+  "per_day": 0.4159,
+  "pf": 2.42,
+  "dd": -39.46,
+  "net": 1305.3
+ },
+ "IN 4h HL|SOL|long+trend100": {
+  "trades": 154,
+  "per_day": 0.2659,
+  "pf": 9.15,
+  "dd": -8.83,
+  "net": 442.4
+ },
+ "IN 4h HL|SOL|long+vol090": {
+  "trades": 203,
+  "per_day": 0.3322,
+  "pf": 4.73,
+  "dd": -18.98,
+  "net": 726.4
+ },
+ "IN 4h HL|SOL|long+tr+vol": {
+  "trades": 86,
+  "per_day": 0.1904,
+  "pf": 1004.26,
+  "dd": -0.05,
+  "net": 235.9
+ },
+ "IN 4h HL|SOL|short": {
+  "trades": 305,
+  "per_day": 0.4339,
+  "pf": 193.36,
+  "dd": -0.18,
+  "net": 1475.3
+ },
+ "IN 4h HL|SOL|long+trend200": {
+  "trades": 146,
+  "per_day": 0.1969,
+  "pf": 2.1,
+  "dd": -39.44,
+  "net": 249.9
+ },
+ "FULL Bybit|BTC|both": {
+  "trades": 1680,
+  "per_day": 0.7989,
+  "pf": 5.13,
+  "dd": -7.34,
+  "net": 39258.9
+ },
+ "FULL Bybit|BTC|long": {
+  "trades": 544,
+  "per_day": 0.2592,
+  "pf": 5.85,
+  "dd": -13.08,
+  "net": 598.5
+ },
+ "FULL Bybit|BTC|long+trend100": {
+  "trades": 299,
+  "per_day": 0.1186,
+  "pf": 4.41,
+  "dd": -13.07,
+  "net": 143.6
+ },
+ "FULL Bybit|BTC|long+vol090": {
+  "trades": 333,
+  "per_day": 0.1673,
+  "pf": 5.34,
+  "dd": -13.07,
+  "net": 251.0
+ },
+ "FULL Bybit|BTC|long+tr+vol": {
+  "trades": 164,
+  "per_day": 0.0562,
+  "pf": 3.14,
+  "dd": -13.15,
+  "net": 52.5
+ },
+ "FULL Bybit|BTC|short": {
+  "trades": 616,
+  "per_day": 0.3438,
+  "pf": 4.22,
+  "dd": -20.54,
+  "net": 1215.7
+ },
+ "FULL Bybit|BTC|long+trend200": {
+  "trades": 359,
+  "per_day": 0.1751,
+  "pf": 28.93,
+  "dd": -0.33,
+  "net": 272.1
+ }
+}

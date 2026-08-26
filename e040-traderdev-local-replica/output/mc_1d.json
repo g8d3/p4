@@ -1,0 +1,92 @@
+{
+ "BTC_reshuffle (iid)": {
+  "p_negative": 0.9831,
+  "final_equity_median": 7770.12,
+  "final_p05": 5469.02,
+  "final_p95": 9801.78,
+  "dd_median": -22.86,
+  "dd_p05": -45.54,
+  "dd_p95": -3.41
+ },
+ "BTC_blocks of 3": {
+  "p_negative": 0.9822,
+  "final_equity_median": 7760.75,
+  "final_p05": 5471.45,
+  "final_p95": 9802.52,
+  "dd_median": -22.94,
+  "dd_p05": -45.58,
+  "dd_p95": -3.36
+ },
+ "BTC_stop_loss_0.02": {
+  "p_negative": 0.9776,
+  "final_equity_median": 9395.24,
+  "final_p05": 8774.05,
+  "final_p95": 9913.56,
+  "dd_median": -6.75,
+  "dd_p05": -12.68,
+  "dd_p95": -2.45
+ },
+ "BTC_stop_loss_0.05": {
+  "p_negative": 0.983,
+  "final_equity_median": 8807.38,
+  "final_p05": 7589.82,
+  "final_p95": 9805.5,
+  "dd_median": -12.66,
+  "dd_p05": -24.47,
+  "dd_p95": -3.41
+ },
+ "BTC_stop_loss_0.1": {
+  "p_negative": 0.9831,
+  "final_equity_median": 8134.75,
+  "final_p05": 6280.08,
+  "final_p95": 9801.78,
+  "dd_median": -19.31,
+  "dd_p05": -37.48,
+  "dd_p95": -3.41
+ },
+ "ETH_reshuffle (iid)": {
+  "p_negative": 0.7547,
+  "final_equity_median": 8173.02,
+  "final_p05": 4864.09,
+  "final_p95": 10815.74,
+  "dd_median": -22.47,
+  "dd_p05": -52.92,
+  "dd_p95": -0.87
+ },
+ "ETH_blocks of 3": {
+  "p_negative": 0.7547,
+  "final_equity_median": 8173.02,
+  "final_p05": 4864.09,
+  "final_p95": 10815.74,
+  "dd_median": -22.47,
+  "dd_p05": -52.92,
+  "dd_p95": -0.87
+ },
+ "ETH_stop_loss_0.02": {
+  "p_negative": 0.2312,
+  "final_equity_median": 10304.29,
+  "final_p05": 9615.68,
+  "final_p95": 10937.71,
+  "dd_median": -2.73,
+  "dd_p05": -6.72,
+  "dd_p95": -0.87
+ },
+ "ETH_stop_loss_0.05": {
+  "p_negative": 0.628,
+  "final_equity_median": 9756.2,
+  "final_p05": 8416.46,
+  "final_p95": 10828.69,
+  "dd_median": -7.28,
+  "dd_p05": -18.21,
+  "dd_p95": -0.87
+ },
+ "ETH_stop_loss_0.1": {
+  "p_negative": 0.7434,
+  "final_equity_median": 9317.63,
+  "final_p05": 7297.38,
+  "final_p95": 10815.74,
+  "dd_median": -11.16,
+  "dd_p05": -29.13,
+  "dd_p95": -0.87
+ }
+}

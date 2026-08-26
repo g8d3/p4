@@ -1,0 +1,50 @@
+{
+  "name": "Two-sided grid, 1-hour BTC",
+  "family": "Grid · two-sided · range-only",
+  "kind": "grid",
+  "one_liner": "Places buy orders BELOW the price and sell orders ABOVE it, evenly spaced. It sells to buyers when price rises to its upper orders, and buys from sellers when price falls to its lower ones — capturing the back-and-forth of a calm market.",
+  "how_it_works": "Imagine fishing nets floating around the current price: three nets above (sell orders) and three below (buy orders). When price bobs UP into an upper net, you sell and catch the rise; when it bobs DOWN into a lower net, you buy and catch the dip. Every time price crosses a net, you make a small round-trip gain. Every 4 days the nets are moved to surround the current price again, so they never float far away.",
+  "data": "BTC 1h · 4 years · ~35,000 candles · started with $100,000",
+  "params": [
+    {
+      "name": "Spacing between orders",
+      "plain": "The distance between one net and the next is 1.5× the typical swing of one candle. If candles usually swing $100, orders are $150 apart.",
+      "why": "Orders too close fill constantly and pay fees all day. Orders too far apart never fill. This spacing is the 'neither too tight nor too wide' setting."
+    },
+    {
+      "name": "How many orders",
+      "plain": "3 buy orders below the price and 3 sell orders above.",
+      "why": "A handful of chances per side — enough to catch the bounces without risking too much money at once."
+    },
+    {
+      "name": "When it re-arms",
+      "plain": "Every 4 days (96 one-hour candles), the old orders are deleted and new ones are placed around the current price.",
+      "why": "If price drifts far from old orders they never fill. Re-arming keeps the nets near the fish."
+    },
+    {
+      "name": "Only in calm markets (the weather check)",
+      "plain": "It compares the average price of the last 20 candles with the last 100. If they drift apart more than 0.5%, it says 'trend!' and closes everything. It only starts again when the drift shrinks below 0.2%.",
+      "why": "Grids make money when price goes back and forth. In a strong one-way trend the nets all fill on the same side and you end up holding a falling asset. This filter keeps the grid out of storms."
+    },
+    {
+      "name": "Spending limit (exposure cap)",
+      "plain": "A speed limit: it may never hold more than $120,000 worth of positions (4× its $30,000 budget). If a big move pushes past the limit, it sells a bit to get back under.",
+      "why": "Without a limit, a grid that keeps buying a falling market can end up owing far more than it owns. This is the seatbelt."
+    },
+    {
+      "name": "When it must close everything",
+      "plain": "When a trend is declared, all positions should be closed. But tiny leftovers under $10,000 are left alone.",
+      "why": "Closing a tiny position costs a fee bigger than its value. Leaving it is cheaper — a small money-saving detail."
+    },
+    {
+      "name": "Cost of every fill",
+      "plain": "0.02% if your order was waiting in the book (maker, patient), 0.06% if you grabbed an order that was already there (taker, impatient).",
+      "why": "Over thousands of fills, fees can eat all the profit. It is the biggest single cost in grids, so it is charged honestly in this test."
+    },
+    {
+      "name": "Why this page exists",
+      "plain": "This is the strategy family that showed a small, real edge in the e022 experiment.",
+      "why": "After fees it splits exactly even (profit factor 1.00). The lesson: the famous edge is real but thin — 50/50 after costs, not a money printer."
+    }
+  ]
+}

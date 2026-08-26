@@ -1,0 +1,13 @@
+{
+  "return_pct": -6.5905,
+  "max_dd_pct": -7.934,
+  "sharpe": -0.0985,
+  "n_fills": 888,
+  "commissions": 2096.21,
+  "n_rebalances": 229,
+  "n_regime_flips": 456,
+  "n_liquidations": 0,
+  "n_cap_enforcements": 0,
+  "realized_pnl": -6526.18,
+  "final_equity": 93409.55
+}

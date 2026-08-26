@@ -1,0 +1,40 @@
+{
+  "name": "Ladder (dip-buyer), 5-minute BTC",
+  "family": "Ladder · one-sided dip-buyer · long+short mirrored",
+  "kind": "ladder",
+  "one_liner": "The same dip-buying ladder on super-short 5-minute data: buys on small 0.5–3% dips, sells at +1–2.5%, stops at −2–4%. Thousands of tiny trades.",
+  "how_it_works": "Same staircase idea as the 1-hour version, but the steps are much closer together because 5-minute candles move less. Closer steps mean the orders fill constantly — that is the problem: every fill pays a small fee, and thousands of tiny fees eat the account.",
+  "data": "BTC 5m · 1 year · ~105,000 candles · started with $100,000",
+  "params": [
+    {
+      "name": "When it buys",
+      "plain": "When price falls to 0.5%, 1%, 2% or 3% below the recent highest price. Four steps, each with its own money.",
+      "why": "On 5-minute data the moves are tiny, so steps are tiny — but that also makes it buy very often."
+    },
+    {
+      "name": "When it sells (profit)",
+      "plain": "At +1%, +1.5%, +2% or +2.5% above each buy price.",
+      "why": "Small goals match the small 5-minute moves."
+    },
+    {
+      "name": "When it cuts losses (stop)",
+      "plain": "At −2% or −4% below each buy price.",
+      "why": "The brake, twice as big as the win. It needs to win more than twice as often as it loses — it didn't."
+    },
+    {
+      "name": "Buy again after a win",
+      "plain": "After a profitable sell, waits for a 0.75% dip and buys again with the same money.",
+      "why": "Recycles the money — which multiplies the number of fills, and therefore the fees."
+    },
+    {
+      "name": "Only in calm markets",
+      "plain": "It compares the average price of the last 50 candles with the last 100. If they drift apart more than 1%, it treats it as a 'trend' and stops.",
+      "why": "The same storm filter as the 1-hour version, but more permissive (1% instead of 0.2%) — so it trades more often."
+    },
+    {
+      "name": "Why this page exists",
+      "plain": "It is the fee warning of this course.",
+      "why": "16,000 tiny trades, $15,000+ in fees on a $100,000 account, profit factor 0.59. Fees, not strategy, killed it."
+    }
+  ]
+}

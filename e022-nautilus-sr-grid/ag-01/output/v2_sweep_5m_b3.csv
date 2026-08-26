@@ -1,0 +1,9 @@
+tag,extra,data,return_pct,max_dd_pct,n_fills,n_regime_flips,n_cap_enforcements,n_liquidations,commissions,profit_factor,final_equity
+reb192_atr20,--atr-mult 2.0 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 192,real_btc_5m.csv,-0.3405,-7.2617,2421,86,0,0,2641.88,0.9876,99659.55
+reb192_atr25,--atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 192,real_btc_5m.csv,3.6449,-7.1628,2158,86,0,0,2392.78,1.1386,103644.88
+reb192_atr30,--atr-mult 3.0 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 192,real_btc_5m.csv,-1.0093,-6.8544,2039,86,1,0,2305.9,0.9649,98990.71
+reb288_atr25,--atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 288,real_btc_5m.csv,-4.9781,-10.9743,1686,86,0,0,1996.47,0.8425,95021.86
+reb384_atr25,--atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 384,real_btc_5m.csv,-1.5305,-11.8962,1306,86,0,0,1566.37,0.9377,98469.49
+reb192_atr25_ent15,--atr-mult 2.5 --max-levels 2 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.5 --trend-exit 0.7 --rebalance 192,real_btc_5m.csv,3.8973,-5.4919,2083,16,0,0,2081.81,1.1834,103897.35
+reb192_atr25_lv3,--atr-mult 2.5 --max-levels 3 --min-order 1000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 192,real_btc_5m.csv,1.5134,-7.2821,2950,86,19,0,3316.59,1.0353,101513.43
+reb192_atr25_min2000,--atr-mult 2.5 --max-levels 2 --min-order 2000 --trend-fast 50 --trend-slow 100 --trend-enter 1.0 --trend-exit 0.5 --rebalance 192,real_btc_5m.csv,1.3081,-8.3461,2177,86,0,0,2445.63,1.0471,101308.13

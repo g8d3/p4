@@ -1,0 +1,35 @@
+{
+  "name": "Two-sided grid, 5-minute BTC",
+  "family": "Grid · two-sided · range-only",
+  "kind": "grid",
+  "one_liner": "The same two-sided net grid on 5-minute data, with a stricter storm filter and only 2 nets per side. Does the small grid edge survive on the fast, expensive 5-minute timeframe?",
+  "how_it_works": "The same fishing-nets idea as the 1-hour version: nets above (sell) and below (buy) the price, capturing bounces. But on 5-minute data price crosses nets far more often, so there are fewer nets (2 per side) and the storm filter is stricter (needs 0.8% drift instead of 0.5%).",
+  "data": "BTC 5m · 1 year · ~105,000 candles · started with $100,000",
+  "params": [
+    {
+      "name": "Spacing between orders",
+      "plain": "1.5× the typical swing of one 5-minute candle.",
+      "why": "Same 'not too tight, not too wide' rule as the 1-hour version."
+    },
+    {
+      "name": "How many orders",
+      "plain": "2 buy orders below the price and 2 sell orders above.",
+      "why": "Fewer nets than on 1-hour data on purpose: 5-minute price crosses nets very often, and every crossing pays a fee."
+    },
+    {
+      "name": "When it re-arms",
+      "plain": "Every 96 five-minute candles (8 hours), the nets move to surround the current price.",
+      "why": "Keeps the nets near the fish, as always."
+    },
+    {
+      "name": "Only in calm markets (the weather check)",
+      "plain": "Compares the average price of the last 50 candles with the last 100. If they drift apart more than 0.8%, it declares a trend and closes everything; it only returns below 0.2%.",
+      "why": "Stricter than the 1-hour version because 5-minute noise is worse — it needs more certainty before calling something 'calm'."
+    },
+    {
+      "name": "Why this page exists",
+      "plain": "It answers: can the grid edge survive the fastest, most expensive data?",
+      "why": "Profit factor 0.96 — still slightly negative after fees. Timeframe matters as much as strategy."
+    }
+  ]
+}

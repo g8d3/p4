@@ -1,0 +1,18 @@
+{
+  "total_return_pct": -0.9914,
+  "total_pnl_usdt": -991.4,
+  "sharpe": -0.0969,
+  "max_drawdown_pct": -1.0442,
+  "n_fills": 46,
+  "n_lots": 6,
+  "total_commissions_usdt": 46.0,
+  "realized_pnl_usdt": -991.4,
+  "final_equity_usdt": 99008.6,
+  "exposure_time_pct": 0.0754,
+  "n_bars": 34764,
+  "final_state": "TREND_UP",
+  "n_win": 9,
+  "n_loss": 14,
+  "wins_pnl_usdt": 964.75,
+  "losses_pnl_usdt": -1910.15
+}

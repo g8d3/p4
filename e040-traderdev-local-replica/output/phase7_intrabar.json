@@ -1,0 +1,74 @@
+{
+ "BTC_ema5": {
+  "trades": 125,
+  "per_day": -0.0367,
+  "pf": 0.16,
+  "dd": -24.97,
+  "net_pct": -24.1,
+  "days": 751.0
+ },
+ "BTC_ema7": {
+  "trades": 108,
+  "per_day": 0.0008,
+  "pf": 1.12,
+  "dd": -2.18,
+  "net_pct": 0.6,
+  "days": 751.0
+ },
+ "BTC_ema9": {
+  "trades": 73,
+  "per_day": 0.0005,
+  "pf": 1.13,
+  "dd": -1.44,
+  "net_pct": 0.4,
+  "days": 751.0
+ },
+ "ETH_ema5": {
+  "trades": 132,
+  "per_day": -0.0309,
+  "pf": 0.36,
+  "dd": -22.28,
+  "net_pct": -20.7,
+  "days": 751.0
+ },
+ "ETH_ema7": {
+  "trades": 92,
+  "per_day": 0.0013,
+  "pf": 1.13,
+  "dd": -5.43,
+  "net_pct": 1.0,
+  "days": 751.0
+ },
+ "ETH_ema9": {
+  "trades": 62,
+  "per_day": 0.0053,
+  "pf": 3.5,
+  "dd": -0.37,
+  "net_pct": 4.0,
+  "days": 751.0
+ },
+ "SOL_ema5": {
+  "trades": 127,
+  "per_day": -0.0428,
+  "pf": 0.35,
+  "dd": -34.78,
+  "net_pct": -27.5,
+  "days": 751.0
+ },
+ "SOL_ema7": {
+  "trades": 108,
+  "per_day": 0.0111,
+  "pf": 3.77,
+  "dd": -0.34,
+  "net_pct": 8.7,
+  "days": 751.0
+ },
+ "SOL_ema9": {
+  "trades": 80,
+  "per_day": 0.0063,
+  "pf": 2.98,
+  "dd": -0.44,
+  "net_pct": 4.8,
+  "days": 751.0
+ }
+}
