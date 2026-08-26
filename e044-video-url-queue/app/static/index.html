@@ -59,48 +59,106 @@
 <footer>detect → download → merge</footer>
 <script>
 const $ = (s) => document.querySelector(s);
-const fmtBytes = (n) => !n ? "" : n > 1e6 ? (n/1e6).toFixed(1)+" MB" : (n/1e3).toFixed(0)+" KB";
-async function refresh() {
-  const r = await fetch("api/jobs");
-  const d = await r.json();
-  const list = $("#list");
-  if (!d.jobs.length) { list.innerHTML = '<div class="empty">No jobs yet. Paste a URL above.</div>'; return; }
-  list.innerHTML = d.jobs.map(job => {
-    const p = (job.progress || {});
-    const pc = p.percent || 0;
-    const items = (job.items || []).map(it =>
-      `<div class="item"><span class="n">${it.index+1}</span><span>${itstatus(it)} ${it.pct != null && it.status==="downloading" ? Math.round((it.pct||0)*100)+"%" : ""}</span>${it.error?` <span style="color:#f85149">${esc(it.error)}</span>`:""}</div>`).join("");
-    const dl = job.status === "done"
-      ? `<a class="dl" href="api/jobs/${job.id}/video">⬇ merged.mp4</a>`
-      : (job.status==="cancelling" || job.status==="queued" || job.status==="waiting_window")
-        ? `<button class="cancel" onclick="cancelJob('${job.id}')">cancel</button>` : "";
-    return `<div class="job">
-      <div class="row"><div class="url" title="${esc(job.url)}">${esc(job.url)}</div>
-        <div class="actions"><span class="status s-${job.status}">${esc(job.status)}</span>${dl}</div></div>
-      ${job.status==="downloading"||job.status==="detecting"||job.status==="merging" ? `<div class="bar"><div style="width:${pc}%"></div></div>` : ""}
-      <div class="meta">${new Date(job.created_at*1000).toLocaleString()}${job.status!=="queued"&&job.status!=="waiting_window" ? ` · ${new Date(job.started_at*1000).toLocaleTimeString()}` : ""}</div>
-      <div class="items">${items}</div>
-      ${job.error ? `<div class="error">${esc(job.error)}</div>` : ""}
-    </div>`;
-  }).join("");
-}
-function itstatus(it) {
-  return {downloading:"downloading", done:"✓", error:"✗"}[it.status] || it.status;
-}
+const FINAL = ["done","error","cancelled"];
 const esc = (s) => String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const itstatus = (it) => ({downloading:"downloading", done:"✓", error:"✗"}[it.status] || it.status);
+const cards = {};
+
+function makeCard(job) {
+  const el = document.createElement("div");
+  el.className = "job";
+  el.innerHTML = `
+    <div class="row"><div class="url" title="${esc(job.url)}">${esc(job.url)}</div>
+      <div class="actions"><span class="status"></span><span class="dlwrap"></span></div></div>
+    <div class="bar" style="display:none"><div></div></div>
+    <div class="items"></div>
+    <div class="error" style="display:none"></div>`;
+  $("#list").appendChild(el);
+  const card = {
+    el, status: el.querySelector(".status"), dlwrap: el.querySelector(".dlwrap"),
+    bar: el.querySelector(".bar"), barfill: el.querySelector(".bar div"),
+    items: el.querySelector(".items"), error: el.querySelector(".error"),
+    playerDone: false, key: "",
+  };
+  updateCard(card, job);
+  return card;
+}
+
+function updateCard(card, job) {
+  card.status.textContent = job.status;
+  card.status.className = "status s-" + job.status;
+  const active = ["detecting","downloading","merging"].includes(job.status);
+  card.bar.style.display = active ? "" : "none";
+  if (active) card.barfill.style.width = ((job.progress||{}).percent || 0) + "%";
+  const key = JSON.stringify(job.items || []);
+  if (key !== card.key) {
+    card.key = key;
+    card.items.innerHTML = (job.items || []).map(it =>
+      `<div class="item"><span class="n">${it.index+1}</span><span>${itstatus(it)} ${it.pct != null && it.status==="downloading" ? Math.round((it.pct||0)*100)+"%" : ""}</span>${it.error?` <span style="color:#f85149">${esc(it.error)}</span>`:""}</div>`
+    ).join("");
+  }
+  const actions = job.status === "done"
+    ? `<a class="dl" href="api/jobs/${job.id}/video">⬇ merged.mp4</a>`
+    : FINAL.includes(job.status) ? ""
+      : `<button class="cancel" onclick="cancelJob('${job.id}')">cancel</button>`;
+  if (card.dlwrap.dataset.cur !== actions) {
+    card.dlwrap.dataset.cur = actions;
+    card.dlwrap.innerHTML = actions;
+  }
+  if (job.status === "done" && !card.playerDone) {
+    card.playerDone = true;
+    const v = document.createElement("video");
+    v.controls = v.playsInline = true;
+    v.preload = "metadata";
+    v.style.cssText = "width:100%;border-radius:8px;margin-top:10px;background:#000";
+    v.src = `api/jobs/${job.id}/video`;
+    card.el.appendChild(v);
+  }
+  if (job.error) { card.error.textContent = job.error; card.error.style.display = ""; }
+  else card.error.style.display = "none";
+}
+
+async function refresh() {
+  try {
+    const d = await (await fetch("api/jobs")).json();
+    const ids = new Set(d.jobs.map(j => j.id));
+    for (const id in cards) if (!ids.has(id)) { cards[id].el.remove(); delete cards[id]; }
+    let anyActive = false;
+    for (const job of d.jobs) {
+      anyActive = anyActive || !FINAL.includes(job.status);
+      if (cards[job.id]) updateCard(cards[job.id], job);
+      else cards[job.id] = makeCard(job);
+    }
+    if (!d.jobs.length) $("#list").innerHTML = '<div class="empty">No jobs yet. Paste a URL above.</div>';
+  } catch (e) {}
+  return anyActive;
+}
+
 async function cancelJob(id) {
   await fetch("api/jobs/"+id, {method:"DELETE"});
   refresh();
 }
+
+let timer = null;
+function ensurePolling() {
+  if (timer) return;
+  timer = setInterval(async () => {
+    const active = await refresh();
+    if (!active) { clearInterval(timer); timer = null; }
+  }, 3000);
+}
+
 $("#f").addEventListener("submit", async (e) => {
   e.preventDefault();
   const u = $("#u").value;
+  if (!u) return;
   await fetch("api/jobs", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({url:u})});
   $("#u").value = "";
-  refresh();
+  await refresh();
+  ensurePolling();
 });
-refresh();
-setInterval(refresh, 3000);
+
+refresh().then(active => { if (active) ensurePolling(); });
 </script>
 </body>
 </html>

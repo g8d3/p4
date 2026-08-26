@@ -108,8 +108,9 @@ def create_app(config_path: str | Path | None = None) -> FastAPI:
         path = Path(job["output_path"])
         if not path.exists():
             raise HTTPException(410, "output file missing")
-        return FileResponse(path, media_type="video/mp4",
-                            filename=f"merged-{job_id}.mp4")
+        return FileResponse(path, media_type="video/mp4", headers={
+            "Content-Disposition": f"inline; filename=merged-{job_id}.mp4",
+        })
 
     @app.post("/api/detect")
     async def detect(body: JobIn):

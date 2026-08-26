@@ -7,4 +7,6 @@ if [ ! -d .venv ]; then
   ./.venv/bin/pip install -q -r requirements.txt
 fi
 
-exec ./.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8177 "$@"
+HOST="${URLQ_HOST:-0.0.0.0}"
+PORT="${URLQ_PORT:-8177}"
+exec ./.venv/bin/uvicorn app.main:app --host "$HOST" --port "$PORT" "$@"
