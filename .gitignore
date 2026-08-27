@@ -63,3 +63,13 @@ e030-vrm-avatar/ag-03-video/
 e030-vrm-avatar/media/
 e015-video-pipeline/ag-02-pipeline/agent-00*/
 e032-ai-skills-digest/ag-12-pilot/*.png
+
+# e045 gmgn-clone: runtime scratch (never commit)
+e045-gmgn-clone/data/
+e045-gmgn-clone/browser-setup/browser.log
+e045-gmgn-clone/browser-setup/browser.pid
+# e045 gmgn-clone: browser profile junk (recreated each run)
+e045-gmgn-clone/browser-setup/stealth-profile/
+e045-gmgn-clone/browser-setup/stealth-ext/
+e045-gmgn-clone/browser-setup/*.png
+e045-gmgn-clone/browser-setup/*.pid

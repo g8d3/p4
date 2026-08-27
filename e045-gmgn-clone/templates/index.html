@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#08090c" />
+  <title>Pulse — Hyperliquid Terminal</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" onclick="go('#/')">
+      <span class="logo">◈</span>
+      <span class="brand-name">Pulse</span>
+      <span class="brand-sub">hyperliquid</span>
+    </div>
+    <div class="venue-toggle" id="venueToggle">
+      <button data-v="meme" class="active">Memecoins</button>
+      <button data-v="hl">Hyperliquid</button>
+    </div>
+    <div class="market-toggle hidden" id="marketToggle">
+      <button data-m="perp" class="active">Perps</button>
+      <button data-m="spot">Spot</button>
+    </div>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search tokens…" autocomplete="off" />
+    </div>
+    <button id="themeBtn" class="theme-btn" title="Toggle theme">🌙</button>
+  </header>
+
+  <main id="screener" class="view"></main>
+  <main id="token" class="view hidden"></main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
