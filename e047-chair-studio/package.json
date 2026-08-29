@@ -1,0 +1,15 @@
+{
+  "name": "e047-chair-studio",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Parametric 3D chair with a live tuning overlay (Three.js viewer + glTF/GLB export)",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "three": "^0.169.0",
+    "lil-gui": "^0.19.2"
+  }
+}

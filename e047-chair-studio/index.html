@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generator Playground e047 — Parametric 3D Assets</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23ff6b35'/><text x='16' y='22' font-size='16' font-family='Arial' font-weight='700' text-anchor='middle' fill='%2314161c'>G</text></svg>" />
+    <style>
+      :root { --accent: #ff6b35; --panel-bg: rgba(16, 18, 24, 0.86); --muted: rgba(255,255,255,0.55); }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #111318; color: #e8eaf0;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+      #app { position: fixed; inset: 0; }
+      canvas { display: block; }
+
+      /* Title bar */
+      #titlebar { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; gap: 14px;
+        padding: 12px 18px; background: linear-gradient(180deg, rgba(10,11,16,0.92), rgba(10,11,16,0)); pointer-events: none; }
+      #titlebar .logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid;
+        place-items: center; font-weight: 800; color: #14161c; font-size: 15px; }
+      #titlebar h1 { font-size: 15px; margin: 0; font-weight: 650; letter-spacing: 0.3px; }
+      #titlebar p { margin: 0; font-size: 12px; color: var(--muted); }
+
+      /* Left genre toolbar */
+      #toolbar { position: fixed; left: 16px; top: 74px; z-index: 11; display: flex; flex-direction: column; gap: 8px; }
+      .genre-btn, .tool-btn { background: var(--panel-bg); color: #e8eaf0; border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;
+        backdrop-filter: blur(8px); transition: background 0.15s, border-color 0.15s; }
+      .genre-btn { display: flex; align-items: center; gap: 8px; }
+      .genre-btn .dot { width: 16px; height: 16px; border-radius: 4px; flex: 0 0 auto; }
+      .genre-btn:hover, .tool-btn:hover { background: rgba(255,255,255,0.14); }
+      .genre-btn.active { background: var(--accent); border-color: var(--accent); color: #14161c; }
+      #seed-chip { margin-top: 12px; background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px; padding: 8px 10px; font-size: 12px; color: var(--muted); }
+      #seed-chip b { color: #fff; }
+      #seed-display { color: var(--accent); font-weight: 700; }
+
+      /* Bottom-left hint */
+      #hint { position: fixed; left: 16px; bottom: 16px; z-index: 10; font-size: 12px; color: var(--muted);
+        background: var(--panel-bg); border: 1px solid rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 10px;
+        backdrop-filter: blur(8px); max-width: 300px; line-height: 1.5; pointer-events: none; }
+      #hint b { color: #fff; font-weight: 600; }
+
+      /* Bottom-right actions */
+      #actions { position: fixed; right: 16px; bottom: 16px; z-index: 12; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; max-width: 420px; justify-content: flex-end; }
+      #actions button { background: var(--panel-bg); color: #e8eaf0; border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px; padding: 8px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+        backdrop-filter: blur(8px); transition: background 0.15s, border-color 0.15s; }
+      #actions button:hover { background: rgba(255,255,255,0.14); }
+      #actions button.primary { background: var(--accent); border-color: var(--accent); color: #14161c; }
+      #actions button.primary:hover { background: #ff7f52; }
+
+      /* lil-gui */
+      .lil-gui.autoPlace { top: 74px; right: 16px; }
+      .lil-gui .title { font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.6px; }
+
+      /* catalog modal */
+      #catalog { position: fixed; inset: 0; z-index: 40; display: none; align-items: center; justify-content: center;
+        background: rgba(6,7,10,0.72); backdrop-filter: blur(4px); }
+      #catalog.open { display: flex; }
+      #catalog-panel { width: min(720px, 92vw); max-height: 82vh; overflow: auto; background: #14161c;
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 22px; }
+      #catalog-panel h2 { margin: 0 0 4px; font-size: 18px; }
+      #catalog-panel .sub { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+      #catalog-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .cat-item { display: block; background: #1c1f28; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+        padding: 12px; text-decoration: none; color: #e8eaf0; transition: border-color 0.15s, background 0.15s; }
+      .cat-item:hover { border-color: var(--accent); background: #22252f; }
+      .cat-item b { display: block; font-size: 14px; margin-bottom: 3px; }
+      .cat-item span { font-size: 12px; color: var(--muted); line-height: 1.4; }
+      #catalog-close { position: absolute; top: 18px; right: 24px; font-size: 26px; cursor: pointer; color: var(--muted); background: none; border: none; }
+      #catalog-close:hover { color: #fff; }
+      @media (max-width: 560px) { #catalog-list { grid-template-columns: 1fr; } }
+
+      #toast { position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%) translateY(20px); z-index: 20;
+        background: #1c1f28; border: 1px solid rgba(255,255,255,0.14); color: #fff; padding: 10px 16px;
+        border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity 0.25s, transform 0.25s;
+        pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+      #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <div id="titlebar">
+      <div class="logo">G</div>
+      <div>
+        <h1>Generator Playground <span style="color: var(--accent)">e047</span></h1>
+        <p>Procedural parametric assets · seed · live tuning · glTF/GLB export</p>
+      </div>
+    </div>
+
+    <div id="toolbar">
+      <button class="genre-btn" data-genre="chair"><span class="dot" style="background:#d97b4f"></span>Chair</button>
+      <button class="genre-btn" data-genre="car"><span class="dot" style="background:#c0392b"></span>Car</button>
+      <button class="genre-btn" data-genre="house"><span class="dot" style="background:#e8e0d2"></span>House</button>
+      <button class="tool-btn" id="btn-catalog">🗂 External tools</button>
+      <div id="seed-chip">seed <b>#<span id="seed-display">42</span></b></div>
+    </div>
+
+    <div id="hint">
+      <b>Drag</b> orbit · <b>scroll</b> zoom · <b>right-drag</b> pan.<br />
+      Pick a genre, tune in the panel, change the <b>seed</b> for variants.
+    </div>
+
+    <div id="actions">
+      <button id="btn-export" class="primary">⬇ Export GLB+JSON</button>
+      <button id="btn-batch">🎲 Batch ×8</button>
+      <button id="btn-download-batch" style="display:none">⬇ Download batch</button>
+      <button id="btn-single" style="display:none">↩ Single</button>
+      <button id="btn-shot">📸 Snapshot</button>
+    </div>
+
+    <div id="catalog">
+      <button id="catalog-close">×</button>
+      <div id="catalog-panel">
+        <h2>External generators & assets</h2>
+        <p class="sub">Tools you can use online. Our own generators (Chair/Car/House) are the open-source ones you're using here.</p>
+        <div id="catalog-list"></div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./node_modules/three/build/three.module.js",
+          "three/addons/": "./node_modules/three/examples/jsm/",
+          "lil-gui": "./node_modules/lil-gui/dist/lil-gui.esm.js"
+        }
+      }
+    </script>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
