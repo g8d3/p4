@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>e046 — Kaplay Pixel Platformer</title>
+    <style>
+        :root { color-scheme: dark; }
+        html, body { margin: 0; height: 100%; background: #0e0e16; }
+        body {
+            display: grid;
+            place-items: center;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+            color: #e8e8f0;
+            overflow: hidden;
+            touch-action: none; /* prevent scroll/zoom while playing */
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* The canvas fills the viewport; Kaplay handles letterboxing internally. */
+        #game {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+        }
+
+        /* --- On-screen touch controls (only shown on touch-capable screens) --- */
+        .touch-controls {
+            position: fixed;
+            inset: 0;
+            pointer-events: none; /* let clicks pass through to the canvas by default */
+            display: none;
+            z-index: 10;
+        }
+        /* Show controls on touch devices, or on small screens (phones/tablets). */
+        @media (pointer: coarse), (max-width: 820px) {
+            .touch-controls { display: block; }
+        }
+        .pad {
+            position: absolute;
+            bottom: max(18px, env(safe-area-inset-bottom));
+            left: 18px;
+            display: flex;
+            gap: 12px;
+            pointer-events: auto; /* buttons are tappable */
+        }
+        .btn {
+            pointer-events: auto; /* each button is tappable (incl. #btnJump) */
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 30px;
+            font-weight: 700;
+            display: grid;
+            place-items: center;
+            backdrop-filter: blur(2px);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+        .btn:active { background: rgba(255, 255, 255, 0.22); }
+        .btn.jump {
+            position: absolute;
+            bottom: max(26px, env(safe-area-inset-bottom));
+            right: 22px;
+            left: auto;
+            width: 88px;
+            height: 88px;
+            font-size: 40px;
+            background: rgba(255, 190, 120, 0.14);
+            border-color: rgba(255, 190, 120, 0.45);
+        }
+        .btn.jump:active { background: rgba(255, 190, 120, 0.32); }
+    </style>
+</head>
+<body>
+    <canvas id="game"></canvas>
+
+    <div class="touch-controls" id="touchControls">
+        <div class="pad">
+            <div class="btn" id="btnLeft" aria-label="Move left">◀</div>
+            <div class="btn" id="btnRight" aria-label="Move right">▶</div>
+        </div>
+        <div class="btn jump" id="btnJump" aria-label="Jump">⤒</div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

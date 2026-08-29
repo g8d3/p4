@@ -1,0 +1,21 @@
+{
+  "name": "e046-kaplay-game",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Kaplay pixel-art platformer: write a human, get a game.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "kaplay": "^3001.0.19"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true
+  }
+}

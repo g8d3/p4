@@ -858,3 +858,70 @@ Experiment [e034-motion-design-skill](../e034-motion-design-skill/AGENTS.md): "p
 compositions means `cp compositions/<name>.html index.html && npm run check` per file, serially.
 Render with `npx hyperframes render -c compositions/<name>.html -o renders/<name>.mp4`, then
 re-encode with `encode_vaapi.sh`.
+
+## 2026-08-28 — pi agent + GROQ provider (pi-web)
+
+Fixed GROQ for the pi agent running under pi-web. Root causes: pi sends the system
+prompt with `role: "developer"` for reasoning models (GROQ templates reject it →
+`400 Unexpected message role`); the built-in groq catalog is stale (two llama models
+gone); and the `sync-opencode-models` extension rewrote `models.json` wiping every
+non-opencode-go provider on each pi launch / new session.
+
+Changes: `auth.json` groq key; `models.json` groq provider with
+`supportsDeveloperRole: false` + custom models; fixed the sync extension to preserve
+other providers; added `zz-groq-restore.ts`; pruned `enabledModels`. Discovered
+pi-web's session REST API (no auth on localhost:8504) to message/change other
+sessions. Remaining wall: GROQ free-tier TPM (~8k/min) vs pi's ~18–24k request →
+requires DEV tier for real agent use.
+
+Full write-up, curl repros, the inter-session API trick, and security notes:
+[groq-pi-setup.md](groq-pi-setup.md)
+
+## 2026-08-29 — Kaplay game session (e046): verification methodology + hold the "real user path"
+
+Session on creating a Kaplay mobile platformer. Two things worth recording: the
+CPU measurement lesson, and a persistent process failure I kept repeating.
+
+### Lesson 1 — headless browser CPU is inherent, not a mistake
+
+The user flagged CPU repeatedly. The honest answer: **agent-browser / headless
+Chrome renders via SwiftShader (software, `--enable-unsafe-swiftshader`) because
+it has no GPU.** So ANY capture/screenshot made with agent-browser burns CPU by
+its own nature. It was not "running it wrong" — it is a property of the tool, and
+the only way to measure *the game's* cost is NOT via agent-browser.
+
+Measured with a continuous sampler: opening the browser spiked the Chrome process
+to **141%**; closing it returned to **0%**. The game itself sits near 0%.
+
+**Rule:** to judge the real cost of a browser app, either (a) sample over time, or
+(b) open it in the desktop browser (GPU), NOT via headless screenshots.
+
+### Lesson 2 — one-shot measurements hide spikes (the real methodology lesson)
+
+I kept reporting "CPU fine" / "jump fixed" based on single `ps` snapshots or a
+single `hero.jump()` eval. The user correctly insisted: **register across time**.
+A single `ps`/`top` only sees the instant — it misses spikes that rise and fall.
+The fix was a continuous sampler: `bin/monitor-cpu.sh` (CSV log + notify.sh push
+when a threshold is sustained). This is now the standard for any resource review.
+
+### Lesson 3 — test the REAL user path, not the internal API (the persistent mistake)
+
+This is the one worth internalizing. I diagnosed the jump by calling
+`hero.jump(820)` directly — it jumped, so I declared it "fixed." But the user does
+not call `hero.jump()`; they **tap a button**. The actual bug was entirely
+different: `#btnJump` sat OUTSIDE `.pad` and inherited `pointer-events: none` from
+`.touch-controls`, so taps fell through to the canvas. The jump "worked" via the
+internal API while being completely broken via the real input path.
+
+**Rule:** when the user reports a symptom ("it doesn't jump", "it doesn't move"),
+reproduce it through the SAME path the user uses (button tap, touch, keyboard
+event on the visible element), not through an internal function. Verify what the
+user sees, not what the code can do when called directly.
+
+### Also fixed this session (e046)
+
+- `#btnJump` not tappable → `pointer-events: auto` on generic `.btn`.
+- Touch input now tracked at the DOCUMENT level (tag touches by id) so input never
+  sticks when the finger slides off a button ("scenario moves by itself").
+- Camera no longer flies up on jump (anchored to ground Y, clamped).
+- Adaptive resolution for portrait vs landscape; bigger, legible HUD/menu text.

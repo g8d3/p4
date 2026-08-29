@@ -1,0 +1,12 @@
+# dependencies (regenerate with `npm install`)
+node_modules/
+
+# build output (regenerate with `npm run build`)
+dist/
+
+# local runtime logs
+monitor-cpu.log
+*.log
+
+# screenshots / temp captures (keep game assets in assets/, not *.png globally)
+screenshots/
