@@ -3,6 +3,12 @@
 #
 # Usage: notify.sh <done|error|info> <message> [-s <sender>] [--test] [--ask "<question>"]
 #
+#   <message> is MANDATORY (enforced). An empty/whitespace-only call is REJECTED
+#   — it never pushes a blank notification. The only exception is `--ask`, whose
+#   question supplies the content. This guard exists because AI agents forget the
+#   text; instead of silently pushing "(no message)", notify.sh fails loudly so
+#   the caller sees the error and fixes it.
+#
 #   -s <sender>   override the sender (default: auto-detected from CWD —
 #                 e.g. "e025-hyperliquid-candle-tails/ag-15-combined")
 #   --test        label the message "(manual test)" so receivers know it is
@@ -34,7 +40,7 @@
 
 set -u
 LEVEL="${1:-info}"
-MSG="${2:-(no message)}"
+MSG="${2-}"
 SENDER=""
 TEST=""
 ASK=""
@@ -68,6 +74,25 @@ if [ -z "$SENDER" ]; then
     SENDER="${BASH_REMATCH[1]}"
   else
     SENDER="$(hostname -s)"
+  fi
+fi
+
+# --- message is REQUIRED (enforced semantics) ------------------------------
+# The point of this service is a meaningful phone signal. An empty or
+# whitespace-only message means the caller (often an AI agent) forgot the
+# text. Refuse loudly and exit non-zero so the caller notices, instead of
+# silently pushing a useless blank notification. `--ask` carries its own
+# content, so a lone `notify.sh --ask "..."` stays valid.
+if [ -z "${MSG//[[:space:]]/}" ]; then
+  if [ -n "${ASK:-}" ]; then
+    MSG="(see ask)"
+  else
+    echo "notify.sh: ERROR: no message text — refusing to send a blank push." >&2
+    echo "  Usage: notify.sh <done|error|info> \"<message>\" [-s <sender>] [--test] [--ask \"<?>\"]" >&2
+    LOG="${NOTIFY_LOG:-$HOME/.opencode/notifications.log}"
+    mkdir -p "$(dirname "$LOG")"
+    echo "[$(date -Is)] error [${SENDER:-<unknown>}] notify.sh REJECTED: empty message (caller must pass text)" >> "$LOG"
+    exit 1
   fi
 fi
 
