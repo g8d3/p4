@@ -1,0 +1,1350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Infinite Slop by @levelsio + fal.ai</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Infinite Slop by @levelsio + fal.ai">
+<meta property="og:description" content="An endless AI-generated TV channel where the chat decides what airs next.">
+<meta property="og:url" content="https://infiniteslop.ai/">
+<meta property="og:image" content="https://infiniteslop.ai/og.jpg">
+<meta property="og:image:width" content="1199">
+<meta property="og:image:height" content="704">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@levelsio">
+<meta name="twitter:title" content="Infinite Slop by @levelsio + fal.ai">
+<meta name="twitter:description" content="An endless AI-generated TV channel where the chat decides what airs next.">
+<meta name="twitter:image" content="https://infiniteslop.ai/og.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%9F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shrikhand&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#000;
+    font-family:Tahoma,system-ui,sans-serif;color:#fff;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  input{user-select:text;-webkit-user-select:text}
+  /* full-bleed TV */
+  #tvwrap{position:fixed;inset:0;z-index:0;background:#000;overflow:hidden;
+    touch-action:none}
+  /* portrait 9:16 video: full-height centered on desktop (black sides),
+     full-bleed cover on phones (TikTok-style) */
+  #reel{position:absolute;inset:0}
+  .vcell{position:absolute;inset:0;will-change:transform;backface-visibility:hidden}
+  #tvwrap video{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    height:calc(100vh - 24px);height:calc(100dvh - 24px);
+    width:auto;aspect-ratio:9/16;max-width:calc(100vw - 24px);object-fit:cover;
+    background:#000;border-radius:12px}
+  @media(max-width:820px){
+    #tvwrap video{width:calc(100vw - 16px);aspect-ratio:auto;max-width:none;
+      height:calc(100vh - 16px);height:calc(100dvh - 16px);object-fit:cover}
+  }
+  /* status badge, top center. red LIVE when at the live edge; a dark
+     "back to live" button when viewing an older clip */
+  #livepill{position:fixed;left:50%;transform:translateX(-50%);top:14px;z-index:40;
+    display:inline-flex;align-items:center;gap:7px;border:none;color:#fff;
+    font:700 12px/1 system-ui,sans-serif;letter-spacing:.4px;
+    padding:8px 15px;border-radius:999px;box-shadow:0 3px 12px rgba(0,0,0,.45)}
+  #livepill.live{background:#e11d2a;cursor:default}
+  #livepill.live::before{content:"";width:7px;height:7px;border-radius:50%;
+    background:#fff;animation:livedot 1.4s ease-in-out infinite}
+  #livepill.past{background:rgba(18,18,20,.82);cursor:pointer;
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  #livepill.past::before{content:"\2191";font-weight:900;font-size:13px;line-height:1}
+  @keyframes livedot{50%{opacity:.25}}
+  /* click-to-tune splash */
+  #splash{position:fixed;inset:0;z-index:100;display:flex;align-items:center;
+    justify-content:center;cursor:pointer;
+    background:radial-gradient(ellipse at center,rgba(0,0,0,.55),rgba(0,0,0,.35))}
+  #splash .si{text-align:center}
+  #splash .logo{font-family:Shrikhand,'Cooper Black',serif;
+    font-size:min(84px,11vw);line-height:1.25;color:#fff;
+    -webkit-text-stroke:3px #000;paint-order:stroke fill;
+    /* stacked 1px shadows = one solid black extrusion, not a hollow outline */
+    text-shadow:1px 1px 0 #000,2px 2px 0 #000,3px 3px 0 #000,
+      4px 4px 0 #000,5px 5px 0 #000,6px 6px 0 #000;
+    margin-bottom:8px}
+  #splash .big{font-size:64px;line-height:1;color:#fff;text-shadow:0 0 30px #ff90e8}
+  #splash .sub{margin-top:14px;font-size:15px;color:#fff;font-weight:bold;
+    text-shadow:0 1px 4px #000,0 0 12px rgba(0,0,0,.8)}
+  #splash .sub a{color:#ff90e8}
+  /* Habbo-style chat column (radio.pieter.com look) */
+  #chat{position:fixed;right:14px;top:75px;bottom:14px;z-index:20;
+    width:min(400px,calc(100vw - 28px));display:flex;flex-direction:column;
+    pointer-events:none}
+  #chat.hidden{display:none}
+  @media (max-width:820px){#chat{top:50%}}
+  #chattabs{display:flex;gap:8px;margin-bottom:10px;pointer-events:auto}
+  #chattabs button{flex:1;font:bold 13px Tahoma,sans-serif;cursor:pointer;
+    padding:8px 0;border:3px solid #000;border-radius:12px;background:#fff;
+    color:#111;box-shadow:4px 4px 0 #000;letter-spacing:.5px}
+  #chattabs button.active{background:#ff90e8}
+  #chattabs button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  .tabpane{flex:1;min-height:0;display:flex;flex-direction:column}
+  #chattoggle{position:fixed;top:10px;right:14px;z-index:40;
+    font:bold 13px Tahoma,sans-serif;cursor:pointer;padding:6px 12px;
+    border:3px solid #000;border-radius:12px;background:#fff;color:#111;
+    box-shadow:4px 4px 0 #000}
+  #chattoggle:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  #viewers{position:fixed;top:10px;right:110px;z-index:40;display:none;
+    font:bold 13px Tahoma,sans-serif;padding:6px 12px;border:3px solid #000;
+    border-radius:12px;background:#fff;color:#111;box-shadow:4px 4px 0 #000;
+    pointer-events:none;white-space:nowrap}
+  #viewers b{color:#d81b9a}
+  /* QUEUE tab: fills the chat column, scrolls internally */
+  #nextup{flex:1;min-height:0;overflow-y:auto;pointer-events:auto;
+    display:flex;flex-direction:column;gap:8px;padding:3px 7px 3px 3px}
+  /* consistent thin, subtle scrollbars everywhere that scrolls. macOS hides
+     overlay scrollbars; Windows/Linux show chunky ones by default, so we tame
+     them to a slim translucent bar (or nothing until you hover/scroll). */
+  #chatmsgs,#nextup,#sidebar{scrollbar-width:thin;
+    scrollbar-color:rgba(255,255,255,.3) transparent}
+  #chatmsgs::-webkit-scrollbar,#nextup::-webkit-scrollbar,
+  #sidebar::-webkit-scrollbar{width:6px;height:6px}
+  #chatmsgs::-webkit-scrollbar-track,#nextup::-webkit-scrollbar-track,
+  #sidebar::-webkit-scrollbar-track{background:transparent}
+  #chatmsgs::-webkit-scrollbar-thumb,#nextup::-webkit-scrollbar-thumb,
+  #sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:8px}
+  #chatmsgs::-webkit-scrollbar-thumb:hover,#nextup::-webkit-scrollbar-thumb:hover,
+  #sidebar::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.5)}
+  /* section headers */
+  #nextup .nm,#nextup .qhead,#nextup .pnhead{font:bold 13px Tahoma,sans-serif;
+    color:#fff;text-shadow:0 1px 3px #000;letter-spacing:.5px;margin:2px 0}
+  #nextup .qhead,#nextup .pnhead{display:none}   /* shown by JS only when populated */
+  /* queue/generating items are chat-style bubbles */
+  #nextup .items,#nextup .queue,#nextup .playing{display:flex;flex-direction:column;gap:8px}
+  #nextup .qrow{display:flex;align-items:flex-start;gap:8px}
+  #nextup .qrow .it{flex:1;min-width:0;margin:0}
+  #nextup .up{flex:none;cursor:pointer;font:bold 12px Tahoma,sans-serif;color:#111;
+    background:#fff;border:3px solid #000;border-radius:12px;box-shadow:3px 3px 0 #000;
+    padding:6px 8px;display:flex;flex-direction:column;align-items:center;line-height:1;
+    min-width:34px;pointer-events:auto}
+  #nextup .up span{margin-top:2px;color:#d81b9a;font-variant-numeric:tabular-nums}
+  #nextup .up.voted{background:#ff90e8;cursor:default}
+  #nextup .up:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+  #nextup .it{align-self:flex-start;max-width:92%;color:#111;background:#fff;
+    border:3px solid #000;border-radius:16px;padding:7px 14px;font-size:15px;
+    box-shadow:5px 5px 0 #000;word-break:break-word;line-height:1.35;
+    font-weight:normal}
+  #nextup .it b{margin-right:6px}
+  #nextup .it .ttime{opacity:.5;font-size:.78em;margin-right:6px;
+    font-variant-numeric:tabular-nums}
+  #nextup .it.gen{background:#ffe990}   /* generating = amber, like a sys note */
+  /* YOUR OWN prompt in the queue / generating / playing-next: holographic border */
+  /* YOUR OWN prompt: the whole bubble is moving holographic foil, white text */
+  #nextup .it.hot{border-color:transparent;color:#fff;
+    background:linear-gradient(115deg,#ff2fd0,#8a4bff,#42a5ff,#22ffd0,#ffe14d,#ff8a3d,#ff2fd0);
+    background-size:300% 100%;text-shadow:0 1px 4px rgba(0,0,0,.7);
+    box-shadow:0 0 16px rgba(255,90,210,.55),4px 4px 0 rgba(0,0,0,.3);
+    animation:holoshift 4s linear infinite}
+  #nextup .it.hot b{color:#fff}
+  #nextup .it.hot .ttime{color:#fff;opacity:.85}
+  /* SLOP NEWS: breaking-news red/blue sweep — a special broadcast */
+  #nextup .it.news{border-color:transparent;color:#fff;
+    background:linear-gradient(115deg,#e11d2a,#7a1020,#132a63,#1c4fd6,#e11d2a);
+    background-size:300% 100%;text-shadow:0 1px 4px rgba(0,0,0,.7);
+    box-shadow:0 0 14px rgba(225,60,80,.5),4px 4px 0 rgba(0,0,0,.3);
+    animation:holoshift 6s linear infinite}
+  #nextup .it.news b{color:#fff}
+  #nextup .it.news .ttime{color:#fff;opacity:.85}
+  #nextup.blank::after{content:"nothing generating right now";color:#fff;
+    text-shadow:0 1px 3px #000;font-style:italic;opacity:.7}
+  #now .ttime{opacity:.5;font-weight:normal;margin-right:5px;
+    font-variant-numeric:tabular-nums}
+  #chatmsgs{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;
+    overflow-y:auto;overflow-x:hidden;margin:10px 0 12px;padding:3px 7px 3px 3px;
+    pointer-events:auto;scrollbar-width:thin;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 70px);
+    mask-image:linear-gradient(to bottom,transparent 0,#000 70px)}
+  #chatmsgs .bubble:first-child{margin-top:auto}
+  .bubble{align-self:flex-start;max-width:92%;color:#111;background:#fff;
+    border:3px solid #000;border-radius:16px;padding:7px 14px;font-size:16px;
+    box-shadow:5px 5px 0 #000;word-break:break-word;line-height:1.35}
+  .bubble b{margin-right:6px}
+  .bubble .btime{opacity:.5;font-size:.78em;margin-right:6px;
+    font-variant-numeric:tabular-nums}
+  .bubble.pending{opacity:.55}
+  .bubble .mstat{display:block;font-size:11px;opacity:.6;margin-top:3px;
+    font-weight:bold}
+  .bubble.sys{background:#ffe990;font-size:13px}
+  /* your own message: holographic foil, white text (matches the queue) */
+  .bubble.hot{border-color:transparent;color:#fff;
+    background:linear-gradient(115deg,#ff2fd0,#8a4bff,#42a5ff,#22ffd0,#ffe14d,#ff8a3d,#ff2fd0);
+    background-size:300% 100%;text-shadow:0 1px 4px rgba(0,0,0,.7);
+    box-shadow:0 0 14px rgba(255,90,210,.5),4px 4px 0 rgba(0,0,0,.25);
+    animation:holoshift 4s linear infinite}
+  .bubble.hot b{color:#fff}
+  .bubble.hot .btime{color:#fff;opacity:.85}
+  /* in-page toast (replaces alert(): browsers suppress repeated alerts) */
+  #toast{position:fixed;left:50%;top:64px;transform:translate(-50%,-8px);z-index:120;
+    max-width:min(90vw,440px);padding:12px 18px;border-radius:12px;text-align:center;
+    font:bold 14px Tahoma,sans-serif;color:#fff;background:rgba(20,20,22,.94);
+    box-shadow:0 5px 18px rgba(0,0,0,.5);opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #toast.good{background:#1e9e5a}
+  #toast.bad{background:#d8342b}
+  #chatas{pointer-events:auto;color:#fff;font-size:13px;margin-bottom:8px;
+    text-shadow:0 1px 3px #000}
+  #chatas b{color:#ff90e8} #chatas a{color:#fff;cursor:pointer;text-decoration:underline}
+  #chatname,#chatform{display:flex;gap:10px;pointer-events:auto}
+  /* 16px minimum: below that iOS Safari force-zooms the page on focus */
+  /* checking state: keep the box looking normal (no half-opacity gray-out) */
+  #chatform input:disabled{opacity:1;background:#fff;color:#111;
+    -webkit-text-fill-color:#111}
+  #chatform input:disabled::placeholder{color:#444;opacity:1}
+  #chatname input,#chatform input{flex:1;min-width:0;font:bold 16px Tahoma,sans-serif;
+    padding:9px 13px;border:3px solid #000;border-radius:12px;outline:none;
+    box-shadow:4px 4px 0 #000;background:#fff;color:#111}
+  #chatname button,#chatform button{font:bold 15px Tahoma,sans-serif;cursor:pointer;
+    padding:9px 16px;border:3px solid #000;border-radius:12px;background:#ff90e8;
+    color:#111;box-shadow:4px 4px 0 #000}
+  #chatname button:active,#chatform button:active{transform:translate(2px,2px);
+    box-shadow:2px 2px 0 #000}
+  /* top-left stack: now-playing bubble, plus the viewer count on mobile */
+  #topleft{position:fixed;top:10px;left:14px;z-index:15;display:flex;
+    flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none}
+  #now{position:relative;max-width:min(560px,calc(100vw - 480px));pointer-events:none;
+    background:#fff;color:#111;border:3px solid #000;border-radius:12px;padding:7px 14px;
+    box-shadow:4px 4px 0 #000;font-size:12.5px;line-height:1.3;display:none}
+  /* a live viewer prompt on screen: holographic rotating border + soft glow */
+  @property --hue{syntax:"<angle>";initial-value:0deg;inherits:false}
+  /* clean rotating rainbow BORDER (border-box gradient, white interior) + glow */
+  #now.hot{border-color:transparent;color:#fff;
+    background:linear-gradient(115deg,#ff2fd0,#8a4bff,#42a5ff,#22ffd0,#ffe14d,#ff8a3d,#ff2fd0);
+    background-size:300% 100%;text-shadow:0 1px 4px rgba(0,0,0,.7);
+    box-shadow:0 0 16px rgba(255,90,210,.5),4px 4px 0 rgba(0,0,0,.3);
+    animation:holoshift 4s linear infinite}
+  #now.hot .nm,#now.hot .ago,#now.hot .tx,#now.hot .req{color:#fff}
+  #now.news{border-color:transparent;color:#fff;
+    background:linear-gradient(115deg,#e11d2a,#7a1020,#132a63,#1c4fd6,#e11d2a);
+    background-size:300% 100%;text-shadow:0 1px 4px rgba(0,0,0,.7);
+    box-shadow:0 0 16px rgba(225,60,80,.5),4px 4px 0 rgba(0,0,0,.3);
+    animation:holoshift 6s linear infinite}
+  #now.news .nm,#now.news .ago,#now.news .tx,#now.news .req{color:#fff}
+  @keyframes huespin{to{--hue:360deg}}
+  @keyframes holoshift{to{background-position:300% 50%}}
+  #now.hot.pop{animation:holoshift 4s linear infinite,nowpop .55s cubic-bezier(.3,1.5,.4,1)}
+  #now.pop{animation:nowpop .55s cubic-bezier(.3,1.5,.4,1)}
+  @keyframes nowpop{0%{transform:scale(.88) rotate(-1.5deg)}
+    30%{transform:scale(1.07) rotate(1.5deg)}55%{transform:scale(.98) rotate(-.8deg)}
+    100%{transform:scale(1) rotate(0)}}
+  #now .nm{font-weight:bold;color:#d81b9a;margin-right:6px;white-space:nowrap}
+  #now .ago{opacity:.55;margin-left:6px;font-variant-numeric:tabular-nums;
+    white-space:nowrap}
+  #now .req{display:none;margin-bottom:3px;font-weight:bold;color:#d81b9a;
+    word-break:break-word}
+  #now .req::before{content:"\1F4AC  "}
+  @media (max-width:820px){
+    /* leave the top-right corner to the chat toggle button */
+    #now{max-width:calc(100vw - 150px);font-size:11px}
+    #now .nm{display:none}
+    /* viewer count tucks in under the prompt box on mobile */
+    #viewers{position:static;font-size:11px;padding:5px 10px}
+  }
+  /* landscape desktop: the portrait video is centred with side margins, so pin
+     the now-playing box to the video's own left edge (inside it), not the margin */
+  @media (min-width:821px) and (min-aspect-ratio:1/1){
+    #topleft{left:max(14px,calc(50vw - 28.13vh + 16px));top:16px}
+    #now{max-width:calc(56.25vh - 32px)}
+  }
+  /* the QUEUE, moved into the empty left margin on wide desktops (JS toggles
+     body.deskq and relocates #nextup here) */
+  #leftqueue{position:fixed;left:14px;top:14px;bottom:65px;z-index:20;display:none;
+    width:min(340px,calc(50vw - 28.13vh - 24px));flex-direction:column;
+    pointer-events:none}
+  body.deskq #leftqueue{display:flex}
+  body.deskq.chat-closed #leftqueue{display:none}  /* the CHAT toggle hides both sidebars */
+  body.deskq #chattabs{display:none}
+  body.deskq #tab-queue{display:none!important}
+  body.deskq #tab-chat{display:flex!important}
+  /* periscope hearts */
+  #heartbtn{position:fixed;left:14px;bottom:56px;z-index:30;cursor:pointer;
+    font:bold 15px Tahoma,sans-serif;padding:8px 14px;border:3px solid #000;
+    border-radius:12px;background:#fff;color:#111;box-shadow:4px 4px 0 #000;
+    user-select:none;-webkit-user-select:none;touch-action:none}
+  #heartbtn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  #heartbtn .cnt{margin-left:6px;color:#d81b9a}
+  .heart{position:fixed;z-index:29;font-size:40px;pointer-events:none;
+    animation:floatup 2.6s ease-out forwards}
+  @keyframes floatup{
+    0%{opacity:0;transform:translate(0,0) scale(.6)}
+    12%{opacity:1}
+    100%{opacity:0;transform:translate(var(--wob),-45vh) scale(1.25)}
+  }
+  @media (max-width:820px){
+      /* heart button drops to the same row as the fal logo */
+    #heartbtn{bottom:14px}
+  }
+  /* human-check modal (shown only when trying to write, not on load) */
+  #tsback{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);
+    z-index:99998}
+  #tsmodal{display:none;position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%);background:#fff;color:#111;
+    padding:24px 24px 18px;border:3px solid #000;border-radius:12px;
+    box-shadow:6px 6px 0 #000;z-index:99999;text-align:center;max-width:90vw}
+  #tsmodal h3{margin:0 0 14px;font-size:16px}
+  /* pick-a-name modal (mirrors the human-check modal) */
+  #nameback{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99998}
+  #namemodal{display:none;position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%);background:#fff;color:#111;
+    padding:22px 22px 20px;border:3px solid #000;border-radius:12px;
+    box-shadow:6px 6px 0 #000;z-index:99999;text-align:center;width:min(320px,88vw)}
+  #namemodal h3{margin:0 0 14px;font-size:17px}
+  #nameform{display:flex;gap:10px}
+  #nameform input{flex:1;min-width:0;font:bold 16px Tahoma,sans-serif;
+    padding:9px 13px;border:3px solid #000;border-radius:12px;outline:none;
+    box-shadow:4px 4px 0 #000;background:#fff;color:#111}
+  #nameform button{font:bold 15px Tahoma,sans-serif;cursor:pointer;padding:9px 16px;
+    border:3px solid #000;border-radius:12px;background:#ff90e8;color:#111;
+    box-shadow:4px 4px 0 #000}
+  #nameform button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  #tsmodal .turnstile-widget{min-height:65px;display:flex;justify-content:center}
+  #tsmodal .turnstile-error{display:none;color:#c00;font-size:13px;margin-top:10px}
+  /* desktop credit pill, bottom-right, only when chat is closed */
+  #credit{position:fixed;left:14px;bottom:14px;z-index:25;display:inline-flex;
+    align-items:center;gap:6px;font:bold 16px Tahoma,sans-serif;padding:7px 14px;
+    border:3px solid #000;border-radius:12px;background:#fff;color:#111;
+    box-shadow:4px 4px 0 #000}
+  #credit a{color:#d81b9a;text-decoration:none;display:inline-flex;align-items:center}
+  #credit a svg{display:block}
+  @media (max-width:820px){
+    /* on mobile the credit shows bottom-right, only when chat is closed */
+    #credit{display:none}
+    body.chat-closed #credit{display:inline-flex;left:auto;right:14px}
+  }
+  /* sound toggle, tucked under the X CHAT button */
+  #mute{position:fixed;top:52px;right:14px;z-index:40;
+    font:bold 13px Tahoma,sans-serif;cursor:pointer;padding:6px 12px;
+    border:3px solid #000;border-radius:12px;background:#fff;color:#111;
+    box-shadow:4px 4px 0 #000}
+  #mute:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  /* experimental channel selector (?test=1, desktop) */
+  #sidebar{display:none}
+  body.test #sidebar{position:fixed;left:0;top:0;bottom:0;width:152px;z-index:45;
+    background:rgba(0,0,0,.55);display:flex;flex-direction:column;gap:8px;
+    padding:14px 10px;overflow-y:auto;pointer-events:auto}
+  body.test #sidebar .head{color:#fff;font:bold 11px Tahoma,sans-serif;opacity:.6;
+    margin-top:8px;letter-spacing:.5px}
+  body.test #sidebar .ch{font:bold 13px Tahoma,sans-serif;cursor:pointer;
+    padding:9px 11px;border:3px solid #000;border-radius:12px;background:#fff;color:#111;
+    box-shadow:4px 4px 0 #000;text-align:left;white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis}
+  body.test #sidebar .ch.active{background:#ff90e8}
+  body.test #sidebar .ch:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  body.vod #now{display:none!important}
+  @media (max-width:820px){body.test #sidebar{display:none}}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <button class="ch active" data-ch="live">🔴 LIVE</button>
+  <button class="ch" data-ch="top">❤️ TOP</button>
+  <button class="ch" data-ch="newest">🆕 NEWEST</button>
+  <button class="ch" data-ch="oldest">⏮ OLDEST</button>
+  <div class="head">CATEGORIES</div>
+  <button class="ch" data-ch="tag" data-q="banana">🍌 banana</button>
+  <button class="ch" data-ch="tag" data-q="cat">🐱 cat</button>
+  <button class="ch" data-ch="tag" data-q="space">🚀 space</button>
+  <button class="ch" data-ch="tag" data-q="news">📺 news</button>
+  <button class="ch" data-ch="tag" data-q="game">🎮 game show</button>
+</div>
+
+<div id="tvwrap"><div id="reel"><div class="vcell" id="cell0"><video id="tv" muted autoplay
+  playsinline poster="live/poster.jpg"></video></div></div></div>
+<button id="livepill" type="button">LIVE</button>
+<div id="splash"><div class="si">
+  <div class="logo">Infinite Slop</div>
+  <div class="big">&#9654;</div>
+  <div class="sub">an endless AI-generated TV channel.<br>
+    the chat decides what airs next<br><br>
+    by <a href="https://x.com/levelsio" target="_blank" rel="noopener"
+      onclick="event.stopPropagation()">@levelsio</a> +
+    <a href="https://fal.ai/minimax-h3-max" target="_blank" rel="noopener"
+      onclick="event.stopPropagation()" aria-label="fal.ai"><svg viewBox="0 0 120 48" xmlns="http://www.w3.org/2000/svg" style="height:0.95em;width:auto;fill:currentColor;vertical-align:-0.12em"><path d="M120 6.46345V41.6633C120 47.2476 119.937 47.4986 119.248 47.4986H110.724C110.034 47.4986 109.909 47.2476 109.909 41.6633V6.46345C109.909 0.879154 110.034 0.628174 110.724 0.628174H119.248C119.937 0.628174 120 0.879154 120 6.46345Z"/><path d="M96.0997 27.0431V25.7255C96.0997 22.5882 94.6581 21.3333 92.1509 21.3333C89.7065 21.3333 88.3902 22.651 88.0142 24.9725C87.8888 25.6627 87.9515 26.2274 87.5754 26.2274H79.1138C78.6124 26.2274 78.6124 26.1019 78.6124 25.6627C78.6124 22.3372 81.7463 15.4353 92.6524 15.4353C100.362 15.4353 105.878 18.5098 105.878 27.0431V39.5921C105.878 42.4783 107.445 46.5568 107.445 47.1215C107.445 47.3724 107.257 47.4979 107.068 47.4979H97.6667C97.2279 47.4979 97.1652 47.247 96.8518 45.6783L96.6011 44.4862C96.4131 43.545 96.2877 43.2313 95.9117 43.2313C95.4102 43.2313 95.0968 44.3607 93.7179 45.6783C92.2136 47.0587 90.3959 47.9999 87.262 47.9999C82.185 47.9999 77.6095 45.1136 77.6095 38.8391C77.6095 31.8117 83.0625 28.8 91.1481 28.4862C95.3476 28.298 96.0997 28.7372 96.0997 27.0431ZM96.0997 36.1411V34.8862C96.0997 33.6313 95.7863 33.2548 94.7208 33.3176L92.4017 33.4431C89.4558 33.6313 87.7008 35.1372 87.7008 37.9607C87.7008 40.7215 89.205 42.1019 91.3988 42.1019C93.8433 42.1019 96.0997 39.8431 96.0997 36.1411Z"/><path d="M60.5509 23.6548C60.5509 22.4627 60.0495 22.3372 57.7304 22.3372H56.6021C56.1634 22.3372 56.1007 22.0234 56.1007 19.4509V19.0117C56.1007 16.4392 56.1634 16.1882 56.6021 16.1882H57.9184C60.2375 16.1882 60.5509 15.9999 60.5509 14.8705V10.9804C60.5509 3.6392 64.2489 0 71.3943 0C74.2148 0 76.1579 0.439212 76.4713 0.627448C76.5966 0.752936 76.5966 0.941172 76.5966 3.26273V4.07842C76.5966 6.46272 76.5966 7.02742 76.4086 7.02742C76.2206 7.02742 75.3431 6.46272 73.8388 6.46272C71.8331 6.46272 70.5795 7.46664 70.5795 10.9804V14.8705C70.5795 15.9999 71.0182 16.1882 73.8388 16.1882H76.6593C77.2234 16.1882 77.2234 16.4392 77.2234 19.0117V19.4509C77.2234 22.0234 77.1607 22.3372 76.722 22.3372H73.8388C71.0182 22.3372 70.5795 22.4627 70.5795 23.6548V41.6626C70.5795 47.2469 70.3914 47.4979 69.89 47.4979H61.1777C60.6762 47.4979 60.5509 47.2469 60.5509 41.6626V23.6548Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M30.1574 0.740479C30.9676 0.740479 31.6169 1.39923 31.6944 2.20567C32.3853 9.39891 38.1102 15.1234 45.3039 15.8142C46.1104 15.8917 46.7692 16.541 46.7692 17.3511V30.8959C46.7692 31.706 46.1104 32.3553 45.3039 32.4328C38.1102 33.1236 32.3853 38.8481 31.6944 46.0414C31.6169 46.8478 30.9676 47.5065 30.1574 47.5065H16.6118C15.8016 47.5065 15.1523 46.8478 15.0748 46.0414C14.384 38.8481 8.65901 33.1236 1.46528 32.4328C0.658799 32.3553 0 31.706 0 30.8959V17.3511C0 16.541 0.658803 15.8917 1.46529 15.8142C8.65902 15.1234 14.384 9.39891 15.0748 2.20567C15.1523 1.39923 15.8016 0.740479 16.6118 0.740479H30.1574ZM9.39037 24.0839C9.39037 31.865 15.6915 38.1728 23.4644 38.1728C31.2373 38.1728 37.5385 31.865 37.5385 24.0839C37.5385 16.3028 31.2373 9.99498 23.4644 9.99498C15.6915 9.99498 9.39037 16.3028 9.39037 24.0839Z"/></svg></a></div>
+</div></div>
+<button id="mute">&#128264; unmute</button>
+<button id="chattoggle">&#10005; chat</button>
+<div id="heartbtn">&#10084;&#65039;<span class="cnt">0</span></div>
+<div id="credit">by <a href="https://x.com/levelsio" target="_blank" rel="noopener">@levelsio</a> + <a href="https://fal.ai/minimax-h3-max" target="_blank" rel="noopener" title="fal.ai" aria-label="fal.ai"><svg viewBox="0 0 120 48" xmlns="http://www.w3.org/2000/svg" style="height:0.95em;width:auto;fill:currentColor;vertical-align:-0.12em"><path d="M120 6.46345V41.6633C120 47.2476 119.937 47.4986 119.248 47.4986H110.724C110.034 47.4986 109.909 47.2476 109.909 41.6633V6.46345C109.909 0.879154 110.034 0.628174 110.724 0.628174H119.248C119.937 0.628174 120 0.879154 120 6.46345Z"/><path d="M96.0997 27.0431V25.7255C96.0997 22.5882 94.6581 21.3333 92.1509 21.3333C89.7065 21.3333 88.3902 22.651 88.0142 24.9725C87.8888 25.6627 87.9515 26.2274 87.5754 26.2274H79.1138C78.6124 26.2274 78.6124 26.1019 78.6124 25.6627C78.6124 22.3372 81.7463 15.4353 92.6524 15.4353C100.362 15.4353 105.878 18.5098 105.878 27.0431V39.5921C105.878 42.4783 107.445 46.5568 107.445 47.1215C107.445 47.3724 107.257 47.4979 107.068 47.4979H97.6667C97.2279 47.4979 97.1652 47.247 96.8518 45.6783L96.6011 44.4862C96.4131 43.545 96.2877 43.2313 95.9117 43.2313C95.4102 43.2313 95.0968 44.3607 93.7179 45.6783C92.2136 47.0587 90.3959 47.9999 87.262 47.9999C82.185 47.9999 77.6095 45.1136 77.6095 38.8391C77.6095 31.8117 83.0625 28.8 91.1481 28.4862C95.3476 28.298 96.0997 28.7372 96.0997 27.0431ZM96.0997 36.1411V34.8862C96.0997 33.6313 95.7863 33.2548 94.7208 33.3176L92.4017 33.4431C89.4558 33.6313 87.7008 35.1372 87.7008 37.9607C87.7008 40.7215 89.205 42.1019 91.3988 42.1019C93.8433 42.1019 96.0997 39.8431 96.0997 36.1411Z"/><path d="M60.5509 23.6548C60.5509 22.4627 60.0495 22.3372 57.7304 22.3372H56.6021C56.1634 22.3372 56.1007 22.0234 56.1007 19.4509V19.0117C56.1007 16.4392 56.1634 16.1882 56.6021 16.1882H57.9184C60.2375 16.1882 60.5509 15.9999 60.5509 14.8705V10.9804C60.5509 3.6392 64.2489 0 71.3943 0C74.2148 0 76.1579 0.439212 76.4713 0.627448C76.5966 0.752936 76.5966 0.941172 76.5966 3.26273V4.07842C76.5966 6.46272 76.5966 7.02742 76.4086 7.02742C76.2206 7.02742 75.3431 6.46272 73.8388 6.46272C71.8331 6.46272 70.5795 7.46664 70.5795 10.9804V14.8705C70.5795 15.9999 71.0182 16.1882 73.8388 16.1882H76.6593C77.2234 16.1882 77.2234 16.4392 77.2234 19.0117V19.4509C77.2234 22.0234 77.1607 22.3372 76.722 22.3372H73.8388C71.0182 22.3372 70.5795 22.4627 70.5795 23.6548V41.6626C70.5795 47.2469 70.3914 47.4979 69.89 47.4979H61.1777C60.6762 47.4979 60.5509 47.2469 60.5509 41.6626V23.6548Z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M30.1574 0.740479C30.9676 0.740479 31.6169 1.39923 31.6944 2.20567C32.3853 9.39891 38.1102 15.1234 45.3039 15.8142C46.1104 15.8917 46.7692 16.541 46.7692 17.3511V30.8959C46.7692 31.706 46.1104 32.3553 45.3039 32.4328C38.1102 33.1236 32.3853 38.8481 31.6944 46.0414C31.6169 46.8478 30.9676 47.5065 30.1574 47.5065H16.6118C15.8016 47.5065 15.1523 46.8478 15.0748 46.0414C14.384 38.8481 8.65901 33.1236 1.46528 32.4328C0.658799 32.3553 0 31.706 0 30.8959V17.3511C0 16.541 0.658803 15.8917 1.46529 15.8142C8.65902 15.1234 14.384 9.39891 15.0748 2.20567C15.1523 1.39923 15.8016 0.740479 16.6118 0.740479H30.1574ZM9.39037 24.0839C9.39037 31.865 15.6915 38.1728 23.4644 38.1728C31.2373 38.1728 37.5385 31.865 37.5385 24.0839C37.5385 16.3028 31.2373 9.99498 23.4644 9.99498C15.6915 9.99498 9.39037 16.3028 9.39037 24.0839Z"/></svg></a></div>
+<div id="chat">
+  <div id="chattabs">
+    <button data-tab="chat" class="active">CHAT</button>
+    <button data-tab="queue">QUEUE</button>
+  </div>
+  <div id="tab-chat" class="tabpane">
+    <div id="chatmsgs"></div>
+    <div id="chatas" style="display:none"><b></b> &middot;
+      <a id="chatchange">change name</a></div>
+    <form id="chatform"><input id="chatinput" type="text"
+      maxlength="200" placeholder="What you wanna see next&hellip;"
+      autocomplete="off"><button type="submit">Say</button></form>
+  </div>
+  <div id="tab-queue" class="tabpane" style="display:none">
+    <div id="nextup">
+      <div class="pnhead">PLAYING NEXT</div>
+      <div class="playing"></div>
+      <div class="nm">NOW GENERATING</div>
+      <div class="items"></div>
+      <div class="qhead">QUEUE</div>
+      <div class="queue"></div>
+    </div>
+  </div>
+</div>
+<div id="leftqueue"></div>
+<div id="topleft">
+  <div id="now"><span class="nm">ON AIR<span class="ago"></span></span>
+    <div class="req"></div><span class="tx"></span></div>
+  <div id="viewers">&#128064; <b></b> watching</div>
+</div>
+<div id="tsback"></div>
+<div id="tsmodal" role="dialog" aria-modal="true">
+  <h3>Quick check that you're human</h3>
+  <div class="turnstile-widget"></div>
+  <div class="turnstile-error">Verification failed, please try again.</div>
+</div>
+<div id="nameback"></div>
+<div id="namemodal" role="dialog" aria-modal="true">
+  <h3>Pick a name to chat</h3>
+  <form id="nameform">
+    <input id="namein" type="text" maxlength="18" placeholder="your name&hellip;"
+      autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button type="submit">Join</button>
+  </form>
+</div>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=tsReady" async defer></script>
+<script src="hls.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const PLAYLIST = 'live/playlist.m3u8';
+
+/* ---------- video ---------- */
+const tv = $('tv');
+let usingHls = false, hlsRef = null;
+function startVideo(){
+  if (window.Hls && Hls.isSupported()){
+    usingHls = true;
+    const h = hlsRef = new Hls({liveSyncDurationCount: 2});
+    h.loadSource(PLAYLIST);
+    h.attachMedia(tv);
+    // exact ON AIR sync: update the box from the fragment actually on screen
+    h.on(Hls.Events.FRAG_CHANGED, (_, d) => {
+      const name = d.frag.url.split('/').pop().split('?')[0];
+      onFrag(name);
+      // a brand-new clip beats queued reruns: once the current video ends,
+      // jump straight to the fresh one instead of replaying in between
+      try {
+        seenSegs.add(name);
+        const dets = h.levels[h.currentLevel].details;
+        for (const f of dets.fragments){
+          if (f.sn <= d.frag.sn) continue;
+          const fn = f.url.split('/').pop().split('?')[0];
+          const fm = segMeta[fn];
+          // an UNSEEN fresh clip always plays next, even while browsing;
+          // already-watched material never yanks the player around
+          if (fm && !fm.replay && !seenSegs.has(fn)){
+            tv.currentTime = f.start + 0.05;
+            break;
+          }
+        }
+      } catch(e){}
+    });
+    // on load, start on the NEWEST clip in the window, not wherever the
+    // rerun loop happens to be
+    let positioned = false;
+    h.on(Hls.Events.LEVEL_LOADED, (_, d) => {
+      if (positioned) return;
+      positioned = true;
+      let best = null, bestId = -1;
+      for (const f of d.details.fragments){
+        const n = parseInt(f.url.split('/').pop(), 10);
+        if (!isNaN(n) && n > bestId){ bestId = n; best = f; }
+      }
+      if (best) tv.currentTime = best.start + 0.05;
+    });
+    h.on(Hls.Events.ERROR, (_, d) => { if (d.fatal){
+      setTimeout(() => { h.destroy(); startVideo(); }, 3000); }});
+  } else if (tv.canPlayType('application/vnd.apple.mpegurl')){
+    tv.src = PLAYLIST;
+  }
+  tv.play().catch(()=>{});
+}
+$('splash').onclick = () => {
+  $('splash').remove();
+  tv.muted = false;
+  tv.play().catch(()=>{ tv.muted = true; tv.play().catch(()=>{}); });
+  setTimeout(updateMuteBtn, 300);   // reflect whether sound actually started
+};
+function updateMuteBtn(){
+  $('mute').innerHTML = tv.muted ? '&#128263; unmute' : '&#128266; mute';
+}
+$('mute').onclick = () => {
+  tv.muted = !tv.muted;
+  if (!tv.muted) tv.play().catch(()=>{ tv.muted = true; });
+  if (cells[pos]) cells[pos].video.muted = tv.muted;   // browsed clip follows too
+  updateMuteBtn();
+};
+updateMuteBtn();
+startVideo();
+
+/* ---------- channel selector (experimental, ?test=1) ---------- */
+if (new URLSearchParams(location.search).get('test') === '1')
+  document.body.classList.add('test');
+
+/* VIP priority key: ?vip=KEY grants queue priority. Stored so it persists across
+   visits; sent with every chat post and validated server-side. */
+let vipKey = '';
+try { vipKey = localStorage.getItem('slop_vip') || ''; } catch(e){}
+const _vipParam = new URLSearchParams(location.search).get('vip');
+if (_vipParam){ vipKey = _vipParam;
+  try { localStorage.setItem('slop_vip', vipKey); } catch(e){} }
+let liveMode = true;
+function setChannel(btn){
+  document.querySelectorAll('#sidebar .ch').forEach(b => b.classList.toggle('active', b === btn));
+  const ch = btn.dataset.ch, q = btn.dataset.q || '';
+  if (hlsRef){ try { hlsRef.destroy(); } catch(e){} hlsRef = null; }
+  document.body.classList.toggle('vod', ch !== 'live');
+  if (ch === 'live'){ liveMode = true; startVideo(); tv.play().catch(()=>{}); return; }
+  liveMode = false;
+  const src = 'api/channel?ch=' + ch + (q ? '&q=' + encodeURIComponent(q) : '');
+  if (window.Hls && Hls.isSupported()){
+    const h = hlsRef = new Hls({maxBufferLength: 24});
+    h.loadSource(src); h.attachMedia(tv);
+    h.on(Hls.Events.ERROR, (_, d) => { if (d.fatal){ try{h.destroy();}catch(e){}
+      setTimeout(() => { if (!liveMode) setChannel(btn); }, 3000); }});
+  } else { tv.src = src; }
+  tv.loop = false; tv.play().catch(()=>{});
+}
+tv.addEventListener('ended', () => { if (!liveMode){ tv.currentTime = 0; tv.play().catch(()=>{}); }});
+document.getElementById('sidebar').addEventListener('click', e => {
+  const b = e.target.closest('.ch'); if (b) setChannel(b);
+});
+
+/* ---------- desktop: park the queue in the left margin if there's room ----------
+   The portrait video is centred with empty side margins on wide screens; when the
+   left margin is wide enough we move the live queue (#nextup) into it and drop the
+   CHAT/QUEUE tabs (chat stays on the right). Narrow screens keep the tabbed panel. */
+function layoutPanels(){
+  const vidW = Math.min(innerWidth, innerHeight * 9 / 16);   // portrait video width
+  const margin = (innerWidth - vidW) / 2;                    // side-margin width
+  const desk = innerWidth >= 1000 && margin >= 280;
+  const nx = $('nextup');
+  if (desk){
+    if (nx.parentElement.id !== 'leftqueue') $('leftqueue').appendChild(nx);
+    document.body.classList.add('deskq');
+  } else {
+    if (nx.parentElement.id !== 'tab-queue') $('tab-queue').appendChild(nx);
+    document.body.classList.remove('deskq');
+  }
+}
+layoutPanels();
+addEventListener('resize', layoutPanels);
+
+/* ---------- CHAT / QUEUE tabs ---------- */
+$('chattabs').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  // clicking the already-active tab closes the chat (like the ✕ chat toggle)
+  if (btn.classList.contains('active')){ chatOpen = false; applyChat(); return; }
+  for (const b of $('chattabs').children) b.classList.toggle('active', b === btn);
+  const t = btn.dataset.tab;
+  $('tab-chat').style.display = t === 'chat' ? 'flex' : 'none';
+  $('tab-queue').style.display = t === 'queue' ? 'flex' : 'none';
+});
+
+/* ---------- chat toggle (always open on load) ---------- */
+let chatOpen = true;
+function applyChat(){
+  $('chat').classList.toggle('hidden', !chatOpen);
+  $('chattoggle').innerHTML = chatOpen ? '&#10005; chat' : '&#128172; chat';
+  // heart button only when the chat is out of the way (tap-anywhere still works)
+  $('heartbtn').style.display = chatOpen ? 'none' : 'block';
+  document.body.classList.toggle('chat-closed', !chatOpen);
+  // reopening the chat jumps to the newest message
+  if (chatOpen){ const m = $('chatmsgs'); requestAnimationFrame(() => { m.scrollTop = m.scrollHeight; }); }
+}
+$('chattoggle').onclick = () => { chatOpen = !chatOpen; applyChat(); };
+applyChat();
+
+/* ---------- turnstile modal (shown only when trying to write) ---------- */
+// CAPTCHA_ENABLED=false disables the whole human-check flow (server gate is off
+// too, via TURNSTILE_ENABLED=0). Flip both back on to re-enable.
+const CAPTCHA_ENABLED = false;
+// message POSTs carry ?captcha=1 only when the check is on, so the server
+// enforces it for this page (the index2 test page) without affecting others
+const CHATPOST = 'api/chat' + (CAPTCHA_ENABLED ? '?captcha=1' : '');
+let tsVerified = !CAPTCHA_ENABLED || document.cookie.indexOf('slop_human=') !== -1;
+let tsWidget = null, tsRendered = false, tsPending = null, tsWanted = false;
+let tsBusy = false;   // a verify POST is in flight — ignore extra callbacks
+function tsErr(on){
+  document.querySelector('#tsmodal .turnstile-error').style.display =
+    on ? 'block' : 'none';
+}
+function showTsModal(){
+  if (tsVerified) return;
+  if (tsWanted) return;             // already open — don't re-render/re-reset
+  tsWanted = true;
+  $('tsback').style.display = 'block';
+  $('tsmodal').style.display = 'block';
+  tsErr(false);
+  if (!window.turnstile) return;    // renders via tsReady when the script lands
+  if (!tsRendered){
+    tsRendered = true;
+    tsWidget = turnstile.render('#tsmodal .turnstile-widget', {
+      sitekey: '0x4AAAAAAECJ0oobmd_WXz-S', theme: 'light',
+      callback: onTsToken,
+      'error-callback': () => { if (!tsBusy) tsErr(true); },
+      'expired-callback': () => {}   // a fresh solve issues a new token anyway
+    });
+  } else {
+    try{ turnstile.reset(tsWidget); }catch(e){}
+  }
+}
+function hideTsModal(){
+  tsWanted = false;
+  $('tsback').style.display = 'none';
+  $('tsmodal').style.display = 'none';
+}
+async function onTsToken(t){
+  // Turnstile tokens are SINGLE-USE; ignore duplicate/late callbacks so we never
+  // POST the same token twice (the second would fail and loop).
+  if (tsVerified || tsBusy || !t) return;
+  tsBusy = true;
+  tsErr(false);
+  try {
+    const r = await fetch(CHATPOST, {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'verify', cf_token: t})});
+    const d = await r.json();
+    if (d.success){
+      tsVerified = true;
+      try{ turnstile.remove(tsWidget); }catch(e){}  // kill it so it can't refire
+      tsRendered = false; tsWidget = null;
+      hideTsModal();
+      if (typeof applyGate === 'function') applyGate();  // unlock the box
+      if (tsPending){ const m = tsPending; tsPending = null; sendMsg(m); }
+      else { const inp = $('chatinput'); if (inp && nick) inp.focus(); }
+      return;
+    }
+    // server said no: show error, get a fresh challenge for another try
+    tsErr(true);
+    try{ turnstile.reset(tsWidget); }catch(e){}
+  } catch(e){
+    tsErr(true);
+    try{ turnstile.reset(tsWidget); }catch(e){}
+  } finally {
+    tsBusy = false;
+  }
+}
+window.tsReady = () => { if (tsWanted){ tsWanted = false; showTsModal(); } };
+setTimeout(() => {  // content blockers (common on iOS) can block the script
+  if (!window.turnstile && tsWanted)
+    addBubble('', 'your browser blocked the human-check script ' +
+      '(content blocker?). chat needs it to send messages.', 'sys');
+}, 8000);
+
+/* ---------- chat ---------- */
+let cid = '';
+try {
+  cid = localStorage.getItem('is_cid') || '';
+  if (!cid){
+    cid = (self.crypto && crypto.randomUUID ? crypto.randomUUID()
+           : Date.now().toString(36) + Math.random().toString(36).slice(2)).replace(/-/g,'');
+    localStorage.setItem('is_cid', cid);
+  }
+} catch(e){ cid = ''; }
+let nick = '';
+try { nick = localStorage.getItem('is_nick') || ''; } catch(e){}
+let lastId = 0;
+const seen = new Set();
+const pendingCheck = {};   // id -> {msg, user} posted and awaiting moderation
+
+function pastel(name){
+  let h = 0;
+  for (const c of name) h = (h * 31 + c.charCodeAt(0)) % 360;
+  return `hsl(${h},85%,85%)`;
+}
+function fmtTime(at){
+  const d = !at ? new Date()
+    : (typeof at === 'number' ? new Date(at * 1000)
+    : new Date(at.replace(' ', 'T') + 'Z'));
+  return isNaN(d) ? '' :
+    d.getHours().toString().padStart(2, '0') + ':' +
+    d.getMinutes().toString().padStart(2, '0');
+}
+function addBubble(user, msg, cls, at){
+  const d = document.createElement('div');
+  const mine = user && isMine(user, msg);   // your own message glows holographic
+  d.className = 'bubble' + (cls ? ' ' + cls : '') + (mine ? ' hot' : '');
+  if (user){
+    const t = document.createElement('span');
+    t.className = 'btime';
+    t.textContent = fmtTime(at);
+    d.appendChild(t);
+    const b = document.createElement('b');
+    b.textContent = user;
+    d.appendChild(b);
+    if (!mine) d.style.background = pastel(user);   // hot uses the foil background
+  }
+  d.appendChild(document.createTextNode(msg));
+  const m = $('chatmsgs');
+  const stick = m.scrollTop + m.clientHeight > m.scrollHeight - 60;
+  m.appendChild(d);
+  while (m.children.length > 80) m.removeChild(m.firstChild);
+  if (stick) m.scrollTop = m.scrollHeight;
+  return d;
+}
+
+function showForms(){
+  const named = !!nick;
+  $('chatas').style.display = named ? 'block' : 'none';
+  if (named) $('chatas').querySelector('b').textContent = nick;
+  $('chatinput').placeholder = 'What you wanna see next…';
+}
+// centered "pick a name" modal (mirrors the human-check modal)
+function showNameModal(){
+  $('nameback').style.display = 'block';
+  $('namemodal').style.display = 'block';
+  $('namein').value = nick || '';
+  setTimeout(() => $('namein').focus(), 30);
+}
+function hideNameModal(){
+  $('nameback').style.display = 'none';
+  $('namemodal').style.display = 'none';
+}
+$('nameform').onsubmit = e => {
+  e.preventDefault();
+  const v = $('namein').value.replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 18);
+  if (!v) return;
+  nick = v;
+  try { localStorage.setItem('is_nick', nick); } catch(err){}
+  hideNameModal();
+  showForms();
+  const m = pendingMsg; pendingMsg = null;
+  if (m){ sendMsg(m); } else $('chatinput').focus();
+};
+$('chatchange').onclick = showNameModal;
+$('nameback').onclick = hideNameModal;
+let pendingMsg = null;
+// queue upvotes — one per viewer per message; most-upvoted airs first
+const votedIds = new Set();
+const voteFloor = {};   // id -> known count (so re-renders never dip below it)
+async function voteFor(id, btn){
+  if (votedIds.has(id)) return;
+  votedIds.add(id);
+  // seed from what's already shown (server count) so a 3 -> 4, not 3 -> 1
+  const shownNow = btn ? (+btn.querySelector('span').textContent || 0) : 0;
+  voteFloor[id] = Math.max(voteFloor[id] || 0, shownNow) + 1;
+  if (btn){ btn.classList.add('voted');
+    const s = btn.querySelector('span'); if (s) s.textContent = voteFloor[id]; }
+  try {
+    const d = await (await fetch('api/vote', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id, cid})})).json();
+    if (typeof d.votes === 'number') voteFloor[id] = Math.max(voteFloor[id] || 0, d.votes);
+    if (btn){ const s = btn.querySelector('span'); if (s) s.textContent = voteFloor[id]; }
+  } catch(e){}
+}
+// messages this viewer sent — to celebrate only MINE. Persisted so a reload
+// still recognizes your in-flight prompt as yours (holographic).
+let mySent;
+try { mySent = new Set(JSON.parse(localStorage.getItem('slop_mine') || '[]')); }
+catch(e){ mySent = new Set(); }
+function rememberMine(msg){
+  mySent.add(msg);
+  try { localStorage.setItem('slop_mine', JSON.stringify([...mySent].slice(-60))); } catch(e){}
+}
+function isMine(u, m){ return !!nick && u === nick && mySent.has(m); }
+// Don't drop the message into chat until it's actually cleared moderation. The
+// box shows "checking…"; on accept we alert "queued!" and add the bubble, on
+// reject we alert the reason. Nothing unapproved ever appears in chat.
+// in-page toast — reliable where alert() gets suppressed after repeated use
+let toastTimer = null;
+function toast(msg, kind){
+  let el = document.getElementById('toast');
+  if (!el){ el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); }
+  el.textContent = msg;
+  el.className = (kind || '') + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3600);
+}
+let flashTimer = null;
+function flashPlaceholder(text, ms){
+  const inp = $('chatinput');
+  inp.placeholder = text;
+  clearTimeout(flashTimer);
+  flashTimer = setTimeout(() => { inp.placeholder = 'What you wanna see next…'; }, ms || 3500);
+}
+let checkAnim = null;
+function setChecking(on){
+  const inp = $('chatinput');
+  inp.disabled = on;
+  clearInterval(checkAnim); checkAnim = null;
+  if (on){
+    const frames = ['|', '/', '-', '\\'];   // spinning AI-style thinker
+    let i = 0;
+    inp.placeholder = 'checking ' + frames[0];
+    checkAnim = setInterval(() => {
+      i = (i + 1) % frames.length; inp.placeholder = 'checking ' + frames[i];
+    }, 110);
+  } else {
+    inp.placeholder = 'What you wanna see next…';
+    showForms(); try { inp.focus(); } catch(e){}
+  }
+}
+async function sendMsg(msg){
+  rememberMine(msg);
+  setChecking(true);
+  try {
+    const r = await fetch(CHATPOST, {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user: nick, msg, vip: vipKey})});
+    if (r.ok){
+      const d = await r.json().catch(() => ({}));
+      if (d.id){ pendingCheck[d.id] = {msg, user: nick, t: Date.now()}; return; }  // poll resolves it
+      setChecking(false);
+      return;
+    }
+    const err = (await r.json().catch(() => ({}))).error || 'message rejected';
+    setChecking(false);
+    if (err === 'captcha'){
+      // self-heal: cookie missing/expired -> verify in the modal, then the
+      // message re-sends by itself (no second click needed)
+      tsVerified = false;
+      tsPending = msg;
+      showTsModal();
+    } else toast('rejected: ' + err, 'bad');   // reserved name / rate limit / rejected / etc.
+  } catch(err){ setChecking(false); toast('connection hiccup, send again', 'bad'); }
+}
+// GATE typing on the human-check: the message box is locked (readonly) until
+// verified. Touching it opens the modal instead of letting you type; once the
+// check passes the box unlocks and focuses. (readonly, not disabled, so it can
+// still receive the tap that opens the modal.)
+function applyGate(){
+  // captcha (when on) locks the box; the name gate is handled on focus -> modal.
+  $('chatinput').readOnly = !tsVerified;
+  showForms();  // owns the placeholder (name vs "what you wanna see")
+}
+function gateOpen(){
+  if (!nick){ $('chatinput').blur(); showNameModal(); return; }
+  if (!tsVerified){ $('chatinput').blur(); showTsModal(); }
+}
+$('chatinput').addEventListener('focus', gateOpen);
+$('chatinput').addEventListener('click', gateOpen);
+applyGate();
+$('chatform').onsubmit = e => {
+  e.preventDefault();
+  const msg = $('chatinput').value.trim();
+  if (!msg) return;
+  if (!nick){ pendingMsg = msg; $('chatinput').value = ''; showNameModal(); return; }
+  if (!tsVerified){ showTsModal(); return; }
+  $('chatinput').value = '';
+  sendMsg(msg);
+};
+showForms();
+
+// resolve the fate of a posted-but-unmoderated message: accepted -> add it to
+// chat + "queued!" alert; rejected -> reason alert; nothing shows until decided
+function resolveChecks(mine){
+  for (const id in mine){
+    if (!pendingCheck[id]) continue;
+    const v = mine[id];
+    const state = typeof v === 'string' ? v : v.s;
+    if (state === 'pending') continue;   // still checking
+    const {msg, user} = pendingCheck[id];
+    delete pendingCheck[id];
+    setChecking(false);
+    if (state === 'rejected'){
+      toast('rejected: ' + ((typeof v === 'object' && v.why) ? v.why : 'not usable'), 'bad');
+      flashPlaceholder('✕ rejected');
+      continue;
+    }
+    // accepted: show it now (poll may skip it if lastId already advanced past it)
+    seen.add(+id);
+    lastId = Math.max(lastId, +id);
+    addBubble(user, msg, '', null);
+    const cm = $('chatmsgs'); cm.scrollTop = cm.scrollHeight;
+    if (state !== 'short'){ toast('✓ your prompt is queued!', 'good');
+      flashPlaceholder('✓ Queued!'); }
+  }
+}
+async function pollChat(){
+  try {
+    const ids = Object.keys(pendingCheck).join(',');
+    const r = await fetch('api/chat?since=' + lastId + (ids ? '&mine=' + ids : '') + (cid ? '&cid=' + cid : ''));
+    const d = await r.json();
+    if (d.mine) resolveChecks(d.mine);
+    // safety: if moderation stalls, don't wedge the box on "checking…" forever
+    const nowT = Date.now();
+    for (const id in pendingCheck){
+      if (nowT - pendingCheck[id].t > 25000){
+        const {msg, user} = pendingCheck[id]; delete pendingCheck[id];
+        setChecking(false); seen.add(+id); lastId = Math.max(lastId, +id);
+        addBubble(user, msg, '', null);
+      }
+    }
+    if (d.viewers > 0){
+      $('viewers').querySelector('b').textContent = d.viewers;
+      $('viewers').style.display = 'block';
+    }
+    for (const m of (d.msgs || [])){
+      if (seen.has(m.id)) continue;
+      seen.add(m.id);
+      lastId = Math.max(lastId, m.id);
+      addBubble(m.user, m.msg, '', m.at);
+    }
+  } catch(e){}
+}
+// (pollChat is driven by the unified poll() loop below)
+
+/* ---------- now playing: synced to the exact segment on screen ---------- */
+let genAt = null;
+function fmtAgo(secs){
+  if (secs < 90) return secs + 's ago';
+  if (secs < 5400) return Math.round(secs / 60) + 'm ago';
+  return Math.round(secs / 3600) + 'h ago';
+}
+function fmtClock(epoch){
+  const d = new Date(epoch * 1000);
+  return d.getHours().toString().padStart(2, '0') + ':' +
+    d.getMinutes().toString().padStart(2, '0');
+}
+let nowReplay = false;
+function tickAgo(){
+  // LIVE for fresh material; reruns 15min+ old admit it, with their age
+  const age = genAt ? Math.max(0, Math.round(Date.now() / 1000 - genAt)) : 0;
+  const superOld = genAt && age > 900 && nowReplay;
+  const nm = $('now').querySelector('.nm');
+  nm.firstChild.textContent = superOld ? 'RERUN' : 'PLAYING';
+  nm.querySelector('.ago').textContent = superOld ? ' · ' + fmtAgo(age) : '';
+}
+function applyNow(m){
+  nowReplay = !!m.replay;
+  const req = $('now').querySelector('.req');
+  const tx = $('now').querySelector('.tx');
+  // show the viewer's chat message (with its generation time), not the raw prompt
+  if (m.chat){
+    req.innerHTML = '';
+    if (m.gen_at){
+      const t = document.createElement('span');
+      t.className = 'ttime';
+      t.textContent = fmtClock(m.gen_at);
+      req.appendChild(t);
+    }
+    req.appendChild(document.createTextNode(m.chat));
+    req.style.display = 'block';
+  } else req.style.display = 'none';
+  tx.textContent = m.chat ? '' : (m.prompt || '');
+  genAt = m.gen_at || null;
+  tickAgo();
+  $('now').style.display = 'block';
+  // celebrate ONLY when MY OWN prompt hits the screen: holographic border + pop.
+  // match by attributed nick + a message I actually sent this session.
+  let hot = false;
+  if (m.chat && !m.replay && nick){
+    const i = m.chat.indexOf(': ');
+    const u = i < 0 ? '' : m.chat.slice(0, i);
+    const msg = i < 0 ? m.chat : m.chat.slice(i + 2);
+    hot = (u === nick) && mySent.has(msg);
+  }
+  const el = $('now');
+  el.classList.toggle('hot', hot);
+  el.classList.toggle('news', !!(m.chat && m.chat.indexOf('SLOP NEWS') === 0));
+  if (hot && m.chat !== hotKey){
+    hotKey = m.chat;
+    el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  }
+  if (!hot) hotKey = '';
+}
+let hotKey = '';
+/* ---------- periscope hearts, saved per clip ---------- */
+let curSeg = null, likeCount = 0, likesSeen = 0, likesMine = 0;
+function spawnHeart(x, y){
+  if (x == null){
+    const b = $('heartbtn').getBoundingClientRect();
+    x = b.left + b.width / 2;
+    y = b.top - 10;
+  }
+  const h = document.createElement('div');
+  h.className = 'heart';
+  h.textContent = ['❤️','\u{1F49B}','\u{1F49A}','\u{1F499}','\u{1F49C}',
+                   '\u{1F9E1}'][Math.floor(Math.random() * 6)];
+  h.style.left = (x - 13 + (Math.random() * 30 - 15)) + 'px';
+  h.style.top = y + 'px';
+  h.style.setProperty('--wob', (Math.random() * 120 - 60) + 'px');
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 2700);
+}
+function setLikes(n){
+  likeCount = n;
+  $('heartbtn').querySelector('.cnt').textContent = n;
+}
+// hold to shower hearts (periscope style); only ONE like per viewer is saved
+const likedSegs = new Set();  // clips this viewer already liked — never re-POST
+function likeOnce(){
+  if (!curSeg || likesMine || likedSegs.has(curSeg)) return;
+  likesMine = 1;
+  likedSegs.add(curSeg);
+  fetch('api/like', {method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({seg: curSeg})}).catch(()=>{});
+}
+let holdTimer = null;
+function stopHold(){ clearInterval(holdTimer); holdTimer = null; }
+function heartPress(x, y, follow){
+  spawnHeart(x, y);
+  setLikes(likeCount + 1);  // display grows with every tap
+  likeOnce();               // ...but only one like per viewer reaches the db
+  stopHold();
+  holdTimer = setInterval(() => {
+    const p = follow ? follow() : [x, y];
+    if (p){
+      spawnHeart(p[0], p[1]);
+      setLikes(likeCount + 1);  // display keeps climbing while held (db stays 1)
+    }
+  }, 140);
+}
+$('heartbtn').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  heartPress();
+});
+// on the video surface: tap = heart, hold = heart shower,
+const seenSegs = new Set();
+
+/* ---------- swipe reel: browse older clips, snap back to live ----------
+   Vertical filmstrip of cells. Track 0 = LIVE (the #tv element). Track P>=1 =
+   archived clip feed[P-1] (newest first), each its own preloaded <video>.
+   Drag DOWN -> older (pos+1). Drag UP -> newer, back toward LIVE (pos-1, min 0).
+   Only pos-1..pos+1 are kept alive; the current one plays, neighbors are
+   preloaded and paused on their first frame so a swipe lands instantly. */
+let sliding = false;
+let vh = window.innerHeight;
+let pos = 0;                 // 0 = LIVE
+let feed = [];              // archived clip ids, newest first (feed[P-1] -> track P)
+const cells = {};          // track P (>=1) -> {el, video, hls, id}
+addEventListener('resize', () => { vh = window.innerHeight; if (!sliding) reelLayout(0); });
+
+async function loadFeed(){
+  try {
+    const t = await (await fetch('api/channel?ch=newest&limit=150')).text();
+    const ids = [...t.matchAll(/clip\?id=(\d+)/g)].map(m => +m[1]);
+    if (ids.length) feed = ids;
+  } catch(e){}
+}
+function makeCell(P){
+  if (cells[P] || P < 1 || P > feed.length) return cells[P];
+  const id = feed[P - 1];
+  const el = document.createElement('div'); el.className = 'vcell';
+  const v = document.createElement('video');
+  v.muted = true; v.playsInline = true; v.loop = true; v.preload = 'auto';
+  el.appendChild(v); $('reel').appendChild(el);
+  const src = 'api/clip?id=' + id + '&pl=1';
+  // decode a real first frame, then hold it (paused) so the cell is never black
+  // when it slides in. Don't seek back to 0 — that can flash black.
+  const paint = () => v.play().then(() =>
+    setTimeout(() => { if (P !== pos && !sliding) v.pause(); }, 80)).catch(()=>{});
+  let hls = null;
+  if (window.Hls && Hls.isSupported()){
+    hls = new Hls({maxBufferLength: 20, startPosition: 0});
+    hls.loadSource(src); hls.attachMedia(v);
+    hls.on(Hls.Events.MANIFEST_PARSED, paint);
+  } else { v.src = src; v.addEventListener('loadeddata', paint, {once: true}); }
+  cells[P] = {el, video: v, hls, id};
+  reelLayout(0);
+  return cells[P];
+}
+function destroyCell(P){
+  const c = cells[P]; if (!c) return;
+  try { c.hls && c.hls.destroy(); } catch(e){}
+  try { c.el.remove(); } catch(e){}
+  delete cells[P];
+}
+function ensureCells(){
+  const want = new Set();
+  for (let P = pos - 1; P <= pos + 1; P++) if (P >= 1 && P <= feed.length) want.add(P);
+  want.forEach(P => makeCell(P));
+  for (const k in cells) if (!want.has(+k)) destroyCell(+k);
+}
+function reelLayout(dragY){
+  $('cell0').style.transform = 'translateY(' + (pos * vh + dragY) + 'px)';
+  for (const k in cells)
+    cells[k].el.style.transform = 'translateY(' + ((pos - +k) * vh + dragY) + 'px)';
+}
+function playCurrent(){
+  if (pos === 0){ try { tv.play(); } catch(e){} }
+  else { try { tv.pause(); } catch(e){} }
+  for (const k in cells){
+    const P = +k, v = cells[P].video;
+    if (P === pos){ v.muted = tv.muted; v.play().catch(()=>{}); }
+    else { try { v.pause(); v.muted = true; } catch(e){} }
+  }
+  updatePill();
+}
+function updatePill(){
+  const lp = $('livepill');
+  // no badge at the live edge; only a "back to live" button when browsing older
+  if (pos === 0){ lp.style.display = 'none'; }
+  else { lp.style.display = 'inline-flex'; lp.className = 'past'; lp.textContent = 'BACK TO LIVE'; }
+}
+function reelTransition(on){
+  const t = on ? 'transform .26s cubic-bezier(.22,.61,.36,1)' : 'none';
+  $('cell0').style.transition = t;
+  for (const k in cells) cells[k].el.style.transition = t;
+}
+function reelDrag(dy){ if (sliding) return; reelTransition(false); reelLayout(dy); }
+function animateTo(newPos){
+  newPos = Math.max(0, Math.min(feed.length, newPos));
+  const oldPos = pos;
+  sliding = true;
+  // keep both neighborhoods alive during the slide so nothing pops in black
+  for (let P = Math.min(oldPos, newPos) - 1; P <= Math.max(oldPos, newPos) + 1; P++)
+    if (P >= 1 && P <= feed.length) makeCell(P);
+  reelLayout(0);  // settle at oldPos before animating
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    reelTransition(true);
+    pos = newPos;
+    reelLayout(0);
+    setTimeout(() => { reelTransition(false); ensureCells(); playCurrent(); sliding = false; }, 270);
+  }));
+}
+function reelCommit(dir){ animateTo(pos + dir); }  // dir +1 older, -1 newer
+$('livepill').onclick = () => { if (pos !== 0) animateTo(0); };
+// keep the browse feed fresh while on LIVE (never reshuffles mid-browse: only
+// refreshes at pos 0), and pre-warm the immediate 'previous' clip so the first
+// swipe lands on a painted frame instead of black. (Add the Cloudflare cache
+// rule on /api/clip so this one warm fetch is served from the edge, not R2.)
+updatePill();  // hidden at the live edge; only shows "back to live" when browsing
+loadFeed().then(() => { if (pos === 0) ensureCells(); });
+setInterval(() => { if (pos === 0 && !sliding){ loadFeed().then(() => { if (pos === 0) ensureCells(); }); } }, 20000);
+let g = null, holdStart = null;
+$('tvwrap').addEventListener('pointerdown', e => {
+  if (sliding) return;
+  g = {x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY,
+       ly: e.clientY, lt: Date.now(), vel: 0,
+       t: Date.now(), moved: false, held: false, drag: false};
+  clearTimeout(holdStart);
+  holdStart = setTimeout(() => {
+    if (g && !g.moved){
+      g.held = true;  // shower runs until the finger lifts, drift is fine
+      heartPress(g.x, g.y, () => g && [g.x, g.y]);
+    }
+  }, 220);
+});
+window.addEventListener('pointermove', e => {
+  if (!g) return;
+  g.x = e.clientX; g.y = e.clientY;  // shower follows the finger
+  const dy = e.clientY - g.sy, dx = e.clientX - g.sx;
+  const now = Date.now();
+  g.vel = (e.clientY - g.ly) / Math.max(1, now - g.lt);
+  g.ly = e.clientY; g.lt = now;
+  if (g.held) return;
+  if (!g.moved && Math.hypot(dx, dy) > 12){
+    g.moved = true;
+    g.drag = Math.abs(dy) > Math.abs(dx);  // vertical intent = video drag
+    clearTimeout(holdStart);
+  }
+  if (g.moved && g.drag && !sliding && liveMode){
+    // the video follows the finger; first move primes the neighbor clips
+    if (!g.reel){ g.reel = true; ensureCells(); }
+    reelDrag(dy);
+  }
+});
+window.addEventListener('pointerup', e => {
+  clearTimeout(holdStart);
+  stopHold();
+  if (!g) return;
+  const dy = e.clientY - g.sy;
+  if (!g.held && !g.moved && Date.now() - g.t < 220){
+    heartPress(g.sx, g.sy);  // quick tap
+    stopHold();
+  } else if (!g.held && g.moved && g.drag && g.reel && !sliding){
+    // commit if dragged far or flicked fast, else spring back to current clip
+    if (Math.abs(dy) > 90 || Math.abs(g.vel) > 0.55){
+      const older = (Math.abs(dy) > 90 ? dy : g.vel) > 0;  // drag down = older
+      reelCommit(older ? 1 : -1);
+    } else {
+      animateTo(pos);
+    }
+  }
+  g = null;
+});
+window.addEventListener('pointercancel', () => {
+  clearTimeout(holdStart);
+  stopHold();
+  if (g && g.reel && !sliding) animateTo(pos);
+  g = null;
+});
+// trackpad / mouse wheel = browse too (macbook two-finger scroll). The reel
+// follows the scroll, then snaps to the next/previous clip once you pass a
+// threshold. Scroll DOWN = older, scroll UP = newer / back to live.
+let wAccum = 0, wEnd = null, wLock = false, wStarted = false;
+$('tvwrap').addEventListener('wheel', e => {
+  if (!liveMode || sliding) return;
+  if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;   // let horizontal pass
+  e.preventDefault();
+  if (wLock) return;
+  if (!wStarted){ wStarted = true; ensureCells(); }
+  wAccum += e.deltaY;
+  reelDrag(wAccum);                       // scroll down (dy>0) pulls older down
+  clearTimeout(wEnd);
+  if (Math.abs(wAccum) > 90){
+    wLock = true; wStarted = false;
+    reelCommit(wAccum > 0 ? 1 : -1);      // down -> older, up -> newer
+    wAccum = 0;
+    setTimeout(() => { wLock = false; }, 360);   // eat the momentum tail
+  } else {
+    wEnd = setTimeout(() => {                     // gesture ended short: snap back
+      wStarted = false; wAccum = 0; if (!sliding) animateTo(pos);
+    }, 130);
+  }
+}, {passive: false});
+$('heartbtn').addEventListener('contextmenu', e => e.preventDefault());
+// like counts come piggybacked on status.json (see applyLikes) so we no longer
+// hit like.php on a timer — only on an actual tap (POST). saves ~1 req/viewer/3s.
+function applyLikes(map){
+  if (!curSeg || !map || typeof map[curSeg] !== 'number') return;
+  const n = map[curSeg];
+  const others = n - likesSeen - likesMine;
+  for (let i = 0; i < Math.min(others, 8); i++) setTimeout(() => spawnHeart(), i * 180);
+  likesSeen = n - likesMine;
+  if (n > likeCount) setLikes(n);
+}
+
+let segMeta = {};
+async function loadMeta(){
+  try { segMeta = await (await fetch('live/meta.json')).json();
+    if (curSeg && segMeta[curSeg]) applyNow(segMeta[curSeg]);  // show current clip
+  } catch(e){}
+}
+let lastFrag = 0;   // when FRAG_CHANGED last advanced the box — for the stall fallback
+function onFrag(name){
+  lastFrag = Date.now();
+  if (name !== curSeg){
+    curSeg = name;
+    // if we already liked this clip (e.g. it's re-airing), keep it marked so
+    // tapping again just shows hearts and never POSTs
+    likesMine = likedSegs.has(name) ? 1 : 0;
+    likesSeen = 0; setLikes(0);
+  }
+  // apply INSTANTLY from the pre-fetched map (poll keeps it warm). Only if this
+  // segment isn't cached yet do we fetch — and even then without blocking.
+  if (segMeta[name]) applyNow(segMeta[name]);
+  else loadMeta().then(() => {
+    if (curSeg === name && segMeta[name]) applyNow(segMeta[name]); });
+}
+loadMeta();
+setInterval(tickAgo, 1000);
+// "making next" ticker for everyone, from status.json
+async function pollNext(){
+  try {
+    const s = await (await fetch('status.json')).json();
+    const n = $('nextup');
+    // chat-bubble-style item: pastel per-user bg, time, bold name (like #chatmsgs)
+    function splitUM(s){ const i = s.indexOf(':'); return i < 0
+      ? {u: '', m: s} : {u: s.slice(0, i), m: s.slice(i + 1).trim()}; }
+    // is this line the current viewer's own prompt? (same nick + we sent it)
+    const isMine = (u, m) => !!nick && u === nick && mySent.has(m);
+    function itemEl(user, msg, at, gen, hot){
+      const d = document.createElement('div');
+      const news = user && user.indexOf('SLOP NEWS') === 0;   // special broadcast styling
+      d.className = 'it' + (gen ? ' gen' : '') + (hot ? ' hot' : '') + (news ? ' news' : '');
+      if (at){
+        const t = document.createElement('span');
+        t.className = 'ttime'; t.textContent = fmtClock(at);
+        d.appendChild(t);
+      }
+      if (user){
+        const b = document.createElement('b'); b.textContent = user;
+        d.appendChild(b);
+        if (!gen && !hot && !news) d.style.background = pastel(user);  // hot keeps a white interior
+      }
+      d.appendChild(document.createTextNode(msg));
+      return d;
+    }
+    const list = (s.generating_now && s.generating_now.length)
+      ? s.generating_now
+      : (s.generating_chat ? [{c: s.generating_chat, at: null}] : []);
+    // PLAYING NEXT — clips done generating, waiting their turn to air (read-only)
+    const pn = s.playing_next || [];
+    n.querySelector('.pnhead').style.display = pn.length ? 'block' : 'none';
+    const pnEl = n.querySelector('.playing');
+    pnEl.innerHTML = '';
+    for (const item of pn){ const p = splitUM(item.c);
+      pnEl.appendChild(itemEl(p.u, p.m, item.at, false, isMine(p.u, p.m))); }
+    const items = n.querySelector('.items');
+    items.innerHTML = '';
+    for (const item of list){ const p = splitUM(item.c);
+      items.appendChild(itemEl(p.u, p.m, item.at, true, isMine(p.u, p.m))); }
+    // QUEUE — each item gets an upvote button; most-upvoted airs first
+    const q = s.queue || [];
+    const qEl = n.querySelector('.queue');
+    n.querySelector('.qhead').style.display = q.length ? 'block' : 'none';
+    // FLIP: remember each existing row's position so we can slide it to its new one
+    const oldTop = {};
+    for (const row of qEl.children)
+      if (row.dataset.qid) oldTop[row.dataset.qid] = row.getBoundingClientRect().top;
+    qEl.innerHTML = '';
+    for (const item of q){
+      const row = document.createElement('div');
+      row.className = 'qrow';
+      row.dataset.qid = item.id;
+      const up = document.createElement('button');
+      up.className = 'up' + (votedIds.has(item.id) ? ' voted' : '');
+      // never show less than what we know (server count OR our own vote floor)
+      const shown = Math.max(item.v || 0, voteFloor[item.id] || 0);
+      up.innerHTML = '▲<span>' + shown + '</span>';
+      up.onclick = () => voteFor(item.id, up);
+      row.appendChild(up);
+      row.appendChild(itemEl(item.u, item.m, item.at, false, isMine(item.u, item.m)));
+      qEl.appendChild(row);
+    }
+    // FLIP: invert (jump each moved row back to old spot) then play (transition home)
+    for (const row of qEl.children){
+      const prev = oldTop[row.dataset.qid];
+      if (prev === undefined) continue;
+      const dy = prev - row.getBoundingClientRect().top;
+      if (Math.abs(dy) < 1) continue;
+      row.style.transition = 'none';
+      row.style.transform = `translateY(${dy}px)`;
+      requestAnimationFrame(() => {
+        row.style.transition = 'transform .45s cubic-bezier(.2,.8,.2,1)';
+        row.style.transform = '';
+      });
+    }
+    n.classList.toggle('blank', !(list.length || q.length || pn.length));
+    applyLikes(s.likes);
+  } catch(e){}
+}
+// fallback for players without hls.js frag events (native Safari HLS)
+async function pollStatus(){
+  try {
+    const s = await (await fetch('status.json')).json();
+    if (!s.now_playing) return;
+    // native HLS (no frag events, e.g. iOS Safari) drives the box from here;
+    // for hls.js it's a safety net: normally FRAG_CHANGED owns the box, but if
+    // that event stalls (buffering / reel desync) for >12s while we're at the live
+    // edge, take over so the box can never freeze on an old clip.
+    if (!usingHls || $('now').style.display !== 'block'
+        || (pos === 0 && Date.now() - lastFrag > 12000))
+      applyNow({prompt: s.now_playing, chat: s.now_chat,
+                gen_at: s.now_generated_at, replay: s.now_replay});
+  } catch(e){}
+}
+// efficient polling: skip network work while the tab is hidden (backgrounded
+// tabs don't need live updates), and combine the two status.json readers.
+function poll(){
+  if (document.hidden) return;
+  pollChat();
+  pollNext();
+  pollStatus();
+  loadMeta();   // keep the segment->prompt map warm so onFrag applies instantly
+}
+poll();
+setInterval(poll, 2500);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
+</script>
+<!-- 100% privacy-first analytics -->
+<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+<script></script>
+</body>
+</html>
