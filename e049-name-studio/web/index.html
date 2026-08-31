@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Name Studio — focalis never again</title>
+<style>
+:root{--bg:#0a0a0c;--card:#16161a;--card2:#1e1e24;--border:#26262e;--text:#f2f2f5;--muted:#9aa0aa;--accent:#7c5cff;--accent2:#2dd4bf;--green:#22c55e;--red:#ef4444;--yellow:#eab308}
+[data-theme="light"]{--bg:#f6f6f7;--card:#ffffff;--card2:#eef0f3;--border:#d9dce2;--text:#14141a;--muted:#6b7280;--accent:#7c5cff;--accent2:#0fa3b1;--green:#16a34a;--red:#dc2626;--yellow:#a16207}
+[data-theme="light"] .header{background:rgba(255,255,255,0.92)}
+[data-theme="light"] .domain.taken{background:rgba(0,0,0,0.04);color:#6b7280}
+[data-theme="light"] .domain.available{background:#dcfce7;border-color:#86efac;color:#14532d}
+[data-theme="light"] .domain.available span{color:#15803d !important}
+[data-theme="light"] .domain.unknown{background:#fef9c3;border-color:#fde68a;color:#713f12}
+[data-theme="light"] .filter.active{background:#14141a;color:white}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.4}
+a{color:var(--accent);text-decoration:none}
+.header{position:sticky;top:0;z-index:20;background:rgba(10,10,12,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.logo{font-weight:900;letter-spacing:-0.03em;font-size:18px}
+.logo span{color:var(--accent)}
+.sub{color:var(--muted);font-size:11px;margin-left:auto;display:flex;gap:8px;align-items:center}
+.wrap{max-width:1200px;margin:0 auto;padding:14px;display:grid;grid-template-columns:380px 1fr;gap:14px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}.header .sub span{ display:none}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px}
+.card h3{margin:0 0 8px 0;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.input, .textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text);font-size:13px;outline:none}
+.input:focus,.textarea:focus{border-color:var(--accent)}
+.textarea{resize:vertical;min-height:56px}
+.label{font-size:11px;color:var(--muted);margin:8px 0 4px 2px;display:flex;justify-content:space-between}
+.label b{color:var(--text);font-weight:600}
+.hint{font-size:11px;color:var(--muted);background:rgba(124,92,255,0.08);border:1px dashed rgba(124,92,255,0.25);border-radius:8px;padding:6px 8px;margin-top:4px}
+.row{display:flex;gap:8px;align-items:center}
+.btn{appearance:none;border:0;border-radius:999px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer}
+.btn-primary{background:var(--accent);color:white;flex:1}
+.btn-primary:disabled{opacity:0.5}
+.btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:999px;font-size:12px;cursor:pointer}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.preset{padding:8px 9px;border-radius:12px;background:var(--card2);border:1px solid var(--border);cursor:pointer;text-align:left}
+.preset.active{border-color:var(--accent);background:rgba(124,92,255,0.14)}
+.preset b{font-size:11px;display:block}
+.preset span{font-size:10px;color:var(--muted);line-height:1.2}
+.slider-row{margin:10px 0}
+.slider-row label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.slider-row input[type=range]{width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{padding:5px 9px;border-radius:999px;font-size:11px;background:var(--card2);border:1px solid var(--border);cursor:pointer}
+.chip.active{background:var(--accent);color:white;border-color:var(--accent)}
+.chip.tld{min-width:48px;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.name-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.name-card.has-available{border-color:rgba(34,197,94,0.35);box-shadow:0 0 0 1px rgba(34,197,94,0.15) inset}
+.name-top{display:flex;align-items:center;gap:8px}
+.name{font-weight:900;font-size:17px;letter-spacing:-0.02em;flex:1;word-break:break-all}
+.badge{font-size:10px;padding:4px 8px;border-radius:999px;background:var(--card2);border:1px solid var(--border);color:var(--muted);white-space:nowrap}
+.badge.green{color:var(--green);border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.12)}
+.domains{display:flex;flex-wrap:wrap;gap:5px}
+.domain{font-size:11px;padding:5px 8px;border-radius:999px;border:1px solid var(--border);display:inline-flex;align-items:center;gap:4px;text-decoration:none}
+.domain.available{background:rgba(34,197,94,0.14);border-color:rgba(34,197,94,0.3);color:#bbf7d0}
+.domain.taken{background:rgba(239,68,68,0.06);color:var(--muted);opacity:0.65}
+.domain.unknown{background:rgba(234,179,8,0.1);color:#fde68a;border-color:rgba(234,179,8,0.25)}
+.domain.available:hover{filter:brightness(1.15)}
+.bar{height:4px;background:var(--card2);border-radius:999px;overflow:hidden;display:flex}
+.bar > i{height:100%;display:block}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.filter{padding:6px 10px;border-radius:999px;font-size:11px;border:1px solid var(--border);background:var(--card);cursor:pointer}
+.filter.active{background:white;color:black}
+.small{font-size:11px;color:var(--muted)}
+.kbd{font-size:10px;background:var(--card2);border:1px solid var(--border);padding:2px 6px;border-radius:6px}
+.stats-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;font-size:11px;line-height:1.5}
+.stats-box b{color:var(--text)}
+.history{max-height:320px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.hist-item{padding:8px 10px;background:var(--card2);border:1px solid var(--border);border-radius:10px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.hist-item:hover{border-color:var(--accent)}
+.collapse{cursor:pointer;color:var(--accent);font-size:11px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+@media(max-width:400px){.field-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">name<span>.studio</span></div>
+  <div style="font-size:11px;color:var(--muted);border-left:1px solid var(--border);padding-left:10px">focalis.cc sin sufrimiento</div>
+  <div class="sub">
+    <span id="aiStatus" class="small">AI: —</span>
+    <button id="themeToggle" onclick="toggleTheme()" title="Cambiar tema claro/oscuro" style="font-size:12px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--card2);color:var(--text);cursor:pointer">🌙</button>
+    <a href="/admin" style="font-size:11px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--card2)">⚙️ Admin</a>
+  </div>
+</div>
+
+<div id="globalProgress" style="display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:30;background:var(--card);border:1px solid var(--accent);border-radius:999px;padding:8px 14px;box-shadow:0 8px 32px rgba(0,0,0,0.3);align-items:center;gap:10px;max-width:90vw">
+  <span style="width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;display:inline-block;animation:spin 0.8s linear infinite"></span>
+  <span id="globalProgressText" class="small" style="font-weight:700">Generando…</span>
+  <span id="globalProgressDetail" class="small" style="opacity:0.7"></span>
+  <button onclick="document.getElementById('globalProgress').style.display='none'" style="margin-left:6px;background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:14px">✕</button>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<div class="wrap">
+  <!-- LEFT -->
+  <div>
+    <div class="card">
+      <h3>1 · Qué quieres nombrar</h3>
+      <div class="label"><b>Palabras clave</b> <span class="small">usa comas</span></div>
+      <textarea id="keywords" class="textarea" rows="2" placeholder="video, focus, luz, lens, clip"></textarea>
+      <div class="hint">Ej: <code>video, focus, luz</code> o <code>focal, studio, lab</code> — 2 a 8 palabras sueltas. Se usan como raíces para inventar (focalis = focal + is).</div>
+
+      <div class="label" style="margin-top:10px"><b>Descripción natural (tunea todo con IA)</b> <span class="small">opcional</span></div>
+      <textarea id="prompt" class="textarea" rows="2" placeholder="quiero algo simple como focalis pero más corto para app de video, no muy rebuscado"></textarea>
+      <div class="hint">Ej: <i>"algo corto y premium como focalis para app de video, en español"</i> o <i>"nombre descriptivo de dos palabras, estilo tech"</i> — La IA convierte esto en todos los sliders de abajo. Puedes dejar palabras clave vacío y usar solo esto.</div>
+
+      <div class="small" style="margin-top:6px" id="genStatsHint">Tip: elige un preset → ajusta abajo → Generar (al final). Todo se guarda en Historial.</div>
+      <div id="presets" class="presets"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3>2 · Afina con sliders <span class="small" style="margin-left:auto;font-weight:400;letter-spacing:0">AI los puede mover por ti</span></h3>
+
+      <div class="slider-row">
+        <label><span>Brandable <span style="opacity:0.6">(inventado)</span> ↔ Descriptivo</span><span id="v_brandable" style="color:var(--accent);font-weight:800">60</span></label>
+        <input type="range" id="brandable" min="0" max="100" value="60" oninput="document.getElementById('v_brandable').textContent=this.value">
+        <div class="small">0 = <i>focus studio</i> &nbsp;·&nbsp; 100 = <i>focalis</i></div>
+      </div>
+      <div class="slider-row">
+        <label><span>Simple ↔ Rebuscado</span><span id="v_simple" style="color:var(--accent);font-weight:800">60</span></label>
+        <input type="range" id="simplicity" min="0" max="100" value="60" oninput="document.getElementById('v_simple').textContent=this.value">
+        <div class="small">100 = <i>luma, foco</i> &nbsp;·&nbsp; 0 = <i>veliora, aurialis</i></div>
+      </div>
+
+      <div style="margin-top:8px">
+        <div class="label"><b>Tamaño y sílabas</b></div>
+        <div class="field-grid">
+          <div><div class="small" style="margin-bottom:4px">Mín. caracteres</div><input id="lenMin" class="input" type="number" min="3" max="10" value="4"></div>
+          <div><div class="small" style="margin-bottom:4px">Máx. caracteres</div><input id="lenMax" class="input" type="number" min="4" max="14" value="10"></div>
+          <div><div class="small" style="margin-bottom:4px">Sílabas objetivo</div><input id="syll" class="input" type="number" min="1" max="4" value="3"></div>
+        </div>
+        <div class="small" style="margin-top:4px">Sin espacios. Ej: <i>focalis = 7 chars, 3 sílabas</i>.</div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="label"><b>Estrategias — cómo inventa</b> <span class="small">multi</span></div>
+        <div class="chips" id="strategies">
+          <div class="chip active" data-v="invented" onclick="toggleChip(this)" title="Crea palabras nuevas: focal + is">invented</div>
+          <div class="chip active" data-v="mash" onclick="toggleChip(this)" title="Mezcla dos raíces: foc + lens">mash</div>
+          <div class="chip active" data-v="affix" onclick="toggleChip(this)" title="Prefijo/sufijo: get + focal">affix</div>
+          <div class="chip" data-v="two_words" onclick="toggleChip(this)" title="Dos palabras: focus studio">two_words</div>
+          <div class="chip" data-v="numbers" onclick="toggleChip(this)" title="Con números: focalis7">numbers</div>
+          <div class="chip" data-v="latin" onclick="toggleChip(this)" title="Raíces latinas: aurum, verus">latin</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="label"><b>Idioma raíz</b></div>
+        <div class="chips" id="langs"></div>
+        <div class="small">Auto = deja que el slider Simple/Rebuscado decida.</div>
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="label"><b>TLDs</b> <span id="tldPresetLabel" class="small"></span></div>
+        <div class="chips" id="tldPresets" style="margin-bottom:6px"></div>
+        <div class="chips" id="tlds"></div>
+        <div class="small">Más TLDs soportados: com cc io ai co net org app dev studio xyz tech online site me sh ... presets arriba para no llenar la vista.</div>
+      </div>
+
+      <div class="label" style="margin-top:10px"><b>Motor — cuánto IA vs algoritmo</b> <span class="small" id="aiRatioLabel" style="color:var(--accent);font-weight:700">50% IA</span></div>
+      <div class="slider-row" style="margin-top:4px">
+        <label><span>Algoritmo <span style="opacity:0.6">(rápido, gratis)</span> ↔ IA <span style="opacity:0.6">(creativo)</span></span><span id="v_ai_ratio" style="color:var(--accent);font-weight:800">50%</span></label>
+        <input type="range" id="ai_ratio" min="0" max="100" value="50" oninput="onAiRatioChange(this.value)">
+        <div class="small" id="aiRatioBreakdown">Total 40 → <b>20 IA</b> + <b>20 algoritmo</b> · 50% IA</div>
+      </div>
+      <div class="chips" id="aiRatioPresets" style="margin-top:4px">
+        <div class="chip" data-v="0" onclick="setAiRatio(0)">Solo algo 0%</div>
+        <div class="chip" data-v="25" onclick="setAiRatio(25)">Rápido 25%</div>
+        <div class="chip active" data-v="50" onclick="setAiRatio(50)">Equilibrado 50%</div>
+        <div class="chip" data-v="75" onclick="setAiRatio(75)">Creativo 75%</div>
+        <div class="chip" data-v="90" onclick="setAiRatio(90)">Solo IA 90%</div>
+      </div>
+      <details style="margin-top:6px"><summary class="small collapse">Avanzado: números exactos</summary>
+        <div class="field-grid" style="margin-top:6px">
+          <div><div class="small" style="margin-bottom:4px">IA (nombres)</div><input id="ai_count" class="input" type="number" min="0" max="80" placeholder="auto" oninput="onAiCountChange()"></div>
+          <div><div class="small" style="margin-bottom:4px">Algoritmo</div><input id="algo_count" class="input" type="number" min="0" max="80" placeholder="auto" disabled style="opacity:0.6"></div>
+          <div style="display:flex;align-items:end"><span class="small">Deja vacío para usar el % del slider. Si pones número, anula el %.</span></div>
+        </div>
+      </details>
+      <div class="row" style="flex-wrap:wrap;margin-top:8px">
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px"><input type="checkbox" id="use_llm" checked onchange="onUseLlmToggle()"> Usar IA si hay key</label>
+        <label style="display:flex;gap:6px;align-items:center;font-size:12px"><input type="checkbox" id="check_domains" checked> Chequear dominios</label>
+      </div>
+      <details style="margin-top:8px" open><summary class="small collapse">¿Tu propia IA? Pon tu key aquí (se guarda solo en tu navegador) — <span id="keyStatus" class="small" style="color:var(--accent)">cargando...</span></summary>
+        <div class="hint" style="margin-top:6px">Prioridad: <b>1. Tu key personal</b> (si la pones aquí) → <b>2. Key global del admin/env</b> (OPENCODE) → <b>3. Sin key = solo algoritmo</b>. Si no entiendes, déjalo vacío y usas la del admin (ya configurada con Muse).</div>
+        <div class="small" style="margin-top:6px">API Key <span class="small" style="color:var(--muted)">(si la pones, anula la del admin solo para ti)</span></div><input id="user_ai_key" class="input" placeholder="sk-... (vacío = usa la global)" type="password" oninput="updateKeyStatus()">
+        <div class="small" style="margin-top:6px">Base URL (opcional)</div><input id="user_ai_base" class="input" placeholder="https://api.openai.com/v1" oninput="updateKeyStatus()">
+        <div class="small" style="margin-top:6px">Model</div><input id="user_ai_model" class="input" placeholder="gpt-4o-mini" oninput="updateKeyStatus()">
+        <div class="small" id="keyStatusDetail" style="margin-top:6px;background:var(--card2);padding:6px;border-radius:8px;border:1px solid var(--border)"></div>
+      </details>
+
+      <div style="margin-top:10px" class="field-grid">
+        <div><div class="small" style="margin-bottom:4px">Cantidad</div><input id="count" class="input" type="number" min="10" max="80" value="40" oninput="onCountChange()"></div>
+        <div style="grid-column:span 2;display:flex;align-items:end"><span class="small">Default 40. Más = más lento en dominios.</span></div>
+      </div>
+      <button class="btn btn-primary" id="generateBtn" onclick="generate()" style="width:100%;margin-top:12px;padding:14px;font-size:15px">Generar 40 → chequear dominios</button>
+      <div class="small" style="text-align:center;margin-top:4px;color:var(--muted)">Al final, después de tunear — flujo natural</div>
+    </div>
+
+    <div class="card" style="margin-top:12px;border-color:rgba(124,92,255,0.3)">
+      <h3>🔗 Mi referido — gana cuando alguien registra <span class="small" style="margin-left:auto;font-weight:400;letter-spacing:0">para todos, sin ser admin</span></h3>
+      <p class="small" id="referralBanner" style="display:none;background:rgba(124,92,255,0.12);border:1px solid rgba(124,92,255,0.25);padding:6px 8px;border-radius:8px"></p>
+      <div class="label"><b>Proveedor</b> <span class="small">los que realmente pagan afiliado</span></div>
+      <select id="myRegistrar" class="input" onchange="onMyRegistrarChange()"></select>
+      <div id="myRegistrarHint" class="hint" style="display:none"></div>
+      <div class="label" style="margin-top:8px"><b>Tu código afiliado</b> <span class="small">opcional</span></div>
+      <input id="myReferralCode" class="input" placeholder="ej: 12345 o aff_... — deja vacío para Porkbun/Cloudflare sin afiliado">
+      <div class="label" style="margin-top:8px"><b>Template efectivo</b> <span class="small">se usa al clicar dominio verde</span></div>
+      <input id="myReferralTemplate" class="input" style="font-size:11px" placeholder="https://.../{domain}">
+      <div class="small" id="myReferralPreview" style="margin-top:4px;word-break:break-all"></div>
+      <div class="row" style="margin-top:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" style="flex:1" onclick="saveMyReferral()">Guardar en este navegador</button>
+        <button class="btn-ghost" onclick="clearMyReferral()">Quitar</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn-ghost" style="flex:1" onclick="createShareLink()">📤 Crear link compartible con mi referido</button>
+      </div>
+      <div id="shareLinkBox" class="small" style="display:none;margin-top:6px;background:var(--card2);padding:8px;border-radius:8px;word-break:break-all"></div>
+      <div class="small" style="margin-top:6px">Fácil: elige proveedor → pega tu ID → Guarda. Generamos <span class="kbd">{domain}</span> automático. Para afiliados, el alta es manual (1 click a “Crear cuenta afiliado” te lleva al signup) — no podemos crearlo por API porque Namecheap/GoDaddy requieren aprobación humana en Impact/CJ.</div>
+      <details style="margin-top:6px"><summary class="small collapse">¿Cómo conseguir código afiliado?</summary>
+        <div class="small" id="signupLinks" style="margin-top:6px"></div>
+      </details>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3>Historial <span class="small" id="histCount" style="margin-left:auto"></span> <span class="collapse" onclick="loadHistory()">↻</span></h3>
+      <div id="history" class="history"><span class="small">Cargando...</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3>CLI — mismo engine</h3>
+      <div class="small" style="font-family:monospace;background:var(--card2);padding:8px;border-radius:8px;white-space:pre-wrap">./bin/cli.sh generate "video focus" --preset focalis-like --tlds cc,com,io
+./bin/cli.sh check focalis.cc --tlds cc,com,io,ai</div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <div class="card" style="padding:10px">
+      <div class="filters" id="filters">
+        <div class="filter active" data-f="all" onclick="setFilter('all')">Todos</div>
+        <div class="filter" data-f="available" onclick="setFilter('available')">✅ Solo disponibles</div>
+        <div class="filter" data-f="short" onclick="setFilter('short')">≤6 chars</div>
+      </div>
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div class="small" id="stats">—</div>
+        <div class="small" id="paramsView"></div>
+      </div>
+      <div id="metrics" class="stats-box" style="display:none;margin-top:8px"></div>
+    </div>
+    <div class="row" style="justify-content:flex-end;gap:6px;margin-top:8px">
+      <span class="small">Vista:</span>
+      <button class="filter active" id="viewCardsBtn" onclick="setView('cards')">🪪 Tarjetas</button>
+      <button class="filter" id="viewTableBtn" onclick="setView('table')">📋 Tabla</button>
+      <select id="sortSelect" class="input" style="width:auto;padding:4px 8px;font-size:11px;min-width:140px" onchange="onSortChange(this.value)">
+        <option value="default">Orden: generado</option>
+        <option value="available">Disponibles primero</option>
+        <option value="pron-desc">Pronunciable ↓</option>
+        <option value="mem-desc">Memorable ↓</option>
+        <option value="length-asc">Más corto primero</option>
+        <option value="length-desc">Más largo primero</option>
+        <option value="alpha">A-Z</option>
+      </select>
+    </div>
+    <div id="grid" class="grid" style="margin-top:12px"></div>
+    <div id="tableWrap" style="display:none;margin-top:12px;overflow:auto;border:1px solid var(--border);border-radius:12px">
+      <table id="resultsTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:600px">
+        <thead style="background:var(--card2);position:sticky;top:0">
+          <tr>
+            <th data-sort="name" onclick="sortBy('name')" style="text-align:left;padding:8px;cursor:pointer;white-space:nowrap">Nombre ↕</th>
+            <th data-sort="length" onclick="sortBy('length')" style="padding:8px;cursor:pointer">Letras ↕</th>
+            <th data-sort="pronounceable" onclick="sortBy('pronounceable')" style="padding:8px;cursor:pointer" title="Heurística vocales + sin clusters">🗣️ Pron ↕</th>
+            <th data-sort="memorable" onclick="sortBy('memorable')" style="padding:8px;cursor:pointer" title="Corto + pronunciable">🧠 Mem ↕</th>
+            <th style="padding:8px">Dominios</th>
+            <th style="padding:8px"></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div id="empty" class="card" style="margin-top:12px;text-align:center;color:var(--muted)">Elige preset o escribe arriba → Generar. Verás nombres con badges verdes/rojos. Click en dominio → registrar con tu referido. Cambia a tabla para ordenar/filtrar como SQL.</div>
+    <div id="scoreInfo" class="card" style="display:none;margin-top:12px">
+      <h3>¿Cómo se calcula pronunciable / memorable?</h3>
+      <p class="small">Son heurísticas locales, no IA — rápidas y explicables:</p>
+      <ul class="small" style="margin:6px 0;padding-left:16px">
+        <li><b>🗣️ pronunciable (0-100):</b> + penaliza clusters de 4+ consonantes (<code>vxzt</code>), + premia proporción vocales 35-55% (<code>luma</code> ideal). 90-100 = suena natural, 50 = con trabas.</li>
+        <li><b>🧠 memorable (0-100):</b> promedio de <b>corto (4-7 letras = 90)</b> + pronunciable. Corto + fácil de decir = se recuerda. No es magia, es longitud + fonética.</li>
+      </ul>
+      <p class="small">Idea que dejaste registrada: en el futuro estos scores podrían ser una página donde pegas una lista y se ordena por cualquier columna — por ahora ya puedes ordenar la tabla arriba por Pron / Mem / Letras / A-Z y filtrar con “Solo disponibles / ≤6”.</p>
+      <button class="btn-ghost" onclick="document.getElementById('scoreInfo').style.display='none'">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let activePreset=null, currentFilter='all', lastData=null, registrarTemplate='https://porkbun.com/checkout/search?q={domain}';
+
+function toggleChip(el){ el.classList.toggle('active') }
+function pickLang(el){
+  document.querySelectorAll('#langs .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+function getChips(id){ return [...document.querySelectorAll('#'+id+' .chip.active')].map(c=>c.dataset.v) }
+
+async function loadPresets(){
+  const r = await fetch('/api/presets'); const j = await r.json();
+  document.getElementById('presets').innerHTML = j.map(p=>`
+    <div class="preset" data-id="${p.id}" onclick="applyPreset('${p.id}')">
+      <b>${p.label}</b><span>${p.description}</span>
+    </div>
+  `).join('');
+}
+function applyPreset(id){
+  activePreset = id;
+  document.querySelectorAll('.preset').forEach(e=>e.classList.toggle('active', e.dataset.id===id));
+  fetch('/api/presets').then(r=>r.json()).then(js=>{
+    const p = js.find(x=>x.id===id); if(!p) return;
+    const pr = p.params;
+    if(pr.style_brandable!==undefined){document.getElementById('brandable').value=pr.style_brandable; document.getElementById('v_brandable').textContent=pr.style_brandable}
+    if(pr.simplicity!==undefined){document.getElementById('simplicity').value=pr.simplicity; document.getElementById('v_simple').textContent=pr.simplicity}
+    if(pr.length_min) document.getElementById('lenMin').value=pr.length_min;
+    if(pr.length_max) document.getElementById('lenMax').value=pr.length_max;
+    if(pr.syllables) document.getElementById('syll').value=pr.syllables;
+    if(pr.strategies) document.querySelectorAll('#strategies .chip').forEach(c=>c.classList.toggle('active', pr.strategies.includes(c.dataset.v)));
+    if(pr.language) {document.querySelectorAll('#langs .chip').forEach(c=>c.classList.toggle('active', c.dataset.v===pr.language));}
+  });
+}
+async function loadLanguages(){
+  const r = await fetch('/api/languages'); const j = await r.json();
+  document.getElementById('langs').innerHTML = j.map(l=>`<div class="chip ${l.id==='auto'?'active':''}" data-v="${l.id}" onclick="pickLang(this)">${l.label}</div>`).join('');
+}
+async function loadTLDs(){
+  const r = await fetch('/api/tlds'); const j = await r.json();
+  // presets
+  const presetsEl = document.getElementById('tldPresets');
+  presetsEl.innerHTML = Object.entries(j.presets).map(([k,v])=>`<div class="chip" data-preset="${k}" onclick="applyTldPreset('${k}')">${v.label}</div>`).join('');
+  // all
+  document.getElementById('tlds').innerHTML = j.all.map(t=>`<div class="chip tld ${['com','cc','io','ai'].includes(t)?'active':''}" data-v="${t}" onclick="toggleChip(this)">.${t}</div>`).join('');
+  window._tldPresets = j.presets;
+}
+function applyTldPreset(k){
+  const tlds = window._tldPresets[k].tlds;
+  document.querySelectorAll('#tlds .chip').forEach(c=>c.classList.toggle('active', tlds.includes(c.dataset.v)));
+  document.querySelectorAll('#tldPresets .chip').forEach(c=>c.classList.toggle('active', c.dataset.preset===k));
+  document.getElementById('tldPresetLabel').textContent = '→ ' + window._tldPresets[k].label;
+}
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter').forEach(e=>e.classList.toggle('active', e.dataset.f===f));
+  render();
+}
+async function loadHistory(){
+  const r = await fetch('/api/history?limit=20'); const j = await r.json();
+  document.getElementById('histCount').textContent = j.length ? j.length+' guardadas' : '';
+  document.getElementById('history').innerHTML = j.length ? j.map(h=>{
+    const d = new Date(h.created_at*1000).toLocaleString();
+    const avail = h.stats?.available_total ?? 0;
+    return `<div class="hist-item" onclick="loadHist('${h.id}')">
+      <div><b style="font-size:12px">${(h.keywords||h.prompt||'—').slice(0,28)}</b><div class="small">${d} · ${h.params?.style_brandable}/${h.params?.simplicity} · ${h.tlds.join(',')} · ✅${avail}</div></div>
+      <span class="small">${h.names.length}</span>
+    </div>`
+  }).join('') : '<span class="small">Aún no hay historial. Genera una.</span>';
+}
+async function loadHist(id){
+  const r = await fetch('/api/history/'+id); const j = await r.json();
+  lastData = j; registrarTemplate = j.registrar_template || registrarTemplate;
+  render(true); document.getElementById('empty').style.display='none';
+  // No scroll to top — go to results instead (better on mobile where results are below)
+  const target = document.getElementById('grid') || document.getElementById('metrics');
+  if(target){
+    const headerOffset = 60;
+    const top = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    window.scrollTo({top, behavior:'smooth'});
+  }
+}
+async function loadConfig(){
+  const r = await fetch('/api/config'); const j = await r.json();
+  registrarTemplate = j.registrar_template || registrarTemplate;
+  window._globalHasKey = j.has_ai_key;
+  window._globalModel = j.ai_model_resolved || j.ai_model || 'muse-spark-1.2-contributor';
+  document.getElementById('aiStatus').textContent = j.has_ai_key ? 'AI: ● activa ('+window._globalModel+')' : 'AI: ○ solo algo';
+  document.getElementById('aiStatus').style.color = j.has_ai_key ? 'var(--green)' : 'var(--muted)';
+  // preload user keys from localStorage
+  document.getElementById('user_ai_key').value = localStorage.getItem('user_ai_key')||'';
+  document.getElementById('user_ai_base').value = localStorage.getItem('user_ai_base')||'';
+  document.getElementById('user_ai_model').value = localStorage.getItem('user_ai_model')||'';
+  setTimeout(updateKeyStatus, 100);
+}
+
+function saveUserKeys(){
+  localStorage.setItem('user_ai_key', document.getElementById('user_ai_key').value);
+  localStorage.setItem('user_ai_base', document.getElementById('user_ai_base').value);
+  localStorage.setItem('user_ai_model', document.getElementById('user_ai_model').value);
+  updateKeyStatus();
+}
+function updateKeyStatus(){
+  const hasUser = document.getElementById('user_ai_key').value.trim().length > 8;
+  const hasGlobal = (window._globalHasKey === true);
+  const globalModel = window._globalModel || 'muse-spark-1.2-contributor';
+  const el = document.getElementById('keyStatus');
+  const detail = document.getElementById('keyStatusDetail');
+  if(!el || !detail) return;
+  if(hasUser){
+    const m = document.getElementById('user_ai_model').value.trim() || globalModel;
+    el.textContent = '● Usando TU key personal';
+    el.style.color = 'var(--green)';
+    detail.innerHTML = `Usando <b>tu key personal</b> → prioridad 1. Modelo: <span class="kbd">${m}</span>. La key global del admin se ignora solo para ti.`;
+  } else if(hasGlobal){
+    el.textContent = '○ Usando key GLOBAL del admin/env';
+    el.style.color = 'var(--accent)';
+    detail.innerHTML = `Vacío → usas la <b>global del admin</b> (env <span class="kbd">OPENCODE_GO_API_KEY</span>). Modelo: <span class="kbd">${globalModel}</span>. Pon tu key arriba si quieres anularla solo para ti.`;
+  } else {
+    el.textContent = '○ Sin key → solo algoritmo';
+    el.style.color = 'var(--red)';
+    detail.innerHTML = `Ni tu key ni la global están configuradas → <b>solo algoritmo</b> (rápido, gratis, sin IA). Pon una key arriba o configura la global en /admin.`;
+  }
+}
+
+// --- Referral (para todos, sin ser admin) + sharing ---
+let registrarsData = [];
+function effectiveTemplate(){
+  // Priority: URL shared (?r=CODE) > my local > global
+  const shared = localStorage.getItem('shared_referral_template');
+  const myLocal = localStorage.getItem('my_referral_template');
+  if(shared) return shared;
+  if(myLocal) return myLocal;
+  return registrarTemplate;
+}
+function registrarUrl(domain){
+  let tpl = effectiveTemplate();
+  return tpl.replace('{domain}', encodeURIComponent(domain));
+}
+async function loadReferrals(){
+  try{
+    const r = await fetch('/api/referrals'); const j = await r.json();
+    registrarsData = j.registrars;
+    const sel = document.getElementById('myRegistrar');
+    sel.innerHTML = registrarsData.map(r=>`<option value="${r.id}">${r.label}${r.has_affiliate?' ★':''}</option>`).join('');
+    // signup links helper
+    document.getElementById('signupLinks').innerHTML = registrarsData.map(r=>`<div style="margin-bottom:6px"><b>${r.label}</b> — ${r.referral_hint}<br><a href="${r.signup_url}" target="_blank" style="color:var(--accent)">→ Crear cuenta afiliado</a> <span class="small">(${r.has_affiliate?'con afiliado':'sin afiliado, precio costo'})</span></div>`).join('');
+    // check URL ?r=CODE
+    const urlParams = new URLSearchParams(location.search);
+    const code = urlParams.get('r');
+    if(code){
+      try{
+        const rr = await fetch('/api/referrals/share/'+code);
+        if(rr.ok){
+          const data = await rr.json();
+          localStorage.setItem('shared_referral_template', data.template);
+          localStorage.setItem('shared_referral_name', data.registrar_name);
+          const b = document.getElementById('referralBanner');
+          b.style.display='block'; b.innerHTML = `🔗 Estás usando referido compartido: <b>${data.registrar_name}</b> — <span class="kbd">${data.template}</span> <a href="#" onclick="clearSharedReferral();return false" style="margin-left:8px">quitar</a>`;
+        }
+      }catch(e){}
+    } else {
+      const sharedName = localStorage.getItem('shared_referral_name');
+      if(sharedName){
+        const b=document.getElementById('referralBanner'); b.style.display='block';
+        b.innerHTML=`🔗 Referido compartido activo: <b>${sharedName}</b> — ${localStorage.getItem('shared_referral_template')} <a href="#" onclick="clearSharedReferral();return false" style="margin-left:8px">quitar</a>`;
+      }
+    }
+    // load my local referral
+    loadMyReferralUI();
+  }catch(e){ console.log('referrals load err',e)}
+}
+function clearSharedReferral(){
+  localStorage.removeItem('shared_referral_template'); localStorage.removeItem('shared_referral_name');
+  document.getElementById('referralBanner').style.display='none';
+  // also remove ?r from url
+  history.replaceState({},'', location.pathname);
+}
+function onMyRegistrarChange(){
+  const id = document.getElementById('myRegistrar').value;
+  const reg = registrarsData.find(x=>x.id===id);
+  if(!reg) return;
+  const hint = document.getElementById('myRegistrarHint');
+  hint.style.display='block'; hint.textContent = reg.referral_hint;
+  // auto fill template base
+  const code = document.getElementById('myReferralCode').value.trim();
+  updateMyTemplatePreview(reg, code);
+}
+function updateMyTemplatePreview(reg, code){
+  let tpl = reg.template;
+  // if has_affiliate and code provided, append aff param smartly
+  if(code && reg.has_affiliate){
+    const sep = tpl.includes('?') ? '&' : '?';
+    // Namecheap uses aff=CODE, Godaddy uses custom, we generic append aff
+    if(tpl.includes('{domain}')){
+      // append after domain placeholder
+      tpl = tpl + sep + 'aff=' + encodeURIComponent(code);
+    } else {
+      tpl = tpl + sep + 'aff=' + encodeURIComponent(code);
+    }
+  }
+  document.getElementById('myReferralTemplate').value = tpl;
+  document.getElementById('myReferralPreview').innerHTML = `Vista previa: <a href="${tpl.replace('{domain}','example')}" target="_blank" style="color:var(--accent)">${tpl.replace('{domain}','<b>example</b>')}</a>`;
+}
+// when code typed, update preview
+  document.addEventListener('DOMContentLoaded', ()=>{
+  const inp=document.getElementById('myReferralCode');
+  if(inp) inp.addEventListener('input', ()=>{
+    const reg = registrarsData.find(x=>x.id===document.getElementById('myRegistrar').value);
+    if(reg) updateMyTemplatePreview(reg, inp.value.trim());
+  });
+  const tplInp=document.getElementById('myReferralTemplate');
+  if(tplInp) tplInp.addEventListener('input', ()=>{
+    const v=tplInp.value; document.getElementById('myReferralPreview').innerHTML = v.includes('{domain}') ? `Vista previa: <span class="kbd">${v.replace('{domain}','<b>example</b>')}</span>` : '<span style="color:var(--red)">Debe contener {domain}</span>';
+  });
+});
+function loadMyReferralUI(){
+  const tpl = localStorage.getItem('my_referral_template');
+  const name = localStorage.getItem('my_referral_name');
+  const code = localStorage.getItem('my_referral_code');
+  if(tpl){
+    document.getElementById('myReferralTemplate').value = tpl;
+    document.getElementById('myReferralPreview').innerHTML = `Guardado: <span class="kbd">${tpl}</span> (${name||''})`;
+    // try select matching registrar
+    const match = registrarsData.find(r=> tpl.startsWith(r.template.split('?')[0]));
+    if(match) document.getElementById('myRegistrar').value = match.id;
+    if(match) { document.getElementById('myRegistrarHint').style.display='block'; document.getElementById('myRegistrarHint').textContent=match.referral_hint; }
+  }
+  if(code) document.getElementById('myReferralCode').value = code;
+}
+function saveMyReferral(){
+  let tpl = document.getElementById('myReferralTemplate').value.trim();
+  if(!tpl) { const reg=registrarsData.find(x=>x.id===document.getElementById('myRegistrar').value); if(reg) tpl=reg.template; }
+  if(!tpl.includes('{domain}')) return alert('Template debe contener {domain}');
+  const name = registrarsData.find(x=>x.id===document.getElementById('myRegistrar').value)?.label || 'Custom';
+  const code = document.getElementById('myReferralCode').value.trim();
+  localStorage.setItem('my_referral_template', tpl);
+  localStorage.setItem('my_referral_name', name);
+  localStorage.setItem('my_referral_code', code);
+  document.getElementById('myReferralPreview').innerHTML = `✅ Guardado en este navegador: <span class="kbd">${tpl}</span> — ahora todos los dominios verdes usan tu referido.`;
+  // clear shared if user sets own
+  // don't clear shared, but local has lower priority than shared, so we inform
+}
+function clearMyReferral(){
+  localStorage.removeItem('my_referral_template'); localStorage.removeItem('my_referral_name'); localStorage.removeItem('my_referral_code');
+  document.getElementById('myReferralTemplate').value='';
+  document.getElementById('myReferralPreview').textContent='Quitado — vuelve a usar el global del admin.';
+}
+async function createShareLink(){
+  const tpl = localStorage.getItem('my_referral_template') || document.getElementById('myReferralTemplate').value.trim();
+  const name = localStorage.getItem('my_referral_name') || registrarsData.find(x=>x.id===document.getElementById('myRegistrar').value)?.label || 'Custom';
+  if(!tpl || !tpl.includes('{domain}')) return alert('Primero guarda un template válido con {domain}');
+  const r = await fetch('/api/referrals/share', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({template: tpl, registrar_name: name, owner: 'user', origin: location.origin})});
+  const j = await r.json();
+  if(!r.ok) return alert('Error: '+(j.detail||r.statusText));
+  const full = location.origin + '/?r=' + j.code;
+  const short = location.origin + '/s/' + j.code;
+  const box = document.getElementById('shareLinkBox');
+  box.style.display='block';
+  box.innerHTML = `✅ Link creado (hits: 0):<br><b>Compartible:</b> <a href="${full}" target="_blank" style="color:var(--accent)">${full}</a> <button class="btn-ghost" style="margin-left:6px" onclick="navigator.clipboard.writeText('${full}')">copiar</button><br><span class="small">Corto:</span> <a href="${short}" target="_blank">${short}</a> — Cualquiera que abra ese link usará tu referido automáticamente (guardado en su navegador).`;
+}
+
+let progressTimer=null;
+function showProgress(msg, detail){
+  const el=document.getElementById('globalProgress');
+  const t=document.getElementById('globalProgressText');
+  const d=document.getElementById('globalProgressDetail');
+  if(el){ el.style.display='flex'; }
+  if(t) t.textContent=msg;
+  if(d) d.textContent=detail||'';
+}
+function hideProgress(){ const el=document.getElementById('globalProgress'); if(el) el.style.display='none'; if(progressTimer){ clearInterval(progressTimer); progressTimer=null; } }
+async function generate(){
+  saveUserKeys();
+  // persist ai tuning
+  localStorage.setItem('ai_ratio', document.getElementById('ai_ratio').value);
+  localStorage.setItem('ai_count', document.getElementById('ai_count').value);
+  const btn = document.getElementById('generateBtn');
+  btn.disabled=true; const old = btn.textContent; btn.textContent='Generando…';
+  const total = parseInt(document.getElementById('count').value)||40;
+  const aiN = document.getElementById('ai_count').value.trim()!=='' ? parseInt(document.getElementById('ai_count').value)||0 : Math.round(total * parseInt(document.getElementById('ai_ratio').value)/100);
+  const algoN = total - aiN;
+  const tlds = getChips('tlds').length;
+  let step=0;
+  const steps = [
+    `▸ Generando ${total} nombres: ${aiN} IA + ${algoN} algoritmo…`,
+    `▸ IA trabajando…` + (aiN>0 ? ` (${aiN} nombres)` : ' (solo algoritmo, rápido)'),
+    `▸ Chequeando dominios… ${total}×${tlds}=${total*tlds} checks RDAP`,
+  ];
+  showProgress('Generando…', steps[0]);
+  progressTimer = setInterval(()=>{ step=(step+1)%steps.length; const tt=document.getElementById('globalProgressText'); if(tt) tt.textContent='Generando…'; const dd=document.getElementById('globalProgressDetail'); if(dd) dd.textContent=steps[step]; }, 1800);
+  const aiCountVal = document.getElementById('ai_count').value.trim();
+  const payload = {
+    keywords: document.getElementById('keywords').value,
+    prompt: document.getElementById('prompt').value,
+    preset: activePreset,
+    style_brandable: parseInt(document.getElementById('brandable').value),
+    simplicity: parseInt(document.getElementById('simplicity').value),
+    length_min: parseInt(document.getElementById('lenMin').value),
+    length_max: parseInt(document.getElementById('lenMax').value),
+    syllables: parseInt(document.getElementById('syll').value),
+    strategies: getChips('strategies'),
+    language: getChips('langs')[0] || 'auto',
+    tlds: getChips('tlds'),
+    count: parseInt(document.getElementById('count').value)||40,
+    check_domains_flag: document.getElementById('check_domains').checked,
+    use_llm: document.getElementById('use_llm').checked,
+    ai_ratio: aiCountVal==='' ? parseInt(document.getElementById('ai_ratio').value) : undefined,
+    ai_count: aiCountVal!=='' ? parseInt(aiCountVal) : undefined,
+    user_ai_key: document.getElementById('user_ai_key').value || undefined,
+    user_ai_base: document.getElementById('user_ai_base').value || undefined,
+    user_ai_model: document.getElementById('user_ai_model').value || undefined,
+  };
+  // send also as headers
+  const headers = {'Content-Type':'application/json'};
+  if(payload.user_ai_key) headers['x-user-ai-key']=payload.user_ai_key;
+  if(payload.user_ai_base) headers['x-user-ai-base']=payload.user_ai_base;
+  if(payload.user_ai_model) headers['x-user-ai-model']=payload.user_ai_model;
+  try{
+    const r = await fetch('/api/generate', {method:'POST', headers, body: JSON.stringify(payload)});
+    const j = await r.json();
+    if(r.status!==200) throw new Error(j.detail||r.statusText);
+    lastData=j; registrarTemplate = j.registrar_template || registrarTemplate;
+    document.getElementById('paramsView').textContent = `brandable ${j.params.style_brandable} · simple ${j.params.simplicity} · ${j.params.strategies.join(',')} · ${j.params.language}`;
+    render();
+    document.getElementById('empty').style.display='none';
+    loadHistory();
+    showProgress('✓ Listo', `${j.names.length} nombres · ${j.stats.available_total} disponibles · ${j.stats.total_ms}ms`);
+    setTimeout(hideProgress, 3500);
+  }catch(e){ showProgress('✕ Error', e.message); setTimeout(hideProgress, 4000); alert('error: '+e.message) }
+  finally{ btn.disabled=false; btn.textContent=old; if(progressTimer){ clearInterval(progressTimer); progressTimer=null; } }
+}
+
+function render(fromHistory=false){
+  if(!lastData) return;
+  let names = lastData.names;
+  if(currentFilter==='available') names = names.filter(n=>n.has_available);
+  if(currentFilter==='short') names = names.filter(n=>n.length<=6);
+  names = applySort(names);
+  const availTotal = lastData.names.filter(n=>n.has_available).length;
+  document.getElementById('stats').textContent = `${names.length} mostrados · ${availTotal} con dominio disponible · TLDs: ${lastData.tlds.join(', ')}${fromHistory?' · (historial)':''} · vista ${currentView} · orden ${sortKey}`;
+  // metrics
+  const s = lastData.stats;
+  if(s){
+    const pctLLM = s.total_gen_ms ? Math.round((s.llm_ms||0)/s.total_gen_ms*100) : 0;
+    const pctAlgo = 100 - pctLLM;
+    document.getElementById('metrics').style.display='block';
+    document.getElementById('metrics').innerHTML = `
+      <b>⏱ Métricas</b> — total <b>${s.total_ms}ms</b> &nbsp;|&nbsp;
+      Algoritmo: <b>${s.algo_ms}ms</b> (${s.algo_count} nombres, ${pctAlgo}%) &nbsp;|&nbsp;
+      IA: <b>${s.llm_used ? s.llm_ms+'ms ('+s.llm_count+' nombres, ~'+pctLLM+'%)' : 'no usada / sin key'}</b> <span class="small">${s.blend}</span><br>
+      Dominios: <b>${s.domain_ms}ms</b> para ${s.domain_checked} checks · <b style="color:var(--green)">${s.available_total} disponibles</b> · History #${lastData.id||''}
+    `;
+  }
+  // Cards
+  const grid = document.getElementById('grid');
+  grid.style.display = currentView==='cards' ? 'grid' : 'none';
+  document.getElementById('tableWrap').style.display = currentView==='table' ? 'block' : 'none';
+  grid.innerHTML = names.map(n=>{
+    const doms = (n.domains||[]).map(d=>{
+      const cls = d.status==='available'?'available':d.status==='taken'?'taken':'unknown';
+      const dot = d.status==='available'?'●':'○';
+      const href = d.status==='available' ? ` href="${registrarUrl(d.domain)}" target="_blank" rel="noopener"` : '';
+      const tag = d.status==='available' ? 'a' : 'span';
+      return `<${tag}${href} class="domain ${cls}" title="${d.status} · ${d.detail} — click para registrar">${dot} ${d.domain} <span style="opacity:0.7">${d.price}</span></${tag}>`
+    }).join('');
+    return `<div class="name-card ${n.has_available?'has-available':''}">
+      <div class="name-top">
+        <div class="name">${n.name}</div>
+        <span class="badge ${n.has_available?'green':''}">${n.has_available?'✅ disponible':'—'}</span>
+      </div>
+      <div class="domains">${doms || '<span class="small">sin check TLD</span>'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px">
+        <div>
+          <div class="small" style="display:flex;justify-content:space-between"><span title="Heurística: proporción vocales 35-55% + sin clusters de 4 consonantes">🗣️ pronunciable</span><b>${n.pronounceable}</b></div>
+          <div class="bar" title="${n.pronounceable}/100 — qué fácil es decirlo. 100=luma, 50=vxztor"><i style="width:${n.pronounceable}%;background:var(--accent)"></i></div>
+        </div>
+        <div>
+          <div class="small" style="display:flex;justify-content:space-between"><span title="Heurística: corto (4-7 letras) + pronunciable alto = más memorable">🧠 memorable</span><b>${n.memorable}</b></div>
+          <div class="bar" title="${n.memorable}/100 — qué fácil es recordarlo"><i style="width:${n.memorable}%;background:var(--accent2)"></i></div>
+        </div>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:6px"><span class="small">${n.length} letras · <a href="#" onclick="showScoreInfo();return false" class="small" style="color:var(--accent);text-decoration:underline">¿cómo se calcula?</a></span><button class="btn-ghost" onclick="navigator.clipboard.writeText('${n.name}')">copiar</button></div>
+    </div>`
+  }).join('');
+  // Table
+  const tbody = document.getElementById('tableBody');
+  if(tbody){
+    tbody.innerHTML = names.map(n=>{
+      const doms = (n.domains||[]).map(d=>{
+        const cls = d.status==='available'?'available':d.status==='taken'?'taken':'unknown';
+        const dot = d.status==='available'?'●':'○';
+        const href = d.status==='available' ? ` href="${registrarUrl(d.domain)}" target="_blank" rel="noopener"` : '';
+        const tag = d.status==='available' ? 'a' : 'span';
+        return `<${tag}${href} class="domain ${cls}" style="font-size:10px;padding:3px 6px">${dot} ${d.domain}</${tag}>`
+      }).join(' ');
+      return `<tr style="border-top:1px solid var(--border)">
+        <td style="padding:8px;font-weight:800;white-space:nowrap">${n.name} ${n.has_available?'<span style="color:var(--green)">●</span>':''}</td>
+        <td style="padding:8px;text-align:center">${n.length}</td>
+        <td style="padding:8px;text-align:center"><span title="${n.pronounceable}/100">${n.pronounceable}</span><div class="bar" style="width:50px;margin:2px auto"><i style="width:${n.pronounceable}%;background:var(--accent)"></i></div></td>
+        <td style="padding:8px;text-align:center">${n.memorable}<div class="bar" style="width:50px;margin:2px auto"><i style="width:${n.memorable}%;background:var(--accent2)"></i></div></td>
+        <td style="padding:8px">${doms || '<span class="small">—</span>'}</td>
+        <td style="padding:8px"><button class="btn-ghost" style="padding:4px 8px;font-size:10px" onclick="navigator.clipboard.writeText('${n.name}')">copiar</button></td>
+      </tr>`
+    }).join('');
+  }
+}
+
+// AI ratio controls
+function updateAiBreakdown(){
+  const total = parseInt(document.getElementById('count').value)||40;
+  const ratio = parseInt(document.getElementById('ai_ratio').value)||0;
+  const aiCountInp = document.getElementById('ai_count').value.trim();
+  let aiN, algoN, effRatio;
+  if(aiCountInp !== ''){
+    aiN = Math.max(0, Math.min(total, parseInt(aiCountInp)||0));
+    algoN = total - aiN;
+    effRatio = Math.round(aiN/total*100);
+    document.getElementById('v_ai_ratio').textContent = effRatio+'%';
+    document.getElementById('aiRatioLabel').textContent = effRatio+'% IA (manual)';
+  } else {
+    aiN = Math.round(total * ratio / 100);
+    algoN = total - aiN;
+    document.getElementById('v_ai_ratio').textContent = ratio+'%';
+    document.getElementById('aiRatioLabel').textContent = ratio+'% IA';
+  }
+  document.getElementById('aiRatioBreakdown').innerHTML = `Total ${total} → <b>${aiN} IA</b> + <b>${algoN} algoritmo</b> · ${aiN===0?'solo algoritmo':aiN===total?'solo IA':Math.round(aiN/total*100)+'% IA'}`;
+  // sync disabled field
+  document.getElementById('algo_count').value = algoN;
+  // active preset highlight
+  document.querySelectorAll('#aiRatioPresets .chip').forEach(c=>c.classList.toggle('active', parseInt(c.dataset.v)===ratio && aiCountInp===''));
+  const useLlm = document.getElementById('use_llm').checked;
+  if(!useLlm){
+    document.getElementById('aiRatioBreakdown').innerHTML += ' <span style="color:var(--red)">(IA desactivada → 0 IA)</span>';
+  }
+}
+function onAiRatioChange(v){
+  document.getElementById('ai_count').value=''; // clear manual when slider moves
+  updateAiBreakdown();
+  localStorage.setItem('ai_ratio', v);
+}
+function setAiRatio(v){ document.getElementById('ai_ratio').value=v; onAiRatioChange(v); }
+function onAiCountChange(){ localStorage.setItem('ai_count', document.getElementById('ai_count').value); updateAiBreakdown(); }
+function onUseLlmToggle(){
+  const on = document.getElementById('use_llm').checked;
+  document.getElementById('ai_ratio').disabled = !on;
+  document.getElementById('ai_ratio').style.opacity = on ? '1' : '0.4';
+  updateAiBreakdown();
+}
+// keep breakdown & button in sync when total changes
+function updateGenerateBtnText(){ const n=parseInt(document.getElementById('count').value)||40; const btn=document.getElementById('generateBtn'); if(btn) btn.textContent = `Generar ${n} → chequear dominios`; }
+function onCountChange(){ updateGenerateBtnText(); updateAiBreakdown(); }
+(function(){ const c=document.getElementById('count'); if(c) c.addEventListener('input', onCountChange); setTimeout(updateGenerateBtnText, 200); })();
+function showScoreInfo(){ const el=document.getElementById('scoreInfo'); el.style.display = el.style.display==='none'?'block':'none'; if(el.style.display==='block') el.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+// restore saved
+(function(){
+  const savedRatio = localStorage.getItem('ai_ratio');
+  if(savedRatio!==null) document.getElementById('ai_ratio').value = savedRatio;
+  const savedCount = localStorage.getItem('ai_count');
+  if(savedCount!==null) document.getElementById('ai_count').value = savedCount;
+})();
+
+// Theme
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t); const b=document.getElementById('themeToggle'); if(b) b.textContent = t==='light' ? '☀️' : '🌙'; }
+function toggleTheme(){ const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); applyTheme(cur==='light' ? 'dark' : 'light'); }
+(function initTheme(){ const saved = localStorage.getItem('theme'); if(saved) applyTheme(saved); else if(window.matchMedia('(prefers-color-scheme: light)').matches) applyTheme('light'); else applyTheme('dark'); })();
+
+// --- Vista tabla vs tarjetas + ordenamiento ---
+let currentView = localStorage.getItem('resultsView') || 'cards';
+let sortKey = localStorage.getItem('sortKey') || 'default'; let sortDir = localStorage.getItem('sortDir') || 'desc';
+function setView(v){
+  currentView=v; localStorage.setItem('resultsView', v);
+  document.getElementById('viewCardsBtn').classList.toggle('active', v==='cards');
+  document.getElementById('viewTableBtn').classList.toggle('active', v==='table');
+  document.getElementById('grid').style.display = v==='cards' ? 'grid' : 'none';
+  document.getElementById('tableWrap').style.display = v==='table' ? 'block' : 'none';
+  const sel=document.getElementById('sortSelect'); if(sel) sel.value = sortKey==='default' ? 'default' : `${sortKey}-${sortDir}`;
+  render();
+}
+function onSortChange(val){
+  if(val==='default'){ sortKey='default'; sortDir='desc'; }
+  else if(val==='available'){ sortKey='available'; sortDir='desc'; }
+  else { const [k,d]=val.split('-'); sortKey=k; sortDir=d; }
+  localStorage.setItem('sortKey', sortKey); localStorage.setItem('sortDir', sortDir);
+  render();
+}
+function sortBy(k){
+  if(sortKey===k) sortDir = sortDir==='asc'?'desc':'asc'; else { sortKey=k; sortDir=(k==='length'||k==='name')?'asc':'desc'; }
+  localStorage.setItem('sortKey', sortKey); localStorage.setItem('sortDir', sortDir);
+  const sel=document.getElementById('sortSelect'); if(sel) sel.value = sortKey==='default'?'default':`${sortKey}-${sortDir}`;
+  render();
+}
+function applySort(arr){
+  if(sortKey==='default') return arr;
+  const dir = sortDir==='asc'?1:-1;
+  return [...arr].sort((a,b)=>{
+    if(sortKey==='available') return (b.has_available - a.has_available)*dir;
+    if(sortKey==='name') return a.name.localeCompare(b.name)*dir;
+    return ((a[sortKey]||0) - (b[sortKey]||0))*dir;
+  });
+}
+loadPresets(); loadLanguages(); loadTLDs(); loadHistory(); loadConfig(); loadReferrals();
+// init AI ratio breakdown after elements exist
+setTimeout(()=>{ updateAiBreakdown(); updateGenerateBtnText(); setView(currentView); }, 150);
+</script>
+</body>
+</html>

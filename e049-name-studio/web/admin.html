@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Name Studio</title>
+<style>
+:root{--bg:#0a0a0c;--card:#16161a;--card2:#1e1e24;--border:#26262e;--text:#f2f2f5;--muted:#9aa0aa;--accent:#7c5cff;--green:#22c55e;--red:#ef4444}
+[data-theme="light"]{--bg:#f6f6f7;--card:#ffffff;--card2:#eef0f3;--border:#d9dce2;--text:#14141a;--muted:#6b7280;--accent:#7c5cff;--green:#16a34a;--red:#dc2626}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;max-width:760px;margin:0 auto 16px}
+.input, .select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);margin-top:6px;font-family:monospace;font-size:12px}
+.input:focus{border-color:var(--accent);outline:none}
+label{font-size:11px;color:var(--muted);display:block;margin-top:12px}
+label b{color:var(--text)}
+.btn{background:var(--accent);color:white;border:0;padding:10px 16px;border-radius:999px;font-weight:800;cursor:pointer;margin-top:12px}
+.btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:999px;font-size:12px;cursor:pointer}
+.small{font-size:11px;color:var(--muted);line-height:1.4}
+a{color:var(--accent);text-decoration:none}
+.env-tag{display:inline-block;background:var(--card2);border:1px solid var(--border);padding:2px 6px;border-radius:6px;font-family:monospace;font-size:11px;margin:2px;cursor:pointer}
+.env-tag:hover{border-color:var(--accent)}
+.badge{font-size:10px;padding:4px 8px;border-radius:999px}
+.badge.ok{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+.badge.no{background:rgba(239,68,68,0.08);color:var(--muted);border:1px solid var(--border)}
+.kbd{font-family:monospace;background:var(--card2);padding:2px 5px;border-radius:6px;font-size:11px;border:1px solid var(--border)}
+</style>
+</head>
+<body>
+<script>(function(){const s=localStorage.getItem('theme'); if(s) document.documentElement.setAttribute('data-theme',s); else if(window.matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme','light');})();</script>
+<div style="max-width:760px;margin:0 auto 10px;display:flex;justify-content:space-between;align-items:center">
+  <a href="/" style="font-size:13px;background:var(--card);border:1px solid var(--border);padding:8px 14px;border-radius:999px">← Volver al studio</a>
+  <span style="display:flex;gap:8px;align-items:center"><button onclick="(function(){const c=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',c);localStorage.setItem('theme',c);})()" style="font-size:12px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;background:var(--card2);color:var(--text);cursor:pointer" title="Tema claro/oscuro">🌙/☀️</button><span class="small">Name Studio · Admin</span></span>
+</div>
+<div class="card" id="loginCard">
+<h2>Admin — Name Studio</h2>
+<div id="loginBox">
+<p class="small">Esta sección es solo para el admin. Inicia sesión una vez y quedas autenticado 24h (token en tu navegador). Otras personas pueden usar la app sin ser admin — su configuración queda local.</p>
+<label>Password admin
+<input id="loginPwd" class="input" type="password" placeholder="admin123"></label>
+<button class="btn" onclick="login()">Entrar →</button>
+<p class="small" id="loginMsg"></p>
+</div>
+<div id="authedBox" style="display:none">
+<p><span class="badge ok">● Autenticado como admin</span> <button class="btn-ghost" onclick="logout()">Cerrar sesión</button></p>
+</div>
+</div>
+
+<div class="card" id="configCard" style="display:none">
+<h3 style="margin:0 0 6px 0">Configuración global (servidor)</h3>
+<p class="small">Estos valores afectan a <b>todos</b> los usuarios. Puedes escribir valores fijos o variables de entorno con <span class="kbd">${OPENCODE_GO_API_KEY}</span> — se resuelven en el servidor al usarlos. Útil si el servidor ya tiene las keys en env y no quieres hardcodearlas.</p>
+
+<div class="small" style="background:rgba(124,92,255,0.08);border:1px dashed rgba(124,92,255,0.25);padding:8px;border-radius:8px;margin-top:8px">
+<b>Variables disponibles en este servidor:</b> <span id="envList" class="small">cargando...</span><br>
+<span class="small">Click en una para insertarla en el campo seleccionado. Soporta <span class="kbd">${VAR}</span> y <span class="kbd">${VAR:-default}</span>.</span>
+</div>
+
+<label><b>Registrar URL template</b> <span class="small">usa {domain} — ej: https://porkbun.com/checkout/search?q={domain}</span>
+<input id="registrar_template" class="input" placeholder="https://porkbun.com/checkout/search?q={domain}"></label>
+<label><b>Registrar nombre</b>
+<input id="registrar_name" class="input" placeholder="Porkbun"></label>
+<label><b>Referral code</b> <span class="small">opcional, se añade si tu template no lo incluye</span>
+<input id="referral_code" class="input" placeholder="ref=123"></label>
+
+<h4 style="margin:14px 0 4px 0;font-size:13px">IA global</h4>
+<p class="small">Si dejas <b>API Key = ${OPENCODE_GO_API_KEY}</b> y <b>Base URL = ${OPENCODE_GO_BASE_URL}</b>, el servidor usará las env vars del sistema. El <b>Modelo</b> ya está por defecto en <b>muse-spark-1.2-contributor</b> (el de esta sesión). Cámbialo solo si quieres otro.</p>
+
+<label><b>AI Provider</b>
+<input id="ai_provider" class="input" placeholder="opencode-go"></label>
+<label><b>AI Base URL</b> <span class="small">puede ser ${OPENCODE_GO_BASE_URL} o https://api.openai.com/v1</span>
+<input id="ai_base_url" class="input" placeholder="${OPENCODE_GO_BASE_URL}"></label>
+<label><b>AI Model</b> <span class="small">recomendado: muse-spark-1.2-contributor</span>
+<input id="ai_model" class="input" placeholder="muse-spark-1.2-contributor"></label>
+<label><b>AI API Key</b> <span class="small">usa ${OPENCODE_GO_API_KEY} para tomar del env, o pega una key fija</span>
+<input id="ai_api_key" class="input" type="password" placeholder="${OPENCODE_GO_API_KEY} — deja para usar env"></label>
+<div class="small" id="resolvedPreview" style="margin-top:6px;background:var(--card2);padding:6px;border-radius:8px;border:1px solid var(--border);display:none"></div>
+
+<label><b>Nuevo password admin</b> <span class="small">deja vacío para no cambiar</span>
+<input id="admin_password" class="input" type="password" placeholder="••••"></label>
+
+<button class="btn" onclick="save()">Guardar configuración</button>
+<p class="small" id="saveMsg"></p>
+
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+<h4 style="margin:0 0 6px 0;font-size:13px">Diseño de autenticación — cómo pensarlo</h4>
+<p class="small">
+<b>Dos niveles:</b><br>
+1) <b>Global (admin / servidor):</b> lo que guardas aquí afecta a todos. Solo tú con password/token puedes cambiarlo. Usa env vars para no exponer keys en disco.<br>
+2) <b>Local (visitante / navegador):</b> cada persona que abre <a href="/">name.studio</a> puede poner <i>su propia IA</i> en el panel izquierdo (“¿Tu propia IA?”) — eso se guarda solo en <span class="kbd">localStorage</span> de su navegador y se envía como header <span class="kbd">x-user-ai-key</span> por request. No toca el servidor ni molesta a otros. Ideal si alguien quiere usar su key sin ser admin.<br><br>
+<b>Flujo auth:</b> Login → token 24h en localStorage → todas las llamadas admin usan <span class="kbd">x-admin-token</span> sin pedir password cada vez. Si alguien no es admin, ve la app normal pero <span class="kbd">/admin</span> le pide login. Las preferencias personales nunca requieren login.<br>
+<b>Recomendación:</b> deja la API key global como <span class="kbd">${OPENCODE_GO_API_KEY}</span> y modelo en <span class="kbd">muse-spark-1.2-contributor</span> — así hereda lo que ya usamos aquí y no duplicas secretos.
+</p>
+</div>
+
+<p class="small" style="margin-top:12px"><a href="/">← Volver al studio</a></p>
+</div>
+
+<script>
+let token = localStorage.getItem('admin_token') || '';
+let focusedInput = null;
+
+function setAuthUI(isAuthed){
+  document.getElementById('loginBox').style.display = isAuthed ? 'none' : 'block';
+  document.getElementById('authedBox').style.display = isAuthed ? 'block' : 'none';
+  document.getElementById('configCard').style.display = isAuthed ? 'block' : 'none';
+}
+async function checkMe(){
+  const h = {}; if(token) h['x-admin-token']=token;
+  const r = await fetch('/api/admin/me', {headers:h});
+  const j = await r.json();
+  setAuthUI(j.is_admin);
+  if(j.is_admin) loadConfig();
+  // env list too
+  if(j.is_admin) loadEnv();
+}
+async function login(){
+  const pwd = document.getElementById('loginPwd').value;
+  if(!pwd) return alert('Escribe password');
+  const r = await fetch('/api/admin/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({password:pwd})});
+  const j = await r.json();
+  if(!r.ok){ document.getElementById('loginMsg').textContent = 'Error: '+(j.detail||r.statusText); return; }
+  token = j.token; localStorage.setItem('admin_token', token);
+  document.getElementById('loginMsg').textContent = 'Login OK — token 24h';
+  checkMe();
+}
+function logout(){
+  localStorage.removeItem('admin_token'); token='';
+  fetch('/api/admin/logout', {method:'POST', headers:{'x-admin-token': token}}); // best effort
+  setAuthUI(false);
+}
+async function loadEnv(){
+  const h = {}; if(token) h['x-admin-token']=token;
+  const r = await fetch('/api/env', {headers:h});
+  if(!r.ok) return;
+  const j = await r.json();
+  const el = document.getElementById('envList');
+  el.innerHTML = Object.keys(j).map(k=>`<span class="env-tag" onclick="insertEnv('${k}')">${k}</span>`).join(' ') + '<br><span class="small">'+Object.entries(j).map(([k,v])=>`${k}=${v}`).join(' · ')+'</span>';
+}
+function insertEnv(k){
+  if(!focusedInput) { alert('Primero click en un campo (API Key, Base URL, etc.)'); return; }
+  const tag = '${'+k+'}';
+  const inp = document.getElementById(focusedInput);
+  if(inp) { inp.value = tag; inp.focus(); }
+}
+['ai_api_key','ai_base_url','ai_model','registrar_template','ai_provider'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('focus', ()=> focusedInput=id);
+});
+
+async function loadConfig(){
+  const r = await fetch('/api/config');
+  const j = await r.json();
+  document.getElementById('registrar_template').value = j.registrar_template||'';
+  document.getElementById('registrar_name').value = j.registrar_name||'';
+  document.getElementById('referral_code').value = j.referral_code||'';
+  document.getElementById('ai_provider').value = j.ai_provider||'opencode-go';
+  document.getElementById('ai_base_url').value = j.ai_base_url||'${OPENCODE_GO_BASE_URL}';
+  document.getElementById('ai_model').value = j.ai_model||'muse-spark-1.2-contributor';
+  // don't fill api_key with raw if it's env placeholder
+  document.getElementById('ai_api_key').placeholder = j.ai_api_key_preview ? 'actual: '+j.ai_api_key_preview : '${OPENCODE_GO_API_KEY}';
+  // show resolved preview
+  const preview = document.getElementById('resolvedPreview');
+  preview.style.display='block';
+  preview.innerHTML = `<b>Resuelto en servidor:</b> base=<span class="kbd">${j.ai_base_url_resolved||''}</span> model=<span class="kbd">${j.ai_model_resolved||''}</span> key=${j.has_ai_key?'● presente':'○ ausente'} <span class="small">(${j.ai_api_key_preview||''})</span>`;
+}
+async function save(){
+  const body = {
+    registrar_template: document.getElementById('registrar_template').value,
+    registrar_name: document.getElementById('registrar_name').value,
+    referral_code: document.getElementById('referral_code').value,
+    ai_provider: document.getElementById('ai_provider').value,
+    ai_base_url: document.getElementById('ai_base_url').value,
+    ai_model: document.getElementById('ai_model').value,
+  };
+  const key = document.getElementById('ai_api_key').value;
+  if(key) body.ai_api_key = key;
+  const npwd = document.getElementById('admin_password').value;
+  if(npwd) body.admin_password = npwd;
+  const r = await fetch('/api/config', {method:'POST', headers:{'Content-Type':'application/json','x-admin-token':token}, body: JSON.stringify(body)});
+  const j = await r.json();
+  document.getElementById('saveMsg').textContent = r.ok ? 'Guardado ✓ — resuelve env al vuelo. Recarga la página principal para usarlo.' : 'Error: '+(j.detail||r.statusText);
+  if(r.ok) loadConfig();
+}
+checkMe();
+</script>
+</body>
+</html>
