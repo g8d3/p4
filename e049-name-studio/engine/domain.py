@@ -14,10 +14,19 @@ TTL = 24 * 3600
 # RDAP endpoints per TLD (authoritative). rdap.org is a bootstrap.
 RDAP_BOOTSTRAP = "https://rdap.org/domain/{domain}"
 
-# Price hints
+# Price hints (standard renewal, non-premium)
 TLD_PRICE = {
     "com": "$12", "cc": "$12", "io": "$60", "ai": "$70", "co": "$12",
-    "net": "$12", "org": "$12", "app": "$15", "dev": "$12", "studio": "$30",
+    "net": "$12", "org": "$12", "app": "$14", "dev": "$12", "studio": "$30",
+    "xyz": "$12", "site": "$3", "online": "$4", "tech": "$45", "co": "$12",
+    "me": "$15", "sh": "$40", "live": "$25", "pro": "$15", "co": "$12",
+    "app": "$14", "dev": "$12", "xyz": "$12", "site": "$3", "online": "$4",
+}
+# numeric for filtering (cheap = <=15)
+TLD_PRICE_NUM = {
+    "com": 12, "cc": 12, "co": 12, "net": 12, "org": 12, "app": 14, "dev": 12,
+    "xyz": 12, "site": 3, "online": 4, "me": 15, "pro": 15,
+    "io": 60, "ai": 70, "sh": 40, "studio": 30, "tech": 45, "live": 25,
 }
 
 def _load_cache() -> Dict:
