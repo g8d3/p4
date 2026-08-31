@@ -164,13 +164,15 @@ def hunt(
     keywords: str = typer.Argument("", help="Keywords / idea e.g. 'app studio' (optional, for context)"),
     min_length: int = typer.Option(3, "--min", help="Min name length (3-6)"),
     max_length: int = typer.Option(5, "--max", help="Max name length (3-8)"),
-    tlds: str = typer.Option("cc,io,ai,com,co,sh,app,xyz", help="Comma TLDs ordered by priority (shortest domains use short TLDs)"),
+    tlds: str = typer.Option("cc,com,co,xyz,site,online,app,dev,net,org,me", help="Comma TLDs (default = cheap ≤$15 only; add io/ai manually if you accept premium)"),
     per_length: int = typer.Option(30, help="Candidates per length (total = per_length * lengths)"),
     brute: bool = typer.Option(False, help="Brute-force pronounceable enumeration for 3-4 chars instead of engine"),
     use_llm: bool = typer.Option(False, help="Use LLM to generate (adds brandable variety, slower)"),
     prompt: Optional[str] = typer.Option(None, help="Natural language prompt to tune generation"),
     lang: str = typer.Option("auto", help="Language bias for engine"),
     top: int = typer.Option(15, help="Show top N shortest available"),
+    max_price: int = typer.Option(15, "--max-price", help="Max renewal price USD (filters TLDs, e.g. 15 = standard only, 70 = include io/ai)"),
+    cheap_only: bool = typer.Option(True, "--cheap/--no-cheap", help="Only show ≤max-price TLDs (default cheap)"),
 ):
     """Hunt the shortest available domain — ideal for an umbrella domain for many apps.
 
@@ -184,10 +186,31 @@ def hunt(
     from engine.domain import check_domains
     from engine.scoring import pronounceable_score, memorability_score
 
-    tld_list = [t.strip().lstrip(".") for t in tlds.split(",") if t.strip()]
-    if not tld_list:
+    # filter TLDs by max_price if cheap_only
+    raw_tlds = [t.strip().lstrip(".") for t in tlds.split(",") if t.strip()]
+    if not raw_tlds:
         typer.echo("No TLDs given", err=True)
         raise typer.Exit(1)
+    if cheap_only:
+        from engine.domain import TLD_PRICE_NUM
+        filtered = []
+        skipped = []
+        for t in raw_tlds:
+            price = TLD_PRICE_NUM.get(t)
+            if price is None:
+                filtered.append(t)  # unknown price, keep but warn
+            elif price <= max_price:
+                filtered.append(t)
+            else:
+                skipped.append(f"{t}(${price})")
+        if skipped:
+            typer.echo(f"  💰 filtro ≤${max_price}: excluidos {', '.join(skipped)} — usa --no-cheap o --max-price 70 para incluirlos")
+        tld_list = filtered if filtered else raw_tlds
+        if not tld_list:
+            typer.echo("All TLDs filtered by price — use --no-cheap", err=True)
+            raise typer.Exit(1)
+    else:
+        tld_list = raw_tlds
     if min_length < 2: min_length = 2
     if max_length < min_length: max_length = min_length
     if max_length > 12: max_length = 12
@@ -318,16 +341,18 @@ def shortest(
     keywords: str = typer.Argument("", help="Keywords"),
     min_length: int = typer.Option(3, "--min"),
     max_length: int = typer.Option(5, "--max"),
-    tlds: str = typer.Option("cc,io,ai,com,co,sh,app,xyz", help="TLDs"),
+    tlds: str = typer.Option("cc,com,co,xyz,site,online,app,dev,net,org,me", help="TLDs"),
     per_length: int = typer.Option(30, help="Per length"),
     brute: bool = typer.Option(False, help="Brute"),
     use_llm: bool = typer.Option(False, help="Use LLM"),
     prompt: Optional[str] = typer.Option(None),
     lang: str = typer.Option("auto"),
     top: int = typer.Option(15),
+    max_price: int = typer.Option(15, "--max-price"),
+    cheap_only: bool = typer.Option(True, "--cheap/--no-cheap"),
 ):
     """Alias for hunt."""
-    hunt(keywords, min_length, max_length, tlds, per_length, brute, use_llm, prompt, lang, top)
+    hunt(keywords, min_length, max_length, tlds, per_length, brute, use_llm, prompt, lang, top, max_price, cheap_only)
 
 if __name__=="__main__":
     app()
