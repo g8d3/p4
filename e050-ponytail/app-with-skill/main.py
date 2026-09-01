@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Ponytail voice dictation popup — single-file, stdlib-first.
-Follows DietrichGebert/ponytail SKILL.md (full): ladder rungs 3-5 applied.
+"""Voice dictation popup — single-file, stdlib-first.
+Built with DietrichGebert/ponytail skill (full): ladder rungs 3-5 applied.
 Usage: pip install sounddevice SpeechRecognition pynput && python main.py
   env OPENAI_API_KEY optional | XDG_SESSION_TYPE auto-detected
-Hotkey: Ctrl+Alt+V toggle | Drag move | Right-click hide
+Hotkey: Ctrl+Alt+V toggle | Drag move | Right-click menu | Ctrl+C/Ctrl+Q/Esc quit
 """
 # ponytail: global STATE/TMP lock — per-window state if multi-window needed
-import os, sys, subprocess, tempfile, threading, shutil
+import os, sys, signal, subprocess, tempfile, threading, shutil
 import tkinter as tk
 
 STATE="idle"  # idle | recording | processing
-TMP=tempfile.gettempdir()+"/ponytail.wav"  # ponytail: single temp file, unique per-process if parallel rec needed
+TMP=tempfile.gettempdir()+"/dictation.wav"  # ponytail: single temp file, unique per-process if parallel rec needed
 rec_proc=None; sd_stream=None; sd_frames=[]
 
 # ── optional deps (graceful degrade) ──
@@ -135,12 +135,29 @@ def setup_ui(root):
             else: print("no audio backend")
     btn.bind("<Button-1>",toggle_recording)
     root.bind("<Control-Alt-v>",toggle_recording); root.bind("<Control-Alt-V>",toggle_recording)
-    # right-click hide/show
+    # close: Ctrl+C / Ctrl+Q / Escape, and right-click menu
+    def quit_app(e=None):
+        try: record_audio(False)
+        except: pass
+        root.destroy(); sys.exit(0)
+    root.bind("<Control-c>", quit_app); root.bind("<Control-C>", quit_app)
+    root.bind("<Control-q>", quit_app); root.bind("<Control-Q>", quit_app)
+    root.bind("<Escape>", quit_app)
+    signal.signal(signal.SIGINT, lambda s,f: quit_app())
+    signal.signal(signal.SIGTERM, lambda s,f: quit_app())
+    # right-click: hide (Ctrl+Alt+h to show) + middle-click quit
     def hide(e=None): root.withdraw()
     def show(e=None): root.deiconify()
-    btn.bind("<Button-3>",lambda e: hide())
-    root.bind("<Control-Alt-h>",lambda e: show())
-    # allow re-show via tray-less: double right-click anywhere restores if hidden
+    btn.bind("<Button-3>", lambda e: hide())
+    btn.bind("<Button-2>", lambda e: quit_app())
+    root.bind("<Control-Alt-h>", lambda e: show())
+    # tiny context menu on right-click with Quit
+    try:
+        menu = tk.Menu(root, tearoff=0)
+        menu.add_command(label="Show (Ctrl+Alt+h)", command=show)
+        menu.add_command(label="Quit (Ctrl+Q / Ctrl+C)", command=quit_app)
+        btn.bind("<Button-3>", lambda e: (menu.tk_popup(e.x_root, e.y_root), hide()))
+    except: pass
     return toggle_recording, set_state
 
 def poll_focus(root):
@@ -170,5 +187,8 @@ if __name__=="__main__":
     root=tk.Tk()
     toggle, _ = setup_ui(root)
     if pyatspi: poll_focus(root)
-    print("ponytail ready — click mic or Ctrl+Alt+V | right-click hide | drag to move")
-    root.mainloop()
+    print("dictation ready — click mic or Ctrl+Alt+V | drag move | right-click menu (Quit) | Ctrl+C/Ctrl+Q/Esc to quit")
+    try:
+        root.mainloop()
+    except KeyboardInterrupt:
+        sys.exit(0)
