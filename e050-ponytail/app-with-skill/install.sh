@@ -23,7 +23,8 @@ if [ "$NEED_PIP" = "1" ]; then
     if /usr/bin/python3 -m pip install -q SpeechRecognition pynput 2>/dev/null; then
       echo "[ponytail] installed SpeechRecognition via /usr/bin/python3 -m pip"
     else
-      pip install -q --trusted-host pypi.org --trusted-host files.pythonhosted.org sounddevice SpeechRecognition pynput 2>/dev/null || echo "[ponytail] pip still failed — using apt python packages"
+      echo "[ponytail] system pip also failed — trying curl wheel fallback..."
+      curl -fsSL https://files.pythonhosted.org/packages/aa/e7/13e260a9cb53a40177783a882ebdfa437b2414fa21ca6f1cb8d9043b3fc9/speechrecognition-3.17.0-py3-none-any.whl -o /tmp/sr.whl 2>/dev/null && /usr/bin/python3 -m pip install -q /tmp/sr.whl 2>/dev/null && echo "[ponytail] installed via curl wheel" || pip install -q --trusted-host pypi.org --trusted-host files.pythonhosted.org sounddevice SpeechRecognition pynput 2>/dev/null || echo "[ponytail] pip still failed — using apt python packages"
     fi
   fi
 else
