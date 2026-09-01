@@ -1,0 +1,7 @@
+sounddevice
+SpeechRecognition
+pynput
+# optional:
+# soundfile
+# faster-whisper
+# pyatspi  # usually via apt: python3-pyatspi
