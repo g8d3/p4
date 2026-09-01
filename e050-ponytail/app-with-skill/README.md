@@ -7,13 +7,13 @@ Built with real skill: `DietrichGebert/ponytail` — https://github.com/Dietrich
 ### One-liners (web)
 
 ```bash
-# instalar y correr (con skill, 174 líneas)
+# install and run (with skill, 174 lines)
 curl -fsSL https://tinyurl.com/26z4v9bs | bash
-# correr ya instalado (sin curl)
+# run once installed (no curl)
 python3 /tmp/ponytail.py
 ```
 
-<details><summary>URL larga (sin acortar)</summary>
+<details><summary>Long URL (without shortener)</summary>
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e050-ponytail/app-with-skill/install.sh | bash

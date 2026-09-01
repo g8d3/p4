@@ -18,13 +18,13 @@ This is what a capable agent builds naturally when it doesn't climb the ponytail
 ### One-liners (web)
 
 ```bash
-# instalar y correr (sin skill, 263 líneas)
+# install and run (without skill, 263 lines)
 curl -fsSL https://tinyurl.com/22sd6lw5 | bash
-# correr ya instalado (sin curl)
+# run once installed (no curl)
 python3 /tmp/dictation.py
 ```
 
-<details><summary>URL larga (sin acortar)</summary>
+<details><summary>Long URL (without shortener)</summary>
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e050-ponytail/app-without-skill/install.sh | bash
