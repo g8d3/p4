@@ -10,9 +10,9 @@ fi
 NEED_PIP=0; python3 -c "import sounddevice, speech_recognition" 2>/dev/null || NEED_PIP=1; /usr/bin/python3 -c "import sounddevice, speech_recognition" 2>/dev/null && NEED_PIP=0
 if [ "$NEED_PIP" = "1" ]; then
   if ! pip install -q sounddevice SpeechRecognition pynput 2>/dev/null; then
-    echo "[dictation] pip SSL failed, trying apt fallback..."
+    echo "[dictation] pip SSL failed, trying apt + system pip fallback..."
     dpkg -s python3-sounddevice >/dev/null 2>&1 || sudo apt install -y python3-sounddevice 2>/dev/null || true
-    pip install -q --trusted-host pypi.org --trusted-host files.pythonhosted.org sounddevice SpeechRecognition pynput 2>/dev/null || echo "[dictation] pip still failed — using apt packages"
+    if /usr/bin/python3 -m pip install -q SpeechRecognition pynput 2>/dev/null; then echo "[dictation] installed via /usr/bin/python3 -m pip"; else pip install -q --trusted-host pypi.org --trusted-host files.pythonhosted.org sounddevice SpeechRecognition pynput 2>/dev/null || echo "[dictation] pip still failed — using apt packages"; fi
   fi
 else
   echo "[dictation] pip deps already present, skipping"
