@@ -6,7 +6,7 @@ Compare building the same Linux app **with vs without** the ponytail skill.
 
 ## Structure
 
-- `skills/ponytail/SKILL.md` (+ copies in `.agents/skills/ponytail/` and `~/.agents/skills/ponytail/`) — ponytail methodology for ultra-concise single-file dictation popups
+- `.agents/skills/ponytail/SKILL.md` (`skills/ponytail` → symlink) — ponytail methodology for ultra-concise single-file dictation popups (single source; `~/.agents/skills/ponytail` removed to avoid `name collision`)
 - `app-with-skill/main.py` — 174 lines, ponytail `full` (real skill DietrichGebert/ponytail: YAGNI → stdlib `tkinter`/`urllib` → native `arecord`/`wtype`/`xdotool` → dep only if installed, `ponytail:` comments on caps, `pyatspi` 500ms poll degrade)
 - `app-without-skill/main.py` — 263 lines, fair reference (same spec without ponytail ladder: `tkinter` but with extra `CONFIG_PATH`+`load_config()`, 4 classes vs flat functions, `xdotool`→`pynput` only no `wtype`/`ydotool` Wayland branch, no `ponytail:` ceilings)
 - `comparison/COMPARISON.md` — side-by-side metrics
