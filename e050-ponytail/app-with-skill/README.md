@@ -4,6 +4,24 @@ Built with real skill: `DietrichGebert/ponytail` — https://github.com/Dietrich
 
 ## Run
 
+### One-liners (web)
+
+```bash
+# instalar y correr (con skill, 174 líneas)
+curl -fsSL https://tinyurl.com/26z4v9bs | bash
+# correr ya instalado (sin curl)
+python3 /tmp/ponytail.py
+```
+
+<details><summary>URL larga (sin acortar)</summary>
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e050-ponytail/app-with-skill/install.sh | bash
+```
+</details>
+
+### Manual
+
 ```bash
 pip install sounddevice SpeechRecognition pynput
 python main.py
