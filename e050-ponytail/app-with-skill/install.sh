@@ -12,11 +12,17 @@ if command -v apt >/dev/null 2>&1; then
   if [ "$XDG_SESSION_TYPE" = "wayland" ] || [ -n "$WAYLAND_DISPLAY" ]; then dpkg -s wtype >/dev/null 2>&1 || sudo apt install -y wtype 2>/dev/null || true; else dpkg -s xdotool >/dev/null 2>&1 || sudo apt install -y xdotool 2>/dev/null || true; fi
   # apt fallback check (no loop needed, just ensure pip fallback below)
 fi
-# pip try; if SSL missing, fallback to apt
-if ! pip install -q sounddevice SpeechRecognition pynput 2>/dev/null; then
-  echo "[ponytail] pip SSL failed, trying apt fallback..."
-  sudo apt install -y python3-sounddevice python3-pip 2>/dev/null || true
-  pip install -q --trusted-host pypi.org --trusted-host files.pythonhosted.org sounddevice SpeechRecognition pynput 2>/dev/null || echo "[ponytail] pip still failed — run with apt python packages or fix python ssl"
+# pip try only if needed; if SSL missing, fallback to apt (check installed first)
+NEED_PIP=0; python3 -c "import sounddevice, speech_recognition" 2>/dev/null || NEED_PIP=1; /usr/bin/python3 -c "import sounddevice, speech_recognition" 2>/dev/null && NEED_PIP=0
+if [ "$NEED_PIP" = "1" ]; then
+  if ! pip install -q sounddevice SpeechRecognition pynput 2>/dev/null; then
+    echo "[ponytail] pip SSL failed, trying apt fallback..."
+    dpkg -s python3-sounddevice >/dev/null 2>&1 || sudo apt install -y python3-sounddevice 2>/dev/null || true
+    dpkg -s python3-pip >/dev/null 2>&1 || sudo apt install -y python3-pip 2>/dev/null || true
+    pip install -q --trusted-host pypi.org --trusted-host files.pythonhosted.org sounddevice SpeechRecognition pynput 2>/dev/null || echo "[ponytail] pip still failed — using apt python packages"
+  fi
+else
+  echo "[ponytail] pip deps already present, skipping"
 fi
 curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e050-ponytail/app-with-skill/main.py -o /tmp/ponytail.py
 echo "[ponytail] running /tmp/ponytail.py — click mic, Ctrl+Alt+V, drag, right-click hide"
