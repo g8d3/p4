@@ -191,7 +191,7 @@ class PopupApp:
         self.root.bind("<Button-1>", self._start_drag)
         self.root.bind("<B1-Motion>", self._do_drag)
         self.root.bind(self.config["hotkey"], lambda e: self.toggle())
-        self.root.bind("<Escape>", lambda e: self.root.withdraw())
+        self.root.bind("<Escape>", lambda e: self.root.iconify())  # hide to taskbar; withdraw has no way back
 
     def _start_drag(self, e):
         self._drag_x = e.x
@@ -224,6 +224,8 @@ class PopupApp:
             self.status.configure(text="Ready")
 
     def toggle(self):
+        if self.state == "processing":
+            return  # ignore clicks mid-transcription instead of starting a 2nd recording
         if self.state == "recording":
             self._set_state("processing")
             wav = self.recorder.stop()
@@ -233,15 +235,15 @@ class PopupApp:
                 if text:
                     print(f"> {text}")
                     self.typer.type(text)
-                    self.root.after(0, lambda: self.status.configure(text=f"Typed: {text[:40]}"))
-                else:
-                    self.root.after(0, lambda: self.status.configure(text="No transcription"))
                 if wav and os.path.exists(wav):
                     try:
                         os.unlink(wav)
                     except Exception:
                         pass
                 self.root.after(0, lambda: self._set_state("idle"))
+                # status set after idle reset so "Typed: …" isn't instantly overwritten by "Ready"
+                self.root.after(0, lambda: self.status.configure(
+                    text=f"Typed: {text[:40]}" if text else "No transcription"))
 
             threading.Thread(target=do_transcribe, daemon=True).start()
         else:

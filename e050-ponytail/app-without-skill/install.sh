@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# dictation without-skill — install + run (263 lines, fair)
+# dictation without-skill — install + run (265 lines, fair)
 set -e
 echo "[dictation] without-skill install+run"
 DO_UPDATE=""; [ "$1" = "--update" ] && DO_UPDATE=1
