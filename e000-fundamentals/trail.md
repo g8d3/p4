@@ -925,3 +925,23 @@ user sees, not what the code can do when called directly.
   sticks when the finger slides off a button ("scenario moves by itself").
 - Camera no longer flies up on jump (anchored to ground Y, clamped).
 - Adaptive resolution for portrait vs landscape; bigger, legible HUD/menu text.
+## 2026-09-03 — ZAI coding plan usage in one call
+
+Check GLM Coding Plan quota directly (don't probe guessed endpoints — `/api/coding/pays/*` 404; docs scraping is slow):
+
+```bash
+curl -s https://api.z.ai/api/monitor/usage/quota/limit -H "Authorization: Bearer $ZAI_API_KEY"
+```
+
+- `data.level` = plan tier (lite/pro/max)
+- `TOKENS_LIMIT` = 5-hour window, `percentage` used; `nextResetTime` epoch ms
+- `TIME_LIMIT` = MCP calls/month (1000 on all plans)
+- Pro = 12k credits/5h + 60k/week (weekly not exposed by API; console only)
+
+Full usage history: `node ~/.claude/plugins/cache/zai-coding-plugins/glm-plan-usage/0.0.1/skills/usage-query-skill/scripts/query-usage.mjs` (needs `ANTHROPIC_AUTH_TOKEN=$ZAI_API_KEY ANTHROPIC_BASE_URL=https://api.z.ai/api/anthropic`).
+
+Lesson: for "what's my X account status" questions, grep locally installed tooling first (`~/.claude/plugins`, `~/.config`) — vendors ship query endpoints in their plugins.
+
+Also: keep answers to simple status questions short — a table plus one command, no process narrative.
+
+Follow-up (same day): fresh agent ignored trail.md and still burned 87.8k tokens / 8 calls re-discovering the endpoint (found it via 9router's hardcoded list). AGENTS.md hints only work if agents choose to read them — promoted the answer to a skill: `.agents/skills/zai-usage/`, which is auto-surfaced in every agent's system prompt. Measured via `~/.pi/agent/sessions/*/*.jsonl` usage fields (the z.ai hourly usage API lags too much for per-agent measurement).
