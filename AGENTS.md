@@ -47,6 +47,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e043-state-grid/](e043-state-grid/) — state grid
 - [e044-video-url-queue/](e044-video-url-queue/) — URL → detect videos → sequential download → ffmpeg merge; queue with resource/time windows; embeddable FastAPI web app
 - [e051-blender-duel/](e051-blender-duel/) — 3D game build showdown: talking-duo rounds comparing procedural vs hand-built vs human generators vs web-native (viewer + R3 checkpoint builders)
+- [e052-pairforge/](e052-pairforge/) — PairForge: white-label memecoin launchpad paired with any trading strategy (perps/AMM/vaults), EVM+Solana, admin console, buyback/burn token, AI copilots, e2e-only (private repo `g8d3/pairforge`, ignored here)
 
 ## Language
 
