@@ -1,0 +1,4 @@
+TRACK E DONE — MPFB2 procedural humans, same 6 s L1 shot.
+Outputs: output/trackE.blend, trackE_f01/f36/f108.png, trackE.mp4, trackE_metrics.json
+TIMINGS: model=0.4s rig=0.4s anim=0.3s render=11.5s total=12.6s (2x 19k-vert humans, 326 bones, jaw-bone L1)
+Scripts: trackE_mpfb/gen_char.py (per-char gen, trackC pattern) + trackE_mpfb/build_E.py (scene block verbatim from trackA)

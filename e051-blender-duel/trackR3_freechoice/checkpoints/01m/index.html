@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talking Duo — R3 free-choice (6s @24fps L1)</title>
+<style>
+  html,body{margin:0;height:100%;background:#14161c;color:#eee;font-family:system-ui,sans-serif}
+  #app{display:flex;flex-direction:column;height:100%}
+  #stage{flex:1;position:relative;min-height:0}
+  canvas{display:block;width:100%;height:100%}
+  #hud{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);
+    padding:6px 14px;border-radius:10px;font-size:15px;letter-spacing:.3px;white-space:nowrap}
+  #hud b{font-size:16px}
+  #bar{display:flex;gap:10px;align-items:center;padding:10px 14px;background:#1d2029;flex-wrap:wrap}
+  #bar button{background:#2e7dff;border:0;color:#fff;border-radius:8px;padding:8px 16px;font-size:15px;cursor:pointer}
+  #bar button:hover{background:#5294ff}
+  #scrub{flex:1;min-width:140px}
+  #bar label{font-size:13px;color:#bbb;display:flex;gap:6px;align-items:center}
+  #dlg{padding:8px 14px;background:#191c24;font-size:14px;color:#ccc}
+  #dlg .a{color:#ff8a80}#dlg .b{color:#82b1ff}
+  .on{font-weight:700;color:#fff!important}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div id="hud">…</div>
+  </div>
+  <div id="dlg"><span id="lineA" class="a">A: "So I told the rig — just flap the jaw, I will do the acting."</span><br>
+  <span id="lineB" class="b">B: "And I said — hold my keyframes, watch the hand gestures."</span></div>
+  <div id="bar">
+    <button id="play">⏸ pause</button>
+    <input id="scrub" type="range" min="0" max="144" step="1" value="0">
+    <span id="tc">f1 / 144 · t0.00s</span>
+    <label>talk speed <input id="spd" type="range" min="0.5" max="2" step="0.1" value="1"></label>
+    <label>gesture <input id="ges" type="range" min="0" max="1.5" step="0.1" value="1"></label>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+
+// ---------- renderer / scene (frozen shot: ground, sun+fill, fixed camera) ----------
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+stage.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x14161c);
+const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+camera.position.set(0,2.4,-5.4); camera.lookAt(0,1.25,0);
+
+scene.add(new THREE.HemisphereLight(0xbfd4ff, 0x202028, 0.9));
+const sun = new THREE.DirectionalLight(0xfff2df, 2.2); sun.position.set(5,-5,10); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xcfe0ff, 0.8); fill.position.set(0,-4,4); scene.add(fill);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(30,30),
+  new THREE.MeshStandardMaterial({color:0x292b33,roughness:1}));
+ground.rotation.x = -Math.PI/2; scene.add(ground);
+// stage marker: red half / blue half
+const halfA = new THREE.Mesh(new THREE.CircleGeometry(1.5,40,Math.PI/2,Math.PI),
+  new THREE.MeshBasicMaterial({color:0x5a2320,transparent:true,opacity:.55}));
+halfA.rotation.x=-Math.PI/2; halfA.position.set(1.2,0,0.01); scene.add(halfA);
+const halfB = halfA.clone(); halfB.material=new THREE.MeshBasicMaterial({color:0x1f3a66,transparent:true,opacity:.55});
+halfB.position.x=-1.2; scene.add(halfB);
+
+// ---------- character factory (capsule bodies, jaw/head/hands) ----------
+function mat(c){return new THREE.MeshStandardMaterial({color:c,roughness:.6});}
+function makePerson(bodyColor, x, faceDir){
+  const g = new THREE.Group(); g.position.x = x;
+  const bm = mat(bodyColor), white = mat(0xf2f2f2), dark = mat(0x1a0b0b);
+  const black = mat(0x111111);
+  // legs / torso / head
+  for(const s of [-1,1]){
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.11,0.68,6,12), bm);
+    leg.position.set(s*0.2,0.45,0); g.add(leg);
+  }
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.32,0.5,6,14), bm);
+  torso.position.set(0,1.2,0); torso.scale.set(1,1,0.72); g.add(torso);
+  const headG = new THREE.Group(); headG.position.set(0,1.86,0); g.add(headG);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.35,24,18), bm);
+  head.position.y = 0.34; headG.add(head);
+  for(const s of [-1,1]){ // eyes face camera (-Y) slightly toward partner
+    const e = new THREE.Mesh(new THREE.SphereGeometry(0.062,12,10), white);
+    e.position.set(s*0.13,0.40,-0.29); headG.add(e);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.028,10,8), black);
+    p.position.set(s*0.13,0.40,-0.345); headG.add(p);
+    e.userData.pupil=p;
+  }
+  // jaw: box hinged at back edge
+  const jawP = new THREE.Group(); jawP.position.set(0,0.16,-0.10); headG.add(jawP);
+  const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.26,0.12,0.30), dark);
+  jaw.position.set(0,-0.05,-0.13); jawP.add(jaw);
+  const teeth = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.03,0.05), white);
+  teeth.position.set(0,0.015,-0.24); jawP.add(teeth);
+  // arms: shoulder pivots
+  function arm(side){
+    const sh = new THREE.Group(); sh.position.set(side*0.42,1.5,0); g.add(sh);
+    const a = new THREE.Mesh(new THREE.CapsuleGeometry(0.09,0.55,6,10), bm);
+    a.position.y=-0.35; sh.add(a);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.11,12,10), bm);
+    hand.position.y=-0.72; sh.add(hand);
+    return sh;
+  }
+  const armL=arm(-1), armR=arm(1);
+  g.rotation.y = faceDir*0.38; // face each other + camera
+  scene.add(g);
+  return {g,headG,jawP,armL,armR,eyes:headG.children.filter(o=>o.userData.pupil)};
+}
+const A = makePerson(0xc0392b, +1.2, -1);  // red-ish, screen-left
+const B = makePerson(0x2471a3, -1.2, +1);  // blue-ish, screen-right
+
+// ---------- animation: 144f @24fps, A talks f1-72, B talks f73-144 ----------
+const FPS=24, N=144;
+let talkSpd=1, gesture=1;
+const jawEnv = f => { // dialogue envelope: speaker gates 8Hz-ish flap
+  const t=f/FPS, ph=(t*7*talkSpd)%1;
+  return Math.abs(Math.sin(ph*Math.PI));
+};
+function pose(P, f, talking, other){
+  const t=f/FPS;
+  // JAW: flap when talking, shut when listening (L1)
+  P.jawP.rotation.x = talking ? 0.08+0.55*jawEnv(f) : 0.02;
+  // HEAD: speaker bobs (nod+tilt), listener nods slowly every ~2s
+  if(talking){
+    P.headG.rotation.x = 0.06+0.10*Math.sin(t*2*Math.PI*2.2);
+    P.headG.rotation.z = 0.08*Math.sin(t*2*Math.PI*1.1);
+    P.headG.position.y = 1.86+0.035*Math.abs(Math.sin(t*2*Math.PI*2.2));
+  }else{
+    const nod=Math.max(0,Math.sin(t*2*Math.PI*0.5))**3;
+    P.headG.rotation.x = 0.10*nod; P.headG.rotation.z=0; P.headG.position.y=1.86;
+  }
+  // HANDS: speaker waves right hand + left counter, listener arms rest
+  const w = gesture*(talking?1:0);
+  P.armR.rotation.x = -0.15 - 0.9*w*Math.abs(Math.sin(t*2*Math.PI*1.4));
+  P.armR.rotation.z = -0.25*w - 0.35*w*Math.sin(t*2*Math.PI*0.9);
+  P.armL.rotation.x = -0.10 - 0.35*w*Math.abs(Math.sin(t*2*Math.PI*1.4+1.3));
+  P.armL.rotation.z =  0.15;
+  P.g.position.y = talking? 0.02*Math.abs(Math.sin(t*2*Math.PI*2.2)) : 0;
+  // BLINK (both): lids via eye scale, every ~1.8s offset per char
+  const bl = (t*0.55 + (other?0.37:0))%1;
+  const lid = bl<0.06 ? 0.15 : 1;
+  for(const e of P.eyes) e.scale.y = lid;
+}
+function render_frame(f){
+  const aTalk = f<72, bTalk = !aTalk;
+  pose(A,f,aTalk,false); pose(B,f,bTalk,true);
+  renderer.render(scene,camera);
+  // HUD
+  const who = aTalk?'🟥 A TALKING':'🟦 B TALKING';
+  hud.innerHTML = `<b>${who}</b> &nbsp;·&nbsp; f${f+1}/144 · t${(f/24).toFixed(2)}s`;
+  lineA.className='a'+(aTalk?' on':''); lineB.className='b'+(bTalk?' on':'');
+  scrub.value=f; tc.textContent=`f${f+1} / 144 · t${(f/24).toFixed(2)}s`;
+}
+// ---------- transport ----------
+const hud=document.getElementById('hud'), scrub=document.getElementById('scrub'),
+      tc=document.getElementById('tc'), lineA=document.getElementById('lineA'),
+      lineB=document.getElementById('lineB'), btn=document.getElementById('play');
+let frame=0, playing=true, last=performance.now(), acc=0;
+document.getElementById('spd').oninput=e=>talkSpd=+e.target.value;
+document.getElementById('ges').oninput=e=>gesture=+e.target.value;
+btn.onclick=()=>{playing=!playing;btn.textContent=playing?'⏸ pause':'▶ play';};
+scrub.oninput=e=>{frame=+e.target.value;render_frame(frame);};
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();btn.click();}});
+function resize(){
+  const w=stage.clientWidth,h=stage.clientHeight;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+addEventListener('resize',resize); resize();
+function loop(now){
+  requestAnimationFrame(loop);
+  if(playing){ acc+=(now-last)/1000; const adv=Math.floor(acc*FPS); 
+    if(adv>0){acc-=adv/FPS; frame=(frame+adv)%N;} }
+  last=now; render_frame(frame);
+}
+render_frame(0); requestAnimationFrame(loop);
+// expose for Playwright proof: ?frame=N renders exactly that frame
+window.__setFrame=f=>{playing=false;btn.textContent='▶ play';frame=Math.max(0,Math.min(N-1,f|0));render_frame(frame);};
+{
+  const q=new URLSearchParams(location.search);
+  if(q.has('frame')) window.__setFrame(+q.get('frame'));
+}
+</script>
+</body>
+</html>

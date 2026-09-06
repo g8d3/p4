@@ -1,0 +1,1 @@
+R3 web-three DONE — talking duo in trackR3_webthree/index.html. Serve: cd /home/vuos/code/p4/e051-blender-duel && python3 -m http.server, open trackR3_webthree/index.html. Checkpoints 01m/02m/05m/10m each carry index.html + Playwright proofs (A f036, B f108) + status.json. See metrics.json.

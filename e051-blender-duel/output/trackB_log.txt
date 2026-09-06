@@ -1,0 +1,2070 @@
+Blender 4.0.2
+Info: Total files 0 | Changed 0 | Failed 0
+EGL Error (0x3001): EGL_NOT_INITIALIZED: EGL is not initialized, or could not be initialized, for the specified EGL display connection.
+
+Managed to successfully fallback to surfaceless EGL rendering!
+
+Fra:1 Mem:17.35M (Peak 18.44M) | Time:00:00.10 | Syncing Camera
+Fra:1 Mem:17.35M (Peak 18.44M) | Time:00:00.10 | Syncing Sun
+Fra:1 Mem:17.35M (Peak 18.44M) | Time:00:00.10 | Syncing Area
+Fra:1 Mem:17.35M (Peak 18.44M) | Time:00:00.10 | Syncing Area.001
+Fra:1 Mem:17.36M (Peak 18.44M) | Time:00:00.10 | Syncing Plane
+Fra:1 Mem:17.39M (Peak 18.44M) | Time:00:00.11 | Syncing A_Body
+Fra:1 Mem:17.63M (Peak 18.44M) | Time:00:00.11 | Syncing A_RIG
+Fra:1 Mem:17.63M (Peak 18.44M) | Time:00:00.11 | Syncing B_Body
+Fra:1 Mem:17.86M (Peak 18.44M) | Time:00:00.11 | Syncing B_RIG
+Fra:1 Mem:17.86M (Peak 18.44M) | Time:00:00.11 | Rendering 1 / 16 samples
+Fra:1 Mem:17.53M (Peak 18.44M) | Time:00:00.12 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackB_f01.png'
+Time: 00:00.37 (Saving: 00:00.13)
+
+Fra:36 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Camera
+Fra:36 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Sun
+Fra:36 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Area
+Fra:36 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Area.001
+Fra:36 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Plane
+Fra:36 Mem:17.42M (Peak 17.42M) | Time:00:00.00 | Syncing A_Body
+Fra:36 Mem:17.64M (Peak 17.64M) | Time:00:00.00 | Syncing A_RIG
+Fra:36 Mem:17.65M (Peak 17.65M) | Time:00:00.00 | Syncing B_Body
+Fra:36 Mem:17.87M (Peak 17.87M) | Time:00:00.00 | Syncing B_RIG
+Fra:36 Mem:17.87M (Peak 17.87M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:36 Mem:17.53M (Peak 17.87M) | Time:00:00.00 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackB_f36.png'
+Time: 00:00.09 (Saving: 00:00.02)
+
+Fra:108 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Camera
+Fra:108 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Sun
+Fra:108 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Area
+Fra:108 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Area.001
+Fra:108 Mem:17.41M (Peak 17.41M) | Time:00:00.00 | Syncing Plane
+Fra:108 Mem:17.42M (Peak 17.42M) | Time:00:00.00 | Syncing A_Body
+Fra:108 Mem:17.64M (Peak 17.64M) | Time:00:00.00 | Syncing A_RIG
+Fra:108 Mem:17.65M (Peak 17.65M) | Time:00:00.00 | Syncing B_Body
+Fra:108 Mem:17.87M (Peak 17.87M) | Time:00:00.00 | Syncing B_RIG
+Fra:108 Mem:17.87M (Peak 17.87M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:108 Mem:17.53M (Peak 17.87M) | Time:00:00.00 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackB_f108.png'
+Time: 00:00.09 (Saving: 00:00.02)
+
+Fra:1 Mem:18.62M (Peak 21.05M) | Time:00:00.00 | Syncing Camera
+Fra:1 Mem:18.62M (Peak 21.05M) | Time:00:00.00 | Syncing Sun
+Fra:1 Mem:18.62M (Peak 21.05M) | Time:00:00.00 | Syncing Area
+Fra:1 Mem:18.62M (Peak 21.05M) | Time:00:00.00 | Syncing Area.001
+Fra:1 Mem:18.63M (Peak 21.05M) | Time:00:00.00 | Syncing Plane
+Fra:1 Mem:18.64M (Peak 21.05M) | Time:00:00.00 | Syncing A_Body
+Fra:1 Mem:18.86M (Peak 21.05M) | Time:00:00.00 | Syncing A_RIG
+Fra:1 Mem:18.86M (Peak 21.05M) | Time:00:00.00 | Syncing B_Body
+Fra:1 Mem:19.08M (Peak 21.05M) | Time:00:00.00 | Syncing B_RIG
+Fra:1 Mem:19.08M (Peak 21.05M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:1 Mem:18.74M (Peak 21.05M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 1
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:2 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:2 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:2 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:2 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:2 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:2 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:2 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:2 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:2 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:2 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:2 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 2
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:3 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:3 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:3 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:3 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:3 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:3 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:3 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:3 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:3 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:3 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:3 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 3
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:4 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:4 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:4 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:4 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:4 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:4 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:4 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:4 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:4 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:4 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:4 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 4
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:5 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:5 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:5 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:5 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:5 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:5 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:5 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:5 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:5 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:5 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:5 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 5
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:6 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:6 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:6 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:6 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:6 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:6 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:6 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:6 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:6 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:6 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:6 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 6
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:7 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:7 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:7 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:7 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:7 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:7 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:7 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:7 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:7 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:7 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:7 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 7
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:8 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:8 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:8 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:8 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:8 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:8 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:8 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:8 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:8 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:8 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:8 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 8
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:9 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:9 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:9 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:9 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:9 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:9 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:9 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:9 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:9 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:9 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:9 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 9
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:10 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:10 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:10 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:10 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:10 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:10 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:10 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:10 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:10 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:10 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:10 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 10
+Time: 00:00.06 (Saving: 00:00.01)
+
+Fra:11 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:11 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:11 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:11 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:11 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:11 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:11 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:11 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:11 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:11 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:11 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 11
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:12 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:12 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:12 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:12 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:12 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:12 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:12 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:12 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:12 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:12 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:12 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 12
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:13 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:13 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:13 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:13 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:13 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:13 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:13 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:13 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:13 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:13 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:13 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 13
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:14 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:14 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:14 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:14 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:14 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:14 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:14 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:14 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:14 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:14 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:14 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 14
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:15 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:15 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:15 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:15 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:15 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:15 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:15 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:15 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:15 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:15 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:15 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 15
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:16 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:16 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:16 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:16 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:16 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:16 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:16 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:16 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:16 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:16 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:16 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 16
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:17 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:17 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:17 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:17 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:17 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:17 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:17 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:17 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:17 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:17 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:17 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 17
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:18 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:18 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:18 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:18 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:18 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:18 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:18 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:18 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:18 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:18 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:18 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 18
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:19 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:19 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:19 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:19 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:19 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:19 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:19 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:19 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:19 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:19 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:19 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 19
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:20 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:20 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:20 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:20 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:20 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:20 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:20 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:20 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:20 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:20 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:20 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 20
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:21 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:21 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:21 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:21 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:21 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:21 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:21 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:21 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:21 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:21 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:21 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 21
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:22 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:22 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:22 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:22 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:22 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:22 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:22 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:22 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:22 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:22 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:22 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 22
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:23 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:23 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:23 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:23 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:23 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:23 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:23 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:23 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:23 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:23 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:23 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 23
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:24 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:24 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:24 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:24 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:24 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:24 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:24 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:24 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:24 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:24 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:24 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 24
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:25 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:25 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:25 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:25 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:25 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:25 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:25 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:25 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:25 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:25 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:25 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 25
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:26 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:26 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:26 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:26 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:26 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:26 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:26 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:26 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:26 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:26 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:26 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 26
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:27 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:27 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:27 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:27 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:27 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:27 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:27 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:27 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:27 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:27 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:27 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 27
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:28 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:28 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:28 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:28 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:28 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:28 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:28 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:28 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:28 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:28 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:28 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 28
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:29 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:29 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:29 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:29 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:29 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:29 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:29 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:29 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:29 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:29 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:29 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 29
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:30 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:30 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:30 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:30 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:30 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:30 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:30 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:30 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:30 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:30 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:30 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 30
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:31 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:31 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:31 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:31 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:31 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:31 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:31 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:31 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:31 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:31 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:31 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 31
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:32 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:32 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:32 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:32 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:32 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:32 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:32 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:32 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:32 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:32 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:32 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 32
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:33 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:33 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:33 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:33 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:33 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:33 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:33 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:33 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:33 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:33 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:33 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 33
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:34 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:34 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:34 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:34 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:34 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:34 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:34 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:34 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:34 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:34 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:34 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 34
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:35 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:35 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:35 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:35 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:35 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:35 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:35 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:35 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:35 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:35 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:35 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 35
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:36 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:36 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:36 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:36 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:36 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:36 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:36 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:36 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:36 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:36 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:36 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 36
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:37 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:37 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:37 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:37 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:37 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:37 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:37 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:37 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:37 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:37 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:37 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 37
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:38 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:38 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:38 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:38 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:38 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:38 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:38 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:38 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:38 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:38 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:38 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 38
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:39 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:39 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:39 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:39 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:39 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:39 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:39 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:39 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:39 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:39 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:39 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 39
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:40 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:40 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:40 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:40 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:40 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:40 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:40 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:40 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:40 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:40 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:40 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 40
+Time: 00:00.06 (Saving: 00:00.01)
+
+Fra:41 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:41 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:41 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:41 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:41 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:41 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:41 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:41 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:41 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:41 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:41 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 41
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:42 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:42 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:42 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:42 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:42 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:42 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:42 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:42 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:42 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:42 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:42 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 42
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:43 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:43 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:43 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:43 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:43 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:43 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:43 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:43 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:43 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:43 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:43 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 43
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:44 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:44 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:44 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:44 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:44 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:44 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:44 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:44 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:44 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:44 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:44 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 44
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:45 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:45 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:45 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:45 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:45 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:45 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:45 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:45 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:45 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:45 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:45 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 45
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:46 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:46 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:46 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:46 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:46 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:46 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:46 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:46 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:46 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:46 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:46 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 46
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:47 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:47 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:47 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:47 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:47 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:47 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:47 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:47 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:47 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:47 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:47 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 47
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:48 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:48 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:48 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:48 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:48 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:48 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:48 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:48 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:48 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:48 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:48 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 48
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:49 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:49 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:49 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:49 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:49 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:49 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:49 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:49 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:49 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:49 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:49 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 49
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:50 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:50 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:50 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:50 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:50 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:50 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:50 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:50 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:50 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:50 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:50 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 50
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:51 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:51 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:51 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:51 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:51 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:51 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:51 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:51 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:51 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:51 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:51 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 51
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:52 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:52 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:52 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:52 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:52 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:52 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:52 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:52 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:52 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:52 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:52 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 52
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:53 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:53 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:53 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:53 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:53 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:53 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:53 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:53 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:53 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:53 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:53 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 53
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:54 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:54 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:54 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:54 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:54 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:54 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:54 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:54 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:54 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:54 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:54 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 54
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:55 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:55 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:55 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:55 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:55 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:55 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:55 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:55 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:55 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:55 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:55 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 55
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:56 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:56 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:56 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:56 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:56 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:56 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:56 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:56 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:56 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:56 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:56 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 56
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:57 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:57 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:57 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:57 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:57 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:57 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:57 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:57 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:57 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:57 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:57 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 57
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:58 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:58 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:58 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:58 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:58 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:58 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:58 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:58 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:58 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:58 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:58 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 58
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:59 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:59 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:59 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:59 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:59 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:59 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:59 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:59 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:59 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:59 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:59 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 59
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:60 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:60 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:60 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:60 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:60 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:60 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:60 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:60 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:60 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:60 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:60 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 60
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:61 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:61 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:61 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:61 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:61 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:61 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:61 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:61 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:61 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:61 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:61 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 61
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:62 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:62 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:62 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:62 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:62 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:62 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:62 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:62 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:62 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:62 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:62 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 62
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:63 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:63 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:63 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:63 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:63 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:63 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:63 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:63 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:63 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:63 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:63 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 63
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:64 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:64 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:64 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:64 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:64 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:64 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:64 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:64 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:64 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:64 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:64 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 64
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:65 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:65 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:65 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:65 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:65 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:65 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:65 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:65 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:65 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:65 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:65 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 65
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:66 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:66 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:66 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:66 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:66 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:66 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:66 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:66 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:66 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:66 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:66 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 66
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:67 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:67 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:67 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:67 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:67 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:67 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:67 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:67 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:67 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:67 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:67 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 67
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:68 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:68 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:68 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:68 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:68 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:68 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:68 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:68 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:68 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:68 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:68 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 68
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:69 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:69 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:69 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:69 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:69 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:69 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:69 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:69 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:69 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:69 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:69 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 69
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:70 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:70 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:70 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:70 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:70 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:70 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:70 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:70 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:70 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:70 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:70 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 70
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:71 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:71 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:71 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:71 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:71 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:71 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:71 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:71 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:71 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:71 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:71 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 71
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:72 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:72 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:72 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:72 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:72 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:72 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:72 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:72 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:72 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:72 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:72 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 72
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:73 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:73 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:73 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:73 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:73 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:73 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:73 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:73 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:73 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:73 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:73 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 73
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:74 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:74 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:74 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:74 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:74 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:74 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:74 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:74 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:74 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:74 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:74 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 74
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:75 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:75 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:75 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:75 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:75 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:75 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:75 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:75 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:75 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:75 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:75 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 75
+Time: 00:00.06 (Saving: 00:00.01)
+
+Fra:76 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:76 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:76 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:76 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:76 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:76 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:76 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:76 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:76 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:76 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:76 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 76
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:77 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:77 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:77 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:77 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:77 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:77 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:77 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:77 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:77 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:77 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:77 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 77
+Time: 00:00.06 (Saving: 00:00.01)
+
+Fra:78 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:78 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:78 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:78 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:78 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:78 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:78 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:78 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:78 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:78 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:78 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 78
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:79 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:79 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:79 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:79 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:79 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:79 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:79 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:79 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:79 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:79 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:79 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 79
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:80 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:80 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:80 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:80 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:80 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:80 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:80 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:80 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:80 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:80 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:80 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 80
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:81 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:81 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:81 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:81 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:81 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:81 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:81 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:81 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:81 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:81 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:81 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 81
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:82 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:82 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:82 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:82 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:82 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:82 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:82 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:82 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:82 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:82 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:82 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 82
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:83 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:83 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:83 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:83 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:83 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:83 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:83 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:83 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:83 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:83 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:83 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 83
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:84 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:84 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:84 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:84 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:84 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:84 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:84 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:84 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:84 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:84 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:84 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 84
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:85 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:85 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:85 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:85 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:85 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:85 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:85 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:85 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:85 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:85 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:85 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 85
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:86 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:86 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:86 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:86 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:86 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:86 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:86 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:86 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:86 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:86 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:86 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 86
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:87 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:87 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:87 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:87 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:87 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:87 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:87 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:87 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:87 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:87 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:87 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 87
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:88 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:88 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:88 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:88 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:88 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:88 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:88 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:88 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:88 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:88 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:88 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 88
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:89 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:89 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:89 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:89 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:89 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:89 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:89 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:89 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:89 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:89 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:89 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 89
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:90 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:90 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:90 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:90 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:90 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:90 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:90 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:90 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:90 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:90 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:90 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 90
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:91 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:91 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:91 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:91 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:91 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:91 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:91 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:91 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:91 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:91 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:91 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 91
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:92 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:92 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:92 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:92 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:92 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:92 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:92 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:92 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:92 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:92 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:92 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 92
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:93 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:93 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:93 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:93 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:93 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:93 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:93 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:93 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:93 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:93 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:93 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 93
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:94 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:94 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:94 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:94 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:94 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:94 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:94 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:94 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:94 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:94 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:94 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 94
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:95 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:95 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:95 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:95 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:95 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:95 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:95 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:95 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:95 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:95 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:95 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 95
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:96 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:96 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:96 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:96 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:96 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:96 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:96 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:96 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:96 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:96 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:96 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 96
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:97 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:97 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:97 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:97 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:97 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:97 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:97 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:97 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:97 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:97 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:97 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 97
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:98 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:98 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:98 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:98 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:98 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:98 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:98 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:98 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:98 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:98 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:98 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 98
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:99 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:99 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:99 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:99 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:99 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:99 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:99 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:99 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:99 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:99 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:99 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 99
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:100 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:100 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:100 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:100 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:100 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:100 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:100 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:100 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:100 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:100 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:100 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 100
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:101 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:101 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:101 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:101 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:101 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:101 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:101 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:101 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:101 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:101 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:101 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 101
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:102 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:102 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:102 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:102 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:102 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:102 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:102 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:102 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:102 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:102 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:102 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 102
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:103 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:103 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:103 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:103 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:103 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:103 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:103 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:103 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:103 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:103 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:103 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 103
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:104 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:104 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:104 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:104 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:104 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:104 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:104 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:104 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:104 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:104 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:104 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 104
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:105 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:105 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:105 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:105 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:105 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:105 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:105 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:105 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:105 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:105 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:105 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 105
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:106 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:106 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:106 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:106 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:106 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:106 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:106 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:106 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:106 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:106 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:106 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 106
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:107 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:107 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:107 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:107 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:107 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:107 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:107 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:107 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:107 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:107 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:107 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 107
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:108 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:108 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:108 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:108 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:108 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:108 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:108 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:108 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:108 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:108 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:108 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 108
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:109 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:109 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:109 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:109 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:109 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:109 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:109 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:109 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:109 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:109 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:109 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 109
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:110 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:110 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:110 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:110 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:110 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:110 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:110 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:110 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:110 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:110 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:110 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 110
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:111 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:111 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:111 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:111 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:111 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:111 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:111 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:111 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:111 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:111 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:111 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 111
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:112 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:112 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:112 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:112 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:112 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:112 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:112 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:112 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:112 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:112 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:112 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 112
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:113 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:113 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:113 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:113 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:113 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:113 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:113 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:113 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:113 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:113 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:113 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 113
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:114 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:114 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:114 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:114 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:114 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:114 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:114 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:114 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:114 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:114 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:114 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 114
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:115 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:115 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:115 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:115 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:115 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:115 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:115 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:115 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:115 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:115 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:115 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 115
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:116 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:116 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:116 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:116 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:116 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:116 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:116 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:116 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:116 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:116 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:116 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 116
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:117 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:117 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:117 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:117 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:117 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:117 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:117 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:117 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:117 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:117 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:117 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 117
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:118 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:118 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:118 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:118 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:118 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:118 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:118 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:118 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:118 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:118 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:118 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 118
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:119 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:119 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:119 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:119 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:119 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:119 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:119 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:119 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:119 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:119 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:119 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 119
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:120 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:120 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:120 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:120 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:120 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:120 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:120 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:120 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:120 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:120 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:120 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 120
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:121 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:121 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:121 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:121 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:121 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:121 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:121 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:121 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:121 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:121 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:121 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 121
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:122 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:122 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:122 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:122 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:122 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:122 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:122 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:122 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:122 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:122 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:122 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 122
+Time: 00:00.06 (Saving: 00:00.01)
+
+Fra:123 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:123 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:123 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:123 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:123 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:123 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:123 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:123 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:123 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:123 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:123 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 123
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:124 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:124 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:124 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:124 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:124 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:124 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:124 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:124 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:124 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:124 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:124 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 124
+Time: 00:00.06 (Saving: 00:00.01)
+
+Fra:125 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:125 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:125 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:125 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:125 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:125 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:125 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:125 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:125 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:125 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:125 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 125
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:126 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:126 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:126 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:126 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:126 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:126 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:126 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:126 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:126 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:126 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:126 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 126
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:127 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:127 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:127 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:127 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:127 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:127 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:127 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:127 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:127 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:127 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:127 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 127
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:128 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:128 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:128 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:128 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:128 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:128 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:128 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:128 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:128 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:128 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:128 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 128
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:129 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:129 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:129 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:129 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:129 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:129 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:129 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:129 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:129 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:129 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:129 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 129
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:130 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:130 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:130 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:130 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:130 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:130 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:130 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:130 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:130 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:130 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:130 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 130
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:131 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:131 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:131 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:131 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:131 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:131 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:131 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:131 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:131 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:131 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:131 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 131
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:132 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:132 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:132 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:132 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:132 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:132 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:132 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:132 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:132 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:132 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:132 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 132
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:133 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:133 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:133 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:133 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:133 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:133 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:133 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:133 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:133 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:133 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:133 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 133
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:134 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:134 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:134 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:134 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:134 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:134 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:134 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:134 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:134 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:134 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:134 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 134
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:135 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:135 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:135 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:135 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:135 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:135 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:135 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:135 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:135 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:135 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:135 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 135
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:136 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:136 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:136 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:136 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:136 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:136 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:136 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:136 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:136 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:136 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:136 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 136
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:137 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:137 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:137 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:137 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:137 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:137 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:137 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:137 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:137 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:137 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:137 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 137
+Time: 00:00.05 (Saving: 00:00.00)
+
+Fra:138 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:138 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:138 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:138 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:138 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:138 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:138 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:138 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:138 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:138 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:138 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 138
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:139 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:139 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:139 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:139 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:139 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:139 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:139 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:139 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:139 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:139 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:139 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 139
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:140 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:140 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:140 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:140 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:140 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:140 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:140 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:140 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:140 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:140 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:140 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 140
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:141 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:141 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:141 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:141 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:141 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:141 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:141 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:141 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:141 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:141 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:141 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 141
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:142 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:142 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:142 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:142 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:142 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:142 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:142 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:142 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:142 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:142 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:142 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 142
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:143 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:143 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:143 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:143 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:143 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:143 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:143 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:143 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:143 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:143 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:143 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 143
+Time: 00:00.05 (Saving: 00:00.01)
+
+Fra:144 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Camera
+Fra:144 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Sun
+Fra:144 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area
+Fra:144 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Area.001
+Fra:144 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing Plane
+Fra:144 Mem:18.64M (Peak 22.26M) | Time:00:00.00 | Syncing A_Body
+Fra:144 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing A_RIG
+Fra:144 Mem:18.86M (Peak 22.26M) | Time:00:00.00 | Syncing B_Body
+Fra:144 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Syncing B_RIG
+Fra:144 Mem:19.08M (Peak 22.26M) | Time:00:00.00 | Rendering 1 / 16 samples
+Fra:144 Mem:18.74M (Peak 22.26M) | Time:00:00.00 | Rendering 16 / 16 samples
+Append frame 144
+Time: 00:00.05 (Saving: 00:00.01)
+
+Info: Saved "trackB.blend"
+
+TRACK-B TIMINGS  model=0.0s rig=0.1s anim=0.0s render=9.1s total=9.2s
+TRACK-B DONE: /home/vuos/code/p4/e051-blender-duel/output/trackB.mp4
+
+Blender quit

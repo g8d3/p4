@@ -1,0 +1,1 @@
+R3 blender-gen DONE in 581s: 2xMPFB humans, 144f mp4 + 3 stills + blend. See metrics.json.

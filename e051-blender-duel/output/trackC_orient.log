@@ -1,0 +1,33 @@
+Blender 4.0.2
+Info: Total files 140 | Changed 140 | Failed 0
+EGL Error (0x3001): EGL_NOT_INITIALIZED: EGL is not initialized, or could not be initialized, for the specified EGL display connection.
+
+Managed to successfully fallback to surfaceless EGL rendering!
+
+Fra:36 Mem:1022.46M (Peak 1618.94M) | Time:00:05.27 | Syncing Camera
+Fra:36 Mem:1022.46M (Peak 1618.94M) | Time:00:05.27 | Syncing Sun
+Fra:36 Mem:1022.46M (Peak 1618.94M) | Time:00:05.27 | Syncing Area
+Fra:36 Mem:1022.46M (Peak 1618.94M) | Time:00:05.27 | Syncing Area.001
+Fra:36 Mem:1022.47M (Peak 1618.94M) | Time:00:05.27 | Syncing Plane
+Fra:36 Mem:1022.51M (Peak 1618.94M) | Time:00:05.28 | Syncing MBlab_bd1788627164.2600894
+GPUTexture: Blender Texture Not Loaded!
+GPUTexture: Blender Texture Not Loaded!
+Fra:36 Mem:1512.42M (Peak 1618.94M) | Time:00:06.32 | Syncing MBlab_sk1788627164.2601326
+Fra:36 Mem:1512.43M (Peak 1618.94M) | Time:00:06.32 | Syncing MBlab_bd1788627186.3855102
+GPUTexture: Blender Texture Not Loaded!
+GPUTexture: Blender Texture Not Loaded!
+Fra:36 Mem:2002.24M (Peak 2010.73M) | Time:00:07.19 | Syncing MBlab_sk1788627186.3855453
+Fra:36 Mem:2002.25M (Peak 2010.73M) | Time:00:07.19 | Rendering 1 / 8 samples
+Fra:36 Mem:1445.09M (Peak 2010.73M) | Time:00:07.35 | Rendering 8 / 8 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackC_f36.png'
+Time: 00:08.10 (Saving: 00:00.12)
+
+char A: jawkey=Expressions_mouthOpen_max arms=['upperarm_L', 'upperarm_twist_L', 'upperarm_R', 'upperarm_twist_R']
+char B: jawkey=Expressions_mouthOpen_max arms=['upperarm_L', 'upperarm_twist_L', 'upperarm_R', 'upperarm_twist_R']
+Info: Saved "trackC.blend"
+TRACK-C STILLS-ONLY DONE
+
+TRACK-C TIMINGS  model=0.1s rig=0.0s anim=27.9s render=9.5s total=37.5s
+TRACK-C DONE: /home/vuos/code/p4/e051-blender-duel/output/trackC.mp4
+
+Blender quit

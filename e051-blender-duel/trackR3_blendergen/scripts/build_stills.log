@@ -1,0 +1,48 @@
+Traceback (most recent call last):
+  File "/usr/share/blender/scripts/modules/addon_utils.py", line 143, in _fake_module
+    mod.bl_info = ast.literal_eval(body.value)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 112, in literal_eval
+    return _convert(node_or_string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 111, in _convert
+    return _convert_signed_num(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 85, in _convert_signed_num
+    return _convert_num(node)
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 76, in _convert_num
+    _raise_malformed_node(node)
+  File "/usr/lib/python3.12/ast.py", line 73, in _raise_malformed_node
+    raise ValueError(msg + f': {node!r}')
+ValueError: malformed node or string on line 1: <ast.Name object at 0x7c83dc6a2cd0>
+Blender 4.0.2
+Info: Total files 6 | Changed 6 | Failed 0
+EGL Error (0x3001): EGL_NOT_INITIALIZED: EGL is not initialized, or could not be initialized, for the specified EGL display connection.
+
+Managed to successfully fallback to surfaceless EGL rendering!
+
+Fra:36 Mem:41.70M (Peak 42.79M) | Time:00:00.17 | Syncing Camera
+Fra:36 Mem:41.70M (Peak 42.79M) | Time:00:00.17 | Syncing Sun
+Fra:36 Mem:41.70M (Peak 42.79M) | Time:00:00.17 | Syncing Area
+Fra:36 Mem:41.70M (Peak 42.79M) | Time:00:00.17 | Syncing Area.001
+Fra:36 Mem:41.70M (Peak 42.79M) | Time:00:00.17 | Syncing Plane
+Fra:36 Mem:41.74M (Peak 42.79M) | Time:00:00.18 | Syncing Human
+Fra:36 Mem:43.48M (Peak 43.48M) | Time:00:00.18 | Syncing Human.rig
+Fra:36 Mem:43.48M (Peak 43.48M) | Time:00:00.18 | Syncing Human.001
+Fra:36 Mem:45.22M (Peak 45.22M) | Time:00:00.18 | Syncing Human.rig.001
+Fra:36 Mem:45.22M (Peak 45.22M) | Time:00:00.19 | Rendering 1 / 16 samples
+Fra:36 Mem:42.57M (Peak 45.22M) | Time:00:00.20 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/trackR3_blendergen/output/trackR3_f36.png'
+Time: 00:00.49 (Saving: 00:00.14)
+
+AST error parsing bl_info for: '/home/vuos/.config/blender/4.0/scripts/addons/mpfb/__init__.py'
+char A: verts=19158 bones=163
+char B: verts=19158 bones=163
+Info: Saved "trackR3.blend"
+TRACK-R3 STILLS-ONLY DONE
+
+TRACK-R3 TIMINGS  model=0.0s rig=0.0s anim=0.4s render=0.5s total=1.0s
+TRACK-R3 DONE: /home/vuos/code/p4/e051-blender-duel/trackR3_blendergen/output/trackR3.mp4
+
+Blender quit

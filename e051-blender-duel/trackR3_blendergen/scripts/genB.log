@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/usr/share/blender/scripts/modules/addon_utils.py", line 143, in _fake_module
+    mod.bl_info = ast.literal_eval(body.value)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 112, in literal_eval
+    return _convert(node_or_string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 111, in _convert
+    return _convert_signed_num(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 85, in _convert_signed_num
+    return _convert_num(node)
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 76, in _convert_num
+    _raise_malformed_node(node)
+  File "/usr/lib/python3.12/ast.py", line 73, in _raise_malformed_node
+    raise ValueError(msg + f': {node!r}')
+ValueError: malformed node or string on line 1: <ast.Name object at 0x72903171b8d0>
+Blender 4.0.2
+OBJ import of 'base.obj' took 7.4 ms
+Info: Total files 0 | Changed 0 | Failed 0
+AST error parsing bl_info for: '/home/vuos/.config/blender/4.0/scripts/addons/mpfb/__init__.py'
+[INFO ] services.locationservice ...............: Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.
+[INFO ] mpfb.init ..............................: Build info FROM_SOURCE
+[INFO ] mpfb.init ..............................: MPFB initialization has finished.
+Warning: This script was written Blender version 4.2.0 and might not function (correctly), though it is enabled
+GEN gender=0.0: mesh=Human verts=19158 vgroups=291 rig=Human.rig bones=163 jaw=True
+Info: Saved "charB.blend"
+GEN DONE model=0.2s rig=0.2s total=0.7s -> charB.blend
+
+Blender quit
+Error: Not freed memory blocks: 1, total unfreed memory 0.000023 MB

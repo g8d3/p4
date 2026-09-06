@@ -1,0 +1,11 @@
+{
+ "elapsed_s": 120,
+ "files": [
+  "index.html",
+  "shot.py",
+  "proof_A_f036.png",
+  "proof_B_f108.png",
+  "status.json"
+ ],
+ "notes": "gesture fix: speaker hand below chin; A-rest/B-talk turn-taking verified on f108 proof"
+}

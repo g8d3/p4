@@ -1,0 +1,2 @@
+{"elapsed_s":302,"files":["index.html","duo.mp4","f01.png","f36.png","f108.png","mp4_f36.png","mp4_f108.png","README.md"],
+"notes":"Full deliverable set: playable HTML + 6.3s mp4 (vp9 capture, x264). Turn-taking verified on extracted mp4 frames (A jaw+arm at 1.5s, B at 4.5s). Removed glitchy stage markers, added necks. Remaining: final metrics/done/TOKEN_LOG at 10m; optional micro-polish only."}

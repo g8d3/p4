@@ -1,0 +1,11 @@
+{
+ "elapsed_s": 300,
+ "files": [
+  "index.html",
+  "shot.py",
+  "proof_A_f036.png",
+  "proof_B_f108.png",
+  "status.json"
+ ],
+ "notes": "frozen scene; verified: 9032 tris, jaw-motion pixel-diff 14.3, no JS errors; metrics.json + done.txt drafted"
+}

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>e051 viewer — talking duo: play + edit</title>
+<link rel="icon" href="data:,">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #14161c; color: #eee; font: 15px/1.45 system-ui, sans-serif; }
+  #c { width: 100%; height: 52vh; display: block; touch-action: none; }
+  .bar { display: flex; gap: 6px; padding: 8px; flex-wrap: wrap; align-items: center; }
+  button, select { font-size: 15px; padding: 8px 12px; border-radius: 8px; border: 1px solid #444;
+    background: #22262f; color: #eee; }
+  button.on { background: #2f6fed; border-color: #2f6fed; }
+  .panel { padding: 0 12px 16px; max-width: 720px; }
+  .row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .row label { flex: 0 0 128px; color: #aaa; }
+  .row input[type=range] { flex: 1; }
+  .row output { flex: 0 0 44px; text-align: right; }
+  #meta { color: #8a93a6; font-size: 13px; padding: 0 12px 16px; }
+  #track-info table, #matrix table, #gentab, #steptab { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 14px; }
+  a { color: #6ea8fe; }
+  #track-info td, #matrix td, #matrix th, #gentab td, #gentab th, #steptab td, #steptab th { border-top: 1px solid #2a2e38; padding: 3px 4px; }
+  #matrix th { color: #aaa; font-weight: normal; }
+  #matrix td.win { background: rgba(46,160,67,.28); font-weight: bold; border-radius: 4px; }
+  #matrix td.na { color: #555; }
+  #hw { color: #8a93a6; font-size: 12px; padding: 0 12px 20px; }
+  details summary { color: #8a93a6; cursor: pointer; }
+  input[type=color] { width: 44px; height: 32px; border: none; background: none; padding: 0; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three.module.js",
+  "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js",
+  "three/addons/loaders/GLTFLoader.js": "./vendor/GLTFLoader.js"
+} }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="bar">
+  <select id="exp"><option value="all">All rounds (global)</option><option value="e051">Round 1 — talking duo</option><option value="r3">Round 3 — checkpoint builders</option></select>
+  <button data-tab="web" class="on">Web native</button>
+  <button data-tab="A">Blender A</button>
+  <button data-tab="B">Blender B</button>
+  <button data-tab="E">Blender E</button>
+  <button id="play" class="on">&#10074;&#10074;</button>
+  <select id="cam"><option value="front">Front</option><option value="side">Side</option><option value="top">Top</option></select>
+</div>
+<div class="bar"><input id="scrub" type="range" min="0" max="6" step="0.01" value="0" style="flex:1"></div>
+<div class="bar"><a href="r3/index.html" style="font-size:15px">Round 3 — how far in 10 minutes? (photos + videos) →</a></div>
+<div class="panel" id="track-info"></div>
+<div class="panel" id="learn"><b>Learn the pipeline — press each step, watch the 3D view change</b>
+<div style="color:#8a93a6;font-size:13px;margin:4px 0">Web pages render too: your GPU draws every frame live (realtime). Blender's Render button does the same drawing but saves it to a video file (offline). Same verb, different destination.</div>
+<div class="bar" style="padding:0">
+<button data-learn="model">1 Model</button><button data-learn="rig">2 Rig</button><button data-learn="animate">3 Animate</button><button data-learn="light">4 Light</button><button data-learn="camera">5 Camera</button><button data-learn="render">6 Render</button>
+</div>
+<div id="learn-note" style="color:#8a93a6;font-size:13px;min-height:20px"></div>
+<video id="rvideo" controls playsinline style="display:none;width:100%;border-radius:8px"></video>
+</div>
+<div class="panel" id="matrix-wrap"><b>All numbers, one table</b> <span style="color:#8a93a6">(green = best in row)</span><div id="matrix"></div></div>
+<details class="panel"><summary>Generators (table)</summary>
+<table id="gentab">
+<tr><th style="text-align:left">generator</th><th style="text-align:left">get it</th><th>tracks</th><th style="text-align:left">notes</th></tr>
+<tr><td>Three.js r160</td><td><a href="https://threejs.org">threejs.org</a></td><td>Web, R3w, R3f</td><td>vendored 1.4 MB, MIT</td></tr>
+<tr><td>Rigify</td><td><a href="https://docs.blender.org/manual/en/4.0/addons/rigging/rigify.html">Blender 4.0 docs</a></td><td>A</td><td>ships with Blender; 4.x op renamed</td></tr>
+<tr><td>— (hand-built)</td><td>—</td><td>B, R3a</td><td>the control: 5-bone rig, hand keys</td></tr>
+<tr><td>MB-Lab 1.8.1</td><td><a href="https://github.com/animate1978/MB-Lab">GitHub</a></td><td>C</td><td>357 MB addon, AGPL; 607 s render</td></tr>
+<tr><td>MPFB 2 v2.0.17</td><td><a href="https://github.com/makehumancommunity/mpfb2">GitHub</a></td><td>E, R3g</td><td>73 MB in-repo data, no asset pack needed</td></tr>
+<tr><td>Ready Player Me</td><td><a href="https://readyplayer.me">readyplayer.me</a></td><td>D ⚠</td><td>BLOCKED: sample endpoint retired</td></tr>
+<tr><td>Mixamo</td><td><a href="https://www.mixamo.com">mixamo.com</a></td><td>—</td><td>queued: needs Adobe login</td></tr>
+<tr><td>HumGen3D</td><td><a href="https://humgen3d.com">humgen3d.com</a></td><td>—</td><td>queued: paid, trial TBD</td></tr>
+</table></details>
+<details class="panel" open><summary>Pipeline steps (table — press Try)</summary>
+<table id="steptab">
+<tr><th style="text-align:left">#</th><th style="text-align:left">step</th><th style="text-align:left">what happens</th><th>try</th></tr>
+<tr><td>1</td><td>Model</td><td>build the shapes: boxes, spheres, cylinders</td><td><button data-learn="model">wireframe →</button></td></tr>
+<tr><td>2</td><td>Shade</td><td>paint them: colors and materials (red vs blue)</td><td><button data-learn="shade">see colors →</button></td></tr>
+<tr><td>3</td><td>Rig</td><td>add a skeleton so the mesh can move</td><td><button data-learn="rig">bones →</button></td></tr>
+<tr><td>4</td><td>Animate</td><td>pose the rig over time: jaw, head, hands</td><td><button data-learn="animate">play →</button></td></tr>
+<tr><td>5</td><td>Light</td><td>place lamps: same scene, different mood</td><td><button data-learn="light">lamps →</button></td></tr>
+<tr><td>6</td><td>Camera</td><td>choose the eye: same scene, new viewpoint</td><td><button data-learn="camera">views →</button></td></tr>
+<tr><td>7</td><td>Render</td><td>draw it: live to screen (web) or saved to video (Blender)</td><td><button data-learn="render">render →</button></td></tr>
+</table>
+<p style="color:#8a93a6;font-size:13px">Measured separately: <b>Agent time</b> — my approximate working time incl. debugging. <b>Rounds</b> — my build/test loops (debugging is the hidden cost). <b>AI tokens</b> — not metered this session; model shown for future comparison.</p></details>
+<div class="panel" id="edit">
+  <div class="row"><label>Speed — all tabs</label><input id="p-speed" type="range" min="0.2" max="2.5" step="0.05" value="1"><output id="o-speed">1</output></div>
+  <div class="row" id="r-gest"><label>Gesture size</label><input id="p-gest" type="range" min="0" max="2" step="0.05" value="1"><output id="o-gest">1</output></div>
+  <div class="row" id="r-jaw"><label>Jaw size</label><input id="p-jaw" type="range" min="0" max="2" step="0.05" value="1"><output id="o-jaw">1</output></div>
+  <div class="row" id="r-who"><label>Speaker</label><select id="p-who"><option value="duet">Duet (A then B)</option><option value="A">A only</option><option value="B">B only</option></select></div>
+  <div class="row" id="r-col"><label>A color</label><input id="p-colA" type="color" value="#c03833"><label style="flex:0 0 auto">B color</label><input id="p-colB" type="color" value="#3366cc"></div>
+  <div class="row" id="r-note" style="display:none"><label></label><span style="color:#8a93a6;font-size:13px">Playback is baked on Blender tabs — only Speed applies. Gesture/Jaw/Speaker/Colors are live on the Web tab.</span></div>
+</div>
+<div id="meta">served locally (./vendor/three) — needs http, not file:// …</div>
+<div id="hw">hardware: AMD Ryzen 5 5625U (12t) · 15 GiB RAM · AMD Barcelo iGPU (Blender used headless EEVEE CPU path) · Ubuntu 24.04 · Blender 4.0.2 · three.js 0.160 vendored · AI: muse-spark-1.3-contributor (opencode-go)</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const DUR = 6, FPS = 24;
+const P = { speed: 1, gest: 1, jaw: 1, who: 'duet' };
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x14161c);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+const ctl = new OrbitControls(camera, canvas);
+ctl.target.set(0, 1.3, 0);
+function setCam(v) {
+  if (v === 'front') camera.position.set(0, 2.6, -7);
+  if (v === 'side') camera.position.set(-7, 2.2, 0);
+  if (v === 'top') camera.position.set(0, 8, -1.5);
+  ctl.update();
+}
+setCam('front');
+const hemi = new THREE.HemisphereLight(0xdfe8ff, 0x202028, 0.9);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(5, 10, -5); sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+scene.add(sun);
+const key = new THREE.DirectionalLight(0xfff2e0, 1.2);
+key.position.set(0, 5, -6); scene.add(key);
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(15, 48),
+  new THREE.MeshStandardMaterial({ color: 0x2a2d36, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+// ---- procedural capsule person (same PARTS idea as Track A) ----
+function capsule(color, x, tilt) {
+  const g = new THREE.Group();
+  const m = (geo, c, px, py, pz, sx = 1, sy = 1, sz = 1) => {
+    const o = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: c, roughness: .7 }));
+    o.position.set(px, py, pz); o.scale.set(sx, sy, sz);
+    o.castShadow = true; return o;
+  };
+  const body = m(new THREE.BoxGeometry(.6, .8, .4), color, 0, 1.2, 0);
+  const legL = m(new THREE.CylinderGeometry(.11, .11, .9, 12), color, -.2, .45, 0);
+  const legR = m(new THREE.CylinderGeometry(.11, .11, .9, 12), color, .2, .45, 0);
+  g.add(body, legL, legR);
+  const armG = (sx) => {
+    const grp = new THREE.Group(); grp.position.set(sx * .45, 1.7, 0);
+    const a = m(new THREE.CylinderGeometry(.09, .09, .9, 12), color, 0, -.45, 0);
+    grp.add(a); g.add(grp); return grp;
+  };
+  const headG = new THREE.Group(); headG.position.set(0, 2.2, 0);
+  headG.add(m(new THREE.SphereGeometry(.35, 24, 18), color, 0, 0, 0));
+  const eyeG = new THREE.SphereGeometry(.06, 12, 10);
+  const eyeM = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const eL = new THREE.Mesh(eyeG, eyeM); eL.position.set(-.13, .08, -.3);
+  const eR = new THREE.Mesh(eyeG, eyeM); eR.position.set(.13, .08, -.3);
+  const jaw = m(new THREE.BoxGeometry(.25, .12, .1), 0x3a0d0d, 0, -.2, -.28);
+  headG.add(eL, eR, jaw); g.add(headG);
+  // mirrored on X so screen left/right matches the Blender camera (see notes)
+  g.position.x = -x; g.rotation.z = -tilt;
+  scene.add(g);
+  return { g, headG, jaw, armL: armG(-1), armR: armG(1), baseJawY: jaw.position.y };
+}
+const webA = capsule(P.colA = 0xc03833, -1.2, .25);
+const webB = capsule(P.colB = 0x3366cc, 1.2, -.25);
+const webGroup = new THREE.Group();
+scene.add(webGroup);
+// NOTE: capsule() already adds to scene; move them under webGroup for tab switching
+webGroup.add(webA.g, webB.g);
+// joint markers for the Rig step (neck + shoulders)
+const jointMat = new THREE.MeshBasicMaterial({ color: 0x00ff88 });
+for (const p of [webA, webB]) {
+  const g = new THREE.Group();
+  for (const o of [p.headG, p.armL, p.armR]) {
+    const s = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), jointMat);
+    s.position.copy(o.position); g.add(s);
+  }
+  g.visible = false; p.g.add(g); p.joints = g;
+}
+
+// ---- tabs: web native vs baked GLBs ----
+const loader = new GLTFLoader();
+const glbs = {};
+let tab = 'web', mixer = null, actions = [];
+async function loadGLB(name, file) {
+  const gltf = await loader.loadAsync(file);
+  gltf.scene.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  const sk = new THREE.SkeletonHelper(gltf.scene);
+  sk.visible = false; scene.add(sk);
+  gltf.scene.rotation.y = Math.PI; // Blender -Y faces three +Z; turn to camera + fix mirroring
+  gltf.scene.visible = false; scene.add(gltf.scene);
+  const mx = new THREE.AnimationMixer(gltf.scene);
+  (gltf.animations || []).forEach(c => mx.clipAction(c).play());
+  glbs[name] = { root: gltf.scene, mixer: mx, skel: sk };
+  meta(`${name} loaded (${gltf.animations.length} clips).`);
+}
+function show(name) {
+  tab = name;
+  webGroup.visible = name === 'web';
+  for (const k of Object.keys(glbs)) {
+    glbs[k].root.visible = k === name;
+    if (glbs[k].skel) glbs[k].skel.visible = rigShow && k === name;
+  }
+  document.getElementById('rvideo').style.display = 'none';
+  mixer = name === 'web' ? null : (glbs[name] && glbs[name].mixer);
+  const live = name === 'web';
+  for (const id of ['r-gest', 'r-jaw', 'r-who', 'r-col'])
+    document.getElementById(id).style.opacity = live ? 1 : .4;
+  document.getElementById('r-note').style.display = live ? 'none' : 'flex';
+  // per-control dimming handled below (Speed stays live on all tabs)
+  document.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  info(name);
+  // NOTE: tabs are the player, the selector is the comparison view — independent.
+}
+document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+  const t = b.dataset.tab;
+  if ((t === 'A' || t === 'B' || t === 'E') && !glbs[t]) { meta('loading ' + t + '.glb …'); loadGLB(t, 'track' + t + '.glb').then(() => show(t)); }
+  else show(t);
+});
+
+// ---- transport + edit bindings ----
+let playing = true, t = 0;
+const playBtn = document.getElementById('play');
+playBtn.onclick = () => { playing = !playing; playBtn.classList.toggle('on', playing); };
+const scrub = document.getElementById('scrub');
+scrub.oninput = () => { t = +scrub.value; };
+document.getElementById('cam').onchange = e => setCam(e.target.value);
+for (const k of ['speed', 'gest', 'jaw']) {
+  const el = document.getElementById('p-' + k);
+  el.oninput = () => { P[k] = +el.value; document.getElementById('o-' + k).textContent = el.value; };
+}
+document.getElementById('p-who').onchange = e => P.who = e.target.value;
+document.getElementById('p-colA').oninput = e => paint(webA, e.target.value);
+document.getElementById('p-colB').oninput = e => paint(webB, e.target.value);
+function paint(p, hex) {
+  const c = new THREE.Color(hex);
+  p.g.traverse(o => { if (o.isMesh && o.material.color && o.material.color.getHex() !== 0xffffff && o.material.color.getHex() !== 0x3a0d0d) o.material.color.copy(c); });
+}
+function meta(s) { document.getElementById('meta').textContent = s; }
+
+// ---- cost matrix: machine times (measured) + agent times (approx) ----
+const TRACKS = {
+  web: { name: 'Web native (no Blender)', what: 'Three.js rebuild of the shot, live.',
+    gen: 'Three.js r160 (procedural JS capsules)', url: 'https://threejs.org',
+    rows: [['Model', '1 PARAM table (~20 lines JS)'], ['Rig', 'none (object pivots)'],
+      ['Animate', 'live sine loop, 0 baked keys'], ['Render', 'live 60 fps, no export'],
+      ['Machine total', '0 s build · 0 s render'], ['Agent time ~', '100 min (viewer + export + debug)'],
+      ['Agent rounds ~', '18'], ['Weight', 'page 10 KB + vendor 1.4 MB'],
+      ['Geometry', '3k tris / 60 fps'], ['AI tokens', 'not metered (this session)']] },
+  A: { name: 'Track A — Blender + Rigify (procedural)', what: 'Capsules + 159-bone meta-rigs + computed loop.',
+    gen: 'Rigify (ships with Blender, no download)', url: 'https://docs.blender.org/manual/en/4.0/addons/rigging/rigify.html',
+    rows: [['Model', '0.0 s'], ['Rig', '0.7 s'], ['Animate', '0.1 s (~320 keys)'],
+      ['Render 144f EEVEE', '9.1 s'], ['Machine total', '9.9 s'],
+      ['Agent time ~', '15 min'], ['Agent rounds ~', '10'],
+      ['Weight', '.blend 2.2 MB · .mp4 128 KB · .glb 0.9 MB'],
+      ['Geometry', '~7k tris · 2×159 bones'], ['AI tokens', 'not metered (this session)']] },
+  B: { name: 'Track B — Blender from scratch', what: 'Capsules + custom 5-bone rigs + hand-acted keys.',
+    gen: 'none — hand-built (the control)', url: '',
+    rows: [['Model', '0.0 s'], ['Rig', '0.1 s'], ['Animate', '0.0 s (~88 keys)'],
+      ['Render 144f EEVEE', '9.1 s'], ['Machine total', '9.2 s'],
+      ['Agent time ~', '25 min (incl. 3 classic bugs)'], ['Agent rounds ~', '8'],
+      ['Weight', '.blend 1.5 MB · .mp4 108 KB · .glb 0.8 MB'],
+      ['Geometry', '~7k tris · 2×5 bones'], ['AI tokens', 'not metered (this session)']] },
+  C: { name: 'Track C — MB-Lab parametric humans', what: 'Female + male, 17k polys, shape-key jaw.',
+    gen: 'MB-Lab 1.8.1 (357 MB addon)', url: 'https://github.com/animate1978/MB-Lab',    rows: [['Generate 2×', '13.7 s + 13.8 s'], ['Rig', '0.0 s (ships rigged)'],
+      ['Animate', '27.9 s (shape-key keys are slow)'], ['Render 144f EEVEE', '607 s (~75× capsules)'],
+      ['Machine total', '635 s'], ['Agent time ~', '70 min (facing/skin/debug)'],
+      ['Agent rounds ~', '20'], ['Weight', '.blend 50 MB · .mp4 100 KB · no glb'],
+      ['Geometry', '~69k tris · 2×71 bones · 83 shape keys'], ['AI tokens', 'not metered (this session)']] },
+  E: { name: 'Track E — MPFB MakeHuman (fleet agent)', what: 'Male red + female blue, 19k verts, jaw-bone L1.',
+    gen: 'MPFB 2 v2.0.17 (73 MB in-repo data, no asset pack)', url: 'https://github.com/makehumancommunity/mpfb2',
+    rows: [['Model', '0.4 s'], ['Rig', '0.4 s (2×163 bones)'], ['Animate', '0.3 s (jaw-bone flap)'],
+      ['Render 144f EEVEE', '11.5 s'], ['Machine total', '12.6 s'],
+      ['Agent time ~', '35 min (fleet agent, 4.0-compat shims)'], ['Agent rounds ~', '12'],
+      ['Weight', '.blend 10.2 MB · .mp4 75 KB · .glb 6.4 MB'],
+      ['Geometry', '~74k tris · 326 bones'], ['AI tokens', 'not metered (this session)']] },
+};
+function info(name) {
+  const t = TRACKS[name];
+  document.getElementById('track-info').innerHTML =
+    `<b>${t.name}</b><br><span style="color:#8a93a6">${t.what}</span><br>` +
+    (t.url ? `<span style="color:#aaa">Generator: <a href="${t.url}">${t.gen}</a></span>`
+           : `<span style="color:#aaa">Generator: ${t.gen}</span>`) +
+    `<table>${t.rows.map(r => `<tr><td style="color:#aaa">${r[0]}</td><td style="text-align:right">${r[1]}</td></tr>`).join('')}</table>`;
+}
+
+// ---- one table, all numbers, winners highlighted ----
+// v=null means n/a (excluded from best-pick). better:'low' wins smaller, 'high' wins bigger.
+const MATRIX = [
+  { m: 'Render (s)', v: { web: 0, A: 9.1, B: 9.1, C: 607, E: 11.5, D: null }, better: 'low' },
+  { m: 'Machine total (s)', v: { web: 0, A: 9.9, B: 9.2, C: 635, E: 12.6, D: null }, better: 'low' },
+  { m: 'Agent time ~ (min)', v: { web: 100, A: 15, B: 25, C: 70, E: 35, D: 10 }, better: 'low' },
+  { m: 'Agent rounds ~', v: { web: 18, A: 10, B: 8, C: 20, E: 12, D: 4 }, better: 'low' },
+  { m: '.blend (MB)', v: { web: null, A: 2.2, B: 1.5, C: 50, E: 10.2, D: null }, better: 'low' },
+  { m: '.mp4 (KB)', v: { web: null, A: 128, B: 108, C: 100, E: 75, D: null }, better: 'low' },
+  { m: 'Scene (k tris)', v: { web: 3, A: 7, B: 7, C: 69, E: 74, D: null }, better: 'low' },
+  { m: 'Playback (fps)', v: { web: 60, A: 55, B: 54, C: null, E: null, D: null }, better: 'high' },
+];
+// Views: 'all' compares every round; per-round views filter columns.
+// The table is ALWAYS visible — switching views filters, never hides.
+const VIEWS = {
+  all: { cols: ['web', 'A', 'B', 'C', 'E', 'D'], label: 'All rounds — every method, one table' },
+  e051: { cols: ['web', 'A', 'B', 'C'], label: 'Round 1 — talking duo (capsules, Rigify, MB-Lab)' },
+  e052: { cols: ['E', 'D'], label: 'Round 2 — human generators (MPFB vs RPM)', rows: 'main' },
+  r3: { cols: ['R3w', 'R3a', 'R3g', 'R3f'], label: 'Round 3 — one 10-min run each, checkpoints at 1/2/5/10 min', rows: 'r3' }
+};
+// Round 3: same task, 4 tool profiles. Footprint incl. 4 checkpoints. The rounds row
+// is won by reuse (blendergen copied proven scripts in 1 round) — dividend, not skill gap.
+const MATRIX_R3 = [
+  { m: 'First FULL set (s)', v: { R3w: 63, R3a: 64, R3g: 301, R3f: 302 }, better: 'low' },
+  { m: 'Machine work ~ (s)', v: { R3w: 30, R3a: 11.5, R3g: 155, R3f: 30 }, better: 'low' },
+  { m: 'Agent rounds', v: { R3w: 14, R3a: 8, R3g: 1, R3f: 12 }, better: 'low' },
+  { m: 'Rubric /6 (files+motion+L1)', v: { R3w: 6, R3a: 6, R3g: 5, R3f: 6 }, better: 'high' },
+  { m: 'Footprint w/ checkpoints (MB)', v: { R3w: 0.8, R3a: 12, R3g: 76, R3f: 5.8 }, better: 'low' },
+];
+const R3NAMES = { R3w: 'R3 web-three', R3a: 'R3 blender-api', R3g: 'R3 blender-gen', R3f: 'R3 free→web' };
+function colName(c) { return c === 'web' ? 'Web' : (R3NAMES[c] || 'Track ' + c + (c === 'D' ? ' ⚠' : '')); }
+function matrix(view) {
+  view = VIEWS[view] ? view : 'all';
+  const cols = VIEWS[view].cols;
+  const rows = VIEWS[view].rows === 'r3' ? MATRIX_R3 : MATRIX;
+  let h = `<div style="color:#8a93a6;font-size:13px;margin:4px 0">${VIEWS[view].label}</div>`;
+  h += '<table><tr><th style="text-align:left">metric</th>' +
+    cols.map(c => `<th>${colName(c)}</th>`).join('') + '</tr>';
+  for (const r of rows) {
+    const vals = cols.map(c => r.v[c]).filter(v => v != null);
+    const best = vals.length ? (r.better === 'low' ? Math.min(...vals) : Math.max(...vals)) : null;
+    h += `<tr><td style="color:#aaa">${r.m}</td>` + cols.map(c => {
+      const v = r.v[c];
+      if (v == null) return '<td class="na">n/a</td>';
+      return `<td class="${v === best ? 'win' : ''}">${v}</td>`;
+    }).join('') + '</tr>';
+  }
+  h += '</table>';
+  if (cols.includes('D')) h += '<div style="color:#8a93a6;font-size:13px">D (RPM) ⚠ BLOCKED — endpoint retired, evidence in output/trackD_metrics.json. A method you cannot fetch scores zero: availability is a metric.</div>';
+  document.getElementById('matrix').innerHTML = h;
+}
+
+// ---- round registry: rounds live HERE, not in separate e### dirs ----
+// This is a meta-experiment (experiment of experiments): every round compares
+// methods for the agent to build a 3D game. Rounds add columns to MATRIX +
+// player tabs + a VIEWS entry. Agents deliver output/<track>_metrics.json;
+// the coordinator wires them in. See ../AGENTS.md.
+const EXPERIMENTS = { all: true, e051: true, e052: true };
+document.getElementById('exp').onchange = e => { matrix(e.target.value); };
+
+// ---- Learn mode: execute each pipeline step on the live scene ----
+let wire = false, rigShow = false, lightMode = 0;
+const LEARN_TXT = {
+  model: 'MODEL — shapes only. Wireframe reveals the mesh: boxes, spheres, cylinders. Everything 3D starts here.',
+  shade: 'SHADE — same shapes, now painted. Red vs blue is a material, not geometry. (Try Model, then Shade: feel the difference.)',
+  rig: 'RIG — the skeleton. Green dots (Web) = neck + shoulder pivots; white lines (Blender tabs) = real armature bones. Mesh follows bones.',
+  animate: 'ANIMATE — poses over time. Press play: jaw/head/hands move. Animation is just Rig + a clock.',
+  light: 'LIGHT — same scene, different lamps. Cycling: full → sun only → fill only. Watch the mood change.',
+  camera: 'CAMERA — same scene, different eye. Cycling: front → side → top. Nothing moved but the viewpoint.',
+  render: 'RENDER — Web: you are watching it render live, every frame. Blender tabs: the saved video file (offline render) plays here.'
+};
+const RENDER_VID = { A: 'renders/trackA.mp4', B: 'renders/trackB.mp4', E: 'renders/trackE.mp4' };
+function applyWire() {
+  for (const r of [webGroup, ...Object.values(glbs).map(g => g.root)])
+    r.traverse(o => { if (o.isMesh && o.material.wireframe !== undefined) o.material.wireframe = wire; });
+}
+function applyRig() {
+  for (const p of [webA, webB]) p.joints.visible = rigShow && webGroup.visible;
+  for (const k of Object.keys(glbs)) if (glbs[k].skel) glbs[k].skel.visible = rigShow && glbs[k].root.visible;
+}
+function applyLight() {
+  sun.intensity = lightMode === 2 ? .05 : 2.2;
+  key.intensity = lightMode === 1 ? .05 : 1.2;
+  hemi.intensity = lightMode === 0 ? .9 : .05;
+}
+function setPlaying(v) { playing = v; playBtn.classList.toggle('on', v); }
+document.querySelectorAll('[data-learn]').forEach(b => b.onclick = () => {
+  const s = b.dataset.learn, note = document.getElementById('learn-note'), vid = document.getElementById('rvideo');
+  document.querySelectorAll('[data-learn]').forEach(x => x.classList.toggle('on', x === b));
+  if (s === 'model') { wire = true; rigShow = false; setPlaying(false); S_frame(0); }
+  if (s === 'shade') { wire = false; rigShow = false; }
+  if (s === 'rig') { wire = false; rigShow = true; setPlaying(false); }
+  if (s === 'animate') { wire = false; rigShow = false; setPlaying(true); }
+  if (s === 'light') { lightMode = (lightMode + 1) % 3; }
+  if (s === 'camera') {
+    const sel = document.getElementById('cam');
+    sel.selectedIndex = (sel.selectedIndex + 1) % sel.options.length;
+    setCam(sel.value);
+  }
+  if (s === 'render') {
+    wire = false; rigShow = false;
+    if (tab === 'web') { vid.style.display = 'none'; }
+    else if (RENDER_VID[tab]) { vid.src = RENDER_VID[tab]; vid.style.display = 'block'; vid.play(); }
+  } else vid.style.display = 'none';
+  applyWire(); applyRig(); applyLight();
+  note.textContent = LEARN_TXT[s] + (s === 'light' ? ` (now: ${['full', 'sun only', 'fill only'][lightMode]})` : '');
+});
+function S_frame(f) { t = f / FPS; scrub.value = t; }
+function turn(who, tt) {
+  if (P.who === 'A') return who === 'A' ? 1 : .12;
+  if (P.who === 'B') return who === 'B' ? 1 : .12;
+  return who === 'A' ? (tt < 3 ? 1 : .12) : (tt >= 3 ? 1 : .12);
+}
+function pose(p, who, tt, ph) {
+  const e = turn(who, tt);
+  p.jaw.position.y = p.baseJawY - Math.abs(Math.sin(tt * 10.8 + ph)) * .09 * P.jaw * e;
+  p.headG.rotation.x = Math.sin(tt * 2.9 + ph) * .12 * e;
+  p.headG.rotation.z = Math.sin(tt * 1.7 + ph) * .1;
+  p.armL.rotation.x = -(.2 + Math.abs(Math.sin(tt * 4.8 + ph)) * .5 * P.gest * e);
+  p.armR.rotation.x = -(.2 + Math.abs(Math.sin(tt * 4.8 + ph + .6)) * .5 * P.gest * e);
+}
+
+// ---- main loop ----
+function size() {
+  const w = innerWidth, h = Math.round(innerHeight * .52);
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', size); size();
+let last = performance.now(), frames = 0, f0 = last;
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min((now - last) / 1000, .1); last = now;
+  if (playing) { t = (t + dt * P.speed) % DUR; scrub.value = t; } // Speed is universal: pose frequency on Web, baked-playback rate on GLB tabs
+  if (tab === 'web') pose(webA, 'A', t, 0), pose(webB, 'B', t, 1.7);
+  else if (mixer) mixer.setTime(t);
+  ctl.update(); renderer.render(scene, camera);
+  frames++;
+  if (now - f0 > 1000) {
+    meta(`${tab} · ${Math.round(frames * 1000 / (now - f0))} fps · ` +
+      `${(renderer.info.render.triangles / 1000).toFixed(0)}k tris · drag=orbit pinch=zoom`);
+    frames = 0; f0 = now;
+  }
+}
+meta('web native ready — drag to orbit. Blender tabs load baked .glb (edit sliders apply to Web tab).');
+info('web'); matrix('all');
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

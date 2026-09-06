@@ -1,0 +1,10 @@
+Track D (Ready Player Me) — BLOCKED, done probing.
+
+No RPM avatar obtainable: models.readyplayer.me + all sibling subdomains
+return NXDOMAIN/NODATA (verified via dig @8.8.8.8); no RPM API key in env;
+Wayback has zero archived RPM .glb captures. See
+../output/trackD_metrics.json (blocked:true + evidence).
+
+No Blender runs, no viewer edits. Coordinator: please wire the blocked status
+into the viewer registry; re-run this track if a sample .glb or API key
+becomes available.

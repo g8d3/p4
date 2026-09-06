@@ -1,0 +1,6 @@
+{"profile": "blender-gen", "generator": "MPFB 2 (legacy addon, default rig)", "budget_s": 600, "machine_s": 581,
+ "files": ["output/trackR3.blend", "output/trackR3_f01.png", "output/trackR3_f36.png", "output/trackR3_f108.png", "output/trackR3.mp4"],
+ "blend_bytes": 10666656, "mp4_bytes": 77029, "tris": 73946, "bones": 326,
+ "stage_s": {"gen_parallel_wall": 46, "genA_inblender": 0.7, "genB_inblender": 0.7, "assembly_anim": 0.6, "render_144f": 26.4},
+ "agent_min_approx": 10, "agent_rounds": 1,
+ "notes": "MPFB preinstalled; reused trackE gen_char.py + build_E.py pattern verbatim (scene block copied from build_A.py). Parallel per-char gens then assembly. Jaw-bone flap (JAW_SIGN=-1) + head bob + upperarm gestures, A f1-72 / B f73-144. Motion verified (mp4 frames differ). No fallback needed; ~half budget unused."}

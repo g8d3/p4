@@ -1,0 +1,2076 @@
+Blender 4.0.2
+Info: Total files 140 | Changed 140 | Failed 0
+EGL Error (0x3001): EGL_NOT_INITIALIZED: EGL is not initialized, or could not be initialized, for the specified EGL display connection.
+
+Managed to successfully fallback to surfaceless EGL rendering!
+
+Fra:1 Mem:1025.10M (Peak 1618.94M) | Time:00:05.30 | Syncing Camera
+Fra:1 Mem:1025.10M (Peak 1618.94M) | Time:00:05.30 | Syncing Sun
+Fra:1 Mem:1025.10M (Peak 1618.94M) | Time:00:05.30 | Syncing Area
+Fra:1 Mem:1025.10M (Peak 1618.94M) | Time:00:05.30 | Syncing Area.001
+Fra:1 Mem:1025.11M (Peak 1618.94M) | Time:00:05.30 | Syncing Plane
+Fra:1 Mem:1025.14M (Peak 1618.94M) | Time:00:05.32 | Syncing MBlab_bd1788628327.8891191
+GPUTexture: Blender Texture Not Loaded!
+GPUTexture: Blender Texture Not Loaded!
+Fra:1 Mem:1515.06M (Peak 1618.94M) | Time:00:06.35 | Syncing MBlab_sk1788628327.8891566
+Fra:1 Mem:1515.07M (Peak 1618.94M) | Time:00:06.35 | Syncing MBlab_bd1788628343.2462442
+GPUTexture: Blender Texture Not Loaded!
+GPUTexture: Blender Texture Not Loaded!
+Fra:1 Mem:2004.88M (Peak 2013.37M) | Time:00:07.22 | Syncing MBlab_sk1788628343.246314
+Fra:1 Mem:2004.88M (Peak 2013.37M) | Time:00:07.22 | Rendering 1 / 8 samples
+Fra:1 Mem:1447.73M (Peak 2013.37M) | Time:00:07.39 | Rendering 8 / 8 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackC_f01.png'
+Time: 00:08.52 (Saving: 00:00.13)
+
+Fra:36 Mem:1209.76M (Peak 1804.61M) | Time:00:05.33 | Syncing Camera
+Fra:36 Mem:1209.76M (Peak 1804.61M) | Time:00:05.33 | Syncing Sun
+Fra:36 Mem:1209.76M (Peak 1804.61M) | Time:00:05.33 | Syncing Area
+Fra:36 Mem:1209.76M (Peak 1804.61M) | Time:00:05.33 | Syncing Area.001
+Fra:36 Mem:1209.77M (Peak 1804.61M) | Time:00:05.33 | Syncing Plane
+Fra:36 Mem:1209.78M (Peak 1804.61M) | Time:00:05.33 | Syncing MBlab_bd1788628327.8891191
+Fra:36 Mem:1526.38M (Peak 1804.61M) | Time:00:05.78 | Syncing MBlab_sk1788628327.8891566
+Fra:36 Mem:1526.38M (Peak 1804.61M) | Time:00:05.78 | Syncing MBlab_bd1788628343.2462442
+Fra:36 Mem:1842.98M (Peak 1851.47M) | Time:00:06.24 | Syncing MBlab_sk1788628343.246314
+Fra:36 Mem:1842.98M (Peak 1851.47M) | Time:00:06.24 | Rendering 1 / 8 samples
+Fra:36 Mem:1285.83M (Peak 1851.47M) | Time:00:06.41 | Rendering 8 / 8 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackC_f36.png'
+Time: 00:07.21 (Saving: 00:00.02)
+
+Fra:108 Mem:1209.76M (Peak 1804.61M) | Time:00:05.30 | Syncing Camera
+Fra:108 Mem:1209.76M (Peak 1804.61M) | Time:00:05.30 | Syncing Sun
+Fra:108 Mem:1209.76M (Peak 1804.61M) | Time:00:05.30 | Syncing Area
+Fra:108 Mem:1209.76M (Peak 1804.61M) | Time:00:05.30 | Syncing Area.001
+Fra:108 Mem:1209.77M (Peak 1804.61M) | Time:00:05.30 | Syncing Plane
+Fra:108 Mem:1209.78M (Peak 1804.61M) | Time:00:05.30 | Syncing MBlab_bd1788628327.8891191
+Fra:108 Mem:1526.38M (Peak 1804.61M) | Time:00:05.38 | Syncing MBlab_sk1788628327.8891566
+Fra:108 Mem:1526.38M (Peak 1804.61M) | Time:00:05.38 | Syncing MBlab_bd1788628343.2462442
+Fra:108 Mem:1842.98M (Peak 1851.47M) | Time:00:05.46 | Syncing MBlab_sk1788628343.246314
+Fra:108 Mem:1842.98M (Peak 1851.47M) | Time:00:05.46 | Rendering 1 / 8 samples
+Fra:108 Mem:1285.83M (Peak 1851.47M) | Time:00:05.55 | Rendering 8 / 8 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/output/trackC_f108.png'
+Time: 00:06.38 (Saving: 00:00.02)
+
+Fra:1 Mem:1210.98M (Peak 1851.47M) | Time:00:05.25 | Syncing Camera
+Fra:1 Mem:1210.98M (Peak 1851.47M) | Time:00:05.25 | Syncing Sun
+Fra:1 Mem:1210.98M (Peak 1851.47M) | Time:00:05.25 | Syncing Area
+Fra:1 Mem:1210.98M (Peak 1851.47M) | Time:00:05.25 | Syncing Area.001
+Fra:1 Mem:1210.98M (Peak 1851.47M) | Time:00:05.25 | Syncing Plane
+Fra:1 Mem:1210.99M (Peak 1851.47M) | Time:00:05.25 | Syncing MBlab_bd1788628327.8891191
+Fra:1 Mem:1527.59M (Peak 1851.47M) | Time:00:05.33 | Syncing MBlab_sk1788628327.8891566
+Fra:1 Mem:1527.60M (Peak 1851.47M) | Time:00:05.33 | Syncing MBlab_bd1788628343.2462442
+Fra:1 Mem:1844.19M (Peak 1852.68M) | Time:00:05.40 | Syncing MBlab_sk1788628343.246314
+Fra:1 Mem:1844.20M (Peak 1852.68M) | Time:00:05.40 | Rendering 1 / 8 samples
+Fra:1 Mem:1287.04M (Peak 1852.68M) | Time:00:05.53 | Rendering 8 / 8 samples
+Append frame 1
+Time: 00:06.30 (Saving: 00:00.01)
+
+Fra:2 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:2 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:2 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:2 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:2 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:2 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:2 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:2 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:2 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:2 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:2 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 2
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:3 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:3 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:3 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:3 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:3 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:3 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:3 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:3 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:3 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:3 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:3 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 3
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:4 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Camera
+Fra:4 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Sun
+Fra:4 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Area
+Fra:4 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Area.001
+Fra:4 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Plane
+Fra:4 Mem:1211.05M (Peak 1852.68M) | Time:00:02.94 | Syncing MBlab_bd1788628327.8891191
+Fra:4 Mem:1527.61M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_sk1788628327.8891566
+Fra:4 Mem:1527.61M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628343.2462442
+Fra:4 Mem:1844.17M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628343.246314
+Fra:4 Mem:1844.17M (Peak 1852.68M) | Time:00:03.06 | Rendering 1 / 8 samples
+Fra:4 Mem:1287.04M (Peak 1852.68M) | Time:00:03.17 | Rendering 8 / 8 samples
+Append frame 4
+Time: 00:03.96 (Saving: 00:00.01)
+
+Fra:5 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:5 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:5 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:5 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:5 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:5 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:5 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:5 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:5 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:5 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:5 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 5
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:6 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:6 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:6 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:6 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:6 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:6 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:6 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:6 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:6 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628343.246314
+Fra:6 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Rendering 1 / 8 samples
+Fra:6 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 6
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:7 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:7 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:7 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:7 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:7 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:7 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:7 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:7 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:7 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628343.246314
+Fra:7 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Rendering 1 / 8 samples
+Fra:7 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 7
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:8 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:8 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:8 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:8 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:8 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:8 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:8 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:8 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:8 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:8 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:8 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 8
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:9 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:9 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:9 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:9 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:9 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:9 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:9 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:9 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:9 Mem:1844.17M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628343.246314
+Fra:9 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:9 Mem:1287.04M (Peak 1852.68M) | Time:00:03.17 | Rendering 8 / 8 samples
+Append frame 9
+Time: 00:03.96 (Saving: 00:00.01)
+
+Fra:10 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:10 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:10 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:10 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:10 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:10 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:10 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:10 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:10 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:10 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:10 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 10
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:11 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:11 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:11 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:11 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:11 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:11 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:11 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:11 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:11 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:11 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:11 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 11
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:12 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:12 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:12 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:12 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:12 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:12 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:12 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:12 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:12 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:12 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:12 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 12
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:13 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:13 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:13 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:13 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:13 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:13 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:13 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:13 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:13 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:13 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:13 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 13
+Time: 00:03.97 (Saving: 00:00.01)
+
+Fra:14 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:14 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:14 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:14 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:14 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:14 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:14 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:14 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:14 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:14 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:14 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 14
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:15 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:15 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:15 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:15 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:15 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:15 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:15 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:15 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:15 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:15 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:15 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 15
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:16 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:16 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:16 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:16 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:16 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:16 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:16 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:16 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:16 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:16 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:16 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 16
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:17 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:17 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:17 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:17 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:17 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:17 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:17 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:17 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:17 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:17 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:17 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 17
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:18 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:18 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:18 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:18 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:18 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:18 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:18 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:18 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:18 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:18 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:18 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 18
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:19 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:19 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:19 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:19 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:19 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:19 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:19 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:19 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:19 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:19 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:19 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 19
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:20 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:20 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:20 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:20 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:20 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:20 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:20 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:20 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:20 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:20 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:20 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 20
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:21 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:21 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:21 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:21 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:21 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:21 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:21 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:21 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:21 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:21 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:21 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 21
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:22 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:22 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:22 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:22 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:22 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:22 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:22 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:22 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:22 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:22 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:22 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 22
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:23 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:23 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:23 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:23 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:23 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:23 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:23 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:23 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:23 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:23 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:23 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 23
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:24 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:24 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:24 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:24 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:24 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:24 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:24 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:24 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:24 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:24 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:24 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 24
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:25 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:25 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:25 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:25 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:25 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:25 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:25 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:25 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:25 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:25 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:25 Mem:1287.04M (Peak 1852.68M) | Time:00:03.18 | Rendering 8 / 8 samples
+Append frame 25
+Time: 00:03.97 (Saving: 00:00.01)
+
+Fra:26 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:26 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:26 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:26 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:26 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:26 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:26 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:26 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:26 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:26 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:26 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 26
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:27 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:27 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:27 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:27 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:27 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:27 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:27 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:27 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:27 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:27 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:27 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 27
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:28 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:28 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:28 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:28 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:28 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:28 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:28 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:28 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:28 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:28 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:28 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 28
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:29 Mem:1211.04M (Peak 1852.68M) | Time:00:02.95 | Syncing Camera
+Fra:29 Mem:1211.04M (Peak 1852.68M) | Time:00:02.95 | Syncing Sun
+Fra:29 Mem:1211.04M (Peak 1852.68M) | Time:00:02.95 | Syncing Area
+Fra:29 Mem:1211.04M (Peak 1852.68M) | Time:00:02.95 | Syncing Area.001
+Fra:29 Mem:1211.04M (Peak 1852.68M) | Time:00:02.95 | Syncing Plane
+Fra:29 Mem:1211.05M (Peak 1852.68M) | Time:00:02.95 | Syncing MBlab_bd1788628327.8891191
+Fra:29 Mem:1527.61M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_sk1788628327.8891566
+Fra:29 Mem:1527.61M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628343.2462442
+Fra:29 Mem:1844.17M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628343.246314
+Fra:29 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:29 Mem:1287.04M (Peak 1852.68M) | Time:00:03.18 | Rendering 8 / 8 samples
+Append frame 29
+Time: 00:03.97 (Saving: 00:00.01)
+
+Fra:30 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:30 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:30 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:30 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:30 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:30 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:30 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:30 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:30 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:30 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:30 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 30
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:31 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Camera
+Fra:31 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Sun
+Fra:31 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Area
+Fra:31 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Area.001
+Fra:31 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Plane
+Fra:31 Mem:1211.05M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628327.8891191
+Fra:31 Mem:1527.61M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628327.8891566
+Fra:31 Mem:1527.61M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_bd1788628343.2462442
+Fra:31 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Syncing MBlab_sk1788628343.246314
+Fra:31 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Rendering 1 / 8 samples
+Fra:31 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 31
+Time: 00:04.08 (Saving: 00:00.01)
+
+Fra:32 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Camera
+Fra:32 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Sun
+Fra:32 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Area
+Fra:32 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Area.001
+Fra:32 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Plane
+Fra:32 Mem:1211.05M (Peak 1852.68M) | Time:00:02.94 | Syncing MBlab_bd1788628327.8891191
+Fra:32 Mem:1527.61M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_sk1788628327.8891566
+Fra:32 Mem:1527.61M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628343.2462442
+Fra:32 Mem:1844.17M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628343.246314
+Fra:32 Mem:1844.17M (Peak 1852.68M) | Time:00:03.06 | Rendering 1 / 8 samples
+Fra:32 Mem:1287.04M (Peak 1852.68M) | Time:00:03.16 | Rendering 8 / 8 samples
+Append frame 32
+Time: 00:03.95 (Saving: 00:00.01)
+
+Fra:33 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:33 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:33 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:33 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:33 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:33 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:33 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:33 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:33 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:33 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:33 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 33
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:34 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:34 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:34 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:34 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:34 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:34 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:34 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:34 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:34 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:34 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:34 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 34
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:35 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:35 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:35 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:35 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:35 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:35 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:35 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:35 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:35 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:35 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:35 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 35
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:36 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:36 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:36 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:36 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:36 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:36 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:36 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:36 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:36 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:36 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:36 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 36
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:37 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:37 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:37 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:37 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:37 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:37 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:37 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:37 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:37 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:37 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:37 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 37
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:38 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:38 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:38 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:38 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:38 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:38 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:38 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:38 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:38 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:38 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:38 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 38
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:39 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:39 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:39 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:39 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:39 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:39 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:39 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:39 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:39 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:39 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:39 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 39
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:40 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:40 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:40 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:40 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:40 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:40 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:40 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:40 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:40 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:40 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:40 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 40
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:41 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Camera
+Fra:41 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Sun
+Fra:41 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Area
+Fra:41 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Area.001
+Fra:41 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Plane
+Fra:41 Mem:1211.05M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628327.8891191
+Fra:41 Mem:1527.61M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628327.8891566
+Fra:41 Mem:1527.61M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_bd1788628343.2462442
+Fra:41 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Syncing MBlab_sk1788628343.246314
+Fra:41 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Rendering 1 / 8 samples
+Fra:41 Mem:1287.04M (Peak 1852.68M) | Time:00:03.30 | Rendering 8 / 8 samples
+Append frame 41
+Time: 00:04.10 (Saving: 00:00.01)
+
+Fra:42 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:42 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:42 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:42 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:42 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:42 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:42 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:42 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:42 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:42 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:42 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 42
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:43 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:43 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:43 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:43 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:43 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:43 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:43 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:43 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:43 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:43 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:43 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 43
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:44 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:44 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:44 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:44 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:44 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:44 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:44 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:44 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:44 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:44 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:44 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 44
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:45 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:45 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:45 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:45 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:45 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:45 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:45 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:45 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:45 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:45 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:45 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 45
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:46 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:46 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:46 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:46 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:46 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:46 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:46 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:46 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:46 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:46 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:46 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 46
+Time: 00:04.08 (Saving: 00:00.01)
+
+Fra:47 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:47 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:47 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:47 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:47 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:47 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:47 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:47 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:47 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:47 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:47 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 47
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:48 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:48 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:48 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:48 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:48 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:48 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:48 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:48 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:48 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:48 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:48 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 48
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:49 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:49 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:49 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:49 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:49 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:49 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:49 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:49 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:49 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:49 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:49 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 49
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:50 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:50 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:50 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:50 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:50 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:50 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:50 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:50 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:50 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:50 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:50 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 50
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:51 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:51 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:51 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:51 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:51 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:51 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:51 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:51 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:51 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:51 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:51 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 51
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:52 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:52 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:52 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:52 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:52 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:52 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:52 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:52 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:52 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:52 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:52 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 52
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:53 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:53 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:53 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:53 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:53 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:53 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:53 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:53 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:53 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:53 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:53 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 53
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:54 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:54 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:54 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:54 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:54 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:54 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:54 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:54 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:54 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:54 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:54 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 54
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:55 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:55 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:55 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:55 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:55 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:55 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:55 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:55 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:55 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:55 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:55 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 55
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:56 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:56 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:56 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:56 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:56 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:56 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:56 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:56 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:56 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:56 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:56 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 56
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:57 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:57 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:57 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:57 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:57 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:57 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:57 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:57 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:57 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:57 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:57 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 57
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:58 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:58 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:58 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:58 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:58 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:58 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:58 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:58 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:58 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:58 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:58 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 58
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:59 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:59 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:59 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:59 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:59 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:59 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:59 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:59 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:59 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:59 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:59 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 59
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:60 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:60 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:60 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:60 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:60 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:60 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:60 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:60 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:60 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:60 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:60 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 60
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:61 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:61 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:61 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:61 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:61 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:61 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:61 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:61 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:61 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:61 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:61 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 61
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:62 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:62 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:62 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:62 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:62 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:62 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:62 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:62 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:62 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:62 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:62 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 62
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:63 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Camera
+Fra:63 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Sun
+Fra:63 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Area
+Fra:63 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Area.001
+Fra:63 Mem:1211.04M (Peak 1852.68M) | Time:00:03.07 | Syncing Plane
+Fra:63 Mem:1211.05M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628327.8891191
+Fra:63 Mem:1527.61M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628327.8891566
+Fra:63 Mem:1527.61M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_bd1788628343.2462442
+Fra:63 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Syncing MBlab_sk1788628343.246314
+Fra:63 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Rendering 1 / 8 samples
+Fra:63 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 63
+Time: 00:04.08 (Saving: 00:00.01)
+
+Fra:64 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:64 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:64 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:64 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:64 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:64 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:64 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:64 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:64 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:64 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:64 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 64
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:65 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:65 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:65 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:65 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:65 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:65 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:65 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:65 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:65 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:65 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:65 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 65
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:66 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:66 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:66 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:66 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:66 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:66 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:66 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:66 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:66 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:66 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:66 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 66
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:67 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:67 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:67 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:67 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:67 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:67 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:67 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:67 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:67 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:67 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:67 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 67
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:68 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:68 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:68 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:68 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:68 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:68 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:68 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:68 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:68 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:68 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:68 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 68
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:69 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:69 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:69 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:69 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:69 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:69 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:69 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:69 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:69 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:69 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:69 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 69
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:70 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:70 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:70 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:70 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:70 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:70 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:70 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:70 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:70 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:70 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:70 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 70
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:71 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:71 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:71 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:71 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:71 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:71 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:71 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:71 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:71 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:71 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:71 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 71
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:72 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:72 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:72 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:72 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:72 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:72 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:72 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:72 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:72 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:72 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:72 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 72
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:73 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:73 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:73 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:73 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:73 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:73 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:73 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:73 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:73 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:73 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:73 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 73
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:74 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:74 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:74 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:74 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:74 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:74 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:74 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:74 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:74 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:74 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:74 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 74
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:75 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:75 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:75 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:75 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:75 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:75 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:75 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:75 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:75 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:75 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Rendering 1 / 8 samples
+Fra:75 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 75
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:76 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:76 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:76 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:76 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:76 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:76 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:76 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:76 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:76 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:76 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:76 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 76
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:77 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:77 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:77 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:77 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:77 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:77 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:77 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:77 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:77 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:77 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:77 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 77
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:78 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:78 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:78 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:78 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:78 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:78 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:78 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:78 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:78 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:78 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:78 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 78
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:79 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:79 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:79 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:79 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:79 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:79 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:79 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:79 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:79 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:79 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:79 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 79
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:80 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:80 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:80 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:80 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:80 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:80 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:80 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:80 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:80 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:80 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:80 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 80
+Time: 00:04.08 (Saving: 00:00.01)
+
+Fra:81 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:81 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:81 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:81 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:81 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:81 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:81 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:81 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:81 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:81 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:81 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 81
+Time: 00:03.97 (Saving: 00:00.01)
+
+Fra:82 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:82 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:82 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:82 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:82 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:82 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:82 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:82 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:82 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:82 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:82 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 82
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:83 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:83 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:83 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:83 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:83 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:83 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:83 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:83 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:83 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:83 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:83 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 83
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:84 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Camera
+Fra:84 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Sun
+Fra:84 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Area
+Fra:84 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Area.001
+Fra:84 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Plane
+Fra:84 Mem:1211.05M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628327.8891191
+Fra:84 Mem:1527.61M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628327.8891566
+Fra:84 Mem:1527.61M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_bd1788628343.2462442
+Fra:84 Mem:1844.17M (Peak 1852.68M) | Time:00:03.20 | Syncing MBlab_sk1788628343.246314
+Fra:84 Mem:1844.17M (Peak 1852.68M) | Time:00:03.20 | Rendering 1 / 8 samples
+Fra:84 Mem:1287.04M (Peak 1852.68M) | Time:00:03.30 | Rendering 8 / 8 samples
+Append frame 84
+Time: 00:04.09 (Saving: 00:00.01)
+
+Fra:85 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:85 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:85 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:85 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:85 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:85 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:85 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:85 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:85 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:85 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:85 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 85
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:86 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:86 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:86 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:86 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:86 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:86 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:86 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:86 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:86 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:86 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Rendering 1 / 8 samples
+Fra:86 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 86
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:87 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:87 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:87 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:87 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:87 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:87 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:87 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:87 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:87 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:87 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:87 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 87
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:88 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:88 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:88 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:88 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:88 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:88 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:88 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:88 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:88 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:88 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:88 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 88
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:89 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:89 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:89 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:89 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:89 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:89 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:89 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:89 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:89 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:89 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:89 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 89
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:90 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:90 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:90 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:90 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:90 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:90 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:90 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:90 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:90 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628343.246314
+Fra:90 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:90 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 90
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:91 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:91 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:91 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:91 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:91 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:91 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:91 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:91 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:91 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:91 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:91 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 91
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:92 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:92 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:92 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:92 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:92 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:92 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:92 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:92 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:92 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:92 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:92 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 92
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:93 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:93 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:93 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:93 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:93 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:93 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:93 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:93 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:93 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:93 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:93 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 93
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:94 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:94 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:94 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:94 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:94 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:94 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:94 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:94 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:94 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:94 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:94 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 94
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:95 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:95 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:95 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:95 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:95 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:95 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:95 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:95 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:95 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:95 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:95 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 95
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:96 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:96 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:96 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:96 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:96 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:96 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:96 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:96 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:96 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:96 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:96 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 96
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:97 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:97 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:97 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:97 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:97 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:97 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:97 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:97 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:97 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:97 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:97 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 97
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:98 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:98 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:98 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:98 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:98 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:98 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:98 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:98 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:98 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:98 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:98 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 98
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:99 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:99 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:99 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:99 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:99 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:99 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:99 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:99 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:99 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:99 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:99 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 99
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:100 Mem:1211.04M (Peak 1852.68M) | Time:00:03.10 | Syncing Camera
+Fra:100 Mem:1211.04M (Peak 1852.68M) | Time:00:03.10 | Syncing Sun
+Fra:100 Mem:1211.04M (Peak 1852.68M) | Time:00:03.10 | Syncing Area
+Fra:100 Mem:1211.04M (Peak 1852.68M) | Time:00:03.10 | Syncing Area.001
+Fra:100 Mem:1211.04M (Peak 1852.68M) | Time:00:03.10 | Syncing Plane
+Fra:100 Mem:1211.05M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628327.8891191
+Fra:100 Mem:1527.61M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628327.8891566
+Fra:100 Mem:1527.61M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_bd1788628343.2462442
+Fra:100 Mem:1844.17M (Peak 1852.68M) | Time:00:03.22 | Syncing MBlab_sk1788628343.246314
+Fra:100 Mem:1844.17M (Peak 1852.68M) | Time:00:03.22 | Rendering 1 / 8 samples
+Fra:100 Mem:1287.04M (Peak 1852.68M) | Time:00:03.34 | Rendering 8 / 8 samples
+Append frame 100
+Time: 00:04.12 (Saving: 00:00.01)
+
+Fra:101 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:101 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:101 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:101 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:101 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:101 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:101 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:101 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:101 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:101 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:101 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 101
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:102 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:102 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:102 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:102 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:102 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:102 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:102 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:102 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:102 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:102 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:102 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 102
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:103 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:103 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:103 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:103 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:103 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:103 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:103 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:103 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:103 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:103 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:103 Mem:1287.04M (Peak 1852.68M) | Time:00:03.28 | Rendering 8 / 8 samples
+Append frame 103
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:104 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:104 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:104 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:104 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:104 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:104 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:104 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:104 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:104 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:104 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:104 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 104
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:105 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:105 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:105 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:105 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:105 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:105 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:105 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:105 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:105 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:105 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:105 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 105
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:106 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:106 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:106 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:106 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:106 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:106 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:106 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:106 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:106 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:106 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:106 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 106
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:107 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:107 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:107 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:107 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:107 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:107 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:107 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:107 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:107 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:107 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:107 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 107
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:108 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:108 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:108 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:108 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:108 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:108 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:108 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:108 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:108 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:108 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:108 Mem:1287.04M (Peak 1852.68M) | Time:00:03.30 | Rendering 8 / 8 samples
+Append frame 108
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:109 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Camera
+Fra:109 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Sun
+Fra:109 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area
+Fra:109 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Area.001
+Fra:109 Mem:1211.04M (Peak 1852.68M) | Time:00:02.96 | Syncing Plane
+Fra:109 Mem:1211.05M (Peak 1852.68M) | Time:00:02.96 | Syncing MBlab_bd1788628327.8891191
+Fra:109 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_sk1788628327.8891566
+Fra:109 Mem:1527.61M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628343.2462442
+Fra:109 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628343.246314
+Fra:109 Mem:1844.17M (Peak 1852.68M) | Time:00:03.08 | Rendering 1 / 8 samples
+Fra:109 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 109
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:110 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:110 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:110 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:110 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:110 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:110 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:110 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:110 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:110 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628343.246314
+Fra:110 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Rendering 1 / 8 samples
+Fra:110 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 110
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:111 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:111 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:111 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:111 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:111 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:111 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:111 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:111 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:111 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:111 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Rendering 1 / 8 samples
+Fra:111 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 111
+Time: 00:04.08 (Saving: 00:00.01)
+
+Fra:112 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:112 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:112 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:112 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:112 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:112 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:112 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:112 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:112 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:112 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:112 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 112
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:113 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:113 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:113 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:113 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:113 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:113 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:113 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:113 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:113 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:113 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:113 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 113
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:114 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:114 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:114 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:114 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:114 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:114 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:114 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:114 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:114 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:114 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:114 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 114
+Time: 00:03.99 (Saving: 00:00.01)
+
+Fra:115 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:115 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:115 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:115 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:115 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:115 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:115 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:115 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:115 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:115 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:115 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 115
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:116 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:116 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:116 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:116 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:116 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:116 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:116 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:116 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:116 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:116 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:116 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 116
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:117 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:117 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:117 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:117 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:117 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:117 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:117 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:117 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:117 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:117 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:117 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 117
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:118 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:118 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:118 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:118 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:118 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:118 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:118 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:118 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:118 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:118 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:118 Mem:1287.04M (Peak 1852.68M) | Time:00:03.30 | Rendering 8 / 8 samples
+Append frame 118
+Time: 00:04.09 (Saving: 00:00.01)
+
+Fra:119 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:119 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:119 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:119 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:119 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:119 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:119 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_sk1788628327.8891566
+Fra:119 Mem:1527.61M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628343.2462442
+Fra:119 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628343.246314
+Fra:119 Mem:1844.17M (Peak 1852.68M) | Time:00:03.12 | Rendering 1 / 8 samples
+Fra:119 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 119
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:120 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:120 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:120 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:120 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:120 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:120 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:120 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:120 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:120 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628343.246314
+Fra:120 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Rendering 1 / 8 samples
+Fra:120 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 120
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:121 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:121 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:121 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:121 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:121 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:121 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:121 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:121 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:121 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:121 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:121 Mem:1287.04M (Peak 1852.68M) | Time:00:03.19 | Rendering 8 / 8 samples
+Append frame 121
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:122 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:122 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:122 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:122 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:122 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:122 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:122 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:122 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:122 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:122 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Rendering 1 / 8 samples
+Fra:122 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 122
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:123 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:123 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:123 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:123 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:123 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:123 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:123 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:123 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:123 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:123 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:123 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 123
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:124 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Camera
+Fra:124 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Sun
+Fra:124 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area
+Fra:124 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Area.001
+Fra:124 Mem:1211.04M (Peak 1852.68M) | Time:00:03.06 | Syncing Plane
+Fra:124 Mem:1211.05M (Peak 1852.68M) | Time:00:03.06 | Syncing MBlab_bd1788628327.8891191
+Fra:124 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_sk1788628327.8891566
+Fra:124 Mem:1527.61M (Peak 1852.68M) | Time:00:03.12 | Syncing MBlab_bd1788628343.2462442
+Fra:124 Mem:1844.17M (Peak 1852.68M) | Time:00:03.18 | Syncing MBlab_sk1788628343.246314
+Fra:124 Mem:1844.17M (Peak 1852.68M) | Time:00:03.19 | Rendering 1 / 8 samples
+Fra:124 Mem:1287.04M (Peak 1852.68M) | Time:00:03.29 | Rendering 8 / 8 samples
+Append frame 124
+Time: 00:04.08 (Saving: 00:00.01)
+
+Fra:125 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Camera
+Fra:125 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Sun
+Fra:125 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Area
+Fra:125 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Area.001
+Fra:125 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Plane
+Fra:125 Mem:1211.05M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628327.8891191
+Fra:125 Mem:1527.61M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628327.8891566
+Fra:125 Mem:1527.61M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_bd1788628343.2462442
+Fra:125 Mem:1844.17M (Peak 1852.68M) | Time:00:03.20 | Syncing MBlab_sk1788628343.246314
+Fra:125 Mem:1844.17M (Peak 1852.68M) | Time:00:03.20 | Rendering 1 / 8 samples
+Fra:125 Mem:1287.04M (Peak 1852.68M) | Time:00:03.30 | Rendering 8 / 8 samples
+Append frame 125
+Time: 00:04.09 (Saving: 00:00.01)
+
+Fra:126 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:126 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:126 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:126 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:126 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:126 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:126 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628327.8891566
+Fra:126 Mem:1527.61M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_bd1788628343.2462442
+Fra:126 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Syncing MBlab_sk1788628343.246314
+Fra:126 Mem:1844.17M (Peak 1852.68M) | Time:00:03.16 | Rendering 1 / 8 samples
+Fra:126 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 126
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:127 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:127 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:127 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:127 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:127 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:127 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:127 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:127 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:127 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:127 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:127 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 127
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:128 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Camera
+Fra:128 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Sun
+Fra:128 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area
+Fra:128 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Area.001
+Fra:128 Mem:1211.04M (Peak 1852.68M) | Time:00:02.97 | Syncing Plane
+Fra:128 Mem:1211.05M (Peak 1852.68M) | Time:00:02.97 | Syncing MBlab_bd1788628327.8891191
+Fra:128 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_sk1788628327.8891566
+Fra:128 Mem:1527.61M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628343.2462442
+Fra:128 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628343.246314
+Fra:128 Mem:1844.17M (Peak 1852.68M) | Time:00:03.09 | Rendering 1 / 8 samples
+Fra:128 Mem:1287.04M (Peak 1852.68M) | Time:00:03.20 | Rendering 8 / 8 samples
+Append frame 128
+Time: 00:03.98 (Saving: 00:00.01)
+
+Fra:129 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:129 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:129 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:129 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:129 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:129 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:129 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:129 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:129 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:129 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:129 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 129
+Time: 00:04.01 (Saving: 00:00.01)
+
+Fra:130 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Camera
+Fra:130 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Sun
+Fra:130 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area
+Fra:130 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Area.001
+Fra:130 Mem:1211.04M (Peak 1852.68M) | Time:00:03.00 | Syncing Plane
+Fra:130 Mem:1211.05M (Peak 1852.68M) | Time:00:03.00 | Syncing MBlab_bd1788628327.8891191
+Fra:130 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:130 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:130 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:130 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:130 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 130
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:131 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:131 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:131 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:131 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:131 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:131 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:131 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:131 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:131 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:131 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:131 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 131
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:132 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Camera
+Fra:132 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Sun
+Fra:132 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area
+Fra:132 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Area.001
+Fra:132 Mem:1211.04M (Peak 1852.68M) | Time:00:03.01 | Syncing Plane
+Fra:132 Mem:1211.05M (Peak 1852.68M) | Time:00:03.01 | Syncing MBlab_bd1788628327.8891191
+Fra:132 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_sk1788628327.8891566
+Fra:132 Mem:1527.61M (Peak 1852.68M) | Time:00:03.07 | Syncing MBlab_bd1788628343.2462442
+Fra:132 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Syncing MBlab_sk1788628343.246314
+Fra:132 Mem:1844.17M (Peak 1852.68M) | Time:00:03.13 | Rendering 1 / 8 samples
+Fra:132 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 132
+Time: 00:04.03 (Saving: 00:00.01)
+
+Fra:133 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Camera
+Fra:133 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Sun
+Fra:133 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area
+Fra:133 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Area.001
+Fra:133 Mem:1211.04M (Peak 1852.68M) | Time:00:02.98 | Syncing Plane
+Fra:133 Mem:1211.05M (Peak 1852.68M) | Time:00:02.98 | Syncing MBlab_bd1788628327.8891191
+Fra:133 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_sk1788628327.8891566
+Fra:133 Mem:1527.61M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628343.2462442
+Fra:133 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Syncing MBlab_sk1788628343.246314
+Fra:133 Mem:1844.17M (Peak 1852.68M) | Time:00:03.10 | Rendering 1 / 8 samples
+Fra:133 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 133
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:134 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:134 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:134 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:134 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:134 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:134 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:134 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:134 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:134 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:134 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:134 Mem:1287.04M (Peak 1852.68M) | Time:00:03.21 | Rendering 8 / 8 samples
+Append frame 134
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:135 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:135 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:135 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:135 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:135 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:135 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:135 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:135 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:135 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:135 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:135 Mem:1287.04M (Peak 1852.68M) | Time:00:03.26 | Rendering 8 / 8 samples
+Append frame 135
+Time: 00:04.05 (Saving: 00:00.01)
+
+Fra:136 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:136 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:136 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:136 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:136 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:136 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:136 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:136 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:136 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:136 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:136 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 136
+Time: 00:04.07 (Saving: 00:00.01)
+
+Fra:137 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Camera
+Fra:137 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Sun
+Fra:137 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Area
+Fra:137 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Area.001
+Fra:137 Mem:1211.04M (Peak 1852.68M) | Time:00:02.94 | Syncing Plane
+Fra:137 Mem:1211.05M (Peak 1852.68M) | Time:00:02.94 | Syncing MBlab_bd1788628327.8891191
+Fra:137 Mem:1527.61M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_sk1788628327.8891566
+Fra:137 Mem:1527.61M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628343.2462442
+Fra:137 Mem:1844.17M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628343.246314
+Fra:137 Mem:1844.17M (Peak 1852.68M) | Time:00:03.06 | Rendering 1 / 8 samples
+Fra:137 Mem:1287.04M (Peak 1852.68M) | Time:00:03.16 | Rendering 8 / 8 samples
+Append frame 137
+Time: 00:03.95 (Saving: 00:00.01)
+
+Fra:138 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:138 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:138 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:138 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:138 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:138 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:138 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:138 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:138 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:138 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:138 Mem:1287.04M (Peak 1852.68M) | Time:00:03.23 | Rendering 8 / 8 samples
+Append frame 138
+Time: 00:04.02 (Saving: 00:00.01)
+
+Fra:139 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Camera
+Fra:139 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Sun
+Fra:139 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area
+Fra:139 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Area.001
+Fra:139 Mem:1211.04M (Peak 1852.68M) | Time:00:03.03 | Syncing Plane
+Fra:139 Mem:1211.05M (Peak 1852.68M) | Time:00:03.03 | Syncing MBlab_bd1788628327.8891191
+Fra:139 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_sk1788628327.8891566
+Fra:139 Mem:1527.61M (Peak 1852.68M) | Time:00:03.09 | Syncing MBlab_bd1788628343.2462442
+Fra:139 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Syncing MBlab_sk1788628343.246314
+Fra:139 Mem:1844.17M (Peak 1852.68M) | Time:00:03.15 | Rendering 1 / 8 samples
+Fra:139 Mem:1287.04M (Peak 1852.68M) | Time:00:03.25 | Rendering 8 / 8 samples
+Append frame 139
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:140 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Camera
+Fra:140 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Sun
+Fra:140 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area
+Fra:140 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Area.001
+Fra:140 Mem:1211.04M (Peak 1852.68M) | Time:00:03.04 | Syncing Plane
+Fra:140 Mem:1211.05M (Peak 1852.68M) | Time:00:03.04 | Syncing MBlab_bd1788628327.8891191
+Fra:140 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:140 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:140 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:140 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:140 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 140
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:141 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Camera
+Fra:141 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Sun
+Fra:141 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area
+Fra:141 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Area.001
+Fra:141 Mem:1211.04M (Peak 1852.68M) | Time:00:03.02 | Syncing Plane
+Fra:141 Mem:1211.05M (Peak 1852.68M) | Time:00:03.02 | Syncing MBlab_bd1788628327.8891191
+Fra:141 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_sk1788628327.8891566
+Fra:141 Mem:1527.61M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628343.2462442
+Fra:141 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628343.246314
+Fra:141 Mem:1844.17M (Peak 1852.68M) | Time:00:03.14 | Rendering 1 / 8 samples
+Fra:141 Mem:1287.04M (Peak 1852.68M) | Time:00:03.24 | Rendering 8 / 8 samples
+Append frame 141
+Time: 00:04.04 (Saving: 00:00.01)
+
+Fra:142 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Camera
+Fra:142 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Sun
+Fra:142 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area
+Fra:142 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Area.001
+Fra:142 Mem:1211.04M (Peak 1852.68M) | Time:00:03.05 | Syncing Plane
+Fra:142 Mem:1211.05M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628327.8891191
+Fra:142 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628327.8891566
+Fra:142 Mem:1527.61M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_bd1788628343.2462442
+Fra:142 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Syncing MBlab_sk1788628343.246314
+Fra:142 Mem:1844.17M (Peak 1852.68M) | Time:00:03.17 | Rendering 1 / 8 samples
+Fra:142 Mem:1287.04M (Peak 1852.68M) | Time:00:03.27 | Rendering 8 / 8 samples
+Append frame 142
+Time: 00:04.06 (Saving: 00:00.01)
+
+Fra:143 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Camera
+Fra:143 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Sun
+Fra:143 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area
+Fra:143 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Area.001
+Fra:143 Mem:1211.04M (Peak 1852.68M) | Time:00:02.99 | Syncing Plane
+Fra:143 Mem:1211.05M (Peak 1852.68M) | Time:00:02.99 | Syncing MBlab_bd1788628327.8891191
+Fra:143 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_sk1788628327.8891566
+Fra:143 Mem:1527.61M (Peak 1852.68M) | Time:00:03.05 | Syncing MBlab_bd1788628343.2462442
+Fra:143 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Syncing MBlab_sk1788628343.246314
+Fra:143 Mem:1844.17M (Peak 1852.68M) | Time:00:03.11 | Rendering 1 / 8 samples
+Fra:143 Mem:1287.04M (Peak 1852.68M) | Time:00:03.22 | Rendering 8 / 8 samples
+Append frame 143
+Time: 00:04.00 (Saving: 00:00.01)
+
+Fra:144 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Camera
+Fra:144 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Sun
+Fra:144 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Area
+Fra:144 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Area.001
+Fra:144 Mem:1211.04M (Peak 1852.68M) | Time:00:03.08 | Syncing Plane
+Fra:144 Mem:1211.05M (Peak 1852.68M) | Time:00:03.08 | Syncing MBlab_bd1788628327.8891191
+Fra:144 Mem:1527.61M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_sk1788628327.8891566
+Fra:144 Mem:1527.61M (Peak 1852.68M) | Time:00:03.14 | Syncing MBlab_bd1788628343.2462442
+Fra:144 Mem:1844.17M (Peak 1852.68M) | Time:00:03.20 | Syncing MBlab_sk1788628343.246314
+Fra:144 Mem:1844.17M (Peak 1852.68M) | Time:00:03.20 | Rendering 1 / 8 samples
+Fra:144 Mem:1287.04M (Peak 1852.68M) | Time:00:03.31 | Rendering 8 / 8 samples
+Append frame 144
+Time: 00:04.10 (Saving: 00:00.01)
+
+char A: jawkey=Expressions_mouthOpen_max arms=['upperarm_L', 'upperarm_twist_L', 'upperarm_R', 'upperarm_twist_R']
+char B: jawkey=Expressions_mouthOpen_max arms=['upperarm_L', 'upperarm_twist_L', 'upperarm_R', 'upperarm_twist_R']
+Info: Saved "trackC.blend"
+
+TRACK-C TIMINGS  model=0.1s rig=0.0s anim=27.9s render=607.1s total=635.1s
+TRACK-C DONE: /home/vuos/code/p4/e051-blender-duel/output/trackC.mp4
+
+Blender quit

@@ -1,0 +1,1 @@
+R3 blender-api DONE — talking duo 6s@24fps L1 delivered in trackR3_blenderapi/: build.py, R3blendapi.blend (1539728B), f01/f36/f108 stills, R3blendapi.mp4 (110803B, 640x360 24fps 144f verified), checkpoints 01m/02m/05m/10m (blend+stills+mp4+status.json each), metrics.json. Machine: model 0.1s / rig 0.1s / anim 0.0s / render 11.4s. viewer/index.html untouched.

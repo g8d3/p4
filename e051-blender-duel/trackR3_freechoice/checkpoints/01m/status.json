@@ -1,0 +1,2 @@
+{"elapsed_s":94,"files":["index.html","f01.png","f36.png","f108.png"],
+"notes":"Playable three.js duo renders clean (no console errors). Fixed Y-up camera + X mirror. Red left / blue right, HUD speaker label, scrub+sliders work. Next: gesture readability + mp4 proof."}

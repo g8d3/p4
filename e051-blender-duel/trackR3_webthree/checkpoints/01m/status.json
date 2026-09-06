@@ -1,0 +1,11 @@
+{
+ "elapsed_s": 63,
+ "files": [
+  "index.html",
+  "shot.py",
+  "proof_A_f036.png",
+  "proof_B_f108.png",
+  "status.json"
+ ],
+ "notes": "skeleton+motion live: 2 capsule chars, jaw flap, head bob, hand gestures, blink, turn-taking A/B, HUD+scrub+orbit; Playwright proof ok, no JS errors"
+}

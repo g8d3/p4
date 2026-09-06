@@ -1,0 +1,7 @@
+{"profile":"free-choice","tools_chosen":["HTML","vendored three.js (viewer/vendor)","Playwright+Chromium/SwiftShader stills","MediaRecorder canvas capture + ffmpeg libx264"],
+"why":"600s budget punishes Blender failure modes (operator renames, weight-paint surprises) and EEVEE queue time; a deterministic pose(t) JS function makes every checkpoint a working deliverable from minute 1, and HTML satisfies playable-or-rendered twice over (playable page + recorded mp4). Also the stack I am fastest in.",
+"budget_s":600,"machine_s":{"proof_stills_s_each":5,"video_capture_s_each":6.3,"ffmpeg_s":3,"total_s_approx":30},
+"files":["deliverables/index.html","deliverables/vendor/three.module.js","deliverables/duo.mp4","deliverables/duo_capture.webm","deliverables/f01.png","deliverables/f36.png","deliverables/f108.png","deliverables/mp4_f36.png","deliverables/mp4_f108.png","README.md","checkpoints/01m,02m,05m,10m/status.json"],
+"bytes":{"index_html":8970,"duo_mp4":846567},"frames":144,"fps":24,"duration_s":6,
+"agent_min_approx":10,"agent_rounds":12,
+"notes":"Red-left A talks f1-72, blue-right B talks f73-144; jaw flap+head bob+hand wave+lean-in+blink. 3 code fixes after visual proof (Y-up camera, X mirror, spike markers->removed+necks). Zero console errors on all proof runs. Served on :8741."}

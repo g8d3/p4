@@ -1,0 +1,2091 @@
+Traceback (most recent call last):
+  File "/usr/share/blender/scripts/modules/addon_utils.py", line 143, in _fake_module
+    mod.bl_info = ast.literal_eval(body.value)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 112, in literal_eval
+    return _convert(node_or_string)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 111, in _convert
+    return _convert_signed_num(node)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 85, in _convert_signed_num
+    return _convert_num(node)
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ast.py", line 76, in _convert_num
+    _raise_malformed_node(node)
+  File "/usr/lib/python3.12/ast.py", line 73, in _raise_malformed_node
+    raise ValueError(msg + f': {node!r}')
+ValueError: malformed node or string on line 1: <ast.Name object at 0x76e81a396390>
+Blender 4.0.2
+Info: Total files 6 | Changed 6 | Failed 0
+EGL Error (0x3001): EGL_NOT_INITIALIZED: EGL is not initialized, or could not be initialized, for the specified EGL display connection.
+
+Managed to successfully fallback to surfaceless EGL rendering!
+
+Fra:1 Mem:41.70M (Peak 42.79M) | Time:00:00.20 | Syncing Camera
+Fra:1 Mem:41.70M (Peak 42.79M) | Time:00:00.20 | Syncing Sun
+Fra:1 Mem:41.70M (Peak 42.79M) | Time:00:00.20 | Syncing Area
+Fra:1 Mem:41.70M (Peak 42.79M) | Time:00:00.20 | Syncing Area.001
+Fra:1 Mem:41.70M (Peak 42.79M) | Time:00:00.20 | Syncing Plane
+Fra:1 Mem:41.74M (Peak 42.79M) | Time:00:00.22 | Syncing Human
+Fra:1 Mem:43.48M (Peak 43.48M) | Time:00:00.22 | Syncing Human.rig
+Fra:1 Mem:43.48M (Peak 43.48M) | Time:00:00.22 | Syncing Human.001
+Fra:1 Mem:45.22M (Peak 45.22M) | Time:00:00.22 | Syncing Human.rig.001
+Fra:1 Mem:45.22M (Peak 45.22M) | Time:00:00.23 | Rendering 1 / 16 samples
+Fra:1 Mem:42.57M (Peak 45.22M) | Time:00:00.25 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/trackR3_blendergen/output/trackR3_f01.png'
+Time: 00:00.77 (Saving: 00:00.23)
+
+Fra:36 Mem:41.73M (Peak 41.73M) | Time:00:00.02 | Syncing Camera
+Fra:36 Mem:41.73M (Peak 41.73M) | Time:00:00.02 | Syncing Sun
+Fra:36 Mem:41.73M (Peak 41.73M) | Time:00:00.02 | Syncing Area
+Fra:36 Mem:41.73M (Peak 41.73M) | Time:00:00.02 | Syncing Area.001
+Fra:36 Mem:41.73M (Peak 41.73M) | Time:00:00.02 | Syncing Plane
+Fra:36 Mem:41.74M (Peak 41.74M) | Time:00:00.02 | Syncing Human
+Fra:36 Mem:43.48M (Peak 43.48M) | Time:00:00.02 | Syncing Human.rig
+Fra:36 Mem:43.49M (Peak 43.49M) | Time:00:00.02 | Syncing Human.001
+Fra:36 Mem:45.23M (Peak 45.23M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:36 Mem:45.23M (Peak 45.23M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:36 Mem:42.57M (Peak 45.23M) | Time:00:00.02 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/trackR3_blendergen/output/trackR3_f36.png'
+Time: 00:00.28 (Saving: 00:00.03)
+
+Fra:108 Mem:41.73M (Peak 41.73M) | Time:00:00.01 | Syncing Camera
+Fra:108 Mem:41.73M (Peak 41.73M) | Time:00:00.01 | Syncing Sun
+Fra:108 Mem:41.73M (Peak 41.73M) | Time:00:00.01 | Syncing Area
+Fra:108 Mem:41.73M (Peak 41.73M) | Time:00:00.01 | Syncing Area.001
+Fra:108 Mem:41.73M (Peak 41.73M) | Time:00:00.01 | Syncing Plane
+Fra:108 Mem:41.74M (Peak 41.74M) | Time:00:00.01 | Syncing Human
+Fra:108 Mem:43.48M (Peak 43.48M) | Time:00:00.01 | Syncing Human.rig
+Fra:108 Mem:43.49M (Peak 43.49M) | Time:00:00.01 | Syncing Human.001
+Fra:108 Mem:45.23M (Peak 45.23M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:108 Mem:45.23M (Peak 45.23M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:108 Mem:42.57M (Peak 45.23M) | Time:00:00.02 | Rendering 16 / 16 samples
+Saved: '/home/vuos/code/p4/e051-blender-duel/trackR3_blendergen/output/trackR3_f108.png'
+Time: 00:00.25 (Saving: 00:00.03)
+
+Fra:1 Mem:42.94M (Peak 46.09M) | Time:00:00.01 | Syncing Camera
+Fra:1 Mem:42.94M (Peak 46.09M) | Time:00:00.01 | Syncing Sun
+Fra:1 Mem:42.94M (Peak 46.09M) | Time:00:00.01 | Syncing Area
+Fra:1 Mem:42.94M (Peak 46.09M) | Time:00:00.01 | Syncing Area.001
+Fra:1 Mem:42.95M (Peak 46.09M) | Time:00:00.01 | Syncing Plane
+Fra:1 Mem:42.96M (Peak 46.09M) | Time:00:00.01 | Syncing Human
+Fra:1 Mem:44.70M (Peak 46.09M) | Time:00:00.01 | Syncing Human.rig
+Fra:1 Mem:44.70M (Peak 46.09M) | Time:00:00.01 | Syncing Human.001
+Fra:1 Mem:46.44M (Peak 46.44M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:1 Mem:46.44M (Peak 46.44M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:1 Mem:43.79M (Peak 46.44M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 1
+Time: 00:00.21 (Saving: 00:00.01)
+
+Fra:2 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:2 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:2 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:2 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:2 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:2 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:2 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:2 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:2 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:2 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:2 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 2
+Time: 00:00.16 (Saving: 00:00.01)
+
+Fra:3 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:3 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:3 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:3 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:3 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:3 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:3 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:3 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:3 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:3 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:3 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 3
+Time: 00:00.14 (Saving: 00:00.01)
+
+Fra:4 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:4 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:4 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:4 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:4 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:4 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:4 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:4 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:4 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:4 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:4 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 4
+Time: 00:00.15 (Saving: 00:00.01)
+
+Fra:5 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:5 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:5 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:5 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:5 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:5 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:5 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:5 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:5 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:5 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:5 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 5
+Time: 00:00.16 (Saving: 00:00.02)
+
+Fra:6 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:6 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:6 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:6 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:6 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:6 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:6 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:6 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:6 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:6 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:6 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 6
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:7 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:7 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:7 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:7 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:7 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:7 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:7 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:7 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:7 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:7 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:7 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 7
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:8 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:8 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:8 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:8 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:8 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:8 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:8 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:8 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:8 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:8 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:8 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 8
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:9 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:9 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:9 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:9 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:9 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:9 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:9 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:9 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:9 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:9 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:9 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 9
+Time: 00:00.16 (Saving: 00:00.01)
+
+Fra:10 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:10 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:10 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:10 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:10 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:10 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:10 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:10 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:10 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:10 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:10 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 10
+Time: 00:00.20 (Saving: 00:00.02)
+
+Fra:11 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:11 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:11 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:11 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:11 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:11 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:11 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:11 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:11 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:11 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:11 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 11
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:12 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:12 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:12 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:12 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:12 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:12 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:12 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:12 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:12 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:12 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:12 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 12
+Time: 00:00.15 (Saving: 00:00.01)
+
+Fra:13 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:13 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:13 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:13 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:13 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:13 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:13 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:13 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:13 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Syncing Human.rig.001
+Fra:13 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:13 Mem:43.79M (Peak 47.30M) | Time:00:00.04 | Rendering 16 / 16 samples
+Append frame 13
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:14 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Camera
+Fra:14 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Sun
+Fra:14 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area
+Fra:14 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area.001
+Fra:14 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Plane
+Fra:14 Mem:42.96M (Peak 47.30M) | Time:00:00.03 | Syncing Human
+Fra:14 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig
+Fra:14 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.001
+Fra:14 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig.001
+Fra:14 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Rendering 1 / 16 samples
+Fra:14 Mem:43.79M (Peak 47.30M) | Time:00:00.05 | Rendering 16 / 16 samples
+Append frame 14
+Time: 00:00.26 (Saving: 00:00.03)
+
+Fra:15 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Camera
+Fra:15 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Sun
+Fra:15 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area
+Fra:15 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area.001
+Fra:15 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Plane
+Fra:15 Mem:42.96M (Peak 47.30M) | Time:00:00.03 | Syncing Human
+Fra:15 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig
+Fra:15 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.001
+Fra:15 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig.001
+Fra:15 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Rendering 1 / 16 samples
+Fra:15 Mem:43.79M (Peak 47.30M) | Time:00:00.05 | Rendering 16 / 16 samples
+Append frame 15
+Time: 00:00.26 (Saving: 00:00.02)
+
+Fra:16 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Camera
+Fra:16 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Sun
+Fra:16 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Area
+Fra:16 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Area.001
+Fra:16 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Plane
+Fra:16 Mem:42.96M (Peak 47.30M) | Time:00:00.04 | Syncing Human
+Fra:16 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig
+Fra:16 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.001
+Fra:16 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig.001
+Fra:16 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Rendering 1 / 16 samples
+Fra:16 Mem:43.79M (Peak 47.30M) | Time:00:00.05 | Rendering 16 / 16 samples
+Append frame 16
+Time: 00:00.25 (Saving: 00:00.01)
+
+Fra:17 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:17 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:17 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:17 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:17 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:17 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:17 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:17 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:17 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:17 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:17 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 17
+Time: 00:00.21 (Saving: 00:00.02)
+
+Fra:18 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Camera
+Fra:18 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Sun
+Fra:18 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area
+Fra:18 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area.001
+Fra:18 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Plane
+Fra:18 Mem:42.96M (Peak 47.30M) | Time:00:00.03 | Syncing Human
+Fra:18 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig
+Fra:18 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.001
+Fra:18 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig.001
+Fra:18 Mem:46.44M (Peak 47.30M) | Time:00:00.04 | Rendering 1 / 16 samples
+Fra:18 Mem:43.79M (Peak 47.30M) | Time:00:00.05 | Rendering 16 / 16 samples
+Append frame 18
+Time: 00:00.25 (Saving: 00:00.03)
+
+Fra:19 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:19 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:19 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:19 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:19 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:19 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:19 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:19 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:19 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:19 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:19 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 19
+Time: 00:00.21 (Saving: 00:00.02)
+
+Fra:20 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:20 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:20 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:20 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:20 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:20 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:20 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:20 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:20 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:20 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:20 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 20
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:21 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:21 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:21 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:21 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:21 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:21 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:21 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:21 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:21 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:21 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:21 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 21
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:22 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:22 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:22 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:22 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:22 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:22 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:22 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:22 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:22 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:22 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:22 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 22
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:23 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:23 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:23 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:23 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:23 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:23 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:23 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:23 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:23 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:23 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:23 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 23
+Time: 00:00.18 (Saving: 00:00.02)
+
+Fra:24 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:24 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:24 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:24 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:24 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:24 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:24 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:24 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:24 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:24 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:24 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 24
+Time: 00:00.18 (Saving: 00:00.02)
+
+Fra:25 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:25 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:25 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:25 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:25 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:25 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:25 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:25 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:25 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:25 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:25 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 25
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:26 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:26 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:26 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:26 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:26 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:26 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:26 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:26 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:26 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:26 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:26 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 26
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:27 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:27 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:27 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:27 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:27 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:27 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:27 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:27 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:27 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:27 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:27 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 27
+Time: 00:00.15 (Saving: 00:00.01)
+
+Fra:28 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:28 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:28 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:28 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:28 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:28 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:28 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:28 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:28 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:28 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:28 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 28
+Time: 00:00.09 (Saving: 00:00.01)
+
+Fra:29 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:29 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:29 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:29 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:29 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:29 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:29 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:29 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:29 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:29 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:29 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 29
+Time: 00:00.09 (Saving: 00:00.01)
+
+Fra:30 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:30 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:30 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:30 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:30 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:30 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:30 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:30 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:30 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:30 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:30 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 30
+Time: 00:00.09 (Saving: 00:00.00)
+
+Fra:31 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:31 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:31 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:31 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:31 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:31 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:31 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:31 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:31 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:31 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:31 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 31
+Time: 00:00.10 (Saving: 00:00.01)
+
+Fra:32 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:32 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:32 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:32 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:32 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:32 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:32 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:32 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:32 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:32 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:32 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 32
+Time: 00:00.09 (Saving: 00:00.01)
+
+Fra:33 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:33 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:33 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:33 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:33 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:33 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:33 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:33 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:33 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:33 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:33 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 33
+Time: 00:00.11 (Saving: 00:00.01)
+
+Fra:34 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:34 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:34 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:34 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:34 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:34 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:34 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:34 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:34 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:34 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:34 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 34
+Time: 00:00.08 (Saving: 00:00.01)
+
+Fra:35 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:35 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:35 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:35 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:35 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:35 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:35 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:35 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:35 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:35 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:35 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 35
+Time: 00:00.09 (Saving: 00:00.01)
+
+Fra:36 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:36 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:36 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:36 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:36 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:36 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:36 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:36 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:36 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:36 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:36 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 36
+Time: 00:00.10 (Saving: 00:00.01)
+
+Fra:37 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:37 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:37 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:37 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:37 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:37 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:37 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:37 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:37 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:37 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:37 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 37
+Time: 00:00.12 (Saving: 00:00.02)
+
+Fra:38 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:38 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:38 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:38 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:38 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:38 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:38 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:38 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:38 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:38 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:38 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 38
+Time: 00:00.16 (Saving: 00:00.01)
+
+Fra:39 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:39 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:39 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:39 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:39 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:39 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:39 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:39 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:39 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:39 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:39 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 39
+Time: 00:00.19 (Saving: 00:00.02)
+
+Fra:40 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:40 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:40 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:40 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:40 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:40 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:40 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:40 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:40 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:40 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:40 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 40
+Time: 00:00.18 (Saving: 00:00.02)
+
+Fra:41 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:41 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:41 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:41 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:41 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:41 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:41 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:41 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:41 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:41 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:41 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 41
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:42 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:42 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:42 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:42 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:42 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:42 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:42 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:42 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:42 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:42 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:42 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 42
+Time: 00:00.17 (Saving: 00:00.02)
+
+Fra:43 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:43 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:43 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:43 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:43 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:43 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:43 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:43 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:43 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:43 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:43 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 43
+Time: 00:00.21 (Saving: 00:00.02)
+
+Fra:44 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:44 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:44 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:44 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:44 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:44 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:44 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:44 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:44 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:44 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:44 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 44
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:45 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:45 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:45 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:45 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:45 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:45 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:45 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:45 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:45 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:45 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:45 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 45
+Time: 00:00.22 (Saving: 00:00.02)
+
+Fra:46 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:46 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:46 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:46 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:46 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:46 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:46 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:46 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:46 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:46 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:46 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 46
+Time: 00:00.24 (Saving: 00:00.02)
+
+Fra:47 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Camera
+Fra:47 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Sun
+Fra:47 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Area
+Fra:47 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Area.001
+Fra:47 Mem:42.95M (Peak 47.30M) | Time:00:00.04 | Syncing Plane
+Fra:47 Mem:42.96M (Peak 47.30M) | Time:00:00.04 | Syncing Human
+Fra:47 Mem:44.70M (Peak 47.30M) | Time:00:00.04 | Syncing Human.rig
+Fra:47 Mem:44.70M (Peak 47.30M) | Time:00:00.05 | Syncing Human.001
+Fra:47 Mem:46.44M (Peak 47.30M) | Time:00:00.05 | Syncing Human.rig.001
+Fra:47 Mem:46.44M (Peak 47.30M) | Time:00:00.05 | Rendering 1 / 16 samples
+Fra:47 Mem:43.79M (Peak 47.30M) | Time:00:00.06 | Rendering 16 / 16 samples
+Append frame 47
+Time: 00:00.28 (Saving: 00:00.02)
+
+Fra:48 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Camera
+Fra:48 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Sun
+Fra:48 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area
+Fra:48 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Area.001
+Fra:48 Mem:42.95M (Peak 47.30M) | Time:00:00.03 | Syncing Plane
+Fra:48 Mem:42.96M (Peak 47.30M) | Time:00:00.03 | Syncing Human
+Fra:48 Mem:44.70M (Peak 47.30M) | Time:00:00.03 | Syncing Human.rig
+Fra:48 Mem:44.70M (Peak 47.30M) | Time:00:00.03 | Syncing Human.001
+Fra:48 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Syncing Human.rig.001
+Fra:48 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:48 Mem:43.79M (Peak 47.30M) | Time:00:00.04 | Rendering 16 / 16 samples
+Append frame 48
+Time: 00:00.25 (Saving: 00:00.03)
+
+Fra:49 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:49 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:49 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:49 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:49 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:49 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:49 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:49 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:49 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:49 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:49 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 49
+Time: 00:00.24 (Saving: 00:00.02)
+
+Fra:50 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:50 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:50 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:50 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:50 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:50 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:50 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:50 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:50 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:50 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:50 Mem:43.79M (Peak 47.30M) | Time:00:00.04 | Rendering 16 / 16 samples
+Append frame 50
+Time: 00:00.24 (Saving: 00:00.03)
+
+Fra:51 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:51 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:51 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:51 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:51 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:51 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:51 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:51 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:51 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:51 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:51 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 51
+Time: 00:00.26 (Saving: 00:00.03)
+
+Fra:52 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:52 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:52 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:52 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:52 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:52 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:52 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:52 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:52 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:52 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:52 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 52
+Time: 00:00.23 (Saving: 00:00.01)
+
+Fra:53 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:53 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:53 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:53 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:53 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:53 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:53 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:53 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:53 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:53 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:53 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 53
+Time: 00:00.20 (Saving: 00:00.02)
+
+Fra:54 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:54 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:54 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:54 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:54 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:54 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:54 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:54 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:54 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:54 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:54 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 54
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:55 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:55 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:55 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:55 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:55 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:55 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:55 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:55 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:55 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:55 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:55 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 55
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:56 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:56 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:56 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:56 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:56 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:56 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:56 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:56 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:56 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:56 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:56 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 56
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:57 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:57 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:57 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:57 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:57 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:57 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:57 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:57 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:57 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:57 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:57 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 57
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:58 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:58 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:58 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:58 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:58 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:58 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:58 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:58 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:58 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:58 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:58 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 58
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:59 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:59 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:59 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:59 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:59 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:59 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:59 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:59 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:59 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:59 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:59 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 59
+Time: 00:00.17 (Saving: 00:00.02)
+
+Fra:60 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:60 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:60 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:60 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:60 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:60 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:60 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:60 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:60 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:60 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:60 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 60
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:61 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:61 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:61 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:61 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:61 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:61 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:61 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:61 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:61 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:61 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:61 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 61
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:62 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:62 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:62 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:62 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:62 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:62 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:62 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:62 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:62 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:62 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:62 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 62
+Time: 00:00.20 (Saving: 00:00.02)
+
+Fra:63 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:63 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:63 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:63 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:63 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:63 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:63 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:63 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:63 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:63 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:63 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 63
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:64 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:64 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:64 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:64 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:64 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:64 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:64 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:64 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:64 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:64 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:64 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 64
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:65 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:65 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:65 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:65 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:65 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:65 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:65 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:65 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:65 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:65 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:65 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 65
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:66 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:66 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:66 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:66 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:66 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:66 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:66 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:66 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:66 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:66 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:66 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 66
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:67 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:67 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:67 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:67 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:67 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:67 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:67 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:67 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:67 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:67 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:67 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 67
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:68 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:68 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:68 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:68 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:68 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:68 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:68 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:68 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:68 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:68 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:68 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 68
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:69 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:69 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:69 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:69 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:69 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:69 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:69 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:69 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:69 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:69 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:69 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 69
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:70 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:70 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:70 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:70 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:70 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:70 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:70 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:70 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:70 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:70 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:70 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 70
+Time: 00:00.16 (Saving: 00:00.01)
+
+Fra:71 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:71 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:71 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:71 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:71 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:71 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:71 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:71 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:71 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:71 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:71 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 71
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:72 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:72 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:72 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:72 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:72 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:72 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:72 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:72 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:72 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:72 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:72 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 72
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:73 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:73 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:73 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:73 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:73 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:73 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:73 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:73 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:73 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:73 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:73 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 73
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:74 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:74 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:74 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:74 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:74 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:74 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:74 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:74 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:74 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:74 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:74 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 74
+Time: 00:00.18 (Saving: 00:00.02)
+
+Fra:75 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:75 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:75 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:75 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:75 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:75 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:75 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:75 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:75 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:75 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:75 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 75
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:76 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:76 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:76 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:76 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:76 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:76 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:76 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:76 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:76 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:76 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:76 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 76
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:77 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:77 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:77 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:77 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:77 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:77 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:77 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:77 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:77 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:77 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:77 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 77
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:78 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:78 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:78 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:78 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:78 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:78 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:78 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:78 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:78 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:78 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:78 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 78
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:79 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:79 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:79 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:79 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:79 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:79 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:79 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:79 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:79 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:79 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:79 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 79
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:80 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:80 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:80 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:80 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:80 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:80 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:80 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:80 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:80 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:80 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:80 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 80
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:81 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:81 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:81 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:81 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:81 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:81 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:81 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:81 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:81 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:81 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:81 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 81
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:82 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:82 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:82 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:82 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:82 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:82 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:82 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:82 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:82 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:82 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:82 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 82
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:83 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:83 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:83 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:83 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:83 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:83 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:83 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:83 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:83 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:83 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:83 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 83
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:84 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:84 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:84 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:84 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:84 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:84 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:84 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:84 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:84 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:84 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:84 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 84
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:85 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:85 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:85 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:85 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:85 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:85 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:85 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:85 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:85 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:85 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:85 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 85
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:86 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:86 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:86 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:86 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:86 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:86 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:86 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:86 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:86 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:86 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:86 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 86
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:87 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:87 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:87 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:87 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:87 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:87 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:87 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:87 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:87 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:87 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:87 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 87
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:88 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:88 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:88 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:88 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:88 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:88 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:88 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:88 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:88 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:88 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:88 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 88
+Time: 00:00.18 (Saving: 00:00.02)
+
+Fra:89 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:89 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:89 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:89 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:89 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:89 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:89 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:89 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:89 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:89 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:89 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 89
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:90 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:90 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:90 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:90 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:90 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:90 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:90 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:90 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:90 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:90 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:90 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 90
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:91 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:91 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:91 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:91 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:91 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:91 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:91 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:91 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:91 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:91 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:91 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 91
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:92 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:92 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:92 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:92 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:92 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:92 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:92 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:92 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:92 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:92 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:92 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 92
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:93 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:93 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:93 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:93 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:93 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:93 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:93 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:93 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:93 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:93 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:93 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 93
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:94 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:94 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:94 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:94 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:94 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:94 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:94 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:94 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:94 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:94 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:94 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 94
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:95 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:95 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:95 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:95 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:95 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:95 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:95 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:95 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:95 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:95 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:95 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 95
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:96 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:96 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:96 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:96 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:96 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:96 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:96 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:96 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:96 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:96 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:96 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 96
+Time: 00:00.20 (Saving: 00:00.02)
+
+Fra:97 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:97 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:97 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:97 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:97 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:97 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:97 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:97 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:97 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:97 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:97 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 97
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:98 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:98 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:98 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:98 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:98 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:98 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:98 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:98 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:98 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:98 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:98 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 98
+Time: 00:00.20 (Saving: 00:00.01)
+
+Fra:99 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:99 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:99 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:99 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:99 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:99 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:99 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:99 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:99 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:99 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:99 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 99
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:100 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:100 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:100 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:100 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:100 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:100 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:100 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:100 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:100 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:100 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:100 Mem:43.79M (Peak 47.30M) | Time:00:00.05 | Rendering 16 / 16 samples
+Append frame 100
+Time: 00:00.25 (Saving: 00:00.03)
+
+Fra:101 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:101 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:101 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:101 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:101 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:101 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:101 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:101 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:101 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:101 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:101 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 101
+Time: 00:00.22 (Saving: 00:00.01)
+
+Fra:102 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:102 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:102 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:102 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:102 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:102 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:102 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:102 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:102 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:102 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:102 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 102
+Time: 00:00.24 (Saving: 00:00.03)
+
+Fra:103 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:103 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:103 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:103 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:103 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:103 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:103 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:103 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:103 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:103 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:103 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 103
+Time: 00:00.25 (Saving: 00:00.04)
+
+Fra:104 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:104 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:104 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:104 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:104 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:104 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:104 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:104 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:104 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Syncing Human.rig.001
+Fra:104 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:104 Mem:43.79M (Peak 47.30M) | Time:00:00.05 | Rendering 16 / 16 samples
+Append frame 104
+Time: 00:00.28 (Saving: 00:00.03)
+
+Fra:105 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:105 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:105 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:105 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:105 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:105 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:105 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:105 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:105 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:105 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:105 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 105
+Time: 00:00.23 (Saving: 00:00.01)
+
+Fra:106 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:106 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:106 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:106 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:106 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:106 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:106 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:106 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:106 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:106 Mem:46.44M (Peak 47.30M) | Time:00:00.03 | Rendering 1 / 16 samples
+Fra:106 Mem:43.79M (Peak 47.30M) | Time:00:00.03 | Rendering 16 / 16 samples
+Append frame 106
+Time: 00:00.19 (Saving: 00:00.01)
+
+Fra:107 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:107 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:107 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:107 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:107 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:107 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:107 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:107 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:107 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:107 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:107 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 107
+Time: 00:00.11 (Saving: 00:00.01)
+
+Fra:108 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:108 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:108 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:108 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:108 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:108 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:108 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:108 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:108 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:108 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:108 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 108
+Time: 00:00.11 (Saving: 00:00.01)
+
+Fra:109 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:109 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:109 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:109 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:109 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:109 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:109 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:109 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:109 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:109 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:109 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 109
+Time: 00:00.13 (Saving: 00:00.02)
+
+Fra:110 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:110 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:110 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:110 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:110 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:110 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:110 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:110 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:110 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:110 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:110 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 110
+Time: 00:00.16 (Saving: 00:00.02)
+
+Fra:111 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:111 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:111 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:111 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:111 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:111 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:111 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:111 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:111 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:111 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:111 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 111
+Time: 00:00.19 (Saving: 00:00.02)
+
+Fra:112 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:112 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:112 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:112 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:112 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:112 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:112 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:112 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:112 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:112 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:112 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 112
+Time: 00:00.18 (Saving: 00:00.03)
+
+Fra:113 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:113 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:113 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:113 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:113 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:113 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:113 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:113 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:113 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:113 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:113 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 113
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:114 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:114 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:114 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:114 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:114 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:114 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:114 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:114 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:114 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:114 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:114 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 114
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:115 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:115 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:115 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:115 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:115 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:115 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:115 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:115 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:115 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:115 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:115 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 115
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:116 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:116 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:116 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:116 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:116 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:116 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:116 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:116 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:116 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:116 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:116 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 116
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:117 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:117 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:117 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:117 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:117 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:117 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:117 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:117 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:117 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:117 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:117 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 117
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:118 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:118 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:118 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:118 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:118 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:118 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:118 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:118 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:118 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:118 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:118 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 118
+Time: 00:00.17 (Saving: 00:00.01)
+
+Fra:119 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:119 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:119 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:119 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:119 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:119 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:119 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:119 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:119 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:119 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:119 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 119
+Time: 00:00.17 (Saving: 00:00.02)
+
+Fra:120 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:120 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:120 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:120 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:120 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:120 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:120 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:120 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:120 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:120 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:120 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 120
+Time: 00:00.17 (Saving: 00:00.02)
+
+Fra:121 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:121 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:121 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:121 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:121 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:121 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:121 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:121 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:121 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:121 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:121 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 121
+Time: 00:00.17 (Saving: 00:00.02)
+
+Fra:122 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:122 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:122 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:122 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:122 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:122 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:122 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:122 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:122 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:122 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:122 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 122
+Time: 00:00.17 (Saving: 00:00.02)
+
+Fra:123 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:123 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:123 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:123 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:123 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:123 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:123 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:123 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:123 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:123 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:123 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 123
+Time: 00:00.20 (Saving: 00:00.02)
+
+Fra:124 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:124 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:124 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:124 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:124 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:124 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:124 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:124 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:124 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:124 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:124 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 124
+Time: 00:00.18 (Saving: 00:00.01)
+
+Fra:125 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Camera
+Fra:125 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Sun
+Fra:125 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area
+Fra:125 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Area.001
+Fra:125 Mem:42.95M (Peak 47.30M) | Time:00:00.01 | Syncing Plane
+Fra:125 Mem:42.96M (Peak 47.30M) | Time:00:00.01 | Syncing Human
+Fra:125 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:125 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:125 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:125 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:125 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 125
+Time: 00:00.14 (Saving: 00:00.02)
+
+Fra:126 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Camera
+Fra:126 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Sun
+Fra:126 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area
+Fra:126 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Area.001
+Fra:126 Mem:42.95M (Peak 47.30M) | Time:00:00.02 | Syncing Plane
+Fra:126 Mem:42.96M (Peak 47.30M) | Time:00:00.02 | Syncing Human
+Fra:126 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig
+Fra:126 Mem:44.70M (Peak 47.30M) | Time:00:00.02 | Syncing Human.001
+Fra:126 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Syncing Human.rig.001
+Fra:126 Mem:46.44M (Peak 47.30M) | Time:00:00.02 | Rendering 1 / 16 samples
+Fra:126 Mem:43.79M (Peak 47.30M) | Time:00:00.02 | Rendering 16 / 16 samples
+Append frame 126
+Time: 00:00.15 (Saving: 00:00.01)
+
+Fra:127 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:127 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:127 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:127 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:127 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:127 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:127 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:127 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:127 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:127 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:127 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 127
+Time: 00:00.08 (Saving: 00:00.01)
+
+Fra:128 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:128 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:128 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:128 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:128 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:128 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:128 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:128 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:128 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:128 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:128 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 128
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:129 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:129 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:129 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:129 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:129 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:129 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:129 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:129 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:129 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:129 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:129 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 129
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:130 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:130 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:130 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:130 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:130 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:130 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:130 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:130 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:130 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:130 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:130 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 130
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:131 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:131 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:131 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:131 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:131 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:131 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:131 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:131 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:131 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:131 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:131 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 131
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:132 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:132 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:132 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:132 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:132 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:132 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:132 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:132 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:132 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:132 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:132 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 132
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:133 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:133 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:133 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:133 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:133 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:133 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:133 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:133 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:133 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:133 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:133 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 133
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:134 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:134 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:134 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:134 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:134 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:134 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:134 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:134 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:134 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:134 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:134 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 134
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:135 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:135 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:135 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:135 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:135 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:135 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:135 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:135 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:135 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:135 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:135 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 135
+Time: 00:00.07 (Saving: 00:00.00)
+
+Fra:136 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:136 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:136 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:136 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:136 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:136 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:136 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:136 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:136 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:136 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:136 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 136
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:137 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:137 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:137 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:137 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:137 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:137 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:137 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:137 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:137 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:137 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:137 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 137
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:138 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:138 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:138 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:138 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:138 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:138 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:138 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:138 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:138 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:138 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:138 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 138
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:139 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:139 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:139 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:139 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:139 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:139 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:139 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:139 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:139 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:139 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:139 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 139
+Time: 00:00.07 (Saving: 00:00.00)
+
+Fra:140 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:140 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:140 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:140 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:140 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:140 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:140 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:140 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:140 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:140 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:140 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 140
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:141 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:141 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:141 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:141 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:141 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:141 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:141 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:141 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:141 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:141 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:141 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 141
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:142 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:142 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:142 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:142 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:142 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:142 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:142 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.rig
+Fra:142 Mem:44.70M (Peak 47.30M) | Time:00:00.00 | Syncing Human.001
+Fra:142 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:142 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:142 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 142
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:143 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:143 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:143 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:143 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:143 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:143 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:143 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:143 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:143 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:143 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:143 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 143
+Time: 00:00.07 (Saving: 00:00.01)
+
+Fra:144 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Camera
+Fra:144 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Sun
+Fra:144 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area
+Fra:144 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Area.001
+Fra:144 Mem:42.95M (Peak 47.30M) | Time:00:00.00 | Syncing Plane
+Fra:144 Mem:42.96M (Peak 47.30M) | Time:00:00.00 | Syncing Human
+Fra:144 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig
+Fra:144 Mem:44.70M (Peak 47.30M) | Time:00:00.01 | Syncing Human.001
+Fra:144 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Syncing Human.rig.001
+Fra:144 Mem:46.44M (Peak 47.30M) | Time:00:00.01 | Rendering 1 / 16 samples
+Fra:144 Mem:43.79M (Peak 47.30M) | Time:00:00.01 | Rendering 16 / 16 samples
+Append frame 144
+Time: 00:00.07 (Saving: 00:00.01)
+
+AST error parsing bl_info for: '/home/vuos/.config/blender/4.0/scripts/addons/mpfb/__init__.py'
+char A: verts=19158 bones=163
+char B: verts=19158 bones=163
+Info: Saved "trackR3.blend"
+
+TRACK-R3 TIMINGS  model=0.0s rig=0.0s anim=0.6s render=26.4s total=27.0s
+TRACK-R3 DONE: /home/vuos/code/p4/e051-blender-duel/trackR3_blendergen/output/trackR3.mp4
+
+Blender quit
