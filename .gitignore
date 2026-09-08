@@ -77,3 +77,16 @@ e045-gmgn-clone/browser-setup/stealth-profile/
 e045-gmgn-clone/browser-setup/stealth-ext/
 e045-gmgn-clone/browser-setup/*.png
 e045-gmgn-clone/browser-setup/*.pid
+
+# e054 money-agent: embedded standalone repos (own remotes / shared clones)
+e054-money-agent/turso/
+e054-money-agent/work-farm/
+e054-money-agent/work-pr2/
+# e054 runtime scratch: sweeps, bug artifacts, results, farm slots
+e054-money-agent/farm/
+e054-money-agent/bugs/
+e054-money-agent/results/
+e054-money-agent/triage/
+e054-money-agent/workers/
+e054-money-agent/w0/
+e054-money-agent/jobs/
