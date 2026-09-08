@@ -1,4 +1,19 @@
 {
-  "last_day": "2026-09-06",
-  "pending": []
+  "last_day": "2026-09-07",
+  "pending": [
+    {
+      "coin": "HYPE",
+      "entry_day": "2026-09-07",
+      "exit_day": "2026-09-12",
+      "trigger": "T2_lowvol",
+      "entry_close": 85.176
+    },
+    {
+      "coin": "AAVE",
+      "entry_day": "2026-09-07",
+      "exit_day": "2026-09-12",
+      "trigger": "T2_lowvol",
+      "entry_close": 132.25
+    }
+  ]
 }
