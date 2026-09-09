@@ -1010,3 +1010,12 @@ rule untouched — read path only. +31 lines, one hunk.
   cazar; la web del marketplace puede estar obsoleta. Costo de la lección: ~10h
   de hunt dirigido. El pipeline (farm, triage, CI-loop) es agnóstico del bounty
   y se reutiliza para cualquier repo con desafíos vivos.
+
+### Respuesta publicada (Sep 9, ~02:40 UTC) — decisión por defecto ante indecisión del usuario
+
+- Respuestas amables en #8812 y #8819: gracias por aclarar, los fixes valen por sí
+  solos como bug fixes (merge o cierre, ambos OK), y oferta abierta de extender
+  suites DST como follow-up sin bounty. Sin compromisos, puerta abierta.
+- Farm round 3 detenida; watchtower v3 + ci-watch siguen (costo ~cero).
+- Pivote/cierre de e054: PENDIENTE de decisión del usuario. Mientras tanto todo
+  queda en piloto automático y nada nuevo se lanza.
