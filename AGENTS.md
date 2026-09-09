@@ -50,6 +50,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e054-money-agent/](e054-money-agent/) — agent earns real money: Turso $1k DST bug bounty hunt (limbo_sim + Whopper sweeps; PR #8812 open; PLAYBOOK.md = efficiency loop)
 - [e055-agent-bounty-marketplace/](e055-agent-bounty-marketplace/) — web app idea: run the e054 bounty-hunting pipeline as a product (registered, not built)
 - [e052-pairforge/](e052-pairforge/) — PairForge: white-label memecoin launchpad paired with any trading strategy (perps/AMM/vaults), EVM+Solana, admin console, buyback/burn token, AI copilots, e2e-only (private repo `g8d3/pairforge`, ignored here)
+- [e056-agent-capacity/](e056-agent-capacity/) — tokens-first operating plan: capital frame (25/75), AI×crypto×games business stack, agent capacity priorities (tokens, browser access, cloud, payments, orchestration)
 
 ## Language
 
