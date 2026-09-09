@@ -1019,3 +1019,18 @@ rule untouched — read path only. +31 lines, one hunk.
 - Farm round 3 detenida; watchtower v3 + ci-watch siguen (costo ~cero).
 - Pivote/cierre de e054: PENDIENTE de decisión del usuario. Mientras tanto todo
   queda en piloto automático y nada nuevo se lanza.
+
+## Escaneo de pivote (Sep 9): el mercado público de bounties está seco/contaminado
+
+- algora.io/tursodatabase/turso → 404 (el programa salió de la plataforma).
+- Labels de bounty en GitHub (language:rust, state:open): 106 hits, pero ~todos
+  son farms de agentes (NSPG13/agent-bounties, bounty-plaza, universal_bounty_fleet,
+  claude-bounties: micro-bounties $1-6 USDC auto-sembradas, issues "QUARANTINED —
+  DO NOT CLAIM"). No hay pagadores reales detrás.
+- Orgs Algora serias (tailcall etc.): páginas 404 o sin programa activo verificable
+  sin cuenta en console.algora.io.
+- CONCLUSIÓN: un pivote a "otros bounties OSS" replicaría el error del bounty
+  fantasma en otra plataforma. Rutas reales: (a) nicho pagador distinto
+  (security contests: Code4rena/Sherlock/ImmuneFi — otra especialidad, alto listón),
+  (b) productizar el pipeline de caza (idea e055), (c) reputación pura.
+- Mientras se decide: watchtower + ci-watch en piloto automático, nada nuevo se lanza.
