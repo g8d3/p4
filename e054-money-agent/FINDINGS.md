@@ -996,3 +996,17 @@ rule untouched — read path only. +31 lines, one hunk.
   release.yml changes) → fork remote switched to SSH, pushed fine. Lesson for
   PLAYBOOK: rebase-on-fresh-main branches need SSH or a workflow-scoped token.
 - watchtower v3 now tracks #8812, #8819, #8844 (state/review/comment alerts).
+
+## ⚠️ BOUNTY INVALIDADO (Sep 9, 01:55 UTC) — LeMikaelF respondió ambos PRs
+
+- El challenge Algora $1k DST **ya no está activo**: turso lo canceló hace meses y
+  Algora nunca lo bajó de la web. Cazamos un bounty fantasma.
+- Además, ninguno de los 2 PRs habría sido elegible: el objetivo era *extender las
+  suites DST* (infra de testing que cace bugs nuevos), no arreglar bugs.
+- Los PRs #8812/#8819 siguen abiertos como contribuciones puras (bug fixes);
+  #8844 (MVCC) no recibió el comentario.
+- Primer contacto humano en 24h: el mantenedor responde en minutos. Trust gate abierto.
+- LECCIÓN DE PLAYBOOK: verificar vigencia del bounty con el mantenedor ANTES de
+  cazar; la web del marketplace puede estar obsoleta. Costo de la lección: ~10h
+  de hunt dirigido. El pipeline (farm, triage, CI-loop) es agnóstico del bounty
+  y se reutiliza para cualquier repo con desafíos vivos.
