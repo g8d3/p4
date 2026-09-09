@@ -50,4 +50,5 @@ Honeypot alert: GitHub search surfaces dozens of fake "bounty" repos aimed at ag
   Shipped: verification comment on #8197 + **PR #8844** (Fixes #8197, maintainer-edits on, AI disclosed).
 - Upstream `main` +22 commits: none touch pager/wal/btree → PRs #8812/#8819 still valid.
 - watchtower v3: watches ALL THREE PRs (#8812, #8819, #8844).
+- ci-watch v1: failing checks on any fleet PR → ntfy push + agent wake via sessiond prompt injection. No more user-relayed CI alerts.
 - Farm round 3: 36 jobs, seeds 40M–60M, `-t 300..600`, 6 slots, per round-2 recipe.

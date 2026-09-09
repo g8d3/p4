@@ -80,3 +80,20 @@ Distilled from this session's data (round 1: 63 sweeps, 1 bounty PR merged-candi
   them as false positives. Keep only confirmed-bug DBs.
 - **CI status mapping in watchtower**: mergeStateStatus UNKNOWN/UNSTABLE right
   after push = checks still running; only CLEAN/PENDING-with-reviews matters.
+
+## Round-3 additions II (Sep 8, tarde)
+
+- **Clíppy gap**: validar SIEMPRE con `cargo clippy -p turso_core --all-targets
+  -- -D warnings`. Con `--lib` el módulo `cfg(test)` no compila y un `#[must_use]`
+  sin consumir en un test pasa local y revienta en CI (costó 1 re-push del PR #8844).
+- **Roturas de main upstream se heredan**: si todos los jobs de un PR mueren en
+  segundos, mirar primero `git fetch origin main` + `cargo metadata --locked` y el
+  CI del SHA de main antes de culpar al diff. (Dos veces en un día: lock rancio
+  del merge de benchmarks y clippy de archivos upstream.)
+- **ci-watch.sh** (v1): poll de `gh pr checks` para los PRs de la flota cada 5 min.
+  Fallo nuevo → (1) push ntfy al teléfono, (2) wake del agente vía sessiond:
+  `POST http://localhost/sessions/<session-id>/prompt` con body JSON
+  `{"cwd": "...", "text": "..."}` (unix socket $HOME/.pi-web/sessiond.sock).
+  El mensaje llega a la sesión en cola y el agente responde sin que el usuario
+  haga de intermediario. Estado por PR en /tmp/ci-watch-<PR>.fails; recovery
+  avisado cuando vuelve a verde.
