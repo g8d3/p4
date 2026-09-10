@@ -945,3 +945,24 @@ Lesson: for "what's my X account status" questions, grep locally installed tooli
 Also: keep answers to simple status questions short — a table plus one command, no process narrative.
 
 Follow-up (same day): fresh agent ignored trail.md and still burned 87.8k tokens / 8 calls re-discovering the endpoint (found it via 9router's hardcoded list). AGENTS.md hints only work if agents choose to read them — promoted the answer to a skill: `.agents/skills/zai-usage/`, which is auto-surfaced in every agent's system prompt. Measured via `~/.pi/agent/sessions/*/*.jsonl` usage fields (the z.ai hourly usage API lags too much for per-agent measurement).
+
+## 2026-09-09 — e057 launchpad platform tokens (stats study)
+
+Buying-the-launchpads research: e057-launchpad-tokens (`bin/fetch.py` → data/, `bin/report.py` → output/report.md + 3 charts).
+
+- **CoinGecko public tier**: `days=max` now → HTTP 401 error 10012 (365-day cap); `interval=daily` is paid-only (omit, `days=365` returns daily). `/coins/markets` silently drops invalid ids. ~1 call/20 s keeps you under 429.
+- **DefiLlama**: `fees.llama.fi` is dead (no DNS records at all). Summary endpoint moved → `api.llama.fi/summary/fees/{slug}?dataType=dailyFees` (`/summary/{slug}` = 404). Chart timestamps are **seconds** (CoinGecko uses ms — normalize before diffing).
+- **Slug traps**: real boop.fun token = CoinGecko `boop-4` (Solana `boopkp…`), NOT `boop-2` (old unrelated "Boop", ATH 2024). LetsBonk fees = slug `bonk.fun-launchpad`; Raydium launchpad = `launchlab`; pump.fun AMM = `pumpswap`.
+- Not listed anywhere reliable: BOOT (boot.fun), BEL (belive.fun), LAUNCHCOIN (delisted, fees ~$216/mo). four.meme has real fees ($15k/24h) but no token.
+
+### e057 follow-up (same day): full table + static site
+
+- Extended metrics: DefiLlama `/protocols` (TVL=liquidity), `/overview/dexs` + `/overview/aggregators` (platform volume), CoinGecko `community_data` (null on free tier — removed from tables), pump.fun `frontend-api-v3` `/coins?sort=created_timestamp` (newest-mint frontier; created_timestamp is **ms**).
+- Free social metrics are all dead (CG paid-only, X syndication down, Reddit JSON blocked) → documented gap, reserved columns for paid API when monetizing.
+- Deliverable pivoted to publishable static site: `output/site/index.html` (dark, mobile-first, sortable tables via 6-line vanilla JS, self-contained) — regenerate daily via cron `25 10 * * * bin/refresh.sh`. HTML f-strings: keep JS/CSS braces in separate plain-string constants, never inline in f-strings.
+
+### e057 published: g8d3/launchpad-radar (public, GitHub Pages)
+
+- Repo = `e057-launchpad-tokens/repo/` (ignored by p4 git): site at ROOT (index.html + charts/), fetch.py/report.py/config.json, single workflow `.github/workflows/deploy.yml` = daily 15:35 UTC refresh + Pages deploy (upload-pages-artifact → deploy-pages, build_type=workflow).
+- CI pitfalls hit: scripts at repo ROOT (no bin/); path resolution made dual-layout (config.json next to script OR one level up). `find data -touch -2days` in CI because git checkout refreshes mtimes → max_age cache would never refetch. CG public API works from runners at 20s/call pacing (10min run).
+- Live: https://g8d3.github.io/launchpad-radar/ · workstation cron (10:25 local) keeps the LAN copy independent.

@@ -1,0 +1,120 @@
+{
+  "comment": "Launchpad PLATFORM tokens. cg_id = CoinGecko id (null = not listed / fees-only). llama = explicit DefiLlama fees slugs (validated against /overview/fees). group = memecoin-launchpad | classic-launchpad | platform-aligned",
+  "coins": [
+    {
+      "symbol": "PUMP",
+      "name": "Pump.fun (+ PumpSwap)",
+      "cg_id": "pump-fun",
+      "llama": [
+        "pump.fun",
+        "pumpswap"
+      ],
+      "group": "memecoin-launchpad"
+    },
+    {
+      "symbol": "VIRTUAL",
+      "name": "Virtuals Protocol",
+      "cg_id": "virtual-protocol",
+      "llama": [
+        "virtuals-protocol"
+      ],
+      "group": "memecoin-launchpad"
+    },
+    {
+      "symbol": "CLANKER",
+      "name": "Clanker (tokenbot)",
+      "cg_id": "tokenbot-2",
+      "llama": [
+        "clanker"
+      ],
+      "group": "memecoin-launchpad"
+    },
+    {
+      "symbol": "BOOP",
+      "name": "boop.fun",
+      "cg_id": "boop-4",
+      "llama": [
+        "boop.fun"
+      ],
+      "group": "memecoin-launchpad"
+    },
+    {
+      "symbol": "RAY",
+      "name": "Raydium (LaunchLab+AMM)",
+      "cg_id": "raydium",
+      "llama": [
+        "launchlab",
+        "raydium-amm"
+      ],
+      "group": "platform-aligned"
+    },
+    {
+      "symbol": "JUP",
+      "name": "Jupiter (agg+perp+studio)",
+      "cg_id": "jupiter-exchange-solana",
+      "llama": [
+        "jupiter-aggregator",
+        "jupiter-perpetual-exchange",
+        "jupiter-studio"
+      ],
+      "group": "platform-aligned"
+    },
+    {
+      "symbol": "BONK",
+      "name": "Bonk (bonk.fun/LetsBonk)",
+      "cg_id": "bonk",
+      "llama": [
+        "bonk.fun-launchpad"
+      ],
+      "group": "platform-aligned"
+    },
+    {
+      "symbol": "DAO",
+      "name": "DAO Maker",
+      "cg_id": "dao-maker",
+      "llama": [],
+      "group": "classic-launchpad"
+    },
+    {
+      "symbol": "POLS",
+      "name": "Polkastarter",
+      "cg_id": "polkastarter",
+      "llama": [],
+      "group": "classic-launchpad"
+    },
+    {
+      "symbol": "SFUND",
+      "name": "Seedify",
+      "cg_id": "seedify-fund",
+      "llama": [],
+      "group": "classic-launchpad"
+    },
+    {
+      "symbol": "BNB",
+      "name": "BNB (Binance Launchpad)",
+      "cg_id": "binancecoin",
+      "llama": [],
+      "group": "classic-launchpad"
+    },
+    {
+      "symbol": "LAUNCHCOIN",
+      "name": "Believe app (no mcap hist)",
+      "cg_id": null,
+      "llama": [
+        "launch-coin-on-believe"
+      ],
+      "group": "memecoin-launchpad",
+      "fees_only": true
+    },
+    {
+      "symbol": "FOUR.MEME",
+      "name": "four.meme (no token yet)",
+      "cg_id": null,
+      "llama": [
+        "four.meme"
+      ],
+      "group": "memecoin-launchpad",
+      "fees_only": true
+    }
+  ]
+}
