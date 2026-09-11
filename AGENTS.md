@@ -6,6 +6,8 @@ For conventions, environment, and shared principles, see [e000-fundamentals/AGEN
 
 Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamentals/trail.md).
 
+Cron jobs that write into this repo (what to track, what to ignore): [e000-fundamentals/CRON.md](e000-fundamentals/CRON.md).
+
 ## Experiments
 
 - [e000-fundamentals/](e000-fundamentals/) — shared conventions
@@ -51,6 +53,7 @@ Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamen
 - [e055-agent-bounty-marketplace/](e055-agent-bounty-marketplace/) — web app idea: run the e054 bounty-hunting pipeline as a product (registered, not built)
 - [e052-pairforge/](e052-pairforge/) — PairForge: white-label memecoin launchpad paired with any trading strategy (perps/AMM/vaults), EVM+Solana, admin console, buyback/burn token, AI copilots, e2e-only (private repo `g8d3/pairforge`, ignored here)
 - [e056-agent-capacity/](e056-agent-capacity/) — tokens-first operating plan: capital frame (25/75), AI×crypto×games business stack, agent capacity priorities (tokens, browser access, cloud, payments, orchestration)
+- [e057-launchpad-trading/](e057-launchpad-trading/) — trading + LP strategies for launchpad tokens (base rates, levels, bid-side LP math) and the analytics product built on them
 
 ## Language
 

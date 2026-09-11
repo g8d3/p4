@@ -24,11 +24,15 @@ upstream/
 certs/
 
 # generated pipeline outputs (except experiments whose deliverables live in output/)
+# Anything a cron writes into this repo is classified in e000-fundamentals/CRON.md:
+# tracked+auto-pushed (the negations below) or ignored (everything else).
 output/
 !e040-traderdev-local-replica/output/
 !e025-hyperliquid-candle-tails/ag-01-data/output/
 !e043-state-grid/ag-01/output/
 !e022-nautilus-sr-grid/ag-01/output/
+# e057 cron output stays ignored on purpose (report/charts/site regenerate daily;
+# the published copy is the nested repo/, deployed by its own CI)
 
 # render/frame pipeline dirs
 snapshots/

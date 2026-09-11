@@ -111,6 +111,13 @@ decision as a reply under the entry), and only then proceed. The orchestrator
 receives NO live pushes — the inbox is its queue, and the phone push exists
 so the user knows to send the orchestrator there.
 
+### Scheduled jobs
+
+Anything a cron writes into this repo is registered in
+[CRON.md](CRON.md) — the tracked-and-auto-pushed paths, the ignored ones, and
+the rules for adding a new scheduled writer. Read it before adding a cron
+entry or an experiment that regenerates files on a timer.
+
 ### The completion watcher (structural, no memory needed)
 
 `e000-fundamentals/bin/watch-agents.sh` is a persistent daemon (started at

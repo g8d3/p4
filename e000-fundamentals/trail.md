@@ -966,3 +966,40 @@ Buying-the-launchpads research: e057-launchpad-tokens (`bin/fetch.py` → data/,
 - Repo = `e057-launchpad-tokens/repo/` (ignored by p4 git): site at ROOT (index.html + charts/), fetch.py/report.py/config.json, single workflow `.github/workflows/deploy.yml` = daily 15:35 UTC refresh + Pages deploy (upload-pages-artifact → deploy-pages, build_type=workflow).
 - CI pitfalls hit: scripts at repo ROOT (no bin/); path resolution made dual-layout (config.json next to script OR one level up). `find data -touch -2days` in CI because git checkout refreshes mtimes → max_age cache would never refetch. CG public API works from runners at 20s/call pacing (10min run).
 - Live: https://g8d3.github.io/launchpad-radar/ · workstation cron (10:25 local) keeps the LAN copy independent.
+
+## 2026-09-10 — Disk full (99%) + cron/git audit
+
+Root FS at 99% (4.2 GB free). Freed 25 GB → 87%, 30 GB free, no code touched:
+
+- `e054-money-agent/turso/target` (18 GB cargo artifact) — **the** culprit; `rm -rf` (regenerable).
+- `~/.cache/solana/v1.4*` + `v1.5*` (old toolchains, kept `v2.3.3`).
+- 5 disabled snap revisions + `snap set system refresh.retain=2` (5.4 → 3.6 GB in `/var/lib/snapd`).
+- `journalctl --vacuum-size=100M` (178 MB), `pnpm store prune` (14 MB).
+
+Still heavy and untouched (not safe to delete blindly): `~/.local/share/opencode/opencode.db`
+5.2 GB (stale since Aug 26 — opencode isn't in use anymore; `~/.local/share/opencode/snapshot` 2.4 GB),
+`~/.rustup` 4.9 GB, `.git` of p4 itself 1 GB, `e040-…/output` 26 MB of committed CSVs.
+
+### Cron / git-ignore audit
+
+Only 5 crontab entries touch p4 (p3's `s46/scheduler` entries stay in p3;
+`filex-validate.timer` stays in `~/code/filex`). No cron misbehaved — but the
+policy lived only in prose scattered across experiment `AGENTS.md` files, and
+the p4 root `.gitignore` relies on global patterns (`output/`, `*.log`) plus
+negations whose behavior is subtle: **re-including a directory does not
+re-include files matched by a later global pattern** (`*.log`), which is
+exactly why e025/e040 upload state+CSV but not their logs.
+
+Changes:
+- **`e000-fundamentals/CRON.md`** (new) — registry of every cron that writes
+  into p4 (schedule, script, paths written, tracked vs ignored, auto-push),
+  plus the rule for adding a new scheduler and the `git add -A -- <exp>/output/`
+  caveat (the wrappers stage the whole directory, so raw downloads must go to
+  an ignored `data/`, not `output/`). Linked from root `AGENTS.md` and
+  `e000-fundamentals/AGENTS.md`.
+- **`e057-launchpad-tokens/.gitignore`** (new) — its ignore policy was real but
+  implicit (only global `output/`/`*.log` covered it, with no local record);
+  now explicit and immune to root-level edits.
+- `e057-launchpad-trading/` (docs only: STRATEGY/APP/README + `research/`) was
+  untracked and **is** tracked work → committed. Note the split: `-tokens` is
+  the cron/tooling, `-trading` the strategy docs.
