@@ -53,6 +53,7 @@ function esc(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 }
 async function load() {
+  if (window._wrap === undefined) window._wrap = true;
   const d = await (await fetch('/api/board')).json();
   window._paused = d.paused || [];
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
@@ -124,12 +125,5 @@ async function savePrefs(btn) {
   else { btn.textContent = 'save'; s.textContent = 'failed'; }
   setTimeout(() => { s.textContent = ''; }, 2500);
 }
-for (const id of ['pf', 'pw', 'bw', 'uw', 'cw', 'rp']) {
-  document.getElementById(id).addEventListener('input', () => paintTune(readTune()));
-}
-for (const id of ['wr', 'pd']) {
-  document.getElementById(id).addEventListener('change', () => paintTune(readTune()));
-}
 load();
-applyPrefs();
 setInterval(load, 60000);
