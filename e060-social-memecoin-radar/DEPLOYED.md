@@ -25,3 +25,18 @@ Free rotation radar is servable over the tailnet to the owner;
 boost-ranked tokens with volume/price-change render in dashboard + JSON.
 Next rung (TESTED): paper-track rotation calls for 2 weeks (kill rule:
 no signal → kill) with monitored errors, not silent.
+
+## Rung-3 evidence (TESTED, 2026-09-12 leg)
+
+- e2e: `tests/e2e.sh` asserts dashboard 200 + title, `/health`
+  {ok:true,track:e060}, `/api/rotation` shape (rows>0, stale/ts
+  present, row keys symbol/chain/rotation_score). PASS 2026-09-12
+  (15 rows, stale=false via tailnet :8323).
+- Paper-tracked: `bin/paper_snapshot.py` appends daily top-10 call
+  record to `paper/calls.jsonl` (date/ts/stale/score/boost/vol/chg);
+  first snapshot 2026-09-12 logged. Daily cron `17 7 * * *`
+  feeds the 2-week kill-rule evaluation.
+- Monitored, not silent: `bin/healthcheck.sh` every 15 min
+  (`*/15` cron) curls /health; silent on 200, on failure logs +
+  `ops.py beat e060 blocked`. Verified healthy (exit 0).
+- Spend: T0 free (local curls + free Dexscreener reads only).
