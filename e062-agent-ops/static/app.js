@@ -2,8 +2,18 @@
 // All DOM writes happen inside functions. No top-level data references.
 function tok() {
   let t = localStorage.bt;
-  if (!t) { t = prompt('board token — shown once in owner chat:'); if (t) localStorage.bt = t; }
-  return t || '';
+  if (!t) { t = prompt('board token — shown once in owner chat:'); if (t) localStorage.bt = t.trim(); }
+  return (localStorage.bt || '').trim();
+}
+function setToken(btn) {
+  const cur = localStorage.bt || '';
+  const t = prompt('board token:', cur ? '••••' + cur.slice(-4) : '');
+  if (t === null) return;
+  const v = (t || '').trim();
+  const old = 'token';
+  if (!v) { delete localStorage.bt; btn.textContent = 'cleared'; }
+  else { localStorage.bt = v; btn.textContent = 'saved ✓'; }
+  setTimeout(() => { btn.textContent = old; }, 2500);
 }
 async function ctl(path, body, btn, okmsg) {
   const t = tok();
