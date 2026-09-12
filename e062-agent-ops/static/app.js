@@ -70,7 +70,7 @@ async function load() {
     '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
   document.getElementById('e').innerHTML = d.events.map(e => '<tr><td>' + esc(e.ts) + '</td><td>' + esc(e.track) + '</td><td>' + esc(e.kind) + '</td><td>' + esc(e.summary) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('tr').innerHTML = d.trials.map(t =>
-    '<div>' + esc(t.name) + ' renews ' + esc(t.renews) + ' $' + t.usd + ' ' + esc(t.note) + '</div>').join('') || '<div>none</div>';
+    '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<div>' + esc(x) + '</div>').join('');
   document.getElementById('dir').textContent = d.directives || '';
 }

@@ -18,7 +18,7 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <table><thead><tr><th>track</th><th>rung</th><th>plan</th><th>beat</th><th>url</th><th>control</th></tr></thead><tbody id=t></tbody></table></div>
 
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
-<div id=inbox class=feed></div>
+<table><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table>
 <div style="margin-top:6px"><select id=nt></select>
 <input id=nm placeholder="what's missing / decided…" style="width:50%">
 <button onclick="sendNoteSel(this)">send</button> <span id=nconf></span></div></div>
@@ -30,7 +30,8 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div class=zone><h3>4 · activity — how plans changed</h3><table><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div>
 
 <div class=zone><h3>5 · trials / ideas / orders</h3>
-<div id=tr class=feed></div><div id=i class=feed style="margin-top:6px"></div>
+<table><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table>
+<table style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table>
 <pre id=dir style="font-size:11px;white-space:pre-wrap"></pre></div>
 
 <script src=/app.js></script>
