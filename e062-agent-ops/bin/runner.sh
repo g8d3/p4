@@ -80,17 +80,21 @@ try:
             try:
                 if int(os.path.getmtime(p)) < start - 60: continue
             except Exception: continue
+            # usage.totalTokens is cumulative per message -> max per file
+            mtok, mcost = 0, 0.0
             try:
                 with open(p) as f:
                     for line in f:
                         try: o = json.loads(line)
                         except Exception: continue
-                        u = (o.get('usage') or {}) if isinstance(o, dict) else {}
-                        if 'totalTokens' in u:
-                            tok += int(u.get('totalTokens') or 0)
-                            try: cost += float((u.get('cost') or {}).get('total') or 0)
-                            except Exception: pass
+                        if not isinstance(o, dict): continue
+                        for u in (o.get('usage'), (o.get('message') or {}).get('usage') if isinstance(o.get('message'), dict) else None):
+                            if isinstance(u, dict) and 'totalTokens' in u:
+                                mtok = max(mtok, int(u.get('totalTokens') or 0))
+                                try: mcost = max(mcost, float((u.get('cost') or {}).get('total') or 0))
+                                except Exception: pass
             except Exception: pass
+            tok += mtok; cost += mcost
 except Exception: pass
 if rid:
     c = sqlite3.connect(db)

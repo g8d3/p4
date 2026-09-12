@@ -27,6 +27,10 @@ rw = d.get("runway", {})
 for k in ("spent", "earned", "left"):
     assert k in rw, f"runway missing {k}"
 assert isinstance(d.get("runs"), list), "runs missing"
+for r in d["runs"]:
+    for k in ("tokens", "tok_s", "cost_usd", "started"):
+        assert k in r, f"runs row missing {k}"
+print(f"runs ok: {len(d['runs'])} rows with tokens/tok-s/cost")
 assert isinstance(d.get("runner"), dict) and "running" in d["runner"], "runner missing"
 assert isinstance(d.get("leg_tail"), str), "leg_tail missing"
 print(f"board ok: {len(tracks)} tracks, runway left=${rw['left']:.2f}")
