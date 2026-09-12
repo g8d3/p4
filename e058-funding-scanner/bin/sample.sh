@@ -3,6 +3,10 @@
 # Cron: */15 * * * * .../bin/sample.sh >> .../sample.log 2>&1
 # Writes: data/ (ignored cache), data.db (ignored, rebuilt by loader).
 set -uo pipefail
+export PATH="/home/vuos/.nvm/versions/node/v24.16.0/bin:/usr/local/bin:/usr/bin:/bin"
+# cron has no session env: load ntfy topic saved from owner shell (600-file, never logged)
+[ -s "$HOME/.config/e058/ntfy_topic" ] && export NTFY_TOPIC="$(cat "$HOME/.config/e058/ntfy_topic")"
+[ -s "$HOME/.config/e058/ntfy_server" ] && export NTFY_SERVER="$(cat "$HOME/.config/e058/ntfy_server")"
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 export E058_DATA="$DIR/data"
 export E058_DB="$DIR/data.db"

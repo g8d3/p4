@@ -27,9 +27,8 @@ def get_rows(endpoint, db_path, threshold_bps, last_n):
 def send(token, chat, text):
     req = urllib.request.Request(
         f'https://api.telegram.org/bot{token}/sendMessage',
-        data=urllib.parse.urlencode({'chat_id': chat, 'text': text}).encode(),
-        timeout=30)
-    with urllib.request.urlopen(req) as r:
+        data=urllib.parse.urlencode({'chat_id': chat, 'text': text}).encode())
+    with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r).get('ok', False)
 
 def send_ntfy(text, title='e058 funding'):
@@ -40,8 +39,8 @@ def send_ntfy(text, title='e058 funding'):
     server = os.environ.get('NTFY_SERVER', 'https://ntfy.sh').rstrip('/')
     req = urllib.request.Request(f'{server}/{topic}', data=text.encode(),
         headers={'Title': title, 'Priority': 'default', 'Tags': 'chart_with_upwards_trend'},
-        method='POST', timeout=30)
-    with urllib.request.urlopen(req) as r:
+        method='POST')
+    with urllib.request.urlopen(req, timeout=30) as r:
         return r.status in (200, 202)
 
 def main():
