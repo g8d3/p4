@@ -120,20 +120,72 @@ async function load() {
       ? ' <button onclick="decide(' + p.id + ',\'approved\',this)">approve</button>' +
         '<button onclick="decide(' + p.id + ',\'rejected\',this)">reject</button>' : '') +
     '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
-  document.getElementById('e').innerHTML = d.events.map(e => '<tr><td>' + esc(e.ts) + '</td><td>' + esc(e.track) + '</td><td>' + esc(e.kind) + '</td><td>' + esc(e.summary) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
-  document.getElementById('runs').innerHTML = (d.runs || []).map(r =>
-    '<tr><td>#' + r.id + '</td><td>' + esc(r.started) + '</td><td>' + esc(worked(r)) + '</td><td>' +
-    (r.tokens == null ? '—' : Number(r.tokens).toLocaleString()) + '</td><td>' +
-    (r.tok_s == null ? '—' : r.tok_s) + '</td><td>' +
-    (r.cost_usd == null ? '—' : Number(r.cost_usd).toFixed(4)) + '</td><td>' +
-    esc(r.scope) + '</td><td>' + esc(r.trigger) + '</td><td>' + esc(r.status) + '</td><td>' + esc(r.summary) + '</td></tr>'
-  ).join('') || '<tr><td colspan=10>no runs yet — press run fleet now</td></tr>';
+  window._act = buildActivity(d);
+  document.getElementById('runs').innerHTML = window._act.map((a, i) =>
+    '<tr class=act onclick="toggleAct(' + i + ',this)"><td>' + esc(a.time) + '</td><td>' + esc(a.track) + '</td><td>' + esc(a.kind) + '</td><td>' + esc(a.detail) + '</td></tr>'
+  ).join('') || '<tr><td colspan=4>no activity yet — press run fleet now</td></tr>';
   const leg = document.getElementById('leg');
   if (leg) leg.textContent = d.leg_tail || 'no log yet';
   document.getElementById('tr').innerHTML = d.trials.map(t =>
     '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
+}
+function actTs(s) {
+  try { return new Date(String(s).replace(' ', 'T') + 'Z').getTime(); } catch (e) { return 0; }
+}
+function runLine(r) {
+  const bits = ['run #' + r.id + ' ' + (r.status || '')];
+  const w = worked(r);
+  if (w !== '—') bits.push(w);
+  if (r.tokens != null) bits.push(Number(r.tokens).toLocaleString() + ' tok');
+  if (r.tok_s != null) bits.push(r.tok_s + ' tok/s');
+  if (r.cost_usd != null) bits.push('$' + Number(r.cost_usd).toFixed(4));
+  if (r.scope) bits.push(r.scope + '/' + (r.trigger || ''));
+  if (r.summary) bits.push(r.summary);
+  return bits.join(' · ');
+}
+function buildActivity(d) {
+  const act = [];
+  (d.runs || []).forEach(r => act.push({t: actTs(r.started), time: r.started || '',
+    track: r.scope === 'fleet' ? 'runner' : (r.scope || ''), kind: 'run #' + r.id + ' · ' + (r.status || ''),
+    detail: runLine(r), full: runLine(r)}));
+  (d.events || []).forEach(e => act.push({t: actTs(e.ts), time: e.ts, track: e.track,
+    kind: e.kind, detail: e.summary, full: e.summary}));
+  act.sort((a, b) => b.t - a.t);
+  return act.slice(0, 40);
+}
+function toggleAct(i, tr) {
+  const a = (window._act || [])[i];
+  if (!a) return;
+  const next = tr.nextSibling;
+  if (next && next.className === 'adetail') { next.remove(); return; }
+  tr.parentNode.querySelectorAll('tr.adetail').forEach(x => x.remove());
+  const dtr = document.createElement('tr');
+  dtr.className = 'adetail';
+  const safeTrack = String(a.track || 'e062').replace(/[^a-z0-9]/gi, '') || 'e062';
+  dtr.innerHTML = '<td colspan=4><div>' + esc(a.full || a.detail) + '</div>' +
+    '<div class=act-reply><input id="a-' + i + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…">' +
+    '<button onclick="sendActNote(\'' + safeTrack + '\',' + i + ',this)">send</button></div>' +
+    '<div style="font-size:11px;opacity:.6">reply lands as a note to that track — the next leg reads it.</div></td>';
+  tr.after(dtr);
+  const inp = document.getElementById('a-' + i);
+  if (inp) inp.onclick = e => e.stopPropagation();
+}
+async function sendActNote(track, i, btn) {
+  const inp = document.getElementById('a-' + i);
+  const v = inp ? inp.value.trim() : '';
+  if (!v) return;
+  const okTracks = {e058: 1, e059: 1, e060: 1, e061: 1, e062: 1, runner: 1};
+  const t = okTracks[track] ? track : 'e062';
+  const old = btn.textContent;
+  btn.textContent = '…';
+  const r = await (await fetch('/api/note', {method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({track: t, message: v})})).json();
+  if (r.ok) { btn.textContent = 'sent ✓'; load(); }
+  else { btn.textContent = 'error'; alert(r.error || 'failed'); }
+  setTimeout(() => { btn.textContent = old; }, 2500);
 }
 function worked(r) {
   try {

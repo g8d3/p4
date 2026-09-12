@@ -7,8 +7,11 @@ body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-
 table{border-collapse:collapse;width:100%;table-layout:fixed}td,th{border:1px solid var(--bd);padding:var(--rowpad) 6px;text-align:left;font-size:var(--fs);overflow:hidden}
 body.compact td,body.compact th{padding-top:1px;padding-bottom:1px}
 th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}
-#tbl-steer,#tbl-runs,#tbl-events{min-width:640px}
-#tbl-runs td:last-child,#tbl-events td:last-child{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+#tbl-steer{min-width:640px}#tbl-activity{min-width:640px}
+#tbl-activity td{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+tr.act{cursor:pointer}tr.act:hover td{background:var(--hd)}
+tr.adetail td{background:var(--hd);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+.act-reply{display:flex;gap:6px;margin-top:6px}.act-reply input{flex:1}
 #tbl-help{width:100%}#tbl-help th:first-child{width:108px}#tbl-help th:nth-child(2){width:64px}
 #tbl-help td:last-child{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
 #tbl-approve{width:100%}#tbl-approve th:first-child{width:34px}#tbl-approve th:nth-child(2){width:70px}#tbl-approve th:nth-child(3){width:52px}
@@ -20,13 +23,10 @@ pre#leg{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-wi
 @media (max-width:700px){
 :root{--planw:200px;--beatw:170px;--urlw:130px}
 .hctl{float:none;display:block;margin-top:6px}
-#tbl-steer{min-width:860px}#tbl-runs{min-width:940px}#tbl-events{min-width:720px}
+#tbl-steer{min-width:860px}#tbl-activity{min-width:760px}
 .twrap{max-height:62vh;overflow-y:auto}
 .twrap thead th{position:sticky;top:0;z-index:3}
-th.r-run{min-width:40px}th.r-started{min-width:104px}th.r-worked{min-width:64px}
-th.r-tokens{min-width:84px}th.r-toks{min-width:64px}th.r-cost{min-width:64px}
-th.r-scope{min-width:64px}th.r-trig{min-width:70px}th.r-status{min-width:80px}
-th.r-result{min-width:220px}
+th.a-time{min-width:104px}th.a-track{min-width:64px}th.a-kind{min-width:120px}th.a-detail{min-width:220px}
 }
 td.wrap{white-space:normal;word-break:break-word}td.nowrap{white-space:nowrap;text-overflow:ellipsis}
 input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:2px 6px}
@@ -47,14 +47,13 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div class=zone><h3>3 · approve — money gates + treasury</h3>
 <div id=w style="margin-bottom:6px"></div>
 <div class=twrap><table id=tbl-approve><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
-<div class=zone><h3>4 · activity</h3>
-<div style="font-size:12px;opacity:.7;margin-bottom:6px">agent work: when each run started, how long it worked, tokens used, tokens/sec, cost. usage is harvested from the leg's pi session file at leg end.</div>
-<div class=twrap><table id=tbl-runs><thead><tr><th class=r-run>run</th><th class=r-started>started</th><th class=r-worked>worked</th><th class=r-tokens>tokens</th><th class=r-toks>tok/s</th><th class=r-cost>cost $</th><th class=r-scope>scope</th><th class=r-trig>trigger</th><th class=r-status>status</th><th class=r-result>result</th></tr></thead><tbody id=runs></tbody></table></div>
-<div style="font-size:12px;opacity:.7;margin:8px 0 4px">events (detail)</div><div class=twrap><table id=tbl-events><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div>
+<div class=zone><h3>4 · activity — one table (click a row to talk to the agent)</h3>
+<div style="font-size:12px;opacity:.7;margin-bottom:6px">runs + events merged, newest first. usage is harvested from the leg's pi session file at leg end. click any row for detail + reply box (reply lands as a note to that track).</div>
+<div class=twrap><table id=tbl-activity><thead><tr><th class=a-time>time</th><th class=a-track>track</th><th class=a-kind>kind</th><th class=a-detail>detail</th></tr></thead><tbody id=runs></tbody></table></div>
 <details style="font-size:12px;margin-top:6px"><summary>full flow — last leg log (complete leg output)</summary><pre id=leg></pre></details></div>
 <div class=zone><h3>5 · trials / ideas / orders</h3>
 <div class=twrap><table id=tbl-trials><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
 <div class=twrap><table id=tbl-ideas style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
 <div class=twrap><table id=tbl-dir style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
-<script src=/app.js?v=12></script>
+<script src=/app.js?v=13></script>
 </body></html>
