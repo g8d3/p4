@@ -103,11 +103,11 @@ PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport con
 <title>e060 rotation radar (free)</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:2em auto;padding:0 1em}html.dark body{background:#111418;color:#e6e6e6}html.dark td,html.dark th{border-color:#444}html.dark a{color:#8ab4ff}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:4px 8px;font-size:13px;text-align:right}td:nth-child(1),th:nth-child(1),td:nth-child(2),th:nth-child(2){text-align:left}.badge{background:#dfd;padding:2px 8px;border-radius:8px}.stale{background:#fdd}</style></head>
 <body><h1>e060 rotation radar <span class=badge>DEXSCREENER FREE</span> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h1>
 <script>if(localStorage.e60==='d')document.documentElement.classList.add('dark')</script>
-<p>Owner decision: cheapest (free). No paid social pipe. Rotation proxy = boost attention x volume. <a href=/api/rotation>JSON</a> <a href=/health>health</a></p>
+<p>Owner decision: cheapest (free). No paid social pipe. Rotation proxy = boost attention x volume. Per-row <b>trades</b> opens the pair's Dexscreener trades tab (top traders, free, no key). <a href=/api/rotation>JSON</a> <a href=/health>health</a></p>
 <div id=s>loading…</div><table id=t></table>
 <script>fetch('/api/rotation').then(r=>r.json()).then(d=>{document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+new Date(d.ts*1000).toLocaleString()+' — '+d.rows.length+' tokens';
-let h='<tr><th>token</th><th>chain</th><th>score</th><th>boost$</th><th>vol24h</th><th>chg24h%</th><th>link</th></tr>';
-for(const r of d.rows){h+=`<tr><td>${r.symbol}</td><td>${r.chain}</td><td>${r.rotation_score}</td><td>${r.boost_usd}</td><td>${Math.round(r.vol_h24)}</td><td>${r.priceChange_h24??'—'}</td><td><a href="${r.dsUrl}">ds</a></td></tr>`}
+let h='<tr><th>token</th><th>chain</th><th>score</th><th>boost$</th><th>vol24h</th><th>chg24h%</th><th>link</th><th>traders</th></tr>';
+for(const r of d.rows){h+=`<tr><td>${r.symbol}</td><td>${r.chain}</td><td>${r.rotation_score}</td><td>${r.boost_usd}</td><td>${Math.round(r.vol_h24)}</td><td>${r.priceChange_h24??'—'}</td><td><a href="${r.dsUrl}">ds</a></td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h})</script></body></html>"""
 
 class H(BaseHTTPRequestHandler):
