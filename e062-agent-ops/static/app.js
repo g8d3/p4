@@ -64,7 +64,7 @@ async function load() {
     '<td class="' + (t.beat && t.beat.status === 'blocked' ? 'blk' : '') + ' c-beat ' + (window._wrap ? 'wrap' : 'nowrap') + '">' +
       esc(t.beat ? t.beat.ts + ' ' + t.beat.status + ' ' + t.beat.note : '') + '</td>' +
     '<td class="c-url ' + (window._wrap ? 'wrap' : 'nowrap') + '">' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.url) + '</a>' : '') + '</td>' +
-    '<td class="rowbtns c-ctrl"><input id="n-' + t.track + '" placeholder="note…" style=width:90px>' +
+    '<td class="rowbtns c-ctrl"><input id="n-' + t.track + '" placeholder="note…" >' + '<br>' +
     '<button onclick="sendNote(\'' + t.track + '\',this)">send</button> ' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' +
     ((d.paused || []).includes(t.track) ? 'resume' : 'pause') + '</button></td></tr>'
