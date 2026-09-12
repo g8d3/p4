@@ -7,6 +7,13 @@ fail() { echo "E2E FAIL: $1"; exit 1; }
 code=$(timeout 15 curl -s -m 10 -o /tmp/e59_root.html -w "%{http_code}" "$BASE/") || fail "root unreachable"
 [ "$code" = "200" ] || fail "root http=$code"
 grep -q "crypto multiples" /tmp/e59_root.html || fail "page missing title"
+# mobile hard rules: thumb-zone bar, inner-scroll wrap, 1-line caveats
+ grep -q 'id="thumbbar"' /tmp/e59_root.html || fail "no bottom thumbbar"
+ grep -q 'position:fixed' /tmp/e59_root.html || fail "thumbbar not fixed-bottom"
+ grep -q 'class="twrap"' /tmp/e59_root.html || fail "table not in inner-scroll wrap"
+ grep -q '<details>' /tmp/e59_root.html || fail "caveats not collapsed to 1-line summary"
+ grep -q 'vs cat' /tmp/e59_root.html || fail "missing vs-category signal"
+ grep -q 'cheapbtn' /tmp/e59_root.html || fail "missing cheap-first toggle"
 
 timeout 15 curl -s -m 15 "$BASE/multiples.json" -o /tmp/e59_mult.json || fail "multiples.json unreachable"
 python3 - <<'EOF' || fail "multiples shape bad"
