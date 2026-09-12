@@ -68,6 +68,8 @@ function esc(s) {
 async function load() {
   if (window._wrap === undefined) window._wrap = true;
   const drafts = saveDrafts();
+  const ae = document.activeElement;
+  const typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && ae.value;
   const d = await (await fetch('/api/board')).json();
   window._paused = d.paused || [];
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
@@ -85,6 +87,7 @@ async function load() {
     '<button onclick="runScope(\'' + t.track + '\',this)" title="start a runner leg focused on this track">run</button></td></tr>'
   ).join('');
   restoreDrafts(drafts);
+  if (typing) { const el = document.getElementById(ae.id); if (el) { el.focus(); if (el.setSelectionRange && el.value) try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
   const rs = document.getElementById('runstate');
   if (rs) rs.textContent = d.runner && d.runner.running ? '● leg running…' : '';
   document.getElementById('inbox').innerHTML = d.notes.map(n =>
@@ -102,8 +105,11 @@ async function load() {
   document.getElementById('e').innerHTML = d.events.map(e => '<tr><td>' + esc(e.ts) + '</td><td>' + esc(e.track) + '</td><td>' + esc(e.kind) + '</td><td>' + esc(e.summary) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('runs').innerHTML = (d.runs || []).map(r =>
     '<tr><td>#' + r.id + '</td><td>' + esc(r.started) + '</td><td>' + esc(worked(r)) + '</td><td>' +
+    (r.tokens == null ? '—' : Number(r.tokens).toLocaleString()) + '</td><td>' +
+    (r.tok_s == null ? '—' : r.tok_s) + '</td><td>' +
+    (r.cost_usd == null ? '—' : Number(r.cost_usd).toFixed(4)) + '</td><td>' +
     esc(r.scope) + '</td><td>' + esc(r.trigger) + '</td><td>' + esc(r.status) + '</td><td>' + esc(r.summary) + '</td></tr>'
-  ).join('') || '<tr><td colspan=7>no runs yet — press run fleet now</td></tr>';
+  ).join('') || '<tr><td colspan=10>no runs yet — press run fleet now</td></tr>';
   const leg = document.getElementById('leg');
   if (leg) leg.textContent = d.leg_tail || 'no log yet';
   document.getElementById('tr').innerHTML = d.trials.map(t =>

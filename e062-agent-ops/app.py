@@ -42,6 +42,9 @@ RUN_LOCK = '/tmp/e062-runner.lock'
 def ensure_runs():
     c = sqlite3.connect(DB)
     c.execute("CREATE TABLE IF NOT EXISTS runs(id INTEGER PRIMARY KEY AUTOINCREMENT, started_ts INTEGER, ended_ts INTEGER, scope TEXT, trigger TEXT, status TEXT DEFAULT 'running', summary TEXT DEFAULT '')")
+    for col in ('tokens INTEGER', 'cost_usd REAL'):
+        try: c.execute(f'ALTER TABLE runs ADD COLUMN {col}')
+        except Exception: pass
     c.commit(); c.close()
 
 ensure_runs()
@@ -115,11 +118,21 @@ def board():
     notes = [{'ts': ts, 'track': t, 'message': m} for ts, t, m in c2.execute(
         "SELECT datetime(ts,'unixepoch'), track, message FROM notes WHERE done=0 ORDER BY ts DESC LIMIT 20")]
     try:
-        runs = [{'id': i, 'started': st, 'ended': en, 'scope': sc, 'trigger': tr, 'status': s, 'summary': su}
-                for i, st, en, sc, tr, s, su in c2.execute(
-                    "SELECT id, datetime(started_ts,'unixepoch'), " +
-                    "CASE WHEN ended_ts IS NULL THEN NULL ELSE datetime(ended_ts,'unixepoch') END, " +
-                    "scope, trigger, status, summary FROM runs ORDER BY id DESC LIMIT 10")]
+        runs = []
+        for i, st, en, sc, tr, s, su, tok, co in c2.execute(
+                "SELECT id, datetime(started_ts,'unixepoch'), " +
+                "CASE WHEN ended_ts IS NULL THEN NULL ELSE datetime(ended_ts,'unixepoch') END, " +
+                "scope, trigger, status, summary, tokens, cost_usd FROM runs ORDER BY id DESC LIMIT 10"):
+            tok_s = None
+            try:
+                if tok and st:
+                    t0 = time.mktime(time.strptime(st, '%Y-%m-%d %H:%M:%S'))
+                    t1 = time.mktime(time.strptime(en, '%Y-%m-%d %H:%M:%S')) if en else time.time()
+                    tok_s = round(tok / max(1, t1 - t0), 1)
+            except Exception: pass
+            runs.append({'id': i, 'started': st, 'ended': en, 'scope': sc,
+                         'trigger': tr, 'status': s, 'summary': su,
+                         'tokens': tok, 'tok_s': tok_s, 'cost_usd': co})
     except Exception: runs = []
     c2.close()
     directives = '\n'.join(read(os.path.join(BASE, 'DIRECTIVES.md'), 40))

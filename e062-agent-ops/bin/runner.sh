@@ -15,6 +15,7 @@ DB=/home/vuos/code/p4/e062-agent-ops/ops.db
 FOCUS="${E062_FOCUS:-fleet}"
 TRIGGER="${E062_TRIGGER:-cron}"
 RUN_ID="${E062_RUN_ID:-}"
+RUN_START=$(date +%s)
 echo "== runner leg $(date -u +%Y%m%dT%H%M%SZ) trigger=$TRIGGER focus=$FOCUS =="
 if [ -n "$RUN_ID" ]; then
   python3 - "$DB" "$RUN_ID" "$FOCUS" "$TRIGGER" <<'EOF' 2>/dev/null || true
@@ -59,15 +60,46 @@ $PENDING
 $STALE" 2>&1 | tail -60
 echo "== leg end rc=$? =="
 python3 $OPS beat runner ok "leg done" >/dev/null 2>&1 || true
-python3 - "$DB" "${RUN_ID:-0}" "$FOCUS" "$TRIGGER" <<'EOF' 2>/dev/null || true
-import sqlite3, sys, time
+# Harvest leg usage (tokens/tok-s/cost) from this leg's pi session file.
+# pi logs per-message usage {totalTokens, cost.total} into
+# ~/.pi/agent/sessions/<cwd-slug>/*.jsonl — honest numbers, no estimates.
+python3 - "$DB" "${RUN_ID:-0}" "$FOCUS" "$TRIGGER" "$RUN_START" <<'EOF' 2>/dev/null || true
+import json, os, sqlite3, sys, time
 db = sys.argv[1]
 try: rid = int(sys.argv[2])
 except Exception: rid = 0
-focus, trig = sys.argv[3], sys.argv[4]
+focus, trig, start = sys.argv[3], sys.argv[4], int(sys.argv[5])
+now = int(time.time())
+tok, cost = 0, 0.0
+try:
+    root = os.path.expanduser('~/.pi/agent/sessions')
+    for dp, _, fns in os.walk(root):
+        for fn in fns:
+            if not fn.endswith('.jsonl'): continue
+            p = os.path.join(dp, fn)
+            try:
+                if int(os.path.getmtime(p)) < start - 60: continue
+            except Exception: continue
+            try:
+                with open(p) as f:
+                    for line in f:
+                        try: o = json.loads(line)
+                        except Exception: continue
+                        u = (o.get('usage') or {}) if isinstance(o, dict) else {}
+                        if 'totalTokens' in u:
+                            tok += int(u.get('totalTokens') or 0)
+                            try: cost += float((u.get('cost') or {}).get('total') or 0)
+                            except Exception: pass
+            except Exception: pass
+except Exception: pass
 if rid:
     c = sqlite3.connect(db)
-    c.execute("UPDATE runs SET ended_ts=?, status='done', summary=? WHERE id=?",
-              (int(time.time()), f'leg done (focus={focus} trigger={trig})', rid))
+    try: c.execute('ALTER TABLE runs ADD COLUMN tokens INTEGER')
+    except Exception: pass
+    try: c.execute('ALTER TABLE runs ADD COLUMN cost_usd REAL')
+    except Exception: pass
+    c.execute("UPDATE runs SET ended_ts=?, status='done', summary=?, tokens=?, cost_usd=? WHERE id=?",
+              (now, f'leg done (focus={focus} trigger={trig})', tok or None, round(cost, 6) or None, rid))
     c.commit(); c.close()
+print(f'run {rid} tokens={tok} cost=${cost:.4f}')
 EOF

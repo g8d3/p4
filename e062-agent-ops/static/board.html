@@ -28,10 +28,10 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div id=w style="margin-bottom:6px"></div>
 <div class=twrap><table><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
 <div class=zone><h3>4 · activity</h3>
-<div style="font-size:12px;opacity:.7;margin-bottom:6px">agent work: when each run started, how long it worked, scope, trigger. tokens + tokens/s: pending — runner legs don't report usage yet, durations live now.</div>
-<div class=twrap><table><thead><tr><th>run</th><th>started</th><th>worked</th><th>scope</th><th>trigger</th><th>status</th><th>result</th></tr></thead><tbody id=runs></tbody></table></div>
-<div style="font-size:12px;opacity:.7;margin:8px 0 4px">events (detail — how plans changed)</div><div class=twrap><table><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div>
-<details style="font-size:12px;margin-top:6px"><summary>last leg log (full flow)</summary><pre id=leg></pre></details></div>
+<div style="font-size:12px;opacity:.7;margin-bottom:6px">agent work: when each run started, how long it worked, tokens used, tokens/sec, cost. usage is harvested from the leg's pi session file at leg end.</div>
+<div class=twrap><table><thead><tr><th>run</th><th>started</th><th>worked</th><th>tokens</th><th>tok/s</th><th>cost $</th><th>scope</th><th>trigger</th><th>status</th><th>result</th></tr></thead><tbody id=runs></tbody></table></div>
+<div style="font-size:12px;opacity:.7;margin:8px 0 4px">events (detail)</div><div class=twrap><table><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div>
+<details style="font-size:12px;margin-top:6px"><summary>full flow — last leg log (complete leg output)</summary><pre id=leg></pre></details></div>
 <div class=zone><h3>5 · trials / ideas / orders</h3>
 <div class=twrap><table><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
 <div class=twrap><table style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>

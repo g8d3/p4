@@ -43,6 +43,10 @@ def beat(track, status='ok', note=''):
     print(f'heartbeat {track}={status}')
 
 def promote(track, rung, url='', note=''):
+    # Swap guard (2026-09-12: a leg passed e059's note as url and url as note,
+    # breaking the board link). The URL is whichever arg looks like one.
+    if url and not url.startswith(('http://', 'https://')) and note.startswith(('http://', 'https://')):
+        url, note = note, url
     c = db()
     cur = c.execute('SELECT rung FROM rungs WHERE track=?', (track,)).fetchone()
     if cur and cur[0] >= rung:
