@@ -176,11 +176,13 @@ load();setInterval(load,60000);</script></body></html>"""
 
 @app.get('/app.js')
 def appjs():
-    return FileResponse(os.path.join(BASE, 'static', 'app.js'), media_type='application/javascript')
+    return FileResponse(os.path.join(BASE, 'static', 'app.js'), media_type='application/javascript',
+                         headers={'Cache-Control': 'no-store'})
 
 @app.get('/', response_class=HTMLResponse)
 def index():
-    return open(os.path.join(BASE, 'static', 'board.html')).read()
+    return HTMLResponse(open(os.path.join(BASE, 'static', 'board.html')).read(),
+                         headers={'Cache-Control': 'no-store'})
 
 if __name__ == '__main__':
     import uvicorn
