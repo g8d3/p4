@@ -47,7 +47,7 @@ async function load() {
   document.getElementById('t').innerHTML = d.tracks.map(t =>
     '<tr><td><b>' + esc(t.track) + '</b> ' + esc(t.label) + '</td>' +
     '<td class=' + (t.rung > 0 ? 'r1' : 'r0') + '>' + t.rung + '</td>' +
-    '<td>' + esc(t.plan) + '</td>' +
+    '<td class=plan>' + esc(t.plan) + '</td>' +
     '<td class=' + (t.beat && t.beat.status === 'blocked' ? 'blk' : '') + '>' +
       esc(t.beat ? t.beat.ts + ' ' + t.beat.status + ' ' + t.beat.note : '') + '</td>' +
     '<td>' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.url) + '</a>' : '') + '</td>' +
