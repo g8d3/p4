@@ -19,9 +19,21 @@ async function ctl(path, body, btn, okmsg) {
   } catch (e) { btn.textContent = 'error'; alert(String(e)); }
   setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
 }
+async function openCtl(path, body, btn, okmsg) {
+  const old = btn.textContent;
+  btn.textContent = '…'; btn.disabled = true;
+  try {
+    const r = await (await fetch(path, {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)})).json();
+    if (r.ok) { btn.textContent = okmsg || 'done ✓'; load(); }
+    else { btn.textContent = 'error'; alert(r.error || 'failed'); }
+  } catch (e) { btn.textContent = 'error'; alert(String(e)); }
+  setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
+}
 function togPause(t, btn) {
   const paused = (window._paused || []).includes(t);
-  ctl(paused ? '/api/resume' : '/api/pause', {track: t}, btn, paused ? 'resumed ✓' : 'paused ✓');
+  openCtl(paused ? '/api/resume' : '/api/pause', {track: t}, btn, paused ? 'resumed ✓' : 'paused ✓');
 }
 function decide(id, v, btn) { ctl('/api/decide', {id: id, verdict: v}, btn, v + ' ✓'); }
 async function sendNote(t, btn) {
@@ -103,11 +115,9 @@ async function applyPrefs() {
   } catch (e) {}
 }
 async function savePrefs(btn) {
-  const t = tok();
-  if (!t) return;
   btn.textContent = '…';
   const r = await (await fetch('/api/prefs', {method: 'POST',
-    headers: {'Content-Type': 'application/json', 'X-Token': t},
+    headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(readTune())})).json();
   const s = document.getElementById('psaved');
   if (r.ok) { btn.textContent = 'save'; s.textContent = 'saved ✓'; }

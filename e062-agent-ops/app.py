@@ -98,8 +98,6 @@ def board():
 
 @app.post('/api/pause')
 async def api_pause(req: Request):
-    err = need_token(req)
-    if err: return {'ok': False, 'error': err}
     d = await req.json()
     track = (d.get('track') or '').strip()
     if track not in TRACKS: return {'ok': False, 'error': 'bad track'}
@@ -114,8 +112,6 @@ async def api_pause(req: Request):
 
 @app.post('/api/resume')
 async def api_resume(req: Request):
-    err = need_token(req)
-    if err: return {'ok': False, 'error': err}
     d = await req.json()
     track = (d.get('track') or '').strip()
     if track not in TRACKS: return {'ok': False, 'error': 'bad track'}
@@ -148,8 +144,6 @@ def api_prefs_get():
 
 @app.post('/api/prefs')
 async def api_prefs_set(req: Request):
-    err = need_token(req)
-    if err: return {'ok': False, 'error': err}
     d = await req.json()
     import sqlite3
     c = sqlite3.connect(DB)
