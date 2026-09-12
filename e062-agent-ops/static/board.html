@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>fleet board</title>
+<style>:root{--bg:#fff;--fg:#111;--bd:#ccc;--hd:#eee;--acc:#0b6}html.dark{--bg:#111418;--fg:#e6e6e6;--bd:#333;--hd:#1e2228}
+body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-size:14px}
+.zone{border:1px solid var(--bd);border-radius:8px;padding:8px;margin:10px 0}
+.zone>h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;opacity:.8}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:4px 6px;text-align:left;font-size:13px}
+th{background:var(--hd)}input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:2px 6px}
+button{cursor:pointer}button:disabled{opacity:.4}
+.r1{color:#3ddc84;font-weight:bold}.r0{color:#e0a63d}.blk{color:#e05555}.ok{color:#3ddc84}
+.feed{font-size:12px;max-height:220px;overflow:auto}.feed div{padding:2px 0;border-bottom:1px dotted var(--bd)}
+.rowbtns{white-space:nowrap}</style></head><body>
+<h2 style="margin:4px 0">fleet board <small id=ts></small>
+<button onclick="document.documentElement.classList.toggle('dark');localStorage.ft=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
+<script>if(localStorage.ft==='d')document.documentElement.classList.add('dark');</script>
+
+<div class=zone><h3>1 · steer — what works on what (pause/resume)</h3>
+<table><thead><tr><th>track</th><th>rung</th><th>plan</th><th>beat</th><th>url</th><th>control</th></tr></thead><tbody id=t></tbody></table></div>
+
+<div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
+<div id=inbox class=feed></div>
+<div style="margin-top:6px"><select id=nt></select>
+<input id=nm placeholder="what's missing / decided…" style="width:50%">
+<button onclick="sendNoteSel(this)">send</button> <span id=nconf></span></div></div>
+
+<div class=zone><h3>3 · approve — money gates + treasury</h3>
+<div id=w style="margin-bottom:6px"></div>
+<table><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div>
+
+<div class=zone><h3>4 · activity — how plans changed</h3><div id=e class=feed></div></div>
+
+<div class=zone><h3>5 · trials / ideas / orders</h3>
+<div id=tr class=feed></div><div id=i class=feed style="margin-top:6px"></div>
+<pre id=dir style="font-size:11px;white-space:pre-wrap"></pre></div>
+
+<script src=/app.js></script>
+</body></html>

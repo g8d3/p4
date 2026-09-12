@@ -4,6 +4,7 @@
 # Install (owner decision — burns quota 24/7 + may T1-spend):
 #   */30 * * * * /home/vuos/code/p4/e062-agent-ops/bin/runner.sh >> /home/vuos/code/p4/e062-agent-ops/runner.log 2>&1
 set -uo pipefail
+export PATH="/home/vuos/.nvm/versions/node/v24.16.0/bin:/usr/local/bin:/usr/bin:/bin"
 OPS=/home/vuos/code/p4/e062-agent-ops/bin/ops.py
 PROMPT=/home/vuos/code/p4/e062-agent-ops/RUNNER_PROMPT.md
 echo "== runner leg $(date -u +%Y%m%dT%H%M%SZ) =="

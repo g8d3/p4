@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS heartbeats(track TEXT PRIMARY KEY, ts INTEGER, status
 CREATE TABLE IF NOT EXISTS rungs(track TEXT PRIMARY KEY, rung INTEGER, ts INTEGER, url TEXT, note TEXT);
 CREATE TABLE IF NOT EXISTS ledger(ts INTEGER, track TEXT, kind TEXT, usd REAL, note TEXT);
 CREATE TABLE IF NOT EXISTS trials(name TEXT PRIMARY KEY, ts INTEGER, renews_ts INTEGER, cost_usd REAL, status TEXT DEFAULT 'active', note TEXT);
+CREATE TABLE IF NOT EXISTS paused(track TEXT PRIMARY KEY, ts INTEGER, reason TEXT);
+CREATE TABLE IF NOT EXISTS notes(ts INTEGER, track TEXT, message TEXT, done INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS proposals(id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, track TEXT, amount_usd REAL, action TEXT, reason TEXT, status TEXT DEFAULT 'pending', decided_ts INTEGER);
 """
 
@@ -125,6 +127,42 @@ def runway(budget=300.0):
         print(r)
     c.close()
 
+def note(track, message):
+    import time as t
+    c = db()
+    c.execute('INSERT INTO notes VALUES (?,?,?,0)', (int(t.time()), track, message))
+    c.commit(); c.close()
+    print(f'note -> {track}')
+
+def inbox(track=None, limit=10):
+    c = db()
+    q = 'SELECT datetime(ts,"unixepoch"), track, message, done FROM notes'
+    args = []
+    if track:
+        q += ' WHERE track=?'; args.append(track)
+    q += ' ORDER BY ts DESC LIMIT ?'; args.append(int(limit))
+    for r in c.execute(q, args): print(r)
+    c.close()
+
+def pause(track, reason='owner'):
+    import time as t
+    c = db()
+    c.execute('INSERT OR REPLACE INTO paused VALUES (?,?,?)', (track, int(t.time()), reason))
+    c.commit(); c.close()
+    print(f'paused {track}')
+
+def resume(track):
+    c = db()
+    c.execute('DELETE FROM paused WHERE track=?', (track,))
+    c.commit(); c.close()
+    print(f'resumed {track}')
+
+def paused_list():
+    c = db()
+    rows = c.execute('SELECT track FROM paused').fetchall()
+    c.close()
+    return [r[0] for r in rows]
+
 def stale(max_age_h=49):
     import time as t
     c = db()
@@ -146,6 +184,11 @@ def status():
     print('-- heartbeats --')
     for r in c.execute('SELECT track, datetime(ts,"unixepoch"), status, note FROM heartbeats'):
         print(r)
+    print('-- paused --')
+    print(paused_list())
+    print('-- inbox (owner -> project) --')
+    for r in c.execute("SELECT datetime(ts,'unixepoch'), track, message FROM notes WHERE done=0 ORDER BY ts DESC LIMIT 10"):
+        print(r)
     print('-- recent events --')
     for r in c.execute('SELECT datetime(ts,"unixepoch"), track, kind, summary FROM events ORDER BY ts DESC LIMIT 15'):
         print(r)
@@ -154,6 +197,10 @@ def status():
 CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
         'propose': lambda a: propose(*a), 'decide': lambda a: decide(*a),
         'trial': lambda a: trial(*a), 'trials': lambda a: trials(int(a[0]) if a else 7),
+        'note': lambda a: note(a[0], ' '.join(a[1:])),
+        'pause': lambda a: pause(*a),
+        'resume': lambda a: resume(a[0]),
+        'inbox': lambda a: inbox(*(a or [])),
         'spend': lambda a: spend(*a), 'earn': lambda a: earn(*a),
         'runway': lambda a: runway(float(a[0]) if a else 300.0),
         'proposals': lambda a: proposals(*a),
