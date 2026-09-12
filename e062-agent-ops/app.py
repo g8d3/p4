@@ -19,8 +19,13 @@ def get_prefs():
         rows = []
     c.close()
     d = {k: v for k, v in rows}
-    return {'font': int(d.get('font', 14)), 'planw': int(d.get('planw', 340)),
-            'density': d.get('density', 'comfortable')}
+    out = {'font': 14, 'planw': 340, 'beatw': 220, 'urlw': 200, 'ctrlw': 220,
+           'rowpad': 4, 'wrap': 1, 'density': 'comfortable'}
+    for k in out:
+        if k in d:
+            try: out[k] = int(d[k])
+            except Exception: out[k] = d[k] if k == 'density' else out[k]
+    return out
 
 def board_token():
     try: return open(os.path.expanduser('~/.config/e062/board_token')).read().strip()
@@ -149,13 +154,16 @@ async def api_prefs_set(req: Request):
     import sqlite3
     c = sqlite3.connect(DB)
     c.execute('CREATE TABLE IF NOT EXISTS prefs(key TEXT PRIMARY KEY, value TEXT)')
-    for k in ('font', 'planw', 'density'):
+    limits = {'font': (10, 22), 'planw': (120, 800), 'beatw': (80, 600),
+              'urlw': (80, 600), 'ctrlw': (120, 600), 'rowpad': (0, 14), 'wrap': (0, 1)}
+    for k in list(limits) + ['density']:
         if k in d:
             v = str(d[k])[:20]
-            if k in ('font', 'planw'):
-                try: v = str(max(10, min(int(v), 22 if k == 'font' else 800)))
+            if k == 'density':
+                if v not in ('compact', 'comfortable'): continue
+            else:
+                try: v = str(max(limits[k][0], min(int(v), limits[k][1])))
                 except Exception: continue
-            if k == 'density' and v not in ('compact', 'comfortable'): continue
             c.execute('INSERT OR REPLACE INTO prefs VALUES (?,?)', (k, v))
     c.commit(); c.close()
     return {'ok': True}

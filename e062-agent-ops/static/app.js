@@ -45,13 +45,13 @@ async function load() {
   window._paused = d.paused || [];
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
   document.getElementById('t').innerHTML = d.tracks.map(t =>
-    '<tr><td><b>' + esc(t.track) + '</b> ' + esc(t.label) + '</td>' +
-    '<td class=' + (t.rung > 0 ? 'r1' : 'r0') + '>' + t.rung + '</td>' +
-    '<td class=plan>' + esc(t.plan) + '</td>' +
-    '<td class=' + (t.beat && t.beat.status === 'blocked' ? 'blk' : '') + '>' +
+    '<tr><td class=c-track><b>' + esc(t.track) + '</b> ' + esc(t.label) + '</td>' +
+    '<td class=' + (t.rung > 0 ? 'r1' : 'r0') + ' c-rung>' + t.rung + '</td>' +
+    '<td class="c-plan ' + (window._wrap ? 'wrap' : 'nowrap') + '">' + esc(t.plan) + '</td>' +
+    '<td class="' + (t.beat && t.beat.status === 'blocked' ? 'blk' : '') + ' c-beat ' + (window._wrap ? 'wrap' : 'nowrap') + '">' +
       esc(t.beat ? t.beat.ts + ' ' + t.beat.status + ' ' + t.beat.note : '') + '</td>' +
-    '<td>' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.url) + '</a>' : '') + '</td>' +
-    '<td class=rowbtns><input id="n-' + t.track + '" placeholder="note…" style=width:90px>' +
+    '<td class="c-url ' + (window._wrap ? 'wrap' : 'nowrap') + '">' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.url) + '</a>' : '') + '</td>' +
+    '<td class="rowbtns c-ctrl"><input id="n-' + t.track + '" placeholder="note…" style=width:90px>' +
     '<button onclick="sendNote(\'' + t.track + '\',this)">send</button> ' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' +
     ((d.paused || []).includes(t.track) ? 'resume' : 'pause') + '</button></td></tr>'
@@ -74,29 +74,33 @@ async function load() {
   document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
 }
+function readTune() {
+  return {font: document.getElementById('pf').value, planw: document.getElementById('pw').value,
+    beatw: document.getElementById('bw').value, urlw: document.getElementById('uw').value,
+    ctrlw: document.getElementById('cw').value, rowpad: document.getElementById('rp').value,
+    wrap: document.getElementById('wr').value, density: document.getElementById('pd').value};
+}
+function paintTune(v) {
+  const r = document.documentElement.style;
+  r.setProperty('--fs', v.font + 'px');
+  r.setProperty('--planw', v.planw + 'px');
+  r.setProperty('--beatw', v.beatw + 'px');
+  r.setProperty('--urlw', v.urlw + 'px');
+  r.setProperty('--ctrlw', v.ctrlw + 'px');
+  r.setProperty('--rowpad', v.rowpad + 'px');
+  window._wrap = String(v.wrap) === '1';
+  document.body.classList.toggle('compact', v.density === 'compact');
+  for (const k of ['font', 'planw', 'beatw', 'urlw', 'ctrlw', 'rowpad', 'wrap', 'density']) {
+    const map = {font: 'pf', planw: 'pw', beatw: 'bw', urlw: 'uw', ctrlw: 'cw', rowpad: 'rp', wrap: 'wr', density: 'pd'};
+    const el = document.getElementById(map[k]);
+    if (el) el.value = v[k];
+  }
+}
 async function applyPrefs() {
   try {
     const d = await (await fetch('/api/prefs')).json();
-    const r = document.documentElement.style;
-    r.setProperty('--fs', d.prefs.font + 'px');
-    r.setProperty('--planw', d.prefs.planw + 'px');
-    document.body.classList.toggle('compact', d.prefs.density === 'compact');
-    document.getElementById('pf').value = d.prefs.font;
-    document.getElementById('pw').value = d.prefs.planw;
-    document.getElementById('pd').value = d.prefs.density;
-    showTuneVals();
+    paintTune(d.prefs);
   } catch (e) {}
-}
-function showTuneVals() {
-  document.getElementById('pfv').textContent = document.getElementById('pf').value + 'px';
-  document.getElementById('pwv').textContent = document.getElementById('pw').value + 'px';
-}
-function previewTune() {
-  const r = document.documentElement.style;
-  r.setProperty('--fs', document.getElementById('pf').value + 'px');
-  r.setProperty('--planw', document.getElementById('pw').value + 'px');
-  document.body.classList.toggle('compact', document.getElementById('pd').value === 'compact');
-  showTuneVals();
 }
 async function savePrefs(btn) {
   const t = tok();
@@ -104,17 +108,18 @@ async function savePrefs(btn) {
   btn.textContent = '…';
   const r = await (await fetch('/api/prefs', {method: 'POST',
     headers: {'Content-Type': 'application/json', 'X-Token': t},
-    body: JSON.stringify({font: document.getElementById('pf').value,
-      planw: document.getElementById('pw').value,
-      density: document.getElementById('pd').value})})).json();
+    body: JSON.stringify(readTune())})).json();
   const s = document.getElementById('psaved');
   if (r.ok) { btn.textContent = 'save'; s.textContent = 'saved ✓'; }
   else { btn.textContent = 'save'; s.textContent = 'failed'; }
   setTimeout(() => { s.textContent = ''; }, 2500);
 }
-document.getElementById('pf').addEventListener('input', previewTune);
-document.getElementById('pw').addEventListener('input', previewTune);
-document.getElementById('pd').addEventListener('change', previewTune);
+for (const id of ['pf', 'pw', 'bw', 'uw', 'cw', 'rp']) {
+  document.getElementById(id).addEventListener('input', () => paintTune(readTune()));
+}
+for (const id of ['wr', 'pd']) {
+  document.getElementById(id).addEventListener('change', () => paintTune(readTune()));
+}
 load();
 applyPrefs();
 setInterval(load, 60000);
