@@ -42,3 +42,16 @@ Prefer env-file/`pass` over inline secrets; keep the values out of the repo.
   `?threshold_bps=` (default 20 ≈ 219% APY) and `&last_n=` as history grows.
 - Identical spreads across snapshots (e.g. DEEP 81.04 ×3) smell like stale
   venue feeds — persistence ≠ executability; freshness badges still TODO.
+
+## 5. Scheduled digest (owner order 2026-09-12: fewer notifs)
+
+`report_config.json` (tracked) controls the schedule + contents:
+`report_hour_utc` (full digest hour, default 8), `threshold_bps`
+(default 50), `last_n` (4), `top_n` (10), `urgent_mult` (3).
+`alert.py` reads it every run (CLI flags override); outside the digest
+ Hour only survivors with spread >= threshold×urgent_mult notify;
+ everything else waits for the digest hour. `--force` sends the full
+digest now. Every sent alert is also POSTed to `/api/signals/log`, so
+the website **signal history** keeps everything (nothing lost).
+Configure from the website: scheduled-report box → save
+(POST `/api/report-config`, validated, fail-closed 400).

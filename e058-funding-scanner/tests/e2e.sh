@@ -37,4 +37,29 @@ EOF
 # fail-closed on secrets: served files must not contain keys/tokens
 grep -riE "sk-|api[_-]?key\s*[:=]\s*['\"][a-z0-9]{8}|-----BEGIN .*PRIVATE KEY" /tmp/e58_root.html /tmp/e58_table.json 2>/dev/null && fail "possible secret in served content"
 
+# report-config: GET returns schedule + thresholds; POST round-trips a valid patch
+timeout 15 curl -s -m 15 "$BASE/api/report-config" -o /tmp/e58_cfg.json || fail "api/report-config unreachable"
+python3 - <<'EOF' || fail "api/report-config shape bad"
+import json
+c = json.load(open("/tmp/e58_cfg.json"))
+for k in ("report_hour_utc", "threshold_bps", "last_n", "top_n", "urgent_mult"):
+    assert k in c, f"missing {k}"
+assert 0 <= c["report_hour_utc"] <= 23, "hour out of range"
+print(f"report-config ok: hour={c['report_hour_utc']} thr={c['threshold_bps']} top_n={c['top_n']}")
+EOF
+code=$(timeout 15 curl -s -m 15 -o /tmp/e58_cfg_post.json -w "%{http_code}" -X POST "$BASE/api/report-config" -H 'Content-Type: application/json' -d '{"top_n":10}') || fail "api/report-config POST unreachable"
+[ "$code" = "200" ] || fail "api/report-config POST http=$code"
+# invalid patch must fail closed (400, config unchanged)
+code=$(timeout 15 curl -s -m 15 -o /dev/null -w "%{http_code}" -X POST "$BASE/api/report-config" -H 'Content-Type: application/json' -d '{"report_hour_utc":99}') || fail "api/report-config bad-POST unreachable"
+[ "$code" = "400" ] || fail "api/report-config bad-POST http=$code (want 400)"
+
+# signals history endpoint (may be empty on fresh DB, must be well-shaped)
+timeout 15 curl -s -m 15 "$BASE/api/signals?limit=5" -o /tmp/e58_sig.json || fail "api/signals unreachable"
+python3 - <<'EOF' || fail "api/signals shape bad"
+import json
+d = json.load(open("/tmp/e58_sig.json"))
+assert isinstance(d.get("rows"), list), "rows not a list"
+print(f"signals ok: {d.get('count', 0)} logged")
+EOF
+
 echo "E2E PASS ($BASE)"

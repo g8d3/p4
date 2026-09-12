@@ -1,0 +1,7 @@
+{
+ "report_hour_utc": 8,
+ "threshold_bps": 50.0,
+ "last_n": 4,
+ "top_n": 10.0,
+ "urgent_mult": 3.0
+}

@@ -16,6 +16,6 @@ echo "== sample $(date -u +%Y%m%dT%H%M%SZ) =="
 "$DIR/bin/capture.sh" cron
 python3 "$DIR/bin/load.py"
 # conclusions-only alert (deduped inside alert.py) + fleet heartbeat; never fail the sample
-python3 "$DIR/bin/alert.py" --no-endpoint --threshold-bps 50 --sink ntfy >> "$DIR/sample.log" 2>&1 || true
+python3 "$DIR/bin/alert.py" --no-endpoint --sink ntfy >> "$DIR/sample.log" 2>&1 || true
 python3 /home/vuos/code/p4/e062-agent-ops/bin/ops.py beat e058 ok "cron sample" >> "$DIR/sample.log" 2>&1 || true
 echo "sample OK"

@@ -2,9 +2,9 @@
 """e058 funding scanner web app — thin slice 1.
 SQLite store (timestamped funding series) + FastAPI JSON + static table UI.
 Run: python3 app.py  (port 8320)"""
-import json, glob, os, sqlite3, time
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+import datetime, json, glob, os, sqlite3, time
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -21,7 +21,57 @@ def db():
     c.execute('CREATE TABLE IF NOT EXISTS funding(ts TEXT, coin TEXT, venue TEXT, bps8 REAL)')
     c.execute('CREATE INDEX IF NOT EXISTS idx_f ON funding(ts, coin)')
     c.execute('CREATE TABLE IF NOT EXISTS symbols(ts TEXT, coin TEXT, oi_rank INTEGER, price_usd REAL, oi_usd REAL, exchange_count INTEGER)')
+    c.execute('CREATE TABLE IF NOT EXISTS signals(sent_ts TEXT, coin TEXT, median_apy REAL, spread_bps REAL, long_v TEXT, short_v TEXT, persist TEXT, oi_rank INTEGER, window TEXT)')
     return c
+
+REPORT_CFG = os.path.join(BASE, 'report_config.json')
+REPORT_DEFAULTS = {'report_hour_utc': 8, 'threshold_bps': 50.0, 'last_n': 4, 'top_n': 10, 'urgent_mult': 3.0}
+
+def load_config():
+    cfg = dict(REPORT_DEFAULTS)
+    try:
+        user = json.load(open(REPORT_CFG))
+        for k in cfg:
+            if k in user:
+                cfg[k] = user[k]
+    except Exception:
+        pass
+    return cfg
+
+def save_config(patch):
+    cfg = load_config()
+    errors = []
+    bounds = {'report_hour_utc': (0, 23), 'threshold_bps': (1, 1000),
+              'last_n': (2, 20), 'top_n': (1, 30), 'urgent_mult': (1, 10)}
+    for k, (lo, hi) in bounds.items():
+        if k in patch:
+            try:
+                v = float(patch[k])
+                if k == 'report_hour_utc': v = int(v)
+            except (TypeError, ValueError):
+                errors.append(f'{k} not a number'); continue
+            if not (lo <= v <= hi):
+                errors.append(f'{k} out of range [{lo},{hi}]'); continue
+            cfg[k] = v
+    if errors:
+        return None, '; '.join(errors)
+    json.dump(cfg, open(REPORT_CFG, 'w'), indent=1)
+    return cfg, None
+
+def log_signal_rows(window, rows):
+    ts = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    w = '|'.join(window or [])
+    c = db()
+    for r in rows:
+        try:
+            c.execute('INSERT INTO signals VALUES (?,?,?,?,?,?,?,?,?)',
+                      (ts, r.get('coin'), r.get('median_apy'), r.get('spread_bps'),
+                       r.get('long'), r.get('short'), r.get('persist'),
+                       r.get('oi_rank') if isinstance(r.get('oi_rank'), int) else None, w))
+        except Exception:
+            pass
+    c.commit(); c.close()
+    return ts
 
 def load_capture(path):
     d = json.load(open(path))
@@ -131,6 +181,16 @@ th{position:sticky;top:0;background:var(--hd)}input,select,button{background:var
 <label>sort <select id=s><option value=apy>APY</option><option value=oi>OI rank</option><option value=legs>legs</option></select></label>
 <button onclick=load()>filter</button> <small id=c></small>
 </div>
+<div id=r style="margin:8px 0;border:1px solid var(--bd);padding:6px"><b>scheduled report</b> <small>(full digest only at hour UTC; outside it only urgent &ge;mult&times;threshold notifies)</small><br>
+<label>hour UTC <input id=rh type=number min=0 max=23 style=width:50px></label>
+<label>threshold bps <input id=rt type=number style=width:70px></label>
+<label>last_n <input id=rn type=number style=width:50px></label>
+<label>top_n <input id=rtn type=number style=width:50px></label>
+<label>urgent&times; <input id=ru type=number step=0.5 style=width:50px></label>
+<button onclick=saveCfg()>save</button> <small id=rc></small>
+</div>
+<div id=s style="margin:8px 0"><b>signal history</b> <small>(every sent alert, newest first — nothing lost)</small> <button onclick=loadSig()>refresh</button>
+<table><thead><tr><th>sent (UTC)</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div>
 <table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table>
 <script>async function load(){const g=id=>document.getElementById(id).value;
@@ -139,7 +199,14 @@ document.getElementById('ts').textContent=d.ts||'no data';
 document.getElementById('c').textContent=(d.count??d.rows.length)+' coins';
 document.getElementById('b').innerHTML=d.rows.map(r=>
 `<tr><td>${r.coin}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`).join('');}
-load();</script></body></html>"""
+async function loadCfg(){try{const c=await (await fetch('/api/report-config')).json();
+rh.value=c.report_hour_utc;rt.value=c.threshold_bps;rn.value=c.last_n;rtn.value=c.top_n;ru.value=c.urgent_mult;}catch(e){}}
+async function saveCfg(){const b={report_hour_utc:+rh.value,threshold_bps:+rt.value,last_n:+rn.value,top_n:+rtn.value,urgent_mult:+ru.value};
+try{const r=await (await fetch('/api/report-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})).json();
+rc.textContent=r.ok?'saved':'ERR: '+(r.error||'?');}catch(e){rc.textContent='ERR: unreachable';}}
+async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100')).json();
+sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${s.sent_ts}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
+load();loadCfg();loadSig();</script></body></html>"""
 
 @app.get('/api/persistence')
 def persistence(threshold_bps: float = 20.0, last_n: int = 4,
@@ -203,6 +270,45 @@ def persistence(threshold_bps: float = 20.0, last_n: int = 4,
     rows.sort(key=lambda r: r['median_apy'], reverse=True)
     return {'snapshots': window, 'threshold_bps': threshold_bps,
             'count': len(rows), 'rows': rows[:200]}
+
+@app.get('/api/report-config')
+def report_config():
+    return load_config()
+
+@app.post('/api/report-config')
+async def report_config_save(req: Request):
+    try:
+        patch = await req.json()
+    except Exception:
+        return JSONResponse({'ok': False, 'error': 'invalid JSON'}, status_code=400)
+    cfg, err = save_config(patch if isinstance(patch, dict) else {})
+    if err:
+        return JSONResponse({'ok': False, 'error': err}, status_code=400)
+    return {'ok': True, 'config': cfg}
+
+@app.get('/api/signals')
+def signal_history(limit: int = 100):
+    limit = max(1, min(limit, 500))
+    c = db()
+    rows = c.execute('SELECT sent_ts, coin, median_apy, spread_bps, long_v, short_v, persist, oi_rank FROM signals ORDER BY rowid DESC LIMIT ?', (limit,)).fetchall()
+    c.close()
+    return {'count': len(rows), 'rows': [
+        {'sent_ts': t, 'coin': co, 'median_apy': ma, 'spread_bps': sp,
+         'long_v': lo, 'short_v': sh, 'persist': pe, 'oi_rank': oi}
+        for t, co, ma, sp, lo, sh, pe, oi in rows]}
+
+@app.post('/api/signals/log')
+async def signal_log(req: Request):
+    try:
+        body = await req.json()
+    except Exception:
+        return JSONResponse({'ok': False, 'error': 'invalid JSON'}, status_code=400)
+    rows = body.get('rows', []) if isinstance(body, dict) else []
+    window = body.get('window', []) if isinstance(body, dict) else []
+    if not isinstance(rows, list) or not rows:
+        return JSONResponse({'ok': False, 'error': 'empty rows'}, status_code=400)
+    ts = log_signal_rows(window, rows)
+    return {'ok': True, 'sent_ts': ts, 'logged': len(rows)}
 
 @app.get('/', response_class=HTMLResponse)
 def index(): return INDEX
