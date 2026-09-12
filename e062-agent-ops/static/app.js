@@ -229,15 +229,17 @@ function actTs(s) {
   try { return new Date(String(s).replace(' ', 'T') + 'Z').getTime(); } catch (e) { return 0; }
 }
 function runLine(r) {
-  const bits = ['run #' + r.id + ' ' + (r.status || '')];
+  // OWNER-FIRST: plain sentence before ' | ', tech detail after — simple mode
+  // shows only the plain half (thumb-readable in <30s), tech one tap away.
   const w = worked(r);
-  if (w !== '—') bits.push(w);
+  const owner = 'Run #' + r.id + ' ' + (r.status || 'done') + (w !== '—' ? ' in ' + w : '');
+  const bits = [];
   if (r.tokens != null) bits.push(Number(r.tokens).toLocaleString() + ' tok');
   if (r.tok_s != null) bits.push(r.tok_s + ' tok/s');
   if (r.cost_usd != null) bits.push('$' + Number(r.cost_usd).toFixed(4));
   if (r.scope) bits.push(r.scope + '/' + (r.trigger || ''));
   if (r.summary) bits.push(r.summary);
-  return bits.join(' · ');
+  return bits.length ? (owner + ' | tech: ' + bits.join(' · ')) : owner;
 }
 function buildActivity(d) {
   const act = [];

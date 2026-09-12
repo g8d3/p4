@@ -24,7 +24,18 @@ def init():
     db().close()
     print(f'ops.db ready at {DB}')
 
+def fmt_owner_tech_reminder(track, note, where):
+    # OWNER-FIRST REPORTING (owner law 2026-09-12): every beat/event ships as
+    # `OWNER_SENTENCE | tech: detail`. Board simple-mode shows only the plain
+    # half, so jargon-only notes fail the <30s phone test. Warn, don't crash
+    # (cron/healthcheck paths must never break on a missing separator).
+    if note and ' | ' not in str(note) and track not in ('runner',):
+        print(f'OWNER-FIRST reminder [{where} {track}]: note has no " | " separator — '
+              f'write "<plain phone sentence> | tech: <detail>" so simple mode stays readable.',
+              file=sys.stderr)
+
 def emit(track, kind, summary, dedup=None):
+    fmt_owner_tech_reminder(track, summary, 'emit')
     c = db()
     try:
         c.execute('INSERT INTO events VALUES (?,?,?,?,?)',
@@ -36,6 +47,7 @@ def emit(track, kind, summary, dedup=None):
     c.close()
 
 def beat(track, status='ok', note=''):
+    fmt_owner_tech_reminder(track, note, 'beat')
     c = db()
     c.execute('INSERT OR REPLACE INTO heartbeats VALUES (?,?,?,?)',
               (track, int(time.time()), status, note))

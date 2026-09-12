@@ -63,7 +63,7 @@ $PENDING
 --- STALE TRACKS ---
 $STALE" 2>&1 | tee "$LEGLOG" | tail -60
 echo "== leg end rc=$? =="
-python3 $OPS beat runner ok "leg done" >/dev/null 2>&1 || true
+python3 $OPS beat runner ok "Fleet legs are running on schedule | tech: leg done (focus=${FOCUS:-fleet} trigger=${TRIGGER:-cron})" >/dev/null 2>&1 || true
 # Harvest leg usage (tokens/tok-s/cost) from this leg's pi session file.
 # pi logs per-message usage {totalTokens, cost.total} into
 # ~/.pi/agent/sessions/<cwd-slug>/*.jsonl — honest numbers, no estimates.

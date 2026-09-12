@@ -20,6 +20,9 @@ grep -q 'id=seg-report' /tmp/e62_root.html || fail "report toggle missing"
 grep -q 'thumbbar' /tmp/e62_root.html || fail "thumb-zone bar missing"
 grep -q "setReport" /tmp/e62_app.js || fail "setReport missing"
 grep -q "fmtDetail" /tmp/e62_app.js || fail "fmtDetail missing"
+# OWNER-FIRST reporting (owner law): run rows render a plain sentence in simple
+# mode with tech after ' | ' — fail closed so jargon can never creep back.
+grep -q '| tech:' /tmp/e62_app.js || fail "runLine missing owner | tech format"
 
 grep -q 'id=runs' /tmp/e62_root.html || fail "activity runs table missing"
 code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
@@ -72,5 +75,13 @@ print(f"runs ok: {len(d['runs'])} rows with tokens/tok-s/cost")
 assert isinstance(d.get("runner"), dict) and "running" in d["runner"], "runner missing"
 assert isinstance(d.get("leg_tail"), str), "leg_tail missing"
 print(f"board ok: {len(tracks)} tracks, runway left=${rw['left']:.2f}")
+# OWNER-FIRST: every owner-facing card beat ships `plain sentence | tech: detail`
+# (empty note allowed). Simple mode shows only the plain half on the phone.
+for t in tracks:
+    if t["track"] in ("e058", "e059", "e060", "e061", "e062", "runner"):
+        note = ((t.get("beat") or {}).get("note")) or ""
+        assert (not note.strip()) or (" | " in note), \
+            f"beat MISSING owner|tech separator on {t['track']}: {note[:80]}"
+print("owner-first ok: all card beats carry plain sentence + tech half")
 EOF
 echo "E2E PASS ($BASE)"
