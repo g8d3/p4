@@ -12,13 +12,16 @@ grep -q 'id=runs' /tmp/e62_root.html || fail "activity runs table missing"
 code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
 [ "$code" = "200" ] || fail "runstate http=$code"
 python3 -c "import json; d=json.load(open('/tmp/e62_runstate.json')); assert d.get('ok') and 'running' in d, 'runstate shape'" || fail "runstate shape bad"
-# token fail-closed: wrong/missing token must NOT run, must guide owner to token button
-out=$(curl -s -m 10 -X POST "$BASE/api/run" -H 'Content-Type: application/json' -H 'X-Token: wrong' -d '{"scope":"fleet"}') || fail "run API unreachable"
-echo "$out" | grep -q '"ok":false' || fail "wrong token not rejected: $out"
-echo "$out" | grep -qi 'token button' || fail "wrong-token error lacks guidance: $out"
-out=$(curl -s -m 10 -X POST "$BASE/api/run" -H 'Content-Type: application/json' -d '{"scope":"fleet"}') || fail "run API unreachable (no token)"
-echo "$out" | grep -q '"ok":false' || fail "missing token not rejected"
-echo "token gate ok: wrong/missing token rejected with guidance, no run spawned"
+# /api/run is OPEN (owner decision 2026-09-12: tailnet-only board, pause/resume/note
+# already open; worst case a stray tap costs one leg). bad scope must fail WITHOUT spawning.
+out=$(curl -s -m 10 -X POST "$BASE/api/run" -H 'Content-Type: application/json' -d '{"scope":"nope"}') || fail "run API unreachable"
+echo "$out" | grep -q '"ok":false' || fail "bad scope not rejected: $out"
+echo "$out" | grep -q 'bad scope' || fail "bad-scope error wrong: $out"
+echo "run open ok: no token needed, bad scope rejected, no leg spawned"
+# money stays gated: /api/decide without token must fail
+out=$(curl -s -m 10 -X POST "$BASE/api/decide" -H 'Content-Type: application/json' -d '{"id":9999,"verdict":"approved"}') || fail "decide API unreachable"
+echo "$out" | grep -q '"ok":false' || fail "decide money gate open!"
+echo "decide gate ok: money still token-protected"
 
 curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 python3 - <<'EOF' || fail "board shape bad"

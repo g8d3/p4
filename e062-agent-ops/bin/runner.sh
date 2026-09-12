@@ -45,6 +45,10 @@ ORDERS=$(cat /home/vuos/code/p4/e062-agent-ops/DIRECTIVES.md 2>/dev/null | head 
 PENDING=$(python3 $OPS proposals 2>&1 | head -20)
 STALE=$(python3 $OPS stale 49 2>&1 | head -10)
 MODEL_ARGS="${E062_MODEL_ARGS:---provider opencode-go --model muse-spark-1.3-contributor}"
+# Per-run full log: the board's run cards expand to show the complete leg
+# conversation. tee keeps a copy per run; tail still feeds runner.log.
+mkdir -p /home/vuos/code/p4/e062-agent-ops/runs
+LEGLOG="/home/vuos/code/p4/e062-agent-ops/runs/leg-${RUN_ID:-0}.log"
 timeout 1500 pi $MODEL_ARGS --print "$(cat $PROMPT)
 
 $FOCUS_LINE
@@ -57,7 +61,7 @@ $STATE
 --- PENDING PROPOSALS (only owner-approved ones are executable) ---
 $PENDING
 --- STALE TRACKS ---
-$STALE" 2>&1 | tail -60
+$STALE" 2>&1 | tee "$LEGLOG" | tail -60
 echo "== leg end rc=$? =="
 python3 $OPS beat runner ok "leg done" >/dev/null 2>&1 || true
 # Harvest leg usage (tokens/tok-s/cost) from this leg's pi session file.

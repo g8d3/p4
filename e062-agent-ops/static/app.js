@@ -53,8 +53,8 @@ function togPause(t, btn) {
   const paused = (window._paused || []).includes(t);
   openCtl(paused ? '/api/resume' : '/api/pause', {track: t}, btn, paused ? 'resumed ✓' : 'paused ✓');
 }
-function runScope(t, btn) { ctl('/api/run', {scope: t}, btn, 'leg started ✓'); }
-function runFleet(btn) { ctl('/api/run', {scope: 'fleet'}, btn, 'leg started ✓'); }
+function runScope(t, btn) { openCtl('/api/run', {scope: t}, btn, 'leg started ✓'); }
+function runFleet(btn) { openCtl('/api/run', {scope: 'fleet'}, btn, 'leg started ✓'); }
 function saveDrafts() {
   const m = {};
   document.querySelectorAll('input[id^="n-"]').forEach(i => { m[i.id] = i.value; });

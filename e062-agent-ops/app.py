@@ -46,6 +46,8 @@ def need_token(req):
     return None
 
 RUN_LOCK = '/tmp/e062-runner.lock'
+RUNS_DIR = os.path.join(BASE, 'runs')
+os.makedirs(RUNS_DIR, exist_ok=True)
 
 def ensure_runs():
     c = sqlite3.connect(DB)
@@ -174,8 +176,9 @@ def api_runstate():
 
 @app.post('/api/run')
 async def api_run(req: Request):
-    err = need_token(req)
-    if err: return {'ok': False, 'error': err}
+    # No token: tailnet-only board, and pause/resume/note are already open.
+    # Worst case a stray tap costs one extra leg (cron runs 48/day anyway).
+    # Money stays gated: /api/decide still requires the board token.
     try: d = await req.json()
     except Exception: return {'ok': False, 'error': 'bad json'}
     scope = (d.get('scope') or 'fleet').strip()
@@ -199,6 +202,23 @@ async def api_run(req: Request):
     except Exception as e:
         return {'ok': False, 'error': f'spawn failed: {e}'}
     return {'ok': True, 'run_id': rid}
+
+@app.get('/api/leg/{rid}')
+def api_leg(rid: int):
+    # Full per-run leg output for the run cards (read-only, tailnet-only).
+    p = os.path.join(RUNS_DIR, f'leg-{rid}.log')
+    if not os.path.isfile(p):
+        return {'ok': False, 'error': 'no full log for this run (predates capture)'}
+    try:
+        size = os.path.getsize(p)
+        with open(p, 'rb') as f:
+            if size > 200 * 1024:
+                f.seek(size - 200 * 1024)
+                tail = f.read().decode('utf-8', 'replace')
+                return {'ok': True, 'truncated': True, 'log': '\u2026[tail]\n' + tail}
+            return {'ok': True, 'truncated': False, 'log': f.read().decode('utf-8', 'replace')}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)[:100]}
 
 @app.post('/api/pause')
 async def api_pause(req: Request):
