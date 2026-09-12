@@ -68,8 +68,7 @@ async function load() {
       ? ' <button onclick="decide(' + p.id + ',\'approved\',this)">approve</button>' +
         '<button onclick="decide(' + p.id + ',\'rejected\',this)">reject</button>' : '') +
     '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
-  const line = e => '<div>' + esc(e.ts) + ' [' + esc(e.track) + '/' + esc(e.kind) + '] ' + esc(e.summary) + '</div>';
-  document.getElementById('e').innerHTML = d.events.map(line).join('') || '<div>none</div>';
+  document.getElementById('e').innerHTML = d.events.map(e => '<tr><td>' + esc(e.ts) + '</td><td>' + esc(e.track) + '</td><td>' + esc(e.kind) + '</td><td>' + esc(e.summary) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('tr').innerHTML = d.trials.map(t =>
     '<div>' + esc(t.name) + ' renews ' + esc(t.renews) + ' $' + t.usd + ' ' + esc(t.note) + '</div>').join('') || '<div>none</div>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<div>' + esc(x) + '</div>').join('');
