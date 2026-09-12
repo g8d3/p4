@@ -35,6 +35,19 @@ function togPause(t, btn) {
   const paused = (window._paused || []).includes(t);
   openCtl(paused ? '/api/resume' : '/api/pause', {track: t}, btn, paused ? 'resumed ✓' : 'paused ✓');
 }
+function runScope(t, btn) { ctl('/api/run', {scope: t}, btn, 'leg started ✓'); }
+function runFleet(btn) { ctl('/api/run', {scope: 'fleet'}, btn, 'leg started ✓'); }
+function saveDrafts() {
+  const m = {};
+  document.querySelectorAll('input[id^="n-"]').forEach(i => { m[i.id] = i.value; });
+  return m;
+}
+function restoreDrafts(m) {
+  for (const k in m) {
+    const el = document.getElementById(k);
+    if (el && document.activeElement !== el) el.value = m[k];
+  }
+}
 function decide(id, v, btn) { ctl('/api/decide', {id: id, verdict: v}, btn, v + ' ✓'); }
 async function sendNote(t, btn) {
   const inp = document.getElementById('n-' + t);
@@ -54,6 +67,7 @@ function esc(s) {
 }
 async function load() {
   if (window._wrap === undefined) window._wrap = true;
+  const drafts = saveDrafts();
   const d = await (await fetch('/api/board')).json();
   window._paused = d.paused || [];
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
@@ -67,8 +81,12 @@ async function load() {
     '<td class="rowbtns c-ctrl"><input id="n-' + t.track + '" placeholder="note…" >' + '<br>' +
     '<button onclick="sendNote(\'' + t.track + '\',this)">send</button> ' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' +
-    ((d.paused || []).includes(t.track) ? 'resume' : 'pause') + '</button></td></tr>'
+    ((d.paused || []).includes(t.track) ? 'resume' : 'pause') + '</button> ' +
+    '<button onclick="runScope(\'' + t.track + '\',this)" title="start a runner leg focused on this track">run</button></td></tr>'
   ).join('');
+  restoreDrafts(drafts);
+  const rs = document.getElementById('runstate');
+  if (rs) rs.textContent = d.runner && d.runner.running ? '● leg running…' : '';
   document.getElementById('inbox').innerHTML = d.notes.map(n =>
     '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a track row above</td></tr>';
   document.getElementById('w').textContent =
@@ -82,10 +100,27 @@ async function load() {
         '<button onclick="decide(' + p.id + ',\'rejected\',this)">reject</button>' : '') +
     '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
   document.getElementById('e').innerHTML = d.events.map(e => '<tr><td>' + esc(e.ts) + '</td><td>' + esc(e.track) + '</td><td>' + esc(e.kind) + '</td><td>' + esc(e.summary) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
+  document.getElementById('runs').innerHTML = (d.runs || []).map(r =>
+    '<tr><td>#' + r.id + '</td><td>' + esc(r.started) + '</td><td>' + esc(worked(r)) + '</td><td>' +
+    esc(r.scope) + '</td><td>' + esc(r.trigger) + '</td><td>' + esc(r.status) + '</td><td>' + esc(r.summary) + '</td></tr>'
+  ).join('') || '<tr><td colspan=7>no runs yet — press run fleet now</td></tr>';
+  const leg = document.getElementById('leg');
+  if (leg) leg.textContent = d.leg_tail || 'no log yet';
   document.getElementById('tr').innerHTML = d.trials.map(t =>
     '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
+}
+function worked(r) {
+  try {
+    if (!r.started) return '—';
+    const t0 = new Date(r.started.replace(' ', 'T') + 'Z').getTime();
+    const t1 = r.ended ? new Date(r.ended.replace(' ', 'T') + 'Z').getTime() : Date.now();
+    const s = Math.max(0, Math.round((t1 - t0) / 1000));
+    if (s < 60) return s + 's';
+    const m = Math.floor(s / 60);
+    return m + 'm ' + (s % 60) + 's';
+  } catch (e) { return '—'; }
 }
 function readTune() {
   return {font: document.getElementById('pf').value, planw: document.getElementById('pw').value,
@@ -126,4 +161,8 @@ async function savePrefs(btn) {
   setTimeout(() => { s.textContent = ''; }, 2500);
 }
 load();
-setInterval(load, 60000);
+setInterval(() => {
+  const a = document.activeElement;
+  if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.value) return;
+  load();
+}, 60000);

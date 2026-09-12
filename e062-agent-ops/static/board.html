@@ -18,7 +18,8 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <h2 style="margin:4px 0">fleet board <small id=ts></small>
 <button onclick="document.documentElement.classList.toggle('dark');localStorage.ft=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.ft==='d')document.documentElement.classList.add('dark');</script>
-<div class=zone><h3>1 · steer — what works on what (pause/resume)</h3>
+<div class=zone><h3>1 · steer — what works on what (pause/resume)
+<span style="float:right;font-weight:normal;text-transform:none"><button onclick="runFleet(this)">run fleet now</button> <span id=runstate style="font-size:12px;opacity:.8"></span></span></h3>
 <div class=twrap><table><thead><tr><th>track</th><th>rung</th><th>plan</th><th>beat</th><th>url</th><th>control</th></tr></thead><tbody id=t></tbody></table></div></div>
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
 <div class=twrap><table><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div>
@@ -26,10 +27,14 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div class=zone><h3>3 · approve — money gates + treasury</h3>
 <div id=w style="margin-bottom:6px"></div>
 <div class=twrap><table><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
-<div class=zone><h3>4 · activity — how plans changed</h3><div class=twrap><table><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div></div>
+<div class=zone><h3>4 · activity</h3>
+<div style="font-size:12px;opacity:.7;margin-bottom:6px">agent work: when each run started, how long it worked, scope, trigger. tokens + tokens/s: pending — runner legs don't report usage yet, durations live now.</div>
+<div class=twrap><table><thead><tr><th>run</th><th>started</th><th>worked</th><th>scope</th><th>trigger</th><th>status</th><th>result</th></tr></thead><tbody id=runs></tbody></table></div>
+<div style="font-size:12px;opacity:.7;margin:8px 0 4px">events (detail — how plans changed)</div><div class=twrap><table><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div>
+<details style="font-size:12px;margin-top:6px"><summary>last leg log (full flow)</summary><pre id=leg></pre></details></div>
 <div class=zone><h3>5 · trials / ideas / orders</h3>
 <div class=twrap><table><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
 <div class=twrap><table style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
 <div class=twrap><table style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
-<script src=/app.js?v=8></script>
+<script src=/app.js?v=9></script>
 </body></html>

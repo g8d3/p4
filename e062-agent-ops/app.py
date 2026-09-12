@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """e062 fleet board — plans, changes, execution. Port 8322."""
-import os, sqlite3
+import os, sqlite3, subprocess, time
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
 
@@ -37,6 +37,31 @@ def need_token(req):
     if req.headers.get('x-token', '') != tok: return 'bad token'
     return None
 
+RUN_LOCK = '/tmp/e062-runner.lock'
+
+def ensure_runs():
+    c = sqlite3.connect(DB)
+    c.execute("CREATE TABLE IF NOT EXISTS runs(id INTEGER PRIMARY KEY AUTOINCREMENT, started_ts INTEGER, ended_ts INTEGER, scope TEXT, trigger TEXT, status TEXT DEFAULT 'running', summary TEXT DEFAULT '')")
+    c.commit(); c.close()
+
+ensure_runs()
+
+def runner_running():
+    try:
+        r = subprocess.run(['pgrep', '-f', 'e062-agent-ops/bin/runner.sh'],
+                           capture_output=True, text=True, timeout=5)
+        return r.returncode == 0 and bool(r.stdout.strip())
+    except Exception:
+        return False
+
+def last_leg_tail(n=30):
+    try:
+        with open(os.path.join(BASE, 'runner.log')) as f:
+            lines = f.read().split('\n')
+        return '\n'.join([l for l in lines if l.strip()][-n:])
+    except Exception:
+        return ''
+
 app = FastAPI()
 
 def read(p, n=60):
@@ -61,7 +86,6 @@ def board():
         trials = [{'name': n, 'renews': rd, 'usd': co, 'note': no} for n, rd, co, no in
                   c.execute("SELECT name, datetime(renews_ts,'unixepoch'), cost_usd, note FROM trials WHERE status='active' ORDER BY renews_ts")]
     except Exception: trials = []
-    c.close()
     _notes_anchor = None
     tracks = []
     for t, label in TRACKS.items():
@@ -82,6 +106,7 @@ def board():
         ea = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='earn'").fetchone()[0]
         runway = {'spent': sp, 'earned': ea, 'left': 300.0 - sp + ea}
     except Exception: runway = {'spent': 0, 'earned': 0, 'left': 300.0}
+    c.close()
     c2 = sqlite3.connect(DB)
     paused = []
     try:
@@ -89,12 +114,61 @@ def board():
     except Exception: pass
     notes = [{'ts': ts, 'track': t, 'message': m} for ts, t, m in c2.execute(
         "SELECT datetime(ts,'unixepoch'), track, message FROM notes WHERE done=0 ORDER BY ts DESC LIMIT 20")]
+    try:
+        runs = [{'id': i, 'started': st, 'ended': en, 'scope': sc, 'trigger': tr, 'status': s, 'summary': su}
+                for i, st, en, sc, tr, s, su in c2.execute(
+                    "SELECT id, datetime(started_ts,'unixepoch'), " +
+                    "CASE WHEN ended_ts IS NULL THEN NULL ELSE datetime(ended_ts,'unixepoch') END, " +
+                    "scope, trigger, status, summary FROM runs ORDER BY id DESC LIMIT 10")]
+    except Exception: runs = []
     c2.close()
     directives = '\n'.join(read(os.path.join(BASE, 'DIRECTIVES.md'), 40))
     ideas = [l for l in read(os.path.join(P4, 'IDEAS.md'), 30) if l.startswith('- ')]
     return {'tracks': tracks, 'events': events, 'proposals': props,
             'trials': trials, 'directives': directives, 'ideas': ideas, 'runway': runway,
-            'notes': notes, 'paused': paused}
+            'notes': notes, 'paused': paused, 'runs': runs,
+            'runner': {'running': runner_running()}, 'leg_tail': last_leg_tail()}
+
+@app.get('/api/runstate')
+def api_runstate():
+    ensure_runs()
+    c = sqlite3.connect(DB)
+    try:
+        last = c.execute(
+            "SELECT id, datetime(started_ts,'unixepoch'), scope, trigger, status, summary FROM runs ORDER BY id DESC LIMIT 1").fetchone()
+    except Exception: last = None
+    c.close()
+    return {'ok': True, 'running': runner_running(),
+            'last': ({'id': last[0], 'started': last[1], 'scope': last[2],
+                      'trigger': last[3], 'status': last[4], 'summary': last[5]} if last else None)}
+
+@app.post('/api/run')
+async def api_run(req: Request):
+    err = need_token(req)
+    if err: return {'ok': False, 'error': err}
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    scope = (d.get('scope') or 'fleet').strip()
+    if scope != 'fleet' and scope not in TRACKS:
+        return {'ok': False, 'error': 'bad scope'}
+    if runner_running():
+        return {'ok': False, 'error': 'runner already running — wait for this leg to finish'}
+    ensure_runs()
+    c = sqlite3.connect(DB)
+    cur = c.execute('INSERT INTO runs(started_ts, scope, trigger, status) VALUES (?,?,?,?)',
+                    (int(time.time()), scope, 'board', 'queued'))
+    rid = cur.lastrowid
+    c.commit(); c.close()
+    import os as _os
+    env = dict(_os.environ, E062_TRIGGER='board', E062_FOCUS=scope, E062_RUN_ID=str(rid))
+    try:
+        subprocess.Popen(['nohup', os.path.join(BASE, 'bin', 'runner.sh')],
+                         stdout=open(os.path.join(BASE, 'runner.log'), 'ab'),
+                         stderr=subprocess.STDOUT, env=env,
+                         start_new_session=True, cwd=BASE)
+    except Exception as e:
+        return {'ok': False, 'error': f'spawn failed: {e}'}
+    return {'ok': True, 'run_id': rid}
 
 @app.post('/api/pause')
 async def api_pause(req: Request):
