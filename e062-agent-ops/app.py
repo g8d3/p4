@@ -10,6 +10,18 @@ P4 = '/home/vuos/code/p4'
 TRACKS = {'e058': 'funding scanner', 'e059': 'valuations', 'e060': 'social radar',
           'e061': 'game suite', 'e062': 'agent ops', 'runner': 'dispatcher legs'}
 
+def get_prefs():
+    import sqlite3
+    c = sqlite3.connect(DB)
+    try:
+        rows = c.execute('SELECT key, value FROM prefs').fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    d = {k: v for k, v in rows}
+    return {'font': int(d.get('font', 14)), 'planw': int(d.get('planw', 340)),
+            'density': d.get('density', 'comfortable')}
+
 def board_token():
     try: return open(os.path.expanduser('~/.config/e062/board_token')).read().strip()
     except Exception: return None
@@ -122,6 +134,29 @@ async def api_decide(req: Request):
     import sqlite3, time
     c = sqlite3.connect(DB)
     c.execute('UPDATE proposals SET status=?, decided_ts=? WHERE id=?', (verdict, int(time.time()), pid))
+    c.commit(); c.close()
+    return {'ok': True}
+
+@app.get('/api/prefs')
+def api_prefs_get():
+    return {'ok': True, 'prefs': get_prefs()}
+
+@app.post('/api/prefs')
+async def api_prefs_set(req: Request):
+    err = need_token(req)
+    if err: return {'ok': False, 'error': err}
+    d = await req.json()
+    import sqlite3
+    c = sqlite3.connect(DB)
+    c.execute('CREATE TABLE IF NOT EXISTS prefs(key TEXT PRIMARY KEY, value TEXT)')
+    for k in ('font', 'planw', 'density'):
+        if k in d:
+            v = str(d[k])[:20]
+            if k in ('font', 'planw'):
+                try: v = str(max(10, min(int(v), 22 if k == 'font' else 800)))
+                except Exception: continue
+            if k == 'density' and v not in ('compact', 'comfortable'): continue
+            c.execute('INSERT OR REPLACE INTO prefs VALUES (?,?)', (k, v))
     c.commit(); c.close()
     return {'ok': True}
 

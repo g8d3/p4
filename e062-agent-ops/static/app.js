@@ -74,5 +74,47 @@ async function load() {
   document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
 }
+async function applyPrefs() {
+  try {
+    const d = await (await fetch('/api/prefs')).json();
+    const r = document.documentElement.style;
+    r.setProperty('--fs', d.prefs.font + 'px');
+    r.setProperty('--planw', d.prefs.planw + 'px');
+    document.body.classList.toggle('compact', d.prefs.density === 'compact');
+    document.getElementById('pf').value = d.prefs.font;
+    document.getElementById('pw').value = d.prefs.planw;
+    document.getElementById('pd').value = d.prefs.density;
+    showTuneVals();
+  } catch (e) {}
+}
+function showTuneVals() {
+  document.getElementById('pfv').textContent = document.getElementById('pf').value + 'px';
+  document.getElementById('pwv').textContent = document.getElementById('pw').value + 'px';
+}
+function previewTune() {
+  const r = document.documentElement.style;
+  r.setProperty('--fs', document.getElementById('pf').value + 'px');
+  r.setProperty('--planw', document.getElementById('pw').value + 'px');
+  document.body.classList.toggle('compact', document.getElementById('pd').value === 'compact');
+  showTuneVals();
+}
+async function savePrefs(btn) {
+  const t = tok();
+  if (!t) return;
+  btn.textContent = '…';
+  const r = await (await fetch('/api/prefs', {method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-Token': t},
+    body: JSON.stringify({font: document.getElementById('pf').value,
+      planw: document.getElementById('pw').value,
+      density: document.getElementById('pd').value})})).json();
+  const s = document.getElementById('psaved');
+  if (r.ok) { btn.textContent = 'save'; s.textContent = 'saved ✓'; }
+  else { btn.textContent = 'save'; s.textContent = 'failed'; }
+  setTimeout(() => { s.textContent = ''; }, 2500);
+}
+document.getElementById('pf').addEventListener('input', previewTune);
+document.getElementById('pw').addEventListener('input', previewTune);
+document.getElementById('pd').addEventListener('change', previewTune);
 load();
+applyPrefs();
 setInterval(load, 60000);

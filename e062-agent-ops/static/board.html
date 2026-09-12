@@ -1,37 +1,37 @@
 <!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>fleet board</title>
-<style>:root{--bg:#fff;--fg:#111;--bd:#ccc;--hd:#eee;--acc:#0b6}html.dark{--bg:#111418;--fg:#e6e6e6;--bd:#333;--hd:#1e2228}
-body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-size:14px}
+<style>:root{--bg:#fff;--fg:#111;--bd:#ccc;--hd:#eee;--fs:14px;--planw:340px}html.dark{--bg:#111418;--fg:#e6e6e6;--bd:#333;--hd:#1e2228}
+body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-size:var(--fs)}
 .zone{border:1px solid var(--bd);border-radius:8px;padding:8px;margin:10px 0}
 .zone>h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;opacity:.8}
-table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:4px 6px;text-align:left;font-size:13px}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:4px 6px;text-align:left;font-size:var(--fs)}
+body.compact td,body.compact th{padding:1px 4px}
 th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}.twrap table{min-width:640px}
-td.plan{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:normal;word-break:break-word}input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:2px 6px}
+td.plan{max-width:var(--planw);overflow:hidden;text-overflow:ellipsis;word-break:break-word}
+input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:2px 6px}
 button{cursor:pointer}button:disabled{opacity:.4}
-.r1{color:#3ddc84;font-weight:bold}.r0{color:#e0a63d}.blk{color:#e05555}.ok{color:#3ddc84}
-.feed{font-size:12px;max-height:220px;overflow:auto}.feed div{padding:2px 0;border-bottom:1px dotted var(--bd)}
-.rowbtns{white-space:nowrap}</style></head><body>
+.r1{color:#3ddc84;font-weight:bold}.r0{color:#e0a63d}.blk{color:#e05555}
+.feed{font-size:12px}.rowbtns{white-space:nowrap}
+#tune{font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}</style></head><body>
 <h2 style="margin:4px 0">fleet board <small id=ts></small>
 <button onclick="document.documentElement.classList.toggle('dark');localStorage.ft=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.ft==='d')document.documentElement.classList.add('dark');</script>
-
+<div id=tune>font <input id=pf type=range min=11 max=18 value=14> <span id=pfv></span>
+plan width <input id=pw type=range min=180 max=700 step=20 value=340> <span id=pwv></span>
+density <select id=pd><option value=comfortable>comfortable</option><option value=compact>compact</option></select>
+<button onclick="savePrefs(this)">save</button> <span id=psaved></span></div>
 <div class=zone><h3>1 · steer — what works on what (pause/resume)</h3>
 <div class=twrap><table><thead><tr><th>track</th><th>rung</th><th>plan</th><th>beat</th><th>url</th><th>control</th></tr></thead><tbody id=t></tbody></table></div></div>
-
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
 <div class=twrap><table><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div>
 <div style="font-size:12px;opacity:.7">write from the track's row above — confirmation appears on the button, note lands here.</div></div>
-
 <div class=zone><h3>3 · approve — money gates + treasury</h3>
 <div id=w style="margin-bottom:6px"></div>
 <div class=twrap><table><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
-
 <div class=zone><h3>4 · activity — how plans changed</h3><div class=twrap><table><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div></div>
-
 <div class=zone><h3>5 · trials / ideas / orders</h3>
 <div class=twrap><table><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
 <div class=twrap><table style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
 <div class=twrap><table style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
-
-<script src=/app.js?v=6></script>
+<script src=/app.js?v=7></script>
 </body></html>
