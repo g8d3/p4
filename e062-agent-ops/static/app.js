@@ -181,7 +181,9 @@ async function load() {
       ? ' <button onclick="decide(' + p.id + ',\'approved\',this)">approve</button>' +
         '<button onclick="decide(' + p.id + ',\'rejected\',this)">reject</button>' : '') +
     '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
+  try { restoreUniCtrls(); } catch (e) {}
   window._act = buildActivity(d);
+  try { window._unirows = buildUnified(d); renderUni(); } catch (e) {}
   document.getElementById('runs').innerHTML = window._act.map((a, i) =>
     '<tr class=act onclick="toggleAct(' + i + ',this)"><td>' + esc(a.time) + '</td><td>' + esc(a.track) + '</td><td>' + esc(a.kind) + '</td><td>' + esc(fmtDetail(a.detail)) + ' ' + ((window._report === 'simple' && String(a.detail||'').indexOf(' | ') >= 0) ? '<span style="opacity:.5">…</span>' : '') + '</td></tr>'
   ).join('') || '<tr><td colspan=4>no activity yet — press run fleet now</td></tr>';
@@ -356,3 +358,139 @@ setInterval(() => {
   if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA') && a.value) return;
   load();
 }, 60000);
+
+/* ---- 0 · all: one generic view (group/filter/sort/pages + session drill-down) ---- */
+function uniCtrls() {
+  return {
+    q: (document.getElementById('q-all') || {}).value || '',
+    g: (document.getElementById('g-all') || {}).value || 'none',
+    s: (document.getElementById('s-all') || {}).value || 'new',
+    n: parseInt(((document.getElementById('n-all') || {}).value || '20'), 10) || 20
+  };
+}
+function saveUniCtrls() {
+  try { localStorage.setItem('e062-uni', JSON.stringify(Object.assign(uniCtrls(), {p: window._unipage || 0}))); } catch (e) {}
+}
+function restoreUniCtrls() {
+  try {
+    const u = JSON.parse(localStorage.getItem('e062-uni') || '{}');
+    if (u.q !== undefined && document.getElementById('q-all') && document.activeElement !== document.getElementById('q-all')) document.getElementById('q-all').value = u.q;
+    if (u.g && document.getElementById('g-all')) document.getElementById('g-all').value = u.g;
+    if (u.s && document.getElementById('s-all')) document.getElementById('s-all').value = u.s;
+    if (u.n && document.getElementById('n-all')) document.getElementById('n-all').value = String(u.n);
+    window._unipage = u.p || 0;
+  } catch (e) {}
+}
+function uniChanged() { window._unipage = 0; window._uniopen = -1; uniStopLive(); saveUniCtrls(); renderUni(); }
+function uniPage(d) {
+  const rows = uniFiltered().length;
+  const n = uniCtrls().n;
+  const maxp = Math.max(0, Math.ceil(rows / n) - 1);
+  window._unipage = Math.min(maxp, Math.max(0, (window._unipage || 0) + d));
+  window._uniopen = -1; uniStopLive(); saveUniCtrls(); renderUni();
+}
+function buildUnified(d) {
+  const rows = [];
+  (d.runs || []).forEach(r => {
+    const track = r.scope === 'fleet' ? 'runner' : (r.scope || '');
+    rows.push({t: actTs(r.started), time: r.started || '', track: track,
+      kind: 'session', session: 'run #' + r.id,
+      detail: runLine(r), full: runLine(r), leg: r.id});
+  });
+  (d.events || []).forEach(e => rows.push({t: actTs(e.ts), time: e.ts, track: e.track,
+    kind: e.kind, session: '', detail: e.summary, full: e.summary, leg: null}));
+  (d.notes || []).forEach(n => rows.push({t: actTs(n.ts), time: n.ts, track: n.track,
+    kind: 'owner note', session: '', detail: n.message, full: n.message, leg: null}));
+  (d.proposals || []).forEach(pr => rows.push({t: actTs(pr.ts), time: pr.ts, track: pr.track,
+    kind: 'money gate #' + pr.id, session: '', detail: '#' + pr.id + ' $' + pr.usd + ' ' + pr.action + ' \u2014 ' + pr.reason + ' (' + pr.status + ')',
+    full: '#' + pr.id + ' $' + pr.usd + ' ' + pr.action + ' \u2014 ' + pr.reason + ' (' + pr.status + ')', leg: null}));
+  return rows;
+}
+function uniFiltered() {
+  const c = uniCtrls();
+  const q = (c.q || '').toLowerCase();
+  let rows = (window._unirows || []).slice();
+  if (q) rows = rows.filter(r => ((r.track || '') + ' ' + (r.kind || '') + ' ' + (r.session || '') + ' ' + (r.detail || '')).toLowerCase().indexOf(q) >= 0);
+  rows.sort((a, b) => c.s === 'old' ? (a.t - b.t) : (b.t - a.t));
+  return rows;
+}
+function uniGroupKey(r, g) {
+  if (g === 'project') return r.track || '?';
+  if (g === 'session') return r.session || r.kind || '?';
+  if (g === 'kind') return r.kind || '?';
+  return '';
+}
+function renderUni() {
+  const box = document.getElementById('uni');
+  if (!box) return;
+  const c = uniCtrls();
+  saveUniCtrls();
+  const rows = uniFiltered();
+  const n = c.n, p = window._unipage || 0;
+  const page = rows.slice(p * n, p * n + n);
+  window._unipage_rows = page;
+  let html = '', lastG = null;
+  page.forEach((r, i) => {
+    const gk = uniGroupKey(r, c.g);
+    if (c.g !== 'none' && gk !== lastG) { html += '<div style="font-size:11px;opacity:.6;margin:6px 0 2px"><b>' + esc(gk) + '</b></div>'; lastG = gk; }
+    const open = window._uniopen === i;
+    html += '<div class="card' + (open ? ' open' : '') + '" onclick="toggleUni(' + i + ')">' +
+      '<div class=chead><span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
+      (r.session ? '<span style="opacity:.6">' + esc(r.session) + '</span>' : '') +
+      '<span style="margin-left:auto;font-size:11px;opacity:.6">' + esc(r.time || '') + '</span></div>' +
+      '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
+      (open ? uniDetail(r, i) : '') + '</div>';
+  });
+  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>';
+  const info = document.getElementById('uni-info');
+  if (info) info.textContent = rows.length + ' rows \u00b7 page ' + (p + 1) + '/' + Math.max(1, Math.ceil(rows.length / n));
+}
+function uniDetail(r, i) {
+  const safeTrack = String(r.track || 'e062').replace(/[^a-z0-9]/gi, '') || 'e062';
+  let h = '<div class=cdetail onclick="event.stopPropagation()"><div>' + esc(r.full || r.detail) + '</div>';
+  if (r.leg) {
+    h += '<div class=rowbtns style="margin-top:6px"><a href="/api/leg/' + r.leg + '" target=_blank><button>full log</button></a> ' +
+      '<button onclick="uniWatchLive(' + r.leg + ',' + i + ',this)">watch live</button></div>' +
+      '<pre id="uni-live-' + i + '" style="max-height:24vh;overflow-y:auto;font-size:11px"></pre>';
+  }
+  h += '<div class=act-reply><input id="u-' + i + '" placeholder="talk to the ' + esc(safeTrack) + ' agent\u2026" onclick="event.stopPropagation()">' +
+    '<button onclick="sendUniNote(\'' + safeTrack + '\',' + i + ',this)">send</button></div>' +
+    '<div style="font-size:11px;opacity:.6">reply = queued for the next leg on this project.</div></div>';
+  return h;
+}
+function toggleUni(i) {
+  uniStopLive();
+  window._uniopen = (window._uniopen === i) ? -1 : i;
+  renderUni();
+}
+async function sendUniNote(track, i, btn) {
+  const inp = document.getElementById('u-' + i);
+  const v = inp ? inp.value.trim() : '';
+  if (!v) return;
+  const okTracks = {e058: 1, e059: 1, e060: 1, e061: 1, e062: 1, runner: 1};
+  const t = okTracks[track] ? track : 'e062';
+  btn.textContent = '\u2026';
+  const r = await (await fetch('/api/note', {method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({track: t, message: v})})).json();
+  if (r.ok) { btn.textContent = 'sent \u2713'; load(); }
+  else { btn.textContent = 'error'; alert(r.error || 'failed'); }
+}
+function uniStopLive() {
+  try { if (window._unitimer) clearInterval(window._unitimer); } catch (e) {}
+  window._unitimer = null;
+}
+async function uniWatchLive(leg, i, btn) {
+  uniStopLive();
+  btn.textContent = 'watching \u25cf (tap to stop)';
+  btn.onclick = function(e) { e.stopPropagation(); uniStopLive(); btn.textContent = 'watch live'; btn.onclick = function(ev) { ev.stopPropagation(); uniWatchLive(leg, i, btn); }; };
+  const pull = async function() {
+    try {
+      const r = await (await fetch('/api/leg/' + leg)).json();
+      const pre = document.getElementById('uni-live-' + i);
+      if (pre && r.ok) { pre.textContent = (r.log || '').slice(-3000); pre.scrollTop = pre.scrollHeight; }
+    } catch (e) {}
+  };
+  await pull();
+  window._unitimer = setInterval(pull, 5000);
+}

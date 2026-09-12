@@ -20,6 +20,9 @@ grep -q 'id=seg-report' /tmp/e62_root.html || fail "report toggle missing"
 grep -q 'thumbbar' /tmp/e62_root.html || fail "thumb-zone bar missing"
 grep -q "setReport" /tmp/e62_app.js || fail "setReport missing"
 grep -q "fmtDetail" /tmp/e62_app.js || fail "fmtDetail missing"
+grep -q 'id=uni' /tmp/e62_root.html || fail "unified view missing"
+grep -q "buildUnified" /tmp/e62_app.js || fail "buildUnified missing"
+grep -q "uniWatchLive" /tmp/e62_app.js || fail "live session watch missing"
 # OWNER-FIRST reporting (owner law): run rows render a plain sentence in simple
 # mode with tech after ' | ' — fail closed so jargon can never creep back.
 grep -q '| tech:' /tmp/e62_app.js || fail "runLine missing owner | tech format"
