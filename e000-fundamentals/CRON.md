@@ -10,6 +10,8 @@ touch p4** — anything a cron writes into the repo must be classified here
 | `30 0 * * *` | `e040-traderdev-local-replica/bin/paper_tsmr_cron.sh` | `output/tsmr_paper_state.json` | **tracked** | yes (heartbeat) |
 | `@reboot` (+`sleep 90`) ×2 | same two wrappers, catch-up if the PC was off at run time | same files | **tracked** | yes |
 | `25 10 * * *` | `e057-launchpad-tokens/bin/refresh.sh` | `data/` (raw API cache), `output/` (report, `stats.csv`, charts, `site/`), `refresh.log` | **all ignored** | no — the published site lives in `e057-launchpad-tokens/repo/` (`g8d3/launchpad-radar`) and deploys by its own GitHub Actions cron |
+| `*/15 * * * *` | `e058-funding-scanner/bin/sample.sh` | `data/` (funding snapshots), `data.db` (SQLite series), `sample.log` | **all ignored** | no |
+| `*/30 * * * *` | `e062-agent-ops/bin/runner.sh` | `runner.log`, `ops.db` (bus state) | **all ignored** | no (dispatcher legs; see DIRECTIVES.md) |
 | `@reboot` | `e000-fundamentals/bin/watch-agents.sh` | `~/.opencode/{agent-status.md,watch-agents.pid}` — **outside the repo** | n/a | n/a |
 
 Everything else in the crontab belongs to p3 (`~/code/p3/s46/scheduler/*`) and

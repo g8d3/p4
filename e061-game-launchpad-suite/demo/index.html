@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>e061 Suite Slice — Demo (local, no funds)</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { border: 2px solid #333; display: block; width: 100%; background: #111; }
+  .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #win { display: none; }
+  .badge { display: inline-block; padding: .1rem .5rem; border-radius: 99px; font-size: .8rem; }
+  .off { background: #fdd; } .on { background: #dfd; }
+</style>
+</head>
+<body>
+<h1>e061 Suite Slice <small>(demo, rung-1: runs locally)</small></h1>
+<p>Spec slice: play e046 canvas &rarr; 7 coins &rarr; win screen &rarr; one e052 test buy (fail-closed) + one e057 warning card. No wallet, no funds, no mainnet.</p>
+
+<div class="card">
+  <h2>1. Play (placeholder canvas)</h2>
+  <p>Click the canvas to collect a coin. 7 coins = win. (Real slice embeds the e046 Kaplay build; this demo proves the suite page wiring.)</p>
+  <canvas id="game" width="600" height="200" tabindex="0"></canvas>
+  <p>Coins: <b id="coins">0</b>/7</p>
+</div>
+
+<div class="card" id="win">
+  <h2>2. Win screen</h2>
+  <p>You reached the goal. Claim path:</p>
+  <p><button id="claim" disabled>Claim test buy</button>
+     <span id="chainBadge" class="badge off">chain: checking…</span></p>
+  <p id="disableReason" style="color:#900"></p>
+</div>
+
+<div class="card">
+  <h2>3. Fee flow (observed only)</h2>
+  <ul>
+    <li>1% platform &rarr; buyback/burn pot</li>
+    <li>0.5% creator</li>
+    <li>0.25% strategy escrow (capped 80%)</li>
+  </ul>
+  <p><i>Slice observes the 1% on the test buy. No distribution, no withdrawal.</i></p>
+</div>
+
+<div class="card">
+  <h2>4. Analytics card (one e057 warning)</h2>
+  <p><b>Base-rate warning:</b> most launchpad tokens &rarr; 0. Entry needs a level + kill rule (STRATEGY.md).</p>
+  <p>fairLaunchScore / staleness: <b>unattested</b> (no attestation feed in slice).</p>
+</div>
+
+<script>
+let coins = 0;
+const cv = document.getElementById('game'), ctx = cv.getContext('2d');
+function draw() {
+  ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 600, 200);
+  ctx.fillStyle = '#fc0';
+  for (let i = coins; i < 7; i++) {
+    ctx.beginPath(); ctx.arc(50 + i * 75, 100, 18, 0, 7); ctx.fill();
+  }
+  ctx.fillStyle = '#fff'; ctx.fillText('click to collect (' + coins + '/7)', 10, 20);
+}
+cv.addEventListener('click', () => {
+  if (coins >= 7) return;
+  coins++;
+  document.getElementById('coins').textContent = coins;
+  draw();
+  if (coins >= 7) document.getElementById('win').style.display = 'block';
+});
+draw();
+fetch('status.json').then(r => r.json()).then(s => {
+  const b = document.getElementById('chainBadge');
+  b.textContent = 'chain: ' + s.chain + ' | pair: ' + s.pair;
+  b.className = 'badge ' + (s.anvilRunning ? 'on' : 'off');
+  document.getElementById('disableReason').textContent =
+    s.anvilRunning ? '' : ('Disabled (fail-closed): ' + s.disableReason);
+  document.getElementById('claim').disabled = !s.anvilRunning;
+}).catch(() => {
+  document.getElementById('disableReason').textContent = 'Disabled (fail-closed): status.json unreachable';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""e062 ops bus: events + heartbeats + rungs + staleness. SQLite only."""
+import os, sqlite3, sys, time
+
+DB = os.environ.get('E062_DB', os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'ops.db'))
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS events(ts INTEGER, track TEXT, kind TEXT, summary TEXT, dedup_key TEXT UNIQUE);
+CREATE TABLE IF NOT EXISTS heartbeats(track TEXT PRIMARY KEY, ts INTEGER, status TEXT, note TEXT);
+CREATE TABLE IF NOT EXISTS rungs(track TEXT PRIMARY KEY, rung INTEGER, ts INTEGER, url TEXT, note TEXT);
+CREATE TABLE IF NOT EXISTS ledger(ts INTEGER, track TEXT, kind TEXT, usd REAL, note TEXT);
+CREATE TABLE IF NOT EXISTS trials(name TEXT PRIMARY KEY, ts INTEGER, renews_ts INTEGER, cost_usd REAL, status TEXT DEFAULT 'active', note TEXT);
+CREATE TABLE IF NOT EXISTS proposals(id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, track TEXT, amount_usd REAL, action TEXT, reason TEXT, status TEXT DEFAULT 'pending', decided_ts INTEGER);
+"""
+
+def db():
+    c = sqlite3.connect(DB)
+    c.executescript(SCHEMA)
+    return c
+
+def init():
+    db().close()
+    print(f'ops.db ready at {DB}')
+
+def emit(track, kind, summary, dedup=None):
+    c = db()
+    try:
+        c.execute('INSERT INTO events VALUES (?,?,?,?,?)',
+                  (int(time.time()), track, kind, summary, dedup or summary))
+        c.commit()
+        print('emitted')
+    except sqlite3.IntegrityError:
+        print('duplicate (dedup hit)')
+    c.close()
+
+def beat(track, status='ok', note=''):
+    c = db()
+    c.execute('INSERT OR REPLACE INTO heartbeats VALUES (?,?,?,?)',
+              (track, int(time.time()), status, note))
+    c.commit(); c.close()
+    print(f'heartbeat {track}={status}')
+
+def promote(track, rung, url='', note=''):
+    c = db()
+    cur = c.execute('SELECT rung FROM rungs WHERE track=?', (track,)).fetchone()
+    if cur and cur[0] >= rung:
+        print(f'already rung {cur[0]}'); c.close(); return
+    c.execute('INSERT OR REPLACE INTO rungs VALUES (?,?,?,?,?)',
+              (track, rung, int(time.time()), url, note))
+    c.commit(); c.close()
+    print(f'{track} -> rung {rung}')
+    emit(track, 'promote', f'{track} reached rung {rung}: {note or url}', dedup=f'{track}:rung:{rung}')
+
+def propose(track, amount, action, reason):
+    c = db()
+    cur = c.execute('INSERT INTO proposals(ts, track, amount_usd, action, reason) VALUES (?,?,?,?,?)',
+                    (int(__import__('time').time()), track, float(amount), action, reason))
+    pid = cur.lastrowid
+    c.commit(); c.close()
+    print(f'proposal #{pid} recorded (pending)')
+    emit(track, 'proposal', f'#{pid} ${amount}: {action} — {reason}', dedup=f'proposal:{pid}')
+
+def decide(pid, verdict):
+    assert verdict in ('approved', 'rejected', 'executed')
+    c = db()
+    c.execute("UPDATE proposals SET status=?, decided_ts=? WHERE id=?",
+              (verdict, int(__import__('time').time()), int(pid)))
+    c.commit(); c.close()
+    print(f'#{pid} -> {verdict}')
+
+def proposals(status='pending'):
+    c = db()
+    rows = c.execute('SELECT id, datetime(ts,"unixepoch"), track, amount_usd, action, reason, status FROM proposals WHERE status=? ORDER BY id', (status,)).fetchall()
+    c.close()
+    for r in rows: print(r)
+    if not rows: print('(none)')
+
+def trial(name, renews, cost=0.0, note=''):
+    import time as t, datetime as dt
+    try: rts = int(dt.datetime.fromisoformat(renews).timestamp())
+    except Exception: sys.exit('renews must be YYYY-MM-DD')
+    c = db()
+    c.execute('INSERT OR REPLACE INTO trials VALUES (?,?,?,?,?,?)',
+              (name, int(t.time()), rts, float(cost), 'active', note))
+    c.commit(); c.close()
+    print(f'trial {name} renews {renews} (${cost})')
+
+def trials(days=7):
+    import time as t
+    c = db()
+    rows = c.execute("SELECT name, datetime(renews_ts,'unixepoch'), cost_usd, status, note FROM trials WHERE status='active' ORDER BY renews_ts").fetchall()
+    c.close()
+    now = int(t.time())
+    for n, rd, co, st, no in rows:
+        c2 = db()
+        rts = c2.execute('SELECT renews_ts FROM trials WHERE name=?', (n,)).fetchone()[0]
+        c2.close()
+        left = (rts - now) // 86400
+        flag = ' <-- DUE' if left <= days else ''
+        print(f'{n} renews {rd} ${co} ({left}d left) {no}{flag}')
+    if not rows: print('(no active trials)')
+
+def spend(track, usd, note=''):
+    c = db()
+    c.execute('INSERT INTO ledger VALUES (?,?,?, ?,?)' if False else 'INSERT INTO ledger VALUES (?,?,?,?,?)',
+              (int(__import__('time').time()), track, 'spend', float(usd), note))
+    c.commit(); c.close()
+    print(f'spent ${usd} [{track}] {note}')
+
+def earn(track, usd, note=''):
+    c = db()
+    c.execute('INSERT INTO ledger VALUES (?,?,?,?,?)',
+              (int(__import__('time').time()), track, 'earn', float(usd), note))
+    c.commit(); c.close()
+    print(f'earned ${usd} [{track}] {note}')
+
+def runway(budget=300.0):
+    c = db()
+    sp = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='spend'").fetchone()[0]
+    ea = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='earn'").fetchone()[0]
+    c.close()
+    print(f'spent ${sp:.2f} earned ${ea:.2f} net ${ea-sp:.2f} | budget ${budget:.2f} left ${budget-sp+ea:.2f}')
+    c = db()
+    for r in c.execute("SELECT track, kind, SUM(usd), COUNT(*) FROM ledger GROUP BY track, kind ORDER BY track"):
+        print(r)
+    c.close()
+
+def stale(max_age_h=49):
+    import time as t
+    c = db()
+    now = int(t.time())
+    rows = c.execute('SELECT track, ts, status, note FROM heartbeats').fetchall()
+    c.close()
+    dead = [(tr, (now - ts) // 3600) for tr, ts, st, no in rows if now - ts > max_age_h * 3600]
+    if not dead:
+        print('all tracks alive')
+    for tr, h in dead:
+        print(f'STALE {tr} silent {h}h')
+    return dead
+
+def status():
+    c = db()
+    print('-- rungs --')
+    for r in c.execute('SELECT track, rung, datetime(ts,"unixepoch"), url, note FROM rungs'):
+        print(r)
+    print('-- heartbeats --')
+    for r in c.execute('SELECT track, datetime(ts,"unixepoch"), status, note FROM heartbeats'):
+        print(r)
+    print('-- recent events --')
+    for r in c.execute('SELECT datetime(ts,"unixepoch"), track, kind, summary FROM events ORDER BY ts DESC LIMIT 15'):
+        print(r)
+    c.close()
+
+CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
+        'propose': lambda a: propose(*a), 'decide': lambda a: decide(*a),
+        'trial': lambda a: trial(*a), 'trials': lambda a: trials(int(a[0]) if a else 7),
+        'spend': lambda a: spend(*a), 'earn': lambda a: earn(*a),
+        'runway': lambda a: runway(float(a[0]) if a else 300.0),
+        'proposals': lambda a: proposals(*a),
+        'beat': lambda a: beat(*a), 'promote': lambda a: promote(a[0], int(a[1]), *(a[2:])),
+        'stale': lambda a: stale(int(a[0]) if a else 49), 'status': lambda a: status()}
+
+if __name__ == '__main__':
+    CMDS['pending'] = CMDS['proposals']
+    if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
+        sys.exit('usage: ops.py {init|emit|beat|promote|stale|status|propose|decide|proposals} ...')
+    CMDS[sys.argv[1]](sys.argv[2:])

@@ -1,0 +1,25 @@
+{
+  "comment": "e059 v1: ~20 major protocols. cg_id = CoinGecko id. llama = DefiLlama fees slugs in priority order (first slug found in /overview/fees wins; multiple slugs summed, e.g. Jupiter agg+perp). Validated at runtime against /overview/fees.",
+  "protocols": [
+    {"symbol": "ETH",  "name": "Ethereum",          "cg_id": "ethereum",                 "llama": ["ethereum"]},
+    {"symbol": "SOL",  "name": "Solana",            "cg_id": "solana",                   "llama": ["solana"]},
+    {"symbol": "BTC",  "name": "Bitcoin",           "cg_id": "bitcoin",                  "llama": ["bitcoin", "ordinals"]},
+    {"symbol": "BNB",  "name": "BNB Chain",         "cg_id": "binancecoin",              "llama": ["bsc"]},
+    {"symbol": "TRX",  "name": "Tron",              "cg_id": "tron",                     "llama": ["tron"]},
+    {"symbol": "AVAX", "name": "Avalanche",         "cg_id": "avalanche-2",              "llama": ["avalanche"]},
+    {"symbol": "ARB",  "name": "Arbitrum",          "cg_id": "arbitrum",                 "llama": ["arbitrum"]},
+    {"symbol": "OP",   "name": "Optimism",          "cg_id": "optimism",                 "llama": ["op-mainnet"]},
+    {"symbol": "UNI",  "name": "Uniswap",           "cg_id": "uniswap",                  "llama": ["uniswap-v3", "uniswap-v2", "uniswap-v4"]},
+    {"symbol": "AAVE", "name": "Aave",              "cg_id": "aave",                     "llama": ["aave-v3", "aave-v2"]},
+    {"symbol": "SKY",  "name": "Sky (MakerDAO)",    "cg_id": "sky",                      "llama": ["sky-lending", "sky-money"]},
+    {"symbol": "LDO",  "name": "Lido",              "cg_id": "lido-dao",                 "llama": ["lido"]},
+    {"symbol": "CAKE", "name": "PancakeSwap",       "cg_id": "pancakeswap-token",         "llama": ["pancakeswap-amm", "pancakeswap-amm-v3", "pancakeswap-infinity"]},
+    {"symbol": "CRV",  "name": "Curve",             "cg_id": "curve-dao-token",          "llama": ["curve-dex", "curve-llamalend"]},
+    {"symbol": "COMP", "name": "Compound",          "cg_id": "compound-governance-token","llama": ["compound-v3", "compound-v2"]},
+    {"symbol": "SUSHI","name": "SushiSwap",         "cg_id": "sushi",                    "llama": ["sushiswap", "sushiswap-v3", "sushiswap-agg"]},
+    {"symbol": "GMX",  "name": "GMX",               "cg_id": "gmx",                      "llama": ["gmx-v2-perps", "gmx-v1-perps"]},
+    {"symbol": "HYPE", "name": "Hyperliquid",       "cg_id": "hyperliquid",              "llama": ["hyperliquid-l1", "hyperliquid-perps", "hyperliquid-spot-orderbook", "hyperliquid-hlp"]},
+    {"symbol": "JUP",  "name": "Jupiter",           "cg_id": "jupiter-exchange-solana",  "llama": ["jupiter-aggregator", "jupiter-perpetual-exchange"]},
+    {"symbol": "RAY",  "name": "Raydium",           "cg_id": "raydium",                  "llama": ["raydium-amm", "launchlab"]}
+  ]
+}
