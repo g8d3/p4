@@ -47,7 +47,7 @@ def save_config(patch):
         if k in patch:
             try:
                 v = float(patch[k])
-                if k == 'report_hour_utc': v = int(v)
+                if k in ('report_hour_utc', 'last_n', 'top_n'): v = int(v)
             except (TypeError, ValueError):
                 errors.append(f'{k} not a number'); continue
             if not (lo <= v <= hi):
