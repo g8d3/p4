@@ -62,4 +62,23 @@ assert isinstance(d.get("rows"), list), "rows not a list"
 print(f"signals ok: {d.get('count', 0)} logged")
 EOF
 
+# mobile hard rules (owner law): thumb-zone controls, inner-scroll tables,
+# one-line summary + expand for config, top persistent card (saved data to work)
+for pat in "thumbbar" "twrap" "topcard" "details class=cfg" "loadTop" "Top persistent spreads"; do
+  grep -q "$pat" /tmp/e58_root.html || fail "mobile/power pattern missing: $pat"
+done
+echo "mobile ok: thumbbar + twrap + topcard + cfg-summary live"
+
+timeout 15 curl -s -m 15 "$BASE/api/persistence?threshold_bps=20&last_n=4" -o /tmp/e58_persist.json || fail "api/persistence unreachable"
+python3 - <<'EOF' || fail "api/persistence shape bad"
+import json
+d = json.load(open("/tmp/e58_persist.json"))
+rows = d.get("rows")
+assert isinstance(rows, list) and len(rows) > 0, "no survivors"
+r0 = rows[0]
+for k in ("coin", "median_apy", "persist", "long", "short"):
+    assert k in r0, f"missing {k}"
+print(f"persistence ok: {len(rows)} survivors, top={r0['coin']} med={r0['median_apy']}%")
+EOF
+
 echo "E2E PASS ($BASE)"

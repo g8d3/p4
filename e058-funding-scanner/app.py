@@ -167,12 +167,24 @@ def table(min_apy: float = 0.0, max_apy: float = 1e9,
 INDEX = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>e058 funding scanner</title>
 <style>:root{--bg:#fff;--fg:#111;--bd:#ccc;--hd:#eee}html.dark{--bg:#111418;--fg:#e6e6e6;--bd:#333;--hd:#1e2228}
-body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg)}table{border-collapse:collapse;width:100%;font-size:14px}
+body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);padding-bottom:76px}table{border-collapse:collapse;width:100%;font-size:14px}
 td,th{border:1px solid var(--bd);padding:4px 6px;text-align:right}td:first-child,th:first-child{text-align:left}
-th{position:sticky;top:0;background:var(--hd)}input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd)}
+th{position:sticky;top:0;background:var(--hd);z-index:2}input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:4px 8px}
+button{cursor:pointer}button:disabled{opacity:.4}
+.twrap{max-height:52vh;overflow-y:auto;overflow-x:auto;border:1px solid var(--bd);border-radius:8px;margin:6px 0}
+.twrap table{margin:0;border:0}
+.topcard{border:1px solid var(--bd);border-radius:10px;padding:8px;margin:8px 0;background:var(--bg)}
+.topcard .one{font-size:14px}
+.topcard .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.topcard .pick{flex:1;min-width:90px;text-align:left;padding:8px;font-size:13px}
+.thumbbar{position:fixed;left:8px;right:8px;bottom:8px;z-index:5;background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:8px;display:flex;gap:8px}
+.thumbbar button{flex:1;padding:12px 8px;font-size:15px}
+details.cfg{border:1px solid var(--bd);border-radius:8px;padding:6px;margin:8px 0;font-size:13px}
+details.cfg summary{cursor:pointer}
 .pos{color:#3ddc84}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e058t=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
+<div class=topcard id=top><div class=one id=top-one>Top persistent spreads: loading…</div><div class=row id=top-row></div><div style="font-size:12px;opacity:.7;margin-top:4px">persistent = spread held every check — tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div></div>
 <div id=f>
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
 <label>OI rank <input id=o0 type=number value=0 style=width:55px>–<input id=o1 type=number value=9999 style=width:60px></label>
@@ -181,18 +193,20 @@ th{position:sticky;top:0;background:var(--hd)}input,select,button{background:var
 <label>sort <select id=s><option value=apy>APY</option><option value=oi>OI rank</option><option value=legs>legs</option></select></label>
 <button onclick=load()>filter</button> <small id=c></small>
 </div>
-<div id=r style="margin:8px 0;border:1px solid var(--bd);padding:6px"><b>scheduled report</b> <small>(full digest only at hour UTC; outside it only urgent &ge;mult&times;threshold notifies)</small><br>
+<details class=cfg id=r><summary id=r-sum>Daily digest: loading… (tap to change time)</summary>
+<div style="margin-top:6px">
 <label>hour UTC <input id=rh type=number min=0 max=23 style=width:50px></label>
 <label>threshold bps <input id=rt type=number style=width:70px></label>
 <label>last_n <input id=rn type=number style=width:50px></label>
 <label>top_n <input id=rtn type=number style=width:50px></label>
 <label>urgent&times; <input id=ru type=number step=0.5 style=width:50px></label>
 <button onclick=saveCfg()>save</button> <small id=rc></small>
-</div>
-<div id=s style="margin:8px 0"><b>signal history</b> <small>(every sent alert, newest first — nothing lost)</small> <button onclick=loadSig()>refresh</button>
-<table><thead><tr><th>sent (UTC)</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div>
-<table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
-<tbody id=b></tbody></table>
+</div></details>
+<div id=s style="margin:8px 0"><details open><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
+<div class=twrap><table><thead><tr><th>sent (UTC)</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
+<div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
+<tbody id=b></tbody></table></div>
+<div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="load()">filter</button><button onclick="loadSig()">history</button></div>
 <script>async function load(){const g=id=>document.getElementById(id).value;
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=d.ts||'no data';
@@ -200,13 +214,23 @@ document.getElementById('c').textContent=(d.count??d.rows.length)+' coins';
 document.getElementById('b').innerHTML=d.rows.map(r=>
 `<tr><td>${r.coin}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`).join('');}
 async function loadCfg(){try{const c=await (await fetch('/api/report-config')).json();
-rh.value=c.report_hour_utc;rt.value=c.threshold_bps;rn.value=c.last_n;rtn.value=c.top_n;ru.value=c.urgent_mult;}catch(e){}}
+rh.value=c.report_hour_utc;rt.value=c.threshold_bps;rn.value=c.last_n;rtn.value=c.top_n;ru.value=c.urgent_mult;
+const rs=document.getElementById('r-sum');if(rs)rs.textContent=`Daily digest ${c.report_hour_utc}:00 UTC, top ${c.top_n} over ${c.threshold_bps}bps (tap to change time)`;}catch(e){}}
 async function saveCfg(){const b={report_hour_utc:+rh.value,threshold_bps:+rt.value,last_n:+rn.value,top_n:+rtn.value,urgent_mult:+ru.value};
 try{const r=await (await fetch('/api/report-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})).json();
 rc.textContent=r.ok?'saved':'ERR: '+(r.error||'?');}catch(e){rc.textContent='ERR: unreachable';}}
 async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100')).json();
+const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
 sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${s.sent_ts}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
-load();loadCfg();loadSig();</script></body></html>"""
+async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
+try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
+const t=(d.rows||[]).slice(0,3);
+if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
+one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% (${r.persist})`).join(' · ')}`;
+row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.persist} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
+function pickCoin(c){document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
+function topGo(){document.getElementById('top').scrollIntoView();loadTop();}
+load();loadCfg();loadSig();loadTop();</script></body></html>"""
 
 @app.get('/api/persistence')
 def persistence(threshold_bps: float = 20.0, last_n: int = 4,
