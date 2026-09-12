@@ -36,7 +36,13 @@ LunarCrush Individual, X credits sparingly. Biggest risk: X reads scale
 linearly to unaffordable; if $90–300/mo can't fund velocity on 50–100
 memes, kill or re-scope to Dexscreener-only rotation radar.
 
-## Spike 2 result 2026-09-12: unofficial X read APIs (cheapest-first)
+## Pipe DECIDED 2026-09-12 (owner via board note: cheapest/free)
+
+Dexscreener-only rotation radar, $0. LunarCrush $90 parked; cheap X
+pipe (twitterapis $0.04/1k) is the documented upgrade path if free
+proves thin. Kill rule: no signal in 2 weeks of paper-tracking → kill.
+
+### Survey behind it (spike 2, kept for the upgrade path)
 
 Official baseline $5.00/1k reads. Unofficial: twitterapis.com $0.04/1k
 (cheapest, ≤20 tweets/call, 63 endpoints) > twitterapi.io $0.15/1k
