@@ -7,7 +7,21 @@ body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-
 table{border-collapse:collapse;width:100%;table-layout:fixed}td,th{border:1px solid var(--bd);padding:var(--rowpad) 6px;text-align:left;font-size:var(--fs);overflow:hidden}
 body.compact td,body.compact th{padding-top:1px;padding-bottom:1px}
 th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}
-#tbl-steer{min-width:640px}#tbl-activity{min-width:640px}
+#tbl-activity{min-width:640px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.card{border:1px solid var(--bd);border-radius:8px;padding:8px;cursor:pointer;background:var(--bg)}
+.card:hover{border-color:#888}
+.card.open{grid-column:1/-1;cursor:default}
+.card .chead{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.card .ctrack{font-weight:bold}
+.card .rung{font-weight:bold}
+.card .cbeat{font-size:12px;opacity:.85;margin-top:4px}
+.card .cdetail{margin-top:8px;border-top:1px solid var(--bd);padding-top:8px}
+.card .hist{font-size:12px;max-height:30vh;overflow-y:auto;margin:6px 0}
+.card .hist div{padding:2px 0;border-bottom:1px dotted var(--bd)}
+.card .msgrow{display:flex;gap:6px;margin-top:6px}
+.card .msgrow input{flex:1}
+.pausedtag{font-size:11px;color:#e0a63d;border:1px solid #e0a63d;border-radius:4px;padding:0 4px}
 #tbl-activity td{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
 tr.act{cursor:pointer}tr.act:hover td{background:var(--hd)}
 tr.adetail td{background:var(--hd);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
@@ -23,7 +37,7 @@ pre#leg{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-wi
 @media (max-width:700px){
 :root{--planw:200px;--beatw:170px;--urlw:130px}
 .hctl{float:none;display:block;margin-top:6px}
-#tbl-steer{min-width:860px}#tbl-activity{min-width:760px}
+#tbl-activity{min-width:760px}
 .twrap{max-height:62vh;overflow-y:auto}
 .twrap thead th{position:sticky;top:0;z-index:3}
 th.a-time{min-width:104px}th.a-track{min-width:64px}th.a-kind{min-width:120px}th.a-detail{min-width:220px}
@@ -38,22 +52,23 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <h2 style="margin:4px 0">fleet board <small id=ts></small>
 <span style="float:right"><button onclick="setToken(this)">token</button> <button onclick="document.documentElement.classList.toggle('dark');localStorage.ft=document.documentElement.classList.contains('dark')?'d':'l'">dark/light</button></span></h2>
 <script>if(localStorage.ft==='d')document.documentElement.classList.add('dark');</script>
-<div class=zone><h3>1 · steer — what works on what (pause/resume)
+<div class=zone><h3>1 · projects — cards (tap for history + message)
 <span class=hctl><button onclick="runFleet(this)">run fleet now</button> <span id=runstate style="font-size:12px;opacity:.8"></span></span></h3>
-<div class=twrap><table id=tbl-steer><thead><tr><th class=c-track>track</th><th class=c-rung>rung</th><th class=c-plan>plan</th><th class=c-beat>beat</th><th class=c-url>url</th><th class=c-ctrl>control</th></tr></thead><tbody id=t></tbody></table></div></div>
+<div style="font-size:12px;opacity:.7;margin-bottom:6px">tap a card → full history for that project + one message box: queue it for the next leg, or send + run now.</div>
+<div id=cards class=cards></div></div>
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
 <div class=twrap><table id=tbl-help><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div>
-<div style="font-size:12px;opacity:.7">write from the track's row above — confirmation appears on the button, note lands here.</div></div>
+<div style="font-size:12px;opacity:.7">write from a project card above — confirmation appears on the button, note lands here.</div></div>
 <div class=zone><h3>3 · approve — money gates + treasury</h3>
 <div id=w style="margin-bottom:6px"></div>
 <div class=twrap><table id=tbl-approve><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
 <div class=zone><h3>4 · activity — one table (click a row to talk to the agent)</h3>
-<div style="font-size:12px;opacity:.7;margin-bottom:6px">runs + events merged, newest first. usage is harvested from the leg's pi session file at leg end. click any row for detail + reply box (reply lands as a note to that track).</div>
+<div style="font-size:12px;opacity:.7;margin-bottom:6px">all sessions (runs + events), newest first. click a row for detail + a follow-up note about THAT session (queue only — to run a project now, use its card above).</div>
 <div class=twrap><table id=tbl-activity><thead><tr><th class=a-time>time</th><th class=a-track>track</th><th class=a-kind>kind</th><th class=a-detail>detail</th></tr></thead><tbody id=runs></tbody></table></div>
 <details style="font-size:12px;margin-top:6px"><summary>full flow — last leg log (complete leg output)</summary><pre id=leg></pre></details></div>
 <div class=zone><h3>5 · trials / ideas / orders</h3>
 <div class=twrap><table id=tbl-trials><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
 <div class=twrap><table id=tbl-ideas style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
 <div class=twrap><table id=tbl-dir style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
-<script src=/app.js?v=14></script>
+<script src=/app.js?v=15></script>
 </body></html>

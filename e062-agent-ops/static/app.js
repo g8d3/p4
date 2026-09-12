@@ -67,18 +67,43 @@ function restoreDrafts(m) {
   }
 }
 function decide(id, v, btn) { ctl('/api/decide', {id: id, verdict: v}, btn, v + ' ✓'); }
-async function sendNote(t, btn) {
+async function sendNoteQueued(t, btn) {
   const inp = document.getElementById('n-' + t);
   const v = inp.value.trim();
   if (!v) return;
   const old = btn.textContent;
-  btn.textContent = '…';
-  const r = await (await fetch('/api/note', {method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({track: t, message: v})})).json();
-  if (r.ok) { inp.value = ''; btn.textContent = 'sent ✓'; load(); }
-  else { btn.textContent = 'error'; alert(r.error || 'failed'); }
-  setTimeout(() => { btn.textContent = old; }, 2500);
+  btn.textContent = '…'; btn.disabled = true;
+  try {
+    const r = await (await fetch('/api/note', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({track: t, message: v})})).json();
+    if (r.ok) { inp.value = ''; btn.textContent = 'queued ✓'; load(); }
+    else { btn.textContent = 'error'; alert(r.error || 'failed'); }
+  } catch (e) { btn.textContent = 'error'; alert(String(e)); }
+  setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
+}
+async function sendNoteRun(t, btn) {
+  const inp = document.getElementById('n-' + t);
+  const v = inp.value.trim();
+  if (!v) { alert('write the message first — or use plain run for no-message'); return; }
+  const old = btn.textContent;
+  btn.textContent = 'sending…'; btn.disabled = true;
+  try {
+    const r1 = await (await fetch('/api/note', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({track: t, message: v})})).json();
+    if (!r1.ok) { btn.textContent = 'error'; alert(r1.error || 'note failed'); }
+    else {
+      inp.value = '';
+      btn.textContent = 'starting…';
+      const r2 = await (await fetch('/api/run', {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({scope: t})})).json();
+      if (r2.ok) { btn.textContent = 'running ✓'; load(); }
+      else { btn.textContent = 'error'; alert((r2.error || 'run failed') + ' — message was queued anyway'); }
+    }
+  } catch (e) { btn.textContent = 'error'; alert(String(e)); }
+  setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
 }
 function esc(s) {
   return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -90,26 +115,31 @@ async function load() {
   const typing = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && ae.value;
   const d = await (await fetch('/api/board')).json();
   window._paused = d.paused || [];
+  window._board = d;
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
-  document.getElementById('t').innerHTML = d.tracks.map(t =>
-    '<tr><td class=c-track><b>' + esc(t.track) + '</b> ' + esc(t.label) + '</td>' +
-    '<td class=' + (t.rung > 0 ? 'r1' : 'r0') + ' c-rung>' + t.rung + '</td>' +
-    '<td class="c-plan ' + (window._wrap ? 'wrap' : 'nowrap') + '">' + esc(t.plan) + '</td>' +
-    '<td class="' + (t.beat && t.beat.status === 'blocked' ? 'blk' : '') + ' c-beat ' + (window._wrap ? 'wrap' : 'nowrap') + '">' +
-      esc(t.beat ? t.beat.ts + ' ' + t.beat.status + ' ' + t.beat.note : '') + '</td>' +
-    '<td class="c-url ' + (window._wrap ? 'wrap' : 'nowrap') + '">' + (t.url ? '<a href="' + esc(t.url) + '">' + esc(t.url) + '</a>' : '') + '</td>' +
-    '<td class="rowbtns c-ctrl"><input id="n-' + t.track + '" placeholder="note…" >' + '<br>' +
-    '<button onclick="sendNote(\'' + t.track + '\',this)">send</button> ' +
-    '<button onclick="togPause(\'' + t.track + '\',this)">' +
-    ((d.paused || []).includes(t.track) ? 'resume' : 'pause') + '</button> ' +
-    '<button onclick="runScope(\'' + t.track + '\',this)" title="start a runner leg focused on this track">run</button></td></tr>'
-  ).join('');
+  document.getElementById('cards').innerHTML = d.tracks.map(t => {
+    const paused = (d.paused || []).includes(t.track);
+    const open = window._openCard === t.track;
+    return '<div class="card' + (open ? ' open' : '') + '" id="c-' + t.track + '">' +
+    '<div class=chead onclick="toggleCard(\'' + t.track + '\')">' +
+    '<span class=ctrack>' + esc(t.track) + '</span><span>' + esc(t.label) + '</span>' +
+    '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '">rung ' + t.rung + '</span>' +
+    (paused ? '<span class=pausedtag>paused</span>' : '') +
+    '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
+    '<div class=cbeat>' + esc(t.beat ? t.beat.ts + ' ' + t.beat.status + ' ' + t.beat.note : '') + '</div>' +
+    (t.url ? '<div style="font-size:12px"><a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
+    '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
+    '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
+    '<button onclick="runScope(\'' + t.track + '\',this)" title="run now WITHOUT any message">run</button></div>' +
+    (open ? cardDetail(t) : '') +
+    '</div>';
+  }).join('');
   restoreDrafts(drafts);
   if (typing) { const el = document.getElementById(ae.id); if (el) { el.focus(); if (el.setSelectionRange && el.value) try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
   const rs = document.getElementById('runstate');
   if (rs) rs.innerHTML = runPill(d);
   document.getElementById('inbox').innerHTML = d.notes.map(n =>
-    '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a track row above</td></tr>';
+    '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a project card above</td></tr>';
   document.getElementById('w').textContent =
     'treasury: spent $' + d.runway.spent.toFixed(2) + ' earned $' + d.runway.earned.toFixed(2) +
     ' left $' + d.runway.left.toFixed(2) + ' of $300';
@@ -130,6 +160,39 @@ async function load() {
     '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
+}
+function toggleCard(t) {
+  window._openCard = (window._openCard === t) ? null : t;
+  load();
+}
+function cardHist(track) {
+  const d = window._board || {events: [], runs: [], notes: []};
+  const items = [];
+  (d.events || []).filter(e => e.track === track).forEach(e =>
+    items.push({time: e.ts, kind: e.kind, text: e.summary}));
+  (d.runs || []).filter(r => r.scope === track).forEach(r =>
+    items.push({time: r.started || '', kind: 'run #' + r.id + ' \u00b7 ' + (r.status || ''), text: runLine(r), leg: r.id}));
+  (d.notes || []).filter(n => n.track === track).forEach(n =>
+    items.push({time: n.ts, kind: 'owner note', text: n.message}));
+  items.sort((a, b) => (b.time || '') < (a.time || '') ? -1 : 1);
+  return items.slice(0, 15);
+}
+function cardDetail(t) {
+  const items = cardHist(t.track);
+  const h = items.length ? items.map(x =>
+    '<div><b>' + esc(x.time || '') + '</b> [' + esc(x.kind || '') + '] ' + esc(x.text || '') +
+    (x.leg ? ' <a href="/api/leg/' + x.leg + '" target=_blank>log</a>' : '') + '</div>'
+  ).join('') : '<div>no history yet</div>';
+  return '<div class=cdetail onclick="event.stopPropagation()">' +
+    '<div style="font-size:12px;opacity:.8">' + esc(t.plan || '') + '</div>' +
+    '<div style="font-size:12px;margin-top:6px"><b>history</b> (this project only)</div>' +
+    '<div class=hist>' + h + '</div>' +
+    '<div style="font-size:12px"><b>message to the ' + esc(t.track) + ' agent</b> \u2014 one box, you decide when it runs:</div>' +
+    '<div class=msgrow><input id="n-' + t.track + '" placeholder="what should the agent do\u2026"></div>' +
+    '<div class=rowbtns style="margin-top:4px">' +
+    '<button onclick="sendNoteQueued(\'' + t.track + '\',this)">queue (next leg)</button> ' +
+    '<button onclick="sendNoteRun(\'' + t.track + '\',this)">send + run now</button></div>' +
+    '<div style="font-size:11px;opacity:.6">queue = read whenever the next leg runs. send + run now = your message starts a leg immediately on this project. plain run (above) starts a leg with NO message.</div></div>';
 }
 function actTs(s) {
   try { return new Date(String(s).replace(' ', 'T') + 'Z').getTime(); } catch (e) { return 0; }
@@ -167,7 +230,7 @@ function toggleAct(i, tr) {
   dtr.innerHTML = '<td colspan=4><div>' + esc(a.full || a.detail) + '</div>' +
     '<div class=act-reply><input id="a-' + i + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…">' +
     '<button onclick="sendActNote(\'' + safeTrack + '\',' + i + ',this)">send</button></div>' +
-    '<div style="font-size:11px;opacity:.6">reply lands as a note to that track — the next leg reads it.</div></td>';
+    '<div style="font-size:11px;opacity:.6">reply = follow-up note about THIS session, read next leg (queue only). to run a project now, use its card above.</div></td>';
   tr.after(dtr);
   const inp = document.getElementById('a-' + i);
   if (inp) inp.onclick = e => e.stopPropagation();
