@@ -152,6 +152,13 @@ def main():
         f30, r30 = merge(fees_pts), merge(rev_pts)
         fsum = sum(v for _, v in f30)
         rsum = sum(v for _, v in r30)
+        # time dimension (owner 2026-09-12): trailing-7d vs trailing-30d fees
+        # momentum >1 = fees accelerating, <1 = decelerating
+        f7 = f30[-7:] if len(f30) >= 7 else f30
+        f7sum = sum(v for _, v in f7)
+        f7ann = f7sum * 365 / max(len(f7), 1) if f7 else 0
+        r7 = r30[-7:] if len(r30) >= 7 else r30
+        r7sum = sum(v for _, v in r7)
         # annualize over actual day counts (multi-slug unions can exceed 30d)
         fann = fsum * 365 / max(len(f30), 1) if f30 else 0
         rann = rsum * 365 / max(len(r30), 1) if r30 else 0
@@ -160,19 +167,40 @@ def main():
         through = max(days) if days else None
         rows.append({
             "symbol": p["symbol"], "name": p["name"], "cg_id": p["cg_id"],
+            "category": p.get("category", "Other"),
             "slugs_used": slugs,
             "market_cap_usd": mc, "mcap_at": mcap_at,
             "fees_30d_usd": round(fsum, 2), "fees_ann_usd": round(fann, 2),
             "revenue_30d_usd": round(rsum, 2), "revenue_ann_usd": round(rann, 2),
             "p_fees": round(mc / fann, 2) if mc and fann else None,
             "p_revenue": round(mc / rann, 2) if mc and rann else None,
+            "fees_7d_usd": round(f7sum, 2), "fees_7d_ann_usd": round(f7ann, 2),
+            "p_fees_7d": round(mc / f7ann, 2) if mc and f7ann else None,
+            "fees_momentum": round(f7ann / fann, 3) if fann else None,
+            "revenue_7d_usd": round(r7sum, 2),
             "n_days": len(f30), "data_through": through, "fetched_at": now,
             "method": "P/Fees=mcap/(sum(dailyFees)*365/n_days); P/Revenue likewise on dailyRevenue (protocol revenue)",
         })
         print(f"  {p['symbol']}: mcap={mc} P/Fees={rows[-1]['p_fees']} "
               f"P/Rev={rows[-1]['p_revenue']} (n={len(f30)}, through={through})")
 
+    def med(xs):
+        xs = sorted(x for x in xs if x is not None)
+        if not xs:
+            return None
+        m = len(xs) // 2
+        return round((xs[m] + xs[~m]) / 2, 2)
+
+    cats = {}
+    for r in rows:
+        cats.setdefault(r["category"], []).append(r)
+    cat_med = {c: {"n": len(rs), "median_p_fees": med([x["p_fees"] for x in rs]),
+                    "median_p_revenue": med([x["p_revenue"] for x in rs]),
+                    "median_momentum": med([x["fees_momentum"] for x in rs])}
+               for c, rs in cats.items()}
+
     out = {"as_of": now, "window_days": WINDOW, "annualization": "sum(trailing ~30d)*365/n_days",
+           "categories": sorted(cats), "category_medians": cat_med,
            "sources": ["DefiLlama /summary/fees (free, keyless)", "CoinGecko /coins/markets (public)"],
            "caveats": [
                "dailyRevenue = protocol revenue only; holders-revenue (token-holder distributions) excluded — P/Revenue overstates cost vs total fees by design.",
@@ -183,9 +211,11 @@ def main():
            "protocols": rows}
     json.dump(out, open(os.path.join(OUT, "multiples.json"), "w"), indent=1)
     with open(os.path.join(OUT, "multiples.csv"), "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["symbol", "name", "cg_id", "slugs_used", "market_cap_usd",
+        w = csv.DictWriter(f, fieldnames=["symbol", "name", "category", "cg_id", "slugs_used", "market_cap_usd",
                                           "mcap_at", "fees_30d_usd", "fees_ann_usd", "revenue_30d_usd",
-                                          "revenue_ann_usd", "p_fees", "p_revenue", "n_days",
+                                          "revenue_ann_usd", "p_fees", "p_revenue", "fees_7d_usd",
+                                          "fees_7d_ann_usd", "p_fees_7d", "fees_momentum",
+                                          "revenue_7d_usd", "n_days",
                                           "data_through", "fetched_at"])
         w.writeheader()
         for r in rows:
