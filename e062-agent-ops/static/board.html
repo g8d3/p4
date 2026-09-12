@@ -6,7 +6,15 @@ body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-
 .zone>h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;opacity:.8}
 table{border-collapse:collapse;width:100%;table-layout:fixed}td,th{border:1px solid var(--bd);padding:var(--rowpad) 6px;text-align:left;font-size:var(--fs);overflow:hidden}
 body.compact td,body.compact th{padding-top:1px;padding-bottom:1px}
-th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}.twrap table{min-width:640px}
+th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}
+#tbl-steer,#tbl-runs,#tbl-events{min-width:640px}
+#tbl-runs td:last-child,#tbl-events td:last-child{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+#tbl-help{width:100%}#tbl-help th:first-child{width:108px}#tbl-help th:nth-child(2){width:64px}
+#tbl-help td:last-child{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+#tbl-approve{width:100%}#tbl-approve th:first-child{width:34px}#tbl-approve th:nth-child(2){width:70px}#tbl-approve th:nth-child(3){width:52px}
+#tbl-approve td:nth-child(4){white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+#tbl-trials,#tbl-ideas,#tbl-dir{width:100%}#tbl-trials td,#tbl-ideas td,#tbl-dir td{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+pre#leg{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:100%;overflow-x:auto}
 .c-plan{width:var(--planw)}.c-beat{width:var(--beatw)}.c-url{width:var(--urlw)}.c-ctrl{min-width:170px;position:sticky;right:0;background:var(--bg);z-index:2;box-shadow:-4px 0 6px -4px var(--bd)}td.c-ctrl input{display:block;width:96%;margin-bottom:4px}td.c-ctrl button{margin:1px 2px 1px 0}.c-track{width:92px}.c-rung{width:44px}
 .hctl{float:right;font-weight:normal;text-transform:none}
 @media (max-width:700px){
@@ -34,19 +42,19 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <span class=hctl><button onclick="runFleet(this)">run fleet now</button> <span id=runstate style="font-size:12px;opacity:.8"></span></span></h3>
 <div class=twrap><table id=tbl-steer><thead><tr><th class=c-track>track</th><th class=c-rung>rung</th><th class=c-plan>plan</th><th class=c-beat>beat</th><th class=c-url>url</th><th class=c-ctrl>control</th></tr></thead><tbody id=t></tbody></table></div></div>
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
-<div class=twrap><table><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div>
+<div class=twrap><table id=tbl-help><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div>
 <div style="font-size:12px;opacity:.7">write from the track's row above — confirmation appears on the button, note lands here.</div></div>
 <div class=zone><h3>3 · approve — money gates + treasury</h3>
 <div id=w style="margin-bottom:6px"></div>
-<div class=twrap><table><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
+<div class=twrap><table id=tbl-approve><thead><tr><th>#</th><th>track</th><th>$</th><th>action</th><th>status</th></tr></thead><tbody id=p></tbody></table></div></div>
 <div class=zone><h3>4 · activity</h3>
 <div style="font-size:12px;opacity:.7;margin-bottom:6px">agent work: when each run started, how long it worked, tokens used, tokens/sec, cost. usage is harvested from the leg's pi session file at leg end.</div>
 <div class=twrap><table id=tbl-runs><thead><tr><th class=r-run>run</th><th class=r-started>started</th><th class=r-worked>worked</th><th class=r-tokens>tokens</th><th class=r-toks>tok/s</th><th class=r-cost>cost $</th><th class=r-scope>scope</th><th class=r-trig>trigger</th><th class=r-status>status</th><th class=r-result>result</th></tr></thead><tbody id=runs></tbody></table></div>
 <div style="font-size:12px;opacity:.7;margin:8px 0 4px">events (detail)</div><div class=twrap><table id=tbl-events><thead><tr><th>time</th><th>track</th><th>kind</th><th>event</th></tr></thead><tbody id=e></tbody></table></div>
 <details style="font-size:12px;margin-top:6px"><summary>full flow — last leg log (complete leg output)</summary><pre id=leg></pre></details></div>
 <div class=zone><h3>5 · trials / ideas / orders</h3>
-<div class=twrap><table><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
-<div class=twrap><table style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
-<div class=twrap><table style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
+<div class=twrap><table id=tbl-trials><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
+<div class=twrap><table id=tbl-ideas style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
+<div class=twrap><table id=tbl-dir style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
 <script src=/app.js?v=12></script>
 </body></html>
