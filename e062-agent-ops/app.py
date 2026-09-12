@@ -20,11 +20,14 @@ def get_prefs():
     c.close()
     d = {k: v for k, v in rows}
     out = {'font': 14, 'planw': 340, 'beatw': 220, 'urlw': 200, 'ctrlw': 220,
-           'rowpad': 4, 'wrap': 1, 'density': 'comfortable'}
+           'rowpad': 4, 'wrap': 1, 'density': 'comfortable', 'report': 'simple'}
     for k in out:
         if k in d:
-            try: out[k] = int(d[k])
-            except Exception: out[k] = d[k] if k == 'density' else out[k]
+            if k in ('density', 'report'):
+                out[k] = d[k]
+            else:
+                try: out[k] = int(d[k])
+                except Exception: pass
     return out
 
 def board_token():
@@ -158,7 +161,7 @@ def board():
     ideas = [l for l in read(os.path.join(P4, 'IDEAS.md'), 30) if l.startswith('- ')]
     return {'tracks': tracks, 'events': events, 'proposals': props,
             'trials': trials, 'directives': directives, 'ideas': ideas, 'runway': runway,
-            'notes': notes, 'paused': paused, 'runs': runs,
+            'notes': notes, 'paused': paused, 'runs': runs, 'prefs': get_prefs(),
             'runner': runner_info, 'leg_tail': last_leg_tail()}
 
 @app.get('/api/runstate')
@@ -274,11 +277,13 @@ async def api_prefs_set(req: Request):
     c.execute('CREATE TABLE IF NOT EXISTS prefs(key TEXT PRIMARY KEY, value TEXT)')
     limits = {'font': (10, 22), 'planw': (120, 800), 'beatw': (80, 600),
               'urlw': (80, 600), 'ctrlw': (120, 600), 'rowpad': (0, 14), 'wrap': (0, 1)}
-    for k in list(limits) + ['density']:
+    for k in list(limits) + ['density', 'report']:
         if k in d:
             v = str(d[k])[:20]
             if k == 'density':
                 if v not in ('compact', 'comfortable'): continue
+            elif k == 'report':
+                if v not in ('simple', 'both', 'tech'): continue
             else:
                 try: v = str(max(limits[k][0], min(int(v), limits[k][1])))
                 except Exception: continue

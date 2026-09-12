@@ -6,6 +6,11 @@ Owner steers by talking to any agent session ("pause X", "approve #N",
 
 ## Standing orders (2026-09-12, owner-activated)
 
+- NORTH STAR (law): every leg lets the owner do MORE business from his phone while needing to know LESS (<30s, no explanation). Simplify + add power, together, every leg.
+- AUTONOMY: FULL-T1 (owner-authorized 2026-09-12). UI fixes, pricing drafts, saved-data put to work, paper-trading/strategy/backtest probes AUTO (log T1 ≤$50). Real charges/positions/KYC = propose + wait.
+- MOBILE HARD RULES: primary controls in thumb zone (bottom); cards contain tables (no new page tables); long text = 1-line summary + expand; tables scroll inside, sticky header.
+- REPORTING: every beat/event = `OWNER_SENTENCE | tech: detail`. Board pref `report` (simple/both/tech, default simple) controls display; never delete either half.
+- CONFIGURABILITY RULE (owner pattern): every either/or display decision ships as a board toggle with a sane default (simple), never as a hardcoded choice.
 - Advance the lowest rung first; revive stale before starting new.
 - e058 (live money): conclusions-only ntfy; never open positions without
   an approved proposal, no matter the APY.

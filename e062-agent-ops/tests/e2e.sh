@@ -16,6 +16,11 @@ grep -q "sendNoteQueued" /tmp/e62_app.js || fail "queue flow missing"
 grep -q "toggleCard" /tmp/e62_app.js || fail "card expand missing"
 grep -q "cardHist" /tmp/e62_app.js || fail "per-card history missing"
 node --check /tmp/e62_app.js || fail "app.js syntax"
+grep -q 'id=seg-report' /tmp/e62_root.html || fail "report toggle missing"
+grep -q 'thumbbar' /tmp/e62_root.html || fail "thumb-zone bar missing"
+grep -q "setReport" /tmp/e62_app.js || fail "setReport missing"
+grep -q "fmtDetail" /tmp/e62_app.js || fail "fmtDetail missing"
+
 grep -q 'id=runs' /tmp/e62_root.html || fail "activity runs table missing"
 code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
 [ "$code" = "200" ] || fail "runstate http=$code"
@@ -31,6 +36,21 @@ out=$(curl -s -m 10 -X POST "$BASE/api/decide" -H 'Content-Type: application/jso
 echo "$out" | grep -q '"ok":false' || fail "decide money gate open!"
 echo "decide gate ok: money still token-protected"
 
+# report pref: configurable display (simple default, both/tech switchable)
+python3 - "$BASE" <<'EOF' || fail "report pref bad"
+import json, sys, urllib.request
+base=sys.argv[1]
+def post(path, obj):
+    r=urllib.request.Request(base+path, data=json.dumps(obj).encode(), headers={"Content-Type":"application/json"})
+    return json.load(urllib.request.urlopen(r, timeout=10))
+r=post("/api/prefs", {"report":"both"})
+assert r.get("ok"), "prefs set failed"
+d=json.load(urllib.request.urlopen(base+"/api/board", timeout=15))
+assert d.get("prefs", {}).get("report")=="both", "board prefs missing report=both"
+r=post("/api/prefs", {"report":"simple"})
+assert r.get("ok"), "prefs restore failed"
+print("report pref ok: simple default, both/tech switchable")
+EOF
 curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 python3 - <<'EOF' || fail "board shape bad"
 import json

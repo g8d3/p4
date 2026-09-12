@@ -45,6 +45,11 @@ th.a-time{min-width:104px}th.a-track{min-width:64px}th.a-kind{min-width:120px}th
 td.wrap{white-space:normal;word-break:break-word}td.nowrap{white-space:nowrap;text-overflow:ellipsis}
 input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:2px 6px}
 button{cursor:pointer}button:disabled{opacity:.4}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:6px;overflow:hidden}
+.seg button{border:0;border-radius:0;padding:2px 8px}
+.seg button.on{background:var(--hd);font-weight:bold}
+.thumbbar{position:sticky;bottom:0;z-index:5;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px;margin:12px 0;display:flex;gap:8px;align-items:center}
+.thumbbar button{padding:10px 14px;font-size:15px;flex:1}
 .r1{color:#3ddc84;font-weight:bold}.r0{color:#e0a63d}.blk{color:#e05555}
 .feed{font-size:12px}.rowbtns{white-space:nowrap}
 #tune{font-size:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--hd);border-radius:8px;padding:6px 8px}
@@ -53,7 +58,7 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <span style="float:right"><button onclick="setToken(this)">token</button> <button onclick="document.documentElement.classList.toggle('dark');localStorage.ft=document.documentElement.classList.contains('dark')?'d':'l'">dark/light</button></span></h2>
 <script>if(localStorage.ft==='d')document.documentElement.classList.add('dark');</script>
 <div class=zone><h3>1 · projects — cards (tap for history + message)
-<span class=hctl><button onclick="runFleet(this)">run fleet now</button> <span id=runstate style="font-size:12px;opacity:.8"></span></span></h3>
+<span class=hctl><span class=seg id=seg-report><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span> <button onclick="runFleet(this)">run fleet now</button> <span id=runstate style="font-size:12px;opacity:.8"></span></span></h3>
 <div style="font-size:12px;opacity:.7;margin-bottom:6px">tap a card → full history for that project + one message box: queue it for the next leg, or send + run now.</div>
 <div id=cards class=cards></div></div>
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
@@ -70,5 +75,6 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div class=twrap><table id=tbl-trials><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
 <div class=twrap><table id=tbl-ideas style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
 <div class=twrap><table id=tbl-dir style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
-<script src=/app.js?v=15></script>
+<div class=thumbbar><button onclick="runFleet(this)">&#9654; run fleet now</button><span class=seg id=seg-report-b><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span></div>
+<script src=/app.js?v=16></script>
 </body></html>

@@ -55,6 +55,35 @@ function togPause(t, btn) {
 }
 function runScope(t, btn) { openCtl('/api/run', {scope: t}, btn, 'leg started ✓'); }
 function runFleet(btn) { openCtl('/api/run', {scope: 'fleet'}, btn, 'leg started ✓'); }
+function splitOwnerTech(s) {
+  s = String(s == null ? '' : s);
+  const i = s.indexOf(' | ');
+  if (i < 0) return {owner: s, tech: s};
+  return {owner: s.slice(0, i).trim(), tech: s.slice(i + 3).trim()};
+}
+function fmtDetail(s) {
+  const m = window._report || 'simple';
+  const p = splitOwnerTech(s);
+  if (m === 'tech') return p.tech;
+  if (m === 'both') return (p.owner === p.tech) ? p.owner : (p.owner + ' | ' + p.tech);
+  return p.owner;
+}
+function paintReportSeg() {
+  const m = window._report || 'simple';
+  document.querySelectorAll('.seg button[data-v]').forEach(function(b) {
+    b.classList.toggle('on', b.getAttribute('data-v') === m);
+  });
+}
+async function setReport(v, btn) {
+  window._report = v;
+  paintReportSeg();
+  try {
+    await fetch('/api/prefs', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({report: v})});
+  } catch (e) {}
+  load();
+}
 function saveDrafts() {
   const m = {};
   document.querySelectorAll('input[id^="n-"]').forEach(i => { m[i.id] = i.value; });
@@ -116,6 +145,8 @@ async function load() {
   const d = await (await fetch('/api/board')).json();
   window._paused = d.paused || [];
   window._board = d;
+  try { window._report = (d.prefs && d.prefs.report) || window._report || 'simple'; } catch (e) {}
+  try { paintReportSeg(); } catch (e) {}
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
   document.getElementById('cards').innerHTML = d.tracks.map(t => {
     const paused = (d.paused || []).includes(t.track);
@@ -126,7 +157,7 @@ async function load() {
     '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '">rung ' + t.rung + '</span>' +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
-    '<div class=cbeat>' + esc(t.beat ? t.beat.ts + ' ' + t.beat.status + ' ' + t.beat.note : '') + '</div>' +
+    '<div class=cbeat>' + esc(t.beat ? (t.beat.ts + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '') + '</div>' +
     (t.url ? '<div style="font-size:12px"><a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
@@ -152,7 +183,7 @@ async function load() {
     '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
   window._act = buildActivity(d);
   document.getElementById('runs').innerHTML = window._act.map((a, i) =>
-    '<tr class=act onclick="toggleAct(' + i + ',this)"><td>' + esc(a.time) + '</td><td>' + esc(a.track) + '</td><td>' + esc(a.kind) + '</td><td>' + esc(a.detail) + '</td></tr>'
+    '<tr class=act onclick="toggleAct(' + i + ',this)"><td>' + esc(a.time) + '</td><td>' + esc(a.track) + '</td><td>' + esc(a.kind) + '</td><td>' + esc(fmtDetail(a.detail)) + ' ' + ((window._report === 'simple' && String(a.detail||'').indexOf(' | ') >= 0) ? '<span style="opacity:.5">…</span>' : '') + '</td></tr>'
   ).join('') || '<tr><td colspan=4>no activity yet — press run fleet now</td></tr>';
   const leg = document.getElementById('leg');
   if (leg) leg.textContent = d.leg_tail || 'no log yet';
@@ -180,7 +211,7 @@ function cardHist(track) {
 function cardDetail(t) {
   const items = cardHist(t.track);
   const h = items.length ? items.map(x =>
-    '<div><b>' + esc(x.time || '') + '</b> [' + esc(x.kind || '') + '] ' + esc(x.text || '') +
+    '<div><b>' + esc(x.time || '') + '</b> [' + esc(x.kind || '') + '] ' + esc(fmtDetail(x.text || '')) +
     (x.leg ? ' <a href="/api/leg/' + x.leg + '" target=_blank>log</a>' : '') + '</div>'
   ).join('') : '<div>no history yet</div>';
   return '<div class=cdetail onclick="event.stopPropagation()">' +
