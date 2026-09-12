@@ -72,7 +72,7 @@ async function load() {
   document.getElementById('tr').innerHTML = d.trials.map(t =>
     '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<div>' + esc(x) + '</div>').join('');
-  document.getElementById('dir').textContent = d.directives || '';
+  document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
 }
 load();
 setInterval(load, 60000);
