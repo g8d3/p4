@@ -89,7 +89,7 @@ async function load() {
   restoreDrafts(drafts);
   if (typing) { const el = document.getElementById(ae.id); if (el) { el.focus(); if (el.setSelectionRange && el.value) try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
   const rs = document.getElementById('runstate');
-  if (rs) rs.textContent = d.runner && d.runner.running ? '● leg running…' : '';
+  if (rs) rs.innerHTML = runPill(d);
   document.getElementById('inbox').innerHTML = d.notes.map(n =>
     '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a track row above</td></tr>';
   document.getElementById('w').textContent =
@@ -127,6 +127,24 @@ function worked(r) {
     const m = Math.floor(s / 60);
     return m + 'm ' + (s % 60) + 's';
   } catch (e) { return '—'; }
+}
+function runPill(d) {
+  const r = d.runner || {};
+  if (r.running) {
+    return '<span style="color:#1a9e4b;font-weight:bold">● RUNNING' +
+      (r.run_id ? ' #' + r.run_id : '') +
+      (r.scope ? ' · ' + esc(r.scope) : '') +
+      (r.trigger ? ' · ' + esc(r.trigger) : '') +
+      (r.started ? ' · ' + elapsedMin(r.started) : '') + '</span>';
+  }
+  return '<span style="opacity:.55">○ idle' +
+    (r.run_id ? ' · last #' + r.run_id + ' ' + esc(r.status || 'done') : '') + '</span>';
+}
+function elapsedMin(s) {
+  try {
+    const m = Math.max(0, Math.round((Date.now() - new Date(s.replace(' ', 'T') + 'Z').getTime()) / 60000));
+    return m < 1 ? '<1m' : m + 'm';
+  } catch (e) { return ''; }
 }
 function readTune() {
   return {font: document.getElementById('pf').value, planw: document.getElementById('pw').value,

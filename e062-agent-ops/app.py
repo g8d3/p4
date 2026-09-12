@@ -50,10 +50,12 @@ def ensure_runs():
 ensure_runs()
 
 def runner_running():
+    # Lock-based (no pgrep self-match false positives): the lock is held
+    # only while bin/runner.sh executes its leg body.
     try:
-        r = subprocess.run(['pgrep', '-f', 'e062-agent-ops/bin/runner.sh'],
-                           capture_output=True, text=True, timeout=5)
-        return r.returncode == 0 and bool(r.stdout.strip())
+        r = subprocess.run(['flock', '-n', RUN_LOCK, 'true'],
+                           capture_output=True, timeout=5)
+        return r.returncode != 0
     except Exception:
         return False
 
@@ -134,13 +136,20 @@ def board():
                          'trigger': tr, 'status': s, 'summary': su,
                          'tokens': tok, 'tok_s': tok_s, 'cost_usd': co})
     except Exception: runs = []
+    try:
+        cur = c2.execute("SELECT id, datetime(started_ts,'unixepoch'), scope, trigger, status FROM runs ORDER BY id DESC LIMIT 1").fetchone()
+    except Exception: cur = None
     c2.close()
+    runner_info = {'running': runner_running()}
+    if cur:
+        runner_info.update({'run_id': cur[0], 'started': cur[1], 'scope': cur[2],
+                            'trigger': cur[3], 'status': cur[4]})
     directives = '\n'.join(read(os.path.join(BASE, 'DIRECTIVES.md'), 40))
     ideas = [l for l in read(os.path.join(P4, 'IDEAS.md'), 30) if l.startswith('- ')]
     return {'tracks': tracks, 'events': events, 'proposals': props,
             'trials': trials, 'directives': directives, 'ideas': ideas, 'runway': runway,
             'notes': notes, 'paused': paused, 'runs': runs,
-            'runner': {'running': runner_running()}, 'leg_tail': last_leg_tail()}
+            'runner': runner_info, 'leg_tail': last_leg_tail()}
 
 @app.get('/api/runstate')
 def api_runstate():
