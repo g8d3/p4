@@ -60,6 +60,16 @@ Two obligations, always together:
     yourself. Spikes are short, read-mostly, capped scope. Never more
     than 3 — legs stay cheap.
 
+## NARRATE AS YOU GO (live visibility — the owner watches sessions live)
+
+After EVERY meaningful action (start, each tool batch, test result,
+commit, blocked), run:
+`ops.py emit <track> step "<plain owner words> | tech: <detail>"`
+with a unique dedup key (`<track>:step:<runid>:<n>`). Silence looks
+like stuck — the board's live panel only shows what you emit plus
+your log tail. Plain words first (a marketer reads them), tech after
+`|` (a builder reads those). Never emit secrets.
+
 ## MONEY / SAFETY (unchanged)
 
 6. Money: SPEND.md tiers binding. T1 (≤$50/action) allowed with logging;

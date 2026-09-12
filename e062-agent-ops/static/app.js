@@ -169,6 +169,7 @@ async function load() {
   if (typing) { const el = document.getElementById(ae.id); if (el) { el.focus(); if (el.setSelectionRange && el.value) try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
   const rs = document.getElementById('runstate');
   if (rs) rs.innerHTML = runPill(d);
+  try { renderLive(d); } catch (e) {}
   document.getElementById('inbox').innerHTML = d.notes.map(n =>
     '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a project card above</td></tr>';
   document.getElementById('w').textContent =
@@ -493,4 +494,70 @@ async function uniWatchLive(leg, i, btn) {
   };
   await pull();
   window._unitimer = setInterval(pull, 5000);
+}
+
+/* ---- personas: same flow, per-role lens (SQL-over-flow views) ---- */
+function paintPersonaSeg() {
+  const m = window._persona || 'owner';
+  document.querySelectorAll('#seg-persona button[data-v]').forEach(function(b) {
+    b.classList.toggle('on', b.getAttribute('data-v') === m);
+  });
+}
+function setPersona(v, btn) {
+  window._persona = v;
+  try { localStorage.setItem('e062-persona', v); } catch (e) {}
+  const q = document.getElementById('q-all'), g = document.getElementById('g-all'), sl = document.getElementById('s-all');
+  if (v === 'owner') { setReportSilent('simple'); if (g) g.value = 'none'; if (sl) sl.value = 'new'; if (q) q.value = ''; }
+  if (v === 'builder') { setReportSilent('both'); if (g) g.value = 'session'; if (sl) sl.value = 'new'; }
+  if (v === 'money') { setReportSilent('simple'); if (g) g.value = 'project'; if (q) q.value = 'money gate'; }
+  window._unipage = 0; window._uniopen = -1;
+  paintPersonaSeg(); saveUniCtrls(); load();
+}
+function setReportSilent(v) {
+  window._report = v;
+  try { paintReportSeg(); } catch (e) {}
+  try {
+    fetch('/api/prefs', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({report: v})});
+  } catch (e) {}
+}
+/* ---- live: what the agent is doing RIGHT NOW (auto, no tap needed) ---- */
+function renderLive(d) {
+  const box = document.getElementById('live');
+  if (!box) return;
+  try { if (!window._persona) window._persona = localStorage.getItem('e062-persona') || 'owner'; } catch (e) {}
+  try { paintPersonaSeg(); } catch (e) {}
+  const r = (d && d.runner) || {};
+  if (r.running && r.run_id) {
+    box.style.display = '';
+    const head = document.getElementById('live-head');
+    if (head) head.textContent = '\u25cf LIVE run #' + r.run_id + (r.scope ? ' \u00b7 ' + r.scope : '') + (r.trigger ? ' \u00b7 ' + r.trigger : '') + (r.started ? ' \u00b7 ' + elapsedMin(r.started) : '');
+    liveStart(r.run_id);
+  } else {
+    box.style.display = 'none';
+    liveStop();
+  }
+}
+function liveStart(leg) {
+  if (window._liveleg === leg && window._livetimer) return;
+  liveStop();
+  window._liveleg = leg;
+  const pull = async function() {
+    try {
+      const r = await (await fetch('/api/leg/' + leg)).json();
+      const pre = document.getElementById('live-tail');
+      if (pre && r.ok) {
+        const lines = String(r.log || '').split('\n');
+        const stepLines = lines.filter(function(l) { return /^(\d+\. |[A-Z].{0,80}\||did:|next:|learned:)/.test(l.trim()); });
+        const tail = stepLines.length ? stepLines.slice(-12).join('\n') : lines.slice(-12).join('\n');
+        pre.textContent = tail;
+        pre.scrollTop = pre.scrollHeight;
+      }
+    } catch (e) {}
+  };
+  pull();
+  window._livetimer = setInterval(pull, 5000);
+}
+function liveStop() {
+  try { if (window._livetimer) clearInterval(window._livetimer); } catch (e) {}
+  window._livetimer = null; window._liveleg = null;
 }

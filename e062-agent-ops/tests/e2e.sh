@@ -23,6 +23,11 @@ grep -q "fmtDetail" /tmp/e62_app.js || fail "fmtDetail missing"
 grep -q 'id=uni' /tmp/e62_root.html || fail "unified view missing"
 grep -q "buildUnified" /tmp/e62_app.js || fail "buildUnified missing"
 grep -q "uniWatchLive" /tmp/e62_app.js || fail "live session watch missing"
+grep -q 'id=live' /tmp/e62_root.html || fail "live panel missing"
+grep -q 'seg-persona' /tmp/e62_root.html || fail "persona switch missing"
+grep -q "setPersona" /tmp/e62_app.js || fail "setPersona missing"
+grep -q "renderLive" /tmp/e62_app.js || fail "renderLive missing"
+grep -q "NARRATE AS YOU GO" RUNNER_PROMPT.md 2>/dev/null || grep -q "NARRATE AS YOU GO" e062-agent-ops/RUNNER_PROMPT.md || fail "runner step-emit contract missing"
 # OWNER-FIRST reporting (owner law): run rows render a plain sentence in simple
 # mode with tech after ' | ' — fail closed so jargon can never creep back.
 grep -q '| tech:' /tmp/e62_app.js || fail "runLine missing owner | tech format"
