@@ -12,6 +12,13 @@ grep -q 'id=runs' /tmp/e62_root.html || fail "activity runs table missing"
 code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
 [ "$code" = "200" ] || fail "runstate http=$code"
 python3 -c "import json; d=json.load(open('/tmp/e62_runstate.json')); assert d.get('ok') and 'running' in d, 'runstate shape'" || fail "runstate shape bad"
+# token fail-closed: wrong/missing token must NOT run, must guide owner to token button
+out=$(curl -s -m 10 -X POST "$BASE/api/run" -H 'Content-Type: application/json' -H 'X-Token: wrong' -d '{"scope":"fleet"}') || fail "run API unreachable"
+echo "$out" | grep -q '"ok":false' || fail "wrong token not rejected: $out"
+echo "$out" | grep -qi 'token button' || fail "wrong-token error lacks guidance: $out"
+out=$(curl -s -m 10 -X POST "$BASE/api/run" -H 'Content-Type: application/json' -d '{"scope":"fleet"}') || fail "run API unreachable (no token)"
+echo "$out" | grep -q '"ok":false' || fail "missing token not rejected"
+echo "token gate ok: wrong/missing token rejected with guidance, no run spawned"
 
 curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 python3 - <<'EOF' || fail "board shape bad"

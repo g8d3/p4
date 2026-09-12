@@ -15,8 +15,8 @@ function setToken(btn) {
   else { localStorage.bt = v; btn.textContent = 'saved ✓'; }
   setTimeout(() => { btn.textContent = old; }, 2500);
 }
-async function ctl(path, body, btn, okmsg) {
-  const t = tok();
+async function ctl(path, body, btn, okmsg, _retried) {
+  let t = tok();
   if (!t) return;
   const old = btn.textContent;
   btn.textContent = '…'; btn.disabled = true;
@@ -25,6 +25,14 @@ async function ctl(path, body, btn, okmsg) {
       headers: {'Content-Type': 'application/json', 'X-Token': t},
       body: JSON.stringify(body)})).json();
     if (r.ok) { btn.textContent = okmsg || 'done ✓'; load(); }
+    else if (!_retried && /bad token/i.test(r.error || '')) {
+      // stale/wrong saved token: drop it, ask once, retry automatically
+      delete localStorage.bt;
+      alert('saved board token was wrong — enter the current one:');
+      const v = (prompt('board token:') || '').trim();
+      if (v) { localStorage.bt = v; btn.textContent = old; btn.disabled = false; return ctl(path, body, btn, okmsg, true); }
+      btn.textContent = 'error';
+    }
     else { btn.textContent = 'error'; alert(r.error || 'failed'); }
   } catch (e) { btn.textContent = 'error'; alert(String(e)); }
   setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);

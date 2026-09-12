@@ -34,7 +34,15 @@ def board_token():
 def need_token(req):
     tok = board_token()
     if not tok: return 'server token missing'
-    if req.headers.get('x-token', '') != tok: return 'bad token'
+    got = (req.headers.get('x-token', '') or '').strip()
+    if got != tok:
+        try:
+            ip = req.client.host if req.client else '?'
+        except Exception:
+            ip = '?'
+        print(f"board auth fail from {ip}: got_len={len(got)} want_len={len(tok)}", flush=True)
+        return ('bad token — press the token button (top-right) and re-enter '
+                'the board token')
     return None
 
 RUN_LOCK = '/tmp/e062-runner.lock'
