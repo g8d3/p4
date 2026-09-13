@@ -568,7 +568,9 @@ def _server_card():
         top = 'Top pays now: none holding right now'
     try:
         b = json.load(open(os.path.join(BASE, 'backtest.json')))
-        bt = f"backtest: {b.get('hit_rate_pct')}% held 24h ({b.get('n_hit')}/{b.get('n_signals')})" if b.get('ok') else 'backtest: pending'
+        _wl = str(b.get('window_last', ''))[:16].replace('T', ' ')
+        _win = f" to {_wl[5:]}Z" if _wl else ''
+        bt = f"backtest: {b.get('hit_rate_pct')}% held 24h ({b.get('n_hit')}/{b.get('n_signals')}{_win})" if b.get('ok') else 'backtest: pending'
     except Exception:
         bt = 'backtest pending'
     try:
