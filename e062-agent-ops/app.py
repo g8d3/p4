@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """e062 fleet board — plans, changes, execution. Port 8322."""
-import hashlib, os, secrets as _secrets, sqlite3, subprocess, time
+import hashlib, json, os, secrets as _secrets, sqlite3, subprocess, time
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 
@@ -84,7 +84,7 @@ os.makedirs(RUNS_DIR, exist_ok=True)
 def ensure_runs():
     c = sqlite3.connect(DB)
     c.execute("CREATE TABLE IF NOT EXISTS runs(id INTEGER PRIMARY KEY AUTOINCREMENT, started_ts INTEGER, ended_ts INTEGER, scope TEXT, trigger TEXT, status TEXT DEFAULT 'running', summary TEXT DEFAULT '')")
-    for col in ('tokens INTEGER', 'cost_usd REAL'):
+    for col in ('tokens INTEGER', 'cost_usd REAL', 'start_tokens INTEGER', 'end_tokens INTEGER'):
         try: c.execute(f'ALTER TABLE runs ADD COLUMN {col}')
         except Exception: pass
     c.commit(); c.close()
@@ -203,12 +203,16 @@ def board(req: Request):
         "SELECT datetime(ts,'unixepoch'), track, message FROM notes WHERE done=0 ORDER BY ts DESC LIMIT 20")]
     try: c2.execute('ALTER TABLE runs ADD COLUMN session TEXT')
     except Exception: pass
+    try: c2.execute('ALTER TABLE runs ADD COLUMN start_tokens INTEGER')
+    except Exception: pass
+    try: c2.execute('ALTER TABLE runs ADD COLUMN end_tokens INTEGER')
+    except Exception: pass
     try:
         runs = []
-        for i, st, en, sc, tr, s, su, tok, co, se in c2.execute(
+        for i, st, en, sc, tr, s, su, tok, co, se, stt, ent in c2.execute(
                 "SELECT id, datetime(started_ts,'unixepoch'), " +
                 "CASE WHEN ended_ts IS NULL THEN NULL ELSE datetime(ended_ts,'unixepoch') END, " +
-                "scope, trigger, status, summary, tokens, cost_usd, session FROM runs ORDER BY id DESC LIMIT 10"):
+                "scope, trigger, status, summary, tokens, cost_usd, session, start_tokens, end_tokens FROM runs ORDER BY id DESC LIMIT 10"):
             tok_s = None
             try:
                 if tok and st:
@@ -219,13 +223,15 @@ def board(req: Request):
             runs.append({'id': i, 'started': st, 'ended': en, 'scope': sc,
                          'trigger': tr, 'status': s, 'summary': su,
                          'tokens': tok, 'tok_s': tok_s, 'cost_usd': co,
-                         'session': se})
+                         'session': se, 'start_tokens': stt, 'end_tokens': ent})
     except Exception: runs = []
     try:
         cur = c2.execute("SELECT id, datetime(started_ts,'unixepoch'), scope, trigger, status FROM runs ORDER BY id DESC LIMIT 1").fetchone()
     except Exception: cur = None
     c2.close()
     runner_info = {'running': runner_running()}
+    try: quota = json.load(open(os.path.join(BASE, 'quota.json')))
+    except Exception: quota = None
     if cur:
         runner_info.update({'run_id': cur[0], 'started': cur[1], 'scope': cur[2],
                             'trigger': cur[3], 'status': cur[4]})
@@ -234,7 +240,7 @@ def board(req: Request):
     return {'tracks': tracks, 'events': events, 'proposals': props,
             'trials': trials, 'directives': directives, 'ideas': ideas, 'runway': runway,
             'notes': notes, 'paused': paused, 'runs': runs, 'prefs': get_prefs(),
-            'runner': runner_info, 'leg_tail': last_leg_tail(),
+            'runner': runner_info, 'leg_tail': last_leg_tail(), 'quota': quota,
             'me': ({'name': u['name'], 'role': u['role']} if (u := current_user(req)) else None)}
 
 @app.get('/api/runstate')

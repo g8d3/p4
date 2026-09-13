@@ -82,6 +82,7 @@ focus, trig, start = sys.argv[3], sys.argv[4], int(sys.argv[5])
 now = int(time.time())
 tok, cost = 0, 0.0
 sess = []
+pstart, pend, pmt = None, 0, -1
 try:
     root = os.path.expanduser('~/.pi/agent/sessions')
     for dp, _, fns in os.walk(root):
@@ -101,8 +102,8 @@ try:
                     if short not in sess:
                         sess.append(short)
             except Exception: pass
-            # usage.totalTokens is cumulative per message -> max per file
-            mtok, mcost = 0, 0.0
+            # usage.totalTokens is cumulative per message -> first+max per file
+            mtok, mcost, ftok = 0, 0.0, None
             try:
                 with open(p) as f:
                     for line in f:
@@ -111,11 +112,16 @@ try:
                         if not isinstance(o, dict): continue
                         for u in (o.get('usage'), (o.get('message') or {}).get('usage') if isinstance(o.get('message'), dict) else None):
                             if isinstance(u, dict) and 'totalTokens' in u:
-                                mtok = max(mtok, int(u.get('totalTokens') or 0))
+                                t = int(u.get('totalTokens') or 0)
+                                if ftok is None: ftok = t
+                                mtok = max(mtok, t)
                                 try: mcost = max(mcost, float((u.get('cost') or {}).get('total') or 0))
                                 except Exception: pass
             except Exception: pass
             tok += mtok; cost += mcost
+            try: fmt = int(os.path.getmtime(p))
+            except Exception: fmt = 0
+            if mtok and fmt >= pmt: pmt, pstart, pend = fmt, ftok, mtok
 except Exception: pass
 if rid:
     c = sqlite3.connect(db)
@@ -125,8 +131,12 @@ if rid:
     except Exception: pass
     try: c.execute('ALTER TABLE runs ADD COLUMN session TEXT')
     except Exception: pass
-    c.execute("UPDATE runs SET ended_ts=?, status='done', summary=?, tokens=?, cost_usd=?, session=? WHERE id=?",
-              (now, f'leg done (focus={focus} trigger={trig})', tok or None, round(cost, 6) or None, ','.join(sess[:4]) or None, rid))
+    try: c.execute('ALTER TABLE runs ADD COLUMN start_tokens INTEGER')
+    except Exception: pass
+    try: c.execute('ALTER TABLE runs ADD COLUMN end_tokens INTEGER')
+    except Exception: pass
+    c.execute("UPDATE runs SET ended_ts=?, status='done', summary=?, tokens=?, cost_usd=?, session=?, start_tokens=?, end_tokens=? WHERE id=?",
+              (now, f'leg done (focus={focus} trigger={trig})', tok or None, round(cost, 6) or None, ','.join(sess[:4]) or None, pstart, pend or None, rid))
     c.commit(); c.close()
-print(f'run {rid} tokens={tok} cost=${cost:.4f}')
+print(f'run {rid} tokens={tok} cost=${cost:.4f} ctx={pstart}->{pend}')
 EOF

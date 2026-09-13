@@ -1,2 +1,4 @@
 *.db
 *.log
+quota.json
+quota_debug.html

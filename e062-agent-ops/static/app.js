@@ -414,7 +414,8 @@ function runLine(r) {
   const w = worked(r);
   const owner = 'Run #' + r.id + ' ' + (r.status || 'done') + (w !== '—' ? ' in ' + w : '');
   const bits = [];
-  if (r.tokens != null) bits.push(Number(r.tokens).toLocaleString() + ' tok');
+  if (r.start_tokens != null && r.end_tokens != null) bits.push(Number(r.start_tokens).toLocaleString() + '\u2192' + Number(r.end_tokens).toLocaleString() + ' tok');
+  else if (r.tokens != null) bits.push(Number(r.tokens).toLocaleString() + ' tok');
   if (r.tok_s != null) bits.push(r.tok_s + ' tok/s');
   if (r.cost_usd != null) bits.push('$' + Number(r.cost_usd).toFixed(4));
   if (r.scope) bits.push(r.scope + '/' + (r.trigger || ''));
