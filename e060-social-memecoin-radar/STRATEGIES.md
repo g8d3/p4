@@ -81,3 +81,16 @@ N<20 resolved = THIN: never propose real money on THIN.
   (needs N>=20 resolved). Early 2026-09-13 ~18:30Z: 2/5 up, avg -39.2%
   at 3.5h, best CATFLIGHT +3.7% — cooling intraday; canonical 24h grade
   ~11h out (18 pending, 0 resolved, blocked-on-time).
+- RUN #64 FIX+POWER (FREE, local only, no fetch): verdict still lured with
+  "hot" on disqualified tops (BATONIUS +421% "hot but pumped"). Guard words
+  now "pumped — not a buy, watch only" / "falling — not a buy, watch only"
+  (server + JS, copy-slip flags unchanged) — owner no longer sees "hot" on
+  a coin he's told not to touch. POWER: WORTHY-2c upside-cap now runs as a
+  live SHADOW on the intraday window — early_read carries capped =
+  ex-pumped (entry chg24>+200 out), surfaced one-line in verdict, /api/paper
+  early.capped, and JS suffix (server + JS, display-only, canonical rule
+  unchanged, still PAPER). Shadow 2026-09-13 ~20:00Z: full 1/4 up avg
+  -57.9% vs capped 1/2 up avg -29.0% (BLAST +5604/Mizzy +499 excluded, both
+  deep red) — cap halves the bleed intraday, still COLD, still THIN (needs
+  N>=20 resolved 24h). Canonical 24h grade ~10h out (18 pending, 0 resolved,
+  blocked-on-time).

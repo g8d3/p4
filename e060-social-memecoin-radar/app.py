@@ -274,6 +274,7 @@ def early_read():
             if not usable:
                 continue
             ups, moves, detail = 0, [], []
+            cup, cmoves = 0, []  # WORTHY-2c shadow: ex-pumped (entry chg24>+200 out)
             for e in usable:
                 try:
                     entry = float(e["priceUsd"])
@@ -285,6 +286,14 @@ def early_read():
                     continue
                 pct = (cur - entry) / entry * 100
                 moves.append(pct)
+                try:
+                    pumped_entry = float(e.get("chg24")) > 200
+                except (TypeError, ValueError):
+                    pumped_entry = False
+                if not pumped_entry:
+                    cmoves.append(pct)
+                    if pct > 0:
+                        cup += 1
                 lv = live.get(e["token"], {})
                 detail.append({"symbol": e.get("symbol", "?"),
                                "pct": round(pct, 1),
@@ -298,10 +307,14 @@ def early_read():
             detail.sort(key=lambda x: x["pct"], reverse=True)
             age_h = (now - int(snap.get("ts", now))) / 3600
             best = detail[0] if detail else None
-            return {"n": len(moves), "up": ups,
-                    "avg_pct": round(sum(moves) / len(moves), 1),
-                    "age_h": round(age_h, 1), "date": snap.get("date"),
-                    "detail": detail, "best": best}
+            out = {"n": len(moves), "up": ups,
+                   "avg_pct": round(sum(moves) / len(moves), 1),
+                   "age_h": round(age_h, 1), "date": snap.get("date"),
+                   "detail": detail, "best": best}
+            if len(cmoves) < len(moves) and cmoves:
+                out["capped"] = {"n": len(cmoves), "up": cup,
+                                  "avg_pct": round(sum(cmoves) / len(cmoves), 1)}
+            return out
     except Exception:
         pass
     return None
@@ -319,7 +332,15 @@ def early_line():
             s += f", best {b.get('symbol')} {b.get('pct'):+.1f}%"
     except Exception:
         pass
-    return s + ")"
+    s += ")"
+    try:
+        c = e.get("capped")
+        if c and c.get("n") != e.get("n"):
+            s += (f" · ex-pumped {c.get('up')}/{c.get('n')} up"
+                  f" (avg {c.get('avg_pct'):+.1f}%)")
+    except Exception:
+        pass
+    return s
 
 
 def breakout():
@@ -384,9 +405,9 @@ def server_card():
         except (TypeError, ValueError):
             chgf = None
         if w and chgf is not None and chgf <= -50:
-            wtxt = "hot but falling — watch only"
+            wtxt = "falling — not a buy, watch only"
         elif w and chgf is not None and chgf >= 200:
-            wtxt = "hot but pumped — watch only"
+            wtxt = "pumped — not a buy, watch only"
         elif w:
             wtxt = "worth a look"
         else:
@@ -455,12 +476,12 @@ const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':Math.ro
 const worthy=r=>(r.heat||0)>=80&&(r.vol_h24||0)>=5e5&&(r.txns_h24||0)>=1e4;
 const falling=r=>{const c=parseFloat(r.priceChange_h24);return isFinite(c)&&c<=-50};
 const pumped=r=>{const c=parseFloat(r.priceChange_h24);return isFinite(c)&&c>=200};
-const verdictFor=t=>{const w=worthy(t);if(w&&falling(t))return 'hot but falling — watch only';if(w&&pumped(t))return 'hot but pumped — watch only';return w?'worth a look':'quiet, no calls standing out'};
+const verdictFor=t=>{const w=worthy(t);if(w&&falling(t))return 'falling — not a buy, watch only';if(w&&pumped(t))return 'pumped — not a buy, watch only';return w?'worth a look':'quiet, no calls standing out'};
 function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){document.getElementById('v').innerHTML='<b>Top now: '+top.symbol+'</b> — '+verdictFor(top)+' <small>heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'—')+'%</small>'+(PSUFFIX||'');SLIP='e060 paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+(falling(top)?' FALLING':(pumped(top)?' PUMPED':''))+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>chain</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>traders</th></tr></thead><tbody>';
 for(const r of rows){h+=`<tr><td>${r.symbol}</td><td><small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}${falling(r)?' 📉':(pumped(r)?' ⚠️':'')}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">pair ↗</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
-function loadAll(){fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;let br='';if(p.early.best&&p.early.best.pct!=null&&p.early.best.pct>=20)br=` · 🔥 ${p.early.best.symbol} +${p.early.best.pct}% since call`;t+=`${br} · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const bo=(e.best&&e.best.pct!=null&&e.best.pct>=20)?'🔥 ':'';const summ=`${bo}Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%${x.entry?` <small>entry ${x.entry} → now ${x.cur||'?'}</small>`:''}${x.pairUrl?` <a href="${x.pairUrl}">trades</a>`:''}</div>`).join('')}}catch(_){}}) });}
+function loadAll(){fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;let br='';if(p.early.best&&p.early.best.pct!=null&&p.early.best.pct>=20)br=` · 🔥 ${p.early.best.symbol} +${p.early.best.pct}% since call`;t+=`${br} · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`};if(p.early.capped&&p.early.capped.n!==p.early.n){t+=` · ex-pumped ${p.early.capped.up}/${p.early.capped.n} up (avg ${p.early.capped.avg_pct>0?'+':''}${p.early.capped.avg_pct}%)`}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const bo=(e.best&&e.best.pct!=null&&e.best.pct>=20)?'🔥 ':'';const summ=`${bo}Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%${x.entry?` <small>entry ${x.entry} → now ${x.cur||'?'}</small>`:''}${x.pairUrl?` <a href="${x.pairUrl}">trades</a>`:''}</div>`).join('')}}catch(_){}}) });}
 loadAll();
 document.getElementById('refresh').onclick=()=>{const b=document.getElementById('refresh');b.textContent='↻…';loadAll();setTimeout(()=>{loadAll();b.textContent='↻ Refresh'},7000)};
 document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
