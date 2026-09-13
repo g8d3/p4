@@ -46,4 +46,8 @@ code=$(timeout 15 curl -s -m 10 -o /tmp/e59_mult.csv -w "%{http_code}" "$BASE/mu
 # fail-closed on secrets: served files must not contain keys/tokens
 grep -riE "sk-|api[_-]?key\s*[:=]\s*['\"][a-z0-9]{8}|-----BEGIN .*PRIVATE KEY" /tmp/e59_root.html /tmp/e59_mult.json 2>/dev/null && fail "possible secret in served content"
 
+code=$(curl -s -m 10 "$BASE/version.json" -o /tmp/e59_version.json -w "%{http_code}") || fail "version.json unreachable"
+[ "$code" = "200" ] || fail "version.json http=$code"
+HEAD=$(git log -1 --format=%h -- e059-crypto-valuations 2>/dev/null || echo "?")
+grep -q "$HEAD" /tmp/e59_version.json || fail "version.json stale (refresh.sh stamps it)"
 echo "E2E PASS ($BASE)"

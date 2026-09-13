@@ -24,7 +24,7 @@ html.dark td,html.dark th{border-color:#444}html.dark tr.med td{background:#1628
 html.dark a{color:#8ab4ff}html.dark .cav{color:#aaa}html.dark .twrap{border-color:#444}
 </style></head>
 <body class="simple">
-<h1>e059 valuation multiples <span class="badge" id="fresh">…</span>
+<h1>e059 valuation multiples <span class="badge" id="fresh">…</span> <small id="ver" style="font-weight:normal"></small>
 <button onclick="document.documentElement.classList.toggle('dark');localStorage.e59=document.documentElement.classList.contains('dark')?'d':'l'">dark/light</button></h1>
 <script>if(localStorage.e59==='d')document.documentElement.classList.add('dark')</script>
 <p>Top crypto protocols — P/Fees + P/Revenue (30d annualised, DefiLlama free + CoinGecko public).
@@ -97,6 +97,7 @@ function copySlip(btn){
   else fallback();
   function fallback(){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){}document.body.removeChild(ta);}
 }
+fetch('/version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit;}).catch(()=>{});
 fetch('/multiples.json').then(r=>r.json()).then(d=>{
   D=d;
   const ageH=(Date.now()/1000-new Date(d.as_of).getTime()/1000)/3600;
