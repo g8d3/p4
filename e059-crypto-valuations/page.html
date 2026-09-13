@@ -75,11 +75,12 @@ function render(){
   document.getElementById('simplebtn').classList.toggle('on',document.body.classList.contains('simple'));
   document.getElementById('fullbtn').classList.toggle('on',!document.body.classList.contains('simple'));
 }
+function locTs(s){try{s=String(s||'').trim();if(!s)return '\u2014';const d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 fetch('/multiples.json').then(r=>r.json()).then(d=>{
   D=d;
   const ageH=(Date.now()/1000-new Date(d.as_of).getTime()/1000)/3600;
   const stale=ageH>49;
-  document.getElementById('fresh').textContent=(stale?'STALE ':'LIVE ')+d.as_of;
+  document.getElementById('fresh').textContent=(stale?'STALE ':'LIVE ')+locTs(d.as_of);
   if(stale)document.getElementById('fresh').classList.add('stale');
   document.getElementById('meta').textContent=
     d.protocols.length+' protocols · vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · sources: '+d.sources.join('; ');
