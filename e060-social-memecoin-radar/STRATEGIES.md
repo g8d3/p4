@@ -26,3 +26,11 @@ N<20 resolved = THIN: never propose real money on THIN.
   intraday — do not chase; canonical 24h grade still pending (~20h).
 - KILL RULE (owner-blessed 2026-09-12): no signal in 2 weeks → kill track.
   Degrade 2 legs running → demote to PAPER (already PAPER, so → kill review).
+- RUN #46 PROBE (FREE, local files only, no fetch): tested WORTHY-2
+  dump-filter (WORTHY-1 + chg24h > -80%) on 2026-09-13 entries — REJECTED,
+  not shipped: keeps 1/5 (Stunk, -20% drift) and drops CATFLIGHT (+0.6%,
+  the only green). Overfit on N=5; WORTHY-1 stays PAPER unchanged.
+  Shipped instead: live grade-countdown in pulse ("first grade ~18h"
+  from oldest worthy-with-price snapshot) + plain-words explainer
+  ("Your radar sorts with one tap below"). Early 2026-09-13 ~11:35Z:
+  1/4 up, avg -12.2% at 6.0h, best CATFLIGHT +0.6% — still COLD intraday.

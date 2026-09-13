@@ -186,6 +186,34 @@ def fmt_age(sec):
     return f"{sec/3600:.1f}h ago"
 
 
+def grade_countdown():
+    """Live countdown to first 24h grade (FREE, local files only): oldest
+    worthy-with-price snapshot -> 'first grade ~18h'. Empty when none."""
+    try:
+        oldest = None
+        with open(os.path.join(PAPER_DIR, "calls.jsonl")) as f:
+            for line in f:
+                try:
+                    snap = json.loads(line)
+                except Exception:
+                    continue
+                entries = [e for e in (snap.get("top") or []) if e.get("worthy")]
+                if any(e.get("priceUsd") and e.get("token") for e in entries):
+                    ts = int(snap.get("ts", 0))
+                    if ts and (oldest is None or ts < oldest):
+                        oldest = ts
+        if not oldest:
+            return ""
+        remain_h = 24 - (time.time() - oldest) / 3600
+        if remain_h <= 0:
+            return "grading now"
+        if remain_h < 1:
+            return f"first grade ~{remain_h * 60:.0f}m"
+        return f"first grade ~{remain_h:.0f}h"
+    except Exception:
+        return ""
+
+
 def paper_score():
     """Read paper/score.json (written by bin/paper_resolve.py). Never fetches."""
     try:
@@ -196,7 +224,9 @@ def paper_score():
             return f"worthy hit-rate {s.get('hit_rate_pct')}% ({s.get('hits')}/{n})"
         pend = int(s.get("pending") or 0)
         if pend > 0:
-            return f"{pend} worthy call{'s' if pend != 1 else ''} resolving (first outcome <24h)"
+            cd = grade_countdown()
+            tail = f" ({cd})" if cd else " (first outcome <24h)"
+            return f"{pend} worthy call{'s' if pend != 1 else ''} resolving{tail}"
         return "worthy score: logging first calls"
     except Exception:
         return "worthy score: logging first calls"
@@ -354,8 +384,8 @@ PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport con
 <div id=s>%%PULSE%%</div>
 <div id=v style="margin:.4em 0;font-size:15px">%%TOPONE%%</div>
 %%EARLYDETAIL%%
-<details><summary>Top pick + speed, one tap below sorts it.</summary>
-<p>Cheapest plan (free, no paid pipe). <b>heat</b> = score + trade-speed + 24h-move size. Per-row <b>trades</b> opens that pair's Dexscreener trades tab (top traders, free, no key). <a href=/api/rotation>JSON</a> <a href=/health>health</a> <small id=ver></small></p></details>
+<details><summary>Your radar sorts with one tap below \u2014 tap for details.</summary>
+<p>Your top mover sits on top; tap \U0001f525 \U0001f680 \U0001f4b0 below to re-sort. Details: cheapest free plan, <b>heat</b> = score + trade-speed + 24h-move size; per-row <b>trades</b> opens that pair's Dexscreener trades tab (free, no key). <a href=/api/rotation>JSON</a> <a href=/health>health</a> <small id=ver></small></p></details>
 <div class=twrap><table id=t></table></div>
 <nav class=thumbbar><button data-k=heat class=on>🔥 Heat</button><button data-k=movers>🚀 Movers</button><button data-k=vol>💰 Volume</button><button id=copy>📋 Copy</button><button id=dark>🌙</button></nav>
 <script>if(localStorage.e60==='d')document.documentElement.classList.add('dark')
@@ -366,7 +396,7 @@ function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(
 for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
-fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (first outcome <24h)`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running:'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;t+=` · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`}PSUFFIX=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const summ=`Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%</div>`).join('')}}catch(_){}}) });
+fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (first outcome <24h)`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;t+=` · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`}PSUFFIX=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const summ=`Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%</div>`).join('')}}catch(_){}}) });
 document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
 document.getElementById('copy').onclick=()=>{if(!SLIP)return;const b=document.getElementById('copy');(navigator.clipboard?navigator.clipboard.writeText(SLIP):Promise.reject()).then(()=>{b.textContent='✓ Copied';setTimeout(()=>b.textContent='📋 Copy',1200)}).catch(()=>{prompt('Copy your slip:',SLIP)})};
 document.getElementById('dark').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'};</script></body></html>"""
