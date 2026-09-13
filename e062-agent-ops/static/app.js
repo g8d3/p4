@@ -5,6 +5,20 @@ function renderAuth() {
   const box = document.getElementById('auth');
   if (!box) return;
   const me = window._me;
+  // never wipe while typing: a 60s refresh landing mid-tap feels "unclickable"
+  try {
+    const ae = document.activeElement;
+    if (ae && box.contains(ae) && ae.value) return;
+  } catch (e) {}
+  const key = me ? ('in:' + me.name + ':' + me.role) : 'out';
+  // preserve typed name across re-renders
+  let keepN = '', keepP = '';
+  try {
+    const n = document.getElementById('au-n'), q = document.getElementById('au-p');
+    if (n && n.value) keepN = n.value;
+    if (q && q.value) keepP = q.value;
+  } catch (e) {}
+  if (box.dataset.k === key && !keepN && !keepP) return;
   if (me) {
     const pk = (window.PublicKeyCredential && window.isSecureContext);
     box.innerHTML = '<b>' + esc(me.name) + '</b> <span style="opacity:.6">(' + esc(me.role) + ')</span> ' +
@@ -19,8 +33,12 @@ function renderAuth() {
       '<button onclick="register(this)" title="first account becomes admin">register</button>' +
       (pk ? '' : '<div style="font-size:10px;opacity:.6">passkeys need https (this page is http here)</div>');
   }
-}
-function authCreds() {
+  try {
+    if (keepN) document.getElementById('au-n').value = keepN;
+    if (keepP) document.getElementById('au-p').value = keepP;
+  } catch (e) {}
+  box.dataset.k = key;
+}function authCreds() {
   const n = document.getElementById('au-n'), p = document.getElementById('au-p');
   return {name: (n && n.value || '').trim(), pw: (p && p.value || '')};
 }
