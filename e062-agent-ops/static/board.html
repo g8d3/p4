@@ -87,7 +87,7 @@ td.wrap{white-space:normal;word-break:break-word}
 <span style="float:right"><button onclick="setToken(this)">token</button> <button onclick="document.documentElement.classList.toggle('dark');localStorage.ft=document.documentElement.classList.contains('dark')?'d':'l'">dark/light</button></span></h2>
 <script>if(localStorage.ft==='d')document.documentElement.classList.add('dark');</script>
 <div class=zone><h3>views — your tables, your way
-<span class=hctl><span class=seg id=seg-persona><button data-v=owner onclick="setPersona('owner',this)">owner</button><button data-v=builder onclick="setPersona('builder',this)">builder</button><button data-v=money onclick="setPersona('money',this)">money</button></span> <button onclick="addViewPreset('all',this)">+all</button><button onclick="addViewPreset('project',this)">+project</button><button onclick="addViewPreset('money',this)">+money</button><button onclick="addViewPreset('waiting',this)">+waiting</button></span></h3>
+<span class=hctl><span class=seg id=seg-persona><button data-v=owner onclick="setPersona('owner',this)">owner</button><button data-v=builder onclick="setPersona('builder',this)">builder</button><button data-v=money onclick="setPersona('money',this)">money</button></span> <button onclick="addViewPreset('projects',this)">+projects</button><button onclick="addViewPreset('sessions',this)">+sessions</button><button onclick="addViewPreset('waiting',this)">+waiting</button></span></h3>
 <div style="font-size:12px;opacity:.7;margin-bottom:6px">each view = one table (projects, sessions or waiting) + filter + pages. tap a header to sort, tap a row for its relations. leg = scheduled pass (run #N) · session = agent conversation (ses id).</div>
 <div id=live style="display:none;border:1px solid var(--bd);border-radius:8px;padding:6px;margin-bottom:6px"><div id=live-head style="font-size:12px;font-weight:bold"></div><pre id=live-tail style="max-height:22vh;overflow-y:auto;font-size:11px;white-space:pre-wrap"></pre></div>
 <div id=widgets></div>
@@ -105,5 +105,5 @@ td.wrap{white-space:normal;word-break:break-word}
 <details><summary id=ideas-sum>ideas inbox — tap to read</summary><div id=i style="font-size:13px"></div></details>
 <details><summary id=dir-sum>standing orders — tap to read</summary><div id=dir style="font-size:13px"></div></details></div>
 <div class=thumbbar><button onclick="runFleet(this)">&#9654; run fleet now</button><button id=waiting style="font-size:12px;font-weight:bold" onclick="waitFor('')" title="your notes + money gates waiting for a tap"></button><span class=seg id=seg-report-b><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span></div>
-<script src=/app.js?v=29></script>
+<script src=/app.js?v=30></script>
 </body></html>

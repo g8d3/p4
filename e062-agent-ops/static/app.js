@@ -455,7 +455,7 @@ function renderWidgets() {
   const box = document.getElementById('widgets');
   if (!box || !window._widgets) return;
   if (!window._widgets.length) {
-    box.innerHTML = '<div style="font-size:12px;opacity:.6">no views — add one above: +all, +project, +money or +waiting.</div>';
+    box.innerHTML = '<div style="font-size:12px;opacity:.6">no views — add one above: +projects, +sessions or +waiting.</div>';
     return;
   }
   box.innerHTML = window._widgets.map(widgetHTML).join('');
@@ -508,16 +508,15 @@ function wRemove(wi) {
 }
 function addViewPreset(kind, btn) {
   const PRESETS = {
-    all: {t: 'projects', root: 'projects', n: 20},
-    project: {t: 'sessions', root: 'sessions', n: 20},
-    money: {t: 'waiting', root: 'waiting', n: 20},
+    projects: {t: 'projects', root: 'projects', n: 20},
+    sessions: {t: 'sessions', root: 'sessions', n: 20},
     waiting: {t: 'waiting', root: 'waiting', n: 20}
   };
   if (!window._widgets) window._widgets = [];
   if (window._widgets.length >= 12) { alert('12 views max — remove one first'); return; }
   if (btn) { const o = btn.textContent; btn.textContent = '\u2026'; btn.disabled = true;
     setTimeout(function() { btn.textContent = o; btn.disabled = false; }, 900); }
-  window._widgets.push(cleanWidget(PRESETS[kind] || PRESETS.all));
+  window._widgets.push(cleanWidget(PRESETS[kind] || PRESETS.projects));
   saveWidgets(); renderWidgets();
   setTimeout(function() {
     try {
