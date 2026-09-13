@@ -304,6 +304,32 @@ async def api_prefs(req: Request):
     except Exception: pass
     c.commit(); c.close(); return {'ok': True}
 
+_STARTED = int(time.time())
+try:
+    _RUN_COMMIT = subprocess.run(['git', 'log', '-1', '--format=%h', '--', 'e063-fleet-ui'],
+                                 capture_output=True, text=True, cwd=P4).stdout.strip() or '?'
+except Exception:
+    _RUN_COMMIT = '?'
+
+def repo_state():
+    try:
+        head = subprocess.run(['git', 'log', '-1', '--format=%h', '--', 'e063-fleet-ui'],
+                              capture_output=True, text=True, cwd=P4).stdout.strip() or '?'
+        dirty = subprocess.run(['git', 'status', '--short', '--', 'e063-fleet-ui/app.py',
+                                'e063-fleet-ui/static/app.js', 'e063-fleet-ui/static/index.html',
+                                'e063-fleet-ui/static/style.css', 'e063-fleet-ui/tests/check.sh'],
+                               capture_output=True, text=True, cwd=P4).stdout.strip()
+        return head, bool(dirty)
+    except Exception:
+        return '?', False
+
+@app.get('/api/version')
+def api_version():
+    latest, dirty = repo_state()
+    return {'ok': True, 'track': 'e063', 'running': _RUN_COMMIT,
+            'latest': latest, 'stale': _RUN_COMMIT != latest,
+            'dirty': dirty, 'started_ts': _STARTED}
+
 @app.get('/', response_class=HTMLResponse)
 def index():
     return HTMLResponse(open(os.path.join(BASE, 'static', 'index.html')).read(),

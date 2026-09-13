@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>fleet v2</title><link rel=stylesheet href=/style.css></head><body>
+<header class=top><h1>fleet v2 <small id=ver></small></h1><span id=live class=off>○ connecting</span>
+<nav class=tabs id=tabs></nav>
+<span id=auth></span></header>
+<div id=search><input id=q placeholder="search everything… (e058, approve, run #12)" oninput="S.q=this.value;S.pg=0;render()"></div>
+<main id=main></main>
+<div id=tabbar></div>
+<div id=runbar><button id=runbtn class=go onclick="runFleet(this)">▶ run fleet now</button><span id=runstate style="font-size:12px;opacity:.75"></span></div>
+<script src=/app.js></script></body></html>

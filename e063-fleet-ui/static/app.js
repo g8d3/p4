@@ -108,6 +108,15 @@ function vSessions() {
       '<div class=log id="log-' + r.id + '">tap full log ↑</div>' : '') + '</div>';
   }).join('') || '<div class=empty>no sessions match.</div>';
 }
+function oneLine(s, n) {
+  s = String(s == null ? '' : s).replace(/^-\s*/, '').trim();
+  if (!s) return '—';
+  return s.length > n ? s.slice(0, n) + '…' : s;
+}
+function firstRule() {
+  const ls = String((D.directives || '')).split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+  return oneLine(ls[0] || 'no standing orders', 70);
+}
 function vMoney() {
   const w = D.runway, pct = Math.max(0, Math.min(100, 100 * (1 - w.left / 300)));
   const pend = (D.proposals || []).filter(p => p.status === 'pending' && match(p.track + ' ' + p.action));
@@ -119,10 +128,10 @@ function vMoney() {
       '<div class=btns><button class=approve onclick="decide(' + p.id + ',\'approved\',this)">approve</button><button class=reject onclick="decide(' + p.id + ',\'rejected\',this)">reject</button></div></div>').join('') || '<div class=empty>no pending gates.</div>') +
     (done.length ? '<div class=meta style="margin:8px 0">decided</div>' + done.map(p =>
       '<div class=card><div class=row1><span class=track>' + esc(p.track) + '</span><span>#' + p.id + ' $' + esc(p.usd) + ' ' + esc(p.action) + '</span><b>' + esc(p.status) + '</b></div></div>').join('') : '') +
-    '<details><summary>trials (' + (D.trials || []).length + ')</summary><div>' + ((D.trials || []).map(t =>
+    '<details><summary>trials (' + (D.trials || []).length + ') — ' + esc((D.trials || []).length ? ('next ' + oneLine((D.trials[0] || {}).name, 24) + ' $' + esc((D.trials[0] || {}).usd)) : 'none due') + '</summary><div>' + ((D.trials || []).map(t =>
       '<div class=card>' + esc(t.name) + ' renews ' + esc(t.renews) + ' $' + esc(t.usd) + ' ' + esc(t.note || '') + '</div>').join('') || 'none') + '</div></details>' +
-    '<details><summary>standing orders</summary><div class=log>' + esc(D.directives || '') + '</div></details>' +
-    '<details><summary>ideas (' + (D.ideas || []).length + ')</summary><div class=log>' + esc((D.ideas || []).join('\n')) + '</div></details>' +
+    '<details><summary>standing orders — ' + esc(firstRule()) + '</summary><div class=log>' + esc(D.directives || '') + '</div></details>' +
+    '<details><summary>ideas (' + (D.ideas || []).length + ')' + ((D.ideas || []).length ? ' — ' + esc(oneLine(D.ideas[0], 60)) : ' — none yet') + '</summary><div class=log>' + esc((D.ideas || []).join('\n')) + '</div></details>' +
     settingsHTML();
 }
 function settingsHTML() {
@@ -267,6 +276,11 @@ async function logout() { try { await fetch('/api/logout', {method: 'POST'}); } 
 // ---- live
 async function refresh() {
   try { D = await (await fetch('/api/state')).json(); render(); } catch (e) {}
+  try {
+    const v = await (await fetch('/api/version')).json();
+    const el = document.getElementById('ver');
+    if (el && v.ok) el.textContent = 'v' + v.running + (v.stale ? ' · updating…' : '');
+  } catch (e) {}
 }
 function live() {
   const badge = () => document.getElementById('live');
