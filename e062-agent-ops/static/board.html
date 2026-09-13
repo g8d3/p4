@@ -6,8 +6,9 @@ body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);font-
 .zone>h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;opacity:.8}
 table{border-collapse:collapse;width:100%;table-layout:fixed}td,th{border:1px solid var(--bd);padding:var(--rowpad) 6px;text-align:left;font-size:var(--fs);overflow:hidden}
 body.compact td,body.compact th{padding-top:1px;padding-bottom:1px}
-th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}
-#tbl-activity{min-width:640px}
+th{background:var(--hd)}.twrap{overflow:auto;max-width:100%;max-height:56vh}
+.twrap thead th{position:sticky;top:0;z-index:3;background:var(--hd)}
+#tbl-activity{min-width:560px}
 .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
 .card{border:1px solid var(--bd);border-radius:8px;padding:8px;cursor:pointer;background:var(--bg)}
 .card:hover{border-color:#888}
@@ -22,6 +23,8 @@ th{background:var(--hd)}.twrap{overflow-x:auto;max-width:100%}
 .card .msgrow{display:flex;gap:6px;margin-top:6px}
 .card .msgrow input{flex:1}
 .pausedtag{font-size:11px;color:#e0a63d;border:1px solid #e0a63d;border-radius:4px;padding:0 4px}
+.needbadge{font-size:11px;color:#fff;background:#c0392b;border-radius:10px;padding:1px 7px;font-weight:bold}
+details{margin:4px 0}summary{cursor:pointer;font-size:13px}
 #tbl-activity td{white-space:normal;word-break:break-word;overflow-wrap:anywhere}
 tr.act{cursor:pointer}tr.act:hover td{background:var(--hd)}
 tr.adetail td{background:var(--hd);white-space:normal;word-break:break-word;overflow-wrap:anywhere}
@@ -37,9 +40,8 @@ pre#leg{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-wi
 @media (max-width:700px){
 :root{--planw:200px;--beatw:170px;--urlw:130px}
 .hctl{float:none;display:block;margin-top:6px}
-#tbl-activity{min-width:760px}
-.twrap{max-height:62vh;overflow-y:auto}
-.twrap thead th{position:sticky;top:0;z-index:3}
+#tbl-activity{min-width:560px}
+.twrap{max-height:62vh}
 th.a-time{min-width:104px}th.a-track{min-width:64px}th.a-kind{min-width:120px}th.a-detail{min-width:220px}
 }
 td.wrap{white-space:normal;word-break:break-word}td.nowrap{white-space:nowrap;text-overflow:ellipsis}
@@ -76,7 +78,8 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div style="font-size:12px;opacity:.7;margin-bottom:6px">tap a card → full history for that project + one message box: queue it for the next leg, or send + run now.</div>
 <div id=cards class=cards></div></div>
 <div class=zone><h3>2 · help — context to the project (notes inbox)</h3>
-<div class=twrap><table id=tbl-help><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div>
+<details id=help-det ontoggle="window._helpTouched=true"><summary id=help-sum>notes — tap to read</summary>
+<div class=twrap><table id=tbl-help><thead><tr><th>time</th><th>track</th><th>message</th></tr></thead><tbody id=inbox></tbody></table></div></details>
 <div style="font-size:12px;opacity:.7">write from a project card above — confirmation appears on the button, note lands here.</div></div>
 <div class=zone><h3>3 · approve — money gates + treasury</h3>
 <div id=w style="margin-bottom:6px"></div>
@@ -86,9 +89,9 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <div class=twrap><table id=tbl-activity><thead><tr><th class=a-time>time</th><th class=a-track>track</th><th class=a-kind>kind</th><th class=a-detail>detail</th></tr></thead><tbody id=runs></tbody></table></div>
 <details style="font-size:12px;margin-top:6px"><summary>full flow — last leg log (complete leg output)</summary><pre id=leg></pre></details></div>
 <div class=zone><h3>5 · trials / ideas / orders</h3>
-<div class=twrap><table id=tbl-trials><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div>
-<div class=twrap><table id=tbl-ideas style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div>
-<div class=twrap><table id=tbl-dir style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></div>
-<div class=thumbbar><button onclick="runFleet(this)">&#9654; run fleet now</button><span class=seg id=seg-report-b><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span></div>
-<script src=/app.js?v=18></script>
+<details><summary id=trials-sum>trials — tap to read</summary><div class=twrap><table id=tbl-trials><thead><tr><th>trial</th><th>renews</th><th>$</th><th>note</th></tr></thead><tbody id=tr></tbody></table></div></details>
+<details><summary id=ideas-sum>ideas inbox — tap to read</summary><div class=twrap><table id=tbl-ideas style="margin-top:6px"><thead><tr><th>ideas inbox</th></tr></thead><tbody id=i></tbody></table></div></details>
+<details><summary id=dir-sum>standing orders — tap to read</summary><div class=twrap><table id=tbl-dir style="margin-top:6px"><thead><tr><th>standing orders (directives)</th></tr></thead><tbody id=dir></tbody></table></div></details></div>
+<div class=thumbbar><button onclick="runFleet(this)">&#9654; run fleet now</button><span id=waiting style="font-size:12px;font-weight:bold"></span><span class=seg id=seg-report-b><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span></div>
+<script src=/app.js?v=19></script>
 </body></html>

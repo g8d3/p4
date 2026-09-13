@@ -148,6 +148,10 @@ async function load() {
   try { window._report = (d.prefs && d.prefs.report) || window._report || 'simple'; } catch (e) {}
   try { paintReportSeg(); } catch (e) {}
   document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
+  const waitByTrack = {};
+  (d.notes || []).forEach(n => { waitByTrack[n.track] = (waitByTrack[n.track] || 0) + 1; });
+  (d.proposals || []).filter(p => p.status === 'pending').forEach(p => { waitByTrack[p.track] = (waitByTrack[p.track] || 0) + 1; });
+  const waitTotal = Object.keys(waitByTrack).reduce((a, k) => a + waitByTrack[k], 0);
   document.getElementById('cards').innerHTML = d.tracks.map(t => {
     const paused = (d.paused || []).includes(t.track);
     const open = window._openCard === t.track;
@@ -155,6 +159,7 @@ async function load() {
     '<div class=chead onclick="toggleCard(\'' + t.track + '\')">' +
     '<span class=ctrack>' + esc(t.track) + '</span><span>' + esc(t.label) + '</span>' +
     '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '">rung ' + t.rung + '</span>' +
+    ((waitByTrack[t.track] || 0) ? '<span class=needbadge>\u25cf' + waitByTrack[t.track] + ' waiting</span>' : '') +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat>' + esc(t.beat ? (t.beat.ts + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '') + '</div>' +
@@ -172,6 +177,12 @@ async function load() {
   try { renderLive(d); } catch (e) {}
   document.getElementById('inbox').innerHTML = d.notes.map(n =>
     '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a project card above</td></tr>';
+  const hs = document.getElementById('help-sum');
+  if (hs) hs.textContent = (d.notes || []).length ? (d.notes.length + ' notes waiting — tap to read') : 'notes — empty, write from a project card';
+  const hd = document.getElementById('help-det');
+  if (hd && !window._helpTouched) hd.open = (d.notes || []).length > 0;
+  const wt = document.getElementById('waiting');
+  if (wt) wt.textContent = waitTotal ? ('\u25cf ' + waitTotal + ' waiting') : '';
   document.getElementById('w').textContent =
     'treasury: spent $' + d.runway.spent.toFixed(2) + ' earned $' + d.runway.earned.toFixed(2) +
     ' left $' + d.runway.left.toFixed(2) + ' of $300';
@@ -194,6 +205,12 @@ async function load() {
     '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
   document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
+  const tsum = document.getElementById('trials-sum');
+  if (tsum) tsum.textContent = (d.trials || []).length ? (d.trials.length + ' active trials — tap to read') : 'trials — none active';
+  const isum = document.getElementById('ideas-sum');
+  if (isum) isum.textContent = (d.ideas || []).length ? (d.ideas.length + ' ideas — tap to read') : 'ideas inbox — empty';
+  const dsum = document.getElementById('dir-sum');
+  if (dsum) dsum.textContent = 'standing orders — tap to read';
 }
 function toggleCard(t) {
   window._openCard = (window._openCard === t) ? null : t;
