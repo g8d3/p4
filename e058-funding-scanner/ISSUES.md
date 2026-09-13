@@ -46,6 +46,16 @@ aligned label/input grid. Same fix rolls to all apps.
 - `paper N logged` always says when grading happens; resolved
   scores read `(a/b graded)`.
 
+## 9. Alerts: one ping per payer per day (fixed 2026-09-13 direct)
+
+Bug: dedup key was the snapshot window, so every 15-min snapshot
+re-pinged persistent payers as URGENT (4 pings in 2h on the owner's
+phone). Rule: off-schedule pings are for NEW payers only — a coin
+re-pings at most once per 24h; everything else waits for the 8 UTC
+digest. Wording decoded too: `e058 new payer` + `holding 4/4` +
+`(0 flips, OI rank 471)`. Legacy state entries re-ping once, then
+silence. Progress, not every action.
+
 ## 8. Paper ballot section (UX §3, queued 2026-09-13)
 
 Problem: the 75 predictions live only in SQLite; `/api/paper` serves

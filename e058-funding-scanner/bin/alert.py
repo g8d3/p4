@@ -5,7 +5,7 @@ Secrets ONLY from env: E058_TG_TOKEN, E058_TG_CHAT. Never commit them.
 State: data/alert_state.json (git-ignored) skips already-alerted windows.
 Test (dry run, no Telegram call):  python3 bin/alert.py --dry-run"""
 import json, os, sqlite3, sys, urllib.parse, urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE = os.path.join(BASE, 'data', 'alert_state.json')
@@ -99,7 +99,22 @@ def main():
     window = d.get('snapshots', [])
     key = '|'.join(window)
     state = json.load(open(STATE)) if os.path.exists(STATE) else {}
-    fresh = [r for r in d.get('rows', [])[:top_n] if state.get(r['coin']) != key]
+    def alerted_window(coin):
+        v = state.get(coin)
+        return v.get('w') if isinstance(v, dict) else v
+    def alert_old_enough(coin, now):
+        # Off-schedule pings are for NEW payers only: a coin re-pings at most
+        # once per 24h no matter how the snapshot window slides (owner law:
+        # progress, not every action). Old string entries count as fresh once.
+        v = state.get(coin)
+        ts = v.get('alert_ts') if isinstance(v, dict) else None
+        if not ts: return True
+        try:
+            t = datetime.fromisoformat(str(ts).replace('Z', '+00:00'))
+        except Exception:
+            return True
+        return (now - t) >= timedelta(hours=24)
+    fresh = [r for r in d.get('rows', [])[:top_n] if alerted_window(r['coin']) != key]
     if not fresh:
         print('no new survivors (all alerted or none)');
         return
@@ -109,22 +124,25 @@ def main():
             print(f'digest deferred to {int(cfg["report_hour_utc"]):02d}:00 UTC '
                   f'({len(fresh)} non-urgent survivors, cutoff {urgent_cut:.0f} bps)');
             return
-        fresh = urgent
-        print(f'off-schedule: {len(fresh)} URGENT survivors (>= {urgent_cut:.0f} bps)')
-    lines = [f"e058 persistent funding ({key.split('|')[-1] if key else 'n/a'}):"]
+        now = datetime.now(timezone.utc)
+        fresh = [r for r in urgent if alert_old_enough(r['coin'], now)]
+        if not fresh:
+            print(f'off-schedule: {len(urgent)} urgent but all pinged <24h ago — silent');
+            return
+        print(f'off-schedule: {len(fresh)} NEW urgent payers (>= {urgent_cut:.0f} bps)')
+    tag = 'daily funding digest' if digest_due else 'new payer'
+    lines = [f"e058 {tag} ({key.split('|')[-1] if key else 'n/a'}):"]
     for r in fresh:
-        lines.append(f"{r['coin']} {r['median_apy']:.0f}% APY "
+        lines.append(f"{r['coin']} {r['median_apy']:.0f}% APY holding {r['persist']}, "
                      f"long {r['long']} / short {r['short']} "
-                     f"{r['persist']} flips {r['flips']} OI {r.get('oi_rank') or '500+'}")
+                     f"({r['flips']} flips, OI rank {r.get('oi_rank') or '500+'})")
     msg = '\n'.join(lines)
     if a.dry_run:
         print(msg);
         return
     if a.sink == 'ntfy':
         if send_ntfy(msg):
-            for r in fresh: state[r['coin']] = key
-            os.makedirs(os.path.dirname(STATE), exist_ok=True)
-            json.dump(state, open(STATE, 'w'))
+            stamp(state, key, fresh)
             logged = log_to_site(a.endpoint, window, fresh)
             print(f'ntfy sent {len(fresh)} survivors (site-logged={logged})')
         else:
@@ -134,13 +152,17 @@ def main():
     if not token or not chat:
         sys.exit('missing E058_TG_TOKEN / E058_TG_CHAT (see ALERTS.md)')
     if send(token, chat, msg):
-        for r in fresh: state[r['coin']] = key
-        os.makedirs(os.path.dirname(STATE), exist_ok=True)
-        json.dump(state, open(STATE, 'w'))
+        stamp(state, key, fresh)
         logged = log_to_site(a.endpoint, window, fresh)
         print(f'sent {len(fresh)} survivors (site-logged={logged})')
     else:
         sys.exit('telegram send failed')
+
+def stamp(state, key, fresh):
+    now_s = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    for r in fresh: state[r['coin']] = {'w': key, 'alert_ts': now_s}
+    os.makedirs(os.path.dirname(STATE), exist_ok=True)
+    json.dump(state, open(STATE, 'w'))
 
 if __name__ == '__main__':
     main()
