@@ -79,7 +79,7 @@ your log tail. Plain words first (a marketer reads them), tech after
 7. No secrets in repo (env only). Timeouts on every command. Browsers:
    `close --all`, 0 chrome processes at end.
 8. End: `ops.py beat <track> <ok|blocked> "<OWNER_SENTENCE> | tech: <detail>"`,
-   and if a rung was earned, `ops.py promote`. Print a 10-line leg report
+   and if a rung was earned, `ops.py promote`. Then inbox hygiene: every owner note you CONSUMED and SHIPPED this leg gets `ops.py ack <track> [n]` (verified live first — never ack unshipped work; stale waiting badges are a leg failure). Proposals stay pending until the owner decides. Print a 10-line leg report
    starting with line 1 = the OWNER sentence (what he can do now), then
    did / learned / next. If nothing qualifies, say IDLE and exit.
 9. Git hygiene: at leg end, commit + push ONLY inside the track you

@@ -160,6 +160,21 @@ def inbox(track=None, limit=10):
     for r in c.execute(q, args): print(r)
     c.close()
 
+def ack(track, n='all'):
+    # Inbox hygiene: mark owner notes consumed-and-shipped as done so the
+    # waiting badge never nags for finished work. Never ack unshipped work.
+    import time as t
+    c = db()
+    if str(n).lower() == 'all':
+        cur = c.execute('UPDATE notes SET done=1 WHERE track=? AND done=0', (track,))
+    else:
+        cur = c.execute('UPDATE notes SET done=1 WHERE rowid IN (SELECT rowid FROM notes WHERE track=? AND done=0 ORDER BY ts DESC LIMIT ?)',
+                        (track, int(n)))
+    c.commit()
+    left = c.execute('SELECT COUNT(*) FROM notes WHERE track=? AND done=0', (track,)).fetchone()[0]
+    c.close()
+    print(f'acked {cur.rowcount} [{track}], {left} still open')
+
 def pause(track, reason='owner'):
     import time as t
     c = db()
@@ -215,6 +230,7 @@ CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
         'trial': lambda a: trial(*a), 'trials': lambda a: trials(int(a[0]) if a else 7),
         'note': lambda a: note(a[0], ' '.join(a[1:])),
         'pause': lambda a: pause(*a),
+        'ack': lambda a: ack(*a),
         'resume': lambda a: resume(a[0]),
         'inbox': lambda a: inbox(*(a or [])),
         'spend': lambda a: spend(*a), 'earn': lambda a: earn(*a),
@@ -226,5 +242,5 @@ CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
 if __name__ == '__main__':
     CMDS['pending'] = CMDS['proposals']
     if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
-        sys.exit('usage: ops.py {init|emit|beat|promote|stale|status|propose|decide|proposals} ...')
+        sys.exit('usage: ops.py {init|emit|beat|promote|stale|status|propose|decide|proposals|ack} ...')
     CMDS[sys.argv[1]](sys.argv[2:])
