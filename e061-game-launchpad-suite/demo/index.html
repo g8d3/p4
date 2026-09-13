@@ -5,26 +5,76 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>e061 Suite Slice — Demo (local, no funds)</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem 96px; }
   canvas { border: 2px solid #333; display: block; width: 100%; background: #111; }
   .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
   button:disabled { opacity: .5; cursor: not-allowed; }
   #win { display: none; }
   .badge { display: inline-block; padding: .1rem .5rem; border-radius: 99px; font-size: .8rem; }
   .off { background: #fdd; } .on { background: #dfd; }
+  details.box { border: 1px solid #ccc; border-radius: 8px; padding: .6rem .8rem; margin: 1rem 0; }
+  details.box summary { cursor: pointer; font-size: .95rem; }
+  #slip { display: none; background: #f6f8fa; border: 1px dashed #999; border-radius: 8px; padding: .6rem; margin-top: .6rem; font-size: .85rem; }
+  #slip pre { white-space: pre-wrap; margin: .4rem 0; font-size: .8rem; }
+  .thumbbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: flex; gap: 8px; padding: 10px 8px calc(10px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid #ccc; }
+  .thumbbar button, .thumbbar a { flex: 1; padding: 13px 4px; font-size: 15px; border-radius: 12px; border: 1px solid #ccc; background: #f4f4f4; color: #111; text-align: center; text-decoration: none; }
 </style>
 </head>
 <body>
 <h1>e061 Suite Slice <small>(demo, rung-1: runs locally)</small></h1>
-<p>Spec slice: play e046 canvas &rarr; 7 coins &rarr; win screen &rarr; one e052 test buy (fail-closed) + one e057 warning card. No wallet, no funds, no mainnet.</p>
+<details class="box"><summary>Play → 7 coins → win → test buy (no funds).</summary>
+<p>Spec slice: play e046 canvas → 7 coins → win screen → one e052 test buy (fail-closed) + one e057 warning card. No wallet, no funds, no mainnet.</p></details>
 
-<div class="card">
+<div class="card" id="sec-play">
   <h2>1. Play (real game)</h2>
   <p>Run + jump with &larr;/&rarr; (or tap sides on phone), grab 7 coins, reach the green goal. The win screen below unlocks itself.</p>
   <iframe id="game" src="game/" width="100%" height="320" style="border:2px solid #333;border-radius:8px;background:#111" title="e046 platformer" allow="autoplay"></iframe>
   <p>Coins: <b id="coins">0</b>/7 <small id="winmsg" style="color:#3d8e4f"></small></p>
 </div>
-<script>window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='e061-win'){document.getElementById('win').style.display='block';const c=document.getElementById('coins');if(c)c.textContent=d.coins+'/'+d.coinMax;const m=document.getElementById('winmsg');if(m)m.textContent=d.perfect?'PERFECT — claim below ↓':'finished — claim below ↓';}});</script>
+<script>
+function fillSlip(coins, max, perfect) {
+  var slip = document.getElementById('slip');
+  var txt = document.getElementById('sliptext');
+  var when = new Date().toISOString();
+  var body = 'PAPER SLIP (no funds, demo only)\n'
+    + 'result: ' + coins + '/' + max + (perfect ? ' PERFECT' : '') + ' @ ' + when + '\n'
+    + 'level: goal reached with ' + coins + ' coins (e046 run)\n'
+    + 'kill rule: no CONFETTI buys — skip any token without a level + a quit line\n'
+    + 'fee note: 1% pot / 0.5% creator / 0.25% escrow observed only';
+  txt.textContent = body;
+  try { localStorage.setItem('e061-slip', body); } catch (e) {}
+  slip.style.display = 'block';
+  var wb = document.getElementById('btn-win');
+  if (wb) wb.textContent = '🏆 Win ' + coins + '/' + max;
+}
+window.addEventListener('message', function(e) {
+  var d = e.data || {};
+  if (d.type === 'e061-win') {
+    document.getElementById('win').style.display = 'block';
+    var c = document.getElementById('coins');
+    if (c) c.textContent = d.coins + '/' + d.coinMax;
+    var m = document.getElementById('winmsg');
+    if (m) m.textContent = d.perfect ? 'PERFECT — claim below ↓' : 'finished — claim below ↓';
+    fillSlip(d.coins, d.coinMax, d.perfect);
+  }
+});
+try {
+  var saved = localStorage.getItem('e061-slip');
+  if (saved) {
+    document.getElementById('sliptext').textContent = saved;
+    document.getElementById('slip').style.display = 'block';
+  }
+} catch (e) {}
+function copySlip() {
+  var t = document.getElementById('sliptext').textContent;
+  function done(ok) {
+    document.getElementById('slipmsg').textContent = ok ? 'copied ✓' : 'copy failed — long-press the slip';
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(t).then(function(){done(true)}, function(){done(false)});
+  } else { done(false); }
+}
+</script>
 
 <div class="card" id="win">
   <h2>2. Win screen</h2>
@@ -32,23 +82,25 @@
   <p><button id="claim" disabled>Claim test buy</button>
      <span id="chainBadge" class="badge off">chain: checking…</span></p>
   <p id="disableReason" style="color:#900"></p>
+  <div id="slip"><b>Your paper slip (free, no funds)</b>
+    <pre id="sliptext"></pre>
+    <p style="margin:.3rem 0"><button id="btn-copy" onclick="copySlip()">Copy slip</button>
+    <small id="slipmsg" style="color:#3d8e4f"></small></p>
+  </div>
 </div>
 
-<div class="card">
-  <h2>3. Fee flow (observed only)</h2>
-  <ul>
-    <li>1% platform &rarr; buyback/burn pot</li>
-    <li>0.5% creator</li>
-    <li>0.25% strategy escrow (capped 80%)</li>
-  </ul>
-  <p><i>Slice observes the 1% on the test buy. No distribution, no withdrawal.</i></p>
-</div>
+<details class="box" id="sec-fees"><summary>Fees: 1% pot + 0.5% creator + 0.25% escrow (observed only).</summary>
+<ul>
+  <li>1% platform &rarr; buyback/burn pot</li>
+  <li>0.5% creator</li>
+  <li>0.25% strategy escrow (capped 80%)</li>
+</ul>
+<p><i>Slice observes the 1% on the test buy. No distribution, no withdrawal.</i></p></details>
 
-<div class="card">
-  <h2>4. Analytics card (one e057 warning)</h2>
-  <p><b>Base-rate warning:</b> most launchpad tokens &rarr; 0. Entry needs a level + kill rule (STRATEGY.md).</p>
-  <p>fairLaunchScore / staleness: <b>unattested</b> (no attestation feed in slice).</p>
-</div>
+<details class="box" id="sec-stats"><summary>Warning: most launchpad tokens &rarr; 0 — entry needs a level + kill rule.</summary>
+<p>fairLaunchScore / staleness: <b>unattested</b> (no attestation feed in slice). Full reasoning: STRATEGY.md.</p></details>
+
+<nav class="thumbbar"><a href="#sec-play">▶ Play</a><a href="#win" id="btn-win">🏆 Win</a><a href="#sec-fees">💰 Fees</a><a href="#sec-stats">📊 Stats</a></nav>
 
 <script>
 fetch('status.json').then(r => r.json()).then(s => {
