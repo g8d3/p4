@@ -13,13 +13,13 @@ import json, math, os, subprocess as _sp, threading, time, urllib.request
 _BASE = os.path.dirname(os.path.abspath(__file__))
 _VSTART = int(time.time())
 try:
-    _VRUN = _sp.run(['git', 'log', '-1', '--format=%h', '--', '.'], capture_output=True,
+    _VRUN = _sp.run(['git', 'log', '-1', '--format=%h', '--', 'app.py', 'bin/', 'tests/'], capture_output=True,
                     text=True, cwd=_BASE).stdout.strip() or '?'
 except Exception:
     _VRUN = '?'
 def _version():
     try:
-        latest = _sp.run(['git', 'log', '-1', '--format=%h', '--', '.'], capture_output=True,
+        latest = _sp.run(['git', 'log', '-1', '--format=%h', '--', 'app.py', 'bin/', 'tests/'], capture_output=True,
                          text=True, cwd=_BASE).stdout.strip() or '?'
         dirty = bool(_sp.run(['git', 'status', '--short', '--'] + ['e060-social-memecoin-radar/app.py', 'e060-social-memecoin-radar/bin/', 'e060-social-memecoin-radar/tests/'], capture_output=True,
                              text=True, cwd='/home/vuos/code/p4').stdout.strip())
