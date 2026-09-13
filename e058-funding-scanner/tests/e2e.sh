@@ -124,7 +124,7 @@ EOF
 python3 - <<'EOF' || fail "server-rendered card bad"
 h = open("/tmp/e58_root.html").read()
 assert "Top pays now:" in h and ("steady" in h or "watch" in h or "flippy" in h or "none holding" in h), "no server verdict"
-assert "last sample" in h and "held 24h" in h, "no server pulse"
+assert "sample" in h and "held 24h" in h and "version " in h, "no server pulse (want labeled data/backtest/paper/version)"
 assert "%%TOPONE%%" not in h and "%%PULSE%%" not in h, "unexpanded markers served"
 print("server card ok: verdict + pulse rendered, no markers")
 EOF
