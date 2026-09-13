@@ -6,12 +6,12 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-12T02:25:15Z",
- "n_signals": 8,
- "n_hit": 4,
- "hit_rate_pct": 50.0,
+ "window_last": "2026-09-12T06:17:08Z",
+ "n_signals": 14,
+ "n_hit": 8,
+ "hit_rate_pct": 57.1,
  "median_apy_decay": 1.0,
- "computed_ts": "2026-09-13T04:32:11Z",
+ "computed_ts": "2026-09-13T06:30:43Z",
  "elapsed_s": 0.6,
- "summary": "50.0% of steady calls still paying 24h later (4/8, median APY kept 1.0x)"
+ "summary": "57.1% of steady calls still paying 24h later (8/14, median APY kept 1.0x)"
 }

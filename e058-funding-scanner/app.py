@@ -219,12 +219,15 @@ details.cfg summary{cursor:pointer}
 </div></details>
 <details class=cfg id=r><summary id=r-sum>Daily digest: loading… (tap to change time)</summary>
 <div style="margin-top:6px">
-<label>hour UTC <input id=rh type=number min=0 max=23 style=width:50px></label>
-<label>threshold bps <input id=rt type=number style=width:70px></label>
-<label>last_n <input id=rn type=number style=width:50px></label>
-<label>top_n <input id=rtn type=number style=width:50px></label>
-<label>urgent&times; <input id=ru type=number step=0.5 style=width:50px></label>
+<label>digest time (UTC hour) <input id=rh type=number min=0 max=23 style=width:50px></label>
+<label>coins in digest <input id=rtn type=number style=width:50px></label>
 <button onclick=saveCfg()>save</button> <small id=rc></small>
+<details style="margin-top:6px"><summary>Pay filters (advanced — usually leave alone)</summary>
+<div style="margin-top:6px">
+<label>min pay (bps) <input id=rt type=number style=width:70px></label>
+<label>steady checks <input id=rn type=number style=width:50px></label>
+<label>urgent if bigger &times; <input id=ru type=number step=0.5 style=width:50px></label>
+</div></details>
 </div></details>
 <div id=s style="margin:8px 0"><details><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
 <div class=twrap><table><thead><tr><th>sent</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
