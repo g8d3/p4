@@ -18,10 +18,11 @@ N<20 resolved = THIN: never propose real money on THIN.
   hit-rate; card shows it on first paint + /api/paper. Watch-only, never
   a position.
 - SCORE: resolved=0/0 (thin-data, first 24h outcomes land ~2026-09-14 05:33Z, 5 pending) — next leg resolves or reports pending count.
-- EARLY-READ (run #41, FREE probe, no fetch): app.py early_read() compares
+- EARLY-READ (run #42, FREE probe, no fetch): app.py early_read() compares
   latest worthy entries vs current rotation.json prices; card verdict +
-  /api/paper carry it. First read 2026-09-13 ~09:05Z: 0/4 up, avg -11.4%
-  at 3.5h in (5th call already rotated out of top-15 boosts). Worthy pings
-  running COLD intraday — do not chase; canonical 24h grade still pending.
+  one-line expand + /api/paper carry per-call detail. Read 2026-09-13
+  ~09:35Z: 1/4 up, avg -10.5% at 4.0h, best CATFLIGHT +0.8%
+  (PURRLTR -6.1%, Stunk -15.6%, FRONTIER -21.1%). Worthy pings still COLD
+  intraday — do not chase; canonical 24h grade still pending (~20h).
 - KILL RULE (owner-blessed 2026-09-12): no signal in 2 weeks → kill track.
   Degrade 2 legs running → demote to PAPER (already PAPER, so → kill review).
