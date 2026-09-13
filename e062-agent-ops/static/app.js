@@ -339,6 +339,7 @@ async function load() {
     '<span id="tg-' + t.track + '" style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
     ((t.focus || t.rung_note) ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc([t.focus, rungNext(t.rung).replace(/^next: /, ''), (t.rung_note || '').slice(0, 90)].filter(function(x){return x;}).join(' · ')) + '</div>' : '') +
+    channelLine(t) +
     dataLine(t) +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
@@ -835,6 +836,22 @@ function rungNext(r) {
   if (r === 3) return 'next: ANNOUNCED — needs your announce tap below';
   if (r === 4) return 'next: MONETIZED — business decision with you';
   return 'done — all 5 rungs reached';
+}
+function channelLine(t) {
+  if (!t.best && !t.next) return '';
+  const same = t.best && t.best === t.next;
+  let s = '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">versions:</span> BEST <b>' + esc(t.best || '?') + '</b>' + (t.best_note ? ' ' + esc(t.best_note) : '');
+  s += ' · NEXT <b>' + esc(t.next || '?') + '</b>' + (t.next_note ? ' ' + esc(t.next_note) : '');
+  if (!same && t.next) s += ' <button onclick="event.stopPropagation();promoteChannel(\'' + t.track + '\',this)" title="make NEXT the stable version">promote NEXT→BEST</button>';
+  else s += ' <span style="font-size:10px;opacity:.55">in sync</span>';
+  return s + '</div>';
+}
+async function promoteChannel(track, btn) {
+  if (!confirm('Make NEXT the BEST stable version for ' + track + '?')) return;
+  if (btn) btn.disabled = true;
+  const r = await (await fetch('/api/channel/promote', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({track})})).json();
+  alert(r.ok ? ('BEST now ' + r.best) : (r.error || 'failed'));
+  load();
 }
 function dataLine(t) {
   // time-series freshness per project: is it sampling, and is it fresh?

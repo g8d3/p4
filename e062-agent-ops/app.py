@@ -115,6 +115,22 @@ def read(p, n=60):
     try: return open(p).read().split('\n')[:n]
     except Exception: return []
 
+def track_git_head(subdir):
+    try:
+        return subprocess.run(['git', 'log', '-1', '--format=%h', '--', subdir],
+                                capture_output=True, text=True, cwd=P4).stdout.strip() or ''
+    except Exception:
+        return ''
+
+def get_channels(c):
+    try:
+        c.execute('CREATE TABLE IF NOT EXISTS channels(track TEXT PRIMARY KEY, best_sha TEXT DEFAULT \'\', best_note TEXT DEFAULT \'\', best_ts INTEGER DEFAULT 0, next_sha TEXT DEFAULT \'\', next_note TEXT DEFAULT \'\', next_ts INTEGER DEFAULT 0)')
+        rows = {t: {'best': b or '', 'best_note': bn or '', 'next': n or '', 'next_note': nn or ''}
+                for t, b, bn, n, nn in c.execute('SELECT track, best_sha, best_note, next_sha, next_note FROM channels').fetchall()}
+    except Exception:
+        rows = {}
+    return rows
+
 def track_data(t):
     # Freshness badge: is this project building a time series, and is it fresh?
     # Never breaks the board: every reader is guarded, unknown -> {}.
@@ -170,6 +186,7 @@ def board(req: Request):
                   c.execute("SELECT name, datetime(renews_ts,'unixepoch'), cost_usd, note FROM trials WHERE status='active' ORDER BY renews_ts")]
     except Exception: trials = []
     _notes_anchor = None
+    chans = get_channels(c)
     tracks = []
     for t, label in TRACKS.items():
         d = os.path.join(P4, [d for d in os.listdir(P4) if d.startswith(t + '-')][:1][0]) if any(
@@ -180,6 +197,16 @@ def board(req: Request):
                 p = os.path.join(d, f)
                 if os.path.exists(p):
                     plan = ' / '.join([l.strip('# ').strip() for l in read(p, 8) if l.strip()][:3])
+        ch = chans.get(t) or {}
+        if not ch.get('best') and d:
+            head = track_git_head(os.path.basename(d))
+            if head:
+                ch = {'best': head, 'best_note': 'auto-seed', 'next': head, 'next_note': 'auto-seed'}
+                try:
+                    c.execute('INSERT OR REPLACE INTO channels VALUES (?,?,?,?,?,?,?)', (t, head, 'auto-seed', int(time.time()), head, 'auto-seed', int(time.time())))
+                    c.commit()
+                except Exception:
+                    pass
         tracks.append({'track': t, 'label': label,
                        'rung': (rungs.get(t) or {}).get('rung', 0),
                        'rung_note': (rungs.get(t) or {}).get('note', ''),
@@ -187,6 +214,8 @@ def board(req: Request):
                        'url': (rungs.get(t) or {}).get('url', ''),
                        'beat': beats.get(t), 'plan': plan[:140],
                        'focus': focus.get(t, ''),
+                       'best': ch.get('best', ''), 'best_note': ch.get('best_note', ''),
+                       'next': ch.get('next', ''), 'next_note': ch.get('next_note', ''),
                        'data': track_data(t)})
     try:
         sp = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='spend'").fetchone()[0]
@@ -496,6 +525,47 @@ async def api_decide(req: Request):
     c.execute('UPDATE proposals SET status=?, decided_ts=? WHERE id=?', (verdict, int(time.time()), pid))
     c.commit(); c.close()
     return {'ok': True}
+
+@app.post('/api/channel/mark')
+async def api_channel_mark(req: Request):
+    err, _me = need_login(req)
+    if err: return err
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    track, slot = (d.get('track') or '').strip(), (d.get('slot') or '').strip()
+    sha = (d.get('sha') or '').strip()[:40]
+    note = str(d.get('note') or '')[:140]
+    if track not in TRACKS or slot not in ('best', 'next') or not sha:
+        return {'ok': False, 'error': 'need track + slot=best|next + sha'}
+    import sqlite3, time
+    c = sqlite3.connect(DB)
+    c.execute('CREATE TABLE IF NOT EXISTS channels(track TEXT PRIMARY KEY, best_sha TEXT DEFAULT \'\', best_note TEXT DEFAULT \'\', best_ts INTEGER DEFAULT 0, next_sha TEXT DEFAULT \'\', next_note TEXT DEFAULT \'\', next_ts INTEGER DEFAULT 0)')
+    c.execute('INSERT OR IGNORE INTO channels(track) VALUES (?)', (track,))
+    col = 'best_sha, best_note, best_ts' if slot == 'best' else 'next_sha, next_note, next_ts'
+    c.execute(f'UPDATE channels SET {col.split(chr(44))[0]}=?, {col.split(chr(44))[1]}=?, {col.split(chr(44))[2]}=? WHERE track=?', (sha, note, int(time.time()), track))
+    ts = int(time.time())
+    c.execute('INSERT INTO events VALUES (?,?,?,?,?)', (ts, track, 'channel', f'{track} {slot} now {sha}: {note or "marked"} | tech: channel {slot}={sha}', f'{track}:channel:{slot}:{sha}'))
+    c.commit(); c.close()
+    return {'ok': True}
+
+@app.post('/api/channel/promote')
+async def api_channel_promote(req: Request):
+    err, _me = need_admin(req)
+    if err: return err
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    track = (d.get('track') or '').strip()
+    if track not in TRACKS: return {'ok': False, 'error': 'bad track'}
+    import sqlite3, time
+    c = sqlite3.connect(DB)
+    r = c.execute('SELECT next_sha, next_note FROM channels WHERE track=?', (track,)).fetchone()
+    if not r or not r[0]:
+        c.close(); return {'ok': False, 'error': 'NEXT empty — nothing to promote'}
+    c.execute('UPDATE channels SET best_sha=?, best_note=?, best_ts=? WHERE track=?', (r[0], r[1], int(time.time()), track))
+    ts = int(time.time())
+    c.execute('INSERT OR REPLACE INTO events VALUES (?,?,?,?,?)', (ts, track, 'promote-channel', f'{track} BEST now {r[0]} (was NEXT) | tech: promote-channel {r[0]}', f'{track}:promote-channel:{r[0]}'))
+    c.commit(); c.close()
+    return {'ok': True, 'best': r[0]}
 
 _STARTED = int(time.time())
 # Served code only (UX §8 + e058/e060 precedent): doc/data commits

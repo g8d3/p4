@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS rungs(track TEXT PRIMARY KEY, rung INTEGER, ts INTEGE
 CREATE TABLE IF NOT EXISTS ledger(ts INTEGER, track TEXT, kind TEXT, usd REAL, note TEXT);
 CREATE TABLE IF NOT EXISTS trials(name TEXT PRIMARY KEY, ts INTEGER, renews_ts INTEGER, cost_usd REAL, status TEXT DEFAULT 'active', note TEXT);
 CREATE TABLE IF NOT EXISTS paused(track TEXT PRIMARY KEY, ts INTEGER, reason TEXT);
+CREATE TABLE IF NOT EXISTS channels(track TEXT PRIMARY KEY, best_sha TEXT DEFAULT '', best_note TEXT DEFAULT '', best_ts INTEGER DEFAULT 0, next_sha TEXT DEFAULT '', next_note TEXT DEFAULT '', next_ts INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS notes(ts INTEGER, track TEXT, message TEXT, done INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS proposals(id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER, track TEXT, amount_usd REAL, action TEXT, reason TEXT, status TEXT DEFAULT 'pending', decided_ts INTEGER);
 """
@@ -248,6 +249,41 @@ def stale(max_age_h=49):
         print(f'STALE {tr} silent {h}h')
     return dead
 
+def channel(track=None):
+    import time as t
+    c = db()
+    if not track:
+        for r in c.execute('SELECT track, best_sha, best_note, next_sha, next_note FROM channels ORDER BY track'):
+            print(r)
+        c.close(); return
+    r = c.execute('SELECT track, best_sha, best_note, next_sha, next_note FROM channels WHERE track=?', (track,)).fetchone()
+    c.close()
+    print(r if r else f'{track}: (no channel yet)')
+
+def mark(track, slot, sha, note=''):
+    import time as t
+    assert slot in ('best', 'next'), 'slot must be best|next'
+    c = db()
+    c.execute('INSERT OR IGNORE INTO channels(track) VALUES (?)', (track,))
+    if slot == 'best':
+        c.execute('UPDATE channels SET best_sha=?, best_note=?, best_ts=? WHERE track=?', (sha, note, int(t.time()), track))
+    else:
+        c.execute('UPDATE channels SET next_sha=?, next_note=?, next_ts=? WHERE track=?', (sha, note, int(t.time()), track))
+    c.commit(); c.close()
+    print(f'channel [{track}] {slot} = {sha} {note}')
+    emit(track, 'channel', f'{track} {slot} now {sha}: {note or "marked"} | tech: channel {slot}={sha}', dedup=f'{track}:channel:{slot}:{sha}')
+
+def promote_channel(track):
+    import time as t
+    c = db()
+    r = c.execute('SELECT next_sha, next_note FROM channels WHERE track=?', (track,)).fetchone()
+    if not r or not r[0]:
+        c.close(); print(f'{track}: nothing in NEXT to promote'); return
+    c.execute('UPDATE channels SET best_sha=?, best_note=?, best_ts=? WHERE track=?', (r[0], r[1], int(t.time()), track))
+    c.commit(); c.close()
+    print(f'{track}: BEST <- NEXT ({r[0]})')
+    emit(track, 'promote-channel', f'{track} BEST now {r[0]} (was NEXT) | tech: promote-channel {r[0]}', dedup=f'{track}:promote-channel:{r[0]}')
+
 def status():
     c = db()
     print('-- rungs --')
@@ -264,6 +300,12 @@ def status():
     print('-- recent events --')
     for r in c.execute('SELECT datetime(ts,"unixepoch"), track, kind, summary FROM events ORDER BY ts DESC LIMIT 15'):
         print(r)
+    print('-- channels (BEST stable / NEXT experimental) --')
+    try:
+        for r in c.execute('SELECT track, best_sha, best_note, next_sha, next_note FROM channels ORDER BY track'):
+            print(r)
+    except Exception:
+        pass
     c.close()
 
 CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
@@ -280,7 +322,10 @@ CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
         'balances': lambda a: balances(),
         'proposals': lambda a: proposals(*a),
         'beat': lambda a: beat(*a), 'promote': lambda a: promote(a[0], int(a[1]), *(a[2:])),
-        'stale': lambda a: stale(int(a[0]) if a else 49), 'status': lambda a: status()}
+        'stale': lambda a: stale(int(a[0]) if a else 49), 'status': lambda a: status(),
+        'channel': lambda a: channel(*a) if a else channel(),
+        'mark': lambda a: mark(a[0], a[1], a[2], ' '.join(a[3:]) if len(a) > 3 else ''),
+        'promote-channel': lambda a: promote_channel(a[0])}
 
 if __name__ == '__main__':
     CMDS['pending'] = CMDS['proposals']

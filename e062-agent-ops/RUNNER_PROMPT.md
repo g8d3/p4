@@ -66,7 +66,7 @@ Two obligations, always together:
 
 ## ADVANCE (what counts as progress — read this before touching anything)
 
-Advance = a proof number moved, not a tweak shipped. Each track climbs
+Advance = finished work the owner can use from his phone in <30s, not a tweak shipped. Rungs 1-5 are scaffolding, never reported as progress. Each track climbs
 one number:
 - e058: backtest 24h hold-rate (fraction of steady calls that paid a day later)
 - e059: alert precision (cheap-vs-peers calls that stayed cheap)
