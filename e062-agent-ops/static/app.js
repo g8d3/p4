@@ -478,6 +478,12 @@ function groupRows(rows, g) {
   });
   return order.map(function(k) { return map[k]; }).sort(function(a, b) { return b.latest - a.latest; });
 }
+function waitBanner(w, rows) {
+  if (w.q.toLowerCase().indexOf('is:waiting') < 0) return '';
+  return '<div style="border:1px solid #c0392b;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px">' +
+    '<b>\u26d4 ' + rows.length + ' need your tap.</b> Money gates: approve/reject below (money moves ONLY with your tap). ' +
+    'Notes: your words to that project\u2019s agent, read on the next leg. Tap any \u25cf badge to come back here.</div>';
+}
 function groupTime(g) {
   try {
     const d = new Date(g.latest);
@@ -504,8 +510,8 @@ function renderWidgetCards(wi) {
     const maxp = Math.max(0, Math.ceil(rows.length / w.n) - 1);
     w.p = Math.min(w.p || 0, maxp);
     const page = rows.slice(w.p * w.n, w.p * w.n + w.n);
-    box.innerHTML = head + (page.map(function(r, i) { return rowCard(wi, r, 'r' + (w.p * w.n + i)); }).join('') ||
-      '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>');
+    box.innerHTML = head + waitBanner(w, rows) + (page.map(function(r, i) { return rowCard(wi, r, 'r' + (w.p * w.n + i)); }).join('') ||
+      '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>');
     const info = document.getElementById('wi-' + wi);
     if (info) info.textContent = rows.length + ' rows · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(rows.length / w.n));
     return;
@@ -525,7 +531,7 @@ function renderWidgetCards(wi) {
       if (g.rows.length > grows.length) html += '<div style="font-size:11px;opacity:.6">+' + (g.rows.length - grows.length) + ' more — filter to narrow</div>';
     }
   });
-  box.innerHTML = head + (html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>');
+  box.innerHTML = head + waitBanner(w, rows) + (html || '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>');
   const info = document.getElementById('wi-' + wi);
   if (info) info.textContent = groups.length + ' groups · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(groups.length / w.n));
 }
@@ -599,7 +605,9 @@ function waitFor(track) {
 }
 function uniDetail(r, uid) {
   const safeTrack = String(r.track || 'e062').replace(/[^a-z0-9]/gi, '') || 'e062';
-  let h = '<div class=cdetail onclick="event.stopPropagation()"><div>' + esc(r.full || r.detail) + '</div>';
+  let h = '<div class=cdetail onclick="event.stopPropagation()">' +
+    ((r.wait && r.kind === 'owner note') ? '<div style="font-size:12px;margin-bottom:4px"><b>Your note</b> to the ' + esc(safeTrack) + ' agent \u2014 runs on the next leg. Add context below or leave it.</div>' : '') +
+    '<div>' + esc(r.full || r.detail) + '</div>';
   if (r.leg) {
     h += '<div class=rowbtns style="margin-top:6px"><a href="/api/leg/' + r.leg + '" target=_blank><button>full log</button></a> ' +
       '<button onclick="uniWatchLive(' + r.leg + ',\'' + uid + '\',this)">watch live</button></div>' +
