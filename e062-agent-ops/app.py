@@ -174,12 +174,28 @@ def api_runstate():
     c = sqlite3.connect(DB)
     try:
         last = c.execute(
-            "SELECT id, datetime(started_ts,'unixepoch'), scope, trigger, status, summary FROM runs ORDER BY id DESC LIMIT 1").fetchone()
+            "SELECT id, started_ts, datetime(started_ts,'unixepoch'), scope, trigger, status, summary FROM runs ORDER BY id DESC LIMIT 1").fetchone()
     except Exception: last = None
     c.close()
+    live_sess = None
+    if runner_running() and last and last[1]:
+        # session file(s) touched since this leg started = this leg's sessions
+        import glob as _g, json as _j
+        live_sess = []
+        root = os.path.expanduser('~/.pi/agent/sessions')
+        for p in _g.glob(os.path.join(root, '*', '*.jsonl')):
+            try:
+                if int(os.path.getmtime(p)) < int(last[1]) - 60: continue
+                o0 = _j.loads(open(p).readline())
+                if isinstance(o0, dict) and o0.get('type') == 'session' and o0.get('id'):
+                    sh = str(o0['id'])[:8]
+                    if sh not in live_sess: live_sess.append(sh)
+            except Exception: pass
+            if len(live_sess) >= 4: break
     return {'ok': True, 'running': runner_running(),
-            'last': ({'id': last[0], 'started': last[1], 'scope': last[2],
-                      'trigger': last[3], 'status': last[4], 'summary': last[5]} if last else None)}
+            'live_session': (','.join(live_sess) if live_sess else None),
+            'last': ({'id': last[0], 'started': last[2], 'scope': last[3],
+                      'trigger': last[4], 'status': last[5], 'summary': last[6]} if last else None)}
 
 @app.post('/api/run')
 async def api_run(req: Request):
@@ -290,6 +306,9 @@ async def api_prefs_set(req: Request):
             elif k == 'report':
                 if v not in ('simple', 'both', 'tech'): continue
             elif k == 'widgets':
+                if v == '':
+                    c.execute('INSERT OR REPLACE INTO prefs VALUES (?,?)', (k, ''))
+                    continue
                 try:
                     w = __import__('json').loads(v)
                     assert isinstance(w, list) and 1 <= len(w) <= 12

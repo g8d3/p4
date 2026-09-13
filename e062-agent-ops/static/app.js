@@ -333,6 +333,27 @@ function cleanWidget(w) {
     s: w.s === 'old' ? 'old' : 'new',
     n: [10, 20, 50].indexOf(w.n) >= 0 ? w.n : 20, p: 0, open: -1};
 }
+function buildUnified(d) {
+  const rows = [];
+  (d.runs || []).forEach(function(r) {
+    const track = r.scope === 'fleet' ? 'runner' : (r.scope || '');
+    const ses = r.session ? ('run #' + r.id + ' \u00b7 ses ' + String(r.session).replace(/,/g, ' +')) : ('run #' + r.id);
+    rows.push({t: actTs(r.started), time: r.started || '', track: track,
+      kind: 'session', session: ses,
+      detail: runLine(r), full: runLine(r), leg: r.id, wait: 0, runid: r.id, sesid: (r.session || '')});
+  });
+  (d.events || []).forEach(function(e) { rows.push({t: actTs(e.ts), time: e.ts, track: e.track,
+    kind: e.kind, session: '', detail: e.summary, full: e.summary, leg: null, wait: 0}); });
+  (d.notes || []).forEach(function(n) { rows.push({t: actTs(n.ts), time: n.ts, track: n.track,
+    kind: 'owner note', session: '', detail: n.message, full: n.message, leg: null, wait: 1}); });
+  (d.proposals || []).forEach(function(pr) { rows.push({t: actTs(pr.ts), time: pr.ts, track: pr.track,
+    kind: 'money gate', session: 'gate #' + pr.id,
+    detail: '#' + pr.id + ' $' + pr.usd + ' ' + pr.action + ' \u2014 ' + pr.reason + ' (' + pr.status + ')',
+    full: '#' + pr.id + ' $' + pr.usd + ' ' + pr.action + ' \u2014 ' + pr.reason + ' (' + pr.status + ')',
+    leg: null, wait: pr.status === 'pending' ? 1 : 0,
+    propId: pr.id, propPending: pr.status === 'pending'}); });
+  return rows;
+}
 function loadWidgets(d) {
   if (window._widgets && window._widgets.length) return;
   try {
@@ -381,8 +402,7 @@ function widgetHTML(w, wi) {
   '<select onchange="wSet(' + wi + ',\'g\',this)" aria-label="group by">' + selOpts(wi, 'g', [['none', 'group: none'], ['project', 'group: project'], ['session', 'group: session'], ['kind', 'group: kind']]) + '</select>' +
   '<select onchange="wSet(' + wi + ',\'s\',this)" aria-label="sort">' + selOpts(wi, 's', [['new', 'newest'], ['old', 'oldest']]) + '</select>' +
   '<select onchange="wSet(' + wi + ',\'n\',this)" aria-label="per page">' + selOpts(wi, 'n', [[10, '10/page'], [20, '20/page'], [50, '50/page']]) + '</select></div>' +
-  '<div style="font-size:11px;opacity:.55">each card = time · project · kind · session → the news. tap a card for the session + talk.</div>' +
-  '<div id="wc-' + wi + '"></div>' +
+  '<div class=wlist id="wc-' + wi + '"></div>' +
   '<div class=rowbtns style="margin-top:6px;display:flex;gap:8px;align-items:center">' +
   '<button onclick="wPage(' + wi + ',-1)">‹ prev</button><span id="wi-' + wi + '" style="font-size:12px;opacity:.7"></span><button onclick="wPage(' + wi + ',1)">next ›</button></div></div>';
 }
@@ -392,6 +412,29 @@ function renderWidgets() {
   box.innerHTML = window._widgets.map(widgetHTML).join('');
   window._widgets.forEach(function(w, wi) { renderWidgetCards(wi); });
 }
+function shortTime(t) {
+  const m = String(t || '').match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/);
+  return m ? (m[2] + '/' + m[3] + ' ' + m[4]) : String(t || '');
+}
+function sesChips(wi, r) {
+  if (r.kind === 'session' && r.runid) {
+    let h = '<button onclick="event.stopPropagation();sesFilter(' + wi + ',' + "'" + 'run #' + r.runid + "'" + ')" title="show this leg\u2019s rows">run #' + r.runid + '</button>';
+    if (r.sesid) {
+      const first = String(r.sesid).split(',')[0];
+      h += ' <button onclick="event.stopPropagation();sesFilter(' + wi + ',' + "'" + 'ses ' + first + "'" + ')" title="pi harness session id \u2014 tap to isolate">ses ' + first + '</button>' +
+        (String(r.sesid).indexOf(',') >= 0 ? ' +' + (String(r.sesid).split(',').length - 1) : '');
+    }
+    return h;
+  }
+  return '<span style="font-size:11px;opacity:.6">' + esc(r.session || '\u2014') + '</span>';
+}
+function sesFilter(wi, q) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  w.q = q; w.p = 0; w.open = -1;
+  saveWidgets(); renderWidgets();
+}
+
 function groupKey(r, g) {
   if (g === 'project') return r.track || '?';
   if (g === 'session') return r.session || r.kind || '?';
@@ -412,17 +455,18 @@ function renderWidgetCards(wi) {
     if (w.g !== 'none' && gk !== lastG) { html += '<div style="font-size:11px;opacity:.6;margin:6px 0 2px"><b>' + esc(gk) + '</b></div>'; lastG = gk; }
     const open = w.open === i;
     html += '<div class="card' + (open ? ' open' : '') + '" onclick="wToggle(' + wi + ',' + i + ')">' +
-      '<div class=chead><span style="font-size:11px;opacity:.6">' + esc(r.time || '') + '</span>' +
+      '<div class=frow><span>' + esc(shortTime(r.time)) + '</span>' +
       '<span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
-      (r.session ? '<span style="font-size:11px;opacity:.6">' + esc(r.session) + '</span>' : '') +
-      (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</div>' +
+      '<span class=ses>' + sesChips(wi, r) + '</span>' +
+      '<span>' + (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</span></div>' +
       '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
       (r.propPending ? '<div class=rowbtns style="margin-top:4px" onclick="event.stopPropagation()">' +
         '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button>' +
         '<button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button></div>' : '') +
       (open ? uniDetail(r, wi + '-' + i) : '') + '</div>';
   });
-  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>';
+  const head = '<div class=whead><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+  box.innerHTML = head + (html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>');
   const info = document.getElementById('wi-' + wi);
   if (info) info.textContent = rows.length + ' rows · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(rows.length / w.n));
 }
@@ -594,10 +638,17 @@ function renderLive(d) {
     liveStop();
   }
 }
-function liveStart(leg) {
+async function liveStart(leg) {
   if (window._liveleg === leg && window._livetimer) return;
   liveStop();
   window._liveleg = leg;
+  try {
+    const rs = await (await fetch('/api/runstate')).json();
+    if (rs && rs.live_session) {
+      const head = document.getElementById('live-head');
+      if (head && head.textContent.indexOf('ses ') < 0) head.textContent += ' \u00b7 ses ' + rs.live_session.replace(/,/g, ' +');
+    }
+  } catch (e) {}
   const pull = async function() {
     try {
       const r = await (await fetch('/api/leg/' + leg)).json();

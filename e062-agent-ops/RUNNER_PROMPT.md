@@ -64,8 +64,10 @@ Two obligations, always together:
 
 After EVERY meaningful action (start, each tool batch, test result,
 commit, blocked), run:
-`ops.py emit <track> step "<plain owner words> | tech: <detail>"`
-with a unique dedup key (`<track>:step:<runid>:<n>`). Silence looks
+`ops.py emit <track> step "[run #N] <plain owner words> | tech: <detail>"`
+where N is YOUR run number from the `THIS LEG` line (so the board can
+gather one session's steps with one tap). Dedup key
+`<track>:step:<N>:<n>` (unique per step). Silence looks
 like stuck — the board's live panel only shows what you emit plus
 your log tail. Plain words first (a marketer reads them), tech after
 `|` (a builder reads those). Never emit secrets.

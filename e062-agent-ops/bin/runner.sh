@@ -40,6 +40,7 @@ EOF
 fi
 FOCUS_LINE=""
 if [ "$FOCUS" != "fleet" ]; then FOCUS_LINE="--- OWNER ONE-SHOT (board button): focus this leg on $FOCUS (approved proposals still first) ---"; fi
+LEGLINE="--- THIS LEG: run #${RUN_ID:-?} (tag every step emit with [run #${RUN_ID:-?}]) ---"
 STATE=$(python3 $OPS status 2>&1 | head -40)
 ORDERS=$(cat /home/vuos/code/p4/e062-agent-ops/DIRECTIVES.md 2>/dev/null | head -60)
 PENDING=$(python3 $OPS proposals 2>&1 | head -20)
@@ -50,6 +51,8 @@ MODEL_ARGS="${E062_MODEL_ARGS:---provider opencode-go --model muse-spark-1.3-con
 mkdir -p /home/vuos/code/p4/e062-agent-ops/runs
 LEGLOG="/home/vuos/code/p4/e062-agent-ops/runs/leg-${RUN_ID:-0}.log"
 timeout 1500 pi $MODEL_ARGS --print "$(cat $PROMPT)
+
+$LEGLINE
 
 $FOCUS_LINE
 
