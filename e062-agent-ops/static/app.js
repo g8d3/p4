@@ -391,7 +391,7 @@ function cardHist(track) {
 function cardDetail(t) {
   const items = cardHist(t.track);
   const h = items.length ? items.map(x =>
-    '<div><b>' + esc(x.time || '') + '</b> [' + esc(x.kind || '') + '] ' + esc(fmtDetail(x.text || '')) +
+    '<div><b>' + esc(shortTime(x.time)) + '</b> [' + esc(x.kind || '') + '] ' + esc(fmtDetail(x.text || '')) +
     (x.leg ? ' <a href="/api/leg/' + x.leg + '" target=_blank>log</a>' : '') + '</div>'
   ).join('') : '<div>no history yet</div>';
   return '<div class=cdetail onclick="event.stopPropagation()">' +
@@ -726,6 +726,16 @@ function addViewPreset(kind, btn) {
     } catch (e) {}
   }, 60);
 }
+function parseUTC(t) {
+  // Robust UTC parse: ISO strings already carrying Z/offset parse as-is;
+  // bare '%Y-%m-%d %H:%M:%S' gets Z. Blind Z-append made '...21ZZ' -> NaN.
+  try {
+    const s = String(t || '').trim().replace(' ', 'T');
+    if (!s) return NaN;
+    if (/[zZ]$/.test(s) || /[+-]\d{2}:?\d{2}$/.test(s)) return new Date(s).getTime();
+    return new Date(s + 'Z').getTime();
+  } catch (e) { return NaN; }
+}
 function shortTime(t) {
   // server stores UTC; the phone/computer shows ITS local time — no more UTC math
   try {
@@ -820,7 +830,9 @@ function dataLine(t) {
   const d = t.data || {};
   const age = function(ts) {
     try {
-      const s = Math.max(0, Math.round((Date.now() - new Date(String(ts).replace(' ', 'T') + 'Z').getTime()) / 1000));
+      const ms = parseUTC(ts);
+      if (isNaN(ms)) return '';
+      const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
       if (s < 3600) return Math.floor(s / 60) + 'm ago';
       if (s < 172800) return Math.floor(s / 3600) + 'h ago';
       return Math.floor(s / 86400) + 'd ago';
@@ -828,7 +840,7 @@ function dataLine(t) {
   };
   const everyS = {'15m': 900, '30m': 1800, '24h': 86400}[d.every] || 0;
   let ageS = 0;
-  try { ageS = Math.max(0, Math.round((Date.now() - new Date(String(d.last).replace(' ', 'T') + 'Z').getTime()) / 1000)); } catch (e) {}
+  try { const _ms = parseUTC(d.last); ageS = isNaN(_ms) ? 0 : Math.max(0, Math.round((Date.now() - _ms) / 1000)); } catch (e) {}
   const stale = everyS && ageS > 2 * everyS;
   const size = d.rows ? (d.rows >= 1000 ? Math.round(d.rows / 1000) + 'k rows' : d.rows + ' rows')
     : (d.files ? d.files + ' files' : (d.days != null ? d.days + ' paper days' : (d.legs ? d.legs + ' legs' : '')));
