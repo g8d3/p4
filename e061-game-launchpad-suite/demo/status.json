@@ -1,1 +1,15 @@
-{"analytics":"unattested","anvilRunning":false,"chain":"none","disableReason":"pair not deployed / chain not anvil (expected: slice is fail-closed without e052 anvil-fork)","feeSplits":{"buybackBurnPot":"1%","creator":"0.5%","strategyEscrow":"0.25% (capped 80%)"},"game":"e046-kaplay (placeholder canvas in slice demo)","pair":"none deployed","slice":"e061 smallest playable slice (demo)","token":"e052 anvil-fork test buy (disabled until chain ready)"}
+{
+ "analytics": "unattested",
+ "anvilRunning": false,
+ "chain": "none",
+ "disableReason": "pair not deployed / chain not anvil (expected: slice is fail-closed without e052 anvil-fork)",
+ "feeSplits": {
+  "buybackBurnPot": "1%",
+  "creator": "0.5%",
+  "strategyEscrow": "0.25% (capped 80%)"
+ },
+ "game": "e046-kaplay dist embedded (playable iframe, win posts e061-win to unlock claim)",
+ "pair": "none deployed",
+ "slice": "e061 smallest playable slice (demo)",
+ "token": "e052 anvil-fork test buy (disabled until chain ready)"
+}

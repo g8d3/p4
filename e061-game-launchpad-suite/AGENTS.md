@@ -32,6 +32,13 @@ boundary for game canvas, legal wrapper. Smallest playable slice: collect
 7 coins in e046 → win screen button fires one e052 anvil-fork test buy +
 one e057 warning card. No new engine, no new curve, no real funds.
 
+## 2026-09-13: real game embedded (interactive session, browser-verified)
+Placeholder click-canvas replaced by the actual e046 dist build in an
+iframe (`demo/game/`); win scene posts `e061-win` to unlock the claim
+section below. e046 rebuilt with relative base + runtime assets copied.
+Playwright: canvas renders, arrows collect coins (1/7 seen), win message
+reveals section, claim stays fail-closed (no chain), zero console errors.
+
 ## SPEC.md written 2026-09-12 (subsession)
 
 Player flow (e046): play → 7 coins → win screen + "Claim test buy"

@@ -19,11 +19,12 @@
 <p>Spec slice: play e046 canvas &rarr; 7 coins &rarr; win screen &rarr; one e052 test buy (fail-closed) + one e057 warning card. No wallet, no funds, no mainnet.</p>
 
 <div class="card">
-  <h2>1. Play (placeholder canvas)</h2>
-  <p>Click the canvas to collect a coin. 7 coins = win. (Real slice embeds the e046 Kaplay build; this demo proves the suite page wiring.)</p>
-  <canvas id="game" width="600" height="200" tabindex="0"></canvas>
-  <p>Coins: <b id="coins">0</b>/7</p>
+  <h2>1. Play (real game)</h2>
+  <p>Run + jump with &larr;/&rarr; (or tap sides on phone), grab 7 coins, reach the green goal. The win screen below unlocks itself.</p>
+  <iframe id="game" src="game/" width="100%" height="320" style="border:2px solid #333;border-radius:8px;background:#111" title="e046 platformer" allow="autoplay"></iframe>
+  <p>Coins: <b id="coins">0</b>/7 <small id="winmsg" style="color:#3d8e4f"></small></p>
 </div>
+<script>window.addEventListener('message',e=>{const d=e.data||{};if(d.type==='e061-win'){document.getElementById('win').style.display='block';const c=document.getElementById('coins');if(c)c.textContent=d.coins+'/'+d.coinMax;const m=document.getElementById('winmsg');if(m)m.textContent=d.perfect?'PERFECT — claim below ↓':'finished — claim below ↓';}});</script>
 
 <div class="card" id="win">
   <h2>2. Win screen</h2>
@@ -50,24 +51,6 @@
 </div>
 
 <script>
-let coins = 0;
-const cv = document.getElementById('game'), ctx = cv.getContext('2d');
-function draw() {
-  ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 600, 200);
-  ctx.fillStyle = '#fc0';
-  for (let i = coins; i < 7; i++) {
-    ctx.beginPath(); ctx.arc(50 + i * 75, 100, 18, 0, 7); ctx.fill();
-  }
-  ctx.fillStyle = '#fff'; ctx.fillText('click to collect (' + coins + '/7)', 10, 20);
-}
-cv.addEventListener('click', () => {
-  if (coins >= 7) return;
-  coins++;
-  document.getElementById('coins').textContent = coins;
-  draw();
-  if (coins >= 7) document.getElementById('win').style.display = 'block';
-});
-draw();
 fetch('status.json').then(r => r.json()).then(s => {
   const b = document.getElementById('chainBadge');
   b.textContent = 'chain: ' + s.chain + ' | pair: ' + s.pair;
