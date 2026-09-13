@@ -84,5 +84,7 @@ try:
         headers={'Content-Type': 'application/json'}), timeout=10)
 except Exception as e:
     print('WARN restore failed:', e)
+hits = pg.evaluate("Array.from(document.querySelectorAll('h2 button')).map(b=>{const r=b.getBoundingClientRect();const el=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return el===b;})")
+check('header buttons hittable (no overlap)', all(hits), hits)
 print('RESULT:', 'ALL PASS' if not errors else f'{len(errors)} FAILURES: {errors}')
 sys.exit(1 if errors else 0)
