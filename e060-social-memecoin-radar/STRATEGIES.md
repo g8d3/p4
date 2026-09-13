@@ -34,3 +34,9 @@ N<20 resolved = THIN: never propose real money on THIN.
   from oldest worthy-with-price snapshot) + plain-words explainer
   ("Your radar sorts with one tap below"). Early 2026-09-13 ~11:35Z:
   1/4 up, avg -12.2% at 6.0h, best CATFLIGHT +0.6% — still COLD intraday.
+- RUN #47 FIX (FREE, local only, no fetch): JS was discarding the live
+  countdown after load (server "first grade ~18h" → vague "<24h").
+  /api/paper now carries grade_cd and the pulse, verdict suffix, and
+  Copy slip all keep it ("5 calls resolving (first grade ~18h)").
+  Early 2026-09-13 ~12:00Z: 1/4 up, avg -10.5% at 6.5h, best
+  CATFLIGHT +0.6% — still COLD intraday; canonical grade still pending.
