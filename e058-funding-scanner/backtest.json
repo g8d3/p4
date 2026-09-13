@@ -6,9 +6,9 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-12T06:17:08Z",
- "n_signals": 14,
- "n_hit": 8,
+ "window_last": "2026-09-12T07:03:19Z",
+ "n_signals": 21,
+ "n_hit": 12,
  "hit_rate_pct": 57.1,
  "median_apy_decay": 1.0,
  "per_coin": {
@@ -25,19 +25,23 @@
    "hit": 0
   },
   "IP": {
-   "n": 3,
-   "hit": 3
+   "n": 5,
+   "hit": 5
   },
   "JUP": {
-   "n": 3,
-   "hit": 3
+   "n": 5,
+   "hit": 5
+  },
+  "KAITO": {
+   "n": 1,
+   "hit": 0
   },
   "ONG": {
    "n": 1,
    "hit": 0
   },
   "TREE": {
-   "n": 3,
+   "n": 5,
    "hit": 1
   },
   "XCN": {
@@ -45,7 +49,7 @@
    "hit": 0
   }
  },
- "computed_ts": "2026-09-13T07:02:18Z",
+ "computed_ts": "2026-09-13T07:32:00Z",
  "elapsed_s": 0.7,
- "summary": "57.1% of steady calls still paying 24h later (8/14, median APY kept 1.0x)"
+ "summary": "57.1% of steady calls still paying 24h later (12/21, median APY kept 1.0x)"
 }

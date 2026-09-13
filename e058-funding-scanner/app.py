@@ -260,7 +260,7 @@ try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).js
 const t=(d.rows||[]).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
 let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)pc=b.per_coin;}catch(e){}
-const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
+const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:' (new)';
 one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}${held(r.coin)}`).join(' · ')}`;
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
@@ -498,7 +498,7 @@ def _server_card():
         _pc = {}
     def _held(coin):
         st = _pc.get(coin)
-        return f" ({st['hit']}/{st['n']} paid)" if st else ''
+        return f" ({st['hit']}/{st['n']} paid)" if st else ' (new)'
     if t3:
         top = 'Top persistent spreads: ' + ' · '.join(f"{r['coin']} {r['median_apy']}% {r.get('verdict') or r.get('persist')}{_held(r['coin'])}" for r in t3)
     else:
