@@ -217,7 +217,7 @@ details.cfg summary{cursor:pointer}
 <label>sort <select id=s><option value=apy>APY</option><option value=oi>OI rank</option><option value=legs>legs</option></select></label>
 <button onclick=load()>filter</button> <small id=c></small>
 </div></details>
-<details class=cfg id=r><summary id=r-sum>Daily digest: loading… (tap to change time)</summary>
+<details class=cfg id=r><summary id=r-sum>%%DIGEST%%</summary>
 <div style="margin-top:6px">
 <label>digest time (UTC hour) <input id=rh type=number min=0 max=23 style=width:50px></label>
 <label>coins in digest <input id=rtn type=number style=width:50px></label>
@@ -618,15 +618,29 @@ def _server_card():
             for r in t3)
     else:
         _row = ''
-    return html.escape(top), html.escape(pulse), _row
+    # First-paint digest line from saved config (was "loading…" until JS
+    # fetched /api/report-config — owner saw a dead line on every cold open).
+    # JS loadCfg() still refines it with local-time after load.
+    try:
+        _cfg = json.load(open(REPORT_CFG))
+        try:
+            _thr = '%g' % float(_cfg.get('threshold_bps', 50))
+        except (TypeError, ValueError):
+            _thr = str(_cfg.get('threshold_bps', 50))
+        _dg = (f"Daily digest {_cfg.get('report_hour_utc', 8)}:00 UTC, "
+               f"top {_cfg.get('top_n', 10)} over {_thr}bps "
+               f"(tap to change time)")
+    except Exception:
+        _dg = 'Daily digest (tap to change time)'
+    return html.escape(top), html.escape(pulse), _row, html.escape(_dg)
 
 @app.get('/', response_class=HTMLResponse)
 def index():
     try:
-        top, pulse, row = _server_card()
+        top, pulse, row, digest = _server_card()
     except Exception:
-        top, pulse, row = 'Top persistent spreads: unavailable', '', ''
-    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row),
+        top, pulse, row, digest = 'Top persistent spreads: unavailable', '', '', 'Daily digest (tap to change time)'
+    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row).replace('%%DIGEST%%', digest),
                         headers={'Cache-Control': 'no-store'})
 
 if __name__ == '__main__':
