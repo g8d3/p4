@@ -60,3 +60,15 @@ N<20 resolved = THIN: never propose real money on THIN.
   24h grade ~16h out.
 - RUN #53 FIX+POWER (FREE, no fetch): first paint STILL greeted STALE after 15+ idle min (refresh was request-triggered only; /health hits never rebuild). Server now self-refreshes every 60s + warms cache at boot, so the card opens LIVE with no tap needed. Snapshot now logs the full top-15 universe (was top-10) so each daily snapshot banks more worthy calls toward N>=20 resolved. WORTHY-1 unchanged, still PAPER. Early 2026-09-13 ~15:05Z: 1/5 up, avg -8.0% at 2.7h, best BLAST +17.0% — cooling intraday; canonical 24h grade ~14h out (10 pending, 0 resolved, blocked-on-time).
 - RUN #59 FIX (FREE, local only, no fetch): card flashed STALE—restart after JS load even while LIVE (sample 2m) with code untouched — /api/version latest was git-log on the whole track dir, so every paper snapshot commit (dd0bd34) faked a stale badge. Scope now code-only (app.py+bin/+tests/, same as dirty check); data commits no longer scare the owner. WORTHY-1 unchanged, still PAPER. Early 2026-09-13 ~17:35Z: 3/6 up, avg -25.0% at 2.5h, best CATFLIGHT +1.8% — cooling intraday; canonical 24h grade ~12h out (18 pending, 0 resolved, blocked-on-time).
+- RUN #60 PROBE (FREE, local only, no fetch): re-tested dump-drag on a
+  bigger early window — 10 worthy-with-price entries (3 snapshots) vs live
+  prices. DUMPED (entry chg24 <= -50): 4/5 up, avg -4.1%. REST: 0/5 up,
+  avg -69.4%. Dump-filter REJECTED again (dumps bounce +1-2%, pumps crash).
+  NEW CANDIDATE WORTHY-2c (HYPOTHESIS, THIN): upside-cap — exclude entries
+  with chg24 > +200% (BLAST +5371/+5604, Mizzy +499 = 0/3, avg -75.3%;
+  rest 4/7 up avg -20.2%). Mean-reversion, not momentum. N=10 intraday,
+  THIN — needs N>=20 resolved 24h before any rule change. WORTHY-1 stays
+  PAPER unchanged. SHIPPED (display-only): top verdict now reads
+  "hot but falling — watch only" when top worthy chg24 <= -50 (server +
+  JS + copy-slip FALLING flag), dumped rows carry a falling marker —
+  owner no longer sees "worth a look" on a -66% crasher.

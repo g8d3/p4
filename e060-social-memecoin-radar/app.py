@@ -379,8 +379,17 @@ def server_card():
         br = breakout()
         br_txt = (f". 🔥 {br.get('symbol')} up +{float(br.get('pct')):.1f}% since its call"
                   if br else "")
-        verdict = (f"Top now: {top.get('symbol')} — "
-                   f"{'worth a look' if w else 'quiet, no calls standing out'}"
+        try:
+            chgf = float(chg)
+        except (TypeError, ValueError):
+            chgf = None
+        if w and chgf is not None and chgf <= -50:
+            wtxt = "hot but falling — watch only"
+        elif w:
+            wtxt = "worth a look"
+        else:
+            wtxt = "quiet, no calls standing out"
+        verdict = (f"Top now: {top.get('symbol')} — {wtxt}"
                    f"{br_txt}{early_line()}")
     else:
         verdict = "No rotation data right now — refresh in a minute"
@@ -442,8 +451,10 @@ PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport con
 let ROWS=[],CUR='heat',SLIP='',PSUFFIX='';const KEYS={heat:(a,b)=>(b.heat||0)-(a.heat||0),score:(a,b)=>b.rotation_score-a.rotation_score,movers:(a,b)=>Math.abs(b.priceChange_h24||0)-Math.abs(a.priceChange_h24||0),vol:(a,b)=>b.vol_h24-a.vol_h24};
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':Math.round(n)+'';
 const worthy=r=>(r.heat||0)>=80&&(r.vol_h24||0)>=5e5&&(r.txns_h24||0)>=1e4;
-function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){const w=worthy(top);document.getElementById('v').innerHTML='<b>Top now: '+top.symbol+'</b> — '+(w?'worth a look':'quiet, no calls standing out')+' <small>heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'—')+'%</small>'+(PSUFFIX||'');SLIP='e060 paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>traders</th></tr></thead><tbody>';
-for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
+const falling=r=>{const c=parseFloat(r.priceChange_h24);return isFinite(c)&&c<=-50};
+const verdictFor=t=>{const w=worthy(t);if(w&&falling(t))return 'hot but falling — watch only';return w?'worth a look':'quiet, no calls standing out'};
+function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){document.getElementById('v').innerHTML='<b>Top now: '+top.symbol+'</b> — '+verdictFor(top)+' <small>heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'—')+'%</small>'+(PSUFFIX||'');SLIP='e060 paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+(falling(top)?' FALLING':'')+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>traders</th></tr></thead><tbody>';
+for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}${falling(r)?' 📉':''}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
 function loadAll(){fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;let br='';if(p.early.best&&p.early.best.pct!=null&&p.early.best.pct>=20)br=` · 🔥 ${p.early.best.symbol} +${p.early.best.pct}% since call`;t+=`${br} · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const bo=(e.best&&e.best.pct!=null&&e.best.pct>=20)?'🔥 ':'';const summ=`${bo}Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%${x.entry?` <small>entry ${x.entry} → now ${x.cur||'?'}</small>`:''}${x.pairUrl?` <a href="${x.pairUrl}">trades</a>`:''}</div>`).join('')}}catch(_){}}) });}
