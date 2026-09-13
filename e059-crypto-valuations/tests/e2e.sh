@@ -18,6 +18,12 @@ grep -q "crypto multiples" /tmp/e59_root.html || fail "page missing title"
  grep -q 'simplebtn' /tmp/e59_root.html || fail "missing simple/full view toggle"
  grep -q 'body.simple' /tmp/e59_root.html || fail "simple view CSS missing"
  grep -q 'id="verdict"' /tmp/e59_root.html || fail "missing one-line cheapest verdict"
+ grep -q 'id="pulse"' /tmp/e59_root.html || fail "missing data-pulse line"
+ grep -q 'id="score"' /tmp/e59_root.html || fail "missing proof-score line"
+# first-paint: static server must answer before JS (no bare … placeholders)
+ grep -q 'Cheapest vs its group' /tmp/e59_root.html || fail "verdict not pre-rendered (JS-only blank paint)"
+ grep -q 'Sampling' /tmp/e59_root.html || fail "pulse not pre-rendered"
+ grep -q 'stayed cheap' /tmp/e59_root.html || fail "score not pre-rendered"
  grep -q 'id="metasum"' /tmp/e59_root.html || fail "meta jargon not collapsed to 1-line summary"
  grep -q 'copybtn' /tmp/e59_root.html || fail "missing copy-top-3 slip button" 
  grep -q 'copy top 3' /tmp/e59_root.html || fail "copy slip button mislabeled"
@@ -45,6 +51,19 @@ code=$(timeout 15 curl -s -m 10 -o /tmp/e59_mult.csv -w "%{http_code}" "$BASE/mu
 
 # fail-closed on secrets: served files must not contain keys/tokens
 grep -riE "sk-|api[_-]?key\s*[:=]\s*['\"][a-z0-9]{8}|-----BEGIN .*PRIVATE KEY" /tmp/e59_root.html /tmp/e59_mult.json 2>/dev/null && fail "possible secret in served content"
+
+code=$(timeout 15 curl -s -m 10 -o /tmp/e59_cheap.json -w "%{http_code}" "$BASE/cheap_calls.json") || fail "cheap_calls.json unreachable"
+[ "$code" = "200" ] || fail "cheap_calls.json http=$code"
+python3 - <<'EOF' || fail "cheap_calls shape bad"
+import json
+d = json.load(open("/tmp/e59_cheap.json"))
+bt = d.get("backtest", {})
+assert isinstance(bt.get("n"), int) and bt["n"] >= 20, "backtest N<20 (THIN)"
+assert 0 <= bt["precision"] <= 1, "bad backtest precision"
+pp = d.get("paper", {})
+assert isinstance(pp.get("n_pending"), int), "missing paper pending"
+print(f"cheap_calls ok: backtest {bt['hits']}/{bt['n']}={bt['precision']}, paper pending={pp['n_pending']}")
+EOF
 
 code=$(curl -s -m 10 "$BASE/version.json" -o /tmp/e59_version.json -w "%{http_code}") || fail "version.json unreachable"
 [ "$code" = "200" ] || fail "version.json http=$code"

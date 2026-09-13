@@ -1,0 +1,8 @@
+{"date": "2026-09-13", "symbol": "SOL", "category": "L1", "ratio_call": 0.172, "p_fees": 215.35, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "BNB", "category": "L1", "ratio_call": 0.306, "p_fees": 383.33, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "TRX", "category": "L1", "ratio_call": 0.087, "p_fees": 109.41, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "ARB", "category": "L2", "ratio_call": 0.788, "p_fees": 174.55, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "UNI", "category": "DEX", "ratio_call": 0.555, "p_fees": 2.08, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "CAKE", "category": "DEX", "ratio_call": 0.749, "p_fees": 2.81, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "GMX", "category": "Perps", "ratio_call": 0.549, "p_fees": 7.06, "resolved": null, "hit": null}
+{"date": "2026-09-13", "symbol": "RAY", "category": "DEX", "ratio_call": 0.424, "p_fees": 1.59, "resolved": null, "hit": null}

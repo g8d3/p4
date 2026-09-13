@@ -8,6 +8,8 @@ git log -1 --format=%h -- . > output/.commit 2>/dev/null
 python3 -c "import json,time; print(json.dumps({'track':'e059','commit':open('output/.commit').read().strip(),'date':time.strftime('%Y-%m-%d %H:%M')}))" > output/version.json 2>/dev/null
 rm -f output/.commit
 timeout 1200 python3 bin/valuations.py >> refresh.log 2>&1
-# keep the 6-week sales trend (offline, cached series only) after every rebuild
 timeout 300 python3 bin/trend.py >> refresh.log 2>&1
+# cheap-call paper loop (backtest + log + resolve) then first-paint injection
+timeout 300 python3 bin/cheap_calls.py >> refresh.log 2>&1
+timeout 60 python3 bin/inject.py >> refresh.log 2>&1
 echo "=== done $(date -Is) rc=$?" >> refresh.log
