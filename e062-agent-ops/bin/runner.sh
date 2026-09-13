@@ -75,6 +75,7 @@ except Exception: rid = 0
 focus, trig, start = sys.argv[3], sys.argv[4], int(sys.argv[5])
 now = int(time.time())
 tok, cost = 0, 0.0
+sess = []
 try:
     root = os.path.expanduser('~/.pi/agent/sessions')
     for dp, _, fns in os.walk(root):
@@ -84,6 +85,16 @@ try:
             try:
                 if int(os.path.getmtime(p)) < start - 60: continue
             except Exception: continue
+            # session id: first {"type":"session","id":"<uuid>"} line (leg<->session map)
+            try:
+                with open(p) as sf:
+                    first = sf.readline()
+                o0 = json.loads(first)
+                if isinstance(o0, dict) and o0.get('type') == 'session' and o0.get('id'):
+                    short = str(o0['id'])[:8]
+                    if short not in sess:
+                        sess.append(short)
+            except Exception: pass
             # usage.totalTokens is cumulative per message -> max per file
             mtok, mcost = 0, 0.0
             try:
@@ -106,8 +117,10 @@ if rid:
     except Exception: pass
     try: c.execute('ALTER TABLE runs ADD COLUMN cost_usd REAL')
     except Exception: pass
-    c.execute("UPDATE runs SET ended_ts=?, status='done', summary=?, tokens=?, cost_usd=? WHERE id=?",
-              (now, f'leg done (focus={focus} trigger={trig})', tok or None, round(cost, 6) or None, rid))
+    try: c.execute('ALTER TABLE runs ADD COLUMN session TEXT')
+    except Exception: pass
+    c.execute("UPDATE runs SET ended_ts=?, status='done', summary=?, tokens=?, cost_usd=?, session=? WHERE id=?",
+              (now, f'leg done (focus={focus} trigger={trig})', tok or None, round(cost, 6) or None, ','.join(sess[:4]) or None, rid))
     c.commit(); c.close()
 print(f'run {rid} tokens={tok} cost=${cost:.4f}')
 EOF

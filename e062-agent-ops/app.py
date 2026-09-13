@@ -20,10 +20,11 @@ def get_prefs():
     c.close()
     d = {k: v for k, v in rows}
     out = {'font': 14, 'planw': 340, 'beatw': 220, 'urlw': 200, 'ctrlw': 220,
-           'rowpad': 4, 'wrap': 1, 'density': 'comfortable', 'report': 'simple'}
+           'rowpad': 4, 'wrap': 1, 'density': 'comfortable', 'report': 'simple',
+           'widgets': ''}
     for k in out:
         if k in d:
-            if k in ('density', 'report'):
+            if k in ('density', 'report', 'widgets'):
                 out[k] = d[k]
             else:
                 try: out[k] = int(d[k])
@@ -132,12 +133,14 @@ def board():
     except Exception: pass
     notes = [{'ts': ts, 'track': t, 'message': m} for ts, t, m in c2.execute(
         "SELECT datetime(ts,'unixepoch'), track, message FROM notes WHERE done=0 ORDER BY ts DESC LIMIT 20")]
+    try: c2.execute('ALTER TABLE runs ADD COLUMN session TEXT')
+    except Exception: pass
     try:
         runs = []
-        for i, st, en, sc, tr, s, su, tok, co in c2.execute(
+        for i, st, en, sc, tr, s, su, tok, co, se in c2.execute(
                 "SELECT id, datetime(started_ts,'unixepoch'), " +
                 "CASE WHEN ended_ts IS NULL THEN NULL ELSE datetime(ended_ts,'unixepoch') END, " +
-                "scope, trigger, status, summary, tokens, cost_usd FROM runs ORDER BY id DESC LIMIT 10"):
+                "scope, trigger, status, summary, tokens, cost_usd, session FROM runs ORDER BY id DESC LIMIT 10"):
             tok_s = None
             try:
                 if tok and st:
@@ -147,7 +150,8 @@ def board():
             except Exception: pass
             runs.append({'id': i, 'started': st, 'ended': en, 'scope': sc,
                          'trigger': tr, 'status': s, 'summary': su,
-                         'tokens': tok, 'tok_s': tok_s, 'cost_usd': co})
+                         'tokens': tok, 'tok_s': tok_s, 'cost_usd': co,
+                         'session': se})
     except Exception: runs = []
     try:
         cur = c2.execute("SELECT id, datetime(started_ts,'unixepoch'), scope, trigger, status FROM runs ORDER BY id DESC LIMIT 1").fetchone()
@@ -277,13 +281,21 @@ async def api_prefs_set(req: Request):
     c.execute('CREATE TABLE IF NOT EXISTS prefs(key TEXT PRIMARY KEY, value TEXT)')
     limits = {'font': (10, 22), 'planw': (120, 800), 'beatw': (80, 600),
               'urlw': (80, 600), 'ctrlw': (120, 600), 'rowpad': (0, 14), 'wrap': (0, 1)}
-    for k in list(limits) + ['density', 'report']:
+    maxlen = {'widgets': 8000}
+    for k in list(limits) + ['density', 'report', 'widgets']:
         if k in d:
-            v = str(d[k])[:20]
+            v = str(d[k])[:maxlen.get(k, 20)]
             if k == 'density':
                 if v not in ('compact', 'comfortable'): continue
             elif k == 'report':
                 if v not in ('simple', 'both', 'tech'): continue
+            elif k == 'widgets':
+                try:
+                    w = __import__('json').loads(v)
+                    assert isinstance(w, list) and 1 <= len(w) <= 12
+                    for x in w:
+                        assert isinstance(x, dict) and 't' in x
+                except Exception: continue
             else:
                 try: v = str(max(limits[k][0], min(int(v), limits[k][1])))
                 except Exception: continue

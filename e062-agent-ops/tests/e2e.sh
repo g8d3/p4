@@ -20,12 +20,19 @@ grep -q 'id=seg-report' /tmp/e62_root.html || fail "report toggle missing"
 grep -q 'thumbbar' /tmp/e62_root.html || fail "thumb-zone bar missing"
 grep -q 'id=waiting' /tmp/e62_root.html || fail "thumbbar waiting signal missing"
 grep -q 'needbadge' /tmp/e62_app.js || fail "per-card waiting badge missing"
-grep -q 'help-det' /tmp/e62_root.html || fail "notes collapse (long-text rule) missing"
+grep -q 'id=widgets' /tmp/e62_root.html || fail "configurable views missing"
+grep -q "addWidget" /tmp/e62_app.js || fail "addWidget missing"
+grep -q "renderWidgets" /tmp/e62_app.js || fail "renderWidgets missing"
+grep -q "renderGates" /tmp/e62_app.js || fail "money-gate cards missing"
+grep -q "waitFor" /tmp/e62_app.js || fail "waiting tap-to-filter missing"
+grep -q "is:waiting" /tmp/e62_app.js || fail "waiting query missing"
+grep -q "ses " /tmp/e62_app.js || fail "session short-id display missing"
+! grep -q '<table' /tmp/e62_root.html || fail "page-level tables still present (must be cards)"
 curl -s -m 10 "$BASE/api/board" -o /tmp/e62_b.json || fail "board json unreachable"
 python3 -c "import json;d=json.load(open('/tmp/e62_b.json'))" || fail "board json bad"
 grep -q "setReport" /tmp/e62_app.js || fail "setReport missing"
 grep -q "fmtDetail" /tmp/e62_app.js || fail "fmtDetail missing"
-grep -q 'id=uni' /tmp/e62_root.html || fail "unified view missing"
+grep -q 'id=gates' /tmp/e62_root.html || fail "money zone missing"
 grep -q "buildUnified" /tmp/e62_app.js || fail "buildUnified missing"
 grep -q "uniWatchLive" /tmp/e62_app.js || fail "live session watch missing"
 grep -q 'id=live' /tmp/e62_root.html || fail "live panel missing"
@@ -37,7 +44,7 @@ grep -q "NARRATE AS YOU GO" RUNNER_PROMPT.md 2>/dev/null || grep -q "NARRATE AS 
 # mode with tech after ' | ' — fail closed so jargon can never creep back.
 grep -q '| tech:' /tmp/e62_app.js || fail "runLine missing owner | tech format"
 
-grep -q 'id=runs' /tmp/e62_root.html || fail "activity runs table missing"
+grep -q 'time \u00b7 project' /tmp/e62_root.html || grep -q 'time · project' /tmp/e62_root.html || fail "card-format legend missing"
 code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
 [ "$code" = "200" ] || fail "runstate http=$code"
 python3 -c "import json; d=json.load(open('/tmp/e62_runstate.json')); assert d.get('ok') and 'running' in d, 'runstate shape'" || fail "runstate shape bad"
@@ -67,6 +74,21 @@ r=post("/api/prefs", {"report":"simple"})
 assert r.get("ok"), "prefs restore failed"
 print("report pref ok: simple default, both/tech switchable")
 EOF
+python3 - "$BASE" <<'EOF' || fail "widgets pref bad"
+import json, sys, urllib.request
+base=sys.argv[1]
+def post(path, obj):
+    r=urllib.request.Request(base+path, data=json.dumps(obj).encode(), headers={"Content-Type":"application/json"})
+    return json.load(urllib.request.urlopen(r, timeout=10))
+mine=[{"t":"all","q":"","g":"none","s":"new","n":20}]
+r=post("/api/prefs", {"widgets":json.dumps(mine)})
+assert r.get("ok"), "widgets set failed"
+d=json.load(urllib.request.urlopen(base+"/api/board", timeout=15))
+assert json.loads(d.get("prefs", {}).get("widgets") or "[]")==mine, "board prefs widgets mismatch"
+r=post("/api/prefs", {"widgets":""})
+assert r.get("ok"), "widgets restore failed"
+print("widgets pref ok: views persist server-side")
+EOF
 curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 python3 - <<'EOF' || fail "board shape bad"
 import json
@@ -82,8 +104,9 @@ for k in ("spent", "earned", "left"):
     assert k in rw, f"runway missing {k}"
 assert isinstance(d.get("runs"), list), "runs missing"
 for r in d["runs"]:
-    for k in ("tokens", "tok_s", "cost_usd", "started"):
+    for k in ("tokens", "tok_s", "cost_usd", "started", "session"):
         assert k in r, f"runs row missing {k}"
+assert any(r.get("session") for r in d["runs"]), "no run carries a session id"
 print(f"runs ok: {len(d['runs'])} rows with tokens/tok-s/cost")
 assert isinstance(d.get("runner"), dict) and "running" in d["runner"], "runner missing"
 assert isinstance(d.get("leg_tail"), str), "leg_tail missing"

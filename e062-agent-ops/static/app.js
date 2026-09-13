@@ -159,11 +159,11 @@ async function load() {
     '<div class=chead onclick="toggleCard(\'' + t.track + '\')">' +
     '<span class=ctrack>' + esc(t.track) + '</span><span>' + esc(t.label) + '</span>' +
     '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '">rung ' + t.rung + '</span>' +
-    ((waitByTrack[t.track] || 0) ? '<span class=needbadge>\u25cf' + waitByTrack[t.track] + ' waiting</span>' : '') +
+    ((waitByTrack[t.track] || 0) ? '<button class=needbadge title="notes + money gates waiting for you — tap to see" onclick="event.stopPropagation();waitFor(\'' + t.track + '\')">●' + waitByTrack[t.track] + ' waiting</button>' : '') +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
-    '<div class=cbeat>' + esc(t.beat ? (t.beat.ts + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '') + '</div>' +
-    (t.url ? '<div style="font-size:12px"><a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
+    '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (t.beat.ts + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
+    (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
     '<button onclick="runScope(\'' + t.track + '\',this)" title="run now WITHOUT any message">run</button></div>' +
@@ -175,36 +175,17 @@ async function load() {
   const rs = document.getElementById('runstate');
   if (rs) rs.innerHTML = runPill(d);
   try { renderLive(d); } catch (e) {}
-  document.getElementById('inbox').innerHTML = d.notes.map(n =>
-    '<tr><td>' + esc(n.ts) + '</td><td>' + esc(n.track) + '</td><td>' + esc(n.message) + '</td></tr>').join('') || '<tr><td colspan=3>empty — write from a project card above</td></tr>';
-  const hs = document.getElementById('help-sum');
-  if (hs) hs.textContent = (d.notes || []).length ? (d.notes.length + ' notes waiting — tap to read') : 'notes — empty, write from a project card';
-  const hd = document.getElementById('help-det');
-  if (hd && !window._helpTouched) hd.open = (d.notes || []).length > 0;
   const wt = document.getElementById('waiting');
-  if (wt) wt.textContent = waitTotal ? ('\u25cf ' + waitTotal + ' waiting') : '';
+  if (wt) wt.title = 'your notes + money gates waiting for a tap';
+  if (wt) { wt.style.display = waitTotal ? '' : 'none'; } if (wt) wt.textContent = waitTotal ? ('● ' + waitTotal + ' waiting \u2014 tap to see') : '';
   document.getElementById('w').textContent =
     'treasury: spent $' + d.runway.spent.toFixed(2) + ' earned $' + d.runway.earned.toFixed(2) +
     ' left $' + d.runway.left.toFixed(2) + ' of $300';
-  document.getElementById('p').innerHTML = d.proposals.map(p =>
-    '<tr><td>' + p.id + '</td><td>' + esc(p.track) + '</td><td>' + p.usd + '</td>' +
-    '<td>' + esc(p.action) + ' — ' + esc(p.reason) + '</td><td>' + p.status +
-    (p.status === 'pending'
-      ? ' <button onclick="decide(' + p.id + ',\'approved\',this)">approve</button>' +
-        '<button onclick="decide(' + p.id + ',\'rejected\',this)">reject</button>' : '') +
-    '</td></tr>').join('') || '<tr><td colspan=5>none</td></tr>';
-  try { restoreUniCtrls(); } catch (e) {}
-  window._act = buildActivity(d);
-  try { window._unirows = buildUnified(d); renderUni(); } catch (e) {}
-  document.getElementById('runs').innerHTML = window._act.map((a, i) =>
-    '<tr class=act onclick="toggleAct(' + i + ',this)"><td>' + esc(a.time) + '</td><td>' + esc(a.track) + '</td><td>' + esc(a.kind) + '</td><td>' + esc(fmtDetail(a.detail)) + ' ' + ((window._report === 'simple' && String(a.detail||'').indexOf(' | ') >= 0) ? '<span style="opacity:.5">…</span>' : '') + '</td></tr>'
-  ).join('') || '<tr><td colspan=4>no activity yet — press run fleet now</td></tr>';
+  try { window._unirows = buildUnified(d); loadWidgets(d); renderWidgets(); } catch (e) {}
+  try { renderGates(d); } catch (e) {}
+  try { renderLists(d); } catch (e) {}
   const leg = document.getElementById('leg');
   if (leg) leg.textContent = d.leg_tail || 'no log yet';
-  document.getElementById('tr').innerHTML = d.trials.map(t =>
-    '<tr><td>' + esc(t.name) + '</td><td>' + esc(t.renews) + '</td><td>' + t.usd + '</td><td>' + esc(t.note) + '</td></tr>').join('') || '<tr><td colspan=4>none</td></tr>';
-  document.getElementById('i').innerHTML = d.ideas.map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
-  document.getElementById('dir').innerHTML = d.directives.split('\n').filter(x => x.trim()).map(x => '<tr><td>' + esc(x) + '</td></tr>').join('');
   const tsum = document.getElementById('trials-sum');
   if (tsum) tsum.textContent = (d.trials || []).length ? (d.trials.length + ' active trials — tap to read') : 'trials — none active';
   const isum = document.getElementById('ideas-sum');
@@ -235,7 +216,7 @@ function cardDetail(t) {
     (x.leg ? ' <a href="/api/leg/' + x.leg + '" target=_blank>log</a>' : '') + '</div>'
   ).join('') : '<div>no history yet</div>';
   return '<div class=cdetail onclick="event.stopPropagation()">' +
-    '<div style="font-size:12px;opacity:.8">' + esc(t.plan || '') + '</div>' +
+    '<div style="font-size:12px;opacity:.8"><span style="font-size:10px;opacity:.55">plan:</span> ' + esc(t.plan || '') + '</div>' +
     '<div style="font-size:12px;margin-top:6px"><b>history</b> (this project only)</div>' +
     '<div class=hist>' + h + '</div>' +
     '<div style="font-size:12px"><b>message to the ' + esc(t.track) + ' agent</b> \u2014 one box, you decide when it runs:</div>' +
@@ -258,50 +239,9 @@ function runLine(r) {
   if (r.tok_s != null) bits.push(r.tok_s + ' tok/s');
   if (r.cost_usd != null) bits.push('$' + Number(r.cost_usd).toFixed(4));
   if (r.scope) bits.push(r.scope + '/' + (r.trigger || ''));
+  if (r.session) bits.push('ses ' + r.session);
   if (r.summary) bits.push(r.summary);
   return bits.length ? (owner + ' | tech: ' + bits.join(' · ')) : owner;
-}
-function buildActivity(d) {
-  const act = [];
-  (d.runs || []).forEach(r => act.push({t: actTs(r.started), time: r.started || '',
-    track: r.scope === 'fleet' ? 'runner' : (r.scope || ''), kind: 'run #' + r.id + ' · ' + (r.status || ''),
-    detail: runLine(r), full: runLine(r)}));
-  (d.events || []).forEach(e => act.push({t: actTs(e.ts), time: e.ts, track: e.track,
-    kind: e.kind, detail: e.summary, full: e.summary}));
-  act.sort((a, b) => b.t - a.t);
-  return act.slice(0, 40);
-}
-function toggleAct(i, tr) {
-  const a = (window._act || [])[i];
-  if (!a) return;
-  const next = tr.nextSibling;
-  if (next && next.className === 'adetail') { next.remove(); return; }
-  tr.parentNode.querySelectorAll('tr.adetail').forEach(x => x.remove());
-  const dtr = document.createElement('tr');
-  dtr.className = 'adetail';
-  const safeTrack = String(a.track || 'e062').replace(/[^a-z0-9]/gi, '') || 'e062';
-  dtr.innerHTML = '<td colspan=4><div>' + esc(a.full || a.detail) + '</div>' +
-    '<div class=act-reply><input id="a-' + i + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…">' +
-    '<button onclick="sendActNote(\'' + safeTrack + '\',' + i + ',this)">send</button></div>' +
-    '<div style="font-size:11px;opacity:.6">reply = follow-up note about THIS session, read next leg (queue only). to run a project now, use its card above.</div></td>';
-  tr.after(dtr);
-  const inp = document.getElementById('a-' + i);
-  if (inp) inp.onclick = e => e.stopPropagation();
-}
-async function sendActNote(track, i, btn) {
-  const inp = document.getElementById('a-' + i);
-  const v = inp ? inp.value.trim() : '';
-  if (!v) return;
-  const okTracks = {e058: 1, e059: 1, e060: 1, e061: 1, e062: 1, runner: 1};
-  const t = okTracks[track] ? track : 'e062';
-  const old = btn.textContent;
-  btn.textContent = '…';
-  const r = await (await fetch('/api/note', {method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({track: t, message: v})})).json();
-  if (r.ok) { btn.textContent = 'sent ✓'; load(); }
-  else { btn.textContent = 'error'; alert(r.error || 'failed'); }
-  setTimeout(() => { btn.textContent = old; }, 2500);
 }
 function worked(r) {
   try {
@@ -377,142 +317,241 @@ setInterval(() => {
   load();
 }, 60000);
 
-/* ---- 0 · all: one generic view (group/filter/sort/pages + session drill-down) ---- */
-function uniCtrls() {
-  return {
-    q: (document.getElementById('q-all') || {}).value || '',
-    g: (document.getElementById('g-all') || {}).value || 'none',
-    s: (document.getElementById('s-all') || {}).value || 'new',
-    n: parseInt(((document.getElementById('n-all') || {}).value || '20'), 10) || 20
-  };
+/* ---- views: configurable widgets over one unified flow ---- */
+function defaultWidgets() {
+  return [
+    {t: 'all', q: '', g: 'none', s: 'new', n: 20, p: 0, open: -1},
+    {t: 'by project', q: '', g: 'project', s: 'new', n: 20, p: 0, open: -1},
+    {t: 'money', q: 'money gate', g: 'project', s: 'new', n: 20, p: 0, open: -1},
+    {t: 'waiting', q: 'is:waiting', g: 'project', s: 'new', n: 20, p: 0, open: -1}
+  ];
 }
-function saveUniCtrls() {
-  try { localStorage.setItem('e062-uni', JSON.stringify(Object.assign(uniCtrls(), {p: window._unipage || 0}))); } catch (e) {}
+function cleanWidget(w) {
+  w = w || {};
+  return {t: String(w.t || 'view').slice(0, 40), q: String(w.q || '').slice(0, 140),
+    g: ['none', 'project', 'session', 'kind'].indexOf(w.g) >= 0 ? w.g : 'none',
+    s: w.s === 'old' ? 'old' : 'new',
+    n: [10, 20, 50].indexOf(w.n) >= 0 ? w.n : 20, p: 0, open: -1};
 }
-function restoreUniCtrls() {
+function loadWidgets(d) {
+  if (window._widgets && window._widgets.length) return;
   try {
-    const u = JSON.parse(localStorage.getItem('e062-uni') || '{}');
-    if (u.q !== undefined && document.getElementById('q-all') && document.activeElement !== document.getElementById('q-all')) document.getElementById('q-all').value = u.q;
-    if (u.g && document.getElementById('g-all')) document.getElementById('g-all').value = u.g;
-    if (u.s && document.getElementById('s-all')) document.getElementById('s-all').value = u.s;
-    if (u.n && document.getElementById('n-all')) document.getElementById('n-all').value = String(u.n);
-    window._unipage = u.p || 0;
+    const w = JSON.parse((d.prefs && d.prefs.widgets) || '');
+    if (Array.isArray(w) && w.length && w.length <= 12) { window._widgets = w.map(cleanWidget); return; }
+  } catch (e) {}
+  window._widgets = defaultWidgets();
+}
+function slimWidgets() {
+  return (window._widgets || []).map(function(w) { return {t: w.t, q: w.q, g: w.g, s: w.s, n: w.n}; });
+}
+async function saveWidgets() {
+  try {
+    await fetch('/api/prefs', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({widgets: JSON.stringify(slimWidgets())})});
   } catch (e) {}
 }
-function uniChanged() { window._unipage = 0; window._uniopen = -1; uniStopLive(); saveUniCtrls(); renderUni(); }
-function uniPage(d) {
-  const rows = uniFiltered().length;
-  const n = uniCtrls().n;
-  const maxp = Math.max(0, Math.ceil(rows / n) - 1);
-  window._unipage = Math.min(maxp, Math.max(0, (window._unipage || 0) + d));
-  window._uniopen = -1; uniStopLive(); saveUniCtrls(); renderUni();
-}
-function buildUnified(d) {
-  const rows = [];
-  (d.runs || []).forEach(r => {
-    const track = r.scope === 'fleet' ? 'runner' : (r.scope || '');
-    rows.push({t: actTs(r.started), time: r.started || '', track: track,
-      kind: 'session', session: 'run #' + r.id,
-      detail: runLine(r), full: runLine(r), leg: r.id});
-  });
-  (d.events || []).forEach(e => rows.push({t: actTs(e.ts), time: e.ts, track: e.track,
-    kind: e.kind, session: '', detail: e.summary, full: e.summary, leg: null}));
-  (d.notes || []).forEach(n => rows.push({t: actTs(n.ts), time: n.ts, track: n.track,
-    kind: 'owner note', session: '', detail: n.message, full: n.message, leg: null}));
-  (d.proposals || []).forEach(pr => rows.push({t: actTs(pr.ts), time: pr.ts, track: pr.track,
-    kind: 'money gate #' + pr.id, session: '', detail: '#' + pr.id + ' $' + pr.usd + ' ' + pr.action + ' \u2014 ' + pr.reason + ' (' + pr.status + ')',
-    full: '#' + pr.id + ' $' + pr.usd + ' ' + pr.action + ' \u2014 ' + pr.reason + ' (' + pr.status + ')', leg: null}));
-  return rows;
-}
-function uniFiltered() {
-  const c = uniCtrls();
-  const q = (c.q || '').toLowerCase();
+let _wsave = null;
+function saveWidgetsSoon() { try { clearTimeout(_wsave); } catch (e) {} _wsave = setTimeout(saveWidgets, 1200); }
+function widgetRows(w) {
+  // mini query: space-separated AND tokens; is:waiting = needs your tap
+  const toks = String(w.q || '').toLowerCase().split(/\s+/).filter(Boolean);
   let rows = (window._unirows || []).slice();
-  if (q) rows = rows.filter(r => ((r.track || '') + ' ' + (r.kind || '') + ' ' + (r.session || '') + ' ' + (r.detail || '')).toLowerCase().indexOf(q) >= 0);
-  rows.sort((a, b) => c.s === 'old' ? (a.t - b.t) : (b.t - a.t));
+  toks.forEach(function(tok) {
+    if (tok === 'is:waiting') rows = rows.filter(function(r) { return r.wait; });
+    else rows = rows.filter(function(r) {
+      return ((r.track || '') + ' ' + (r.kind || '') + ' ' + (r.session || '') + ' ' + (r.detail || '')).toLowerCase().indexOf(tok) >= 0;
+    });
+  });
+  rows.sort(function(a, b) { return w.s === 'old' ? (a.t - b.t) : (b.t - a.t); });
   return rows;
 }
-function uniGroupKey(r, g) {
+function selOpts(wi, field, opts) {
+  const cur = window._widgets[wi][field];
+  return opts.map(function(o) {
+    return '<option value=' + o[0] + (String(cur) === String(o[0]) ? ' selected' : '') + '>' + o[1] + '</option>';
+  }).join('');
+}
+function widgetHTML(w, wi) {
+  return '<div style="border:1px solid var(--bd);border-radius:8px;padding:6px;margin-bottom:8px">' +
+  '<div style="display:flex;gap:6px;align-items:center">' +
+  '<input value="' + esc(w.t).replace(/"/g, '&quot;') + '" oninput="wTitle(' + wi + ',this)" style="font-weight:bold;flex:1;min-width:80px" aria-label="view name">' +
+  '<button onclick="wRemove(' + wi + ')" title="remove this view">×</button></div>' +
+  '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0">' +
+  '<input value="' + esc(w.q).replace(/"/g, '&quot;') + '" placeholder="filter… (try is:waiting)" oninput="wSet(' + wi + ',\'q\',this)" style="flex:2;min-width:110px" aria-label="filter">' +
+  '<select onchange="wSet(' + wi + ',\'g\',this)" aria-label="group by">' + selOpts(wi, 'g', [['none', 'group: none'], ['project', 'group: project'], ['session', 'group: session'], ['kind', 'group: kind']]) + '</select>' +
+  '<select onchange="wSet(' + wi + ',\'s\',this)" aria-label="sort">' + selOpts(wi, 's', [['new', 'newest'], ['old', 'oldest']]) + '</select>' +
+  '<select onchange="wSet(' + wi + ',\'n\',this)" aria-label="per page">' + selOpts(wi, 'n', [[10, '10/page'], [20, '20/page'], [50, '50/page']]) + '</select></div>' +
+  '<div style="font-size:11px;opacity:.55">each card = time · project · kind · session → the news. tap a card for the session + talk.</div>' +
+  '<div id="wc-' + wi + '"></div>' +
+  '<div class=rowbtns style="margin-top:6px;display:flex;gap:8px;align-items:center">' +
+  '<button onclick="wPage(' + wi + ',-1)">‹ prev</button><span id="wi-' + wi + '" style="font-size:12px;opacity:.7"></span><button onclick="wPage(' + wi + ',1)">next ›</button></div></div>';
+}
+function renderWidgets() {
+  const box = document.getElementById('widgets');
+  if (!box || !window._widgets) return;
+  box.innerHTML = window._widgets.map(widgetHTML).join('');
+  window._widgets.forEach(function(w, wi) { renderWidgetCards(wi); });
+}
+function groupKey(r, g) {
   if (g === 'project') return r.track || '?';
   if (g === 'session') return r.session || r.kind || '?';
   if (g === 'kind') return r.kind || '?';
   return '';
 }
-function renderUni() {
-  const box = document.getElementById('uni');
-  if (!box) return;
-  const c = uniCtrls();
-  saveUniCtrls();
-  const rows = uniFiltered();
-  const n = c.n, p = window._unipage || 0;
-  const page = rows.slice(p * n, p * n + n);
-  window._unipage_rows = page;
-  let html = '', lastG = null;
-  page.forEach((r, i) => {
-    const gk = uniGroupKey(r, c.g);
-    if (c.g !== 'none' && gk !== lastG) { html += '<div style="font-size:11px;opacity:.6;margin:6px 0 2px"><b>' + esc(gk) + '</b></div>'; lastG = gk; }
-    const open = window._uniopen === i;
-    html += '<div class="card' + (open ? ' open' : '') + '" onclick="toggleUni(' + i + ')">' +
-      '<div class=chead><span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
-      (r.session ? '<span style="opacity:.6">' + esc(r.session) + '</span>' : '') +
-      '<span style="margin-left:auto;font-size:11px;opacity:.6">' + esc(r.time || '') + '</span></div>' +
+function renderWidgetCards(wi) {
+  const w = window._widgets[wi];
+  const box = document.getElementById('wc-' + wi);
+  if (!w || !box) return;
+  const rows = widgetRows(w);
+  const maxp = Math.max(0, Math.ceil(rows.length / w.n) - 1);
+  w.p = Math.min(w.p || 0, maxp);
+  const page = rows.slice(w.p * w.n, w.p * w.n + w.n);
+  let html = '', lastG = ' ';
+  page.forEach(function(r, i) {
+    const gk = groupKey(r, w.g);
+    if (w.g !== 'none' && gk !== lastG) { html += '<div style="font-size:11px;opacity:.6;margin:6px 0 2px"><b>' + esc(gk) + '</b></div>'; lastG = gk; }
+    const open = w.open === i;
+    html += '<div class="card' + (open ? ' open' : '') + '" onclick="wToggle(' + wi + ',' + i + ')">' +
+      '<div class=chead><span style="font-size:11px;opacity:.6">' + esc(r.time || '') + '</span>' +
+      '<span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
+      (r.session ? '<span style="font-size:11px;opacity:.6">' + esc(r.session) + '</span>' : '') +
+      (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</div>' +
       '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
-      (open ? uniDetail(r, i) : '') + '</div>';
+      (r.propPending ? '<div class=rowbtns style="margin-top:4px" onclick="event.stopPropagation()">' +
+        '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button>' +
+        '<button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button></div>' : '') +
+      (open ? uniDetail(r, wi + '-' + i) : '') + '</div>';
   });
-  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>';
-  const info = document.getElementById('uni-info');
-  if (info) info.textContent = rows.length + ' rows \u00b7 page ' + (p + 1) + '/' + Math.max(1, Math.ceil(rows.length / n));
+  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>';
+  const info = document.getElementById('wi-' + wi);
+  if (info) info.textContent = rows.length + ' rows · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(rows.length / w.n));
 }
-function uniDetail(r, i) {
+function wSet(wi, field, el) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  w[field] = field === 'n' ? (parseInt(el.value, 10) || 20) : el.value;
+  w.p = 0; w.open = -1;
+  if (field === 'q') { renderWidgetCards(wi); saveWidgetsSoon(); }
+  else { saveWidgets(); renderWidgets(); }
+}
+function wTitle(wi, el) {
+  const w = window._widgets[wi];
+  if (w) { w.t = el.value.slice(0, 40); saveWidgetsSoon(); }
+}
+function wPage(wi, d) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  const maxp = Math.max(0, Math.ceil(widgetRows(w).length / w.n) - 1);
+  w.p = Math.min(maxp, Math.max(0, (w.p || 0) + d));
+  w.open = -1;
+  renderWidgetCards(wi);
+}
+function wRemove(wi) {
+  if (!window._widgets || window._widgets.length <= 1) { alert('keep at least one view'); return; }
+  window._widgets.splice(wi, 1);
+  saveWidgets(); renderWidgets();
+}
+function addWidget() {
+  if (!window._widgets) window._widgets = defaultWidgets();
+  if (window._widgets.length >= 12) { alert('12 views max — remove one first'); return; }
+  window._widgets.push(cleanWidget({t: 'new view'}));
+  saveWidgets(); renderWidgets();
+  try { document.getElementById('widgets').lastChild.scrollIntoView(false); } catch (e) {}
+}
+function wToggle(wi, i) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  uniStopLive();
+  w.open = (w.open === i) ? -1 : i;
+  renderWidgetCards(wi);
+}
+function waitFor(track) {
+  // waiting = your notes + pending money gates. tap a badge -> see them.
+  if (!window._widgets || !window._widgets.length) window._widgets = defaultWidgets();
+  const w = window._widgets[0];
+  w.q = track ? ('is:waiting ' + track) : 'is:waiting';
+  w.g = 'project'; w.p = 0; w.open = -1;
+  saveWidgets(); renderWidgets();
+  try { document.getElementById('widgets').scrollIntoView(); } catch (e) {}
+}
+function uniDetail(r, uid) {
   const safeTrack = String(r.track || 'e062').replace(/[^a-z0-9]/gi, '') || 'e062';
   let h = '<div class=cdetail onclick="event.stopPropagation()"><div>' + esc(r.full || r.detail) + '</div>';
   if (r.leg) {
     h += '<div class=rowbtns style="margin-top:6px"><a href="/api/leg/' + r.leg + '" target=_blank><button>full log</button></a> ' +
-      '<button onclick="uniWatchLive(' + r.leg + ',' + i + ',this)">watch live</button></div>' +
-      '<pre id="uni-live-' + i + '" style="max-height:24vh;overflow-y:auto;font-size:11px"></pre>';
+      '<button onclick="uniWatchLive(' + r.leg + ',\'' + uid + '\',this)">watch live</button></div>' +
+      '<pre id="uni-live-' + uid + '" style="max-height:24vh;overflow-y:auto;font-size:11px"></pre>';
   }
-  h += '<div class=act-reply><input id="u-' + i + '" placeholder="talk to the ' + esc(safeTrack) + ' agent\u2026" onclick="event.stopPropagation()">' +
-    '<button onclick="sendUniNote(\'' + safeTrack + '\',' + i + ',this)">send</button></div>' +
+  h += '<div class=act-reply><input id="u-' + uid + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…" onclick="event.stopPropagation()">' +
+    '<button onclick="sendUniNote(\'' + safeTrack + '\',\'' + uid + '\',this)">send</button></div>' +
     '<div style="font-size:11px;opacity:.6">reply = queued for the next leg on this project.</div></div>';
   return h;
 }
-function toggleUni(i) {
-  uniStopLive();
-  window._uniopen = (window._uniopen === i) ? -1 : i;
-  renderUni();
-}
-async function sendUniNote(track, i, btn) {
-  const inp = document.getElementById('u-' + i);
+async function sendUniNote(track, uid, btn) {
+  const inp = document.getElementById('u-' + uid);
   const v = inp ? inp.value.trim() : '';
   if (!v) return;
   const okTracks = {e058: 1, e059: 1, e060: 1, e061: 1, e062: 1, runner: 1};
   const t = okTracks[track] ? track : 'e062';
-  btn.textContent = '\u2026';
+  btn.textContent = '…';
   const r = await (await fetch('/api/note', {method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({track: t, message: v})})).json();
-  if (r.ok) { btn.textContent = 'sent \u2713'; load(); }
+  if (r.ok) { btn.textContent = 'sent ✓'; load(); }
   else { btn.textContent = 'error'; alert(r.error || 'failed'); }
 }
 function uniStopLive() {
   try { if (window._unitimer) clearInterval(window._unitimer); } catch (e) {}
   window._unitimer = null;
 }
-async function uniWatchLive(leg, i, btn) {
+async function uniWatchLive(leg, uid, btn) {
   uniStopLive();
-  btn.textContent = 'watching \u25cf (tap to stop)';
-  btn.onclick = function(e) { e.stopPropagation(); uniStopLive(); btn.textContent = 'watch live'; btn.onclick = function(ev) { ev.stopPropagation(); uniWatchLive(leg, i, btn); }; };
+  btn.textContent = 'watching ● (tap to stop)';
+  btn.onclick = function(e) { e.stopPropagation(); uniStopLive(); btn.textContent = 'watch live'; btn.onclick = function(ev) { ev.stopPropagation(); uniWatchLive(leg, uid, btn); }; };
   const pull = async function() {
     try {
       const r = await (await fetch('/api/leg/' + leg)).json();
-      const pre = document.getElementById('uni-live-' + i);
+      const pre = document.getElementById('uni-live-' + uid);
       if (pre && r.ok) { pre.textContent = (r.log || '').slice(-3000); pre.scrollTop = pre.scrollHeight; }
     } catch (e) {}
   };
   await pull();
   window._unitimer = setInterval(pull, 5000);
 }
-
+/* ---- money + lists: cards and divs, zero tables ---- */
+function renderGates(d) {
+  const box = document.getElementById('gates');
+  if (!box) return;
+  const props = d.proposals || [];
+  const pend = props.filter(function(p) { return p.status === 'pending'; });
+  const done = props.filter(function(p) { return p.status !== 'pending'; }).slice(0, 5);
+  let html = pend.map(function(p) {
+    return '<div class=card><div class=chead><span class=ctrack>' + esc(p.track) + '</span>' +
+    '<span>gate #' + p.id + '</span><span class=needbadge>waiting</span>' +
+    '<span style="margin-left:auto;font-size:11px;opacity:.6">$' + p.usd + '</span></div>' +
+    '<div class=cbeat>' + esc(p.action) + ' — ' + esc(p.reason) + '</div>' +
+    '<div class=rowbtns style="margin-top:4px">' +
+    '<button onclick="decide(' + p.id + ',\'approved\',this)">approve</button>' +
+    '<button onclick="decide(' + p.id + ',\'rejected\',this)">reject</button></div></div>';
+  }).join('');
+  if (done.length) html += '<div style="font-size:12px;opacity:.6;margin-top:6px">decided: ' +
+    done.map(function(p) { return '#' + p.id + ' ' + p.status; }).join(' · ') + '</div>';
+  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no money gates — nothing needs your money tap</div>';
+}
+function renderLists(d) {
+  const tr = document.getElementById('tr');
+  if (tr) tr.innerHTML = (d.trials || []).map(function(t) {
+    return '<div style="padding:3px 0;border-bottom:1px dotted var(--bd)"><b>' + esc(t.name) + '</b> · renews ' + esc(t.renews) + ' · $' + t.usd + ' — ' + esc(t.note) + '</div>';
+  }).join('') || '<div style="opacity:.6">none active</div>';
+  const ib = document.getElementById('i');
+  if (ib) ib.innerHTML = (d.ideas || []).map(function(x) {
+    return '<div style="padding:3px 0;border-bottom:1px dotted var(--bd)">' + esc(x) + '</div>';
+  }).join('') || '<div style="opacity:.6">empty</div>';
+  const dr = document.getElementById('dir');
+  if (dr) dr.innerHTML = String(d.directives || '').split('\n').filter(function(x) { return x.trim(); }).map(function(x) {
+    return '<div style="padding:3px 0;border-bottom:1px dotted var(--bd)">' + esc(x) + '</div>';
+  }).join('');
+}
 /* ---- personas: same flow, per-role lens (SQL-over-flow views) ---- */
 function paintPersonaSeg() {
   const m = window._persona || 'owner';
@@ -523,12 +562,13 @@ function paintPersonaSeg() {
 function setPersona(v, btn) {
   window._persona = v;
   try { localStorage.setItem('e062-persona', v); } catch (e) {}
-  const q = document.getElementById('q-all'), g = document.getElementById('g-all'), sl = document.getElementById('s-all');
-  if (v === 'owner') { setReportSilent('simple'); if (g) g.value = 'none'; if (sl) sl.value = 'new'; if (q) q.value = ''; }
-  if (v === 'builder') { setReportSilent('both'); if (g) g.value = 'session'; if (sl) sl.value = 'new'; }
-  if (v === 'money') { setReportSilent('simple'); if (g) g.value = 'project'; if (q) q.value = 'money gate'; }
-  window._unipage = 0; window._uniopen = -1;
-  paintPersonaSeg(); saveUniCtrls(); load();
+  if (!window._widgets || !window._widgets.length) window._widgets = defaultWidgets();
+  const w = window._widgets[0];
+  if (v === 'owner') { setReportSilent('simple'); w.q = ''; w.g = 'none'; }
+  if (v === 'builder') { setReportSilent('both'); w.q = ''; w.g = 'session'; }
+  if (v === 'money') { setReportSilent('simple'); w.q = 'money gate'; w.g = 'project'; }
+  w.p = 0; w.open = -1;
+  paintPersonaSeg(); saveWidgets(); load();
 }
 function setReportSilent(v) {
   window._report = v;
