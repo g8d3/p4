@@ -357,7 +357,8 @@ async function load() {
   if (wt) { wt.style.display = waitTotal ? '' : 'none'; } if (wt) wt.textContent = waitTotal ? ('● ' + waitTotal + ' waiting \u2014 tap to see') : '';
   document.getElementById('w').textContent =
     'treasury: spent $' + d.runway.spent.toFixed(2) + ' earned $' + d.runway.earned.toFixed(2) +
-    ' left $' + d.runway.left.toFixed(2) + ' of $300';
+    ' left $' + d.runway.left.toFixed(2) + ' of $300' +
+    (d.usage ? ' · legs used ' + Number(d.usage.tokens).toLocaleString() + ' tok ($' + d.usage.cost_usd + ', 24h: ' + Number(d.usage.day_tokens).toLocaleString() + ')' : '');
   try { window._unirows = buildUnified(d); loadWidgets(d); renderWidgets(); } catch (e) {}
   try { renderLadder(d); } catch (e) {}
   try { renderGates(d); } catch (e) {}
