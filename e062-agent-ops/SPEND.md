@@ -54,3 +54,8 @@ probe with a kill rule.
   Track with no returns after 3 funded probes gets proposed for kill.
 - Agents default to spending-to-finish; this section overrides that:
   **finish mysteriously cheap, or don't finish yet.**
+- **Clone-before-pay** (owner 2026-09-13): any paid data/service need
+  arrives with a build-the-subset quote first (what it does, what
+  subset we need, leg + infra cost), then buy-vs-build. Default:
+  build the small subset (e.g. own chain indexer, own price cacher).
+  Buying raw data is the last resort, never the first.
