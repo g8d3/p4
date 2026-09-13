@@ -7,6 +7,7 @@
 <style>
   body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem 96px; }
   canvas { border: 2px solid #333; display: block; width: 100%; background: #111; }
+  @media (max-width: 480px) { #game { height: 430px; } }
   .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
   button:disabled { opacity: .5; cursor: not-allowed; }
   #win { display: none; }
@@ -24,7 +25,7 @@
 </style>
 </head>
 <body>
-<h1>e061 Suite Slice <small>(demo, rung-1: runs locally)</small> <small id="ver" style="font-weight:normal;font-size:12px"></small></h1>
+<h1>e061 Suite Slice <small>(demo · tested · free, no funds)</small> <small id="ver" style="font-weight:normal;font-size:12px"></small></h1>
 <script>fetch('version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit;}).catch(()=>{});</script>
 <div id="verdict" role="status">…loading your status…<span class="day" id="daybadge"></span></div>
 <details class="box"><summary>Play → 7 coins → win → test buy (no funds).</summary>
