@@ -24,7 +24,7 @@ main{padding:10px;max-width:900px;margin:0 auto}
 .rung{font-weight:bold;font-size:13px}.rung.r1{color:var(--acc)}.rung.r0{color:var(--warn)}
 .beat{font-size:13px;margin-top:4px}.focus{font-size:13px;margin-top:2px;opacity:.9}
 .meta{font-size:11px;opacity:.6;margin-top:2px}
-.hist{font-size:12px;margin-top:8px;border-top:1px dashed var(--bd);padding-top:6px}
+.hist{font-size:12px;margin-top:8px;border-top:1px dashed var(--bd);padding-top:6px;max-height:40vh;overflow:auto}
 .hist div{padding:3px 0;border-bottom:1px dotted var(--bd)}
 .msg{display:flex;gap:6px;margin-top:8px}
 .msg input{flex:1;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);font-size:14px}

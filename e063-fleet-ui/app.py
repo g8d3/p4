@@ -78,6 +78,37 @@ def runner_running():
     except Exception:
         return False
 
+def track_data(t):
+    # DATA PULSE (copied pattern from e062): is it sampling, how fresh?
+    # Never breaks the board: every reader guarded, unknown -> {}.
+    try:
+        if t == 'e058':
+            c = sqlite3.connect(os.path.join(P4, 'e058-funding-scanner', 'data.db'))
+            n, mx = c.execute('SELECT COUNT(*), MAX(ts) FROM funding').fetchone()
+            c.close()
+            return {'rows': n, 'last': mx or '', 'every': '15m'}
+        if t == 'e059':
+            dd = os.path.join(P4, 'e059-crypto-valuations', 'data')
+            fs = [os.path.join(dd, f) for f in os.listdir(dd)]
+            if not fs: return {}
+            mt = max(os.path.getmtime(f) for f in fs)
+            return {'files': len(fs), 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(mt)), 'every': '24h'}
+        if t == 'e060':
+            import json as _j
+            r = _j.load(open(os.path.join(P4, 'e060-social-memecoin-radar', 'data', 'rotation.json')))
+            calls = os.path.join(P4, 'e060-social-memecoin-radar', 'paper', 'calls.jsonl')
+            n = sum(1 for _ in open(calls)) if os.path.isfile(calls) else 0
+            return {'days': n, 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(r.get('ts', 0))), 'every': '24h'}
+        if t in ('e062', 'e063', 'runner'):
+            c = sqlite3.connect(DB)
+            n = c.execute('SELECT COUNT(*) FROM runs').fetchone()[0]
+            mx = c.execute('SELECT MAX(ended_ts) FROM runs').fetchone()[0] or 0
+            c.close()
+            return {'legs': n, 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(mx)) if mx else '', 'every': '30m'}
+    except Exception:
+        pass
+    return {}
+
 def _state():
     c = sqlite3.connect(DB)
     c.execute('CREATE TABLE IF NOT EXISTS focus(track TEXT PRIMARY KEY, text TEXT, ts INTEGER)')
@@ -120,7 +151,8 @@ def _state():
         b = beats.get(t)
         tracks.append({'track': t, 'label': label, 'rung': rung or 0, 'url': url or '',
                        'beat': ({'ts': b[0], 'status': b[1], 'note': b[2]} if b else None),
-                       'focus': focus.get(t, ''), 'paused': t in paused})
+                       'focus': focus.get(t, ''), 'paused': t in paused,
+                       'data': track_data(t)})
     try:
         directives = '\n'.join(open(os.path.join(E062, 'DIRECTIVES.md')).read().split('\n')[:25])
     except Exception: directives = ''

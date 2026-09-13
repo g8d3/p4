@@ -67,18 +67,46 @@ function projHist(track) {
   items.sort((a, b) => (b.t < a.t ? -1 : 1));
   return items.slice(0, 12);
 }
+function dataLine(t) {
+  // DATA PULSE (e062 pattern): is it sampling, how fresh? Inside the card, never a new table.
+  const d = t.data || {};
+  const age = function(ts) {
+    try {
+      const s = Math.max(0, Math.round((Date.now() - new Date(String(ts).replace(' ', 'T') + 'Z').getTime()) / 1000));
+      if (s < 3600) return Math.floor(s / 60) + 'm ago';
+      if (s < 172800) return Math.floor(s / 3600) + 'h ago';
+      return Math.floor(s / 86400) + 'd ago';
+    } catch (e) { return ''; }
+  };
+  const everyS = {'15m': 900, '30m': 1800, '24h': 86400}[d.every] || 0;
+  let ageS = 0;
+  try { ageS = Math.max(0, Math.round((Date.now() - new Date(String(d.last).replace(' ', 'T') + 'Z').getTime()) / 1000)); } catch (e) {}
+  const stale = everyS && ageS > 2 * everyS;
+  const size = d.rows ? (d.rows >= 1000 ? Math.round(d.rows / 1000) + 'k rows' : d.rows + ' rows')
+    : (d.files ? d.files + ' files' : (d.days != null ? d.days + ' paper calls' : (d.legs ? d.legs + ' legs' : '')));
+  if (!d.last && !size) {
+    if (t.track === 'e061') return '<div class=meta>data: no series yet (day-2 counter lives on your phone)</div>';
+    return '';
+  }
+  return '<div class=meta>data: ' + esc(size) +
+    (d.last ? ' · fresh ' + esc(age(d.last)) : '') + ' · every ' + esc(d.every || '?') +
+    (stale ? ' · <b>STALE</b>' : '') + '</div>';
+}
 function vProjects() {
   const list = (D.tracks || []).filter(t => match(t.track + ' ' + t.label + ' ' + (t.focus || '') + ' ' + ((t.beat && t.beat.note) || '')));
   return list.map(t => {
     const open = S.open === 'p:' + t.track;
-    const b = t.beat ? ago(t.beat.ts) + ' ' + t.beat.status + ' — ' + fmt(t.beat.note) : '—';
+    const bFull = t.beat ? ago(t.beat.ts) + ' ' + t.beat.status + ' — ' + fmt(t.beat.note) : '—';
+    const b = open ? bFull : oneLine(bFull, 90);
+    const f = t.focus ? (open ? t.focus : oneLine(t.focus, 90)) : '';
     return '<div class="card' + (open ? ' open' : '') + '">' +
     '<div class=row1 onclick="tog(\'p:' + t.track + '\')"><span class=track>' + esc(t.track) + '</span><span>' + esc(t.label) + '</span>' +
     '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '">rung ' + t.rung + '</span>' +
     (t.paused ? '<span style="font-size:11px;color:var(--warn)">paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾' : '▸') + '</span></div>' +
     '<div class=beat><span class=meta>last:</span> ' + esc(b) + '</div>' +
-    (t.focus ? '<div class=focus><span class=meta>next:</span> ' + esc(t.focus) + '</div>' : '') +
+    (f ? '<div class=focus><span class=meta>next:</span> ' + esc(f) + '</div>' : '') +
+    dataLine(t) +
     (t.url ? '<div class=meta>link: <a href="' + esc(t.url) + '">' + esc(t.url) + '</a></div>' : '') +
     '<div class=btns><button onclick="pause(\'' + t.track + '\',this)">' + (t.paused ? 'resume' : 'pause') + '</button>' +
     '<button onclick="runScope(\'' + t.track + '\',this)">run</button></div>' +
