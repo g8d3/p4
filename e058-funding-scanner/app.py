@@ -231,6 +231,8 @@ details.cfg summary{cursor:pointer}
 </div></details>
 <div id=s style="margin:8px 0"><details><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
 <div class=twrap><table><thead><tr><th>sent</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
+<div id=pb style="margin:8px 0"><details><summary><b>paper ballot</b> <small id=pb-sum>(today's predictions, newest first)</small></summary><div style="font-size:12px;opacity:.7;margin:4px 0" id=pb-rule>hit = spread still \u226520bps a day later</div> <button onclick=loadPaper() style="padding:2px 8px;font-size:12px">refresh</button>
+<div class=twrap><table><thead><tr><th>coin</th><th>entry APY%</th><th>long\u2192short</th><th>logged</th><th>status</th></tr></thead><tbody id=pb-b></tbody></table></div></details></div>
 <div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table></div>
 <div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small> <button id=moreb onclick="showAll()" style="display:none;padding:6px 12px;font-size:13px">show all</button></div>
@@ -261,6 +263,10 @@ rc.textContent=r.ok?'saved':'ERR: '+(r.error||'?');}catch(e){rc.textContent='ERR
 async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100')).json();
 const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
 sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${locTs(s.sent_ts)}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
+async function loadPaper(){try{const d=await (await fetch('/api/paper/calls')).json();
+const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?`(${(d.calls||[]).length} predictions, ${d.countdown||''})`:'(offline)';
+const rl=document.getElementById('pb-rule');if(rl&&d.ok)rl.textContent=d.rule+' · '+d.countdown;
+const tb=document.getElementById('pb-b');if(tb)tb.innerHTML=(d.calls||[]).map(c=>`<tr onclick="pickCoin('${c.coin}')" style="cursor:pointer"><td>${c.coin}</td><td class=pos>${c.median_apy}</td><td>${c.long_v||''}\u2192${c.short_v||''}</td><td>${locTs(c.logged_ts)}</td><td>${c.status}</td></tr>`).join('');}catch(e){}}
 let lastTop=[];
 function plainV(r){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
@@ -277,7 +283,7 @@ function clearQ(){document.getElementById('q').value='';load();document.getEleme
 async function copySlip(){const sc=document.getElementById('slipc');try{if(!lastTop.length)await loadTop();if(!lastTop.length){if(sc)sc.textContent='nothing steady right now';return;}const best=lastTop.find(r=>r.verdict==='STEADY')||lastTop[0];const s=best.paper||`PAPER e058 ${best.coin} ${best.median_apy}%`;await navigator.clipboard.writeText(s);if(sc)sc.textContent=`copied ${best.coin} — paste anywhere`;}catch(e){try{const best2=(lastTop.find(r=>r.verdict==='STEADY')||lastTop[0]||{});prompt('Copy paper slip:',best2.paper||'');if(sc)sc.textContent='copy it by hand';}catch(e2){if(sc)sc.textContent='copy blocked';}}}
 function topGo(){document.getElementById('top').scrollIntoView();loadTop();}
 function themeGo(){document.documentElement.classList.toggle('dark');localStorage.e058t=document.documentElement.classList.contains('dark')?'d':'l';}
-load();loadCfg();loadSig();loadTop();</script></body></html>"""
+load();loadCfg();loadSig();loadPaper();loadTop();</script></body></html>"""
 
 @app.get('/api/persistence')
 def persistence(threshold_bps: float = 20.0, last_n: int = 4,
@@ -472,6 +478,39 @@ def _paper_run(log_today=True):
             'today_coins': [r.get('coin') for r in steady[:5]],
             'resolved_days': resolved_days, 'paper_hit_rate_pct': hr,
             'paper_n_hit': rh, 'paper_n': rt}
+
+@app.get('/api/paper/calls')
+def ballot():
+    """Paper ballot list: every logged call + outcome status (ISSUES #8).
+    One endpoint serves the ballot table + countdown; newest first."""
+    try:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        _paper_run(log_today=False)
+        c = db()
+        rows = c.execute('SELECT call_date, logged_ts, coin, median_apy, spread_bps, long_v, short_v, verdict FROM paper_calls ORDER BY logged_ts DESC, coin LIMIT 300').fetchall()
+        outs = {(d, co): (h, s) for d, co, h, s in c.execute('SELECT call_date, coin, hit, spread_24h FROM paper_outcomes')}
+        c.close()
+        calls, waits = [], []
+        for day, lts, coin, apy, sp, lo, sh, ve in rows:
+            o = outs.get((day, coin))
+            if o is None:
+                base = _parse_ts(lts)
+                hrs = max(0.0, 24 - (now - base).total_seconds() / 3600) if base else 24.0
+                waits.append(hrs)
+                st = f"grading in {hrs:.0f}h"
+                hit, s24 = None, None
+            else:
+                hit, s24 = o
+                st = 'hit' if hit else 'miss'
+            calls.append({'call_date': day, 'logged_ts': lts, 'coin': coin,
+                          'median_apy': apy, 'spread_bps': sp, 'long_v': lo,
+                          'short_v': sh, 'verdict': ve, 'status': st,
+                          'hit': hit, 'spread_24h': s24})
+        cd = f"first grade ~{min(waits):.0f}h" if waits else 'all graded'
+        rule = 'hit = spread still \u226520bps at first snapshot \u226524h after logging'
+        return {'ok': True, 'rule': rule, 'countdown': cd, 'count': len(calls), 'calls': calls}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)[:200]}
 
 @app.get('/api/paper')
 def paper():

@@ -129,6 +129,24 @@ assert "%%TOPONE%%" not in h and "%%PULSE%%" not in h, "unexpanded markers serve
 print("server card ok: verdict + pulse rendered, no markers")
 EOF
 
+# run #57: paper ballot list live (ISSUES #8) — predictions visible, not just a count
+timeout 15 curl -s -m 15 "$BASE/api/paper/calls" -o /tmp/e58_ballot.json || fail "api/paper/calls unreachable"
+python3 - <<'EOF2' || fail "api/paper/calls shape bad"
+import json
+d = json.load(open("/tmp/e58_ballot.json"))
+assert d.get("ok") is True, "ballot not ok"
+calls = d.get("calls")
+assert isinstance(calls, list) and len(calls) > 0, "no ballot calls"
+c0 = calls[0]
+for k in ("coin", "median_apy", "long_v", "short_v", "logged_ts", "status"):
+    assert k in c0, f"missing {k}"
+assert d.get("rule") and d.get("countdown"), "rule/countdown missing"
+print(f"ballot ok: {d['count']} calls, {d['countdown']}, rule live")
+EOF2
+grep -q "paper ballot" /tmp/e58_root.html || fail "paper ballot section missing from card"
+grep -q "loadPaper" /tmp/e58_root.html || fail "paper ballot loader missing"
+echo "ballot section ok: titled + loader live"
+
 out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"
