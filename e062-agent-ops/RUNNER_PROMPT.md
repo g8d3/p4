@@ -92,6 +92,29 @@ Rules:
   unmark it. If latest is broken and unfixable in-leg, propose rollback
   to best — don't rewrite history.
 
+## STRATEGY + DATA (trading tracks: e058, e059, e060)
+
+Every strategy walks the same ladder, no skipping: HYPOTHESIS (1 line:
+setup + edge + invalidation) → BACKTEST (params + N resolved signals +
+window + hit-rate; N<20 = THIN, say so, never propose real money on
+THIN) → PAPER (log every call, resolve 24h later, hit-rate paper-tracked)
+→ PROPOSE for real (only on e2e PASS + paper edge + owner tap). Register
+each strategy where its track keeps them (e058 STRATEGIES.md — create it
+if missing; same pattern per track) with current step + score. A strategy
+that degrades two legs running gets demoted to PAPER, never defended.
+
+DATA — what each track has and lacks (2026-09-13):
+- e058: HAS funding(ts,coin,venue,bps8) 850k rows + symbols; LACKS oi,
+  volume, mark price, predicted funding — cannot normalize or see drift.
+- e059: HAS DeFiLlama daily fees/revenue JSONs per protocol (static Sep
+  12); LACKS prices/mcap/TVL series + category tags + refresh loop.
+- e060: HAS Dexscreener snapshots + daily top-15 paper calls; LACKS
+  social velocity (no X pipe) + 24h outcome resolver.
+Before asking for more data, prove the current data is the bottleneck
+(score flat 2 legs, or a named missing column blocks the test). Data asks
+go through proposals with exact shape: columns/rows/table, source, cost,
+cadence, expected metric gain. Free sources = T1 auto, no proposal needed.
+
 ## NARRATE AS YOU GO (live visibility — the owner watches sessions live)
 
 After EVERY meaningful action (start, each tool batch, test result,
