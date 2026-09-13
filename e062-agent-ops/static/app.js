@@ -495,10 +495,7 @@ function rowCard(wi, r, uid) {
   const w = window._widgets[wi];
   const open = w.open === uid;
   return '<div class="card' + (open ? ' open' : '') + '" onclick="wToggleRow(' + wi + ',\'' + uid + '\')">' +
-    '<div class=frow><span>' + esc(shortTime(r.time)) + '</span>' +
-    '<span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
-    '<span class=ses>' + sesChips(wi, r) + '</span>' +
-    '<span>' + (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</span></div>' +
+    rowFrow(wi, r) +
     '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
     (r.propPending ? '<div class=rowbtns style="margin-top:4px" onclick="event.stopPropagation()">' +
       '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button>' +
@@ -530,8 +527,25 @@ function modeHead(w) {
   const gl = w.g === 'project' ? 'PROJECT' : (w.g === 'session' ? 'SESSION' : 'KIND');
   return '<div class=whead><div class=grow><span>' + gl + '</span><span>ROWS</span><span>WAIT</span><span>LATEST</span></div></div>';
 }
-function subHead() {
+function subHead(w) {
+  // inside a group the grouped column is known — drop it (no duplicated names)
+  const g = (w && w.g) || 'none';
+  if (g === 'project') return '<div class=wsub><div class="frow noproj"><span>TIME</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+  if (g === 'session') return '<div class=wsub><div class="frow noses"><span>TIME</span><span>PROJECT</span><span>KIND</span><span>WAIT</span></div></div>';
+  if (g === 'kind') return '<div class=wsub><div class="frow nokind"><span>TIME</span><span>PROJECT</span><span>SESSION</span><span>WAIT</span></div></div>';
   return '<div class=wsub><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+}
+function rowFrow(wi, r) {
+  const g = ((window._widgets || [])[wi] || {}).g || 'none';
+  const t = '<span>' + esc(shortTime(r.time)) + '</span>';
+  const pj = '<span class=ctrack>' + esc(r.track) + '</span>';
+  const k = '<span>' + esc(r.kind) + '</span>';
+  const se = '<span class=ses>' + sesChips(wi, r) + '</span>';
+  const wt = '<span>' + (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</span>';
+  if (g === 'project') return '<div class="frow noproj">' + t + k + se + wt + '</div>';
+  if (g === 'session') return '<div class="frow noses">' + t + pj + k + wt + '</div>';
+  if (g === 'kind') return '<div class="frow nokind">' + t + pj + se + wt + '</div>';
+  return '<div class=frow>' + t + pj + k + se + wt + '</div>';
 }
 function groupTime(g) {
   try {
@@ -577,7 +591,7 @@ function renderWidgetCards(wi) {
     if (w.openGroup === ggi) {
       const grows = g.rows.slice(0, 20);
       html += '<div class=grows><div class=grows-label>\u21b3 ' + grows.length + ' rows of <b>' + esc(g.key) + '</b> \u2014 newest first</div>' +
-        subHead() +
+        subHead(w) +
         grows.map(function(r, i) { return rowCard(wi, r, 'g' + ggi + 'r' + i); }).join('') +
         (g.rows.length > grows.length ? '<div style="font-size:11px;opacity:.6">+' + (g.rows.length - grows.length) + ' more \u2014 filter to narrow</div>' : '') +
         '</div>';
