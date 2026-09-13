@@ -12,6 +12,7 @@ Owner steers by talking to any agent session ("pause X", "approve #N",
 - AUTONOMY: FULL-T1 (owner-authorized 2026-09-12). UI fixes, pricing drafts, saved-data put to work, paper-trading/strategy/backtest probes AUTO (log T1 ≤$50). Real charges/positions/KYC = propose + wait.
 - MOBILE HARD RULES: primary controls in thumb zone (bottom); cards contain tables (no new page tables); long text = 1-line summary + expand; tables scroll inside, sticky header.
 - REPORTING: every beat/event = `OWNER_SENTENCE | tech: detail`. Board pref `report` (simple/both/tech, default simple) controls display; never delete either half.
+- UX LAW (owner 2026-09-13, details in p4/e000-fundamentals/UX.md): every number shows its time window; every section has a name; filters cover everything visible; forms aligned grid; shareables are pretty pages, not clipboard; agents must spot confusion before the owner reports it (misses go in ATTENTION.md).
 - CONFIGURABILITY RULE (owner pattern): every either/or display decision ships as a board toggle with a sane default (simple), never as a hardcoded choice.
 - DIRECTION (owner 2026-09-13): one proof loop per track, ALL of them, data by proposal (free sources auto, paid/credentialed propose + wait), no new tracks: e058 backtest->paper, e059 cheap-vs-peers alert, e060 first worthy ping, e061 day-2 player, e062 announce (#2 needs owner topic). The per-track `next:` line on its card IS the plan — advance it, update it via `ops.py focus` when done.
 - Advance the lowest rung first; revive stale before starting new.
