@@ -184,7 +184,7 @@ function copySlip() {
 <nav class="thumbbar"><a href="#sec-play">▶ Play</a><a href="#win" id="btn-win" onclick="return winTap()">🏆 Win</a><a href="#sec-fees">💰 Fees</a><a href="#sec-stats">📊 Stats</a></nav>
 
 <script>
-fetch('status.json').then(r => r.json()).then(s => {
+fetch('status.json?_=' + Date.now(), {cache: 'no-store'}).then(r => r.json()).then(s => {
   const b = document.getElementById('chainBadge');
   b.textContent = 'chain: ' + s.chain + ' | pair: ' + s.pair;
   b.className = 'badge ' + (s.anvilRunning ? 'on' : 'off');
