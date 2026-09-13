@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
+    // Relative base: the build is also embedded under e061/demo/game/.
+    base: "./",
     // The game uses top-level await (loading sprites), so the build target
     // must support it. esnext keeps the bundle modern.
     build: {

@@ -371,6 +371,10 @@ k.scene("game", () => {
 // ---------------------------------------------------------------------------
 k.scene("win", ({ coins, coinMax }) => {
     const all = coins >= coinMax;
+    // e061 suite bridge: tell the embedding page the run finished (claim flow)
+    try {
+        window.parent.postMessage({ type: "e061-win", coins, coinMax, perfect: all }, "*");
+    } catch (e) {}
     const cx = GAME_W / 2;
     k.add([
         k.text(all ? "PERFECT!" : `You got ${coins}/${coinMax} coins`, {
