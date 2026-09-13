@@ -29,7 +29,8 @@ html.dark a{color:#8ab4ff}html.dark .cav{color:#aaa}html.dark .twrap{border-colo
 <script>if(localStorage.e59==='d')document.documentElement.classList.add('dark')</script>
 <p>Top crypto protocols — P/Fees + P/Revenue (30d annualised, DefiLlama free + CoinGecko public).
 No trading, no wallet, read-only. <a href="/multiples.json">JSON</a> <a href="/multiples.csv">CSV</a></p>
-<div id="meta" class="cav"></div>
+<div id="verdict" class="cav" style="font-size:14px;margin:.4em 0">…</div>
+<details id="meta" class="cav"><summary id="metasum">…</summary><div id="metadetail"></div></details>
 <div id="cats" style="margin:.6em 0"></div>
 <div class="twrap"><table id="t"></table></div>
 <div id="cavs" class="cav"></div>
@@ -76,21 +77,45 @@ function render(){
   document.getElementById('fullbtn').classList.toggle('on',!document.body.classList.contains('simple'));
 }
 function locTs(s){try{s=String(s||'').trim();if(!s)return '\u2014';const d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
+function cheapList(){return [...D.protocols].filter(p=>ratio(p)<1e17).sort((a,b)=>ratio(a)-ratio(b))}
+function trendWords(p){return p.trend_dir===-1?'getting cheaper':(p.trend_dir===1?'getting pricier':'steady')}
+function verdict(){
+  const l=cheapList();
+  if(!l.length)return D.protocols.length+' coins priced vs sales — tap below for what the columns mean.';
+  const p=l[0];
+  return `Cheapest vs its group: ${p.symbol} at ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}.`;
+}
+function slip(){
+  const l=cheapList().slice(0,3);
+  const lines=l.map((p,i)=>`${i+1}. ${p.symbol} — ${(ratio(p)).toFixed(1)}× ${p.category} median, P/Fees ${p.p_fees??'—'}, ${trendWords(p)}`);
+  return `e059 cheapest vs group (${locTs(D.as_of)}):\n`+lines.join('\n')+'\nestimates only, read-only, no trading';
+}
+function copySlip(btn){
+  const t=slip();
+  const done=()=>{btn.textContent='✓ copied';setTimeout(()=>btn.textContent='📋 copy top 3',1500)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(()=>{fallback()});}
+  else fallback();
+  function fallback(){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){}document.body.removeChild(ta);}
+}
 fetch('/multiples.json').then(r=>r.json()).then(d=>{
   D=d;
   const ageH=(Date.now()/1000-new Date(d.as_of).getTime()/1000)/3600;
   const stale=ageH>49;
   document.getElementById('fresh').textContent=(stale?'STALE ':'LIVE ')+locTs(d.as_of);
   if(stale)document.getElementById('fresh').classList.add('stale');
-  document.getElementById('meta').textContent=
-    d.protocols.length+' protocols · vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · sources: '+d.sources.join('; ');
+  document.getElementById('verdict').textContent=verdict();
+  document.getElementById('metasum').textContent=
+    d.protocols.length+' coins priced vs sales — tap for what the columns mean.';
+  document.getElementById('metadetail').textContent=
+    'vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · sources: '+d.sources.join('; ');
   const cats=['ALL',...(d.categories||[...new Set(d.protocols.map(p=>p.category))])];
   const btns=cats.map(c=>`<button data-c="${c}">${c}</button>`).join(' ');
   document.getElementById('cats').innerHTML=btns;
-  document.getElementById('thumbbar').innerHTML=btns+` <button id="cheapbtn">💰 cheap first</button> <button id="simplebtn">📱 simple</button><button id="fullbtn">📊 full</button>`;
+  document.getElementById('thumbbar').innerHTML=btns+` <button id="cheapbtn">💰 cheap first</button> <button id="copybtn">📋 copy top 3</button> <button id="simplebtn">📱 simple</button><button id="fullbtn">📊 full</button>`;
   document.querySelectorAll('#cats button').forEach(b=>b.onclick=()=>setFilter(b.dataset.c));
   document.querySelectorAll('#thumbbar button[data-c]').forEach(b=>b.onclick=()=>setFilter(b.dataset.c));
   document.getElementById('cheapbtn').onclick=()=>{cheapFirst=!cheapFirst;render()};
+  document.getElementById('copybtn').onclick=e=>copySlip(e.target);
   if(localStorage.e59view==='full')document.body.classList.remove('simple');
   document.getElementById('simplebtn').onclick=()=>{document.body.classList.add('simple');localStorage.e59view='simple';render()};
   document.getElementById('fullbtn').onclick=()=>{document.body.classList.remove('simple');localStorage.e59view='full';render()};
