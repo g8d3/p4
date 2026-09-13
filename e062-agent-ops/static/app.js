@@ -338,9 +338,8 @@ async function load() {
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span id="tg-' + t.track + '" style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
-    (t.focus ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc(t.focus) + '</div>' : '') +
+    ((t.focus || t.rung_note) ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc([t.focus, rungNext(t.rung).replace(/^next: /, ''), (t.rung_note || '').slice(0, 90)].filter(function(x){return x;}).join(' · ')) + '</div>' : '') +
     dataLine(t) +
-    '<div style="font-size:11px;opacity:.75">' + esc(rungNext(t.rung)) + (t.rung_note ? ' · ' + esc(t.rung_note).slice(0, 90) : '') + '</div>' +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
