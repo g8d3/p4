@@ -356,8 +356,7 @@ async function load() {
   if (wt) wt.title = 'your notes + money gates waiting for a tap';
   if (wt) { wt.style.display = waitTotal ? '' : 'none'; } if (wt) wt.textContent = waitTotal ? ('● ' + waitTotal + ' waiting \u2014 tap to see') : '';
   document.getElementById('w').textContent =
-    'treasury: spent $' + d.runway.spent.toFixed(2) + ' earned $' + d.runway.earned.toFixed(2) +
-    ' left $' + d.runway.left.toFixed(2) + ' of $300' +
+    'funds $' + (d.runway.funds != null ? d.runway.funds.toFixed(2) : '?') + ' · in $' + d.runway.earned.toFixed(2) + ' · out $' + d.runway.spent.toFixed(2) +
     (d.usage ? ' · legs used ' + Number(d.usage.tokens).toLocaleString() + ' tok ($' + d.usage.cost_usd + ', 24h: ' + Number(d.usage.day_tokens).toLocaleString() + ')' : '');
   try { window._unirows = buildUnified(d); loadWidgets(d); renderWidgets(); } catch (e) {}
   try { renderLadder(d); } catch (e) {}

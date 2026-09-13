@@ -2,3 +2,6 @@
 *.log
 quota.json
 quota_debug.html
+wallets.json
+wallets_cache.json
+wallets_prices.json

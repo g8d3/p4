@@ -191,14 +191,18 @@ def board(req: Request):
     try:
         sp = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='spend'").fetchone()[0]
         ea = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='earn'").fetchone()[0]
-        runway = {'spent': sp, 'earned': ea, 'left': 300.0 - sp + ea}
+        try: w = json.load(open(os.path.join(BASE, 'wallets_cache.json')))
+        except Exception: w = None
+        funds = (w.get('total_usd') if isinstance(w, dict) else None)
+        runway = {'spent': sp, 'earned': ea, 'funds': funds,
+                  'left': (funds - sp + ea) if funds is not None else None}
         try:
             c.execute('CREATE TABLE IF NOT EXISTS runs(id INTEGER PRIMARY KEY)')
             u = c.execute("SELECT COUNT(*), COALESCE(SUM(tokens),0), COALESCE(SUM(cost_usd),0), COALESCE(SUM(end_tokens-start_tokens),0) FROM runs WHERE status='done'").fetchone()
             ud = c.execute("SELECT COALESCE(SUM(tokens),0), COALESCE(SUM(cost_usd),0) FROM runs WHERE status='done' AND ended_ts > strftime('%s','now','-1 day')").fetchone()
             usage = {'legs': u[0], 'tokens': u[1], 'cost_usd': round(u[2], 4), 'growth': u[3], 'day_tokens': ud[0], 'day_cost': round(ud[1], 4)}
         except Exception: usage = None
-    except Exception: runway = {'spent': 0, 'earned': 0, 'left': 300.0}; usage = None
+    except Exception: runway = {'spent': 0, 'earned': 0, 'funds': None, 'left': None}; usage = None
     c.close()
     c2 = sqlite3.connect(DB)
     paused = []

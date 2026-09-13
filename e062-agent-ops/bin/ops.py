@@ -143,6 +143,31 @@ def runway(budget=300.0):
         print(r)
     c.close()
 
+def balances():
+    import json as _j, subprocess as _sp
+    base = os.path.dirname(os.path.abspath(__file__))
+    try:
+        r = _sp.run([sys.executable, os.path.join(base, 'wallets.py'),
+                     '--update'], capture_output=True, text=True, timeout=180)
+        d = _j.loads(r.stdout or '{}')
+    except Exception as e:
+        print(f'probe failed: {e}'[:200]); return
+    if not d.get('ok'):
+        print(d.get('error', 'probe failed'), '-', d.get('hint', '')); return
+    print(f"funds ${d['total_usd']} across {d['n']} wallet(s) ({d['fetched_at']})")
+    c = db()
+    try: c.execute('CREATE TABLE IF NOT EXISTS prefs(key TEXT PRIMARY KEY, value TEXT)')
+    except Exception: pass
+    row = c.execute("SELECT value FROM prefs WHERE key='wallets_broke'").fetchone()
+    was = (row or ['0'])[0] == '1'
+    broke = (d.get('total_usd') or 0) < 5
+    if broke and not was:
+        beat('runner', 'blocked', 'Wallets are empty — send more funds | tech: balances total <$5, owner top-up needed')
+    elif not broke and was:
+        beat('runner', 'ok', 'Wallets funded again — legs run free | tech: balances topped up')
+    c.execute("INSERT OR REPLACE INTO prefs VALUES ('wallets_broke', ?)", ('1' if broke else '0',))
+    c.commit(); c.close()
+
 def note(track, message):
     import time as t
     c = db()
@@ -252,6 +277,7 @@ CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
         'inbox': lambda a: inbox(*(a or [])),
         'spend': lambda a: spend(*a), 'earn': lambda a: earn(*a),
         'runway': lambda a: runway(float(a[0]) if a else 300.0),
+        'balances': lambda a: balances(),
         'proposals': lambda a: proposals(*a),
         'beat': lambda a: beat(*a), 'promote': lambda a: promote(a[0], int(a[1]), *(a[2:])),
         'stale': lambda a: stale(int(a[0]) if a else 49), 'status': lambda a: status()}
