@@ -361,18 +361,22 @@ setInterval(() => {
 /* ---- views: configurable widgets over one unified flow ---- */
 function defaultWidgets() {
   return [
-    {t: 'all', q: '', g: 'none', s: 'new', n: 20, p: 0, open: -1},
-    {t: 'by project', q: '', g: 'project', s: 'new', n: 20, p: 0, open: -1},
-    {t: 'money', q: 'money gate', g: 'project', s: 'new', n: 20, p: 0, open: -1},
-    {t: 'waiting', q: 'is:waiting', g: 'project', s: 'new', n: 20, p: 0, open: -1}
+    {t: 'projects', q: '', root: 'projects', n: 20},
+    {t: 'sessions', q: '', root: 'sessions', n: 20},
+    {t: 'waiting', q: 'is:waiting', root: 'waiting', n: 20}
   ];
 }
 function cleanWidget(w) {
   w = w || {};
-  return {t: String(w.t || 'view').slice(0, 40), q: String(w.q || '').slice(0, 140),
-    g: ['none', 'project', 'session', 'kind'].indexOf(w.g) >= 0 ? w.g : 'none',
-    s: w.s === 'old' ? 'old' : 'new',
-    n: [10, 20, 50].indexOf(w.n) >= 0 ? w.n : 20, p: 0, open: -1};
+  const root = ['projects', 'sessions', 'waiting'].indexOf(w.root) >= 0 ? w.root : 'projects';
+  const d = rootDefaults(root);
+  return {t: String(w.t || root).slice(0, 40), q: String(w.q || '').slice(0, 140),
+    root: root,
+    sortcol: String(w.sortcol || d.sortcol).slice(0, 12),
+    sortdir: w.sortdir === 'asc' ? 'asc' : 'desc',
+    reltab: ['sessions', 'notes', 'gates'].indexOf(w.reltab) >= 0 ? w.reltab : 'sessions',
+    n: [10, 20, 50].indexOf(w.n) >= 0 ? w.n : 20,
+    p: 0, open: -1, openRel: null};
 }
 function buildUnified(d) {
   const rows = [];
@@ -399,12 +403,12 @@ function loadWidgets(d) {
   if (window._widgets && window._widgets.length) return;
   try {
     const w = JSON.parse((d.prefs && d.prefs.widgets) || '');
-    if (Array.isArray(w) && w.length <= 12) { window._widgets = w.map(cleanWidget); return; }
+    if (Array.isArray(w) && w.length <= 12 && (w.length === 0 || w[0].root)) { window._widgets = w.map(cleanWidget); return; }
   } catch (e) {}
   window._widgets = defaultWidgets();
 }
 function slimWidgets() {
-  return (window._widgets || []).map(function(w) { return {t: w.t, q: w.q, g: w.g, s: w.s, n: w.n}; });
+  return (window._widgets || []).map(function(w) { return {t: w.t, q: w.q, root: w.root, sortcol: w.sortcol, sortdir: w.sortdir, reltab: w.reltab, n: w.n}; });
 }
 async function saveWidgets() {
   try {
@@ -440,8 +444,8 @@ function widgetHTML(w, wi) {
   '<button onclick="wRemove(' + wi + ')" title="remove this view">×</button></div>' +
   '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0">' +
   '<input value="' + esc(w.q).replace(/"/g, '&quot;') + '" placeholder="filter… (try is:waiting)" oninput="wSet(' + wi + ',\'q\',this)" style="flex:2;min-width:110px" aria-label="filter">' +
-  '<select onchange="wSet(' + wi + ',\'g\',this)" aria-label="group by">' + selOpts(wi, 'g', [['none', 'group: none'], ['project', 'group: project'], ['session', 'group: session'], ['kind', 'group: kind']]) + '</select>' +
-  '<select onchange="wSet(' + wi + ',\'s\',this)" aria-label="sort">' + selOpts(wi, 's', [['new', 'newest'], ['old', 'oldest']]) + '</select>' +
+  '<select onchange="wSet(' + wi + ',\'root\',this)" aria-label="root table">' + selOpts(wi, 'root', [['projects', 'table: projects'], ['sessions', 'table: sessions'], ['waiting', 'table: waiting']]) + '</select>' +
+
   '<select onchange="wSet(' + wi + ',\'n\',this)" aria-label="per page">' + selOpts(wi, 'n', [[10, '10/page'], [20, '20/page'], [50, '50/page']]) + '</select></div>' +
   '<div class=wlist id="wc-' + wi + '"></div>' +
   '<div class=rowbtns style="margin-top:6px;display:flex;gap:8px;align-items:center">' +
@@ -456,6 +460,71 @@ function renderWidgets() {
   }
   box.innerHTML = window._widgets.map(widgetHTML).join('');
   window._widgets.forEach(function(w, wi) { renderWidgetCards(wi); });
+}
+function renderTable(wi) {
+  // tables-only refresh (filter typing keeps focus; controls untouched)
+  const w = window._widgets[wi];
+  const box = document.getElementById('wc-' + wi);
+  if (!w || !box) return;
+  const rows = widgetRows(w);
+  let html = waitBanner(w, rows);
+  if (w.root === 'sessions') html += sesRoot(wi, w, rows);
+  else if (w.root === 'waiting') html += waitRoot(wi, w, rows);
+  else html += projRoot(wi, w, rows);
+  box.innerHTML = html;
+}
+function wSet(wi, field, el) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  if (field === 'root') {
+    w.root = el.value; const d = rootDefaults(w.root);
+    w.sortcol = d.sortcol; w.sortdir = d.sortdir;
+  } else if (field === 'n') w.n = parseInt(el.value, 10) || 20;
+  else w[field] = el.value;
+  w.p = 0; w.open = -1; w.openRel = null;
+  if (field === 'q') { renderTable(wi); saveWidgetsSoon(); return; }
+  saveWidgets(); renderWidgets();
+}
+function wTitle(wi, el) {
+  const w = window._widgets[wi];
+  if (w) { w.t = el.value.slice(0, 40); saveWidgetsSoon(); }
+}
+function wPage(wi, d) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  const rows = widgetRows(w);
+  const total = w.root === 'projects' ? groupRows(rows, 'project').length : rows.filter(function(r) {
+    return w.root === 'sessions' ? r.kind === 'session' : r.wait;
+  }).length;
+  const maxp = Math.max(0, Math.ceil(total / w.n) - 1);
+  w.p = Math.min(maxp, Math.max(0, (w.p || 0) + d));
+  w.open = -1; w.openRel = null;
+  saveWidgets(); renderWidgets();
+}
+function wRemove(wi) {
+  if (!window._widgets) return;
+  window._widgets.splice(wi, 1);
+  saveWidgets(); renderWidgets();
+}
+function addViewPreset(kind, btn) {
+  const PRESETS = {
+    all: {t: 'projects', root: 'projects', n: 20},
+    project: {t: 'sessions', root: 'sessions', n: 20},
+    money: {t: 'waiting', root: 'waiting', n: 20},
+    waiting: {t: 'waiting', root: 'waiting', n: 20}
+  };
+  if (!window._widgets) window._widgets = [];
+  if (window._widgets.length >= 12) { alert('12 views max — remove one first'); return; }
+  if (btn) { const o = btn.textContent; btn.textContent = '\u2026'; btn.disabled = true;
+    setTimeout(function() { btn.textContent = o; btn.disabled = false; }, 900); }
+  window._widgets.push(cleanWidget(PRESETS[kind] || PRESETS.all));
+  saveWidgets(); renderWidgets();
+  setTimeout(function() {
+    try {
+      const wl = document.getElementById('widgets').lastChild;
+      if (wl && wl.scrollIntoView) wl.scrollIntoView(false);
+    } catch (e) {}
+  }, 60);
 }
 function shortTime(t) {
   // server stores UTC; the phone/computer shows ITS local time — no more UTC math
@@ -481,7 +550,9 @@ function sesChips(wi, r) {
 function sesFilter(wi, q) {
   const w = window._widgets[wi];
   if (!w) return;
-  w.q = q; w.p = 0; w.open = -1;
+  w.root = 'sessions';
+  { const d = rootDefaults('sessions'); w.sortcol = d.sortcol; w.sortdir = d.sortdir; }
+  w.q = q; w.p = 0; w.open = -1; w.openRel = null;
   saveWidgets(); renderWidgets();
 }
 
@@ -490,17 +561,6 @@ function groupKey(r, g) {
   if (g === 'session') return r.session || r.kind || '?';
   if (g === 'kind') return r.kind || '?';
   return '';
-}
-function rowCard(wi, r, uid) {
-  const w = window._widgets[wi];
-  const open = w.open === uid;
-  return '<div class="card' + (open ? ' open' : '') + '" onclick="wToggleRow(' + wi + ',\'' + uid + '\')">' +
-    rowFrow(wi, r) +
-    '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
-    (r.propPending ? '<div class=rowbtns style="margin-top:4px" onclick="event.stopPropagation()">' +
-      '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button>' +
-      '<button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button></div>' : '') +
-    (open ? uniDetail(r, uid) : '') + '</div>';
 }
 function groupRows(rows, g) {
   const map = {}, order = [];
@@ -513,40 +573,6 @@ function groupRows(rows, g) {
   });
   return order.map(function(k) { return map[k]; }).sort(function(a, b) { return b.latest - a.latest; });
 }
-function waitBanner(w, rows) {
-  if (w.q.toLowerCase().indexOf('is:waiting') < 0) return '';
-  return '<div style="border:1px solid #c0392b;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px">' +
-    '<b>\u26d4 ' + rows.length + ' need your tap.</b> Money gates: approve/reject below (money moves ONLY with your tap). ' +
-    'Notes: your words to that project\u2019s agent, read on the next leg. Tap any \u25cf badge to come back here.</div>';
-}
-function modeHead(w) {
-  // the header always mirrors the cards below it: flat rows get
-  // TIME..WAIT, grouped summaries get GROUP..LATEST
-  if (w.g === 'none')
-    return '<div class=whead><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
-  const gl = w.g === 'project' ? 'PROJECT' : (w.g === 'session' ? 'SESSION' : 'KIND');
-  return '<div class=whead><div class=grow><span>' + gl + '</span><span>ROWS</span><span>WAIT</span><span>LATEST</span></div></div>';
-}
-function subHead(w) {
-  // inside a group the grouped column is known — drop it (no duplicated names)
-  const g = (w && w.g) || 'none';
-  if (g === 'project') return '<div class=wsub><div class="frow noproj"><span>TIME</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
-  if (g === 'session') return '<div class=wsub><div class="frow noses"><span>TIME</span><span>PROJECT</span><span>KIND</span><span>WAIT</span></div></div>';
-  if (g === 'kind') return '<div class=wsub><div class="frow nokind"><span>TIME</span><span>PROJECT</span><span>SESSION</span><span>WAIT</span></div></div>';
-  return '<div class=wsub><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
-}
-function rowFrow(wi, r) {
-  const g = ((window._widgets || [])[wi] || {}).g || 'none';
-  const t = '<span>' + esc(shortTime(r.time)) + '</span>';
-  const pj = '<span class=ctrack>' + esc(r.track) + '</span>';
-  const k = '<span>' + esc(r.kind) + '</span>';
-  const se = '<span class=ses>' + sesChips(wi, r) + '</span>';
-  const wt = '<span>' + (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</span>';
-  if (g === 'project') return '<div class="frow noproj">' + t + k + se + wt + '</div>';
-  if (g === 'session') return '<div class="frow noses">' + t + pj + k + wt + '</div>';
-  if (g === 'kind') return '<div class="frow nokind">' + t + pj + se + wt + '</div>';
-  return '<div class=frow>' + t + pj + k + se + wt + '</div>';
-}
 function groupTime(g) {
   try {
     const d = new Date(g.latest);
@@ -554,118 +580,246 @@ function groupTime(g) {
     return p(d.getMonth() + 1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
   } catch (e) { return ''; }
 }
-function groupCard(wi, g, ggi) {
-  const w = window._widgets[wi];
-  const open = w.openGroup === ggi;
-  return '<div class="card' + (open ? ' open' : '') + '" onclick="wToggleGroup(' + wi + ',' + ggi + ')">' +
-    '<div class=grow><span class=ctrack>' + esc(g.key) + '</span>' +
-    '<span>' + g.rows.length + ' rows</span>' +
-    '<span>' + (g.wait ? '<span class=needbadge>' + g.wait + ' waiting</span>' : '') + '</span>' +
-    '<span style="font-size:11px;opacity:.6">' + esc(groupTime(g)) + (open ? ' \u25be' : ' \u25b8') + '</span></div></div>';
+function waitBanner(w, rows) {
+  if (String(w.q || '').toLowerCase().indexOf('is:waiting') < 0) return '';
+  return '<div style="border:1px solid #c0392b;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px">' +
+    '<b>\u26d4 ' + rows.length + ' need your tap.</b> Money gates: approve/reject below (money moves ONLY with your tap). ' +
+    'Notes: your words to that project\u2019s agent, read on the next leg. Tap any \u25cf badge to come back here.</div>';
+}
+/* ---- nested tables: one root entity per view, relations unfold inline ---- */
+function rootDefaults(root) {
+  if (root === 'sessions') return {sortcol: 'time', sortdir: 'desc'};
+  if (root === 'waiting') return {sortcol: 'time', sortdir: 'desc'};
+  return {sortcol: 'latest', sortdir: 'desc'};
+}
+function sortArrow(w, col) {
+  return w.sortcol === col ? (w.sortdir === 'asc' ? ' \u25b2' : ' \u25bc') : '';
+}
+function cmpRows(a, b, col, dir) {
+  let va, vb;
+  if (col === 'run') { va = a.runid || 0; vb = b.runid || 0; }
+  else if (col === 'status') { va = String((a.detail || '').match(/Run #\d+ (\w+)/) || ['', ''])[1]; vb = String((b.detail || '').match(/Run #\d+ (\w+)/) || ['', ''])[1]; }
+  else { va = a.t || 0; vb = b.t || 0; }
+  if (va < vb) return dir === 'asc' ? -1 : 1;
+  if (va > vb) return dir === 'asc' ? 1 : -1;
+  return 0;
+}
+function relCounts(rows, key) {
+  const c = {sessions: 0, notes: 0, gates: 0};
+  rows.forEach(function(r) {
+    if (r.track !== key) return;
+    if (r.kind === 'session') c.sessions++;
+    else if (r.kind === 'owner note') c.notes++;
+    else if (r.kind === 'money gate') c.gates++;
+  });
+  return c;
+}
+function stepsOf(rows, runid) {
+  const tag = '[run #' + runid + ']';
+  return rows.filter(function(r) {
+    return r.kind !== 'session' && String(r.detail || '').indexOf(tag) >= 0;
+  }).sort(function(a, b) { return b.t - a.t; });
 }
 function renderWidgetCards(wi) {
   const w = window._widgets[wi];
   const box = document.getElementById('wc-' + wi);
   if (!w || !box) return;
   const rows = widgetRows(w);
-  const head = modeHead(w);
-  if (w.g === 'none') {
-    const maxp = Math.max(0, Math.ceil(rows.length / w.n) - 1);
-    w.p = Math.min(w.p || 0, maxp);
-    const page = rows.slice(w.p * w.n, w.p * w.n + w.n);
-    box.innerHTML = head + waitBanner(w, rows) + (page.map(function(r, i) { return rowCard(wi, r, 'r' + (w.p * w.n + i)); }).join('') ||
-      '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>');
-    const info = document.getElementById('wi-' + wi);
-    if (info) info.textContent = rows.length + ' rows · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(rows.length / w.n));
-    return;
-  }
-  // grouped: ONE card per group, tap to expand its rows
-  const groups = groupRows(rows, w.g);
+  let html = waitBanner(w, rows);
+  if (w.root === 'sessions') html += sesRoot(wi, w, rows);
+  else if (w.root === 'waiting') html += waitRoot(wi, w, rows);
+  else html += projRoot(wi, w, rows);
+  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>';
+}
+function pagerInfo(wi, total, unit) {
+  const w = window._widgets[wi];
+  const info = document.getElementById('wi-' + wi);
+  if (info) info.textContent = total + ' ' + unit + ' · page ' + ((w.p || 0) + 1) + '/' + Math.max(1, Math.ceil(total / w.n));
+}
+function wSort(wi, col) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  if (w.sortcol === col) w.sortdir = (w.sortdir === 'asc' ? 'desc' : 'asc');
+  else { w.sortcol = col; w.sortdir = (col === 'proj' || col === 'status') ? 'asc' : 'desc'; }
+  w.p = 0;
+  saveWidgets(); renderWidgets();
+}
+/* ---- root: PROJECTS (one row per project, relations unfold below) ---- */
+function projRoot(wi, w, rows) {
+  let groups = groupRows(rows, 'project');
+  const dir = w.sortdir === 'asc' ? 1 : -1;
+  groups.sort(function(a, b) {
+    let va, vb;
+    if (w.sortcol === 'proj') { va = a.key; vb = b.key; }
+    else if (w.sortcol === 'rows') { va = a.rows.length; vb = b.rows.length; }
+    else if (w.sortcol === 'wait') { va = a.wait; vb = b.wait; }
+    else { va = a.latest; vb = b.latest; }
+    if (va < vb) return -dir; if (va > vb) return dir; return 0;
+  });
   const maxp = Math.max(0, Math.ceil(groups.length / w.n) - 1);
   w.p = Math.min(w.p || 0, maxp);
   const page = groups.slice(w.p * w.n, w.p * w.n + w.n);
-  let html = '';
+  w._groups = page;
+  let h = '<div class=rwrap><table class=rtable><thead><tr>' +
+    '<th onclick="wSort(' + wi + ',\'proj\')">PROJ' + sortArrow(w, 'proj') + '</th>' +
+    '<th onclick="wSort(' + wi + ',\'rows\')">ROWS' + sortArrow(w, 'rows') + '</th>' +
+    '<th onclick="wSort(' + wi + ',\'wait\')">WAIT' + sortArrow(w, 'wait') + '</th>' +
+    '<th onclick="wSort(' + wi + ',\'latest\')">LATEST' + sortArrow(w, 'latest') + '</th><th></th>' +
+    '</tr></thead><tbody>';
   page.forEach(function(g, gi) {
-    const ggi = w.p * w.n + gi;
-    html += groupCard(wi, g, ggi);
-    if (w.openGroup === ggi) {
-      const grows = g.rows.slice(0, 20);
-      html += '<div class=grows><div class=grows-label>\u21b3 ' + grows.length + ' rows of <b>' + esc(g.key) + '</b> \u2014 newest first</div>' +
-        subHead(w) +
-        grows.map(function(r, i) { return rowCard(wi, r, 'g' + ggi + 'r' + i); }).join('') +
-        (g.rows.length > grows.length ? '<div style="font-size:11px;opacity:.6">+' + (g.rows.length - grows.length) + ' more \u2014 filter to narrow</div>' : '') +
-        '</div>';
+    const open = w.openRel === g.key;
+    h += '<tr class=prow onclick="wProjToggle(' + wi + ',' + gi + ')">' +
+      '<td><b>' + esc(g.key) + '</b></td><td>' + g.rows.length + '</td>' +
+      '<td>' + (g.wait ? '<span class=needbadge>' + g.wait + '</span>' : '') + '</td>' +
+      '<td>' + esc(shortTime(groupTime(g))) + '</td><td>' + (open ? '▾' : '▸') + '</td></tr>';
+    if (open) h += '<tr class=nrow><td colspan=5>' + relTabs(wi, w, g) + relTable(wi, w, g) + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  setTimeout(function() { pagerInfo(wi, groups.length, 'projects'); }, 0);
+  return h;
+}
+function wProjToggle(wi, gi) {
+  const w = window._widgets[wi];
+  if (!w || !w._groups || !w._groups[gi]) return;
+  uniStopLive();
+  const k = w._groups[gi].key;
+  if (w.openRel === k) { w.openRel = null; renderTable(wi); return; }
+  w.openRel = k;
+  const all = window._unirows || [];
+  const has = function(kind) { return all.some(function(r) { return r.track === k && r.kind === kind; }); };
+  w.reltab = has('session') ? 'sessions' : (has('owner note') ? 'notes' : 'gates');
+  renderTable(wi);
+}
+function relTabs(wi, w, g) {
+  const c = relCounts(window._unirows || [], g.key);
+  const tabs = [['sessions', 'Sessions (' + c.sessions + ')'], ['notes', 'Notes (' + c.notes + ')'], ['gates', 'Gates (' + c.gates + ')']];
+  return '<div class=ntabs>' + tabs.map(function(t) {
+    return '<button class="' + (w.reltab === t[0] ? 'on' : '') + '" onclick="event.stopPropagation();wRelTab(' + wi + ',\'' + t[0] + '\')">' + t[1] + '</button>';
+  }).join('') + '</div>';
+}
+function wRelTab(wi, tab) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  w.reltab = tab;
+  saveWidgets(); renderTable(wi);
+}
+function relTable(wi, w, g) {
+  const tab = w.reltab || 'sessions';
+  const mem = g.rows.filter(function(r) {
+    if (tab === 'sessions') return r.kind === 'session';
+    if (tab === 'notes') return r.kind === 'owner note';
+    return r.kind === 'money gate';
+  }).sort(function(a, b) { return b.t - a.t; }).slice(0, 20);
+  if (!mem.length) return '<div style="font-size:12px;opacity:.6">no ' + tab + ' here</div>';
+  let h;
+  if (tab === 'sessions') {
+    h = '<div class=nwrap><table class=ntable><thead><tr><th>RUN</th><th>SES</th><th>STATUS</th><th>TIME</th></tr></thead><tbody>';
+    mem.forEach(function(r, i) {
+      const uid = wi + ':rel:' + g.key + ':' + i;
+      const st = String(r.detail || '').match(/Run #\d+ (\w+)/);
+      const ses1 = String(r.sesid || '').split(',')[0];
+      h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
+        '<td><button onclick="event.stopPropagation();sesFilter(' + wi + ',\'run #' + r.runid + '\')">run #' + r.runid + '</button></td>' +
+        '<td>' + (ses1 ? '<button onclick="event.stopPropagation();sesFilter(' + wi + ',\'ses ' + ses1 + '\')">ses ' + ses1 + '</button>' : '—') + '</td>' +
+        '<td>' + esc(st ? st[1] : '') + '</td><td>' + esc(shortTime(r.time)) + '</td></tr>';
+      if (w.open === uid) h += '<tr class=drow><td colspan=4>' + uniDetail(r, uid) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else if (tab === 'notes') {
+    h = '<div class=nwrap><table class=ntable><thead><tr><th>TIME</th><th>NOTE</th></tr></thead><tbody>';
+    mem.forEach(function(r, i) {
+      const uid = wi + ':note:' + g.key + ':' + i;
+      h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')"><td>' + esc(shortTime(r.time)) + '</td>' +
+        '<td class=wrap>' + esc(r.detail) + '</td></tr>';
+      if (w.open === uid) h += '<tr class=drow><td colspan=2>' + uniDetail(r, uid) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  } else {
+    h = '<div class=nwrap><table class=ntable><thead><tr><th>GATE</th><th>$</th><th>ACTION</th><th>GO</th></tr></thead><tbody>';
+    mem.forEach(function(r) {
+      h += '<tr><td>#' + r.propId + '</td><td>' + esc(String(r.detail).match(/#\d+ \$([0-9.]+)/) ? String(r.detail).match(/#\d+ \$([0-9.]+)/)[1] : '') + '</td>' +
+        '<td class=wrap>' + esc(r.full || r.detail) + '</td>' +
+        '<td>' + (r.propPending
+          ? '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button> <button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button>'
+          : esc(String(r.detail).match(/\((\w+)\)\s*$/) ? String(r.detail).match(/\((\w+)\)\s*$/)[1] : '')) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  if (g.rows.length > mem.length && tab === 'sessions') h += '<div style="font-size:11px;opacity:.6">showing sessions only — other tabs hold the rest</div>';
+  return h;
+}
+/* ---- root: SESSIONS (one row per run, steps unfold below) ---- */
+function sesRoot(wi, w, rows) {
+  let mem = rows.filter(function(r) { return r.kind === 'session'; });
+  mem.sort(function(a, b) { return cmpRows(a, b, w.sortcol || 'time', w.sortdir || 'desc'); });
+  const maxp = Math.max(0, Math.ceil(mem.length / w.n) - 1);
+  w.p = Math.min(w.p || 0, maxp);
+  const page = mem.slice(w.p * w.n, w.p * w.n + w.n);
+  w._sespage = page;
+  let h = '<div class=rwrap><table class=rtable><thead><tr>' +
+    '<th onclick="wSort(' + wi + ',\'run\')">RUN' + sortArrow(w, 'run') + '</th>' +
+    '<th>SES</th>' +
+    '<th onclick="wSort(' + wi + ',\'status\')">STATUS' + sortArrow(w, 'status') + '</th>' +
+    '<th onclick="wSort(' + wi + ',\'time\')">TIME' + sortArrow(w, 'time') + '</th>' +
+    '</tr></thead><tbody>';
+  page.forEach(function(r, i) {
+    const uid = wi + ':ses:' + (w.p * w.n + i);
+    const st = String(r.detail || '').match(/Run #\d+ (\w+)/);
+    const ses1 = String(r.sesid || '').split(',')[0];
+    const extra = String(r.sesid || '').split(',').length - 1;
+    h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
+      '<td><button onclick="event.stopPropagation();sesFilter(' + wi + ',\'run #' + r.runid + '\')">run #' + r.runid + '</button> <span style="opacity:.6">' + esc(r.track) + '</span></td>' +
+      '<td>' + (ses1 ? '<button onclick="event.stopPropagation();sesFilter(' + wi + ',\'ses ' + ses1 + '\')">' + ses1 + '</button>' + (extra > 0 ? ' +' + extra : '') : '—') + '</td>' +
+      '<td>' + esc(st ? st[1] : '') + (r.wait ? ' <span class=needbadge>waiting</span>' : '') + '</td>' +
+      '<td>' + esc(shortTime(r.time)) + '</td></tr>';
+    if (w.open === uid) {
+      const steps = stepsOf(window._unirows || [], r.runid).slice(0, 15);
+      h += '<tr class=drow><td colspan=4>' +
+        (steps.length ? '<div class=nwrap><table class=ntable><thead><tr><th>TIME</th><th>KIND</th><th>STEP</th></tr></thead><tbody>' +
+          steps.map(function(s) { return '<tr><td>' + esc(shortTime(s.time)) + '</td><td>' + esc(s.kind) + '</td><td class=wrap>' + esc(s.detail) + '</td></tr>'; }).join('') +
+          '</tbody></table></div>' : '<div style="font-size:12px;opacity:.6">no tagged steps this run (older legs predate tags)</div>') +
+        uniDetail(r, uid) + '</td></tr>';
     }
   });
-  box.innerHTML = head + waitBanner(w, rows) + (html || '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>');
-  const info = document.getElementById('wi-' + wi);
-  if (info) info.textContent = groups.length + ' groups · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(groups.length / w.n));
+  h += '</tbody></table></div>';
+  setTimeout(function() { pagerInfo(wi, mem.length, 'sessions'); }, 0);
+  return h;
 }
-function wToggleRow(wi, uid) {
+/* ---- root: WAITING (everything that needs your tap) ---- */
+function waitRoot(wi, w, rows) {
+  let mem = rows.filter(function(r) { return r.wait; });
+  mem.sort(function(a, b) { return b.t - a.t; });
+  const maxp = Math.max(0, Math.ceil(mem.length / w.n) - 1);
+  w.p = Math.min(w.p || 0, maxp);
+  const page = mem.slice(w.p * w.n, w.p * w.n + w.n);
+  let h = '<div class=rwrap><table class=rtable><thead><tr><th>ITEM</th><th>PROJ</th><th>TIME</th><th>GO</th></tr></thead><tbody>';
+  page.forEach(function(r, i) {
+    const uid = wi + ':wait:' + (w.p * w.n + i);
+    const item = r.kind === 'money gate' ? ('gate #' + r.propId) : r.kind;
+    const go = r.propPending
+      ? '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button> <button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button>'
+      : '<span style="opacity:.6">queued</span>';
+    h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
+      '<td><b>' + esc(item) + '</b></td><td>' + esc(r.track) + '</td><td>' + esc(shortTime(r.time)) + '</td><td>' + go + '</td></tr>';
+    if (w.open === uid) h += '<tr class=drow><td colspan=4>' + uniDetail(r, uid) + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  setTimeout(function() { pagerInfo(wi, mem.length, 'waiting'); }, 0);
+  return h;
+}
+function wRowToggle(wi, uid) {
   const w = window._widgets[wi];
   if (!w) return;
   uniStopLive();
   w.open = (w.open === uid) ? -1 : uid;
-  renderWidgetCards(wi);
-}
-function wToggleGroup(wi, gi) {
-  const w = window._widgets[wi];
-  if (!w) return;
-  uniStopLive();
-  w.openGroup = (w.openGroup === gi) ? -1 : gi;
-  renderWidgetCards(wi);
-}
-function wSet(wi, field, el) {
-  const w = window._widgets[wi];
-  if (!w) return;
-  w[field] = field === 'n' ? (parseInt(el.value, 10) || 20) : el.value;
-  w.p = 0; w.open = -1; w.openGroup = -1;
-  if (field === 'q') { renderWidgetCards(wi); saveWidgetsSoon(); }
-  else { saveWidgets(); renderWidgets(); }
-}
-function wTitle(wi, el) {
-  const w = window._widgets[wi];
-  if (w) { w.t = el.value.slice(0, 40); saveWidgetsSoon(); }
-}
-function wPage(wi, d) {
-  const w = window._widgets[wi];
-  if (!w) return;
-  const maxp = Math.max(0, Math.ceil(widgetRows(w).length / w.n) - 1);
-  w.p = Math.min(maxp, Math.max(0, (w.p || 0) + d));
-  w.open = -1;
-  renderWidgetCards(wi);
-}
-function wRemove(wi) {
-  if (!window._widgets) return;
-  window._widgets.splice(wi, 1);
-  saveWidgets(); renderWidgets();
-}
-function addViewPreset(kind, btn) {
-  const PRESETS = {
-    all: {t: 'all', q: '', g: 'none', s: 'new', n: 20},
-    project: {t: 'by project', q: '', g: 'project', s: 'new', n: 20},
-    money: {t: 'money', q: 'money gate', g: 'project', s: 'new', n: 20},
-    waiting: {t: 'waiting', q: 'is:waiting', g: 'project', s: 'new', n: 20}
-  };
-  if (!window._widgets) window._widgets = [];
-  if (window._widgets.length >= 12) { alert('12 views max — remove one first'); return; }
-  if (btn) { const o = btn.textContent; btn.textContent = '…'; btn.disabled = true;
-    setTimeout(function() { btn.textContent = o; btn.disabled = false; }, 900); }
-  window._widgets.push(cleanWidget(PRESETS[kind] || PRESETS.all));
-  saveWidgets(); renderWidgets();
-  setTimeout(function() {
-    try {
-      const wl = document.getElementById('widgets').lastChild;
-      if (wl && wl.scrollIntoView) wl.scrollIntoView(false);
-    } catch (e) {}
-  }, 60);
+  renderTable(wi);
 }
 function waitFor(track) {
   // waiting = your notes + pending money gates. tap a badge -> see them.
-  if (!window._widgets || !window._widgets.length) window._widgets = [cleanWidget({t: 'waiting', q: 'is:waiting', g: 'project'})];
+  if (!window._widgets || !window._widgets.length) window._widgets = [cleanWidget({t: 'waiting', root: 'waiting'})];
   const w = window._widgets[0];
   w.q = track ? ('is:waiting ' + track) : 'is:waiting';
-  w.g = 'project'; w.p = 0; w.open = -1;
+  w.root = 'waiting'; w.p = 0; w.open = -1; w.openRel = null;
   saveWidgets(); renderWidgets();
   try { document.getElementById('widgets').scrollIntoView(); } catch (e) {}
 }
@@ -787,10 +941,11 @@ function setPersona(v, btn) {
   try { localStorage.setItem('e062-persona', v); } catch (e) {}
   if (!window._widgets || !window._widgets.length) window._widgets = defaultWidgets();
   const w = window._widgets[0];
-  if (v === 'owner') { setReportSilent('simple'); w.q = ''; w.g = 'none'; }
-  if (v === 'builder') { setReportSilent('both'); w.q = ''; w.g = 'session'; }
-  if (v === 'money') { setReportSilent('simple'); w.q = 'money gate'; w.g = 'project'; }
-  w.p = 0; w.open = -1;
+  if (v === 'owner') { setReportSilent('simple'); w.q = ''; w.root = 'projects'; }
+  if (v === 'builder') { setReportSilent('both'); w.q = ''; w.root = 'sessions'; }
+  if (v === 'money') { setReportSilent('simple'); w.q = ''; w.root = 'waiting'; }
+  { const d = rootDefaults(w.root); w.sortcol = d.sortcol; w.sortdir = d.sortdir; }
+  w.p = 0; w.open = -1; w.openRel = null;
   paintPersonaSeg(); saveWidgets(); load();
 }
 function setReportSilent(v) {
