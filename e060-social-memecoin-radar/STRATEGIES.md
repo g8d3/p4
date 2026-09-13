@@ -40,3 +40,20 @@ N<20 resolved = THIN: never propose real money on THIN.
   Copy slip all keep it ("5 calls resolving (first grade ~18h)").
   Early 2026-09-13 ~12:00Z: 1/4 up, avg -10.5% at 6.5h, best
   CATFLIGHT +0.6% — still COLD intraday; canonical grade still pending.
+- RUN #50 FIX+POWER (FREE, local only, no fetch): top verdict was
+  jargon-dense (chain + heat + vol + chg in one breath) and the day's
+  biggest intraday move sat buried in the early expand. Verdict now
+  leads plain ("Top now: X — worth a look") + breakout ping: best
+  early move >= +20% surfaces as "🔥 SYM up +N% since its call" in
+  the one-line verdict, paper suffix, copy slip, and early summary
+  (server + JS; detail stays behind the expand). WORTHY-1 rule
+  unchanged, still PAPER. Early 2026-09-13 ~13:35Z: 1/5 up at ~1.2h,
+  BLAST +30.0% Breakout LIVE while the group avg sits near flat —
+  exactly the case the ping is for; canonical 24h grade ~16h out.
+- RUN #51 POWER (FREE, local only, no fetch): early expand was a bare
+  number (SYM +N%) with no tap to act. early_read now carries entry +
+  cur + pairUrl per call; expand renders "SYM +N% entry X \u2192 now Y"
+  + trades tap (server + JS, backward-compatible). WORTHY-1 unchanged,
+  still PAPER. Early 2026-09-13 ~14:05Z: 2/5 up, avg +13.4% at 1.7h,
+  best Stunk +51.1% + BLAST +25.3% — two breakouts live; canonical
+  24h grade ~16h out.

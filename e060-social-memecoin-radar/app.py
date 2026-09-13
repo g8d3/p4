@@ -245,8 +245,15 @@ def early_read():
                 except Exception:
                     pass
         with open(CACHE) as f:
-            live = {r.get("token"): r.get("priceUsd")
-                    for r in json.load(f).get("rows", [])}
+            live = {}
+            for r in json.load(f).get("rows", []):
+                try:
+                    live[r.get("token")] = {
+                        "price": r.get("priceUsd"),
+                        "pairUrl": r.get("pairUrl") or r.get("dsUrl") or "",
+                    }
+                except Exception:
+                    pass
         now = time.time()
         for snap in reversed(calls):
             entries = [e for e in (snap.get("top") or []) if e.get("worthy")]
@@ -258,14 +265,20 @@ def early_read():
             for e in usable:
                 try:
                     entry = float(e["priceUsd"])
-                    cur = float(live[e["token"]])
-                except (TypeError, ValueError):
+                    lv = live[e["token"]]
+                    cur = float(lv["price"] if isinstance(lv, dict) else lv)
+                except (TypeError, ValueError, KeyError):
                     continue
                 if entry <= 0:
                     continue
                 pct = (cur - entry) / entry * 100
                 moves.append(pct)
-                detail.append({"symbol": e.get("symbol", "?"), "pct": round(pct, 1)})
+                lv = live.get(e["token"], {})
+                detail.append({"symbol": e.get("symbol", "?"),
+                               "pct": round(pct, 1),
+                               "entry": e.get("priceUsd"),
+                               "cur": (lv.get("price") if isinstance(lv, dict) else lv),
+                               "pairUrl": (lv.get("pairUrl") if isinstance(lv, dict) else "") or ""})
                 if pct > 0:
                     ups += 1
             if not moves:
@@ -297,6 +310,20 @@ def early_line():
     return s + ")"
 
 
+def breakout():
+    """Intraday winner ping (FREE, local only): best early move >= +20%
+    since its call. Surfaced in the one-line verdict; per-call detail
+    stays behind the early expand. None when no breakout."""
+    try:
+        e = early_read()
+        b = (e or {}).get("best")
+        if b and b.get("pct") is not None and float(b["pct"]) >= 20:
+            return b
+    except Exception:
+        pass
+    return None
+
+
 def early_detail_html():
     """One-line summary + expand for per-call early moves (LONG TEXT RULE)."""
     e = early_read()
@@ -310,7 +337,11 @@ def early_detail_html():
                 f"{best.get('pct', 0):+.1f}% — tap for each call.")
         rows = "".join(
             f"<div>{html.escape(str(x.get('symbol','?')))} "
-            f"{x.get('pct', 0):+.1f}%</div>"
+            f"{x.get('pct', 0):+.1f}%"
+            f" <small>entry {html.escape(str(x.get('entry') or '?'))} \u2192 now "
+            f"{html.escape(str(x.get('cur') or '?'))}</small>"
+            + (f" <a href=\"{html.escape(x['pairUrl'], quote=True)}\">trades</a>" if x.get('pairUrl') else "")
+            + "</div>"
             for x in e["detail"])
         return (f"<details style='margin:.2em 0;font-size:13px;color:#555'>"
                 f"<summary>{html.escape(summ)}</summary>"
@@ -333,9 +364,12 @@ def server_card():
         w = is_worthy(top)
         chg = top.get("priceChange_h24")
         chgs = f"{chg}%" if chg is not None else "—"
-        verdict = (f"Top now: {top.get('symbol')} ({top.get('chain')}) heat "
-                   f"{top.get('heat')} — {'⚡ WORTH A LOOK' if w else 'quiet, no worthy ping'} · "
-                   f"vol {fmt_big(top.get('vol_h24'))} chg {chgs}{early_line()}")
+        br = breakout()
+        br_txt = (f". 🔥 {br.get('symbol')} up +{float(br.get('pct')):.1f}% since its call"
+                  if br else "")
+        verdict = (f"Top now: {top.get('symbol')} — "
+                   f"{'worth a look' if w else 'quiet, no calls standing out'}"
+                   f"{br_txt}{early_line()}")
     else:
         verdict = "No rotation data right now — refresh in a minute"
     pulse = (f"{live} {len(rows)} tokens · sample {fmt_age(age)} (every 5m) | "
@@ -396,11 +430,11 @@ PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport con
 let ROWS=[],CUR='heat',SLIP='',PSUFFIX='';const KEYS={heat:(a,b)=>(b.heat||0)-(a.heat||0),score:(a,b)=>b.rotation_score-a.rotation_score,movers:(a,b)=>Math.abs(b.priceChange_h24||0)-Math.abs(a.priceChange_h24||0),vol:(a,b)=>b.vol_h24-a.vol_h24};
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':Math.round(n)+'';
 const worthy=r=>(r.heat||0)>=80&&(r.vol_h24||0)>=5e5&&(r.txns_h24||0)>=1e4;
-function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){const w=worthy(top);document.getElementById('v').innerHTML='<b>Top now: '+top.symbol+'</b> <small>'+top.chain+'</small> heat '+top.heat+' — '+(w?'⚡ WORTH A LOOK':'quiet, no worthy ping')+' <small>vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'—')+'%</small>'+(PSUFFIX||'');SLIP='e060 paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>traders</th></tr></thead><tbody>';
+function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){const w=worthy(top);document.getElementById('v').innerHTML='<b>Top now: '+top.symbol+'</b> — '+(w?'worth a look':'quiet, no calls standing out')+' <small>heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'—')+'%</small>'+(PSUFFIX||'');SLIP='e060 paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>traders</th></tr></thead><tbody>';
 for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
-fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;t+=` · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const summ=`Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%</div>`).join('')}}catch(_){}}) });
+fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;let br='';if(p.early.best&&p.early.best.pct!=null&&p.early.best.pct>=20)br=` · 🔥 ${p.early.best.symbol} +${p.early.best.pct}% since call`;t+=`${br} · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b})`}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const bo=(e.best&&e.best.pct!=null&&e.best.pct>=20)?'🔥 ':'';const summ=`${bo}Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%${x.entry?` <small>entry ${x.entry} → now ${x.cur||'?'}</small>`:''}${x.pairUrl?` <a href="${x.pairUrl}">trades</a>`:''}</div>`).join('')}}catch(_){}}) });
 document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
 document.getElementById('copy').onclick=()=>{if(!SLIP)return;const b=document.getElementById('copy');(navigator.clipboard?navigator.clipboard.writeText(SLIP):Promise.reject()).then(()=>{b.textContent='✓ Copied';setTimeout(()=>b.textContent='📋 Copy',1200)}).catch(()=>{prompt('Copy your slip:',SLIP)})};
 document.getElementById('dark').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'};</script></body></html>"""
