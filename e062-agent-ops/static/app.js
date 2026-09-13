@@ -336,7 +336,7 @@ async function load() {
     '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '" title="' + esc(RUNG_DEFS[t.rung] || 'not started') + '. ' + esc(rungNext(t.rung)) + '">rung ' + t.rung + '/5 · ' + esc(rungName(t.rung)) + '</span>' +
     ((waitByTrack[t.track] || 0) ? '<button class=needbadge title="notes + money gates waiting for you — tap to see" onclick="event.stopPropagation();waitFor(\'' + t.track + '\')">●' + waitByTrack[t.track] + ' waiting</button>' : '') +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
-    '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
+    '<span id="tg-' + t.track + '" style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
     (t.focus ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc(t.focus) + '</div>' : '') +
     dataLine(t) +
@@ -373,8 +373,21 @@ async function load() {
   if (dsum) dsum.textContent = 'standing orders — tap to read';
 }
 function toggleCard(t) {
+  // Targeted toggle: the old full load() re-rendered cards + widgets +
+  // tables on every tap (the jank). Detail swaps in place; nothing else moves.
+  const d = window._board;
+  const track = d && (d.tracks || []).find(x => x.track === t);
+  const card = document.getElementById('c-' + t);
   window._openCard = (window._openCard === t) ? null : t;
-  load();
+  const open = window._openCard === t;
+  if (card && track) {
+    card.classList.toggle('open', open);
+    const tg = document.getElementById('tg-' + t);
+    if (tg) tg.textContent = open ? '▾ close' : '▸ history + message';
+    const old = card.querySelector(':scope > .cdetail');
+    if (old) old.remove();
+    if (open) card.insertAdjacentHTML('beforeend', cardDetail(track));
+  } else load();
 }
 function cardHist(track) {
   const d = window._board || {events: [], runs: [], notes: []};
