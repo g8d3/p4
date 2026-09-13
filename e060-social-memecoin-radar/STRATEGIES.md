@@ -124,3 +124,11 @@ N<20 resolved = THIN: never propose real money on THIN.
   leg: resolved=0 pending=18 new=0 gecko_fb=0 (first grade ~7h,
   blocked-on-time — nothing due yet, fallback waits for its first real
   grade). WORTHY-1 still PAPER, WORTHY-2c still THIN shadow.
+- RUN #71 FIX (FREE, local only, no fetch): grade source surfaced on card
+  (focus half shipped). Pulse now reads "18 worthy calls resolving (first
+  grade ~6h) · grades via live, backup 9/9" (grade_src_line: outcomes src
+  tally once resolved, else pools.json cache count); early moves labeled
+  "via live" in summary + per-call rows + /api/paper (px_src + px_age +
+  per-detail src). Resolver re-run: 0 new, 18 pending (blocked-on-time,
+  first grade ~6h). e2e PASS local+tailnet, d26eb44 live running==latest.
+  SCORE: resolved=0/0 (delta 0 vs run #70) — FIX, not advance.
