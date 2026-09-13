@@ -23,6 +23,8 @@ Nothing here is committed.
 - 2026-09-13 (owner): dogfood rule — legs use the apps themselves to create and test strategies; no strategy ships unwatched on the board.
 - 2026-09-13 (owner): session-stats board — per-leg AND per-interactive start→end ctx, hola-share trend (prompt-trim loop), cost; total session control (pause/kill/budget-cap live sessions) with the nested-tables grail visualization.
 - 2026-09-13 (owner): agent-after-agent scheduler — legs chain finish→start until credits run out; each leg credit-aware (runway on board), must earn its successor.
+- 2026-09-13 (owner): context-compressor — an agent continuously distills session state into a starter pack, so fresh sessions boot with full thread and zero weight; owner never manages sessions, only starts them.
+- 2026-09-13 (owner): browser-ops as product — agent browsing standardized (agent-browser binary, GPU, login vault, captcha playbook, short recipes); the discipline itself is sellable to other agent users.
 - 2026-09-13 (owner): wanderer agent experiment — an agent with NO goal roams the apps (scroll/tap/type like the owner), reports and/or fixes bugs, visibly claims what it's checking so agents never collide. Replaces the owner as bug-finder.
 - 2026-09-13 (owner): stacked/AI-laid-out tables — columns stack instead of stretching rows; layout configurable per table; AI proposes layout from expected cell sizes.
 - 2026-09-13 (owner): player experiment with levels — an agent plays every app and shows its ideas publicly; agents decide/implement/test at L1 (page works) and L2 (page lets users create WINNING strategies); levels keep "it renders" separate from "it earns".
