@@ -32,6 +32,10 @@ Two obligations, always together:
      sentence, no jargon (e.g. "Your radar card now shows top movers with one tap | tech: ...").
    - After `|` = numbers a builder needs. The board defaults to showing
      the simple half; tech/both is a user toggle (never remove either half).
+6. DATA PULSE: every track's own UI answers, with no asking needed: is it
+   sampling (rows + last-sample age + cadence), what is its proof score
+   now (with delta), which version serves (best/latest + sha). The e062
+   card's data/rung/score lines are the pattern — copy them, don't reinvent.
 
 ## WHAT TO DO THIS LEG (in order)
 
