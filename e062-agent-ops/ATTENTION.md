@@ -13,6 +13,7 @@ fixing confusion before it is reported) are the real score.
 | 2026-09-13 | e058 | main section untitled (top/filters/alerts/signals named, main not) | owner | ~8 | no section-names rule |
 | 2026-09-13 | all | config boxes stacked vertically, unaligned | owner | ~8 | no forms rule; AI-default stacking accepted |
 | 2026-09-13 | all | paper slip = clipboard trick, never used; sharing needs a pretty page | owner | — | slip built for dev convenience, not human sharing |
+| 2026-09-13 | e058 | top section undecodable: bare `flippy/legs swapping`, `(new)`, unlabeled `\|/·` stats, bare `v` hash, `paper 75 logged` with no when | owner | ~8 | dense line never read aloud by a leg; fixed direct 2026-09-13 |
 
 ## Rules for legs
 

@@ -47,3 +47,19 @@ Already standing law: one-line verdict a stranger understands,
 exact numbers behind a tap. New rule from this review: labels must
 survive the "read it aloud" test — `urgent if bigger ×` fails it,
 `wake me anytime if spread ≥ 3× threshold` passes it.
+
+## 8. Decode the dense line (owner 2026-09-13, from e058 top section)
+
+If the owner must parse punctuation (`|` vs `·`) to understand a
+line, the line is broken. Rules:
+
+- Every subsection has a visible name (`data:`, `backtest:`,
+  `paper:`, `version`) — never bare values, never a bare hash.
+- Jargon carries its own explanation inline: `flippy` is not a word
+  the owner knows — `flippy — edge moves between X and Y` is.
+  `(new)` means nothing — `(no history yet)` does.
+- Counts that depend on time say so: `paper: 75 logged today,
+  grades after 24h` — a bare `75 logged` leaves the only question
+  that matters (`when do I learn?`) unanswered.
+- Comprehension budget: nothing on screen should take minutes to
+  decode. If it does, the app failed, not the reader.
