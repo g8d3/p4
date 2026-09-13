@@ -17,5 +17,5 @@ echo "== sample $(date -u +%Y%m%dT%H%M%SZ) =="
 python3 "$DIR/bin/load.py"
 # conclusions-only alert (deduped inside alert.py) + fleet heartbeat; never fail the sample
 python3 "$DIR/bin/alert.py" --no-endpoint --sink ntfy >> "$DIR/sample.log" 2>&1 || true
-python3 /home/vuos/code/p4/e062-agent-ops/bin/ops.py beat e058 ok "cron sample" >> "$DIR/sample.log" 2>&1 || true
+python3 /home/vuos/code/p4/e062-agent-ops/bin/ops.py beat e058 ok "Your money scanner is watching funding rates for steady pays | tech: cron sample $(date -u +%H:%MZ)" >> "$DIR/sample.log" 2>&1 || true
 echo "sample OK"
