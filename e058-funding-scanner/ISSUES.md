@@ -24,11 +24,15 @@ e.g. `wake me anytime if spread ≥ [3]× threshold`. Behavior unchanged.
 Today: the coin filter filters the main table, silently skips the
 signals section. Wanted: one rule — filter applies to every section
 including signal history, or the filter names what it skips.
+(Status 2026-09-13: row tap no longer filters at all — tap opens a
+coin detail with an explicit `filter to X` button + ✕. Deliberate
+filtering lives in the filter box; mis-taps cost nothing.)
 
-## 4. Title the main section (UX §3)
+## 4. Title the main section (UX §3, fixed 2026-09-13 direct)
 
-Top / filters / alerts / signals are named; the last (main) table
-isn't. Wanted: a title (e.g. `coins`), so dev and user can point at it.
+Shipped: `coins` title bar with live count + shared `.secttl` style +
+coin detail card on row tap (full stats, paid record, explicit
+filter/clear).
 
 ## 5. Align the config boxes (UX §5)
 

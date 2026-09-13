@@ -204,10 +204,10 @@ button{cursor:pointer}button:disabled{opacity:.4}
 .thumbbar button{flex:1;padding:12px 8px;font-size:15px}
 details.cfg{border:1px solid var(--bd);border-radius:8px;padding:6px;margin:8px 0;font-size:13px}
 details.cfg summary{cursor:pointer}
-.pos{color:#3ddc84}</style></head><body>
+.pos{color:#3ddc84}.secttl{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.9;margin:10px 0 4px;padding:6px 10px;background:rgba(127,127,127,.14);border-radius:8px}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
-<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row>%%TOPROW%%</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady \u2713 = held every check with solid backing \u00b7 new = first day, holding so far \u00b7 watch = thin backing \u2014 tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
+<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row>%%TOPROW%%</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady \u2713 = held every check with solid backing \u00b7 new = first day, holding so far \u00b7 watch = thin backing \u2014 tap a coin for detail. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
 <details class=cfg id=fc><summary id=f-sum>Filter: all coins, top pay first (tap to narrow)</summary>
 <div id=f style="margin-top:6px">
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
@@ -233,6 +233,8 @@ details.cfg summary{cursor:pointer}
 <div class=twrap><table><thead><tr><th>sent</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
 <div id=pb style="margin:8px 0"><details><summary><b>paper ballot</b> <small id=pb-sum>(today's predictions, newest first)</small></summary><div style="font-size:12px;opacity:.7;margin:4px 0" id=pb-rule>hit = spread still \u226520bps a day later</div> <button onclick=loadPaper() style="padding:2px 8px;font-size:12px">refresh</button>
 <div class=twrap><table><thead><tr><th>coin</th><th>entry APY%</th><th>long\u2192short</th><th>logged</th><th>status</th></tr></thead><tbody id=pb-b></tbody></table></div></details></div>
+<div class=secttl>coins <small id=coins-sum style="text-transform:none;letter-spacing:0;opacity:.7"></small></div>
+<div id=coinDetail style="margin:4px 0;font-size:13px"></div>
 <div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table></div>
 <div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small> <button id=moreb onclick="showAll()" style="display:none;padding:6px 12px;font-size:13px">show all</button></div>
@@ -244,13 +246,14 @@ function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n
 let allRows=[], showN=100, backPC={};
 function paidTag(c){const s=backPC[c];return s?` <small style="opacity:.65">${s.hit}/${s.n}</small>`:' <small style="opacity:.65">no history yet</small>';}
 function rowHtml(r){return `<tr onclick="pickCoin('${r.coin}')" style="cursor:pointer"><td>${r.coin}${paidTag(r.coin)}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
-function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
+function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`all ${allRows.length} by pay`;const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
 async function load(){showN=100;const g=id=>document.getElementById(id).value;
 try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)backPC=b.per_coin;}catch(e){}
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=locTs(d.ts||'')||'no data';
 allRows=d.rows||[];const total=(d.count??allRows.length);
 document.getElementById('c').textContent=`showing ${Math.min(showN,allRows.length)} of ${total}`;
+const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`top ${Math.min(showN,allRows.length)} of ${total} by pay`;
 const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: top ${Math.min(showN,allRows.length)} of ${total}${qq?' matching '+qq:''}, best pay first (tap to narrow)`;}
 document.getElementById('b').innerHTML=allRows.slice(0,showN).map(rowHtml).join('');
 const mc=document.getElementById('morec'),mb=document.getElementById('moreb');if(allRows.length>showN){if(mc)mc.textContent=`top 100 by pay — tap show all for ${total}`;if(mb)mb.style.display='';}else{if(mc)mc.textContent=allRows.length?`${allRows.length} coins`:'no coins match';if(mb)mb.style.display='none';}}
@@ -277,7 +280,9 @@ let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.
 const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
 one.textContent=`Top pays now: ${t.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r,!!pc[r.coin])}${held(r.coin)}`).join(' · ')}`;
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r,!!pc[r.coin])}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
-function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
+function pickCoin(c){const r=(allRows||[]).find(x=>x.coin===c);const el=document.getElementById('coinDetail');if(!r){if(el)el.innerHTML='';return;}const pc=backPC[c];if(el)el.innerHTML=`<b>${c}</b> <span class=pos>${r.apy}% APY</span> · spread ${r.spread_bps}bps · long ${r.long} ${r.long_bps} / short ${r.short} ${r.short_bps} · legs ${r.n_legs} · OI ${r.oi_rank??'500+'} · paid ${pc?pc.hit+'/'+pc.n:'no history yet'} <button onclick="qFilter('${c}')" style="padding:2px 8px">filter to ${c}</button> <button onclick="clearCoin()" style="padding:2px 8px">✕</button>`;if(el)el.scrollIntoView({block:'nearest'});}
+function qFilter(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();}
+function clearCoin(){const el=document.getElementById('coinDetail');if(el)el.innerHTML='';clearQ();}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
 function clearQ(){document.getElementById('q').value='';load();document.getElementById('top').scrollIntoView();}
 async function copySlip(){const sc=document.getElementById('slipc');try{if(!lastTop.length)await loadTop();if(!lastTop.length){if(sc)sc.textContent='nothing steady right now';return;}const best=lastTop.find(r=>r.verdict==='STEADY')||lastTop[0];const s=best.paper||`PAPER e058 ${best.coin} ${best.median_apy}%`;await navigator.clipboard.writeText(s);if(sc)sc.textContent=`copied ${best.coin} — paste anywhere`;}catch(e){try{const best2=(lastTop.find(r=>r.verdict==='STEADY')||lastTop[0]||{});prompt('Copy paper slip:',best2.paper||'');if(sc)sc.textContent='copy it by hand';}catch(e2){if(sc)sc.textContent='copy blocked';}}}
