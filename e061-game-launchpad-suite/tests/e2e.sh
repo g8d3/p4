@@ -34,4 +34,8 @@ EOF
 
 # no secrets in served page (static demo must stay key-free)
 grep -qiE "sk-|api[_-]?key|mnemonic|private[_-]?key" /tmp/e61_root.html && fail "possible secret in page"
+code=$(curl -s -m 10 "$BASE/version.json" -o /tmp/e61_version.json -w "%{http_code}") || fail "version.json unreachable"
+[ "$code" = "200" ] || fail "version.json http=$code"
+HEAD=$(git log -1 --format=%h -- e061-game-launchpad-suite 2>/dev/null || echo "?")
+grep -q "$HEAD" /tmp/e61_version.json || fail "version.json stale (run bin/version.sh)"
 echo "E2E PASS ($BASE)"

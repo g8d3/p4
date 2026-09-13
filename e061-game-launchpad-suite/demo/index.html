@@ -21,7 +21,8 @@
 </style>
 </head>
 <body>
-<h1>e061 Suite Slice <small>(demo, rung-1: runs locally)</small></h1>
+<h1>e061 Suite Slice <small>(demo, rung-1: runs locally)</small> <small id="ver" style="font-weight:normal;font-size:12px"></small></h1>
+<script>fetch('version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit;}).catch(()=>{});</script>
 <details class="box"><summary>Play → 7 coins → win → test buy (no funds).</summary>
 <p>Spec slice: play e046 canvas → 7 coins → win screen → one e052 test buy (fail-closed) + one e057 warning card. No wallet, no funds, no mainnet.</p></details>
 
