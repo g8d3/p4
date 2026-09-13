@@ -147,7 +147,10 @@ async function load() {
   window._board = d;
   try { window._report = (d.prefs && d.prefs.report) || window._report || 'simple'; } catch (e) {}
   try { paintReportSeg(); } catch (e) {}
-  document.getElementById('ts').textContent = new Date().toISOString().slice(11, 16) + 'Z';
+  try {
+    const _d = new Date(), _p = function(n) { return (n < 10 ? '0' : '') + n; };
+    document.getElementById('ts').textContent = _p(_d.getHours()) + ':' + _p(_d.getMinutes()) + ' local';
+  } catch (e) {}
   const waitByTrack = {};
   (d.notes || []).forEach(n => { waitByTrack[n.track] = (waitByTrack[n.track] || 0) + 1; });
   (d.proposals || []).filter(p => p.status === 'pending').forEach(p => { waitByTrack[p.track] = (waitByTrack[p.track] || 0) + 1; });
@@ -162,7 +165,7 @@ async function load() {
     ((waitByTrack[t.track] || 0) ? '<button class=needbadge title="notes + money gates waiting for you — tap to see" onclick="event.stopPropagation();waitFor(\'' + t.track + '\')">●' + waitByTrack[t.track] + ' waiting</button>' : '') +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
-    '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (t.beat.ts + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
+    '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
@@ -417,8 +420,13 @@ function renderWidgets() {
   window._widgets.forEach(function(w, wi) { renderWidgetCards(wi); });
 }
 function shortTime(t) {
-  const m = String(t || '').match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2})/);
-  return m ? (m[2] + '/' + m[3] + ' ' + m[4]) : String(t || '');
+  // server stores UTC; the phone/computer shows ITS local time — no more UTC math
+  try {
+    const d = new Date(String(t).replace(' ', 'T') + 'Z');
+    if (isNaN(d)) return String(t || '');
+    const p = function(n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getMonth() + 1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  } catch (e) { return String(t || ''); }
 }
 function sesChips(wi, r) {
   if (r.kind === 'session' && r.runid) {
@@ -474,7 +482,7 @@ function groupTime(g) {
   try {
     const d = new Date(g.latest);
     const p = function(n) { return (n < 10 ? '0' : '') + n; };
-    return p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
+    return p(d.getMonth() + 1) + '/' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
   } catch (e) { return ''; }
 }
 function groupCard(wi, g, ggi) {
