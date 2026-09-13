@@ -35,3 +35,4 @@ Nothing here is committed.
 - 2026-09-13 (agent run #62): e058 paper-slip shareables as pretty pages (UX law) — clipboard slip pasted anywhere loses coin context; render a pretty per-coin slip page (coin, entry APY, paid record, 24h window) shareable from the phone.
 - 2026-09-13 (agent run #63): e058 grade-window everywhere — pulse now shows its window but per-coin paid (6/6) still hides its dates; add window to coin detail + top picks held-record so new-vs-proven reads in one tap.
 - 2026-09-13 (agent): e060 guard-word audit fleet-wide — "hot/quiet/watch only" hedges stack on disqualified tops; every track's verdict leads with the actionable state (buy/watch/cold), never the lure word.
+- 2026-09-13 (agent run #65): e058 lead-with-proof rule everywhere — top picks tier-sort proven-steady first so the biggest number is always the most holdable; apply the same tier to paper ballot + signal history so no list in any track ever leads with its lure.

@@ -276,9 +276,11 @@ let lastTop=[];
 function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;if(v==='STEADY'&&!hasH)return 'new \u2014 holding so far';return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
-const t=(d.rows||[]).slice(0,3);lastTop=t;
-if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHTML='';return;}
 let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)pc=b.per_coin;}catch(e){}
+const _tier=r=>[(r.verdict==='STEADY'?(pc[r.coin]?0:1):r.verdict==='WATCH'?2:3),-(+r.median_apy||0)];
+const _s=(a,b)=>{const x=_tier(a),y=_tier(b);return (x[0]-y[0])||(x[1]-y[1]);};
+const t=(d.rows||[]).slice().sort(_s).slice(0,3);lastTop=t;
+if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHTML='';return;}
 const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
 one.textContent=`Top pays now: ${t.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r,!!pc[r.coin])}${held(r.coin)}`).join(' · ')}`;
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r,!!pc[r.coin])}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
@@ -546,12 +548,23 @@ def _server_card():
         steady = persistence(threshold_bps=PAPER_THRESHOLD_BPS, last_n=4).get('rows', [])
     except Exception:
         steady = []
-    t3 = steady[:3]
     try:
         _b = json.load(open(os.path.join(BASE, 'backtest.json')))
         _pc = _b.get('per_coin', {}) if _b.get('ok') else {}
     except Exception:
         _pc = {}
+    # Lead with what the owner can act on: proven steady first, thin-backing
+    # watch never leads the card (fleet-wide lure-lead fix, cf e060 run #64).
+    def _tier(r):
+        t = {'STEADY': 0, 'WATCH': 2, 'FLIPPY': 3}.get(r.get('verdict'), 1)
+        if r.get('verdict') == 'STEADY' and r.get('coin') not in _pc:
+            t = 1  # new: holding so far, no 24h record yet
+        try:
+            pay = -float(r.get('median_apy') or 0)
+        except (TypeError, ValueError):
+            pay = 0
+        return (t, pay)
+    t3 = sorted(steady, key=_tier)[:3]
     def _held(coin):
         st = _pc.get(coin)
         return f" ({st['hit']}/{st['n']} paid)" if st else ''
@@ -581,7 +594,17 @@ def _server_card():
         else:
             today = now.strftime('%Y-%m-%d')
             tc = pc.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (today,)).fetchone()[0]
-            ph = f"paper: {tc} logged today, grades after 24h" if tc else 'paper: logging'
+            try:
+                _old = pc.execute('SELECT MIN(logged_ts) FROM paper_calls LEFT JOIN paper_outcomes USING (call_date, coin) WHERE paper_outcomes.coin IS NULL').fetchone()[0]
+            except Exception:
+                _old = None
+            _cd = ''
+            _ob = _parse_ts(_old) if _old else None
+            if _ob:
+                _h = 24 - (now - _ob).total_seconds() / 3600
+                if _h > 0:
+                    _cd = f", first grade ~{_h:.0f}h"
+            ph = f"paper: {tc} logged today, grades after 24h{_cd}" if tc else 'paper: logging'
         pc.close()
     except Exception:
         ph = 'paper: logging'
