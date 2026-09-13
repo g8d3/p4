@@ -234,7 +234,7 @@ details.cfg summary{cursor:pointer}
 <div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table></div>
 <div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small> <button id=moreb onclick="showAll()" style="display:none;padding:6px 12px;font-size:13px">show all</button></div>
-<div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="copySlip()">copy slip</button><button onclick="fltGo()">filter</button></div>
+<div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="copySlip()">copy slip</button><button onclick="fltGo()">filter</button><button onclick="clearQ()">✕ clear</button></div>
 <div id=ver style="font-size:11px;opacity:.6;margin:56px 0 8px"></div>
 <script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
@@ -272,6 +272,7 @@ one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% 
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
+function clearQ(){document.getElementById('q').value='';load();document.getElementById('top').scrollIntoView();}
 async function copySlip(){const sc=document.getElementById('slipc');try{if(!lastTop.length)await loadTop();if(!lastTop.length){if(sc)sc.textContent='nothing steady right now';return;}const best=lastTop.find(r=>r.verdict==='STEADY')||lastTop[0];const s=best.paper||`PAPER e058 ${best.coin} ${best.median_apy}%`;await navigator.clipboard.writeText(s);if(sc)sc.textContent=`copied ${best.coin} — paste anywhere`;}catch(e){try{const best2=(lastTop.find(r=>r.verdict==='STEADY')||lastTop[0]||{});prompt('Copy paper slip:',best2.paper||'');if(sc)sc.textContent='copy it by hand';}catch(e2){if(sc)sc.textContent='copy blocked';}}}
 function topGo(){document.getElementById('top').scrollIntoView();loadTop();}
 load();loadCfg();loadSig();loadTop();</script></body></html>"""
