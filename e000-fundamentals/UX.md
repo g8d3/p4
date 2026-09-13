@@ -48,6 +48,29 @@ exact numbers behind a tap. New rule from this review: labels must
 survive the "read it aloud" test — `urgent if bigger ×` fails it,
 `wake me anytime if spread ≥ 3× threshold` passes it.
 
+## 9. Tables are SQL-grade surfaces (owner 2026-09-13, from e060)
+
+A fixed read-only table is a screenshot, not a tool. Every table in
+every app must support: sort on EVERY column (tap header), text
+filter, column show/hide, grouping where rows have a natural key
+(chain, venue, verdict). No new pages for this — the grid lives
+inside its named section (UX §3), scrolls inside, sticky header
+(standing mobile law). And every computed column explains itself:
+tap the header → formula + inputs (extends §7: `heat` is not allowed
+to be a mystery number with its recipe in a details block nobody
+opens).
+
+## 10. Tables grow both ways, agents suggest the columns (owner 2026-09-13, from e060)
+
+Rows AND columns grow on user ask, in the app, immediately.
+Computed columns are the agent's job to SUGGEST ("you keep
+comparing X and Y — want a Z column?"), not the user's job to
+specify. The backend legs do the same unprompted: propose
+schema/data extensions, version them, test them, ship them — and
+use the apps themselves to create and test strategies (dogfood
+rule: no strategy ships that the legs haven't watched on the
+board).
+
 ## 8. Decode the dense line (owner 2026-09-13, from e058 top section)
 
 If the owner must parse punctuation (`|` vs `·`) to understand a
