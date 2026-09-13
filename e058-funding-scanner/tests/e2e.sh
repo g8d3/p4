@@ -95,4 +95,7 @@ assert all(r.get("paper", "").startswith("PAPER e058") for r in rows), "paper sl
 print("verdict ok: STEADY present, paper slips well-formed")
 EOF
 
+out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
+echo "$out" | grep -q '"running"' || fail "version shape bad"
+echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"
 echo "E2E PASS ($BASE)"

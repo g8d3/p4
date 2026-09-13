@@ -109,6 +109,27 @@ def load_all():
 
 app = FastAPI()
 
+import subprocess as _sp
+_VSTART = int(time.time())
+try:
+    _VRUN = _sp.run(['git', 'log', '-1', '--format=%h', '--', '.'], capture_output=True,
+                    text=True, cwd=BASE).stdout.strip() or '?'
+except Exception:
+    _VRUN = '?'
+
+@app.get('/api/version')
+def version():
+    try:
+        latest = _sp.run(['git', 'log', '-1', '--format=%h', '--', '.'], capture_output=True,
+                         text=True, cwd=BASE).stdout.strip() or '?'
+        dirty = bool(_sp.run(['git', 'status', '--short', '--'] + ['e058-funding-scanner/app.py', 'e058-funding-scanner/bin/', 'e058-funding-scanner/tests/'], capture_output=True,
+                             text=True, cwd='/home/vuos/code/p4').stdout.strip())
+    except Exception:
+        latest, dirty = '?', False
+    return {'ok': True, 'track': 'e058', 'running': _VRUN,
+            'latest': latest, 'stale': _VRUN != latest,
+            'dirty': dirty, 'started_ts': _VSTART}
+
 @app.get('/api/status')
 def status():
     c = db()
@@ -208,6 +229,8 @@ details.cfg summary{cursor:pointer}
 <div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table></div>
 <div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="copySlip()">copy slip</button><button onclick="fltGo()">filter</button></div>
+<div id=ver style="font-size:11px;opacity:.6;margin:56px 0 8px"></div>
+<script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
 async function load(){const g=id=>document.getElementById(id).value;
