@@ -1,0 +1,71 @@
+{
+ "0x724a163f0081fA1771590Dda9b55eDDe2c5B823a": {
+  "network": "robinhood",
+  "pool": "robinhood_0x4c25338827fb1227ee9d021320f8c282d613ecf8180cbfdf3e27e5a764c978ff",
+  "pool_addr": "0x4c25338827fb1227ee9d021320f8c282d613ecf8180cbfdf3e27e5a764c978ff",
+  "px_usd": "0.0008219203134",
+  "ts": 1789338734
+ },
+ "0x9E410F73143C08A6A61Db99075Ba77895B4CE858": {
+  "network": "robinhood",
+  "pool": "robinhood_0xc2110f58c8143b981bac231b71ac5cc3bb32f8badff16768db6895104a787151",
+  "pool_addr": "0xc2110f58c8143b981bac231b71ac5cc3bb32f8badff16768db6895104a787151",
+  "px_usd": "0.000002945069544",
+  "ts": 1789338736
+ },
+ "2HFakYaUp8au5oZThEvZ8wvSqoTreTQAvqtvoKarpump": {
+  "network": "solana",
+  "pool": "solana_GDv74w6ALCmH6Yg7sZw46L2Q6nhbTBFJkPnQCaQcKr5B",
+  "pool_addr": "GDv74w6ALCmH6Yg7sZw46L2Q6nhbTBFJkPnQCaQcKr5B",
+  "px_usd": "0.000002304523747",
+  "ts": 1789338737
+ },
+ "66aBzVKucLmWvY2JEU5CjAYcUSz7YcpoBDfXXWV9pump": {
+  "network": "solana",
+  "pool": "solana_Hq2mjD6bVncRiTaQnaQSDkjEubzJuuZa35trHJthbEuv",
+  "pool_addr": "Hq2mjD6bVncRiTaQnaQSDkjEubzJuuZa35trHJthbEuv",
+  "px_usd": "0.000002119943891",
+  "ts": 1789338739
+ },
+ "84uuSMjPYDEAcsr8FXoBvCK2HwZS94c6BA8kk4jNpump": {
+  "network": "solana",
+  "pool": "solana_4WqrYJ1PfoB5Mjr9WCvRDLFLWWvD8nrufxvqEQSz65KZ",
+  "pool_addr": "4WqrYJ1PfoB5Mjr9WCvRDLFLWWvD8nrufxvqEQSz65KZ",
+  "px_usd": "0.00000214589787",
+  "ts": 1789338801
+ },
+ "BGU4TfDLpV1JeJGXVgSbZkLSRxgAzcsQci1vEbaWJVcm": {
+  "network": "solana",
+  "pool": "solana_HKPrXoz4EqJ5HU9m9PmTTTxSRwoB2Hbknd6UqUTsf2Yt",
+  "pool_addr": "HKPrXoz4EqJ5HU9m9PmTTTxSRwoB2Hbknd6UqUTsf2Yt",
+  "px_usd": "0.00002230656955",
+  "ts": 1789338804
+ },
+ "CmXSStKTHrVLyvCDPzPoCkjYt5aMpG6p3c88yPpbfmpx": {
+  "network": "solana",
+  "pool": "solana_k933jD3Tt1rpCeanwDsFAHEmVTejbhSgVHRN7swjAne",
+  "pool_addr": "k933jD3Tt1rpCeanwDsFAHEmVTejbhSgVHRN7swjAne",
+  "px_usd": "0.000003857945385",
+  "ts": 1789338808
+ },
+ "DEbvZt2QRA8yqNj2Lvsn8JdWjTmZS4yajwpzYL4ypump": {
+  "network": "solana",
+  "pool": "solana_29Mb1iF9Whpm2G1SXQkiZut9zs5NDBsgcf9bz9TzuFhC",
+  "pool_addr": "29Mb1iF9Whpm2G1SXQkiZut9zs5NDBsgcf9bz9TzuFhC",
+  "px_usd": "0.000002254504458",
+  "ts": 1789338811
+ },
+ "FLk6FKAN26m1FT4ucguwy3uHBMzLKcEu8KMTYD2Zpump": {
+  "network": "solana",
+  "pool": "solana_8Tfvhwk6swWCjo7DNKrp89wWqrTdj6o9HBoDhfXT2dy6",
+  "pool_addr": "8Tfvhwk6swWCjo7DNKrp89wWqrTdj6o9HBoDhfXT2dy6",
+  "px_usd": "0.0001786874153",
+  "ts": 1789338850
+ },
+ "_meta": {
+  "ts": 1789338853,
+  "tokens": 9,
+  "resolved": 9,
+  "source": "geckoterminal-free"
+ }
+}

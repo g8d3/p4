@@ -94,3 +94,20 @@ N<20 resolved = THIN: never propose real money on THIN.
   deep red) — cap halves the bleed intraday, still COLD, still THIN (needs
   N>=20 resolved 24h). Canonical 24h grade ~10h out (18 pending, 0 resolved,
   blocked-on-time).
+- RUN #69 DATA+POWER (FREE, GeckoTerminal no-key, T1 $0): STUCK RULE fired —
+  worthy-hit-rate 0/0 flat 4 legs, so this leg ADDS free data instead of
+  re-grading. NEW bin/pools_backfill.py resolves every pending worthy token
+  to its top GeckoTerminal pool (chain map solana/robinhood, 3s pacing,
+  skip-fresh 24h, idempotent) → paper/pools.json {token: network/pool/
+  pool_addr/px_usd/ts}. Coverage 2026-09-13 ~22:35Z: 9/9 pools (7 solana +
+  2 robinhood — GeckoTerminal knows the robinhood network). Resolver run
+  same leg: resolved=0 pending=18 new=0 (first grade ~7h, blocked-on-time).
+  Next: resolver pool-OHLCV fallback so vanished tokens still grade (fewer
+  dropped outcomes, faster N>=20). POWER (saved data put to work):
+  early_read now carries tracked = usable/priced ("4/8") + tracked_partial,
+  surfaced one-line in the verdict + /api/paper + JS suffix ("4/8 still
+  tracked") — owner sees half today's calls already left the boost universe
+  with no extra tap. Mizzy -99.5% VERIFIED REAL (direct Dexscreener:
+  0.000002307 vs entry 0.0004337; CATFLIGHT 0.000002287 — both dead
+  pump.fun dust at the same floor, not a price bug). WORTHY-1 still PAPER,
+  WORTHY-2c still THIN shadow.
