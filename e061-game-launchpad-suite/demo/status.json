@@ -2,7 +2,7 @@
  "analytics": "unattested",
  "anvilRunning": false,
  "chain": "none",
- "disableReason": "pair not deployed / chain not anvil (expected: slice is fail-closed without e052 anvil-fork)",
+ "disableReason": "test buys unlock when the demo coin is deployed (not yet — play and paper slips work now)",
  "feeSplits": {
   "buybackBurnPot": "1%",
   "creator": "0.5%",

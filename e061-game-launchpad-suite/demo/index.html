@@ -113,8 +113,8 @@ function fillSlip(coins, max, perfect) {
   var body = 'PAPER SLIP (no funds, demo only)\n'
     + 'result: ' + coins + '/' + max + (perfect ? ' PERFECT' : '') + ' @ ' + when + '\n'
     + 'level: goal reached with ' + coins + ' coins (e046 run)\n'
-    + 'kill rule: no CONFETTI buys — skip any token without a level + a quit line\n'
-    + 'fee note: 1% pot / 0.5% creator / 0.25% escrow observed only';
+    + 'safety: only touch tokens that have a level and a quit line\n'
+    + 'fees: 1% pot / 0.5% creator / 0.25% escrow (watched, not charged)';
   txt.textContent = body;
   try { localStorage.setItem('e061-slip', body); } catch (e) {}
   var rs = saveRun(coins);
@@ -189,10 +189,10 @@ fetch('status.json').then(r => r.json()).then(s => {
   b.textContent = 'chain: ' + s.chain + ' | pair: ' + s.pair;
   b.className = 'badge ' + (s.anvilRunning ? 'on' : 'off');
   document.getElementById('disableReason').textContent =
-    s.anvilRunning ? '' : ('Disabled (fail-closed): ' + s.disableReason);
+    s.anvilRunning ? '' : ('Test buys locked: ' + s.disableReason);
   document.getElementById('claim').disabled = !s.anvilRunning;
 }).catch(() => {
-  document.getElementById('disableReason').textContent = 'Disabled (fail-closed): status.json unreachable';
+  document.getElementById('disableReason').textContent = 'Test buys locked: game status unreachable';
 });
 </script>
 </body>
