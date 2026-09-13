@@ -6,15 +6,15 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-12T14:03:27Z",
- "n_signals": 162,
- "n_hit": 84,
- "hit_rate_pct": 51.9,
+ "window_last": "2026-09-12T15:17:53Z",
+ "n_signals": 190,
+ "n_hit": 102,
+ "hit_rate_pct": 53.7,
  "median_apy_decay": 1.0,
  "per_coin": {
   "AI": {
-   "n": 13,
-   "hit": 12
+   "n": 16,
+   "hit": 14
   },
   "BAND": {
    "n": 1,
@@ -25,31 +25,35 @@
    "hit": 0
   },
   "DEEP": {
-   "n": 24,
-   "hit": 8
+   "n": 29,
+   "hit": 13
   },
   "GPRO": {
    "n": 1,
    "hit": 0
   },
   "IP": {
-   "n": 30,
-   "hit": 30
+   "n": 35,
+   "hit": 35
   },
   "JUP": {
-   "n": 30,
-   "hit": 30
+   "n": 35,
+   "hit": 35
   },
   "KAITO": {
    "n": 16,
    "hit": 0
   },
+  "MORPHO": {
+   "n": 3,
+   "hit": 1
+  },
   "ONG": {
-   "n": 12,
+   "n": 14,
    "hit": 0
   },
   "TREE": {
-   "n": 30,
+   "n": 35,
    "hit": 1
   },
   "WAL": {
@@ -65,7 +69,7 @@
    "hit": 2
   }
  },
- "computed_ts": "2026-09-13T14:33:21Z",
+ "computed_ts": "2026-09-13T15:31:28Z",
  "elapsed_s": 0.9,
- "summary": "51.9% of steady calls still paying 24h later (84/162, median APY kept 1.0x)"
+ "summary": "53.7% of steady calls still paying 24h later (102/190, median APY kept 1.0x)"
 }
