@@ -270,6 +270,58 @@ async def api_login(req: Request):
     if _hash(pw, salt) != want: return {'ok': False, 'error': 'wrong password'}
     return _login_cookie(name, r[2], r[0])
 
+def _rp(req):
+    # rp id + origin from the Host header (tailnet name on phone, loopback dev)
+    host = (req.headers.get('host') or '').split(':')[0].strip() or 'localhost'
+    scheme = (req.headers.get('x-forwarded-proto') or req.url.scheme or 'https').split(',')[0].strip()
+    if 'localhost' in host or host in ('127.0.0.1', '[::1]'):
+        scheme = 'https'
+    return host, scheme + '://' + (req.headers.get('host') or host)
+
+@app.post('/api/webauthn/register/options')
+async def api_wa_reg_opt(req: Request):
+    err, me = need_login(req)
+    if err: return err
+    import webauthn as _wa
+    rp_id, origin = _rp(req)
+    return {'ok': True, 'options': _wa.register_options(DB, me['id'], me['name'], rp_id, origin)}
+
+@app.post('/api/webauthn/register/verify')
+async def api_wa_reg_verify(req: Request):
+    err, me = need_login(req)
+    if err: return err
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    import webauthn as _wa
+    cred, verr = _wa.register_verify(DB, me['id'], d)
+    if verr: return {'ok': False, 'error': verr}
+    return {'ok': True, 'registered': True}
+
+@app.post('/api/webauthn/login/options')
+async def api_wa_login_opt(req: Request):
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    name = str(d.get('name') or '').strip()[:32]
+    if not name: return {'ok': False, 'error': 'name first'}
+    c = sqlite3.connect(DB)
+    r = c.execute('SELECT id FROM users WHERE name=?', (name,)).fetchone()
+    c.close()
+    if not r: return {'ok': False, 'error': 'no such account — register first'}
+    import webauthn as _wa
+    rp_id, origin = _rp(req)
+    opts, oerr = _wa.login_options(DB, r[0], rp_id, origin)
+    if oerr: return {'ok': False, 'error': oerr}
+    return {'ok': True, 'options': opts}
+
+@app.post('/api/webauthn/login/verify')
+async def api_wa_login_verify(req: Request):
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    import webauthn as _wa
+    u, verr = _wa.login_verify(DB, d)
+    if verr: return {'ok': False, 'error': verr}
+    return _login_cookie(u['name'], u['role'], u['uid'])
+
 @app.post('/api/logout')
 async def api_logout(req: Request):
     try: tok = (req.cookies.get(AUTH_COOKIE) or '').strip()
@@ -523,4 +575,11 @@ def index():
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('E062_PORT', '8322')))
+    _crt = os.path.expanduser('~/.config/e062/tail.crt')
+    _key = os.path.expanduser('~/.config/e062/tail.key')
+    _ssl = {'ssl_certfile': _crt, 'ssl_keyfile': _key} if (
+        os.path.isfile(_crt) and os.path.isfile(_key)) else {}
+    # https on :8322 (valid tailnet cert -> Secure Context -> passkeys work
+    # from the phone; localhost over https too, cert name only matches the
+    # tailnet hostname so local clients skip verification)
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('E062_PORT', '8322')), **_ssl)

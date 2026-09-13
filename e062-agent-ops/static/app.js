@@ -6,12 +6,18 @@ function renderAuth() {
   if (!box) return;
   const me = window._me;
   if (me) {
+    const pk = (window.PublicKeyCredential && window.isSecureContext);
     box.innerHTML = '<b>' + esc(me.name) + '</b> <span style="opacity:.6">(' + esc(me.role) + ')</span> ' +
+      (pk ? '<button onclick="pkAdd(this)" title="face/fingerprint on this device">＋passkey</button>' : '') +
       '<button onclick="logout(this)">logout</button>';
   } else {
+    const pk = (window.PublicKeyCredential && window.isSecureContext);
     box.innerHTML = '<input id=au-n placeholder="name" style="width:80px" aria-label="account name">' +
       '<input id=au-p type=password placeholder="password" style="width:80px" aria-label="password">' +
-      '<button onclick="login(this)">login</button><button onclick="register(this)" title="first account becomes admin">register</button>';
+      '<button onclick="login(this)">login</button>' +
+      (pk ? '<button onclick="pkLogin(this)" title="face/fingerprint, nothing to remember">\ud83d\udd11 passkey</button>' : '') +
+      '<button onclick="register(this)" title="first account becomes admin">register</button>' +
+      (pk ? '' : '<div style="font-size:10px;opacity:.6">passkeys need https (this page is http here)</div>');
   }
 }
 function authCreds() {
@@ -45,6 +51,74 @@ async function register(btn) {
     }
     else { alert(r.error || 'register failed'); btn.textContent = 'register'; }
   } catch (e) { alert(String(e)); btn.textContent = 'register'; }
+}
+function pkB64e(a) {
+  const b = new Uint8Array(a);
+  let s = '';
+  for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function pkB64d(s) {
+  s = String(s || '').replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  const b = atob(s), a = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+  return a.buffer;
+}
+function pkOptions(o, isCreate) {
+  // binary fields by NAME (heuristics break short ids like user.id)
+  o = Object.assign({}, o);
+  o.challenge = pkB64d(o.challenge);
+  if (isCreate) {
+    o.user = Object.assign({}, o.user, {id: pkB64d(o.user.id)});
+    o.excludeCredentials = (o.excludeCredentials || []).map(function(c) {
+      return Object.assign({}, c, {id: pkB64d(c.id)});
+    });
+  } else {
+    o.allowCredentials = (o.allowCredentials || []).map(function(c) {
+      return Object.assign({}, c, {id: pkB64d(c.id)});
+    });
+  }
+  return o;
+}
+async function pkAdd(btn) {
+  btn.textContent = '\u2026';
+  try {
+    const o = await (await fetch('/api/webauthn/register/options', {method: 'POST'})).json();
+    if (!o.ok) { alert(o.error || 'failed'); btn.textContent = 'passkey'; return; }
+    const cred = await navigator.credentials.create({publicKey: pkOptions(o.options, true)});
+    const pay = {id: cred.id, rawId: cred.id,
+      response: {clientDataJSON: pkB64e(cred.response.clientDataJSON),
+                 attestationObject: pkB64e(cred.response.attestationObject)},
+      transports: (cred.response.getTransports ? cred.response.getTransports() : [])};
+    const v = await (await fetch('/api/webauthn/register/verify', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(pay)})).json();
+    alert(v.ok ? 'passkey added on this device — next login is name + touch' : (v.error || 'failed'));
+  } catch (e) { alert('cancelled or unavailable: ' + String(e).message || e); }
+  if (btn.parentNode) load();
+}
+async function pkLogin(btn) {
+  const n = document.getElementById('au-n');
+  const name = (n && n.value || '').trim();
+  if (!name) { alert('type your name first — then touch'); return; }
+  btn.textContent = '\u2026';
+  try {
+    const o = await (await fetch('/api/webauthn/login/options', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: name})})).json();
+    if (!o.ok) { alert(o.error || 'failed'); btn.textContent = '\ud83d\udd11 passkey'; return; }
+    const cred = await navigator.credentials.get({publicKey: pkOptions(o.options, false)});
+    const aresp = {clientDataJSON: pkB64e(cred.response.clientDataJSON),
+                   authenticatorData: pkB64e(cred.response.authenticatorData),
+                   signature: pkB64e(cred.response.signature)};
+    if (cred.response.userHandle) aresp.userHandle = pkB64e(cred.response.userHandle);
+    const v = await (await fetch('/api/webauthn/login/verify', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id: cred.id, rawId: cred.id, response: aresp})})).json();
+    if (v.ok) { window._me = {name: v.name, role: v.role}; renderAuth(); load(); }
+    else { alert(v.error || 'failed'); btn.textContent = '\ud83d\udd11 passkey'; }
+  } catch (e) { alert('cancelled or unavailable'); btn.textContent = '\ud83d\udd11 passkey'; }
 }
 async function logout() {
   try { await fetch('/api/logout', {method: 'POST'}); } catch (e) {}

@@ -3,7 +3,9 @@ rendered content, and UI-vs-API data correctness (phone + desktop)."""
 import json, sys, urllib.request
 from playwright.sync_api import sync_playwright
 
-BASE = 'http://127.0.0.1:8322'
+BASE = 'https://127.0.0.1:8322'
+import ssl as _ssl
+_ssl._create_default_https_context = _ssl._create_unverified_context
 api = json.load(urllib.request.urlopen(BASE + '/api/board', timeout=15))
 errors = []
 
@@ -14,8 +16,9 @@ def check(name, cond, extra=''):
 
 with sync_playwright() as pw:
     b = pw.chromium.launch()
+    _ctx = b.new_context(ignore_https_errors=True, viewport={'width': 390, 'height': 844})
     # ---------- phone ----------
-    pg = b.new_page(viewport={'width': 390, 'height': 844})
+    pg = _ctx.new_page()
     cerr = []
     pg.on('console', lambda m: cerr.append(m.text) if m.type == 'error' else None)
     pg.on('pageerror', lambda e: cerr.append(str(e)))
@@ -61,7 +64,8 @@ with sync_playwright() as pw:
     check('waiting tap sets is:waiting filter', 'is:waiting' in fval, fval)
     pg.screenshot(path='/tmp/ui-phone.png')
     # ---------- desktop ----------
-    pg2 = b.new_page(viewport={'width': 1280, 'height': 900})
+    pg2 = _ctx.new_page()
+    pg2.set_viewport_size({'width': 1280, 'height': 900})
     cerr2 = []
     pg2.on('console', lambda m: cerr2.append(m.text) if m.type == 'error' else None)
     pg2.on('pageerror', lambda e: cerr.append(str(e)))

@@ -1,16 +1,17 @@
 #!/bin/bash
 # e062 rung-3 e2e: verifies fleet board root + /api/board JSON shape. Exit nonzero on any failure.
 # Usage: tests/e2e.sh [base_url]   (default http://100.102.52.59:8322)
-BASE="${1:-http://100.102.52.59:8322}"
+BASE="${1:-https://100.102.52.59:8322}"
+CURLK="-k"
 fail() { echo "E2E FAIL: $1"; exit 1; }
 
-code=$(curl -s -m 10 -o /tmp/e62_root.html -w "%{http_code}" "$BASE/") || fail "root unreachable"
+code=$(curl -sk -m 10 -o /tmp/e62_root.html -w "%{http_code}" "$BASE/") || fail "root unreachable"
 [ "$code" = "200" ] || fail "root http=$code"
 grep -q "fleet board" /tmp/e62_root.html || fail "board missing title"
 grep -q "run fleet now" /tmp/e62_root.html || fail "run-fleet button missing"
 grep -q 'id=cards' /tmp/e62_root.html || fail "project cards missing"
 grep -q "history + message" /tmp/e62_root.html || fail "cards hint missing"
-curl -s -m 10 "$BASE/app.js" -o /tmp/e62_app.js || fail "app.js unreachable"
+curl -sk -m 10 "$BASE/app.js" -o /tmp/e62_app.js || fail "app.js unreachable"
 grep -q "sendNoteRun" /tmp/e62_app.js || fail "send+run-now flow missing"
 grep -q "sendUniNoteRun" /tmp/e62_app.js || fail "row-level send+run-now missing (owner must decide when from any row)"
 grep -q "attachDrafts" /tmp/e62_app.js || fail "run-attach-drafts missing (Run must carry typed words)"
@@ -41,11 +42,11 @@ grep -q "sqlCaption" /tmp/e62_app.js || fail "live SQL caption missing"
 grep -q "after:" /tmp/e62_app.js || fail "date WHERE tokens missing"
 grep -q "waitBanner" /tmp/e62_app.js || fail "waiting explainer banner missing"
 grep -qi "announced" /tmp/e62_root.html || fail "rung ladder explainer missing"
-out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
+out=$(curl -sk -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -q '"stale":false' || fail "server STALE — restart after edits"
 python3 -c "import json;d=json.load(open('/tmp/e62_board.json'));assert all('focus' in t for t in d['tracks'])" 2>/dev/null || {
-curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board refetch"
+curl -sk -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board refetch"
 python3 -c "import json;d=json.load(open('/tmp/e62_board.json'));assert all('focus' in t for t in d['tracks']), 'focus missing'"; } || fail "focus missing"
 grep -q "renderAuth" /tmp/e62_app.js || fail "auth UI missing"
 ! grep -q "keep at least one" /tmp/e62_app.js || fail "views still locked to min 1"
@@ -61,7 +62,7 @@ grep -q "getHours" /tmp/e62_app.js || fail "local-time conversion missing"
 grep -q "THIS LEG" bin/runner.sh 2>/dev/null || grep -q "THIS LEG" e062-agent-ops/bin/runner.sh || fail "leg identity line missing"
 grep -q "run #N" e062-agent-ops/RUNNER_PROMPT.md || fail "step run-tag contract missing"
 ! grep -q '<table' /tmp/e62_root.html || fail "page-level tables still present (must be cards)"
-curl -s -m 10 "$BASE/api/board" -o /tmp/e62_b.json || fail "board json unreachable"
+curl -sk -m 10 "$BASE/api/board" -o /tmp/e62_b.json || fail "board json unreachable"
 python3 -c "import json;d=json.load(open('/tmp/e62_b.json'))" || fail "board json bad"
 grep -q "setReport" /tmp/e62_app.js || fail "setReport missing"
 grep -q "fmtDetail" /tmp/e62_app.js || fail "fmtDetail missing"
@@ -79,13 +80,14 @@ grep -q "NARRATE AS YOU GO" RUNNER_PROMPT.md 2>/dev/null || grep -q "NARRATE AS 
 grep -q '| tech:' /tmp/e62_app.js || fail "runLine missing owner | tech format"
 
 grep -q "nwrap" /tmp/e62_root.html || fail "nested-scroll CSS missing"
-code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
+code=$(curl -sk -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
 [ "$code" = "200" ] || fail "runstate http=$code"
 python3 -c "import json; d=json.load(open('/tmp/e62_runstate.json')); assert d.get('ok') and 'running' in d, 'runstate shape'" || fail "runstate shape bad"
 # AUTH: app accounts (register/login/logout), mutations need login, money needs admin.
 # bad scope must fail WITHOUT spawning; nothing here spawns a leg or moves money.
 python3 - "$BASE" "$(cd "$(dirname "$0")/.." && pwd)/ops.db" <<'EOF' || fail "auth bad"
-import http.cookiejar, json, sqlite3, sys, time, urllib.request
+import http.cookiejar, json, sqlite3, ssl, sys, time, urllib.request
+ssl._create_default_https_context = ssl._create_unverified_context
 base, dbpath = sys.argv[1], sys.argv[2]
 cj = http.cookiejar.CookieJar()
 op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
@@ -143,6 +145,16 @@ r = post("/api/logout", {})
 assert r.get("ok"), "logout failed"
 r = anon("/api/note", {"track": "e062", "message": "x"})
 assert r.get("ok") is False, "session survived logout"
+# 7b. passkeys: options need auth / known user; garbage rejected
+r = anon("/api/webauthn/register/options", {})
+assert r.get("ok") is False, "wa register options open"
+r = post("/api/webauthn/login/options", {"name": "nosuchuser_e2e"})
+assert not r.get("ok"), "wa login options unknown accepted"
+r = post("/api/webauthn/login/verify", {"id": "AA", "response": {}})
+assert not r.get("ok"), "wa garbage accepted"
+r = post("/api/webauthn/login/options", {"name": me})
+assert not r.get("ok") and "passkey" in r.get("error", ""), f"wa options w/o cred: {r}"
+print("webauthn ok: gated options, garbage rejected, no-cred explained")
 # 8. cleanup test accounts (same-host DB)
 c = sqlite3.connect(dbpath)
 c.execute("DELETE FROM sessions WHERE uid IN (SELECT id FROM users WHERE name LIKE 'e2euser\\_%' ESCAPE '\\')")
@@ -153,8 +165,8 @@ c.close()
 assert left == 0, "e2e users left behind"
 print(f"auth ok: register/login/logout/me, role={role}, prefs round-trip, cleanup done")
 EOF
-curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
-curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
+curl -sk -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
+curl -sk -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 python3 - <<'EOF' || fail "board shape bad"
 import json
 d = json.load(open("/tmp/e62_board.json"))

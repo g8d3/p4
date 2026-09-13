@@ -4,7 +4,7 @@
 # statements outside load() referencing fetched data abort the whole block).
 set -uo pipefail
 PORT="${1:-8322}"
-curl -s --max-time 10 "http://127.0.0.1:$PORT/" -o /tmp/check_ui.html
+curl -sk --max-time 10 "https://127.0.0.1:$PORT/" -o /tmp/check_ui.html
 python3 - "$PORT" << 'EOF'
 import re, sys
 h = open('/tmp/check_ui.html').read()

@@ -19,6 +19,16 @@ Owner steers by talking to any agent session ("pause X", "approve #N",
 - Spend caps: T1 ≤$50/action auto; anything bigger = propose + wait.
 - New ideas go to p4/IDEAS.md first, new tracks only on owner yes.
 
+## Accounts + TLS (owner 2026-09-13)
+- Auth is app accounts, not tailnet: register/login/logout (90-day cookie).
+  First account ever = admin; money (approve/reject/promote) = admin only.
+  Passkeys: add per device while logged in, then name + touch logs in.
+  Passwords stay as fallback. Old shared board-token is retired.
+- Board serves https :8322 with Tailscale cert (Secure Context -> passkeys
+  work from the phone). Renew monthly via cron (e062-cert-renew); expires 2026-11-22.
+- After editing ANY served app: restart it, check its version endpoint
+  (running == latest per-track), then claim done.
+
 ## Paused
 
 - (none)
