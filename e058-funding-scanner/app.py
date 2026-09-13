@@ -2,7 +2,7 @@
 """e058 funding scanner web app — thin slice 1.
 SQLite store (timestamped funding series) + FastAPI JSON + static table UI.
 Run: python3 app.py  (port 8320)"""
-import datetime, json, glob, os, sqlite3, time
+import datetime, html, json, glob, os, sqlite3, time
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -22,6 +22,8 @@ def db():
     c.execute('CREATE INDEX IF NOT EXISTS idx_f ON funding(ts, coin)')
     c.execute('CREATE TABLE IF NOT EXISTS symbols(ts TEXT, coin TEXT, oi_rank INTEGER, price_usd REAL, oi_usd REAL, exchange_count INTEGER)')
     c.execute('CREATE TABLE IF NOT EXISTS signals(sent_ts TEXT, coin TEXT, median_apy REAL, spread_bps REAL, long_v TEXT, short_v TEXT, persist TEXT, oi_rank INTEGER, window TEXT)')
+    c.execute('CREATE TABLE IF NOT EXISTS paper_calls(call_date TEXT, logged_ts TEXT, coin TEXT, median_apy REAL, spread_bps REAL, long_v TEXT, short_v TEXT, persist TEXT, verdict TEXT, UNIQUE(call_date, coin))')
+    c.execute('CREATE TABLE IF NOT EXISTS paper_outcomes(call_date TEXT, coin TEXT, hit INTEGER, spread_24h REAL, resolved_ts TEXT, UNIQUE(call_date, coin))')
     return c
 
 REPORT_CFG = os.path.join(BASE, 'report_config.json')
@@ -205,7 +207,7 @@ details.cfg summary{cursor:pointer}
 .pos{color:#3ddc84}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e058t=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
-<div class=topcard id=top><div class=one id=top-one>Top persistent spreads: loading…</div><div class=row id=top-row></div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady = held every check — tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div></div>
+<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row></div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady = held every check — tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
 <details class=cfg id=fc><summary id=f-sum>Filter: all coins, top pay first (tap to narrow)</summary>
 <div id=f style="margin-top:6px">
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
@@ -256,6 +258,7 @@ const t=(d.rows||[]).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
 one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}`).join(' · ')}`;
 try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok)one.textContent+=` · backtest ${b.hit_rate_pct}% held 24h (${b.n_hit}/${b.n_signals})`;}catch(e){}
+try{const p=await (await fetch('/api/paper')).json();if(p&&p.ok&&p.paper_n)one.textContent+=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;}catch(e){}
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
@@ -386,8 +389,133 @@ def backtest():
     except Exception:
         return {'ok': False, 'error': 'no backtest yet — run bin/backtest.py'}
 
+PAPER_THRESHOLD_BPS = 20.0
+
+def _parse_ts(s):
+    try: return datetime.datetime.fromisoformat(str(s).replace('Z', '+00:00'))
+    except Exception: return None
+
+def _spread_at(coin, ts, vlist=None, min_legs=2):
+    """Spread (max-min bps across venues) for one coin at one snapshot. None if < min_legs."""
+    c = db()
+    try:
+        v = vlist or DEX29
+        rows = c.execute('SELECT bps8 FROM funding WHERE ts=? AND coin=? AND venue IN (%s)' % ','.join('?' * len(v)), [ts, coin] + v).fetchall()
+    finally:
+        c.close()
+    legs = []
+    for (b,) in rows:
+        try: legs.append(float(b))
+        except (TypeError, ValueError): pass
+    if len(legs) < min_legs: return None
+    return round(max(legs) - min(legs), 2)
+
+def _paper_run(log_today=True):
+    """Log today's steady set once per UTC day; resolve past days 24h later. Returns summary dict."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    today = now.strftime('%Y-%m-%d')
+    steady = persistence(threshold_bps=PAPER_THRESHOLD_BPS, last_n=4).get('rows', [])
+    c = db()
+    logged = 0
+    if log_today:
+        lts = now.strftime('%Y-%m-%dT%H:%M:%SZ')
+        for r in steady:
+            try:
+                c.execute('INSERT OR IGNORE INTO paper_calls VALUES (?,?,?,?,?,?,?,?,?)',
+                          (today, lts, r.get('coin'), r.get('median_apy'), r.get('spread_bps'),
+                           r.get('long'), r.get('short'), r.get('persist'), r.get('verdict')))
+            except Exception: pass
+        c.commit()
+        logged = c.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (today,)).fetchone()[0]
+    snaps = [r[0] for r in c.execute('SELECT DISTINCT ts FROM funding ORDER BY ts')]
+    days = [r[0] for r in c.execute('SELECT DISTINCT call_date FROM paper_calls ORDER BY call_date')]
+    resolved_days, rh, rt = 0, 0, 0
+    for day in days:
+        pending = c.execute('SELECT coin, logged_ts FROM paper_calls WHERE call_date=? AND (call_date, coin) NOT IN (SELECT call_date, coin FROM paper_outcomes)', (day,)).fetchall()
+        if not pending: continue
+        done = 0
+        for coin, lts in pending:
+            base = _parse_ts(lts)
+            if not base: continue
+            cutoff = base + datetime.timedelta(hours=24)
+            tgt = next((s for s in snaps if (_parse_ts(s) or cutoff) >= cutoff), None)
+            if tgt is None: continue
+            s24 = _spread_at(coin, tgt)
+            if s24 is None: continue
+            hit = 1 if s24 >= PAPER_THRESHOLD_BPS else 0
+            try:
+                c.execute('INSERT OR IGNORE INTO paper_outcomes VALUES (?,?,?,?,?)',
+                          (day, coin, hit, s24, now.strftime('%Y-%m-%dT%H:%M:%SZ')))
+                done += 1
+            except Exception: pass
+        c.commit()
+        dh, dt = c.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes WHERE call_date=?', (day,)).fetchone()
+        if dt and dt == c.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (day,)).fetchone()[0]:
+            resolved_days += 1
+        rh += dh or 0; rt += dt or 0
+    c.close()
+    hr = round(100.0 * rh / rt, 1) if rt else None
+    return {'ok': True, 'today': today, 'today_logged': logged,
+            'today_coins': [r.get('coin') for r in steady[:5]],
+            'resolved_days': resolved_days, 'paper_hit_rate_pct': hr,
+            'paper_n_hit': rh, 'paper_n': rt}
+
+@app.get('/api/paper')
+def paper():
+    """Paper-trade loop: auto-log today's steady calls, resolve past days 24h later."""
+    try:
+        return _paper_run(log_today=True)
+    except Exception as e:
+        return {'ok': False, 'error': str(e)[:200]}
+
+def _server_card():
+    """Server-rendered one-line verdict + data-pulse for the topcard (no JS needed)."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    c = db()
+    n = c.execute('SELECT COUNT(*) FROM funding').fetchone()[0]
+    snaps = [r[0] for r in c.execute('SELECT DISTINCT ts FROM funding ORDER BY ts')] or ['unknown']
+    c.close()
+    last = snaps[-1]
+    base = _parse_ts(last)
+    age_m = (now - base).total_seconds() / 60 if base else 9999
+    gaps = []
+    for a, b in zip(snaps[-6:-1], snaps[-5:]):
+        pa, pb = _parse_ts(a), _parse_ts(b)
+        if pa and pb: gaps.append((pb - pa).total_seconds() / 60)
+    cad = round(sorted(gaps)[len(gaps) // 2]) if gaps else 15
+    try:
+        steady = persistence(threshold_bps=PAPER_THRESHOLD_BPS, last_n=4).get('rows', [])
+    except Exception:
+        steady = []
+    t3 = steady[:3]
+    if t3:
+        top = 'Top persistent spreads: ' + ' · '.join(f"{r['coin']} {r['median_apy']}% {r.get('verdict') or r.get('persist')}" for r in t3)
+    else:
+        top = 'Top persistent spreads: none holding right now'
+    try:
+        b = json.load(open(os.path.join(BASE, 'backtest.json')))
+        bt = f"backtest {b.get('hit_rate_pct')}% held 24h ({b.get('n_hit')}/{b.get('n_signals')})" if b.get('ok') else 'backtest pending'
+    except Exception:
+        bt = 'backtest pending'
+    try:
+        pc = db()
+        pr = pc.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes').fetchone()
+        pc.close()
+        ph = f"paper {round(100.0*pr[0]/pr[1],1)}% ({pr[0]}/{pr[1]})" if pr[1] else 'paper logging'
+    except Exception:
+        ph = 'paper logging'
+    pulse = (f"data {n//1000}k rows · last sample {age_m:.0f}m ago (every ~{cad}m) | "
+             f"{bt} · {ph} | v{_VRUN}")
+    return html.escape(top), html.escape(pulse)
+
 @app.get('/', response_class=HTMLResponse)
-def index(): return INDEX
+def index():
+    try:
+        top, pulse = _server_card()
+    except Exception:
+        top, pulse = 'Top persistent spreads: unavailable', ''
+    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse),
+                        headers={'Cache-Control': 'no-store'})
 
 if __name__ == '__main__':
     print(load_all())

@@ -108,6 +108,24 @@ print(f"backtest ok: {d['summary']}")
 EOF
 grep -q "held 24h" /tmp/e58_root.html || fail "run32 backtest answer missing from card"
 
+# run #33: paper loop live (auto-log today, resolve 24h later) + server-rendered
+# verdict/pulse (no-JS answer) inside the existing topcard
+timeout 15 curl -s -m 15 "$BASE/api/paper" -o /tmp/e58_paper.json || fail "api/paper unreachable"
+python3 - <<'EOF' || fail "api/paper shape bad"
+import json
+d = json.load(open("/tmp/e58_paper.json"))
+assert d.get("ok") is True, "paper not ok"
+assert d.get("today_logged", 0) > 0, "nothing logged today"
+print(f"paper ok: today={d['today_logged']} coins, resolved_days={d.get('resolved_days')}, hit_rate={d.get('paper_hit_rate_pct')}")
+EOF
+python3 - <<'EOF' || fail "server-rendered card bad"
+h = open("/tmp/e58_root.html").read()
+assert "Top persistent spreads:" in h and ("STEADY" in h or "WATCH" in h or "none holding" in h), "no server verdict"
+assert "last sample" in h and "held 24h" in h, "no server pulse"
+assert "%%TOPONE%%" not in h and "%%PULSE%%" not in h, "unexpanded markers served"
+print("server card ok: verdict + pulse rendered, no markers")
+EOF
+
 out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"
