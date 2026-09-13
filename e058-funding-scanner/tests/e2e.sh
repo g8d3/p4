@@ -104,6 +104,9 @@ assert d.get("ok") is True, "backtest not ok"
 for k in ("hit_rate_pct", "n_signals", "n_hit", "summary"):
     assert k in d, f"missing {k}"
 assert d["n_signals"] > 0, "no signals evaluated"
+pc = d.get("per_coin")
+assert isinstance(pc, dict) and len(pc) > 0, "per_coin record missing"
+assert all("hit" in v and "n" in v for v in pc.values()), "per_coin shape bad"
 print(f"backtest ok: {d['summary']}")
 EOF
 grep -q "held 24h" /tmp/e58_root.html || fail "run32 backtest answer missing from card"

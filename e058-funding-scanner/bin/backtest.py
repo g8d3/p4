@@ -64,6 +64,7 @@ def main():
         apy_of[(ts, coin)] = round(s / 100 * 3 * 365, 1)
     coins = {coin for (_, coin) in spread}
     sig, hit, decays = 0, 0, []
+    coinstat = {}  # coin -> [signals, hits]
     first_i, last_eval = None, None
     for i in range(last_n - 1, len(snaps)):
         # need a snapshot >= 24h after snaps[i]
@@ -77,9 +78,12 @@ def main():
             if any((spread.get((w, coin)) or -1) < thr for w in win):
                 continue
             sig += 1
+            st = coinstat.setdefault(coin, [0, 0])
+            st[0] += 1
             s_out = spread.get((snaps[j], coin))
             if s_out is not None and s_out >= thr:
                 hit += 1
+                st[1] += 1
                 a0 = apy_of.get((snaps[i], coin)) or 0
                 a1 = apy_of.get((snaps[j], coin)) or 0
                 if a0 > 0: decays.append(round(a1 / a0, 3))
@@ -91,6 +95,7 @@ def main():
          'window_first': first_i, 'window_last': last_eval,
          'n_signals': sig, 'n_hit': hit, 'hit_rate_pct': rate,
          'median_apy_decay': med_decay,
+         'per_coin': {c: {'n': s, 'hit': h} for c, (s, h) in sorted(coinstat.items())},
          'computed_ts': datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
          'elapsed_s': round(time.time() - t0, 1)}
     d['summary'] = (f"{rate}% of steady calls still paying 24h later "

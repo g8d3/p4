@@ -17,3 +17,7 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
   the card + /api/paper.
 - PROPOSE for real: only on e2e PASS + paper edge (≥55% over N≥20) + owner tap.
 - Current score: backtest 57.1% (8/14, THIN) · paper logging (20 coins today).
+- Run #37: per-coin paid-before record live on the card (backtest.json per_coin +
+  top picks show e.g. JUP 3/3 paid, IP 3/3 paid, TREE 1/3). Param sweep (thr
+  20/50/100 x last_n 4/6/8) found no denser edge — stricter filters starve N
+  further, so the bottleneck is data age (~2h more sampling to N>=20), not params.

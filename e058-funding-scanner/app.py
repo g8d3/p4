@@ -259,10 +259,10 @@ async function loadTop(){const one=document.getElementById('top-one'),row=docume
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
 const t=(d.rows||[]).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
-one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}`).join(' · ')}`;
-try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok)one.textContent+=` · backtest ${b.hit_rate_pct}% held 24h (${b.n_hit}/${b.n_signals})`;}catch(e){}
-try{const p=await (await fetch('/api/paper')).json();if(p&&p.ok&&p.paper_n)one.textContent+=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;}catch(e){}
-row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
+let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)pc=b.per_coin;}catch(e){}
+const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
+one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}${held(r.coin)}`).join(' · ')}`;
+row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
 async function copySlip(){const sc=document.getElementById('slipc');try{if(!lastTop.length)await loadTop();if(!lastTop.length){if(sc)sc.textContent='nothing steady right now';return;}const best=lastTop.find(r=>r.verdict==='STEADY')||lastTop[0];const s=best.paper||`PAPER e058 ${best.coin} ${best.median_apy}%`;await navigator.clipboard.writeText(s);if(sc)sc.textContent=`copied ${best.coin} — paste anywhere`;}catch(e){try{const best2=(lastTop.find(r=>r.verdict==='STEADY')||lastTop[0]||{});prompt('Copy paper slip:',best2.paper||'');if(sc)sc.textContent='copy it by hand';}catch(e2){if(sc)sc.textContent='copy blocked';}}}
@@ -491,8 +491,16 @@ def _server_card():
     except Exception:
         steady = []
     t3 = steady[:3]
+    try:
+        _b = json.load(open(os.path.join(BASE, 'backtest.json')))
+        _pc = _b.get('per_coin', {}) if _b.get('ok') else {}
+    except Exception:
+        _pc = {}
+    def _held(coin):
+        st = _pc.get(coin)
+        return f" ({st['hit']}/{st['n']} paid)" if st else ''
     if t3:
-        top = 'Top persistent spreads: ' + ' · '.join(f"{r['coin']} {r['median_apy']}% {r.get('verdict') or r.get('persist')}" for r in t3)
+        top = 'Top persistent spreads: ' + ' · '.join(f"{r['coin']} {r['median_apy']}% {r.get('verdict') or r.get('persist')}{_held(r['coin'])}" for r in t3)
     else:
         top = 'Top persistent spreads: none holding right now'
     try:

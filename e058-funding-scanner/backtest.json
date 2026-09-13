@@ -11,7 +11,41 @@
  "n_hit": 8,
  "hit_rate_pct": 57.1,
  "median_apy_decay": 1.0,
- "computed_ts": "2026-09-13T06:30:43Z",
- "elapsed_s": 0.6,
+ "per_coin": {
+  "AI": {
+   "n": 1,
+   "hit": 0
+  },
+  "DEEP": {
+   "n": 1,
+   "hit": 1
+  },
+  "GPRO": {
+   "n": 1,
+   "hit": 0
+  },
+  "IP": {
+   "n": 3,
+   "hit": 3
+  },
+  "JUP": {
+   "n": 3,
+   "hit": 3
+  },
+  "ONG": {
+   "n": 1,
+   "hit": 0
+  },
+  "TREE": {
+   "n": 3,
+   "hit": 1
+  },
+  "XCN": {
+   "n": 1,
+   "hit": 0
+  }
+ },
+ "computed_ts": "2026-09-13T07:02:18Z",
+ "elapsed_s": 0.7,
  "summary": "57.1% of steady calls still paying 24h later (8/14, median APY kept 1.0x)"
 }
