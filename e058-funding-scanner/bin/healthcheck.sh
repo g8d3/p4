@@ -8,5 +8,5 @@ if [ "$code" = "200" ]; then
   exit 0
 fi
 echo "$(date -u '+%F %T') e058 HEALTH FAIL (code=$code)" >> "$LOG"
-python3 "$OPS" beat e058 blocked "health monitor: :8320 /api/table non-200 ($code)" 2>>"$LOG" || true
+python3 "$OPS" beat e058 blocked "Your scanner card is down, retrying | tech: health monitor: :8320 /api/table non-200 ($code)" 2>>"$LOG" || true
 exit 1

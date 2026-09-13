@@ -255,6 +255,7 @@ try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).js
 const t=(d.rows||[]).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
 one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}`).join(' · ')}`;
+try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok)one.textContent+=` · backtest ${b.hit_rate_pct}% held 24h (${b.n_hit}/${b.n_signals})`;}catch(e){}
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
@@ -374,6 +375,16 @@ async def signal_log(req: Request):
         return JSONResponse({'ok': False, 'error': 'empty rows'}, status_code=400)
     ts = log_signal_rows(window, rows)
     return {'ok': True, 'sent_ts': ts, 'logged': len(rows)}
+
+@app.get('/api/backtest')
+def backtest():
+    """Cached backtest score: do persistent-spread signals still pay 24h later?
+    Computed by bin/backtest.py from saved funding data (T0, no network)."""
+    try:
+        d = json.load(open(os.path.join(BASE, 'backtest.json')))
+        return d
+    except Exception:
+        return {'ok': False, 'error': 'no backtest yet — run bin/backtest.py'}
 
 @app.get('/', response_class=HTMLResponse)
 def index(): return INDEX

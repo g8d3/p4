@@ -95,6 +95,19 @@ assert all(r.get("paper", "").startswith("PAPER e058") for r in rows), "paper sl
 print("verdict ok: STEADY present, paper slips well-formed")
 EOF
 
+# run #32: backtest score cached + answered on the card (focus: backtest own signals)
+timeout 15 curl -s -m 15 "$BASE/api/backtest" -o /tmp/e58_backtest.json || fail "api/backtest unreachable"
+python3 - <<'EOF' || fail "api/backtest shape bad"
+import json
+d = json.load(open("/tmp/e58_backtest.json"))
+assert d.get("ok") is True, "backtest not ok"
+for k in ("hit_rate_pct", "n_signals", "n_hit", "summary"):
+    assert k in d, f"missing {k}"
+assert d["n_signals"] > 0, "no signals evaluated"
+print(f"backtest ok: {d['summary']}")
+EOF
+grep -q "held 24h" /tmp/e58_root.html || fail "run32 backtest answer missing from card"
+
 out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"

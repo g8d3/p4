@@ -1,0 +1,17 @@
+{
+ "ok": true,
+ "track": "e058",
+ "threshold_bps": 20.0,
+ "last_n": 4,
+ "min_legs": 2,
+ "lookahead_h": 24,
+ "window_first": "2026-09-12T02:25:15Z",
+ "window_last": "2026-09-12T02:25:15Z",
+ "n_signals": 8,
+ "n_hit": 4,
+ "hit_rate_pct": 50.0,
+ "median_apy_decay": 1.0,
+ "computed_ts": "2026-09-13T04:32:11Z",
+ "elapsed_s": 0.6,
+ "summary": "50.0% of steady calls still paying 24h later (4/8, median APY kept 1.0x)"
+}
