@@ -114,7 +114,7 @@ app = FastAPI()
 import subprocess as _sp
 _VSTART = int(time.time())
 try:
-    _VRUN = _sp.run(['git', 'log', '-1', '--format=%h', '--', '.'], capture_output=True,
+    _VRUN = _sp.run(['git', 'log', '-1', '--format=%h', '--', 'app.py', 'bin/', 'tests/'], capture_output=True,
                     text=True, cwd=BASE).stdout.strip() or '?'
 except Exception:
     _VRUN = '?'
@@ -122,7 +122,7 @@ except Exception:
 @app.get('/api/version')
 def version():
     try:
-        latest = _sp.run(['git', 'log', '-1', '--format=%h', '--', '.'], capture_output=True,
+        latest = _sp.run(['git', 'log', '-1', '--format=%h', '--', 'app.py', 'bin/', 'tests/'], capture_output=True,
                          text=True, cwd=BASE).stdout.strip() or '?'
         dirty = bool(_sp.run(['git', 'status', '--short', '--'] + ['e058-funding-scanner/app.py', 'e058-funding-scanner/bin/', 'e058-funding-scanner/tests/'], capture_output=True,
                              text=True, cwd='/home/vuos/code/p4').stdout.strip())
