@@ -3,6 +3,8 @@
 
 Kill rule (owner-blessed): no signal in 2 weeks of paper-tracking -> kill.
 Each line: {date, ts, stale, top:[{symbol, chain, score, boost_usd, vol_h24, priceChange_h24}], n}.
+Logs the full top-15 rotation universe (not top-10) so each snapshot banks
+more worthy calls toward N>=20 resolved.
 Evaluated by bin/paper_resolve.py: worthy calls with an entry priceUsd are
 re-fetched 24h later via the free Dexscreener tokens API; hit = price up.
 T0 free: reads local /api/rotation only, no paid APIs.
@@ -26,7 +28,7 @@ def main():
     with urllib.request.urlopen(BASE + "/api/rotation", timeout=20) as r:
         d = json.load(r)
     top = []
-    for x in d.get("rows", [])[:10]:
+    for x in d.get("rows", [])[:15]:
         e = {"symbol": x.get("symbol"), "chain": x.get("chain"),
              "token": x.get("token"),
              "score": x.get("rotation_score"), "heat": x.get("heat"),

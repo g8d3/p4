@@ -139,6 +139,18 @@ def maybe_refresh():
     threading.Thread(target=_run, daemon=True).start()
 
 
+def _auto_refresh_loop():
+    """Keep first paint LIVE with no page loads: tick every 60s and rebuild
+    when the cache passed its TTL. maybe_refresh() no-ops while fresh and
+    skips while a build runs, so this costs ~16 free-tier reqs per 5 min."""
+    while True:
+        time.sleep(60)
+        try:
+            maybe_refresh()
+        except Exception:
+            pass
+
+
 def get_data():
     maybe_refresh()
     try:
@@ -479,4 +491,6 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 if __name__ == "__main__":
+    threading.Thread(target=_auto_refresh_loop, daemon=True).start()
+    maybe_refresh()  # warm the cache at boot so first paint is LIVE
     ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()

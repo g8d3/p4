@@ -58,3 +58,4 @@ N<20 resolved = THIN: never propose real money on THIN.
   still PAPER. Early 2026-09-13 ~14:05Z: 2/5 up, avg +13.4% at 1.7h,
   best Stunk +51.1% + BLAST +25.3% — two breakouts live; canonical
   24h grade ~16h out.
+- RUN #53 FIX+POWER (FREE, no fetch): first paint STILL greeted STALE after 15+ idle min (refresh was request-triggered only; /health hits never rebuild). Server now self-refreshes every 60s + warms cache at boot, so the card opens LIVE with no tap needed. Snapshot now logs the full top-15 universe (was top-10) so each daily snapshot banks more worthy calls toward N>=20 resolved. WORTHY-1 unchanged, still PAPER. Early 2026-09-13 ~15:05Z: 1/5 up, avg -8.0% at 2.7h, best BLAST +17.0% — cooling intraday; canonical 24h grade ~14h out (10 pending, 0 resolved, blocked-on-time).
