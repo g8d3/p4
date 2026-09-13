@@ -11,6 +11,8 @@ grep -q "thumbbar" /tmp/e60_root.html || fail "no bottom thumbbar (mobile thumb 
 grep -q 'data-k=movers' /tmp/e60_root.html || fail "thumbbar missing Movers sort"
 grep -q '<details>' /tmp/e60_root.html || fail "explainer not collapsed (long-text rule)"
 grep -q 'style=float:right' /tmp/e60_root.html && fail "primary control still top-only"
+grep -q '<th>pair</th>' /tmp/e60_root.html || fail "table header mislabeled (expected pair, not traders)"
+grep -q 'traders</th>' /tmp/e60_root.html && fail "stale traders header still served"
 grep -q '%%TOPONE%%\|%%PULSE%%' /tmp/e60_root.html && fail "server card placeholders unreplaced (no first-paint answer)"
 grep -q -i "Top now:\|No rotation data" /tmp/e60_root.html || fail "no server-rendered verdict on first paint"
 grep -q -i "tokens · sample" /tmp/e60_root.html || fail "no server-rendered data pulse on first paint"

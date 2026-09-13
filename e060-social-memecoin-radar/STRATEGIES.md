@@ -111,3 +111,16 @@ N<20 resolved = THIN: never propose real money on THIN.
   0.000002307 vs entry 0.0004337; CATFLIGHT 0.000002287 — both dead
   pump.fun dust at the same floor, not a price bug). WORTHY-1 still PAPER,
   WORTHY-2c still THIN shadow.
+- RUN #70 FIX+POWER (FREE, GeckoTerminal no-key, T1 $0): table header said
+  "traders" but every cell is a "pair ↗" link — relabeled to "pair"
+  (server + JS bundle, one word, owner no longer misled). POWER: the
+  run-#69 focus item ships — resolver pool-OHLCV fallback is LIVE in
+  bin/paper_resolve.py. Vanished tokens no longer drop: Dexscreener
+  first, else cached-pool hourly candle at entry+24h (gecko-ohlcv), else
+  pool spot (gecko-spot); outcomes carry src so the card can say how it
+  graded. PROVEN this leg on live data (read-only probes, no outcomes
+  written): backdated-12h candle pick px=0.00287 at-or-before target,
+  forced-dex-fail path returns gecko-ohlcv px=0.000718. Resolver run same
+  leg: resolved=0 pending=18 new=0 gecko_fb=0 (first grade ~7h,
+  blocked-on-time — nothing due yet, fallback waits for its first real
+  grade). WORTHY-1 still PAPER, WORTHY-2c still THIN shadow.
