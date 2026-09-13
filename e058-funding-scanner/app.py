@@ -243,17 +243,19 @@ details.cfg summary{cursor:pointer}
 <script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
-let allRows=[], showN=100, backPC={};
+let allRows=[], showN=100, backPC={}, lastAge='';
+function sampleAge(ts){try{const ms=Date.now()-new Date(String(ts||'')).getTime();if(!(ms>=0))return '';return ms<36e5?` · sample ${Math.max(1,Math.round(ms/6e4))}m ago`:` · sample ${(ms/36e6).toFixed(1)}h ago`;}catch(e){return '';}}
 function paidTag(c){const s=backPC[c];return s?` <small style="opacity:.65">${s.hit}/${s.n}</small>`:' <small style="opacity:.65">no history yet</small>';}
 function rowHtml(r){return `<tr onclick="pickCoin('${r.coin}')" style="cursor:pointer"><td>${r.coin}${paidTag(r.coin)}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
-function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`all ${allRows.length} by pay`;const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
+function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`all ${allRows.length} by pay${lastAge}`;const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
 async function load(){showN=100;const g=id=>document.getElementById(id).value;
 try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)backPC=b.per_coin;}catch(e){}
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=locTs(d.ts||'')||'no data';
+lastAge=sampleAge(d.ts);
 allRows=d.rows||[];const total=(d.count??allRows.length);
 document.getElementById('c').textContent=`showing ${Math.min(showN,allRows.length)} of ${total}`;
-const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`top ${Math.min(showN,allRows.length)} of ${total} by pay`;
+const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`top ${Math.min(showN,allRows.length)} of ${total} by pay${lastAge}`;
 const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: top ${Math.min(showN,allRows.length)} of ${total}${qq?' matching '+qq:''}, best pay first (tap to narrow)`;}
 document.getElementById('b').innerHTML=allRows.slice(0,showN).map(rowHtml).join('');
 const mc=document.getElementById('morec'),mb=document.getElementById('moreb');if(allRows.length>showN){if(mc)mc.textContent=`top 100 by pay — tap show all for ${total}`;if(mb)mb.style.display='';}else{if(mc)mc.textContent=allRows.length?`${allRows.length} coins`:'no coins match';if(mb)mb.style.display='none';}}

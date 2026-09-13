@@ -6,10 +6,10 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-12T17:47:37Z",
- "n_signals": 238,
- "n_hit": 123,
- "hit_rate_pct": 51.7,
+ "window_last": "2026-09-12T18:47:40Z",
+ "n_signals": 257,
+ "n_hit": 135,
+ "hit_rate_pct": 52.5,
  "median_apy_decay": 1.0,
  "per_coin": {
   "AI": {
@@ -24,6 +24,10 @@
    "n": 1,
    "hit": 0
   },
+  "CASHCAT": {
+   "n": 1,
+   "hit": 0
+  },
   "DEEP": {
    "n": 38,
    "hit": 14
@@ -33,12 +37,12 @@
    "hit": 0
   },
   "IP": {
-   "n": 44,
-   "hit": 44
+   "n": 48,
+   "hit": 48
   },
   "JUP": {
-   "n": 44,
-   "hit": 44
+   "n": 48,
+   "hit": 48
   },
   "KAITO": {
    "n": 16,
@@ -53,24 +57,28 @@
    "hit": 1
   },
   "ONG": {
-   "n": 19,
+   "n": 23,
    "hit": 0
   },
   "ORCL": {
    "n": 1,
    "hit": 1
   },
+  "PURR": {
+   "n": 1,
+   "hit": 0
+  },
   "REZ": {
    "n": 1,
    "hit": 0
   },
   "TREE": {
-   "n": 44,
+   "n": 45,
    "hit": 1
   },
   "WAL": {
-   "n": 2,
-   "hit": 2
+   "n": 6,
+   "hit": 6
   },
   "XCN": {
    "n": 1,
@@ -81,7 +89,7 @@
    "hit": 2
   }
  },
- "computed_ts": "2026-09-13T18:13:27Z",
- "elapsed_s": 1.0,
- "summary": "51.7% of steady calls still paying 24h later (123/238, median APY kept 1.0x)"
+ "computed_ts": "2026-09-13T19:01:29Z",
+ "elapsed_s": 1.2,
+ "summary": "52.5% of steady calls still paying 24h later (135/257, median APY kept 1.0x)"
 }
