@@ -184,15 +184,16 @@ details.cfg summary{cursor:pointer}
 .pos{color:#3ddc84}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e058t=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
-<div class=topcard id=top><div class=one id=top-one>Top persistent spreads: loading…</div><div class=row id=top-row></div><div style="font-size:12px;opacity:.7;margin-top:4px">persistent = spread held every check — tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div></div>
-<div id=f>
+<div class=topcard id=top><div class=one id=top-one>Top persistent spreads: loading…</div><div class=row id=top-row></div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady = held every check — tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div></div>
+<details class=cfg id=fc><summary id=f-sum>Filter: all coins, top pay first (tap to narrow)</summary>
+<div id=f style="margin-top:6px">
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
 <label>OI rank <input id=o0 type=number value=0 style=width:55px>–<input id=o1 type=number value=9999 style=width:60px></label>
 <label>min legs <input id=ml type=number value=2 style=width:45px></label>
 <label>coin <input id=q type=text placeholder=JUP style=width:70px></label>
 <label>sort <select id=s><option value=apy>APY</option><option value=oi>OI rank</option><option value=legs>legs</option></select></label>
 <button onclick=load()>filter</button> <small id=c></small>
-</div>
+</div></details>
 <details class=cfg id=r><summary id=r-sum>Daily digest: loading… (tap to change time)</summary>
 <div style="margin-top:6px">
 <label>hour UTC <input id=rh type=number min=0 max=23 style=width:50px></label>
@@ -202,17 +203,18 @@ details.cfg summary{cursor:pointer}
 <label>urgent&times; <input id=ru type=number step=0.5 style=width:50px></label>
 <button onclick=saveCfg()>save</button> <small id=rc></small>
 </div></details>
-<div id=s style="margin:8px 0"><details open><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
+<div id=s style="margin:8px 0"><details><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
 <div class=twrap><table><thead><tr><th>sent</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
 <div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table></div>
-<div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="load()">filter</button><button onclick="loadSig()">history</button></div>
+<div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="copySlip()">copy slip</button><button onclick="fltGo()">filter</button></div>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
 async function load(){const g=id=>document.getElementById(id).value;
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=locTs(d.ts||'')||'no data';
 document.getElementById('c').textContent=(d.count??d.rows.length)+' coins';
+const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: ${(d.count??d.rows.length)} coins${qq?' matching '+qq:''}, top pay first (tap to narrow)`;}
 document.getElementById('b').innerHTML=d.rows.map(r=>
 `<tr><td>${r.coin}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`).join('');}
 async function loadCfg(){try{const c=await (await fetch('/api/report-config')).json();
@@ -224,13 +226,16 @@ rc.textContent=r.ok?'saved':'ERR: '+(r.error||'?');}catch(e){rc.textContent='ERR
 async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100')).json();
 const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
 sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${locTs(s.sent_ts)}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
+let lastTop=[];
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
-const t=(d.rows||[]).slice(0,3);
+const t=(d.rows||[]).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
-one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% (${r.persist})`).join(' · ')}`;
-row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.persist} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
-function pickCoin(c){document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
+one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}`).join(' · ')}`;
+row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
+function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
+function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
+async function copySlip(){const sc=document.getElementById('slipc');try{if(!lastTop.length)await loadTop();if(!lastTop.length){if(sc)sc.textContent='nothing steady right now';return;}const best=lastTop.find(r=>r.verdict==='STEADY')||lastTop[0];const s=best.paper||`PAPER e058 ${best.coin} ${best.median_apy}%`;await navigator.clipboard.writeText(s);if(sc)sc.textContent=`copied ${best.coin} — paste anywhere`;}catch(e){try{const best2=(lastTop.find(r=>r.verdict==='STEADY')||lastTop[0]||{});prompt('Copy paper slip:',best2.paper||'');if(sc)sc.textContent='copy it by hand';}catch(e2){if(sc)sc.textContent='copy blocked';}}}
 function topGo(){document.getElementById('top').scrollIntoView();loadTop();}
 load();loadCfg();loadSig();loadTop();</script></body></html>"""
 
@@ -287,9 +292,20 @@ def persistence(threshold_bps: float = 20.0, last_n: int = 4,
         seq = [(h.get('long'), h.get('short')) for h in wh]
         flips = sum(1 for a, b in zip(seq, seq[1:]) if a != b)
         last = wh[-1]
+        oir = oi.get(coin)
+        if flips > 0:
+            verdict = 'FLIPPY'
+        elif isinstance(oir, int) and oir <= 400:
+            verdict = 'STEADY'
+        else:
+            verdict = 'WATCH'
+        paper = (f"PAPER e058 {coin} LONG {last['long']} / SHORT {last['short']} "
+                 f"med {med}% last {last['apy']}% ({k}/{len(window)} checks, "
+                 f"spread {last['spread_bps']}bps) kill if spread<{threshold_bps:g}bps")
         rows.append({'coin': coin, 'median_apy': med,
                      'persist': f'{k}/{len(window)}',
-                     'flips': flips, 'oi_rank': oi.get(coin),
+                     'flips': flips, 'oi_rank': oir,
+                     'verdict': verdict, 'paper': paper,
                      'long': last['long'], 'short': last['short'],
                      'spread_bps': last['spread_bps'], 'apy': last['apy'],
                      'n_legs': last['n_legs'], 'history': wh})

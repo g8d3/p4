@@ -76,9 +76,23 @@ d = json.load(open("/tmp/e58_persist.json"))
 rows = d.get("rows")
 assert isinstance(rows, list) and len(rows) > 0, "no survivors"
 r0 = rows[0]
-for k in ("coin", "median_apy", "persist", "long", "short"):
+for k in ("coin", "median_apy", "persist", "long", "short", "verdict", "paper"):
     assert k in r0, f"missing {k}"
 print(f"persistence ok: {len(rows)} survivors, top={r0['coin']} med={r0['median_apy']}%")
+EOF
+
+# run #28: filter collapses to one line, signal history closed by default,
+# copy-slip in thumbbar + topcard (simplify + paper power)
+for pat in "copySlip" "fltGo" "f-sum" "copy slip"; do
+  grep -q "$pat" /tmp/e58_root.html || fail "run28 pattern missing: $pat"
+done
+grep -q '<details open>' /tmp/e58_root.html && fail "signal history must ship closed (long-text rule)"
+python3 - <<'EOF' || fail "verdict/paper content bad"
+import json
+rows = json.load(open("/tmp/e58_persist.json"))["rows"]
+assert any(r.get("verdict") == "STEADY" for r in rows), "no STEADY verdict"
+assert all(r.get("paper", "").startswith("PAPER e058") for r in rows), "paper slip malformed"
+print("verdict ok: STEADY present, paper slips well-formed")
 EOF
 
 echo "E2E PASS ($BASE)"
