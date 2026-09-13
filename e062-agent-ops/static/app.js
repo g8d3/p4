@@ -358,7 +358,7 @@ function loadWidgets(d) {
   if (window._widgets && window._widgets.length) return;
   try {
     const w = JSON.parse((d.prefs && d.prefs.widgets) || '');
-    if (Array.isArray(w) && w.length && w.length <= 12) { window._widgets = w.map(cleanWidget); return; }
+    if (Array.isArray(w) && w.length <= 12) { window._widgets = w.map(cleanWidget); return; }
   } catch (e) {}
   window._widgets = defaultWidgets();
 }
@@ -409,6 +409,10 @@ function widgetHTML(w, wi) {
 function renderWidgets() {
   const box = document.getElementById('widgets');
   if (!box || !window._widgets) return;
+  if (!window._widgets.length) {
+    box.innerHTML = '<div style="font-size:12px;opacity:.6">no views — add one above: +all, +project, +money or +waiting.</div>';
+    return;
+  }
   box.innerHTML = window._widgets.map(widgetHTML).join('');
   window._widgets.forEach(function(w, wi) { renderWidgetCards(wi); });
 }
@@ -441,40 +445,101 @@ function groupKey(r, g) {
   if (g === 'kind') return r.kind || '?';
   return '';
 }
+function rowCard(wi, r, uid) {
+  const w = window._widgets[wi];
+  const open = w.open === uid;
+  return '<div class="card' + (open ? ' open' : '') + '" onclick="wToggleRow(' + wi + ',\'' + uid + '\')">' +
+    '<div class=frow><span>' + esc(shortTime(r.time)) + '</span>' +
+    '<span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
+    '<span class=ses>' + sesChips(wi, r) + '</span>' +
+    '<span>' + (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</span></div>' +
+    '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
+    (r.propPending ? '<div class=rowbtns style="margin-top:4px" onclick="event.stopPropagation()">' +
+      '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button>' +
+      '<button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button></div>' : '') +
+    (open ? uniDetail(r, uid) : '') + '</div>';
+}
+function groupRows(rows, g) {
+  const map = {}, order = [];
+  rows.forEach(function(r) {
+    const k = groupKey(r, g);
+    if (!map[k]) { map[k] = {key: k, rows: [], latest: 0, wait: 0}; order.push(k); }
+    map[k].rows.push(r);
+    if (r.t > map[k].latest) map[k].latest = r.t;
+    if (r.wait) map[k].wait++;
+  });
+  return order.map(function(k) { return map[k]; }).sort(function(a, b) { return b.latest - a.latest; });
+}
+function groupTime(g) {
+  try {
+    const d = new Date(g.latest);
+    const p = function(n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
+  } catch (e) { return ''; }
+}
+function groupCard(wi, g, ggi) {
+  const w = window._widgets[wi];
+  const open = w.openGroup === ggi;
+  return '<div class="card' + (open ? ' open' : '') + '" onclick="wToggleGroup(' + wi + ',' + ggi + ')">' +
+    '<div class=chead><span class=ctrack>' + esc(g.key) + '</span>' +
+    '<span style="font-size:12px;opacity:.75">' + g.rows.length + ' rows' + (g.wait ? ' · ' + g.wait + ' waiting' : '') + '</span>' +
+    (g.wait ? '<span class=needbadge>waiting</span>' : '') +
+    '<span style="margin-left:auto;font-size:11px;opacity:.6">' + esc(groupTime(g)) + (open ? ' ▾ close' : ' ▸ open') + '</span></div></div>';
+}
 function renderWidgetCards(wi) {
   const w = window._widgets[wi];
   const box = document.getElementById('wc-' + wi);
   if (!w || !box) return;
   const rows = widgetRows(w);
-  const maxp = Math.max(0, Math.ceil(rows.length / w.n) - 1);
-  w.p = Math.min(w.p || 0, maxp);
-  const page = rows.slice(w.p * w.n, w.p * w.n + w.n);
-  let html = '', lastG = ' ';
-  page.forEach(function(r, i) {
-    const gk = groupKey(r, w.g);
-    if (w.g !== 'none' && gk !== lastG) { html += '<div style="font-size:11px;opacity:.6;margin:6px 0 2px"><b>' + esc(gk) + '</b></div>'; lastG = gk; }
-    const open = w.open === i;
-    html += '<div class="card' + (open ? ' open' : '') + '" onclick="wToggle(' + wi + ',' + i + ')">' +
-      '<div class=frow><span>' + esc(shortTime(r.time)) + '</span>' +
-      '<span class=ctrack>' + esc(r.track) + '</span><span>' + esc(r.kind) + '</span>' +
-      '<span class=ses>' + sesChips(wi, r) + '</span>' +
-      '<span>' + (r.wait ? '<span class=needbadge>waiting</span>' : '') + '</span></div>' +
-      '<div class=cbeat>' + esc(fmtDetail(r.detail)) + '</div>' +
-      (r.propPending ? '<div class=rowbtns style="margin-top:4px" onclick="event.stopPropagation()">' +
-        '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button>' +
-        '<button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button></div>' : '') +
-      (open ? uniDetail(r, wi + '-' + i) : '') + '</div>';
-  });
   const head = '<div class=whead><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+  if (w.g === 'none') {
+    const maxp = Math.max(0, Math.ceil(rows.length / w.n) - 1);
+    w.p = Math.min(w.p || 0, maxp);
+    const page = rows.slice(w.p * w.n, w.p * w.n + w.n);
+    box.innerHTML = head + (page.map(function(r, i) { return rowCard(wi, r, 'r' + (w.p * w.n + i)); }).join('') ||
+      '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>');
+    const info = document.getElementById('wi-' + wi);
+    if (info) info.textContent = rows.length + ' rows · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(rows.length / w.n));
+    return;
+  }
+  // grouped: ONE card per group, tap to expand its rows
+  const groups = groupRows(rows, w.g);
+  const maxp = Math.max(0, Math.ceil(groups.length / w.n) - 1);
+  w.p = Math.min(w.p || 0, maxp);
+  const page = groups.slice(w.p * w.n, w.p * w.n + w.n);
+  let html = '';
+  page.forEach(function(g, gi) {
+    const ggi = w.p * w.n + gi;
+    html += groupCard(wi, g, ggi);
+    if (w.openGroup === ggi) {
+      const grows = g.rows.slice(0, 20);
+      html += grows.map(function(r, i) { return rowCard(wi, r, 'g' + ggi + 'r' + i); }).join('');
+      if (g.rows.length > grows.length) html += '<div style="font-size:11px;opacity:.6">+' + (g.rows.length - grows.length) + ' more — filter to narrow</div>';
+    }
+  });
   box.innerHTML = head + (html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>');
   const info = document.getElementById('wi-' + wi);
-  if (info) info.textContent = rows.length + ' rows · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(rows.length / w.n));
+  if (info) info.textContent = groups.length + ' groups · page ' + (w.p + 1) + '/' + Math.max(1, Math.ceil(groups.length / w.n));
+}
+function wToggleRow(wi, uid) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  uniStopLive();
+  w.open = (w.open === uid) ? -1 : uid;
+  renderWidgetCards(wi);
+}
+function wToggleGroup(wi, gi) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  uniStopLive();
+  w.openGroup = (w.openGroup === gi) ? -1 : gi;
+  renderWidgetCards(wi);
 }
 function wSet(wi, field, el) {
   const w = window._widgets[wi];
   if (!w) return;
   w[field] = field === 'n' ? (parseInt(el.value, 10) || 20) : el.value;
-  w.p = 0; w.open = -1;
+  w.p = 0; w.open = -1; w.openGroup = -1;
   if (field === 'q') { renderWidgetCards(wi); saveWidgetsSoon(); }
   else { saveWidgets(); renderWidgets(); }
 }
@@ -491,27 +556,33 @@ function wPage(wi, d) {
   renderWidgetCards(wi);
 }
 function wRemove(wi) {
-  if (!window._widgets || window._widgets.length <= 1) { alert('keep at least one view'); return; }
+  if (!window._widgets) return;
   window._widgets.splice(wi, 1);
   saveWidgets(); renderWidgets();
 }
-function addWidget() {
-  if (!window._widgets) window._widgets = defaultWidgets();
+function addViewPreset(kind, btn) {
+  const PRESETS = {
+    all: {t: 'all', q: '', g: 'none', s: 'new', n: 20},
+    project: {t: 'by project', q: '', g: 'project', s: 'new', n: 20},
+    money: {t: 'money', q: 'money gate', g: 'project', s: 'new', n: 20},
+    waiting: {t: 'waiting', q: 'is:waiting', g: 'project', s: 'new', n: 20}
+  };
+  if (!window._widgets) window._widgets = [];
   if (window._widgets.length >= 12) { alert('12 views max — remove one first'); return; }
-  window._widgets.push(cleanWidget({t: 'new view'}));
+  if (btn) { const o = btn.textContent; btn.textContent = '…'; btn.disabled = true;
+    setTimeout(function() { btn.textContent = o; btn.disabled = false; }, 900); }
+  window._widgets.push(cleanWidget(PRESETS[kind] || PRESETS.all));
   saveWidgets(); renderWidgets();
-  try { document.getElementById('widgets').lastChild.scrollIntoView(false); } catch (e) {}
-}
-function wToggle(wi, i) {
-  const w = window._widgets[wi];
-  if (!w) return;
-  uniStopLive();
-  w.open = (w.open === i) ? -1 : i;
-  renderWidgetCards(wi);
+  setTimeout(function() {
+    try {
+      const wl = document.getElementById('widgets').lastChild;
+      if (wl && wl.scrollIntoView) wl.scrollIntoView(false);
+    } catch (e) {}
+  }, 60);
 }
 function waitFor(track) {
   // waiting = your notes + pending money gates. tap a badge -> see them.
-  if (!window._widgets || !window._widgets.length) window._widgets = defaultWidgets();
+  if (!window._widgets || !window._widgets.length) window._widgets = [cleanWidget({t: 'waiting', q: 'is:waiting', g: 'project'})];
   const w = window._widgets[0];
   w.q = track ? ('is:waiting ' + track) : 'is:waiting';
   w.g = 'project'; w.p = 0; w.open = -1;

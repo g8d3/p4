@@ -311,7 +311,7 @@ async def api_prefs_set(req: Request):
                     continue
                 try:
                     w = __import__('json').loads(v)
-                    assert isinstance(w, list) and 1 <= len(w) <= 12
+                    assert isinstance(w, list) and 0 <= len(w) <= 12
                     for x in w:
                         assert isinstance(x, dict) and 't' in x
                 except Exception: continue
