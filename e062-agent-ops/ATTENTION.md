@@ -27,3 +27,4 @@ fixing confusion before it is reported) are the real score.
   as agent-found rows here.
 - An owner review like 2026-09-13 must produce rows here AND fixes
   in the app — never fixes without rows (rows are the learning).
+| 2026-09-13 | e062 | history in UTC + `fresh NaNd ago` on e058 card | owner (screenshot) | — | history bypassed local-time helper; double-Z on ISO timestamps; fixed + UX §11 time law |
