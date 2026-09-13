@@ -80,6 +80,30 @@ server doesn't know who's looking). Never append `Z` blindly: ISO
 strings already carrying Z/offset parse as-is — double-Z produced
 the infamous `fresh NaNd ago`.
 
+## 12. A tap gives, never takes (owner 2026-09-13, from e058)
+
+Silent destructive taps are banned: if a tap narrows or hides
+anything, the control says so and the way back sits next to it.
+A mis-tap must show information, never an emptier screen.
+
+## 13. Testing is wandering like the owner (owner 2026-09-13)
+
+Bugs are found by scrolling, tapping, interacting with no purpose —
+not by asserting the happy path. Every fix records how-found; a
+fix without its finding story is half a fix. (Future: a dedicated
+wanderer agent that roams the apps, claims what it checks so agents
+never collide, and files what it finds.)
+
+## 14. Columns adapt to content, AI lays them out (owner 2026-09-13)
+
+A row is as tall as its tallest cell — one wordy cell wastes the
+whole row. Rules: columns have layout modes (grid cell vs stacked
+line vs truncated-with-expand); long-text columns stack instead of
+stretching; layouts are configurable per table; the AI proposes the
+layout from expected cell sizes and re-proposes as content changes.
+Density without squeezing: more rows per screen, never smaller tap
+targets.
+
 ## 8. Decode the dense line (owner 2026-09-13, from e058 top section)
 
 If the owner must parse punctuation (`|` vs `·`) to understand a
