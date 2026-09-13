@@ -239,10 +239,12 @@ details.cfg summary{cursor:pointer}
 <script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
-let allRows=[], showN=100;
-function rowHtml(r){return `<tr><td>${r.coin}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
+let allRows=[], showN=100, backPC={};
+function paidTag(c){const s=backPC[c];return s?` <small style="opacity:.65">${s.hit}/${s.n}</small>`:' <small style="opacity:.65">new</small>';}
+function rowHtml(r){return `<tr onclick="pickCoin('${r.coin}')" style="cursor:pointer"><td>${r.coin}${paidTag(r.coin)}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
 function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
 async function load(){showN=100;const g=id=>document.getElementById(id).value;
+try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)backPC=b.per_coin;}catch(e){}
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=locTs(d.ts||'')||'no data';
 allRows=d.rows||[];const total=(d.count??allRows.length);
@@ -516,8 +518,13 @@ def _server_card():
     try:
         pc = db()
         pr = pc.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes').fetchone()
+        if pr[1]:
+            ph = f"paper {round(100.0*pr[0]/pr[1],1)}% ({pr[0]}/{pr[1]})"
+        else:
+            today = now.strftime('%Y-%m-%d')
+            tc = pc.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (today,)).fetchone()[0]
+            ph = f"paper {tc} logged" if tc else 'paper logging'
         pc.close()
-        ph = f"paper {round(100.0*pr[0]/pr[1],1)}% ({pr[0]}/{pr[1]})" if pr[1] else 'paper logging'
     except Exception:
         ph = 'paper logging'
     pulse = (f"data {n//1000}k rows · last sample {age_m:.0f}m ago (every ~{cad}m) | "
