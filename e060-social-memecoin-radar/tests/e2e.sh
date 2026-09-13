@@ -27,4 +27,7 @@ for k in ("symbol", "chain", "rotation_score", "heat", "txns_h24"):
 assert isinstance(r0["heat"], (int, float)), "heat not numeric"
 print(f"rotation ok: {len(d['rows'])} rows, stale={d['stale']}, heat0={d['rows'][0]['heat']}")
 EOF
+out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
+echo "$out" | grep -q '"running"' || fail "version shape bad"
+echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"
 echo "E2E PASS ($BASE)"
