@@ -484,6 +484,17 @@ function waitBanner(w, rows) {
     '<b>\u26d4 ' + rows.length + ' need your tap.</b> Money gates: approve/reject below (money moves ONLY with your tap). ' +
     'Notes: your words to that project\u2019s agent, read on the next leg. Tap any \u25cf badge to come back here.</div>';
 }
+function modeHead(w) {
+  // the header always mirrors the cards below it: flat rows get
+  // TIME..WAIT, grouped summaries get GROUP..LATEST
+  if (w.g === 'none')
+    return '<div class=whead><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+  const gl = w.g === 'project' ? 'PROJECT' : (w.g === 'session' ? 'SESSION' : 'KIND');
+  return '<div class=whead><div class=grow><span>' + gl + '</span><span>ROWS</span><span>WAIT</span><span>LATEST</span></div></div>';
+}
+function subHead() {
+  return '<div class=wsub><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+}
 function groupTime(g) {
   try {
     const d = new Date(g.latest);
@@ -495,17 +506,17 @@ function groupCard(wi, g, ggi) {
   const w = window._widgets[wi];
   const open = w.openGroup === ggi;
   return '<div class="card' + (open ? ' open' : '') + '" onclick="wToggleGroup(' + wi + ',' + ggi + ')">' +
-    '<div class=chead><span class=ctrack>' + esc(g.key) + '</span>' +
-    '<span style="font-size:12px;opacity:.75">' + g.rows.length + ' rows' + (g.wait ? ' · ' + g.wait + ' waiting' : '') + '</span>' +
-    (g.wait ? '<span class=needbadge>waiting</span>' : '') +
-    '<span style="margin-left:auto;font-size:11px;opacity:.6">' + esc(groupTime(g)) + (open ? ' ▾ close' : ' ▸ open') + '</span></div></div>';
+    '<div class=grow><span class=ctrack>' + esc(g.key) + '</span>' +
+    '<span>' + g.rows.length + ' rows</span>' +
+    '<span>' + (g.wait ? '<span class=needbadge>' + g.wait + ' waiting</span>' : '') + '</span>' +
+    '<span style="font-size:11px;opacity:.6">' + esc(groupTime(g)) + (open ? ' \u25be' : ' \u25b8') + '</span></div></div>';
 }
 function renderWidgetCards(wi) {
   const w = window._widgets[wi];
   const box = document.getElementById('wc-' + wi);
   if (!w || !box) return;
   const rows = widgetRows(w);
-  const head = '<div class=whead><div class=frow><span>TIME</span><span>PROJECT</span><span>KIND</span><span>SESSION</span><span>WAIT</span></div></div>';
+  const head = modeHead(w);
   if (w.g === 'none') {
     const maxp = Math.max(0, Math.ceil(rows.length / w.n) - 1);
     w.p = Math.min(w.p || 0, maxp);
@@ -527,8 +538,11 @@ function renderWidgetCards(wi) {
     html += groupCard(wi, g, ggi);
     if (w.openGroup === ggi) {
       const grows = g.rows.slice(0, 20);
-      html += grows.map(function(r, i) { return rowCard(wi, r, 'g' + ggi + 'r' + i); }).join('');
-      if (g.rows.length > grows.length) html += '<div style="font-size:11px;opacity:.6">+' + (g.rows.length - grows.length) + ' more — filter to narrow</div>';
+      html += '<div class=grows><div class=grows-label>\u21b3 ' + grows.length + ' rows of <b>' + esc(g.key) + '</b> \u2014 newest first</div>' +
+        subHead() +
+        grows.map(function(r, i) { return rowCard(wi, r, 'g' + ggi + 'r' + i); }).join('') +
+        (g.rows.length > grows.length ? '<div style="font-size:11px;opacity:.6">+' + (g.rows.length - grows.length) + ' more \u2014 filter to narrow</div>' : '') +
+        '</div>';
     }
   });
   box.innerHTML = head + waitBanner(w, rows) + (html || '<div style="font-size:12px;opacity:.6">no matches \u2014 clear the filter</div>');

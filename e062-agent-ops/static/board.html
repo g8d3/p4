@@ -58,6 +58,11 @@ button{cursor:pointer}button:disabled{opacity:.4}
 .wlist{max-height:58vh;overflow-y:auto;overscroll-behavior:contain}
 .frow .ses{white-space:normal;line-height:1.7}
 .frow .ses button{font-size:11px;padding:1px 5px;margin:0 2px 0 0}
+.grow{display:grid;grid-template-columns:minmax(90px,1fr) auto auto auto;gap:6px;align-items:baseline;font-size:12px}
+.grow>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grows{margin:2px 0 8px 10px;padding-left:8px;border-left:2px solid var(--bd)}
+.grows-label{font-size:11px;opacity:.65;margin:2px 0}
+.wsub{background:var(--bg);border:1px dashed var(--bd);border-radius:8px;padding:6px 8px;font-size:10px;letter-spacing:.06em;opacity:.75;margin:6px 0 2px}
 .r1{color:#3ddc84;font-weight:bold}.r0{color:#e0a63d}.blk{color:#e05555}
 .feed{font-size:12px}.rowbtns{white-space:nowrap}
 #tune{font-size:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--hd);border-radius:8px;padding:6px 8px}
@@ -84,5 +89,5 @@ button{cursor:pointer}button:disabled{opacity:.4}
 <details><summary id=ideas-sum>ideas inbox — tap to read</summary><div id=i style="font-size:13px"></div></details>
 <details><summary id=dir-sum>standing orders — tap to read</summary><div id=dir style="font-size:13px"></div></details></div>
 <div class=thumbbar><button onclick="runFleet(this)">&#9654; run fleet now</button><button id=waiting style="font-size:12px;font-weight:bold" onclick="waitFor('')" title="your notes + money gates waiting for a tap"></button><span class=seg id=seg-report-b><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span></div>
-<script src=/app.js?v=24></script>
+<script src=/app.js?v=26></script>
 </body></html>
