@@ -3,5 +3,6 @@
  "threshold_bps": 50.0,
  "last_n": 4,
  "top_n": 10,
- "urgent_mult": 3.0
+ "urgent_mult": 3.0,
+ "off_schedule": false
 }

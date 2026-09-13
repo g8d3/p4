@@ -11,7 +11,7 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE = os.path.join(BASE, 'data', 'alert_state.json')
 CFG_PATH = os.path.join(BASE, 'report_config.json')
 CFG_DEFAULTS = {'report_hour_utc': 8, 'threshold_bps': 50.0, 'last_n': 4,
-                'top_n': 10, 'urgent_mult': 3.0}
+                'top_n': 10, 'urgent_mult': 3.0, 'off_schedule': False}
 
 def load_cfg():
     cfg = dict(CFG_DEFAULTS)
@@ -119,6 +119,14 @@ def main():
         print('no new survivors (all alerted or none)');
         return
     if not digest_due and not a.dry_run:
+        # Owner law 2026-09-13: digest-only. A paper-stage scanner that
+        # cannot trade has no owner action attached to any ping, so any
+        # off-schedule ping is noise by definition. The 24h new-payer
+        # rule below stays as second layer if off_schedule is re-enabled.
+        if not cfg.get('off_schedule', False):
+            print(f'digest deferred to {int(cfg["report_hour_utc"]):02d}:00 UTC '
+                  f'({len(fresh)} survivors silenced, digest-only mode)');
+            return
         urgent = [r for r in fresh if (r.get('spread_bps') or 0) >= urgent_cut]
         if not urgent:
             print(f'digest deferred to {int(cfg["report_hour_utc"]):02d}:00 UTC '

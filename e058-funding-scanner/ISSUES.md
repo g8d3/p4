@@ -46,15 +46,18 @@ aligned label/input grid. Same fix rolls to all apps.
 - `paper N logged` always says when grading happens; resolved
   scores read `(a/b graded)`.
 
-## 9. Alerts: one ping per payer per day (fixed 2026-09-13 direct)
+## 9. Alerts: digest-only (fixed 2026-09-13 direct, escalated same day)
 
-Bug: dedup key was the snapshot window, so every 15-min snapshot
-re-pinged persistent payers as URGENT (4 pings in 2h on the owner's
-phone). Rule: off-schedule pings are for NEW payers only — a coin
-re-pings at most once per 24h; everything else waits for the 8 UTC
-digest. Wording decoded too: `e058 new payer` + `holding 4/4` +
-`(0 flips, OI rank 471)`. Legacy state entries re-ping once, then
-silence. Progress, not every action.
+Bug 1: dedup key was the snapshot window — persistent payers re-pinged
+as URGENT every window slide (4 pings in 2h). First fix (24h re-ping
+rule) worked mechanically (one silence logged) but three DIFFERENT
+coins crossed within the hour — policy still wrong. Escalation: a
+paper-stage scanner that cannot trade has no owner action attached to
+any ping, so off-schedule pings are noise by definition. Now
+digest-only (`off_schedule: false` in report_config.json): one ping/day
+at 8 UTC, everything else silent. 24h new-payer rule stays as second
+layer if ever re-enabled. Wording decoded: `e058 new payer/daily
+funding digest` + `holding 4/4` + `(0 flips, OI rank 471)`.
 
 ## 8. Paper ballot section (UX §3, queued 2026-09-13)
 
