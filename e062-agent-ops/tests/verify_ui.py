@@ -75,6 +75,9 @@ with sync_playwright() as pw:
     check('root tables render', pg2.locator('#widgets table.rtable').count() >= 3, pg2.locator('#widgets table.rtable').count())
     check('no vertical scroll traps', pg2.evaluate("getComputedStyle(document.querySelector('#wc-0')).overflowY") in ('visible', ''), pg2.evaluate("getComputedStyle(document.querySelector('#wc-0')).overflowY"))
     pg2.screenshot(path='/tmp/ui-desktop.png', full_page=False)
+    pg.evaluate('window.scrollTo(0,0)'); pg.wait_for_timeout(400)
+    hits = pg.evaluate("Array.from(document.querySelectorAll('h2 button')).map(b=>{const r=b.getBoundingClientRect();const el=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return el===b;})")
+    check('header buttons hittable (no overlap)', all(hits), hits)
     b.close()
 
 # restore: leave the owner's saved views clean (tests must not pollute)
@@ -84,7 +87,5 @@ try:
         headers={'Content-Type': 'application/json'}), timeout=10)
 except Exception as e:
     print('WARN restore failed:', e)
-hits = pg.evaluate("Array.from(document.querySelectorAll('h2 button')).map(b=>{const r=b.getBoundingClientRect();const el=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return el===b;})")
-check('header buttons hittable (no overlap)', all(hits), hits)
 print('RESULT:', 'ALL PASS' if not errors else f'{len(errors)} FAILURES: {errors}')
 sys.exit(1 if errors else 0)
