@@ -151,6 +151,8 @@ def board(req: Request):
                     plan = ' / '.join([l.strip('# ').strip() for l in read(p, 8) if l.strip()][:3])
         tracks.append({'track': t, 'label': label,
                        'rung': (rungs.get(t) or {}).get('rung', 0),
+                       'rung_note': (rungs.get(t) or {}).get('note', ''),
+                       'rung_ts': (rungs.get(t) or {}).get('ts', ''),
                        'url': (rungs.get(t) or {}).get('url', ''),
                        'beat': beats.get(t), 'plan': plan[:140],
                        'focus': focus.get(t, '')})

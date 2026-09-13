@@ -333,12 +333,13 @@ async function load() {
     return '<div class="card' + (open ? ' open' : '') + '" id="c-' + t.track + '">' +
     '<div class=chead onclick="toggleCard(\'' + t.track + '\')">' +
     '<span class=ctrack>' + esc(t.track) + '</span><span>' + esc(t.label) + '</span>' +
-    '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '">rung ' + t.rung + '</span>' +
+    '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '" title="' + esc(RUNG_DEFS[t.rung] || 'not started') + '. ' + esc(rungNext(t.rung)) + '">rung ' + t.rung + '/5 · ' + esc(rungName(t.rung)) + '</span>' +
     ((waitByTrack[t.track] || 0) ? '<button class=needbadge title="notes + money gates waiting for you — tap to see" onclick="event.stopPropagation();waitFor(\'' + t.track + '\')">●' + waitByTrack[t.track] + ' waiting</button>' : '') +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
     (t.focus ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc(t.focus) + '</div>' : '') +
+    '<div style="font-size:11px;opacity:.75">' + esc(rungNext(t.rung)) + (t.rung_note ? ' · ' + esc(t.rung_note).slice(0, 90) : '') + '</div>' +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
@@ -358,6 +359,7 @@ async function load() {
     'treasury: spent $' + d.runway.spent.toFixed(2) + ' earned $' + d.runway.earned.toFixed(2) +
     ' left $' + d.runway.left.toFixed(2) + ' of $300';
   try { window._unirows = buildUnified(d); loadWidgets(d); renderWidgets(); } catch (e) {}
+  try { renderLadder(d); } catch (e) {}
   try { renderGates(d); } catch (e) {}
   try { renderLists(d); } catch (e) {}
   const leg = document.getElementById('leg');
@@ -570,7 +572,7 @@ function widgetRows(w) {
   return rows;
 }
 var ALLCOLS = {
-  projects: [['proj', 'PROJ'], ['rows', 'ROWS'], ['wait', 'WAIT'], ['latest', 'LATEST'], ['url', 'URL']],
+  projects: [['proj', 'PROJ'], ['name', 'NAME'], ['rows', 'ROWS'], ['wait', 'WAIT'], ['latest', 'LATEST'], ['url', 'URL']],
   sessions: [['run', 'RUN'], ['ses', 'SES'], ['status', 'STATUS'], ['time', 'TIME']],
   waiting: [['item', 'ITEM'], ['proj', 'PROJ'], ['time', 'TIME'], ['go', 'GO']],
   relSessions: [['run', 'RUN'], ['ses', 'SES'], ['status', 'STATUS'], ['time', 'TIME']],
@@ -794,6 +796,35 @@ function trackUrl(key) {
     return (t && t.url) || '';
   } catch (e) { return ''; }
 }
+function trackLabel(key) {
+  try {
+    const t = ((window._board || {}).tracks || []).filter(function(x) { return x.track === key; })[0];
+    return (t && t.label) || '';
+  } catch (e) { return ''; }
+}
+var RUNG_DEFS = {1: 'WORKING — runs here', 2: 'DEPLOYED — live URL, survives reboot', 3: 'TESTED — checked + monitored', 4: 'ANNOUNCED — you got the URL+proof ping', 5: 'MONETIZED — earns (decided with you, never before)'};
+function rungName(r) { return (RUNG_DEFS[r] || 'not started').split(' — ')[0]; }
+function rungNext(r) {
+  if (r < 1) return 'next: WORKING — agents make it run here';
+  if (r === 1) return 'next: DEPLOYED — agents ship a live URL';
+  if (r === 2) return 'next: TESTED — agents verify + monitor';
+  if (r === 3) return 'next: ANNOUNCED — needs your announce tap below';
+  if (r === 4) return 'next: MONETIZED — business decision with you';
+  return 'done — all 5 rungs reached';
+}
+function renderLadder(d) {
+  const box = document.getElementById('ladder');
+  if (!box) return;
+  const counts = {};
+  (d.tracks || []).forEach(function(t) { counts[t.rung] = (counts[t.rung] || 0) + 1; });
+  const at3 = (d.tracks || []).filter(function(t) { return t.rung === 3; }).length;
+  const total = (d.tracks || []).length;
+  const pend = (d.proposals || []).filter(function(p) { return p.status === 'pending'; }).length;
+  box.innerHTML = '<b>rung</b> = step on the DONE ladder (agents move 1→3 on their own each leg; ' +
+    'rung 4 needs <b>your</b> announce tap; rung 5 is a business decision with you). ' +
+    'Now: <b>' + at3 + '/' + total + ' at rung 3 TESTED</b>' +
+    (pend ? ' · ' + pend + ' gate(s) waiting for your tap below' : ' · nothing waiting — legs keep pushing 1→3') + '.';
+}
 function sortArrow(w, col) {
   return w.sortcol === col ? (w.sortdir === 'asc' ? ' \u25b2' : ' \u25bc') : '';
 }
@@ -857,7 +888,7 @@ function wSort(wi, col) {
   const w = window._widgets[wi];
   if (!w) return;
   if (w.sortcol === col) w.sortdir = (w.sortdir === 'asc' ? 'desc' : 'asc');
-  else { w.sortcol = col; w.sortdir = (col === 'proj' || col === 'status' || col === 'url') ? 'asc' : 'desc'; }
+  else { w.sortcol = col; w.sortdir = (col === 'proj' || col === 'name' || col === 'status' || col === 'url') ? 'asc' : 'desc'; }
   w.p = 0;
   saveWidgets(); renderWidgets();
 }
@@ -868,6 +899,7 @@ function projRoot(wi, w, rows) {
   groups.sort(function(a, b) {
     let va, vb;
     if (w.sortcol === 'proj') { va = a.key; vb = b.key; }
+    else if (w.sortcol === 'name') { va = trackLabel(a.key); vb = trackLabel(b.key); }
     else if (w.sortcol === 'url') { va = trackUrl(a.key); vb = trackUrl(b.key); }
     else if (w.sortcol === 'rows') { va = a.rows.length; vb = b.rows.length; }
     else if (w.sortcol === 'wait') { va = a.wait; vb = b.wait; }
@@ -882,12 +914,13 @@ function projRoot(wi, w, rows) {
   const span = cols.length + 1;
   const cell = {
     proj: function(g) { return '<td><b>' + esc(g.key) + '</b></td>'; },
+    name: function(g) { return '<td>' + esc(trackLabel(g.key)) + '</td>'; },
     rows: function(g) { return '<td>' + g.rows.length + '</td>'; },
     wait: function(g) { return '<td>' + (g.wait ? '<span class=needbadge>' + g.wait + '</span>' : '') + '</td>'; },
     latest: function(g) { return '<td>' + esc(shortTime(groupTime(g))) + '</td>'; },
     url: function(g) { const u = trackUrl(g.key); return '<td>' + (u ? '<a href="' + esc(u) + '" onclick="event.stopPropagation()">open</a>' : '') + '</td>'; }
   };
-  const head = {proj: 'PROJ', rows: 'ROWS', wait: 'WAIT', latest: 'LATEST', url: 'URL'};
+  const head = {proj: 'PROJ', name: 'NAME', rows: 'ROWS', wait: 'WAIT', latest: 'LATEST', url: 'URL'};
   let h = '<div class=rwrap><table class=rtable><thead><tr>' +
     cols.map(function(c) { return '<th onclick="wSort(' + wi + ',\'' + c[0] + '\')">' + head[c[0]] + sortArrow(w, c[0]) + '</th>'; }).join('') +
     '<th></th></tr></thead><tbody>';
