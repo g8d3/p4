@@ -53,8 +53,46 @@ function togPause(t, btn) {
   const paused = (window._paused || []).includes(t);
   openCtl(paused ? '/api/resume' : '/api/pause', {track: t}, btn, paused ? 'resumed ✓' : 'paused ✓');
 }
-function runScope(t, btn) { openCtl('/api/run', {scope: t}, btn, 'leg started ✓'); }
-function runFleet(btn) { openCtl('/api/run', {scope: 'fleet'}, btn, 'leg started ✓'); }
+async function attachDrafts(scope) {
+  // NEVER drop owner words: a Run tap carries any typed message with it.
+  // Card boxes are n-<track>; row replies are u-<uid> with data-track.
+  const jobs = [];
+  document.querySelectorAll('input[id^="n-"]').forEach(function(inp) {
+    const t = inp.id.slice(2);
+    const v = (inp.value || '').trim();
+    if (!v) return;
+    if (scope !== 'fleet' && t !== scope) return;
+    jobs.push({track: t, message: v, inp: inp});
+  });
+  document.querySelectorAll('input[id^="u-"]').forEach(function(inp) {
+    const t = inp.getAttribute('data-track') || '';
+    const v = (inp.value || '').trim();
+    if (!v || !t) return;
+    if (scope !== 'fleet' && t !== scope) return;
+    jobs.push({track: t, message: v, inp: inp});
+  });
+  for (const j of jobs) {
+    try {
+      const r = await (await fetch('/api/note', {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({track: j.track, message: j.message})})).json();
+      if (r.ok) j.inp.value = '';
+    } catch (e) {}
+  }
+  return jobs.length;
+}
+function runScope(t, btn) {
+  (async function() {
+    const n = await attachDrafts(t);
+    openCtl('/api/run', {scope: t}, btn, n ? ('leg started with your message ✓') : 'leg started ✓');
+  })();
+}
+function runFleet(btn) {
+  (async function() {
+    const n = await attachDrafts('fleet');
+    openCtl('/api/run', {scope: 'fleet'}, btn, n ? ('fleet leg started with your messages ✓') : 'leg started ✓');
+  })();
+}
 function splitOwnerTech(s) {
   s = String(s == null ? '' : s);
   const i = s.indexOf(' | ');
@@ -169,7 +207,7 @@ async function load() {
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
-    '<button onclick="runScope(\'' + t.track + '\',this)" title="run now WITHOUT any message">run</button></div>' +
+    '<button onclick="runScope(\'' + t.track + '\',this)" title="run now — anything you typed is attached automatically">run</button></div>' +
     (open ? cardDetail(t) : '') +
     '</div>';
   }).join('');
@@ -227,7 +265,7 @@ function cardDetail(t) {
     '<div class=rowbtns style="margin-top:4px">' +
     '<button onclick="sendNoteQueued(\'' + t.track + '\',this)">queue (next leg)</button> ' +
     '<button onclick="sendNoteRun(\'' + t.track + '\',this)">send + run now</button></div>' +
-    '<div style="font-size:11px;opacity:.6">queue = read whenever the next leg runs. send + run now = your message starts a leg immediately on this project. plain run (above) starts a leg with NO message.</div></div>';
+    '<div style="font-size:11px;opacity:.6">queue = read whenever the next leg runs. send + run now = your message starts a leg immediately on this project. plain run (above) also carries anything you typed.</div></div>';
 }
 function actTs(s) {
   try { return new Date(String(s).replace(' ', 'T') + 'Z').getTime(); } catch (e) { return 0; }
@@ -627,10 +665,36 @@ function uniDetail(r, uid) {
       '<button onclick="uniWatchLive(' + r.leg + ',\'' + uid + '\',this)">watch live</button></div>' +
       '<pre id="uni-live-' + uid + '" style="max-height:24vh;overflow-y:auto;font-size:11px"></pre>';
   }
-  h += '<div class=act-reply><input id="u-' + uid + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…" onclick="event.stopPropagation()">' +
-    '<button onclick="sendUniNote(\'' + safeTrack + '\',\'' + uid + '\',this)">send</button></div>' +
-    '<div style="font-size:11px;opacity:.6">reply = queued for the next leg on this project.</div></div>';
+  h += '<div class=act-reply><input id="u-' + uid + '" data-track="' + safeTrack + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…" onclick="event.stopPropagation()">' +
+    '<button onclick="sendUniNote(\'' + safeTrack + '\',\'' + uid + '\',this)">queue</button> ' +
+    '<button onclick="sendUniNoteRun(\'' + safeTrack + '\',\'' + uid + '\',this)">send + run now</button></div>' +
+    '<div style="font-size:11px;opacity:.6">queue = read on the next leg. send + run now = starts a leg on this project immediately. plain run also carries your typed words.</div></div>';
   return h;
+}
+async function sendUniNoteRun(track, uid, btn) {
+  const inp = document.getElementById('u-' + uid);
+  const v = inp ? inp.value.trim() : '';
+  if (!v) { alert('write the message first — or use plain run for no-message'); return; }
+  const okTracks = {e058: 1, e059: 1, e060: 1, e061: 1, e062: 1, runner: 1};
+  const t = okTracks[track] ? track : 'e062';
+  const old = btn.textContent;
+  btn.textContent = 'sending…'; btn.disabled = true;
+  try {
+    const r1 = await (await fetch('/api/note', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({track: t, message: v})})).json();
+    if (!r1.ok) { btn.textContent = 'error'; alert(r1.error || 'note failed'); }
+    else {
+      inp.value = '';
+      btn.textContent = 'starting…';
+      const r2 = await (await fetch('/api/run', {method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({scope: t})})).json();
+      if (r2.ok) { btn.textContent = 'running ✓'; load(); }
+      else { btn.textContent = 'error'; alert((r2.error || 'run failed') + ' — message was queued anyway'); }
+    }
+  } catch (e) { btn.textContent = 'error'; alert(String(e)); }
+  setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
 }
 async function sendUniNote(track, uid, btn) {
   const inp = document.getElementById('u-' + uid);
