@@ -23,8 +23,8 @@ with sync_playwright() as pw:
     pg.wait_for_timeout(2500)
 
     check('no console errors (phone)', len(cerr) == 0, cerr[:3])
-    nwidgets = pg.locator('#widgets > div').count()
-    check('4 default widgets rendered', nwidgets == 4, nwidgets)
+    nwidgets = pg.evaluate('window._widgets.length')
+    check('3 default widgets rendered', nwidgets == 3, nwidgets)
     ncards = pg.locator('#cards .card').count()
     check('6 project cards rendered', ncards == 6, ncards)
     # waiting math: UI badge total vs API notes+pending
@@ -43,14 +43,17 @@ with sync_playwright() as pw:
     pend = [p for p in api.get('proposals', []) if p['status'] == 'pending']
     if pend:
         check('pending gate action visible', pend[0]['action'][:20] in body, pend[0]['action'][:40])
-    # tap first widget card -> expands with talk box
-    cards = pg.locator('#wc-0 .card')
-    if cards.count():
-        cards.first.click()
-        pg.wait_for_timeout(600)
-        check('card expands with talk box', pg.locator('#wc-0 .act-reply input').count() > 0)
-    else:
-        check('widget 0 has cards', False, 'empty')
+    # projects root: expand first project -> relation tabs + nested table
+    pg.locator('#wc-0 tr.prow').first.click()
+    pg.wait_for_timeout(700)
+    check('project expands meaningfully', pg.locator('#wc-0 table.ntable').count() > 0)
+    # a group WITH relations shows tabs; expand e062 (has gates) explicitly
+    pg.evaluate("wProjToggle(0, 0)")
+    pg.wait_for_timeout(400)
+    # sessions root: expand first session -> talk box
+    pg.locator('#wc-1 tr').nth(1).click()
+    pg.wait_for_timeout(700)
+    check('session expands with talk box', pg.locator('#wc-1 .act-reply input').count() > 0)
     # waiting badge tap -> filters
     pg.locator('#waiting').click()
     pg.wait_for_timeout(800)
@@ -65,7 +68,8 @@ with sync_playwright() as pw:
     pg2.goto(BASE + '/', wait_until='networkidle')
     pg2.wait_for_timeout(2000)
     check('no console errors (desktop)', len(cerr2) == 0, cerr2[:3])
-    check('no page-level tables', pg2.locator('table').count() == 0, pg2.locator('table').count())
+    check('root tables render', pg2.locator('#widgets table.rtable').count() >= 3, pg2.locator('#widgets table.rtable').count())
+    check('no vertical scroll traps', pg2.evaluate("getComputedStyle(document.querySelector('#wc-0')).overflowY") in ('visible', ''), pg2.evaluate("getComputedStyle(document.querySelector('#wc-0')).overflowY"))
     pg2.screenshot(path='/tmp/ui-desktop.png', full_page=False)
     b.close()
 

@@ -175,6 +175,22 @@ def ack(track, n='all'):
     c.close()
     print(f'acked {cur.rowcount} [{track}], {left} still open')
 
+def focus(track=None, text=None):
+    c = db()
+    c.execute('CREATE TABLE IF NOT EXISTS focus(track TEXT PRIMARY KEY, text TEXT, ts INTEGER)')
+    import time as t
+    if not track:
+        for r in c.execute('SELECT track, text, datetime(ts,"unixepoch") FROM focus ORDER BY track'):
+            print(r)
+        c.close(); return
+    if text is None:
+        r = c.execute('SELECT text FROM focus WHERE track=?', (track,)).fetchone()
+        print(f'{track}: {r[0] if r else "(no focus set)"}')
+    else:
+        c.execute('INSERT OR REPLACE INTO focus VALUES (?,?,?)', (track, text, int(t.time())))
+        c.commit(); print(f'focus [{track}] = {text}')
+    c.close()
+
 def pause(track, reason='owner'):
     import time as t
     c = db()
@@ -230,6 +246,7 @@ CMDS = {'init': lambda a: init(), 'emit': lambda a: emit(*a),
         'trial': lambda a: trial(*a), 'trials': lambda a: trials(int(a[0]) if a else 7),
         'note': lambda a: note(a[0], ' '.join(a[1:])),
         'pause': lambda a: pause(*a),
+        'focus': lambda a: focus(*a),
         'ack': lambda a: ack(*a),
         'resume': lambda a: resume(a[0]),
         'inbox': lambda a: inbox(*(a or [])),

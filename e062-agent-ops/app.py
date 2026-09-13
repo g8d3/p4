@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """e062 fleet board — plans, changes, execution. Port 8322."""
-import os, sqlite3, subprocess, time
+import hashlib, os, secrets as _secrets, sqlite3, subprocess, time
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DB = os.environ.get('E062_DB', os.path.join(BASE, 'ops.db'))
@@ -31,23 +31,51 @@ def get_prefs():
                 except Exception: pass
     return out
 
-def board_token():
-    try: return open(os.path.expanduser('~/.config/e062/board_token')).read().strip()
-    except Exception: return None
+AUTH_COOKIE = 'e062sess'
+AUTH_DAYS = 90
 
-def need_token(req):
-    tok = board_token()
-    if not tok: return 'server token missing'
-    got = (req.headers.get('x-token', '') or '').strip()
-    if got != tok:
-        try:
-            ip = req.client.host if req.client else '?'
-        except Exception:
-            ip = '?'
-        print(f"board auth fail from {ip}: got_len={len(got)} want_len={len(tok)}", flush=True)
-        return ('bad token — press the token button (top-right) and re-enter '
-                'the board token')
-    return None
+def auth_tables(c):
+    c.execute('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, pw TEXT, role TEXT DEFAULT \'viewer\', created INTEGER)')
+    c.execute('CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, uid INTEGER, created INTEGER, expires INTEGER)')
+
+def _hash(pw, salt):
+    return hashlib.pbkdf2_hmac('sha256', pw.encode(), salt.encode(), 200000).hex()
+
+def current_user(req):
+    try: tok = (req.cookies.get(AUTH_COOKIE) or '').strip()
+    except Exception: tok = ''
+    if not tok: return None
+    c = sqlite3.connect(DB)
+    auth_tables(c)
+    r = c.execute('SELECT u.id, u.name, u.role, s.expires FROM sessions s JOIN users u ON u.id=s.uid WHERE s.token=?', (tok,)).fetchone()
+    if not r:
+        c.close(); return None
+    if r[3] < int(time.time()):
+        c.execute('DELETE FROM sessions WHERE token=?', (tok,)); c.commit()
+        c.close(); return None
+    c.close()
+    return {'id': r[0], 'name': r[1], 'role': r[2]}
+
+def need_login(req):
+    u = current_user(req)
+    return (None, u) if u else ({'ok': False, 'error': 'login required — top right'}, None)
+
+def need_admin(req):
+    u = current_user(req)
+    if not u: return {'ok': False, 'error': 'login required — top right'}, None
+    if u['role'] != 'admin': return {'ok': False, 'error': 'admin only — ask the owner to approve'}, None
+    return None, u
+
+def _login_cookie(name, role, uid):
+    tok = _secrets.token_hex(24)
+    now = int(time.time())
+    c = sqlite3.connect(DB)
+    auth_tables(c)
+    c.execute('INSERT INTO sessions VALUES (?,?,?,?)', (tok, uid, now, now + AUTH_DAYS * 86400))
+    c.commit(); c.close()
+    r = JSONResponse({'ok': True, 'name': name, 'role': role})
+    r.set_cookie(AUTH_COOKIE, tok, max_age=AUTH_DAYS * 86400, httponly=True, samesite='lax')
+    return r
 
 RUN_LOCK = '/tmp/e062-runner.lock'
 RUNS_DIR = os.path.join(BASE, 'runs')
@@ -88,8 +116,13 @@ def read(p, n=60):
     except Exception: return []
 
 @app.get('/api/board')
-def board():
+def board(req: Request):
     c = sqlite3.connect(DB)
+    try:
+        c.execute('CREATE TABLE IF NOT EXISTS focus(track TEXT PRIMARY KEY, text TEXT, ts INTEGER)')
+        focus = {t: x for t, x in c.execute('SELECT track, text FROM focus').fetchall()}
+    except Exception:
+        focus = {}
     rungs = {t: {'rung': r, 'ts': ts, 'url': u, 'note': no}
              for t, r, ts, u, no in c.execute(
                  "SELECT track, rung, datetime(ts,'unixepoch'), url, note FROM rungs")}
@@ -119,7 +152,8 @@ def board():
         tracks.append({'track': t, 'label': label,
                        'rung': (rungs.get(t) or {}).get('rung', 0),
                        'url': (rungs.get(t) or {}).get('url', ''),
-                       'beat': beats.get(t), 'plan': plan[:140]})
+                       'beat': beats.get(t), 'plan': plan[:140],
+                       'focus': focus.get(t, '')})
     try:
         sp = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='spend'").fetchone()[0]
         ea = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='earn'").fetchone()[0]
@@ -166,7 +200,8 @@ def board():
     return {'tracks': tracks, 'events': events, 'proposals': props,
             'trials': trials, 'directives': directives, 'ideas': ideas, 'runway': runway,
             'notes': notes, 'paused': paused, 'runs': runs, 'prefs': get_prefs(),
-            'runner': runner_info, 'leg_tail': last_leg_tail()}
+            'runner': runner_info, 'leg_tail': last_leg_tail(),
+            'me': ({'name': u['name'], 'role': u['role']} if (u := current_user(req)) else None)}
 
 @app.get('/api/runstate')
 def api_runstate():
@@ -197,11 +232,82 @@ def api_runstate():
             'last': ({'id': last[0], 'started': last[2], 'scope': last[3],
                       'trigger': last[4], 'status': last[5], 'summary': last[6]} if last else None)}
 
+@app.post('/api/register')
+async def api_register(req: Request):
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    name = str(d.get('name') or '').strip()[:32]
+    pw = str(d.get('pw') or '')
+    if len(name) < 2 or len(pw) < 6:
+        return {'ok': False, 'error': 'name 2+ chars, password 6+ chars'}
+    c = sqlite3.connect(DB)
+    auth_tables(c)
+    role = 'admin' if c.execute('SELECT COUNT(*) FROM users').fetchone()[0] == 0 else 'viewer'
+    salt = _secrets.token_hex(8)
+    try:
+        cur = c.execute('INSERT INTO users(name, pw, role, created) VALUES (?,?,?,?)',
+                        (name, _hash(pw, salt) + ':' + salt, role, int(time.time())))
+        uid = cur.lastrowid
+        c.commit()
+    except sqlite3.IntegrityError:
+        c.close(); return {'ok': False, 'error': 'name taken — login instead'}
+    c.close()
+    return _login_cookie(name, role, uid)
+
+@app.post('/api/login')
+async def api_login(req: Request):
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    name = str(d.get('name') or '').strip()[:32]
+    pw = str(d.get('pw') or '')
+    c = sqlite3.connect(DB)
+    auth_tables(c)
+    r = c.execute('SELECT id, pw, role FROM users WHERE name=?', (name,)).fetchone()
+    c.close()
+    if not r: return {'ok': False, 'error': 'no such account — register first'}
+    try: want, salt = r[1].split(':')
+    except Exception: return {'ok': False, 'error': 'login broken — re-register'}
+    if _hash(pw, salt) != want: return {'ok': False, 'error': 'wrong password'}
+    return _login_cookie(name, r[2], r[0])
+
+@app.post('/api/logout')
+async def api_logout(req: Request):
+    try: tok = (req.cookies.get(AUTH_COOKIE) or '').strip()
+    except Exception: tok = ''
+    if tok:
+        c = sqlite3.connect(DB)
+        auth_tables(c)
+        c.execute('DELETE FROM sessions WHERE token=?', (tok,))
+        c.commit(); c.close()
+    r = JSONResponse({'ok': True})
+    r.delete_cookie(AUTH_COOKIE)
+    return r
+
+@app.get('/api/me')
+def api_me(req: Request):
+    u = current_user(req)
+    return {'ok': True, 'me': ({'name': u['name'], 'role': u['role']} if u else None)}
+
+@app.post('/api/promote')
+async def api_promote(req: Request):
+    err, me = need_admin(req)
+    if err: return err
+    try: d = await req.json()
+    except Exception: return {'ok': False, 'error': 'bad json'}
+    name = str(d.get('name') or '').strip()[:32]
+    c = sqlite3.connect(DB)
+    auth_tables(c)
+    cur = c.execute("UPDATE users SET role='admin' WHERE name=?", (name,))
+    c.commit(); c.close()
+    if not cur.rowcount: return {'ok': False, 'error': 'no such account'}
+    return {'ok': True}
+
 @app.post('/api/run')
 async def api_run(req: Request):
     # No token: tailnet-only board, and pause/resume/note are already open.
     # Worst case a stray tap costs one extra leg (cron runs 48/day anyway).
-    # Money stays gated: /api/decide still requires the board token.
+    err, _me = need_login(req)
+    if err: return err
     try: d = await req.json()
     except Exception: return {'ok': False, 'error': 'bad json'}
     scope = (d.get('scope') or 'fleet').strip()
@@ -245,6 +351,8 @@ def api_leg(rid: int):
 
 @app.post('/api/pause')
 async def api_pause(req: Request):
+    err, _me = need_login(req)
+    if err: return err
     d = await req.json()
     track = (d.get('track') or '').strip()
     if track not in TRACKS: return {'ok': False, 'error': 'bad track'}
@@ -259,6 +367,8 @@ async def api_pause(req: Request):
 
 @app.post('/api/resume')
 async def api_resume(req: Request):
+    err, _me = need_login(req)
+    if err: return err
     d = await req.json()
     track = (d.get('track') or '').strip()
     if track not in TRACKS: return {'ok': False, 'error': 'bad track'}
@@ -273,8 +383,8 @@ async def api_resume(req: Request):
 
 @app.post('/api/decide')
 async def api_decide(req: Request):
-    err = need_token(req)
-    if err: return {'ok': False, 'error': err}
+    err, _me = need_admin(req)
+    if err: return err
     d = await req.json()
     try: pid, verdict = int(d.get('id')), d.get('verdict')
     except Exception: return {'ok': False, 'error': 'need id + verdict'}
@@ -285,12 +395,40 @@ async def api_decide(req: Request):
     c.commit(); c.close()
     return {'ok': True}
 
+_STARTED = int(time.time())
+try:
+    _RUN_COMMIT = subprocess.run(['git', 'log', '-1', '--format=%h', '--', 'e062-agent-ops'],
+                                 capture_output=True, text=True, cwd=P4).stdout.strip() or '?'
+except Exception:
+    _RUN_COMMIT = '?'
+
+def repo_state(sub=None):
+    # latest commit TOUCHING this track + its dirtiness (repo-wide HEAD is
+    # meaningless here: other tracks move it every leg)
+    try:
+        head = subprocess.run(['git', 'log', '-1', '--format=%h', '--', sub or '.'],
+                              capture_output=True, text=True, cwd=P4).stdout.strip() or '?'
+        dirty = subprocess.run(['git', 'status', '--short', '--'] + ['e062-agent-ops/app.py', 'e062-agent-ops/bin/ops.py', 'e062-agent-ops/bin/runner.sh', 'e062-agent-ops/static/app.js', 'e062-agent-ops/static/board.html', 'e062-agent-ops/tests/e2e.sh'],
+                               capture_output=True, text=True, cwd=P4).stdout.strip()
+        return head, bool(dirty)
+    except Exception:
+        return '?', False
+
+@app.get('/api/version')
+def api_version():
+    latest, dirty = repo_state('e062-agent-ops')
+    return {'ok': True, 'track': 'e062', 'running': _RUN_COMMIT,
+            'latest': latest, 'stale': _RUN_COMMIT != latest,
+            'dirty': dirty, 'started_ts': _STARTED}
+
 @app.get('/api/prefs')
 def api_prefs_get():
     return {'ok': True, 'prefs': get_prefs()}
 
 @app.post('/api/prefs')
 async def api_prefs_set(req: Request):
+    err, _me = need_login(req)
+    if err: return err
     d = await req.json()
     import sqlite3
     c = sqlite3.connect(DB)
@@ -324,6 +462,8 @@ async def api_prefs_set(req: Request):
 
 @app.post('/api/note')
 async def add_note(req: Request):
+    err, _me = need_login(req)
+    if err: return err
     d = await req.json()
     track, message = (d.get('track') or '').strip(), (d.get('message') or '').strip()[:500]
     if not track or not message or track not in TRACKS:

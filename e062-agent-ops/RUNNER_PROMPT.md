@@ -76,7 +76,11 @@ your log tail. Plain words first (a marketer reads them), tech after
 
 6. Money: SPEND.md tiers binding. T1 (≤$50/action) allowed with logging;
    anything bigger → `ops.py propose` + stop. No KYC bypass, ever.
-7. No secrets in repo (env only). Timeouts on every command. Browsers:
+7. VERSION DISCIPLINE (every web app carries its version; stale deploys are silent lies):
+   - After editing ANY served app (code or static), restart its server, curl its version endpoint, and confirm `running == latest` before you claim done. e062: `/api/version`. Static sites (e059 output/, e061 demo/): refresh their `version.json` via their refresh/version step.
+   - A leg that ships files without restarting the server FAILED the leg — the owner would see yesterday's app.
+   - Read your track's `next:` focus first (`ops.py focus <track>`); move THAT. When the proof step ships, update the focus line to the following step.
+7b. No secrets in repo (env only). Timeouts on every command. Browsers:
    `close --all`, 0 chrome processes at end.
 8. End: `ops.py beat <track> <ok|blocked> "<OWNER_SENTENCE> | tech: <detail>"`,
    and if a rung was earned, `ops.py promote`. Then inbox hygiene: every owner note you CONSUMED and SHIPPED this leg gets `ops.py ack <track> [n]` (verified live first — never ack unshipped work; stale waiting badges are a leg failure). Proposals stay pending until the owner decides. Print a 10-line leg report

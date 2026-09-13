@@ -36,7 +36,18 @@ grep -q "waitRoot" /tmp/e62_app.js || fail "waiting root table missing"
 grep -q "wSort" /tmp/e62_app.js || fail "tap-to-sort missing"
 grep -q "relTabs" /tmp/e62_app.js || fail "nested relation tabs missing"
 grep -q "clampCell" /tmp/e62_app.js || fail "long-text clamp missing"
+grep -q "colPicker" /tmp/e62_app.js || fail "column SELECT picker missing"
+grep -q "sqlCaption" /tmp/e62_app.js || fail "live SQL caption missing"
+grep -q "after:" /tmp/e62_app.js || fail "date WHERE tokens missing"
 grep -q "waitBanner" /tmp/e62_app.js || fail "waiting explainer banner missing"
+grep -qi "announced" /tmp/e62_root.html || fail "rung ladder explainer missing"
+out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
+echo "$out" | grep -q '"running"' || fail "version shape bad"
+echo "$out" | grep -q '"stale":false' || fail "server STALE — restart after edits"
+python3 -c "import json;d=json.load(open('/tmp/e62_board.json'));assert all('focus' in t for t in d['tracks'])" 2>/dev/null || {
+curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board refetch"
+python3 -c "import json;d=json.load(open('/tmp/e62_board.json'));assert all('focus' in t for t in d['tracks']), 'focus missing'"; } || fail "focus missing"
+grep -q "renderAuth" /tmp/e62_app.js || fail "auth UI missing"
 ! grep -q "keep at least one" /tmp/e62_app.js || fail "views still locked to min 1"
 grep -q "is:waiting" /tmp/e62_app.js || fail "waiting query missing"
 grep -q "ses " /tmp/e62_app.js || fail "session short-id display missing"
@@ -71,47 +82,78 @@ grep -q "nwrap" /tmp/e62_root.html || fail "nested-scroll CSS missing"
 code=$(curl -s -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/runstate") || fail "runstate unreachable"
 [ "$code" = "200" ] || fail "runstate http=$code"
 python3 -c "import json; d=json.load(open('/tmp/e62_runstate.json')); assert d.get('ok') and 'running' in d, 'runstate shape'" || fail "runstate shape bad"
-# /api/run is OPEN (owner decision 2026-09-12: tailnet-only board, pause/resume/note
-# already open; worst case a stray tap costs one leg). bad scope must fail WITHOUT spawning.
-out=$(curl -s -m 10 -X POST "$BASE/api/run" -H 'Content-Type: application/json' -d '{"scope":"nope"}') || fail "run API unreachable"
-echo "$out" | grep -q '"ok":false' || fail "bad scope not rejected: $out"
-echo "$out" | grep -q 'bad scope' || fail "bad-scope error wrong: $out"
-echo "run open ok: no token needed, bad scope rejected, no leg spawned"
-# money stays gated: /api/decide without token must fail
-out=$(curl -s -m 10 -X POST "$BASE/api/decide" -H 'Content-Type: application/json' -d '{"id":9999,"verdict":"approved"}') || fail "decide API unreachable"
-echo "$out" | grep -q '"ok":false' || fail "decide money gate open!"
-echo "decide gate ok: money still token-protected"
-
-# report pref: configurable display (simple default, both/tech switchable)
-python3 - "$BASE" <<'EOF' || fail "report pref bad"
-import json, sys, urllib.request
-base=sys.argv[1]
+# AUTH: app accounts (register/login/logout), mutations need login, money needs admin.
+# bad scope must fail WITHOUT spawning; nothing here spawns a leg or moves money.
+python3 - "$BASE" "$(cd "$(dirname "$0")/.." && pwd)/ops.db" <<'EOF' || fail "auth bad"
+import http.cookiejar, json, sqlite3, sys, time, urllib.request
+base, dbpath = sys.argv[1], sys.argv[2]
+cj = http.cookiejar.CookieJar()
+op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
 def post(path, obj):
-    r=urllib.request.Request(base+path, data=json.dumps(obj).encode(), headers={"Content-Type":"application/json"})
+    r = urllib.request.Request(base+path, data=json.dumps(obj).encode(),
+                               headers={"Content-Type": "application/json"})
+    return json.load(op.open(r, timeout=10))
+def anon(path, obj):
+    r = urllib.request.Request(base+path, data=json.dumps(obj).encode(),
+                               headers={"Content-Type": "application/json"})
     return json.load(urllib.request.urlopen(r, timeout=10))
-r=post("/api/prefs", {"report":"both"})
-assert r.get("ok"), "prefs set failed"
-d=json.load(urllib.request.urlopen(base+"/api/board", timeout=15))
-assert d.get("prefs", {}).get("report")=="both", "board prefs missing report=both"
-r=post("/api/prefs", {"report":"simple"})
-assert r.get("ok"), "prefs restore failed"
-print("report pref ok: simple default, both/tech switchable")
-EOF
-python3 - "$BASE" <<'EOF' || fail "widgets pref bad"
-import json, sys, urllib.request
-base=sys.argv[1]
-def post(path, obj):
-    r=urllib.request.Request(base+path, data=json.dumps(obj).encode(), headers={"Content-Type":"application/json"})
-    return json.load(urllib.request.urlopen(r, timeout=10))
-mine=[{"t":"all","q":"","g":"none","s":"new","n":20}]
-r=post("/api/prefs", {"widgets":json.dumps(mine)})
+# 1. anonymous mutations rejected (run/note/decide/prefs)
+for path, obj in [("/api/run", {"scope": "nope"}), ("/api/note", {"track": "e062", "message": "x"}),
+                  ("/api/decide", {"id": 999999, "verdict": "approved"}), ("/api/prefs", {"report": "both"})]:
+    r = anon(path, obj)
+    assert r.get("ok") is False and "login" in (r.get("error") or "").lower(), f"{path} not login-gated: {r}"
+print("auth ok: anonymous run/note/decide/prefs rejected")
+# 2. validation + login failures
+r = post("/api/register", {"name": "a", "pw": "short"})
+assert not r.get("ok"), "weak credentials accepted"
+r = post("/api/login", {"name": "nosuchuser_e2e", "pw": "whatever123"})
+assert not r.get("ok"), "unknown login accepted"
+# 3. register e2e account (admin iff first user ever — else viewer; both paths asserted)
+me = "e2euser_%d" % int(time.time())
+r = post("/api/register", {"name": me, "pw": "e2e-pass-123"})
+assert r.get("ok") and r.get("name") == me, f"register failed: {r}"
+role = r.get("role")
+assert role in ("admin", "viewer"), role
+r = post("/api/login", {"name": me, "pw": "wrongpass"})
+assert not r.get("ok"), "wrong password accepted"
+# 4. authed bad-scope run: passes auth, fails scope, spawns nothing
+r = post("/api/run", {"scope": "nope"})
+assert r.get("ok") is False and "bad scope" in (r.get("error") or ""), f"bad scope: {r}"
+# 5. money gate by role
+r = post("/api/decide", {"id": 999999, "verdict": "approved"})
+if role == "admin":
+    assert r.get("ok"), f"admin decide failed: {r}"
+else:
+    assert r.get("ok") is False and "admin" in (r.get("error") or "").lower(), f"viewer decide: {r}"
+# 6. prefs round-trips need auth too (report + widgets)
+r = post("/api/prefs", {"report": "both"})
+assert r.get("ok"), "authed prefs failed"
+d = json.load(op.open(base + "/api/board", timeout=15))
+assert d.get("prefs", {}).get("report") == "both", "board prefs mismatch"
+assert (d.get("me") or {}).get("name") == me, "board me missing"
+mine = [{"t": "projects", "q": "", "root": "projects", "n": 20}]
+r = post("/api/prefs", {"widgets": json.dumps(mine)})
 assert r.get("ok"), "widgets set failed"
-d=json.load(urllib.request.urlopen(base+"/api/board", timeout=15))
-assert json.loads(d.get("prefs", {}).get("widgets") or "[]")==mine, "board prefs widgets mismatch"
-r=post("/api/prefs", {"widgets":""})
-assert r.get("ok"), "widgets restore failed"
-print("widgets pref ok: views persist server-side")
+d = json.load(op.open(base + "/api/board", timeout=15))
+assert json.loads(d.get("prefs", {}).get("widgets") or "[]") == mine, "widgets mismatch"
+post("/api/prefs", {"report": "simple"})
+post("/api/prefs", {"widgets": ""})
+# 7. logout kills the session
+r = post("/api/logout", {})
+assert r.get("ok"), "logout failed"
+r = anon("/api/note", {"track": "e062", "message": "x"})
+assert r.get("ok") is False, "session survived logout"
+# 8. cleanup test accounts (same-host DB)
+c = sqlite3.connect(dbpath)
+c.execute("DELETE FROM sessions WHERE uid IN (SELECT id FROM users WHERE name LIKE 'e2euser\\_%' ESCAPE '\\')")
+c.execute("DELETE FROM users WHERE name LIKE 'e2euser\\_%' ESCAPE '\\'")
+c.commit()
+left = c.execute("SELECT COUNT(*) FROM users WHERE name LIKE 'e2euser\\_%' ESCAPE '\\'").fetchone()[0]
+c.close()
+assert left == 0, "e2e users left behind"
+print(f"auth ok: register/login/logout/me, role={role}, prefs round-trip, cleanup done")
 EOF
+curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 curl -s -m 15 "$BASE/api/board" -o /tmp/e62_board.json || fail "board API unreachable"
 python3 - <<'EOF' || fail "board shape bad"
 import json

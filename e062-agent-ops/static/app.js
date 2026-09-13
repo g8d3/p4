@@ -1,38 +1,74 @@
 // Fleet board UI: three verbs — steer (pause/resume), help (notes), approve (money).
 // All DOM writes happen inside functions. No top-level data references.
-function tok() {
-  let t = localStorage.bt;
-  if (!t) { t = prompt('board token — shown once in owner chat:'); if (t) localStorage.bt = t.trim(); }
-  return (localStorage.bt || '').trim();
+/* ---- accounts: register / login / logout (cookie session, money = admin) ---- */
+function renderAuth() {
+  const box = document.getElementById('auth');
+  if (!box) return;
+  const me = window._me;
+  if (me) {
+    box.innerHTML = '<b>' + esc(me.name) + '</b> <span style="opacity:.6">(' + esc(me.role) + ')</span> ' +
+      '<button onclick="logout(this)">logout</button>';
+  } else {
+    box.innerHTML = '<input id=au-n placeholder="name" style="width:80px" aria-label="account name">' +
+      '<input id=au-p type=password placeholder="password" style="width:80px" aria-label="password">' +
+      '<button onclick="login(this)">login</button><button onclick="register(this)" title="first account becomes admin">register</button>';
+  }
 }
-function setToken(btn) {
-  const cur = localStorage.bt || '';
-  const t = prompt('board token:', cur ? '••••' + cur.slice(-4) : '');
-  if (t === null) return;
-  const v = (t || '').trim();
-  const old = 'token';
-  if (!v) { delete localStorage.bt; btn.textContent = 'cleared'; }
-  else { localStorage.bt = v; btn.textContent = 'saved ✓'; }
-  setTimeout(() => { btn.textContent = old; }, 2500);
+function authCreds() {
+  const n = document.getElementById('au-n'), p = document.getElementById('au-p');
+  return {name: (n && n.value || '').trim(), pw: (p && p.value || '')};
 }
-async function ctl(path, body, btn, okmsg, _retried) {
-  let t = tok();
-  if (!t) return;
+async function login(btn) {
+  const c = authCreds();
+  if (!c.name || !c.pw) { alert('name + password first'); return; }
+  btn.textContent = '…';
+  try {
+    const r = await (await fetch('/api/login', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(c)})).json();
+    if (r.ok) { window._me = {name: r.name, role: r.role}; renderAuth(); load(); }
+    else { alert(r.error || 'login failed'); btn.textContent = 'login'; }
+  } catch (e) { alert(String(e)); btn.textContent = 'login'; }
+}
+async function register(btn) {
+  const c = authCreds();
+  if (!c.name || !c.pw) { alert('pick a name + password (6+ chars) — first account becomes admin'); return; }
+  btn.textContent = '…';
+  try {
+    const r = await (await fetch('/api/register', {method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(c)})).json();
+    if (r.ok) {
+      window._me = {name: r.name, role: r.role};
+      renderAuth(); load();
+      alert(r.role === 'admin' ? 'registered as admin — you can approve money gates' : 'registered — ask the admin to approve money moves');
+    }
+    else { alert(r.error || 'register failed'); btn.textContent = 'register'; }
+  } catch (e) { alert(String(e)); btn.textContent = 'register'; }
+}
+async function logout() {
+  try { await fetch('/api/logout', {method: 'POST'}); } catch (e) {}
+  window._me = null;
+  renderAuth(); load();
+}
+function needAuthOr(msg) {
+  if (!window._me) { alert('login first — top right' + (msg ? ': ' + msg : '')); return true; }
+  return false;
+}
+
+async function ctl(path, body, btn, okmsg) {
+  if (needAuthOr()) return;
+  if (path === '/api/decide' && (!window._me || window._me.role !== 'admin')) {
+    alert('admin only — login as admin to move money');
+    return;
+  }
   const old = btn.textContent;
   btn.textContent = '…'; btn.disabled = true;
   try {
     const r = await (await fetch(path, {method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-Token': t},
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(body)})).json();
     if (r.ok) { btn.textContent = okmsg || 'done ✓'; load(); }
-    else if (!_retried && /bad token/i.test(r.error || '')) {
-      // stale/wrong saved token: drop it, ask once, retry automatically
-      delete localStorage.bt;
-      alert('saved board token was wrong — enter the current one:');
-      const v = (prompt('board token:') || '').trim();
-      if (v) { localStorage.bt = v; btn.textContent = old; btn.disabled = false; return ctl(path, body, btn, okmsg, true); }
-      btn.textContent = 'error';
-    }
     else { btn.textContent = 'error'; alert(r.error || 'failed'); }
   } catch (e) { btn.textContent = 'error'; alert(String(e)); }
   setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
@@ -45,7 +81,7 @@ async function openCtl(path, body, btn, okmsg) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(body)})).json();
     if (r.ok) { btn.textContent = okmsg || 'done ✓'; load(); }
-    else { btn.textContent = 'error'; alert(r.error || 'failed'); }
+    else { btn.textContent = 'error'; alert(r.error || 'failed'); if (/login required/i.test(r.error || '')) renderAuth(); }
   } catch (e) { btn.textContent = 'error'; alert(String(e)); }
   setTimeout(() => { btn.textContent = old; btn.disabled = false; }, 2500);
 }
@@ -185,6 +221,12 @@ async function load() {
   window._board = d;
   try { window._report = (d.prefs && d.prefs.report) || window._report || 'simple'; } catch (e) {}
   try { paintReportSeg(); } catch (e) {}
+  try { window._me = (d.me && d.me.name) ? d.me : null; renderAuth(); } catch (e) {}
+  try {
+    const v = await (await fetch('/api/version')).json();
+    const el = document.getElementById('ver');
+    if (el && v.ok) el.textContent = 'v' + v.running + (v.stale ? ' STALE—restart' : '') + (v.dirty ? ' *' : '');
+  } catch (e) {}
   try {
     const _d = new Date(), _p = function(n) { return (n < 10 ? '0' : '') + n; };
     document.getElementById('ts').textContent = _p(_d.getHours()) + ':' + _p(_d.getMinutes()) + ' local';
@@ -204,6 +246,7 @@ async function load() {
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
+    (t.focus ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc(t.focus) + '</div>' : '') +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
@@ -375,6 +418,7 @@ function cleanWidget(w) {
     sortcol: String(w.sortcol || d.sortcol).slice(0, 12),
     sortdir: w.sortdir === 'asc' ? 'asc' : 'desc',
     reltab: ['sessions', 'notes', 'gates'].indexOf(w.reltab) >= 0 ? w.reltab : 'sessions',
+    hide: (w.hide && typeof w.hide === 'object') ? w.hide : {},
     n: [10, 20, 50].indexOf(w.n) >= 0 ? w.n : 20,
     p: 0, open: -1, openRel: null};
 }
@@ -405,10 +449,10 @@ function loadWidgets(d) {
     const w = JSON.parse((d.prefs && d.prefs.widgets) || '');
     if (Array.isArray(w) && w.length <= 12 && (w.length === 0 || w[0].root)) { window._widgets = w.map(cleanWidget); return; }
   } catch (e) {}
-  window._widgets = defaultWidgets();
+  window._widgets = defaultWidgets().map(cleanWidget);
 }
 function slimWidgets() {
-  return (window._widgets || []).map(function(w) { return {t: w.t, q: w.q, root: w.root, sortcol: w.sortcol, sortdir: w.sortdir, reltab: w.reltab, n: w.n}; });
+  return (window._widgets || []).map(function(w) { return {t: w.t, q: w.q, root: w.root, sortcol: w.sortcol, sortdir: w.sortdir, reltab: w.reltab, n: w.n, hide: w.hide || {}}; });
 }
 async function saveWidgets() {
   try {
@@ -424,12 +468,71 @@ function widgetRows(w) {
   let rows = (window._unirows || []).slice();
   toks.forEach(function(tok) {
     if (tok === 'is:waiting') rows = rows.filter(function(r) { return r.wait; });
+    else if (tok.indexOf('after:') === 0) { const d = Date.parse(tok.slice(6) + 'T00:00:00Z'); if (!isNaN(d)) rows = rows.filter(function(r) { return r.t >= d; }); }
+    else if (tok.indexOf('before:') === 0) { const d = Date.parse(tok.slice(7) + 'T00:00:00Z'); if (!isNaN(d)) rows = rows.filter(function(r) { return r.t < d; }); }
     else rows = rows.filter(function(r) {
       return ((r.track || '') + ' ' + (r.kind || '') + ' ' + (r.session || '') + ' ' + (r.detail || '')).toLowerCase().indexOf(tok) >= 0;
     });
   });
   rows.sort(function(a, b) { return w.s === 'old' ? (a.t - b.t) : (b.t - a.t); });
   return rows;
+}
+var ALLCOLS = {
+  projects: [['proj', 'PROJ'], ['rows', 'ROWS'], ['wait', 'WAIT'], ['latest', 'LATEST'], ['url', 'URL']],
+  sessions: [['run', 'RUN'], ['ses', 'SES'], ['status', 'STATUS'], ['time', 'TIME']],
+  waiting: [['item', 'ITEM'], ['proj', 'PROJ'], ['time', 'TIME'], ['go', 'GO']],
+  relSessions: [['run', 'RUN'], ['ses', 'SES'], ['status', 'STATUS'], ['time', 'TIME']],
+  relNotes: [['time', 'TIME'], ['note', 'NOTE']],
+  relGates: [['gate', 'GATE'], ['usd', '$'], ['action', 'ACTION'], ['go', 'GO']],
+  steps: [['time', 'TIME'], ['kind', 'KIND'], ['step', 'STEP']]
+};
+function visCols(w, table) {
+  const hidden = (w.hide && w.hide[table]) || [];
+  return ALLCOLS[table].filter(function(c) { return hidden.indexOf(c[0]) < 0; });
+}
+function wCol(wi, table, col, el) {
+  const w = window._widgets[wi];
+  if (!w) return;
+  w.hide = w.hide || {};
+  const h = w.hide[table] || (w.hide[table] = []);
+  const i = h.indexOf(col);
+  if (el.checked && i >= 0) h.splice(i, 1);
+  if (!el.checked && i < 0) h.push(col);
+  saveWidgets(); renderTable(wi);
+}
+function colPicker(wi, w) {
+  // SELECT for the root table + its nested tables, one checkbox per column
+  const tables = w.root === 'projects'
+    ? [['projects', 'root'], ['relSessions', 'rel·sessions'], ['relNotes', 'rel·notes'], ['relGates', 'rel·gates'], ['steps', 'steps']]
+    : (w.root === 'sessions' ? [['sessions', 'root'], ['steps', 'steps']] : [['waiting', 'root']]);
+  window._colopen = window._colopen || {};
+  const isopen = window._colopen[wi] ? ' open' : '';
+  return '<details style="font-size:12px;margin:4px 0"' + isopen + ' ontoggle="try{window._colopen[' + wi + ']=this.open;}catch(e){}"><summary>columns (SQL SELECT)</summary><div>' +
+    tables.map(function(t) {
+      return '<div><span style="opacity:.6">' + t[1] + ':</span> ' + ALLCOLS[t[0]].map(function(c) {
+        const on = visCols(w, t[0]).some(function(v) { return v[0] === c[0]; });
+        return '<label style="margin-right:8px;white-space:nowrap"><input type=checkbox ' + (on ? 'checked' : '') +
+          ' onchange="wCol(' + wi + ',\'' + t[0] + '\',\'' + c[0] + '\',this)"> ' + c[1] + '</label>';
+      }).join('') + '</div>';
+    }).join('') + '</div></details>';
+}
+function sqlCaption(w) {
+  // the live SQL your taps build: SELECT cols FROM root WHERE … GROUP BY … ORDER BY … LIMIT … OFFSET …
+  const from = {projects: 'projects', sessions: 'sessions', waiting: 'flow'}[w.root] || 'projects';
+  const all = ALLCOLS[w.root] || ALLCOLS.projects;
+  const vis = all.filter(function(c) { return ((w.hide && w.hide[w.root]) || []).indexOf(c[0]) < 0; }).map(function(c) { return c[0]; });
+  const sel = vis.length === all.length ? '*' : (vis.join(', ') || '(none)');
+  const toks = String(w.q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  const where = toks.map(function(t) {
+    if (t === 'is:waiting') return 'wait > 0';
+    if (t.indexOf('after:') === 0) return "time > '" + t.slice(6) + "'";
+    if (t.indexOf('before:') === 0) return "time < '" + t.slice(7) + "'";
+    return "text LIKE '%" + t + "%'";
+  }).join(' AND ');
+  return 'SELECT ' + sel + ' FROM ' + from + (where ? ' WHERE ' + where : '') +
+    (w.root === 'projects' ? ' GROUP BY proj' : '') +
+    ' ORDER BY ' + (w.sortcol || 'time') + ' ' + String(w.sortdir || 'desc').toUpperCase() +
+    ' LIMIT ' + w.n + ' OFFSET ' + ((w.p || 0) * w.n);
 }
 function selOpts(wi, field, opts) {
   const cur = window._widgets[wi][field];
@@ -462,16 +565,18 @@ function renderWidgets() {
   window._widgets.forEach(function(w, wi) { renderWidgetCards(wi); });
 }
 function renderTable(wi) {
-  // tables-only refresh (filter typing keeps focus; controls untouched)
+  // tables-only refresh (filter typing keeps focus; controls untouched).
+  // SQL caption + column picker live here so they stay in sync on every keystroke.
   const w = window._widgets[wi];
   const box = document.getElementById('wc-' + wi);
   if (!w || !box) return;
   const rows = widgetRows(w);
-  let html = waitBanner(w, rows);
+  let html = '<div style="font-size:11px;opacity:.6;margin-bottom:4px;font-family:monospace">SQL: ' +
+    esc(sqlCaption(w)) + '</div>' + colPicker(wi, w) + waitBanner(w, rows);
   if (w.root === 'sessions') html += sesRoot(wi, w, rows);
   else if (w.root === 'waiting') html += waitRoot(wi, w, rows);
   else html += projRoot(wi, w, rows);
-  box.innerHTML = html;
+  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>';
 }
 function wSet(wi, field, el) {
   const w = window._widgets[wi];
@@ -591,6 +696,12 @@ function rootDefaults(root) {
   if (root === 'waiting') return {sortcol: 'time', sortdir: 'desc'};
   return {sortcol: 'latest', sortdir: 'desc'};
 }
+function trackUrl(key) {
+  try {
+    const t = ((window._board || {}).tracks || []).filter(function(x) { return x.track === key; })[0];
+    return (t && t.url) || '';
+  } catch (e) { return ''; }
+}
 function sortArrow(w, col) {
   return w.sortcol === col ? (w.sortdir === 'asc' ? ' \u25b2' : ' \u25bc') : '';
 }
@@ -617,6 +728,25 @@ function clampCell(txt) {
   // long text fills 3 lines max; tap opens the rest — no more stretched rows
   return '<div class=clamp3 onclick="event.stopPropagation();this.classList.toggle(\'open\')">' + esc(txt) + '</div>';
 }
+function stepHead(w, oneKind) {
+  const all = [['time', 'TIME'], ['kind', 'KIND'], ['step', 'STEP']];
+  const vis = all.filter(function(c) {
+    if (oneKind && c[0] === 'kind') return false;
+    return ((w.hide && w.hide.steps) || []).indexOf(c[0]) < 0;
+  });
+  const suf = oneKind ? ' \u00b7 all ' + esc(oneKind) : '';
+  return '<thead><tr>' + vis.map(function(c) { return '<th>' + c[1] + (c[0] === 'step' ? suf : '') + '</th>'; }).join('') + '</tr></thead>';
+}
+function stepRow(w, oneKind, s) {
+  const cells = {
+    time: '<td>' + esc(shortTime(s.time)) + '</td>',
+    kind: '<td>' + esc(s.kind) + '</td>',
+    step: '<td class=wrap>' + clampCell(s.detail) + '</td>'
+  };
+  const order = oneKind ? ['time', 'step'] : ['time', 'kind', 'step'];
+  const hide = (w.hide && w.hide.steps) || [];
+  return '<tr>' + order.filter(function(k) { return hide.indexOf(k) < 0; }).map(function(k) { return cells[k]; }).join('') + '</tr>';
+}
 function stepsOf(rows, runid) {
   const tag = '[run #' + runid + ']';
   return rows.filter(function(r) {
@@ -624,15 +754,7 @@ function stepsOf(rows, runid) {
   }).sort(function(a, b) { return b.t - a.t; });
 }
 function renderWidgetCards(wi) {
-  const w = window._widgets[wi];
-  const box = document.getElementById('wc-' + wi);
-  if (!w || !box) return;
-  const rows = widgetRows(w);
-  let html = waitBanner(w, rows);
-  if (w.root === 'sessions') html += sesRoot(wi, w, rows);
-  else if (w.root === 'waiting') html += waitRoot(wi, w, rows);
-  else html += projRoot(wi, w, rows);
-  box.innerHTML = html || '<div style="font-size:12px;opacity:.6">no matches — clear the filter</div>';
+  renderTable(wi);
 }
 function pagerInfo(wi, total, unit) {
   const w = window._widgets[wi];
@@ -643,7 +765,7 @@ function wSort(wi, col) {
   const w = window._widgets[wi];
   if (!w) return;
   if (w.sortcol === col) w.sortdir = (w.sortdir === 'asc' ? 'desc' : 'asc');
-  else { w.sortcol = col; w.sortdir = (col === 'proj' || col === 'status') ? 'asc' : 'desc'; }
+  else { w.sortcol = col; w.sortdir = (col === 'proj' || col === 'status' || col === 'url') ? 'asc' : 'desc'; }
   w.p = 0;
   saveWidgets(); renderWidgets();
 }
@@ -654,6 +776,7 @@ function projRoot(wi, w, rows) {
   groups.sort(function(a, b) {
     let va, vb;
     if (w.sortcol === 'proj') { va = a.key; vb = b.key; }
+    else if (w.sortcol === 'url') { va = trackUrl(a.key); vb = trackUrl(b.key); }
     else if (w.sortcol === 'rows') { va = a.rows.length; vb = b.rows.length; }
     else if (w.sortcol === 'wait') { va = a.wait; vb = b.wait; }
     else { va = a.latest; vb = b.latest; }
@@ -663,19 +786,32 @@ function projRoot(wi, w, rows) {
   w.p = Math.min(w.p || 0, maxp);
   const page = groups.slice(w.p * w.n, w.p * w.n + w.n);
   w._groups = page;
+  const cols = visCols(w, 'projects');
+  const span = cols.length + 1;
+  const cell = {
+    proj: function(g) { return '<td><b>' + esc(g.key) + '</b></td>'; },
+    rows: function(g) { return '<td>' + g.rows.length + '</td>'; },
+    wait: function(g) { return '<td>' + (g.wait ? '<span class=needbadge>' + g.wait + '</span>' : '') + '</td>'; },
+    latest: function(g) { return '<td>' + esc(shortTime(groupTime(g))) + '</td>'; },
+    url: function(g) { const u = trackUrl(g.key); return '<td>' + (u ? '<a href="' + esc(u) + '" onclick="event.stopPropagation()">open</a>' : '') + '</td>'; }
+  };
+  const head = {proj: 'PROJ', rows: 'ROWS', wait: 'WAIT', latest: 'LATEST', url: 'URL'};
   let h = '<div class=rwrap><table class=rtable><thead><tr>' +
-    '<th onclick="wSort(' + wi + ',\'proj\')">PROJ' + sortArrow(w, 'proj') + '</th>' +
-    '<th onclick="wSort(' + wi + ',\'rows\')">ROWS' + sortArrow(w, 'rows') + '</th>' +
-    '<th onclick="wSort(' + wi + ',\'wait\')">WAIT' + sortArrow(w, 'wait') + '</th>' +
-    '<th onclick="wSort(' + wi + ',\'latest\')">LATEST' + sortArrow(w, 'latest') + '</th><th></th>' +
-    '</tr></thead><tbody>';
+    cols.map(function(c) { return '<th onclick="wSort(' + wi + ',\'' + c[0] + '\')">' + head[c[0]] + sortArrow(w, c[0]) + '</th>'; }).join('') +
+    '<th></th></tr></thead><tbody>';
   page.forEach(function(g, gi) {
     const open = w.openRel === g.key;
     h += '<tr class=prow onclick="wProjToggle(' + wi + ',' + gi + ')">' +
-      '<td><b>' + esc(g.key) + '</b></td><td>' + g.rows.length + '</td>' +
-      '<td>' + (g.wait ? '<span class=needbadge>' + g.wait + '</span>' : '') + '</td>' +
-      '<td>' + esc(shortTime(groupTime(g))) + '</td><td>' + (open ? '▾' : '▸') + '</td></tr>';
-    if (open) h += '<tr class=nrow><td colspan=5>' + relTabs(wi, w, g) + relTable(wi, w, g) + '</td></tr>';
+      cols.map(function(c) { return cell[c[0]](g); }).join('') +
+      '<td>' + (open ? '\u25be' : '\u25b8') + '</td></tr>';
+    if (open) {
+      const rc = relCounts(window._unirows || [], g.key);
+      if (rc.sessions + rc.notes + rc.gates === 0) {
+        h += '<tr class=nrow><td colspan=' + span + '><div class=nwrap><table class=ntable><thead><tr><th>TIME</th><th>KIND</th><th>ROW</th></tr></thead><tbody>' +
+          g.rows.slice(0, 20).map(function(r) { return '<tr><td>' + esc(shortTime(r.time)) + '</td><td>' + esc(r.kind) + '</td><td class=wrap>' + clampCell(r.detail) + '</td></tr>'; }).join('') +
+          '</tbody></table></div></td></tr>';
+      } else h += '<tr class=nrow><td colspan=' + span + '>' + relTabs(wi, w, g) + relTable(wi, w, g) + '</td></tr>';
+    }
   });
   h += '</tbody></table></div>';
   setTimeout(function() { pagerInfo(wi, groups.length, 'projects'); }, 0);
@@ -716,35 +852,59 @@ function relTable(wi, w, g) {
   if (!mem.length) return '<div style="font-size:12px;opacity:.6">no ' + tab + ' here</div>';
   let h;
   if (tab === 'sessions') {
-    h = '<div class=nwrap><table class=ntable><thead><tr><th>RUN</th><th>SES</th><th>STATUS</th><th>TIME</th></tr></thead><tbody>';
+    const rcols = visCols(w, 'relSessions');
+    const rhead = {run: 'RUN', ses: 'SES', status: 'STATUS', time: 'TIME'};
+    h = '<div class=nwrap><table class=ntable><thead><tr>' +
+      rcols.map(function(c) { return '<th>' + rhead[c[0]] + '</th>'; }).join('') +
+      '</tr></thead><tbody>';
     mem.forEach(function(r, i) {
       const uid = wi + ':rel:' + g.key + ':' + i;
       const st = String(r.detail || '').match(/Run #\d+ (\w+)/);
       const ses1 = String(r.sesid || '').split(',')[0];
+      const rcell = {
+        run: '<td><button onclick="event.stopPropagation();sesFilter(' + wi + ',\'run #' + r.runid + '\')">run #' + r.runid + '</button></td>',
+        ses: '<td>' + (ses1 ? '<button onclick="event.stopPropagation();sesFilter(' + wi + ',\'ses ' + ses1 + '\')">ses ' + ses1 + '</button>' : '—') + '</td>',
+        status: '<td>' + esc(st ? st[1] : '') + '</td>',
+        time: '<td>' + esc(shortTime(r.time)) + '</td>'
+      };
       h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
-        '<td><button onclick="event.stopPropagation();sesFilter(' + wi + ',\'run #' + r.runid + '\')">run #' + r.runid + '</button></td>' +
-        '<td>' + (ses1 ? '<button onclick="event.stopPropagation();sesFilter(' + wi + ',\'ses ' + ses1 + '\')">ses ' + ses1 + '</button>' : '—') + '</td>' +
-        '<td>' + esc(st ? st[1] : '') + '</td><td>' + esc(shortTime(r.time)) + '</td></tr>';
-      if (w.open === uid) h += '<tr class=drow><td colspan=4>' + uniDetail(r, uid) + '</td></tr>';
+        rcols.map(function(c) { return rcell[c[0]]; }).join('') + '</tr>';
+      if (w.open === uid) h += '<tr class=drow><td colspan=' + rcols.length + '>' + uniDetail(r, uid) + '</td></tr>';
     });
     h += '</tbody></table></div>';
   } else if (tab === 'notes') {
-    h = '<div class=nwrap><table class=ntable><thead><tr><th>TIME</th><th>NOTE</th></tr></thead><tbody>';
+    const ncols = visCols(w, 'relNotes');
+    const nhead = {time: 'TIME', note: 'NOTE'};
+    h = '<div class=nwrap><table class=ntable><thead><tr>' +
+      ncols.map(function(c) { return '<th>' + nhead[c[0]] + '</th>'; }).join('') +
+      '</tr></thead><tbody>';
     mem.forEach(function(r, i) {
       const uid = wi + ':note:' + g.key + ':' + i;
-      h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')"><td>' + esc(shortTime(r.time)) + '</td>' +
-        '<td class=wrap>' + clampCell(r.detail) + '</td></tr>';
-      if (w.open === uid) h += '<tr class=drow><td colspan=2>' + uniDetail(r, uid) + '</td></tr>';
+      const ncell = {
+        time: '<td>' + esc(shortTime(r.time)) + '</td>',
+        note: '<td class=wrap>' + clampCell(r.detail) + '</td>'
+      };
+      h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
+        ncols.map(function(c) { return ncell[c[0]]; }).join('') + '</tr>';
+      if (w.open === uid) h += '<tr class=drow><td colspan=' + ncols.length + '>' + uniDetail(r, uid) + '</td></tr>';
     });
     h += '</tbody></table></div>';
   } else {
-    h = '<div class=nwrap><table class=ntable><thead><tr><th>GATE</th><th>$</th><th>ACTION</th><th>GO</th></tr></thead><tbody>';
+    const gcols = visCols(w, 'relGates');
+    const ghead = {gate: 'GATE', usd: '$', action: 'ACTION', go: 'GO'};
+    h = '<div class=nwrap><table class=ntable><thead><tr>' +
+      gcols.map(function(c) { return '<th>' + ghead[c[0]] + '</th>'; }).join('') +
+      '</tr></thead><tbody>';
     mem.forEach(function(r) {
-      h += '<tr><td>#' + r.propId + '</td><td>' + esc(String(r.detail).match(/#\d+ \$([0-9.]+)/) ? String(r.detail).match(/#\d+ \$([0-9.]+)/)[1] : '') + '</td>' +
-        '<td class=wrap>' + clampCell(r.full || r.detail) + '</td>' +
-        '<td>' + (r.propPending
+      const gcell = {
+        gate: '<td>#' + r.propId + '</td>',
+        usd: '<td>' + esc(String(r.detail).match(/#\d+ \$([0-9.]+)/) ? String(r.detail).match(/#\d+ \$([0-9.]+)/)[1] : '') + '</td>',
+        action: '<td class=wrap>' + clampCell(r.full || r.detail) + '</td>',
+        go: '<td>' + (r.propPending
           ? '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button> <button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button>'
-          : esc(String(r.detail).match(/\((\w+)\)\s*$/) ? String(r.detail).match(/\((\w+)\)\s*$/)[1] : '')) + '</td></tr>';
+          : esc(String(r.detail).match(/\((\w+)\)\s*$/) ? String(r.detail).match(/\((\w+)\)\s*$/)[1] : '')) + '</td>'
+      };
+      h += '<tr>' + gcols.map(function(c) { return gcell[c[0]]; }).join('') + '</tr>';
     });
     h += '</tbody></table></div>';
   }
@@ -759,30 +919,34 @@ function sesRoot(wi, w, rows) {
   w.p = Math.min(w.p || 0, maxp);
   const page = mem.slice(w.p * w.n, w.p * w.n + w.n);
   w._sespage = page;
+  const scols = visCols(w, 'sessions');
+  const shead = {run: 'RUN', ses: 'SES', status: 'STATUS', time: 'TIME'};
+  const ssort = {run: 1, status: 1, time: 1};
   let h = '<div class=rwrap><table class=rtable><thead><tr>' +
-    '<th onclick="wSort(' + wi + ',\'run\')">RUN' + sortArrow(w, 'run') + '</th>' +
-    '<th>SES</th>' +
-    '<th onclick="wSort(' + wi + ',\'status\')">STATUS' + sortArrow(w, 'status') + '</th>' +
-    '<th onclick="wSort(' + wi + ',\'time\')">TIME' + sortArrow(w, 'time') + '</th>' +
+    scols.map(function(c) { return ssort[c[0]]
+      ? '<th onclick="wSort(' + wi + ',\'' + c[0] + '\')">' + shead[c[0]] + sortArrow(w, c[0]) + '</th>'
+      : '<th>' + shead[c[0]] + '</th>'; }).join('') +
     '</tr></thead><tbody>';
   page.forEach(function(r, i) {
     const uid = wi + ':ses:' + (w.p * w.n + i);
     const st = String(r.detail || '').match(/Run #\d+ (\w+)/);
     const ses1 = String(r.sesid || '').split(',')[0];
     const extra = String(r.sesid || '').split(',').length - 1;
+    const scell = {
+      run: '<td><button onclick="event.stopPropagation();sesFilter(' + wi + ',\'run #' + r.runid + '\')">run #' + r.runid + '</button> <span style="opacity:.6">' + esc(r.track) + '</span></td>',
+      ses: '<td>' + (ses1 ? '<button onclick="event.stopPropagation();sesFilter(' + wi + ',\'ses ' + ses1 + '\')">' + ses1 + '</button>' + (extra > 0 ? ' +' + extra : '') : '—') + '</td>',
+      status: '<td>' + esc(st ? st[1] : '') + (r.wait ? ' <span class=needbadge>waiting</span>' : '') + '</td>',
+      time: '<td>' + esc(shortTime(r.time)) + '</td>'
+    };
     h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
-      '<td><button onclick="event.stopPropagation();sesFilter(' + wi + ',\'run #' + r.runid + '\')">run #' + r.runid + '</button> <span style="opacity:.6">' + esc(r.track) + '</span></td>' +
-      '<td>' + (ses1 ? '<button onclick="event.stopPropagation();sesFilter(' + wi + ',\'ses ' + ses1 + '\')">' + ses1 + '</button>' + (extra > 0 ? ' +' + extra : '') : '—') + '</td>' +
-      '<td>' + esc(st ? st[1] : '') + (r.wait ? ' <span class=needbadge>waiting</span>' : '') + '</td>' +
-      '<td>' + esc(shortTime(r.time)) + '</td></tr>';
+      scols.map(function(c) { return scell[c[0]]; }).join('') + '</tr>';
     if (w.open === uid) {
       const steps = stepsOf(window._unirows || [], r.runid).slice(0, 15);
       const kinds = {};
       steps.forEach(function(s) { kinds[s.kind] = 1; });
       const oneKind = Object.keys(kinds).length === 1 ? Object.keys(kinds)[0] : null;
-      h += '<tr class=drow><td colspan=4>' +
-        (steps.length ? '<div class=nwrap><table class=ntable><thead><tr><th>TIME</th>' + (oneKind ? '' : '<th>KIND</th>') + '<th>STEP' + (oneKind ? ' \u00b7 all ' + esc(oneKind) : '') + '</th></tr></thead><tbody>' +
-          steps.map(function(s) { return '<tr><td>' + esc(shortTime(s.time)) + '</td>' + (oneKind ? '' : '<td>' + esc(s.kind) + '</td>') + '<td class=wrap>' + clampCell(s.detail) + '</td></tr>'; }).join('') +
+      h += '<tr class=drow><td colspan=' + scols.length + '>' + (steps.length ? '<div class=nwrap><table class=ntable>' + stepHead(w, oneKind) + '<tbody>' +
+          steps.map(function(s) { return stepRow(w, oneKind, s); }).join('') +
           '</tbody></table></div>' : '<div style="font-size:12px;opacity:.6">no tagged steps this run (older legs predate tags)</div>') +
         uniDetail(r, uid) + '</td></tr>';
     }
@@ -798,16 +962,26 @@ function waitRoot(wi, w, rows) {
   const maxp = Math.max(0, Math.ceil(mem.length / w.n) - 1);
   w.p = Math.min(w.p || 0, maxp);
   const page = mem.slice(w.p * w.n, w.p * w.n + w.n);
-  let h = '<div class=rwrap><table class=rtable><thead><tr><th>ITEM</th><th>PROJ</th><th>TIME</th><th>GO</th></tr></thead><tbody>';
+  const wcols = visCols(w, 'waiting');
+  const whead = {item: 'ITEM', proj: 'PROJ', time: 'TIME', go: 'GO'};
+  let h = '<div class=rwrap><table class=rtable><thead><tr>' +
+    wcols.map(function(c) { return '<th>' + whead[c[0]] + '</th>'; }).join('') +
+    '</tr></thead><tbody>';
   page.forEach(function(r, i) {
     const uid = wi + ':wait:' + (w.p * w.n + i);
     const item = r.kind === 'money gate' ? ('gate #' + r.propId) : r.kind;
     const go = r.propPending
       ? '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button> <button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button>'
       : '<span style="opacity:.6">queued</span>';
+    const wcell = {
+      item: '<td><b>' + esc(item) + '</b></td>',
+      proj: '<td>' + esc(r.track) + '</td>',
+      time: '<td>' + esc(shortTime(r.time)) + '</td>',
+      go: '<td>' + go + '</td>'
+    };
     h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')">' +
-      '<td><b>' + esc(item) + '</b></td><td>' + esc(r.track) + '</td><td>' + esc(shortTime(r.time)) + '</td><td>' + go + '</td></tr>';
-    if (w.open === uid) h += '<tr class=drow><td colspan=4>' + uniDetail(r, uid) + '</td></tr>';
+      wcols.map(function(c) { return wcell[c[0]]; }).join('') + '</tr>';
+    if (w.open === uid) h += '<tr class=drow><td colspan=' + wcols.length + '>' + uniDetail(r, uid) + '</td></tr>';
   });
   h += '</tbody></table></div>';
   setTimeout(function() { pagerInfo(wi, mem.length, 'waiting'); }, 0);
@@ -837,7 +1011,7 @@ function uniDetail(r, uid) {
   if (r.leg) {
     h += '<div class=rowbtns style="margin-top:6px"><a href="/api/leg/' + r.leg + '" target=_blank><button>full log</button></a> ' +
       '<button onclick="uniWatchLive(' + r.leg + ',\'' + uid + '\',this)">watch live</button></div>' +
-      '<pre id="uni-live-' + uid + '" style="max-height:24vh;overflow-y:auto;font-size:11px"></pre>';
+      '<pre id="uni-live-' + uid + '" style="font-size:11px;white-space:pre-wrap"></pre>';
   }
   h += '<div class=act-reply><input id="u-' + uid + '" data-track="' + safeTrack + '" placeholder="talk to the ' + esc(safeTrack) + ' agent…" onclick="event.stopPropagation()">' +
     '<button onclick="sendUniNote(\'' + safeTrack + '\',\'' + uid + '\',this)">queue</button> ' +
@@ -895,7 +1069,10 @@ async function uniWatchLive(leg, uid, btn) {
     try {
       const r = await (await fetch('/api/leg/' + leg)).json();
       const pre = document.getElementById('uni-live-' + uid);
-      if (pre && r.ok) { pre.textContent = (r.log || '').slice(-3000); pre.scrollTop = pre.scrollHeight; }
+      if (pre && r.ok) {
+        const t2 = String(r.log || '').split('\n').slice(-40).join('\n');
+        if (pre.textContent !== t2) pre.textContent = t2;
+      }
     } catch (e) {}
   };
   await pull();
@@ -905,6 +1082,10 @@ async function uniWatchLive(leg, uid, btn) {
 function renderGates(d) {
   const box = document.getElementById('gates');
   if (!box) return;
+  const ah = document.getElementById('authhint');
+  if (ah) ah.innerHTML = window._me
+    ? (window._me.role === 'admin' ? '' : 'logged in as viewer — only an admin can approve money. Ask the owner.')
+    : 'to approve money: <b>register top-right</b> (first account becomes admin), then tap approve.';
   const props = d.proposals || [];
   const pend = props.filter(function(p) { return p.status === 'pending'; });
   const done = props.filter(function(p) { return p.status !== 'pending'; }).slice(0, 5);
@@ -996,9 +1177,8 @@ async function liveStart(leg) {
       if (pre && r.ok) {
         const lines = String(r.log || '').split('\n');
         const stepLines = lines.filter(function(l) { return /^(\d+\. |[A-Z].{0,80}\||did:|next:|learned:)/.test(l.trim()); });
-        const tail = stepLines.length ? stepLines.slice(-12).join('\n') : lines.slice(-12).join('\n');
-        pre.textContent = tail;
-        pre.scrollTop = pre.scrollHeight;
+        const tail = (stepLines.length ? stepLines.slice(-12) : lines.slice(-12)).join('\n');
+        if (pre.textContent !== tail) { pre.textContent = tail; }
       }
     } catch (e) {}
   };
