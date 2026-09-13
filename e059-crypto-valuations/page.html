@@ -1,0 +1,99 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>e059 crypto multiples (TradFi-grade, read-only)</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1000px;margin:2em auto;padding:0 1em 84px}
+.twrap{max-height:60vh;overflow:auto;border:1px solid #ccc;border-radius:6px}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:4px 8px;font-size:13px;text-align:right}
+thead th{position:sticky;top:0;background:#f4f4f4;z-index:1}
+td:nth-child(1),th:nth-child(1),td:nth-child(2),th:nth-child(2){text-align:left}
+tr.med td{font-weight:bold;background:#f0f6ff}
+.badge{background:#dfd;padding:2px 8px;border-radius:8px}.stale{background:#fdd}
+.cav{font-size:12px;color:#555}button{margin:2px;padding:3px 10px;cursor:pointer}
+button.on{background:#0366d6;color:#fff;border-color:#0366d6}
+.up{color:#0a0}.dn{color:#c00}
+.cheap{color:#0a0;font-weight:bold}.pricey{color:#c00}
+.spark{font-size:15px;letter-spacing:1px;white-space:nowrap}
+body.simple .c-name,body.simple .c-cat,body.simple .c-mcap,body.simple .c-7d,body.simple .c-mom,body.simple .c-rev,body.simple .c-thru{display:none}
+#thumbbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--tb,#fff);border-top:1px solid #ccc;padding:10px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;overflow-x:auto;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
+#thumbbar button{flex:0 0 auto;padding:10px 16px;font-size:15px;border-radius:10px}
+html.dark #thumbbar{background:#161a20;border-color:#444}
+details.cav{margin-top:.8em}details.cav summary{cursor:pointer;font-size:13px}
+html.dark body{background:#111418;color:#e6e6e6}html.dark thead th{background:#1c2128}
+html.dark td,html.dark th{border-color:#444}html.dark tr.med td{background:#16283f}
+html.dark a{color:#8ab4ff}html.dark .cav{color:#aaa}html.dark .twrap{border-color:#444}
+</style></head>
+<body class="simple">
+<h1>e059 valuation multiples <span class="badge" id="fresh">…</span>
+<button onclick="document.documentElement.classList.toggle('dark');localStorage.e59=document.documentElement.classList.contains('dark')?'d':'l'">dark/light</button></h1>
+<script>if(localStorage.e59==='d')document.documentElement.classList.add('dark')</script>
+<p>Top crypto protocols — P/Fees + P/Revenue (30d annualised, DefiLlama free + CoinGecko public).
+No trading, no wallet, read-only. <a href="/multiples.json">JSON</a> <a href="/multiples.csv">CSV</a></p>
+<div id="meta" class="cav"></div>
+<div id="cats" style="margin:.6em 0"></div>
+<div class="twrap"><table id="t"></table></div>
+<div id="cavs" class="cav"></div>
+<div id="thumbbar"></div>
+<script>
+let D=null, filter='ALL', cheapFirst=false;
+function setFilter(c){filter=c;render()}
+function mom(p){
+  if(p.fees_momentum==null)return '—';
+  const cls=p.fees_momentum>=1?'up':'dn';
+  return `<span class="${cls}">${p.fees_momentum.toFixed(2)}×</span>`;
+}
+function vscat(p){
+  const m=D.category_medians[p.category];
+  if(p.p_fees==null||!m||!m.median_p_fees)return '—';
+  const r=p.p_fees/m.median_p_fees;
+  const cls=r<=0.8?'cheap':(r>=1.5?'pricey':'');
+  const tag=r<=0.8?' cheap':(r>=1.5?' pricey':'');
+  return `<span class="${cls}">${r.toFixed(1)}×${tag}</span>`;
+}
+function ratio(p){
+  const m=D.category_medians[p.category];
+  if(p.p_fees==null||!m||!m.median_p_fees)return 1e18;
+  return p.p_fees/m.median_p_fees;
+}
+function trend(p){
+  if(!p.trend_spark)return '—';
+  const arrow=p.trend_dir===-1?'<span class="cheap">↓</span>':(p.trend_dir===1?'<span class="pricey">↑</span>':'<span>→</span>');
+  const tip=(p.p_fees_trend||[]).join(' → ');
+  return `<span class="spark" title="weekly P/Fees, oldest→newest: ${tip}">${p.trend_spark}</span> ${arrow}`;
+}
+function render(){
+  const list=[...D.protocols].filter(p=>filter==='ALL'||p.category===filter)
+    .sort((a,b)=>cheapFirst?(ratio(a)-ratio(b)):((a.p_fees||1e18)-(b.p_fees||1e18)));
+  let h='<thead><tr><th>token</th><th class="c-name">name</th><th class="c-cat">cat</th><th class="c-mcap">mcap $B</th><th class="c-pf">P/Fees 30d</th><th class="c-vs">vs cat</th><th class="c-tr">sales 6wk</th><th class="c-7d">P/Fees 7d</th><th class="c-mom">momentum 7d/30d</th><th class="c-rev">P/Revenue</th><th class="c-thru">through</th></tr></thead><tbody>';
+  const med=filter!=='ALL'?D.category_medians[filter]:null;
+  if(med)h+=`<tr class="med"><td>◊</td><td class="c-name">${filter} median (n=${med.n})</td><td class="c-cat"></td><td class="c-mcap"></td><td class="c-pf">${med.median_p_fees??'—'}</td><td class="c-vs">1.0×</td><td class="c-tr"></td><td class="c-7d"></td><td class="c-mom">${med.median_momentum??'—'}×</td><td class="c-rev">${med.median_p_revenue??'—'}</td><td class="c-thru"></td></tr>`;
+  for(const p of list){h+=`<tr><td>${p.symbol}</td><td class="c-name">${p.name}</td><td class="c-cat">${p.category||''}</td><td class="c-mcap">${(p.market_cap_usd/1e9).toFixed(1)}</td><td class="c-pf">${p.p_fees??'—'}</td><td class="c-vs">${vscat(p)}</td><td class="c-tr">${trend(p)}</td><td class="c-7d">${p.p_fees_7d??'—'}</td><td class="c-mom">${mom(p)}</td><td class="c-rev">${p.p_revenue??'—'}</td><td class="c-thru">${p.data_through}</td></tr>`}
+  document.getElementById('t').innerHTML=h+'</tbody>';
+  document.querySelectorAll('#cats button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
+  document.querySelectorAll('#thumbbar button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
+  document.getElementById('cheapbtn').classList.toggle('on',cheapFirst);
+  document.getElementById('simplebtn').classList.toggle('on',document.body.classList.contains('simple'));
+  document.getElementById('fullbtn').classList.toggle('on',!document.body.classList.contains('simple'));
+}
+fetch('/multiples.json').then(r=>r.json()).then(d=>{
+  D=d;
+  const ageH=(Date.now()/1000-new Date(d.as_of).getTime()/1000)/3600;
+  const stale=ageH>49;
+  document.getElementById('fresh').textContent=(stale?'STALE ':'LIVE ')+d.as_of;
+  if(stale)document.getElementById('fresh').classList.add('stale');
+  document.getElementById('meta').textContent=
+    d.protocols.length+' protocols · vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · sources: '+d.sources.join('; ');
+  const cats=['ALL',...(d.categories||[...new Set(d.protocols.map(p=>p.category))])];
+  const btns=cats.map(c=>`<button data-c="${c}">${c}</button>`).join(' ');
+  document.getElementById('cats').innerHTML=btns;
+  document.getElementById('thumbbar').innerHTML=btns+` <button id="cheapbtn">💰 cheap first</button> <button id="simplebtn">📱 simple</button><button id="fullbtn">📊 full</button>`;
+  document.querySelectorAll('#cats button').forEach(b=>b.onclick=()=>setFilter(b.dataset.c));
+  document.querySelectorAll('#thumbbar button[data-c]').forEach(b=>b.onclick=()=>setFilter(b.dataset.c));
+  document.getElementById('cheapbtn').onclick=()=>{cheapFirst=!cheapFirst;render()};
+  if(localStorage.e59view==='full')document.body.classList.remove('simple');
+  document.getElementById('simplebtn').onclick=()=>{document.body.classList.add('simple');localStorage.e59view='simple';render()};
+  document.getElementById('fullbtn').onclick=()=>{document.body.classList.remove('simple');localStorage.e59view='full';render()};
+  render();
+  document.getElementById('cavs').innerHTML='<details><summary>These numbers are estimates — tap for the fine print.</summary><ul>'+d.caveats.map(c=>'<li>'+c+'</li>').join('')+'</ul></details>';
+});
+</script></body></html>

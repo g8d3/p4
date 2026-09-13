@@ -14,6 +14,9 @@ grep -q "crypto multiples" /tmp/e59_root.html || fail "page missing title"
  grep -q '<details>' /tmp/e59_root.html || fail "caveats not collapsed to 1-line summary"
  grep -q 'vs cat' /tmp/e59_root.html || fail "missing vs-category signal"
  grep -q 'cheapbtn' /tmp/e59_root.html || fail "missing cheap-first toggle"
+ grep -q 'sales 6wk' /tmp/e59_root.html || fail "missing sales-through-time column"
+ grep -q 'simplebtn' /tmp/e59_root.html || fail "missing simple/full view toggle"
+ grep -q 'body.simple' /tmp/e59_root.html || fail "simple view CSS missing"
 
 timeout 15 curl -s -m 15 "$BASE/multiples.json" -o /tmp/e59_mult.json || fail "multiples.json unreachable"
 python3 - <<'EOF' || fail "multiples shape bad"
@@ -27,6 +30,8 @@ assert isinstance(p0, dict) and len(p0) > 0, "bad proto row"
 assert all(p.get("category") for p in protos), "missing category"
 assert isinstance(d.get("category_medians"), dict) and d["category_medians"], "missing category_medians"
 assert all(p.get("fees_momentum") is not None for p in protos), "missing fees_momentum"
+assert all(p.get("trend_spark") for p in protos), "missing trend_spark (6-week sales trend)"
+assert all(isinstance(p.get("p_fees_trend"), list) and len(p["p_fees_trend"]) >= 4 for p in protos), "bad p_fees_trend"
 print(f"multiples ok: {len(protos)} protocols, cats={sorted(d['category_medians'])}, as_of={d['as_of']}")
 EOF
 
