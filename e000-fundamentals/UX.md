@@ -104,6 +104,14 @@ layout from expected cell sizes and re-proposes as content changes.
 Density without squeezing: more rows per screen, never smaller tap
 targets.
 
+## 15. Data lineage is visible (owner 2026-09-13, from e060)
+
+No mystery tables: every app shows source → table → filter → table,
+with each computed column's recipe one tap away (formula + inputs +
+thresholds). Backtest/paper/grade stages name their hit rule and
+their N. A score nobody can derive from the screen is a rumor, not
+a number. (Pattern: e060 LINEAGE.md; render it on-card next.)
+
 ## 8. Decode the dense line (owner 2026-09-13, from e058 top section)
 
 If the owner must parse punctuation (`|` vs `·`) to understand a
