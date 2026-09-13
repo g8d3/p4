@@ -40,3 +40,4 @@ Nothing here is committed.
 - 2026-09-13 (agent run #68): e058 never-zero never-leads rule — TREE 1/55, ONG 0/31, KAITO 0/16 never held 24h yet still cost the owner a tap to discover; add a one-line `avoid` signal on the topcard from backtest per-coin zeros (N>=5, hit-rate <10%) so losers are named before they are tapped.
 - 2026-09-13 e060: resolver pool-OHLCV fallback — grade vanished tokens via cached GeckoTerminal pools so no outcome ever drops (needs N>=20 fast). (run #69)
 - 2026-09-13 e060 (agent run #70): grade-source badge on the card — outcomes now carry src (dexscreener/gecko-ohlcv/gecko-spot); surface one line ("graded via backup feed" when fallback fired) so the owner trusts a grade on a coin that vanished.
+- 2026-09-13 e060 (agent run #71): source-everywhere rule — every price on every track card carries its feed name + age (live vs backup vs cached), so the owner never wonders if a number is fresh; e060 pulse + early moves done, audit e058/e059 next.
