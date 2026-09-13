@@ -207,7 +207,7 @@ details.cfg summary{cursor:pointer}
 .pos{color:#3ddc84}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e058t=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
-<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row></div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady \u2713 = held every check with solid backing \u00b7 watch = thin backing \u2014 tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
+<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row>%%TOPROW%%</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady \u2713 = held every check with solid backing \u00b7 watch = thin backing \u2014 tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
 <details class=cfg id=fc><summary id=f-sum>Filter: all coins, top pay first (tap to narrow)</summary>
 <div id=f style="margin-top:6px">
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
@@ -534,15 +534,23 @@ def _server_card():
         ph = 'paper logging'
     pulse = (f"data {n//1000}k rows · last sample {age_m:.0f}m ago (every ~{cad}m) | "
              f"{bt} · {ph} | v{_VRUN}")
-    return html.escape(top), html.escape(pulse)
+    if t3:
+        _row = ''.join(
+            f"<button class=pick onclick=\"pickCoin('{html.escape(r['coin'])}')\">"
+            f"{html.escape(r['coin'])}<br><b class=pos>{html.escape(str(r['median_apy']))}%</b> "
+            f"<small>{html.escape(_verdict(r))}{html.escape(_held(r['coin']))}</small></button>"
+            for r in t3)
+    else:
+        _row = ''
+    return html.escape(top), html.escape(pulse), _row
 
 @app.get('/', response_class=HTMLResponse)
 def index():
     try:
-        top, pulse = _server_card()
+        top, pulse, row = _server_card()
     except Exception:
-        top, pulse = 'Top persistent spreads: unavailable', ''
-    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse),
+        top, pulse, row = 'Top persistent spreads: unavailable', '', ''
+    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row),
                         headers={'Cache-Control': 'no-store'})
 
 if __name__ == '__main__':
