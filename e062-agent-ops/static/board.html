@@ -44,7 +44,10 @@ pre#leg{white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-wi
 .twrap{max-height:62vh}
 th.a-time{min-width:104px}th.a-track{min-width:64px}th.a-kind{min-width:120px}th.a-detail{min-width:220px}
 }
-td.wrap{white-space:normal;word-break:break-word}td.nowrap{white-space:nowrap;text-overflow:ellipsis}
+td.wrap{white-space:normal;word-break:break-word}
+.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.clamp3.open{display:block}
+td .more{font-size:11px;opacity:.55}td.nowrap{white-space:nowrap;text-overflow:ellipsis}
 input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:4px;padding:2px 6px}
 button{cursor:pointer}button:disabled{opacity:.4}
 .seg{display:inline-flex;border:1px solid var(--bd);border-radius:6px;overflow:hidden}
@@ -102,5 +105,5 @@ td.wrap{white-space:normal;word-break:break-word}
 <details><summary id=ideas-sum>ideas inbox — tap to read</summary><div id=i style="font-size:13px"></div></details>
 <details><summary id=dir-sum>standing orders — tap to read</summary><div id=dir style="font-size:13px"></div></details></div>
 <div class=thumbbar><button onclick="runFleet(this)">&#9654; run fleet now</button><button id=waiting style="font-size:12px;font-weight:bold" onclick="waitFor('')" title="your notes + money gates waiting for a tap"></button><span class=seg id=seg-report-b><button data-v=simple onclick="setReport('simple',this)">simple</button><button data-v=both onclick="setReport('both',this)">both</button><button data-v=tech onclick="setReport('tech',this)">tech</button></span></div>
-<script src=/app.js?v=28></script>
+<script src=/app.js?v=29></script>
 </body></html>

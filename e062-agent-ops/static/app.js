@@ -614,6 +614,10 @@ function relCounts(rows, key) {
   });
   return c;
 }
+function clampCell(txt) {
+  // long text fills 3 lines max; tap opens the rest — no more stretched rows
+  return '<div class=clamp3 onclick="event.stopPropagation();this.classList.toggle(\'open\')">' + esc(txt) + '</div>';
+}
 function stepsOf(rows, runid) {
   const tag = '[run #' + runid + ']';
   return rows.filter(function(r) {
@@ -730,7 +734,7 @@ function relTable(wi, w, g) {
     mem.forEach(function(r, i) {
       const uid = wi + ':note:' + g.key + ':' + i;
       h += '<tr onclick="wRowToggle(' + wi + ',\'' + uid + '\')"><td>' + esc(shortTime(r.time)) + '</td>' +
-        '<td class=wrap>' + esc(r.detail) + '</td></tr>';
+        '<td class=wrap>' + clampCell(r.detail) + '</td></tr>';
       if (w.open === uid) h += '<tr class=drow><td colspan=2>' + uniDetail(r, uid) + '</td></tr>';
     });
     h += '</tbody></table></div>';
@@ -738,7 +742,7 @@ function relTable(wi, w, g) {
     h = '<div class=nwrap><table class=ntable><thead><tr><th>GATE</th><th>$</th><th>ACTION</th><th>GO</th></tr></thead><tbody>';
     mem.forEach(function(r) {
       h += '<tr><td>#' + r.propId + '</td><td>' + esc(String(r.detail).match(/#\d+ \$([0-9.]+)/) ? String(r.detail).match(/#\d+ \$([0-9.]+)/)[1] : '') + '</td>' +
-        '<td class=wrap>' + esc(r.full || r.detail) + '</td>' +
+        '<td class=wrap>' + clampCell(r.full || r.detail) + '</td>' +
         '<td>' + (r.propPending
           ? '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button> <button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button>'
           : esc(String(r.detail).match(/\((\w+)\)\s*$/) ? String(r.detail).match(/\((\w+)\)\s*$/)[1] : '')) + '</td></tr>';
@@ -774,9 +778,12 @@ function sesRoot(wi, w, rows) {
       '<td>' + esc(shortTime(r.time)) + '</td></tr>';
     if (w.open === uid) {
       const steps = stepsOf(window._unirows || [], r.runid).slice(0, 15);
+      const kinds = {};
+      steps.forEach(function(s) { kinds[s.kind] = 1; });
+      const oneKind = Object.keys(kinds).length === 1 ? Object.keys(kinds)[0] : null;
       h += '<tr class=drow><td colspan=4>' +
-        (steps.length ? '<div class=nwrap><table class=ntable><thead><tr><th>TIME</th><th>KIND</th><th>STEP</th></tr></thead><tbody>' +
-          steps.map(function(s) { return '<tr><td>' + esc(shortTime(s.time)) + '</td><td>' + esc(s.kind) + '</td><td class=wrap>' + esc(s.detail) + '</td></tr>'; }).join('') +
+        (steps.length ? '<div class=nwrap><table class=ntable><thead><tr><th>TIME</th>' + (oneKind ? '' : '<th>KIND</th>') + '<th>STEP' + (oneKind ? ' \u00b7 all ' + esc(oneKind) : '') + '</th></tr></thead><tbody>' +
+          steps.map(function(s) { return '<tr><td>' + esc(shortTime(s.time)) + '</td>' + (oneKind ? '' : '<td>' + esc(s.kind) + '</td>') + '<td class=wrap>' + clampCell(s.detail) + '</td></tr>'; }).join('') +
           '</tbody></table></div>' : '<div style="font-size:12px;opacity:.6">no tagged steps this run (older legs predate tags)</div>') +
         uniDetail(r, uid) + '</td></tr>';
     }
