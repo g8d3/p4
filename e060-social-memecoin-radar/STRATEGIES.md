@@ -17,7 +17,7 @@ N<20 resolved = THIN: never propose real money on THIN.
   re-fetches 24h later, hit = price up; paper/score.json holds the
   hit-rate; card shows it on first paint + /api/paper. Watch-only, never
   a position.
-- SCORE: resolved=0/0 (thin-data, first 24h outcomes land ~2026-09-14 05:33Z, 5 pending) — next leg resolves or reports pending count.
+- SCORE: resolved=0/0 (thin-data, first 24h outcomes land ~2026-09-14, 10 pending) — next leg resolves or reports pending count.
 - EARLY-READ (run #42, FREE probe, no fetch): app.py early_read() compares
   latest worthy entries vs current rotation.json prices; card verdict +
   one-line expand + /api/paper carry per-call detail. Read 2026-09-13
@@ -50,6 +50,7 @@ N<20 resolved = THIN: never propose real money on THIN.
   unchanged, still PAPER. Early 2026-09-13 ~13:35Z: 1/5 up at ~1.2h,
   BLAST +30.0% Breakout LIVE while the group avg sits near flat —
   exactly the case the ping is for; canonical 24h grade ~16h out.
+- RUN #52 FIX (FREE, local only, no fetch): first paint could show STALE with no thumb-zone retry (cache TTL 5m, bg refresh lands seconds later — owner saw STALE 30m with nothing to tap). Thumbbar gains Refresh (two-phase: immediate re-fetch + second pass after 7s to catch the bg refresh). WORTHY-1 unchanged, still PAPER. Early 2026-09-13 ~14:35Z: 2/5 up, avg +13.4% at 2.2h, best Stunk +51.1% + BLAST +25.3% — two breakouts live; canonical 24h grade ~15h out (10 pending, 0 resolved).
 - RUN #51 POWER (FREE, local only, no fetch): early expand was a bare
   number (SYM +N%) with no tap to act. early_read now carries entry +
   cur + pairUrl per call; expand renders "SYM +N% entry X \u2192 now Y"
