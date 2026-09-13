@@ -72,3 +72,12 @@ N<20 resolved = THIN: never propose real money on THIN.
   "hot but falling — watch only" when top worthy chg24 <= -50 (server +
   JS + copy-slip FALLING flag), dumped rows carry a falling marker —
   owner no longer sees "worth a look" on a -66% crasher.
+- RUN #61 FIX+POWER (FREE, local only, no fetch): mirror guard for the
+  other tail — top verdict said "worth a look" on BATONIUS +522%, a
+  WORTHY-2c upside-cap setup (chg>+200 0/3, avg -75.3%). Top verdict now
+  reads "hot but pumped — watch only" when top worthy chg24 >= +200
+  (server + JS + copy-slip PUMPED flag), pumped rows carry a warning
+  marker. WORTHY-1 rule unchanged, still PAPER; WORTHY-2c still THIN
+  (needs N>=20 resolved). Early 2026-09-13 ~18:30Z: 2/5 up, avg -39.2%
+  at 3.5h, best CATFLIGHT +3.7% — cooling intraday; canonical 24h grade
+  ~11h out (18 pending, 0 resolved, blocked-on-time).
