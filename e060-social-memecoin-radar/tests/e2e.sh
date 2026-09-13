@@ -11,6 +11,9 @@ grep -q "thumbbar" /tmp/e60_root.html || fail "no bottom thumbbar (mobile thumb 
 grep -q 'data-k=movers' /tmp/e60_root.html || fail "thumbbar missing Movers sort"
 grep -q '<details>' /tmp/e60_root.html || fail "explainer not collapsed (long-text rule)"
 grep -q 'style=float:right' /tmp/e60_root.html && fail "primary control still top-only"
+grep -q '%%TOPONE%%\|%%PULSE%%' /tmp/e60_root.html && fail "server card placeholders unreplaced (no first-paint answer)"
+grep -q -i "Top now:\|No rotation data" /tmp/e60_root.html || fail "no server-rendered verdict on first paint"
+grep -q -i "tokens · sample" /tmp/e60_root.html || fail "no server-rendered data pulse on first paint"
 
 health=$(curl -s -m 10 "$BASE/health") || fail "health unreachable"
 echo "$health" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('ok') is True and d.get('track')=='e060', d" || fail "health bad: $health"
@@ -22,11 +25,13 @@ d = json.load(open("/tmp/e60_rot.json"))
 assert isinstance(d.get("rows"), list) and len(d["rows"]) > 0, "empty rows"
 assert "stale" in d and "ts" in d, "missing stale/ts"
 r0 = d["rows"][0]
-for k in ("symbol", "chain", "rotation_score", "heat", "txns_h24"):
+for k in ("symbol", "chain", "rotation_score", "heat", "txns_h24", "priceUsd", "token"):
     assert k in r0, f"row missing {k}"
 assert isinstance(r0["heat"], (int, float)), "heat not numeric"
 print(f"rotation ok: {len(d['rows'])} rows, stale={d['stale']}, heat0={d['rows'][0]['heat']}")
 EOF
+paper=$(curl -s -m 10 "$BASE/api/paper") || fail "paper unreachable"
+echo "$paper" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('ok') is True and 'paper_n' in d, d; print(f\"paper ok: resolved={d.get('paper_n')} pending-today={d.get('today_logged')}\")" || fail "paper bad: $paper"
 out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"

@@ -8,6 +8,7 @@ boost attention $ x on-chain velocity (volume/txns) from Dexscreener.
 Routes: / -> dashboard, /api/rotation -> JSON, /health -> ok.
 Cache: data/rotation.json (5 min TTL), stale-badged when Dexscreener unreachable.
 """
+import html
 import json, math, os, subprocess as _sp, threading, time, urllib.request
 _BASE = os.path.dirname(os.path.abspath(__file__))
 _VSTART = int(time.time())
@@ -33,6 +34,18 @@ PORT = int(os.environ.get("E060_PORT", "8323"))
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, "data", "rotation.json")
 TTL = 300
+PAPER_DIR = os.path.join(HERE, "paper")
+SCORE_FILE = os.path.join(PAPER_DIR, "score.json")
+
+# Worthy-ping rule (strategy WORTHY-1, see STRATEGIES.md). Keep in sync with
+# bin/paper_snapshot.py and the dashboard JS `worthy()`.
+def is_worthy(r):
+    try:
+        return (float(r.get("heat") or 0) >= 80 and
+                float(r.get("vol_h24") or 0) >= 5e5 and
+                float(r.get("txns_h24") or 0) >= 1e4)
+    except (TypeError, ValueError):
+        return False
 
 BOOSTS_URL = "https://api.dexscreener.com/token-boosts/top/v1"
 UA = {"User-Agent": "e060-radar/1.0 (+local)"}
@@ -82,6 +95,7 @@ def build():
             "symbol": e.get("symbol", "?"), "name": e.get("name", ""),
             "chain": chain, "token": addr,
             "boost_usd": amt, "vol_h24": vol,
+            "priceUsd": e.get("priceUsd"),
             "priceChange_h24": e.get("priceChange_h24"),
             "txns_h24": txns,
             "rotation_score": score, "heat": heat,
@@ -148,11 +162,104 @@ def get_data():
         return {"ts": int(time.time()), "source": "dexscreener-free",
                 "stale": True, "stale_reason": str(ex), "rows": []}
 
+def fmt_big(n):
+    try:
+        n = float(n)
+    except (TypeError, ValueError):
+        return '—'
+    if n >= 1e6:
+        return f"{n/1e6:.1f}M"
+    if n >= 1e3:
+        return f"{n/1e3:.1f}K"
+    return str(round(n))
+
+
+def fmt_age(sec):
+    try:
+        sec = max(0, float(sec))
+    except (TypeError, ValueError):
+        return '?'
+    if sec < 90:
+        return f"{sec:.0f}s ago"
+    if sec < 5400:
+        return f"{sec/60:.0f}m ago"
+    return f"{sec/3600:.1f}h ago"
+
+
+def paper_score():
+    """Read paper/score.json (written by bin/paper_resolve.py). Never fetches."""
+    try:
+        with open(SCORE_FILE) as f:
+            s = json.load(f)
+        n = int(s.get("resolved") or 0)
+        if n > 0:
+            return f"worthy hit-rate {s.get('hit_rate_pct')}% ({s.get('hits')}/{n})"
+        pend = int(s.get("pending") or 0)
+        if pend > 0:
+            return f"{pend} worthy call{'s' if pend != 1 else ''} resolving (first outcome <24h)"
+        return "worthy score: logging first calls"
+    except Exception:
+        return "worthy score: logging first calls"
+
+
+def server_card():
+    """Server-rendered first paint: verdict + data pulse. No JS needed."""
+    d = get_data()
+    rows = d.get("rows") or []
+    try:
+        age = time.time() - os.path.getmtime(CACHE)
+    except Exception:
+        age = -1
+    live = "LIVE" if not d.get("stale") else "STALE"
+    if rows:
+        top = max(rows, key=lambda r: r.get("heat") or 0)
+        w = is_worthy(top)
+        chg = top.get("priceChange_h24")
+        chgs = f"{chg}%" if chg is not None else "—"
+        verdict = (f"Top now: {top.get('symbol')} ({top.get('chain')}) heat "
+                   f"{top.get('heat')} — {'⚡ WORTH A LOOK' if w else 'quiet, no worthy ping'} · "
+                   f"vol {fmt_big(top.get('vol_h24'))} chg {chgs}")
+    else:
+        verdict = "No rotation data right now — refresh in a minute"
+    pulse = (f"{live} {len(rows)} tokens · sample {fmt_age(age)} (every 5m) | "
+             f"{paper_score()} | v{_VRUN}")
+    return html.escape(verdict), html.escape(pulse)
+
+
+def get_paper():
+    """/api/paper payload: score file + today's logged count. Never fetches."""
+    out = {"ok": True, "track": "e060", "today": time.strftime("%Y-%m-%d"),
+           "today_logged": 0, "resolved": 0, "hits": 0,
+           "hit_rate_pct": None, "paper_n_hit": 0, "paper_n": 0,
+           "pending": 0}
+    try:
+        with open(SCORE_FILE) as f:
+            s = json.load(f)
+        out.update({k: s.get(k) for k in ("resolved", "hits", "hit_rate_pct", "pending")
+                    if k in s})
+        out["paper_n_hit"] = out["hits"]
+        out["paper_n"] = out["resolved"]
+        out["paper_hit_rate_pct"] = out["hit_rate_pct"]
+    except Exception:
+        pass
+    try:
+        with open(os.path.join(PAPER_DIR, "calls.jsonl")) as f:
+            for line in f:
+                try:
+                    if json.loads(line).get("date") == out["today"]:
+                        out["today_logged"] += 1
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return out
+
+
 PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>e060 rotation radar (free)</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:1em auto 0;padding:0 1em}html.dark body{background:#111418;color:#e6e6e6}html.dark td,html.dark th{border-color:#444}html.dark a{color:#8ab4ff}table{border-collapse:collapse;width:100%;margin:0;min-width:640px}td,th{border:1px solid #ccc;padding:4px 8px;font-size:13px;text-align:right}td:nth-child(1),th:nth-child(1){text-align:left;position:sticky;left:0;background:#fff;z-index:1}html.dark td:nth-child(1),html.dark th:nth-child(1){background:#111418}.badge{background:#dfd;padding:2px 8px;border-radius:8px}.stale{background:#fdd}details{margin:.4em 0;color:#555;font-size:13px}html.dark details{color:#aaa}summary{cursor:pointer}.twrap{max-height:62vh;overflow:auto;border:1px solid #ccc;border-radius:8px}.twrap thead th{position:sticky;top:0;background:#f4f4f4;z-index:1}html.dark .twrap{border-color:#444}html.dark .twrap thead th{background:#1c2127}.twrap thead th:nth-child(1){z-index:2}html.dark .twrap thead th:nth-child(1){background:#1c2127}.twrap thead th:nth-child(1){background:#f4f4f4}.thumbbar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0 calc(12px + env(safe-area-inset-bottom));background:#fff}html.dark .thumbbar{background:#111418}.thumbbar button{flex:1;padding:14px 4px;font-size:16px;border-radius:12px;border:1px solid #ccc;background:#f4f4f4}html.dark .thumbbar button{background:#1c2127;color:#e6e6e6;border-color:#444}.thumbbar button.on{background:#222;color:#fff;border-color:#222}html.dark .thumbbar button.on{background:#e6e6e6;color:#111;border-color:#e6e6e6}small{color:#888;font-size:11px}</style></head>
 <body><h1>e060 rotation radar <span class=badge>FREE</span></h1>
-<div id=s>loading…</div>
-<div id=v style="margin:.4em 0;font-size:15px">loading top pick…</div>
+<div id=s>%%PULSE%%</div>
+<div id=v style="margin:.4em 0;font-size:15px">%%TOPONE%%</div>
 <details><summary>Top pick + speed, one tap below sorts it.</summary>
 <p>Cheapest plan (free, no paid pipe). <b>heat</b> = score + trade-speed + 24h-move size. Per-row <b>trades</b> opens that pair's Dexscreener trades tab (top traders, free, no key). <a href=/api/rotation>JSON</a> <a href=/health>health</a> <small id=ver></small></p></details>
 <div class=twrap><table id=t></table></div>
@@ -165,7 +272,7 @@ function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(
 for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
-fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+new Date(d.ts*1000).toLocaleString()+' — '+d.rows.length+' tokens';render()});
+fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+new Date(d.ts*1000).toLocaleString()+' — '+d.rows.length+' tokens';render();fetch('/api/paper').then(r=>r.json()).then(p=>{if(!p||!p.ok)return;let t='';if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving`;const v=document.getElementById('v');if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0)v.textContent+=t}).catch(()=>{})});
 document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
 document.getElementById('copy').onclick=()=>{if(!SLIP)return;const b=document.getElementById('copy');(navigator.clipboard?navigator.clipboard.writeText(SLIP):Promise.reject()).then(()=>{b.textContent='✓ Copied';setTimeout(()=>b.textContent='📋 Copy',1200)}).catch(()=>{prompt('Copy your slip:',SLIP)})};
 document.getElementById('dark').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'};</script></body></html>"""
@@ -182,8 +289,20 @@ class H(BaseHTTPRequestHandler):
         if self.path == "/api/rotation":
             body = json.dumps(get_data()).encode()
             return self.send(body, "application/json")
-        body = PAGE.encode("utf-8")
-        return self.send(body, "text/html; charset=utf-8")
+        if self.path == "/api/paper":
+            body = json.dumps(get_paper()).encode()
+            return self.send(body, "application/json")
+        try:
+            top, pulse = server_card()
+        except Exception:
+            top, pulse = "Top pick unavailable", ""
+        body = PAGE.replace("%%TOPONE%%", top).replace("%%PULSE%%", pulse).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
     def send(self, body, ctype):
         self.send_response(200)
         self.send_header("Content-Type", ctype)

@@ -7,5 +7,5 @@ if curl -s -m 10 -o /dev/null -w "%{http_code}" http://127.0.0.1:8323/health | g
   exit 0
 fi
 echo "$(date -u '+%F %T') e060 HEALTH FAIL" >> "$LOG"
-python3 "$OPS" beat e060 blocked "health monitor: :8323 /health non-200" 2>>"$LOG" || true
+python3 "$OPS" beat e060 blocked "Your radar card is down, retrying | tech: health monitor: :8323 /health non-200" 2>>"$LOG" || true
 exit 1
