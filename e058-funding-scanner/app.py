@@ -240,7 +240,7 @@ details.cfg summary{cursor:pointer}
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
 let allRows=[], showN=100, backPC={};
-function paidTag(c){const s=backPC[c];return s?` <small style="opacity:.65">${s.hit}/${s.n}</small>`:' <small style="opacity:.65">new</small>';}
+function paidTag(c){const s=backPC[c];return s?` <small style="opacity:.65">${s.hit}/${s.n}</small>`:' <small style="opacity:.65">no history yet</small>';}
 function rowHtml(r){return `<tr onclick="pickCoin('${r.coin}')" style="cursor:pointer"><td>${r.coin}${paidTag(r.coin)}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
 function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
 async function load(){showN=100;const g=id=>document.getElementById(id).value;
@@ -262,15 +262,15 @@ async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100'
 const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
 sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${locTs(s.sent_ts)}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
 let lastTop=[];
-function plainV(v){return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':v==='FLIPPY'?'flippy \u2014 legs swapping':(v||'');}
+function plainV(r){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
 const t=(d.rows||[]).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHTML='';return;}
 let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)pc=b.per_coin;}catch(e){}
-const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:' (new)';
-one.textContent=`Top pays now: ${t.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r.verdict||r.persist)}${held(r.coin)}`).join(' · ')}`;
-row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r.verdict||r.persist)}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
+const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:' (no history yet)';
+one.textContent=`Top pays now: ${t.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r)}${held(r.coin)}`).join(' · ')}`;
+row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r)}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
 function clearQ(){document.getElementById('q').value='';load();document.getElementById('top').scrollIntoView();}
@@ -508,9 +508,11 @@ def _server_card():
         _pc = {}
     def _held(coin):
         st = _pc.get(coin)
-        return f" ({st['hit']}/{st['n']} paid)" if st else ' (new)'
-    _PLAIN = {'STEADY': 'steady \u2713', 'WATCH': 'watch \u2014 thin backing', 'FLIPPY': 'flippy \u2014 legs swapping'}
+        return f" ({st['hit']}/{st['n']} paid)" if st else ' (no history yet)'
+    _PLAIN = {'STEADY': 'steady \u2713', 'WATCH': 'watch \u2014 thin backing'}
     def _verdict(r):
+        if r.get('verdict') == 'FLIPPY':
+            return f"flippy \u2014 edge moves between {r.get('long','?')} and {r.get('short','?')}"
         return _PLAIN.get(r.get('verdict'), r.get('verdict') or r.get('persist'))
     if t3:
         top = 'Top pays now: ' + ' \u00b7 '.join(f"{r['coin']} {r['median_apy']}% {_verdict(r)}{_held(r['coin'])}" for r in t3)
@@ -518,23 +520,23 @@ def _server_card():
         top = 'Top pays now: none holding right now'
     try:
         b = json.load(open(os.path.join(BASE, 'backtest.json')))
-        bt = f"backtest {b.get('hit_rate_pct')}% held 24h ({b.get('n_hit')}/{b.get('n_signals')})" if b.get('ok') else 'backtest pending'
+        bt = f"backtest: {b.get('hit_rate_pct')}% held 24h ({b.get('n_hit')}/{b.get('n_signals')})" if b.get('ok') else 'backtest: pending'
     except Exception:
         bt = 'backtest pending'
     try:
         pc = db()
         pr = pc.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes').fetchone()
         if pr[1]:
-            ph = f"paper {round(100.0*pr[0]/pr[1],1)}% ({pr[0]}/{pr[1]})"
+            ph = f"paper: {round(100.0*pr[0]/pr[1],1)}% ({pr[0]}/{pr[1]} graded)"
         else:
             today = now.strftime('%Y-%m-%d')
             tc = pc.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (today,)).fetchone()[0]
-            ph = f"paper {tc} logged" if tc else 'paper logging'
+            ph = f"paper: {tc} logged today, grades after 24h" if tc else 'paper: logging'
         pc.close()
     except Exception:
-        ph = 'paper logging'
-    pulse = (f"data {n//1000}k rows · last sample {age_m:.0f}m ago (every ~{cad}m) | "
-             f"{bt} · {ph} | v{_VRUN}")
+        ph = 'paper: logging'
+    pulse = (f"data: {n//1000}k rows, sample {age_m:.0f}m ago every ~{cad}m | "
+             f"{bt} · {ph} | version {_VRUN}")
     if t3:
         _row = ''.join(
             f"<button class=pick onclick=\"pickCoin('{html.escape(r['coin'])}')\">"

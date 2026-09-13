@@ -35,6 +35,17 @@ isn't. Wanted: a title (e.g. `coins`), so dev and user can point at it.
 Today: scheduled-report inputs stacked one after another. Wanted:
 aligned label/input grid. Same fix rolls to all apps.
 
+## 7. Decode the top section (UX §8, fixed 2026-09-13 direct)
+
+- `flippy — legs swapping` → `flippy — edge moves between LONG and
+  SHORT` (server + JS, venues already on the row).
+- `(new)` → `(no history yet)` (server, JS top line, table cell).
+- Pulse line labeled: `data: 1317k rows, sample 9m ago every ~14m |
+  backtest: 53.7% held 24h (102/190) | paper: 75 logged today,
+  grades after 24h | version dbcbbd2` (`v` hash → `version`).
+- `paper N logged` always says when grading happens; resolved
+  scores read `(a/b graded)`.
+
 ## 6. Paper slip → share page (UX §6, bigger work)
 
 Today: `copy paper slip` writes one line to clipboard (JS alert
