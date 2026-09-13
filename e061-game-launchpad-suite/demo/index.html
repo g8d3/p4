@@ -48,7 +48,28 @@ function trackVisit() {
   try { localStorage.setItem('e061-visits', JSON.stringify(st)); } catch (e) {}
   return st;
 }
-function verdictText(st, slip) {
+function runStats() {
+  var s = { runs: 0, best: 0 };
+  try { s = JSON.parse(localStorage.getItem('e061-runs') || 'null') || s; } catch (e) {}
+  return s;
+}
+function saveRun(coins) {
+  var s = runStats();
+  s.runs += 1;
+  if (coins > s.best) s.best = coins;
+  try { localStorage.setItem('e061-runs', JSON.stringify(s)); } catch (e) {}
+  return s;
+}
+function winTap() {
+  var w = document.getElementById('win');
+  if (!w) return true;
+  var locked = (w.style.display !== 'block');
+  w.style.display = 'block';
+  var l = document.getElementById('winlock');
+  if (l) l.textContent = locked ? 'Locked \u2014 finish one run in Play first (30 seconds), then claim here \u2193.' : '';
+  return true;
+}
+function verdictText(st, slip, rs) {
   var dayN = Object.keys(st.days || {}).length || 1;
   var badge = document.getElementById('daybadge');
   if (badge) badge.textContent = 'Day ' + dayN + (dayN >= 2 ? ' ✓ proved' : ' of 2');
@@ -67,6 +88,7 @@ function verdictText(st, slip) {
     var br = document.createElement('br'); v.appendChild(br);
     var small = document.createElement('small');
     small.textContent = dayN >= 2 ? 'You came back — day-2 player proven.' : 'Come back tomorrow to prove day 2.';
+    if (rs && rs.runs) small.textContent += ' \u00b7 ' + rs.runs + ' runs \u00b7 best ' + rs.best + '/7.';
     v.appendChild(small);
     var cp = document.createElement('button');
     cp.textContent = 'Copy slip'; cp.style.marginLeft = '.5rem';
@@ -94,15 +116,18 @@ function fillSlip(coins, max, perfect) {
     + 'fee note: 1% pot / 0.5% creator / 0.25% escrow observed only';
   txt.textContent = body;
   try { localStorage.setItem('e061-slip', body); } catch (e) {}
+  var rs = saveRun(coins);
   slip.style.display = 'block';
   var wb = document.getElementById('btn-win');
   if (wb) wb.textContent = '🏆 Win ' + coins + '/' + max;
-  try { verdictText(trackVisit(), body); } catch (e) {}
+  try { verdictText(trackVisit(), body, rs); } catch (e) {}
 }
 window.addEventListener('message', function(e) {
   var d = e.data || {};
   if (d.type === 'e061-win') {
     document.getElementById('win').style.display = 'block';
+    var lk = document.getElementById('winlock');
+    if (lk) lk.textContent = '';
     var c = document.getElementById('coins');
     if (c) c.textContent = d.coins + '/' + d.coinMax;
     var m = document.getElementById('winmsg');
@@ -117,7 +142,7 @@ try {
     document.getElementById('sliptext').textContent = saved;
     document.getElementById('slip').style.display = 'block';
   }
-  verdictText(vst, saved);
+  verdictText(vst, saved, runStats());
 } catch (e) {}
 function copySlip() {
   var t = document.getElementById('sliptext').textContent;
@@ -132,6 +157,7 @@ function copySlip() {
 
 <div class="card" id="win">
   <h2>2. Win screen</h2>
+  <p id="winlock" style="color:#900"></p>
   <p>You reached the goal. Claim path:</p>
   <p><button id="claim" disabled>Claim test buy</button>
      <span id="chainBadge" class="badge off">chain: checking…</span></p>
@@ -154,7 +180,7 @@ function copySlip() {
 <details class="box" id="sec-stats"><summary>Warning: most launchpad tokens &rarr; 0 — entry needs a level + kill rule.</summary>
 <p>fairLaunchScore / staleness: <b>unattested</b> (no attestation feed in slice). Full reasoning: STRATEGY.md.</p></details>
 
-<nav class="thumbbar"><a href="#sec-play">▶ Play</a><a href="#win" id="btn-win">🏆 Win</a><a href="#sec-fees">💰 Fees</a><a href="#sec-stats">📊 Stats</a></nav>
+<nav class="thumbbar"><a href="#sec-play">▶ Play</a><a href="#win" id="btn-win" onclick="return winTap()">🏆 Win</a><a href="#sec-fees">💰 Fees</a><a href="#sec-stats">📊 Stats</a></nav>
 
 <script>
 fetch('status.json').then(r => r.json()).then(s => {
