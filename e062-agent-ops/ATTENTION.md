@@ -16,6 +16,9 @@ fixing confusion before it is reported) are the real score.
 | 2026-09-13 | e058 | top section undecodable: bare `flippy/legs swapping`, `(new)`, unlabeled `\|/·` stats, bare `v` hash, `paper 75 logged` with no when | owner | ~8 | dense line never read aloud by a leg; fixed direct 2026-09-13 |
 | 2026-09-13 | e058 | paper ballot invisible: 75 predictions only in SQLite, /api/paper serves counts, no list anywhere | owner | ~8 | legs logged predictions but never asked "can the owner see the ballot"; queued as ISSUES #8 |
 | 2026-09-13 | e058 | 4 signal pings in 2h: dedup keyed on sliding window, persistent payers re-pinged as URGENT | owner (screenshot) | ~2 | alert tested for sending, never for silence; 24h rule worked but 3 different coins pinged in 1h → escalated to digest-only (no owner action exists for any ping) |
+| 2026-09-13 | e062 | board STALE—restart survives restarts | owner (screenshot) | ~1 | version scoped to whole dir incl. docs — my own doc commits re-dirtied after every restart; fixed: code-only scope (app.py/webauthn.py/static) |
+| 2026-09-13 | e061 | game frozen for hours, same win screen | owner (screenshots) | hours | day-2 metric unmeasurable (localStorage, no server log) so legs polished while blocked; decoded dead-ends direct, server log + metric redesign queued |
+| 2026-09-13 | e060 | trades link promises trades tab, tables fixed/read-only | owner | — | free API has no trades-tab URL (pair page only) → honest `pair ↗` label; SQL-grade grid + self-explaining scores queued (UX §9) |
 
 ## Rules for legs
 

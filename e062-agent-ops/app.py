@@ -488,17 +488,21 @@ async def api_decide(req: Request):
     return {'ok': True}
 
 _STARTED = int(time.time())
+# Served code only (UX §8 + e058/e060 precedent): doc/data commits
+# (ATTENTION.md, DIRECTIVES.md, STRATEGIES.md) must never fake STALE.
+CODE_PATHS = ['e062-agent-ops/app.py', 'e062-agent-ops/webauthn.py',
+              'e062-agent-ops/static/']
 try:
-    _RUN_COMMIT = subprocess.run(['git', 'log', '-1', '--format=%h', '--', 'e062-agent-ops'],
+    _RUN_COMMIT = subprocess.run(['git', 'log', '-1', '--format=%h', '--'] + CODE_PATHS,
                                  capture_output=True, text=True, cwd=P4).stdout.strip() or '?'
 except Exception:
     _RUN_COMMIT = '?'
 
 def repo_state(sub=None):
-    # latest commit TOUCHING this track + its dirtiness (repo-wide HEAD is
-    # meaningless here: other tracks move it every leg)
+    # latest commit TOUCHING SERVED CODE + its dirtiness (repo-wide HEAD is
+    # meaningless here: other tracks move it every leg; docs move it hourly)
     try:
-        head = subprocess.run(['git', 'log', '-1', '--format=%h', '--', sub or '.'],
+        head = subprocess.run(['git', 'log', '-1', '--format=%h', '--'] + CODE_PATHS,
                               capture_output=True, text=True, cwd=P4).stdout.strip() or '?'
         dirty = subprocess.run(['git', 'status', '--short', '--'] + ['e062-agent-ops/app.py', 'e062-agent-ops/bin/ops.py', 'e062-agent-ops/bin/runner.sh', 'e062-agent-ops/static/app.js', 'e062-agent-ops/static/board.html', 'e062-agent-ops/tests/e2e.sh'],
                                capture_output=True, text=True, cwd=P4).stdout.strip()
