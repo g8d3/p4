@@ -42,7 +42,7 @@ Two obligations, always together:
    long text, control out of thumb reach). Fix it. This is mandatory —
    do not skip to "verify" without touching the UI as a user.
 3. ADD ONE POWER PROBE (autonomy: FULL-T1, owner-authorized 2026-09-12):
-   - UI fixes, pricing-page drafts, plan/ ダ monetization copy, saved-data
+   - UI fixes, pricing-page drafts, plan/monetization copy, saved-data
      put to work, paper-trading loops, strategy tests, backtests — AUTO,
      no proposal needed (log spend T1 ≤$50/action).
    - Real charges, real positions, real money movement, KYC-gated
@@ -52,13 +52,45 @@ Two obligations, always together:
      e060 = velocity/rotation alert quality; e061 = playable-or-investable
      loop; e062 = factory improvement that helps ALL tracks.
 4. Next: revive ONE stale track with the smallest action that moves its
-   rung (see e062-agent-ops/AGENTS.md ladder). Read that track's
+   PROOF NUMBER (see ADVANCE below — not its rung). Read that track's
    AGENTS.md first. SKIP paused list (owner orders, never override).
-5. Else: advance the lowest-rung active track one notch.
+5. Else: move the lowest-proof active track's number one notch.
 5b. Fan-out: a leg MAY run up to 3 parallel spikes (one per track max)
     for independent research/builds, then synthesize + write state
     yourself. Spikes are short, read-mostly, capped scope. Never more
     than 3 — legs stay cheap.
+
+## ADVANCE (what counts as progress — read this before touching anything)
+
+Advance = a proof number moved, not a tweak shipped. Each track climbs
+one number:
+- e058: backtest 24h hold-rate (fraction of steady calls that paid a day later)
+- e059: alert precision (cheap-vs-peers calls that stayed cheap)
+- e060: worthy-ping hit-rate (calls beating the market 24h later)
+- e061: day-2 returns (players coming back)
+- e062/e063: owner taps-to-task (fewer taps to steer, approve, run)
+
+Rules:
+- Read the track's `next:` focus first (`ops.py focus <track>`) — it names
+  the number. Your beat's tech half MUST end with
+  `score <metric>=<n> (<delta vs last leg>)`. Next leg reads YOUR score
+  from the beats/events state — write it so a stranger can compare.
+- If the number didn't move, say why in one clause (blocked-on-X,
+  thin-data, owner-gated). A UI fix without a moved number is a FIX —
+  report it as one, never as advance.
+- RUNG-4 RULE: all tracks sit at rung 3 and rung 4 needs the owner's
+  announce tap. When the only rung left needs the owner, do NOT polish
+  rung 3 and call it progress. Shrink the ask to ONE tap (one proposal
+  with exact wording + a sane default), then go move proof numbers.
+  Rung 4 moves on the owner's tap, never on your polish.
+- RELEASE LINE: for EACH track you touched, close with one durable line
+  (beats scroll away; this is what the owner sees next week):
+  `ops.py emit <track> release "v<short-sha>: <OWNER_SENTENCE> | tech:
+  e2e <PASS/FAIL>, score <metric>=<n> (<delta>)"` with dedup key
+  `<track>:release:<sha>`.
+- BEST pins are the owner's. Never deploy over a pinned-best, never
+  unmark it. If latest is broken and unfixable in-leg, propose rollback
+  to best — don't rewrite history.
 
 ## NARRATE AS YOU GO (live visibility — the owner watches sessions live)
 
@@ -93,8 +125,11 @@ your log tail. Plain words first (a marketer reads them), tech after
 
 ## ANTI-PATTERNS (these are leg failures)
 
-- "Verify-only" legs three times in a row on the same track (rotating
-  e2e PASS with no user-visible change). Verify is maintenance, not progress.
+- "Verify-only" legs twice in a row on the same track (rotating e2e
+  PASS with no moved number). Verify is maintenance, not progress — the
+  second one must name next leg's ship target in the focus line.
+- Polish without a moved number: a UI tweak reported as "advance" when
+  the proof number didn't budge. Report fixes as fixes.
 - Changing one table when three need the same fix. Apply the pattern
   fleet-wide once learned.
 - Technical-only notes ("rotated rung-3 evidence", "e2e PASS 20

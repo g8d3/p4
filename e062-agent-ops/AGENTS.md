@@ -17,6 +17,9 @@ toward DONE without a human watching.
 Rungs 1–4 are the agents' job, nonstop. Rung 5 is a business decision
 with the owner.
 
+Advance = a track's proof number moved (see RUNNER_PROMPT.md ADVANCE),
+not a tweak shipped. Rung 4 moves on the owner's tap, never on polish.
+
 ## Components
 
 - `ops.db` (SQLite, this dir): `events(ts, track, kind, summary, dedup_key)`,

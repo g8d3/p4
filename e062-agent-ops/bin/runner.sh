@@ -42,6 +42,7 @@ FOCUS_LINE=""
 if [ "$FOCUS" != "fleet" ]; then FOCUS_LINE="--- OWNER ONE-SHOT (board button): focus this leg on $FOCUS (approved proposals still first) ---"; fi
 LEGLINE="--- THIS LEG: run #${RUN_ID:-?} (tag every step emit with [run #${RUN_ID:-?}]) ---"
 STATE=$(python3 $OPS status 2>&1 | head -40)
+FOCI=$(python3 $OPS focus 2>&1 | head -12)
 ORDERS=$(cat /home/vuos/code/p4/e062-agent-ops/DIRECTIVES.md 2>/dev/null | head -60)
 PENDING=$(python3 $OPS proposals 2>&1 | head -20)
 STALE=$(python3 $OPS stale 49 2>&1 | head -10)
@@ -61,6 +62,8 @@ $ORDERS
 
 --- LIVE OPS STATE ---
 $STATE
+--- PROOF NUMBERS (per-track next: focus — move one of these) ---
+$FOCI
 --- PENDING PROPOSALS (only owner-approved ones are executable) ---
 $PENDING
 --- STALE TRACKS ---
