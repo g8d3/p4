@@ -21,3 +21,5 @@ Nothing here is committed.
 - 2026-09-13 (owner): in-app AI grows tables both ways — user asks for rows/columns immediately, agent SUGGESTS computed columns ("you keep comparing X and Y — want Z?").
 - 2026-09-13 (owner): backend legs self-serve schema evolution unprompted — propose + implement + version + test, no instruction needed.
 - 2026-09-13 (owner): dogfood rule — legs use the apps themselves to create and test strategies; no strategy ships unwatched on the board.
+- 2026-09-13 (owner): wanderer agent experiment — an agent with NO goal roams the apps (scroll/tap/type like the owner), reports and/or fixes bugs, visibly claims what it's checking so agents never collide. Replaces the owner as bug-finder.
+- 2026-09-13 (owner): stacked/AI-laid-out tables — columns stack instead of stretching rows; layout configurable per table; AI proposes layout from expected cell sizes.
