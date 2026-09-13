@@ -38,6 +38,19 @@ Formula buried in a details block. Wanted: per-row `why this heat`.
 
 heat≥80/vol/txns never re-fit. Wanted: dated refit trigger, not intent.
 
+## 8. Lineage on-card (UX §15, doc shipped 2026-09-13)
+
+`LINEAGE.md` holds the full source→table→filter flow with formulas.
+Wanted next: the card itself links each number to its recipe (tap
+`heat` → formula + inputs), and a pipeline strip naming the 7 stages.
+
+## 9. Real social input (queued 2026-09-13)
+
+The radar measures bought attention + velocity; zero social input.
+Order: free first (Alternative.me Fear&Greed, no auth — market-wide
+mood column), then quote paid per clone-before-pay (LunarCrush,
+Santiment) + social-API directory (sibling to the web3 one).
+
 ## Standing observation
 
 Legs keep shipping verdict guards while score sits 0/0
