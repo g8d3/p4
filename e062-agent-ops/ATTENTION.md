@@ -14,6 +14,7 @@ fixing confusion before it is reported) are the real score.
 | 2026-09-13 | all | config boxes stacked vertically, unaligned | owner | ~8 | no forms rule; AI-default stacking accepted |
 | 2026-09-13 | all | paper slip = clipboard trick, never used; sharing needs a pretty page | owner | — | slip built for dev convenience, not human sharing |
 | 2026-09-13 | e058 | top section undecodable: bare `flippy/legs swapping`, `(new)`, unlabeled `\|/·` stats, bare `v` hash, `paper 75 logged` with no when | owner | ~8 | dense line never read aloud by a leg; fixed direct 2026-09-13 |
+| 2026-09-13 | e058 | paper ballot invisible: 75 predictions only in SQLite, /api/paper serves counts, no list anywhere | owner | ~8 | legs logged predictions but never asked "can the owner see the ballot"; queued as ISSUES #8 |
 
 ## Rules for legs
 
