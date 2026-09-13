@@ -207,7 +207,7 @@ details.cfg summary{cursor:pointer}
 .pos{color:#3ddc84}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e058t=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
-<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row></div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady = held every check — tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
+<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row></div><div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button id=slipbtn onclick="copySlip()" style="padding:8px 12px;font-size:13px">copy paper slip</button> <small id=slipc style="font-size:12px;opacity:.7"></small></div><div style="font-size:12px;opacity:.7;margin-top:4px">steady \u2713 = held every check with solid backing \u00b7 watch = thin backing \u2014 tap a coin to filter below. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
 <details class=cfg id=fc><summary id=f-sum>Filter: all coins, top pay first (tap to narrow)</summary>
 <div id=f style="margin-top:6px">
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
@@ -262,14 +262,15 @@ async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100'
 const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
 sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${locTs(s.sent_ts)}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
 let lastTop=[];
+function plainV(v){return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':v==='FLIPPY'?'flippy \u2014 legs swapping':(v||'');}
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
 const t=(d.rows||[]).slice(0,3);lastTop=t;
-if(!t.length){one.textContent='Top persistent spreads: none holding right now';row.innerHTML='';return;}
+if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHTML='';return;}
 let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)pc=b.per_coin;}catch(e){}
 const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:' (new)';
-one.textContent=`Top persistent spreads: ${t.map(r=>`${r.coin} ${r.median_apy}% ${r.verdict||r.persist}${held(r.coin)}`).join(' · ')}`;
-row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${r.verdict||r.persist}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top persistent spreads: offline';}}
+one.textContent=`Top pays now: ${t.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r.verdict||r.persist)}${held(r.coin)}`).join(' · ')}`;
+row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r.verdict||r.persist)}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
 function pickCoin(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();document.getElementById('b').scrollIntoView({block:'nearest'});}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
 function clearQ(){document.getElementById('q').value='';load();document.getElementById('top').scrollIntoView();}
@@ -507,10 +508,13 @@ def _server_card():
     def _held(coin):
         st = _pc.get(coin)
         return f" ({st['hit']}/{st['n']} paid)" if st else ' (new)'
+    _PLAIN = {'STEADY': 'steady \u2713', 'WATCH': 'watch \u2014 thin backing', 'FLIPPY': 'flippy \u2014 legs swapping'}
+    def _verdict(r):
+        return _PLAIN.get(r.get('verdict'), r.get('verdict') or r.get('persist'))
     if t3:
-        top = 'Top persistent spreads: ' + ' · '.join(f"{r['coin']} {r['median_apy']}% {r.get('verdict') or r.get('persist')}{_held(r['coin'])}" for r in t3)
+        top = 'Top pays now: ' + ' \u00b7 '.join(f"{r['coin']} {r['median_apy']}% {_verdict(r)}{_held(r['coin'])}" for r in t3)
     else:
-        top = 'Top persistent spreads: none holding right now'
+        top = 'Top pays now: none holding right now'
     try:
         b = json.load(open(os.path.join(BASE, 'backtest.json')))
         bt = f"backtest {b.get('hit_rate_pct')}% held 24h ({b.get('n_hit')}/{b.get('n_signals')})" if b.get('ok') else 'backtest pending'

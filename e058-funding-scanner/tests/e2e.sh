@@ -64,7 +64,7 @@ EOF
 
 # mobile hard rules (owner law): thumb-zone controls, inner-scroll tables,
 # one-line summary + expand for config, top persistent card (saved data to work)
-for pat in "thumbbar" "twrap" "topcard" "details class=cfg" "loadTop" "Top persistent spreads"; do
+for pat in "thumbbar" "twrap" "topcard" "details class=cfg" "loadTop" "Top pays now"; do
   grep -q "$pat" /tmp/e58_root.html || fail "mobile/power pattern missing: $pat"
 done
 echo "mobile ok: thumbbar + twrap + topcard + cfg-summary live"
@@ -123,7 +123,7 @@ print(f"paper ok: today={d['today_logged']} coins, resolved_days={d.get('resolve
 EOF
 python3 - <<'EOF' || fail "server-rendered card bad"
 h = open("/tmp/e58_root.html").read()
-assert "Top persistent spreads:" in h and ("STEADY" in h or "WATCH" in h or "none holding" in h), "no server verdict"
+assert "Top pays now:" in h and ("steady" in h or "watch" in h or "flippy" in h or "none holding" in h), "no server verdict"
 assert "last sample" in h and "held 24h" in h, "no server pulse"
 assert "%%TOPONE%%" not in h and "%%PULSE%%" not in h, "unexpanded markers served"
 print("server card ok: verdict + pulse rendered, no markers")
