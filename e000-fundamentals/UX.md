@@ -71,6 +71,15 @@ use the apps themselves to create and test strategies (dogfood
 rule: no strategy ships that the legs haven't watched on the
 board).
 
+## 11. Times are the viewer's local time, always (owner 2026-09-13)
+
+Server stores UTC and transmits UTC. The BROWSER converts to the
+viewer's local timezone at render time — no UTC math by humans,
+ever. Never ship pre-formatted local strings from the server (the
+server doesn't know who's looking). Never append `Z` blindly: ISO
+strings already carrying Z/offset parse as-is — double-Z produced
+the infamous `fresh NaNd ago`.
+
 ## 8. Decode the dense line (owner 2026-09-13, from e058 top section)
 
 If the owner must parse punctuation (`|` vs `·`) to understand a
