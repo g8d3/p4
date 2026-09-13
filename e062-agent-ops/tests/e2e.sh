@@ -176,7 +176,7 @@ assert isinstance(tracks, list) and len(tracks) >= 5, "tracks < 5"
 names = {t["track"] for t in tracks}
 assert {"e058", "e059", "e060", "e061", "e062"} <= names, f"missing tracks: {names}"
 for t in tracks:
-    assert "rung" in t and "beat" in t, f"track {t.get('track')} missing rung/beat"
+    assert "rung" in t and "beat" in t and "data" in t, f"track {t.get('track')} missing rung/beat/data"
 rw = d.get("runway", {})
 for k in ("spent", "earned", "left"):
     assert k in rw, f"runway missing {k}"

@@ -8,7 +8,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DB = os.environ.get('E062_DB', os.path.join(BASE, 'ops.db'))
 P4 = '/home/vuos/code/p4'
 TRACKS = {'e058': 'funding scanner', 'e059': 'valuations', 'e060': 'social radar',
-          'e061': 'game suite', 'e062': 'agent ops', 'runner': 'dispatcher legs'}
+          'e061': 'game suite', 'e062': 'agent ops', 'e063': 'fleet ui v2', 'runner': 'dispatcher legs'}
 
 def get_prefs():
     import sqlite3
@@ -115,6 +115,37 @@ def read(p, n=60):
     try: return open(p).read().split('\n')[:n]
     except Exception: return []
 
+def track_data(t):
+    # Freshness badge: is this project building a time series, and is it fresh?
+    # Never breaks the board: every reader is guarded, unknown -> {}.
+    try:
+        if t == 'e058':
+            c = sqlite3.connect(os.path.join(P4, 'e058-funding-scanner', 'data.db'))
+            n, mx = c.execute('SELECT COUNT(*), MAX(ts) FROM funding').fetchone()
+            c.close()
+            return {'rows': n, 'last': mx or '', 'every': '15m'}
+        if t == 'e059':
+            dd = os.path.join(P4, 'e059-crypto-valuations', 'data')
+            fs = [os.path.join(dd, f) for f in os.listdir(dd)]
+            if not fs: return {}
+            mt = max(os.path.getmtime(f) for f in fs)
+            return {'files': len(fs), 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(mt)), 'every': '24h'}
+        if t == 'e060':
+            import json as _j
+            r = _j.load(open(os.path.join(P4, 'e060-social-memecoin-radar', 'data', 'rotation.json')))
+            calls = os.path.join(P4, 'e060-social-memecoin-radar', 'paper', 'calls.jsonl')
+            n = sum(1 for _ in open(calls)) if os.path.isfile(calls) else 0
+            return {'days': n, 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(r.get('ts', 0))), 'every': '24h'}
+        if t in ('e062', 'e063', 'runner'):
+            c = sqlite3.connect(DB)
+            n = c.execute('SELECT COUNT(*) FROM runs').fetchone()[0]
+            mx = c.execute('SELECT MAX(ended_ts) FROM runs').fetchone()[0] or 0
+            c.close()
+            return {'legs': n, 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(mx)) if mx else '', 'every': '30m'}
+    except Exception:
+        pass
+    return {}
+
 @app.get('/api/board')
 def board(req: Request):
     c = sqlite3.connect(DB)
@@ -155,7 +186,8 @@ def board(req: Request):
                        'rung_ts': (rungs.get(t) or {}).get('ts', ''),
                        'url': (rungs.get(t) or {}).get('url', ''),
                        'beat': beats.get(t), 'plan': plan[:140],
-                       'focus': focus.get(t, '')})
+                       'focus': focus.get(t, ''),
+                       'data': track_data(t)})
     try:
         sp = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='spend'").fetchone()[0]
         ea = c.execute("SELECT COALESCE(SUM(usd),0) FROM ledger WHERE kind='earn'").fetchone()[0]
