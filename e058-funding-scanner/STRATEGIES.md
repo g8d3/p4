@@ -16,7 +16,8 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
   ≥24h later (paper_outcomes); hit = spread still ≥20bps. Score served on
   the card + /api/paper.
 - PROPOSE for real: only on e2e PASS + paper edge (≥55% over N≥20) + owner tap.
-- Current score: backtest 57.1% (12/21, N>=20 SCORED) · paper logging (26 coins today).
+- Current score: backtest 54.5% (24/44, N>=20 SCORED) · paper logging (33 coins today, 0 resolved — first resolution needs 24h).
+- Run #40: N doubled 21→44 (24/44, 54.5%, window to 2026-09-12T08:17Z, 1004k rows). IP 10/10 + JUP 10/10 carry the edge; TREE 1/10 + KAITO 0/4 are the drag. Rate -2.6pp vs #38 but still above 40% invalidation. UI: main table now opens with top 100 + one-line count + show-all (was 647 rows at once on the phone). Next: first paper resolution (needs 24h) + keep N growing; PROPOSE only on paper edge ≥55% over N≥20 + owner tap.
 - Run #38: N>=20 crossed (12/21) — strategy is SCORED, no longer THIN.
   UI: top picks show `(new)` for coins with no backtest history (POWR/
   STEEM/STONK) so the owner can tell new from proven in <30s; paid

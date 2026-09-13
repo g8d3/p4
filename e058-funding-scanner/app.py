@@ -233,18 +233,23 @@ details.cfg summary{cursor:pointer}
 <div class=twrap><table><thead><tr><th>sent</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
 <div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
 <tbody id=b></tbody></table></div>
+<div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small> <button id=moreb onclick="showAll()" style="display:none;padding:6px 12px;font-size:13px">show all</button></div>
 <div class=thumbbar><button onclick="topGo(this)">★ top</button><button onclick="copySlip()">copy slip</button><button onclick="fltGo()">filter</button></div>
 <div id=ver style="font-size:11px;opacity:.6;margin:56px 0 8px"></div>
 <script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
-async function load(){const g=id=>document.getElementById(id).value;
+let allRows=[], showN=100;
+function rowHtml(r){return `<tr><td>${r.coin}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
+function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
+async function load(){showN=100;const g=id=>document.getElementById(id).value;
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=locTs(d.ts||'')||'no data';
-document.getElementById('c').textContent=(d.count??d.rows.length)+' coins';
-const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: ${(d.count??d.rows.length)} coins${qq?' matching '+qq:''}, top pay first (tap to narrow)`;}
-document.getElementById('b').innerHTML=d.rows.map(r=>
-`<tr><td>${r.coin}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`).join('');}
+allRows=d.rows||[];const total=(d.count??allRows.length);
+document.getElementById('c').textContent=`showing ${Math.min(showN,allRows.length)} of ${total}`;
+const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: top ${Math.min(showN,allRows.length)} of ${total}${qq?' matching '+qq:''}, best pay first (tap to narrow)`;}
+document.getElementById('b').innerHTML=allRows.slice(0,showN).map(rowHtml).join('');
+const mc=document.getElementById('morec'),mb=document.getElementById('moreb');if(allRows.length>showN){if(mc)mc.textContent=`top 100 by pay — tap show all for ${total}`;if(mb)mb.style.display='';}else{if(mc)mc.textContent=allRows.length?`${allRows.length} coins`:'no coins match';if(mb)mb.style.display='none';}}
 async function loadCfg(){try{const c=await (await fetch('/api/report-config')).json();
 rh.value=c.report_hour_utc;rt.value=c.threshold_bps;rn.value=c.last_n;rtn.value=c.top_n;ru.value=c.urgent_mult;
 const rs=document.getElementById('r-sum');if(rs)rs.textContent=`Daily digest ${c.report_hour_utc}:00 UTC (=${locHour(c.report_hour_utc)} your time), top ${c.top_n} over ${c.threshold_bps}bps (tap to change time)`;}catch(e){}}
