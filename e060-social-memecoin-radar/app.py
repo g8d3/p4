@@ -202,6 +202,60 @@ def paper_score():
         return "worthy score: logging first calls"
 
 
+def early_read():
+    """Intraday early read (FREE, no fetch): latest worthy entries with
+    entry priceUsd vs current rotation.json prices. A same-day proxy while
+    the canonical 24h resolver waits — never replaces paper_score()."""
+    try:
+        calls = []
+        with open(os.path.join(PAPER_DIR, "calls.jsonl")) as f:
+            for line in f:
+                try:
+                    calls.append(json.loads(line))
+                except Exception:
+                    pass
+        with open(CACHE) as f:
+            live = {r.get("token"): r.get("priceUsd")
+                    for r in json.load(f).get("rows", [])}
+        now = time.time()
+        for snap in reversed(calls):
+            entries = [e for e in (snap.get("top") or []) if e.get("worthy")]
+            usable = [e for e in entries
+                      if e.get("priceUsd") and live.get(e.get("token"))]
+            if not usable:
+                continue
+            ups, moves = 0, []
+            for e in usable:
+                try:
+                    entry = float(e["priceUsd"])
+                    cur = float(live[e["token"]])
+                except (TypeError, ValueError):
+                    continue
+                if entry <= 0:
+                    continue
+                pct = (cur - entry) / entry * 100
+                moves.append(pct)
+                if pct > 0:
+                    ups += 1
+            if not moves:
+                return None
+            age_h = (now - int(snap.get("ts", now))) / 3600
+            return {"n": len(moves), "up": ups,
+                    "avg_pct": round(sum(moves) / len(moves), 1),
+                    "age_h": round(age_h, 1), "date": snap.get("date")}
+    except Exception:
+        pass
+    return None
+
+
+def early_line():
+    e = early_read()
+    if not e:
+        return ""
+    return (f" · early {e['up']}/{e['n']} up "
+            f"(avg {e['avg_pct']:+.1f}%, ~{e['age_h']}h in)")
+
+
 def server_card():
     """Server-rendered first paint: verdict + data pulse. No JS needed."""
     d = get_data()
@@ -218,7 +272,7 @@ def server_card():
         chgs = f"{chg}%" if chg is not None else "—"
         verdict = (f"Top now: {top.get('symbol')} ({top.get('chain')}) heat "
                    f"{top.get('heat')} — {'⚡ WORTH A LOOK' if w else 'quiet, no worthy ping'} · "
-                   f"vol {fmt_big(top.get('vol_h24'))} chg {chgs}")
+                   f"vol {fmt_big(top.get('vol_h24'))} chg {chgs}{early_line()}")
     else:
         verdict = "No rotation data right now — refresh in a minute"
     pulse = (f"{live} {len(rows)} tokens · sample {fmt_age(age)} (every 5m) | "
@@ -240,6 +294,12 @@ def get_paper():
         out["paper_n_hit"] = out["hits"]
         out["paper_n"] = out["resolved"]
         out["paper_hit_rate_pct"] = out["hit_rate_pct"]
+    except Exception:
+        pass
+    try:
+        e = early_read()
+        if e:
+            out["early"] = e
     except Exception:
         pass
     try:
@@ -272,7 +332,7 @@ function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(
 for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
-fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+new Date(d.ts*1000).toLocaleString()+' — '+d.rows.length+' tokens';render();fetch('/api/paper').then(r=>r.json()).then(p=>{if(!p||!p.ok)return;let t='';if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving`;const v=document.getElementById('v');if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0)v.textContent+=t}).catch(()=>{})});
+fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)sc=`${p.pending} worthy calls resolving (first outcome <24h)`}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running:'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving`}if(p&&p.ok&&p.early&&p.early.n)t+=` · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in)`;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t})});
 document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
 document.getElementById('copy').onclick=()=>{if(!SLIP)return;const b=document.getElementById('copy');(navigator.clipboard?navigator.clipboard.writeText(SLIP):Promise.reject()).then(()=>{b.textContent='✓ Copied';setTimeout(()=>b.textContent='📋 Copy',1200)}).catch(()=>{prompt('Copy your slip:',SLIP)})};
 document.getElementById('dark').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'};</script></body></html>"""
