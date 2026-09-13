@@ -6,10 +6,10 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-12T20:33:14Z",
- "n_signals": 297,
- "n_hit": 157,
- "hit_rate_pct": 52.9,
+ "window_last": "2026-09-12T21:48:18Z",
+ "n_signals": 336,
+ "n_hit": 171,
+ "hit_rate_pct": 50.9,
  "median_apy_decay": 1.0,
  "per_coin": {
   "AI": {
@@ -33,7 +33,7 @@
    "hit": 14
   },
   "DRAM": {
-   "n": 1,
+   "n": 5,
    "hit": 0
   },
   "GPRO": {
@@ -41,12 +41,12 @@
    "hit": 0
   },
   "IP": {
-   "n": 55,
-   "hit": 55
+   "n": 59,
+   "hit": 59
   },
   "JUP": {
-   "n": 55,
-   "hit": 55
+   "n": 59,
+   "hit": 59
   },
   "KAITO": {
    "n": 16,
@@ -61,11 +61,15 @@
    "hit": 1
   },
   "MRVL": {
-   "n": 1,
+   "n": 2,
+   "hit": 0
+  },
+  "MU": {
+   "n": 4,
    "hit": 0
   },
   "ONG": {
-   "n": 30,
+   "n": 31,
    "hit": 0
   },
   "ORCL": {
@@ -77,24 +81,28 @@
    "hit": 0
   },
   "REZ": {
-   "n": 1,
+   "n": 5,
    "hit": 0
   },
   "SKHX": {
-   "n": 1,
-   "hit": 1
+   "n": 5,
+   "hit": 3
+  },
+  "SLP": {
+   "n": 4,
+   "hit": 0
   },
   "SMSN": {
-   "n": 1,
+   "n": 2,
    "hit": 0
   },
   "TREE": {
-   "n": 51,
+   "n": 55,
    "hit": 1
   },
   "WAL": {
-   "n": 13,
-   "hit": 13
+   "n": 17,
+   "hit": 17
   },
   "XCN": {
    "n": 1,
@@ -105,7 +113,7 @@
    "hit": 2
   }
  },
- "computed_ts": "2026-09-13T21:01:08Z",
- "elapsed_s": 1.1,
- "summary": "52.9% of steady calls still paying 24h later (157/297, median APY kept 1.0x)"
+ "computed_ts": "2026-09-13T22:00:42Z",
+ "elapsed_s": 1.2,
+ "summary": "50.9% of steady calls still paying 24h later (171/336, median APY kept 1.0x)"
 }
