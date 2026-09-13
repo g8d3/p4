@@ -46,6 +46,19 @@ aligned label/input grid. Same fix rolls to all apps.
 - `paper N logged` always says when grading happens; resolved
   scores read `(a/b graded)`.
 
+## 8. Paper ballot section (UX §3, queued 2026-09-13)
+
+Problem: the 75 predictions live only in SQLite; `/api/paper` serves
+counts (plus first 5 names). The line reports a number about a list
+nobody can open. Wanted: titled `paper ballot` section (not a tab —
+mobile law: no new pages), containing: rules line (hit = spread still
+≥ 20bps at first snapshot ≥ 24h after logging) + countdown to first
+grade + score when resolved + ballot table (coin, entry APY/spread,
+long→short, logged time, status grading-in-Xh → hit/miss), newest
+first, scrollable, sticky header. Needs: one endpoint serving
+paper_calls + paper_outcomes rows + section + e2e. Later: this section
+IS the share page (UX §6) — same data, linkable.
+
 ## 6. Paper slip → share page (UX §6, bigger work)
 
 Today: `copy paper slip` writes one line to clipboard (JS alert
