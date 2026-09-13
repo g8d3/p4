@@ -24,3 +24,4 @@ Nothing here is committed.
 - 2026-09-13 (owner): wanderer agent experiment — an agent with NO goal roams the apps (scroll/tap/type like the owner), reports and/or fixes bugs, visibly claims what it's checking so agents never collide. Replaces the owner as bug-finder.
 - 2026-09-13 (owner): stacked/AI-laid-out tables — columns stack instead of stretching rows; layout configurable per table; AI proposes layout from expected cell sizes.
 - 2026-09-13 (agent run #62): e058 paper-slip shareables as pretty pages (UX law) — clipboard slip pasted anywhere loses coin context; render a pretty per-coin slip page (coin, entry APY, paid record, 24h window) shareable from the phone.
+- 2026-09-13 (agent run #63): e058 grade-window everywhere — pulse now shows its window but per-coin paid (6/6) still hides its dates; add window to coin detail + top picks held-record so new-vs-proven reads in one tap.
