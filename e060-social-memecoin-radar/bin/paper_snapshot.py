@@ -16,7 +16,8 @@ def main():
     with urllib.request.urlopen(BASE + "/api/rotation", timeout=20) as r:
         d = json.load(r)
     top = [{"symbol": x.get("symbol"), "chain": x.get("chain"),
-            "score": x.get("rotation_score"), "boost_usd": x.get("boost_usd"),
+            "score": x.get("rotation_score"), "heat": x.get("heat"),
+            "boost_usd": x.get("boost_usd"),
             "vol_h24": x.get("vol_h24"), "chg24": x.get("priceChange_h24")}
            for x in d.get("rows", [])[:10]]
     rec = {"date": time.strftime("%Y-%m-%d"), "ts": int(time.time()),

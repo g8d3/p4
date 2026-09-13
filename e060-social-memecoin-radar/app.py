@@ -8,8 +8,8 @@ boost attention $ x on-chain velocity (volume/txns) from Dexscreener.
 Routes: / -> dashboard, /api/rotation -> JSON, /health -> ok.
 Cache: data/rotation.json (5 min TTL), stale-badged when Dexscreener unreachable.
 """
-import json, math, os, time, urllib.request
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import json, math, os, threading, time, urllib.request
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("E060_PORT", "8323"))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -55,60 +55,98 @@ def build():
         amt = b.get("totalAmount", 0) or 0
         vol = e.get("vol_h24", 0) or 0
         score = round(math.log10(amt + 1) * 10 + math.log10(vol + 1) * 5, 1)
+        txns = e.get("txns_h24", 0) or 0
+        chg = e.get("priceChange_h24") or 0
+        # heat: rotation score + trade-speed (log txns) + 24h-move size (capped).
+        # txns_h24 was collected but unused — now it powers the ranking.
+        heat = round(score + 5 * math.log10(txns + 1) + min(abs(chg), 150) / 10, 1)
         rows.append({
             "symbol": e.get("symbol", "?"), "name": e.get("name", ""),
             "chain": chain, "token": addr,
             "boost_usd": amt, "vol_h24": vol,
             "priceChange_h24": e.get("priceChange_h24"),
-            "txns_h24": e.get("txns_h24", 0),
-            "rotation_score": score,
+            "txns_h24": txns,
+            "rotation_score": score, "heat": heat,
             "dex": e.get("dex", ""), "pairUrl": e.get("pairUrl") or b.get("url", ""),
             "dsUrl": b.get("url", ""),
         })
     rows.sort(key=lambda r: r["rotation_score"], reverse=True)
     return {"ts": int(time.time()), "source": "dexscreener-free",
-            "note": "rotation proxy = boost$ x volume; social velocity deferred (no X pipe)",
+            "note": "heat = score + 5*log10(txns+1) + min(|chg24h|,150)/10; social velocity deferred (no X pipe)",
             "stale": False, "rows": rows}
 
-def get_data():
+_REFRESH_LOCK = threading.Lock()
+_REFRESHING = False
+
+
+def maybe_refresh():
+    """Serve cache instantly; rebuild in background so the page never hangs."""
+    global _REFRESHING
     try:
         if os.path.exists(CACHE) and time.time() - os.path.getmtime(CACHE) < TTL:
-            with open(CACHE) as f:
-                return json.load(f)
+            return
     except Exception:
         pass
+    with _REFRESH_LOCK:
+        if _REFRESHING:
+            return
+        _REFRESHING = True
+
+    def _run():
+        global _REFRESHING
+        try:
+            data = build()
+            os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+            with open(CACHE, "w") as f:
+                json.dump(data, f)
+        except Exception:
+            pass
+        finally:
+            with _REFRESH_LOCK:
+                _REFRESHING = False
+    threading.Thread(target=_run, daemon=True).start()
+
+
+def get_data():
+    maybe_refresh()
     try:
-        data = build()
+        with open(CACHE) as f:
+            d = json.load(f)
+        # backfill heat for caches written before heat existed (instant, no fetch)
+        for r in d.get("rows", []):
+            if "heat" not in r:
+                tx = r.get("txns_h24", 0) or 0
+                ch = r.get("priceChange_h24") or 0
+                r["heat"] = round((r.get("rotation_score", 0) or 0) + 5 * math.log10(tx + 1) + min(abs(ch), 150) / 10, 1)
+        try:
+            age = time.time() - os.path.getmtime(CACHE)
+        except Exception:
+            age = 0
+        if age >= 3 * TTL:
+            d["stale"] = True
+            d["stale_reason"] = "cache older than 3x TTL, background refresh pending"
+        return d
     except Exception as ex:
-        if os.path.exists(CACHE):
-            try:
-                with open(CACHE) as f:
-                    d = json.load(f)
-                d["stale"] = True
-                d["stale_reason"] = f"dexscreener unreachable: {ex}"
-                return d
-            except Exception:
-                pass
         return {"ts": int(time.time()), "source": "dexscreener-free",
                 "stale": True, "stale_reason": str(ex), "rows": []}
-    try:
-        os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-        with open(CACHE, "w") as f:
-            json.dump(data, f)
-    except Exception:
-        pass
-    return data
 
 PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
-<title>e060 rotation radar (free)</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:2em auto;padding:0 1em}html.dark body{background:#111418;color:#e6e6e6}html.dark td,html.dark th{border-color:#444}html.dark a{color:#8ab4ff}table{border-collapse:collapse;width:100%;margin:0}td,th{border:1px solid #ccc;padding:4px 8px;font-size:13px;text-align:right}td:nth-child(1),th:nth-child(1),td:nth-child(2),th:nth-child(2){text-align:left}.badge{background:#dfd;padding:2px 8px;border-radius:8px}.stale{background:#fdd}.twrap{max-height:60vh;overflow:auto;border:1px solid #ccc;border-radius:8px}.twrap thead th{position:sticky;top:0;background:#f4f4f4;z-index:1}html.dark .twrap{border-color:#444}html.dark .twrap thead th{background:#1c2127}</style></head>
-<body><h1>e060 rotation radar <span class=badge>DEXSCREENER FREE</span> <button onclick="document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'" style=float:right>dark/light</button></h1>
-<script>if(localStorage.e60==='d')document.documentElement.classList.add('dark')</script>
-<p>Owner decision: cheapest (free). No paid social pipe. Rotation proxy = boost attention x volume. Per-row <b>trades</b> opens the pair's Dexscreener trades tab (top traders, free, no key). <a href=/api/rotation>JSON</a> <a href=/health>health</a></p>
-<div id=s>loading…</div><div class=twrap><table id=t></table></div>
-<script>fetch('/api/rotation').then(r=>r.json()).then(d=>{document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+new Date(d.ts*1000).toLocaleString()+' — '+d.rows.length+' tokens';
-let h='<thead><tr><th>token</th><th>chain</th><th>score</th><th>boost$</th><th>vol24h</th><th>chg24h%</th><th>link</th><th>traders</th></tr></thead><tbody>';
-for(const r of d.rows){h+=`<tr><td>${r.symbol}</td><td>${r.chain}</td><td>${r.rotation_score}</td><td>${r.boost_usd}</td><td>${Math.round(r.vol_h24)}</td><td>${r.priceChange_h24??'—'}</td><td><a href="${r.dsUrl}">ds</a></td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
-document.getElementById('t').innerHTML=h+'</tbody>'})</script></body></html>"""
+<title>e060 rotation radar (free)</title><style>body{font-family:system-ui,sans-serif;max-width:900px;margin:1em auto 0;padding:0 1em}html.dark body{background:#111418;color:#e6e6e6}html.dark td,html.dark th{border-color:#444}html.dark a{color:#8ab4ff}table{border-collapse:collapse;width:100%;margin:0;min-width:640px}td,th{border:1px solid #ccc;padding:4px 8px;font-size:13px;text-align:right}td:nth-child(1),th:nth-child(1){text-align:left;position:sticky;left:0;background:#fff;z-index:1}html.dark td:nth-child(1),html.dark th:nth-child(1){background:#111418}.badge{background:#dfd;padding:2px 8px;border-radius:8px}.stale{background:#fdd}details{margin:.4em 0;color:#555;font-size:13px}html.dark details{color:#aaa}summary{cursor:pointer}.twrap{max-height:62vh;overflow:auto;border:1px solid #ccc;border-radius:8px}.twrap thead th{position:sticky;top:0;background:#f4f4f4;z-index:1}html.dark .twrap{border-color:#444}html.dark .twrap thead th{background:#1c2127}.twrap thead th:nth-child(1){z-index:2}html.dark .twrap thead th:nth-child(1){background:#1c2127}.twrap thead th:nth-child(1){background:#f4f4f4}.thumbbar{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0 calc(12px + env(safe-area-inset-bottom));background:#fff}html.dark .thumbbar{background:#111418}.thumbbar button{flex:1;padding:14px 4px;font-size:16px;border-radius:12px;border:1px solid #ccc;background:#f4f4f4}html.dark .thumbbar button{background:#1c2127;color:#e6e6e6;border-color:#444}.thumbbar button.on{background:#222;color:#fff;border-color:#222}html.dark .thumbbar button.on{background:#e6e6e6;color:#111;border-color:#e6e6e6}small{color:#888;font-size:11px}</style></head>
+<body><h1>e060 rotation radar <span class=badge>FREE</span></h1>
+<div id=s>loading…</div>
+<details><summary>Boost attention × volume + speed — one tap below sorts it.</summary>
+<p>Cheapest plan (free, no paid pipe). <b>heat</b> = score + trade-speed + 24h-move size. Per-row <b>trades</b> opens that pair's Dexscreener trades tab (top traders, free, no key). <a href=/api/rotation>JSON</a> <a href=/health>health</a></p></details>
+<div class=twrap><table id=t></table></div>
+<nav class=thumbbar><button data-k=score class=on>★ Score</button><button data-k=movers>🚀 Movers</button><button data-k=vol>💰 Volume</button><button id=dark>🌙 Dark</button></nav>
+<script>if(localStorage.e60==='d')document.documentElement.classList.add('dark')
+let ROWS=[],CUR='score';const KEYS={score:(a,b)=>b.rotation_score-a.rotation_score,movers:(a,b)=>Math.abs(b.priceChange_h24||0)-Math.abs(a.priceChange_h24||0),vol:(a,b)=>b.vol_h24-a.vol_h24};
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':Math.round(n)+'';
+function render(){const rows=[...ROWS].sort(KEYS[CUR]);let h='<thead><tr><th>token</th><th>heat</th><th>score</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>link</th><th>traders</th></tr></thead><tbody>';
+for(const r of rows){h+=`<tr><td>${r.symbol} <small>${r.chain}</small></td><td><b>${r.heat??'—'}</b></td><td>${r.rotation_score}</td><td>${r.priceChange_h24??'—'}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td><a href="${r.dsUrl}">ds</a></td><td>${r.pairUrl?`<a href="${r.pairUrl}">trades</a>`:'—'}</td></tr>`}
+document.getElementById('t').innerHTML=h+'</tbody>'}
+fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+new Date(d.ts*1000).toLocaleString()+' — '+d.rows.length+' tokens';render()});
+document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
+document.getElementById('dark').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.e60=document.documentElement.classList.contains('dark')?'d':'l'};</script></body></html>"""
 
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -129,4 +167,4 @@ class H(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 if __name__ == "__main__":
-    HTTPServer(("0.0.0.0", PORT), H).serve_forever()
+    ThreadingHTTPServer(("0.0.0.0", PORT), H).serve_forever()
