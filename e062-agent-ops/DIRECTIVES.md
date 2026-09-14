@@ -6,7 +6,7 @@ Owner steers by talking to any agent session ("pause X", "approve #N",
 
 ## Standing orders (2026-09-12, owner-activated)
 
-- NORTH STAR (law): every leg lets the owner do MORE business from his phone while needing to know LESS (<30s, no explanation). Simplify + add power, together, every leg.
+- NORTH STAR (law): every leg lets the owner do MORE business from his phone while needing to know LESS (<30s, no explanation). Simplify + add power, together, every leg. Full statement: `VISION.md` — the wheel that spins forever.
 - PROGRESS (owner 2026-09-13): progress = finished work the owner can use from his phone in <30s with no explanation. The ladder (rungs 1-5) is scaffolding for agents, never reported as progress. A leg with no visible change = FAILED leg, even if e2e PASS. Every leg ships ONE visible thing: tables everywhere, zero loose text, one more data column or intelligence on real rows.
 - STUCK RULE (owner 2026-09-13): same proof number 2 legs = blocked. Third leg must add data (free source auto) or kill the line and move. Never re-grade the same N to fake +0.3pp.
 - VERSIONS (owner 2026-09-13): every track has BEST (stable, serves users) + NEXT (experimental). Legs break NEXT freely via `ops.py mark <track> next <sha> <note>`; BEST moves only on proof + owner tap (`promote NEXT→BEST` button, admin). AI marks its preferred version with the score line; the owner confirms.
