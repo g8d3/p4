@@ -21,7 +21,8 @@ def stats():
     # DATA PULSE: is it sampling (rows), how fresh (last-sample age), cadence.
     # Never raises: unknown -> zeros, like the e062/e063 card pattern.
     out = {"visits": 0, "wins": 0, "slips": 0, "players": 0, "day2": 0,
-           "rows": 0, "last": None, "lastAgeMin": None, "every": "each page load"}
+           "rows": 0, "last": None, "lastAgeMin": None, "every": "each page load",
+           "wins24": 0, "due": 0, "dueAt": None}
     try:
         days = {}
         last = None
@@ -47,6 +48,37 @@ def stats():
                     last = r["ts"]
         out["players"] = len(days)
         out["day2"] = sum(1 for ds in days.values() if len(ds) >= 2)
+        # WIN+24H REMINDER (run #86): which wins are due back in the next
+        # 4h window, so the card can name the day-2 check without asking.
+        try:
+            now = datetime.now(timezone.utc)
+            win_ts = {}
+            for line in open(LOG):
+                try:
+                    r = json.loads(line)
+                except Exception:
+                    continue
+                if r.get("ev") == "win" and r.get("cid") and r.get("ts"):
+                    try:
+                        t = datetime.fromisoformat(r["ts"])
+                    except Exception:
+                        continue
+                    c = r["cid"]
+                    if c not in win_ts or t < win_ts[c]:
+                        win_ts[c] = t
+            due_at = None
+            for c, t in win_ts.items():
+                age_h = (now - t).total_seconds() / 3600
+                if 0 <= age_h <= 24:
+                    out["wins24"] += 1
+                if len(days.get(c, set())) < 2 and 20 <= age_h <= 28:
+                    out["due"] += 1
+                    if due_at is None or t > due_at:
+                        due_at = t
+            if due_at is not None:
+                out["dueAt"] = due_at.isoformat()
+        except Exception:
+            pass
         out["last"] = last
         if last:
             try:

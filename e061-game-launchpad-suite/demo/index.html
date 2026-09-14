@@ -187,7 +187,8 @@ function refreshPulse() {
   fetch('api/stats', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(s) {
     var el = document.getElementById('pulsetext');
     if (el) el.textContent = 'players (server): ' + s.visits + ' visits \u00b7 ' + s.players + ' players \u00b7 '
-      + s.day2 + ' back day-2 \u00b7 wins ' + s.wins + ' \u00b7 last sample ' + ageText(s.lastAgeMin);
+      + s.day2 + ' back day-2 \u00b7 wins ' + s.wins + ' (' + (s.wins24 || 0) + ' in 24h)'
+      + ((s.due && s.due > 0) ? ' \u00b7 day-2 due now: ' + s.due : '') + ' \u00b7 last sample ' + ageText(s.lastAgeMin);
   }).catch(function(){});
 }
 function serverPing(ev) {
