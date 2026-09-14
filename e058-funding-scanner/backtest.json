@@ -6,34 +6,34 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-13T10:03:49Z",
- "n_signals": 743,
- "n_hit": 385,
- "hit_rate_pct": 51.8,
+ "window_last": "2026-09-13T13:47:31Z",
+ "n_signals": 953,
+ "n_hit": 471,
+ "hit_rate_pct": 49.4,
  "median_apy_decay": 1.0,
  "per_coin": {
   "4": {
-   "n": 5,
+   "n": 8,
    "hit": 0
   },
   "AI": {
-   "n": 30,
-   "hit": 14
+   "n": 38,
+   "hit": 15
   },
   "ANSEM": {
    "n": 2,
    "hit": 0
   },
   "ARB": {
-   "n": 26,
-   "hit": 16
+   "n": 34,
+   "hit": 17
   },
   "ARM": {
    "n": 1,
    "hit": 0
   },
   "B3": {
-   "n": 8,
+   "n": 10,
    "hit": 3
   },
   "BAN": {
@@ -48,20 +48,24 @@
    "n": 1,
    "hit": 0
   },
+  "BE": {
+   "n": 9,
+   "hit": 0
+  },
   "BEN": {
    "n": 2,
    "hit": 0
   },
   "BNC": {
-   "n": 3,
-   "hit": 3
+   "n": 6,
+   "hit": 6
   },
   "BTC": {
    "n": 1,
    "hit": 0
   },
   "CASHCAT": {
-   "n": 1,
+   "n": 5,
    "hit": 0
   },
   "CBRS": {
@@ -69,15 +73,15 @@
    "hit": 0
   },
   "CC": {
-   "n": 2,
+   "n": 3,
    "hit": 0
   },
   "DEEP": {
-   "n": 61,
+   "n": 63,
    "hit": 29
   },
   "DRAM": {
-   "n": 8,
+   "n": 12,
    "hit": 0
   },
   "GPRO": {
@@ -85,20 +89,28 @@
    "hit": 0
   },
   "HIVE": {
-   "n": 12,
-   "hit": 12
+   "n": 26,
+   "hit": 17
+  },
+  "HOOD": {
+   "n": 14,
+   "hit": 0
   },
   "INTC": {
    "n": 2,
    "hit": 0
   },
   "IP": {
-   "n": 102,
-   "hit": 102
+   "n": 117,
+   "hit": 117
+  },
+  "IREN": {
+   "n": 2,
+   "hit": 0
   },
   "JUP": {
-   "n": 102,
-   "hit": 84
+   "n": 117,
+   "hit": 99
   },
   "KAITO": {
    "n": 16,
@@ -109,11 +121,11 @@
    "hit": 1
   },
   "LSK": {
-   "n": 12,
-   "hit": 12
+   "n": 18,
+   "hit": 18
   },
   "MEME": {
-   "n": 2,
+   "n": 9,
    "hit": 0
   },
   "MINIMAX": {
@@ -125,7 +137,7 @@
    "hit": 1
   },
   "MRNA": {
-   "n": 2,
+   "n": 5,
    "hit": 0
   },
   "MRVL": {
@@ -137,7 +149,7 @@
    "hit": 0
   },
   "MU": {
-   "n": 8,
+   "n": 15,
    "hit": 0
   },
   "NBIS": {
@@ -152,12 +164,16 @@
    "n": 3,
    "hit": 1
   },
+  "POLYX": {
+   "n": 4,
+   "hit": 1
+  },
   "POWR": {
-   "n": 18,
-   "hit": 4
+   "n": 33,
+   "hit": 16
   },
   "PURR": {
-   "n": 5,
+   "n": 10,
    "hit": 0
   },
   "RAY": {
@@ -169,11 +185,11 @@
    "hit": 0
   },
   "S": {
-   "n": 24,
-   "hit": 24
+   "n": 25,
+   "hit": 25
   },
   "SKHX": {
-   "n": 7,
+   "n": 8,
    "hit": 3
   },
   "SLP": {
@@ -189,28 +205,28 @@
    "hit": 0
   },
   "SNXX": {
-   "n": 5,
+   "n": 6,
    "hit": 0
   },
   "SOXL": {
-   "n": 3,
+   "n": 18,
    "hit": 0
   },
   "SOXS": {
-   "n": 3,
+   "n": 18,
    "hit": 0
   },
   "STEEM": {
-   "n": 24,
-   "hit": 8
+   "n": 28,
+   "hit": 12
   },
   "TREE": {
    "n": 72,
    "hit": 1
   },
   "WAL": {
-   "n": 60,
-   "hit": 60
+   "n": 75,
+   "hit": 75
   },
   "XAU": {
    "n": 1,
@@ -221,11 +237,11 @@
    "hit": 0
   },
   "ZHIPU": {
-   "n": 8,
-   "hit": 6
+   "n": 15,
+   "hit": 13
   }
  },
- "computed_ts": "2026-09-14T10:30:57Z",
- "elapsed_s": 1.7,
- "summary": "51.8% of steady calls still paying 24h later (385/743, median APY kept 1.0x)"
+ "computed_ts": "2026-09-14T14:00:55Z",
+ "elapsed_s": 1.8,
+ "summary": "49.4% of steady calls still paying 24h later (471/953, median APY kept 1.0x)"
 }
