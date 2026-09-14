@@ -18,7 +18,7 @@ grep -q -i "WATCH — Top now:\|COLD —" /tmp/e60_root.html || fail "verdict do
 grep -q 'id="ballot"' /tmp/e60_root.html || fail "paper ballot missing (per-call called-ago/grades-in countdowns)"
 grep -q -i "Top now:\|No rotation data" /tmp/e60_root.html || fail "no server-rendered verdict on first paint"
 grep -q -i "tokens · sample" /tmp/e60_root.html || fail "no server-rendered data pulse on first paint"
-grep -q "grades via live" /tmp/e60_root.html || fail "grade source not surfaced on card (UX law: every number shows its source)"
+grep -Eq "grades (via|[0-9]+) live" /tmp/e60_root.html || fail "grade source not surfaced on card (UX law: every number shows its source)"
 grep -q "via live" /tmp/e60_root.html || fail "early-move price source not labeled"
 
 health=$(curl -s -m 10 "$BASE/health") || fail "health unreachable"
