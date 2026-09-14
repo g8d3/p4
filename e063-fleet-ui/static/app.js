@@ -1,5 +1,6 @@
 // fleet v2 UI: Waiting default, patch render, SSE live. No widget builder.
 let D = null; // last full state
+let RT = null; // one pending auto-retry (owner never stares at a dead card)
 const S = {view: 'waiting', q: '', open: null, pg: 0, tsort: {k: 'ts', d: -1}, tmode: null, thide: {}, txpand: {}};
 const PER = 30;
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -248,7 +249,11 @@ function restFocus(f) {
   if (el && el.value !== undefined) { el.value = f.v || ''; try { el.setSelectionRange(f.s, f.s); } catch (e) {} if (document.activeElement !== el && f.v) el.focus(); }
 }
 function render() {
-  if (!D) return;
+  if (!D) {
+    document.getElementById('main').innerHTML =
+      '<div class=card><b>Still connecting…</b> — <button class="go big" onclick="refresh()">\u21bb retry</button></div>';
+    return;
+  }
   const f = saveFocus(), sy = window.scrollY;
   const n = waitItems().length;
   const tabs = [['waiting', 'Waiting' + (n ? ' (' + n + ')' : '')], ['projects', 'Projects'], ['sessions', 'Sessions'], ['money', 'Money'], ['table', 'Table §14']];
@@ -368,7 +373,7 @@ async function logout() { try { await fetch('/api/logout', {method: 'POST'}); } 
 
 // ---- live
 async function refresh() {
-  try { D = await (await fetch('/api/state')).json(); render(); } catch (e) {}
+  try { D = await (await fetch('/api/state')).json(); render(); } catch (e) { render(); if (!RT) RT = setTimeout(() => { RT = null; refresh(); }, 5000); }
   try {
     const v = await (await fetch('/api/version')).json();
     const el = document.getElementById('ver');
