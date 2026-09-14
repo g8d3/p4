@@ -7,7 +7,7 @@
   "revenue_24h_usd",
   "x_mentions_24h"
  ],
- "note": "run #98: DefiLlama re-probed ($0). Still pre-launch - 485 chains (was 467), arc-like=3 unrelated (Archway/Starcoin/Map, name-substring only). Probe re-runs each leg, first numeric rows land at launch.",
+ "note": "run #99: DefiLlama re-probed ($0). Still pre-launch - 467 chains, arc-like=2 unrelated (Archway/Starcoin, name-substring only). Probe re-runs each leg, first numeric rows land at launch.",
  "sources": [
   {
    "kind": "free",
@@ -27,11 +27,11 @@
   {
    "kind": "free",
    "name": "defillama-api",
-   "status": "live-probe run #87 2026-09-14: 485 chains re-queried, no Arc chain yet (Archway/Starcoin unrelated, pre-launch confirmed); re-query each leg, first rows land at launch"
+   "status": "live-probe run #99 2026-09-14: 467 chains re-queried, no Arc chain yet (Archway/Starcoin unrelated, pre-launch confirmed); re-query each leg, first rows land at launch"
   }
  ],
  "track": "e066",
- "updated": "2026-09-14T07:15:00Z",
+ "updated": "2026-09-14T11:45:00Z",
  "watchlist": [
   "arc-bridge",
   "arc-dex-launch",
