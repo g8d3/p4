@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #96 recheck: proposal #5 still pending, no sync attempted; main Chrome Default x.com auth (exp 2027, names-only) unchanged \u2014 one-tap ask stands, awaiting owner tap",
- "synced_at": "2026-09-14T10:10:00Z",
+ "note": "run #101 recheck: proposal #5 still pending, agent profile has no session DB \u2014 one-tap ask stands, awaiting owner tap",
+ "synced_at": "2026-09-14T12:35:00Z",
  "track": "e064"
 }
