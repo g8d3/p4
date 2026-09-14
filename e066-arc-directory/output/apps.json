@@ -7,7 +7,7 @@
   "revenue_24h_usd",
   "x_mentions_24h"
  ],
- "note": "run #83: first free number source WIRED (DefiLlama API live-probed, $0). Arc chain absent pre-launch as expected \u2014 probe re-runs each leg, first numeric rows land at launch. Watchlist names only, no fabricated figures.",
+ "note": "run #84: DefiLlama re-probed ($0). Still pre-launch \u2014 probe re-runs each leg, first numeric rows land at launch. Watchlist names only, no fabricated figures.",
  "sources": [
   {
    "kind": "free",
@@ -27,11 +27,11 @@
   {
    "kind": "free",
    "name": "defillama-api",
-   "status": "live-probe 2026-09-14: 467 chains + 8248 protocols queried, no Arc chain yet (pre-launch confirmed); re-query each leg, first rows land at launch"
+   "status": "live-probe run #84 2026-09-14: 467 chains re-queried, no Arc chain yet (Archway/Starcoin unrelated, pre-launch confirmed); re-query each leg, first rows land at launch"
   }
  ],
  "track": "e066",
- "updated": "2026-09-14T03:45:00Z",
+ "updated": "2026-09-14T04:12:00Z",
  "watchlist": [
   "arc-bridge",
   "arc-dex-launch",
