@@ -29,7 +29,7 @@
     {"symbol": "YFI",  "name": "Yearn",             "cg_id": "yearn-finance",           "llama": ["yearn-finance"],     "category": "Yield"},
     {"symbol": "CVX",  "name": "Convex",            "cg_id": "convex-finance",          "llama": ["convex-finance"],    "category": "Yield"},
     {"symbol": "MORPHO", "name": "Morpho",          "cg_id": "morpho",                  "llama": ["morpho-blue"],       "category": "Lending"},
-    {"symbol": "DYDX", "name": "dYdX",              "cg_id": "dydx",                    "llama": ["dydx-v4"],           "category": "Perps"},
+    {"symbol": "DYDX", "name": "dYdX",              "cg_id": "dydx-chain",              "llama": ["dydx-v4"],           "category": "Perps"},
     {"symbol": "EULER", "name": "Euler",            "cg_id": "euler",                   "llama": ["euler-v2"],          "category": "Lending"}
   ]
 }
