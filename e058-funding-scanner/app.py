@@ -540,7 +540,7 @@ def ballot():
             wins.append(f"{w['n']}×{day[5:]}→grade {gday} {_hh(w['first'])}–{_hh(w['last'])} UTC")
         by_date = {day: {'pending': win[day]['n'], 'logged_first': win[day]['first'],
                          'logged_last': win[day]['last']} for day in sorted(win)}
-        cd = f"first grade ~{min(waits):.0f}h" if waits else 'all graded'
+        cd = ('grading now' if min(waits) < 1 else f"first grade ~{min(waits):.0f}h") if waits else 'all graded'
         if wins:
             cd += ' · ' + ' · '.join(wins)
         rule = 'hit = spread still \u226520bps at first snapshot \u226524h after logging'
@@ -661,7 +661,7 @@ def _server_card():
             if _ob:
                 _h = 24 - (now - _ob).total_seconds() / 3600
                 if _h > 0:
-                    _cd = f", first grade ~{_h:.0f}h"
+                    _cd = ", grading now" if _h < 1 else f", first grade ~{_h:.0f}h"
             ph = f"paper: {tc} logged today, grades after 24h{_cd}" if tc else 'paper: logging'
         pc.close()
     except Exception:
