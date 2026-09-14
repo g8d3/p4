@@ -336,12 +336,9 @@ async function load() {
     '<span class="rung ' + (t.rung > 0 ? 'r1' : 'r0') + '" title="' + esc(RUNG_DEFS[t.rung] || 'not started') + '. ' + esc(rungNext(t.rung)) + '">rung ' + t.rung + '/5 · ' + esc(rungName(t.rung)) + '</span>' +
     ((waitByTrack[t.track] || 0) ? '<button class=needbadge title="notes + money gates waiting for you — tap to see" onclick="event.stopPropagation();waitFor(\'' + t.track + '\')">●' + waitByTrack[t.track] + ' waiting</button>' : '') +
     (paused ? '<span class=pausedtag>paused</span>' : '') +
-    '<span id="tg-' + t.track + '" style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
+    '<span id="tg-' + t.track + '" style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ details') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
-    ((t.focus || t.rung_note) ? nextLine(t) : '') +
-    channelLine(t) +
     dataLine(t) +
-    (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
     '<div class=rowbtns style="margin-top:6px" onclick="event.stopPropagation()">' +
     '<button onclick="togPause(\'' + t.track + '\',this)">' + (paused ? 'resume' : 'pause') + '</button> ' +
     '<button onclick="runScope(\'' + t.track + '\',this)" title="run now — anything you typed is attached automatically">run</button></div>' +
@@ -383,7 +380,7 @@ function toggleCard(t) {
   if (card && track) {
     card.classList.toggle('open', open);
     const tg = document.getElementById('tg-' + t);
-    if (tg) tg.textContent = open ? '▾ close' : '▸ history + message';
+    if (tg) tg.textContent = open ? '▾ close' : '▸ details';
     const old = card.querySelector(':scope > .cdetail');
     if (old) old.remove();
     if (open) card.insertAdjacentHTML('beforeend', cardDetail(track));
@@ -408,10 +405,14 @@ function cardDetail(t) {
     (x.leg ? ' <a href="/api/leg/' + x.leg + '" target=_blank>log</a>' : '') + '</div>'
   ).join('') : '<div>no history yet</div>';
   return '<div class=cdetail onclick="event.stopPropagation()">' +
-    '<div style="font-size:12px;opacity:.8"><span style="font-size:10px;opacity:.55">plan:</span> ' + esc(t.plan || '') + '</div>' +
-    '<div style="font-size:12px;margin-top:6px"><b>history</b> (this project only)</div>' +
+    '<div style="font-size:10px;opacity:.55;margin-top:6px">PROOF</div>' + ((t.focus || t.rung_note) ? nextLine(t) : '<div style="font-size:12px;opacity:.6">no focus set</div>') +
+    '<div style="font-size:10px;opacity:.55;margin-top:6px">VERSIONS</div>' + channelLine(t) +
+    (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '">' + esc(t.url) + '</a></div>' : '') +
+    '<div style="font-size:10px;opacity:.55;margin-top:6px">PLAN</div>' +
+    '<div style="font-size:12px;opacity:.8">' + esc(t.plan || '') + '</div>' +
+    '<div style="font-size:10px;opacity:.55;margin-top:6px">HISTORY (this project only)</div>' +
     '<div class=hist>' + h + '</div>' +
-    '<div style="font-size:12px"><b>message to the ' + esc(t.track) + ' agent</b> \u2014 one box, you decide when it runs:</div>' +
+    '<div style="font-size:10px;opacity:.55;margin-top:6px">MESSAGE TO THE ' + esc(t.track) + ' AGENT — you decide when it runs</div>' +
     '<div class=msgrow><input id="n-' + t.track + '" placeholder="what should the agent do\u2026"></div>' +
     '<div class=rowbtns style="margin-top:4px">' +
     '<button onclick="sendNoteQueued(\'' + t.track + '\',this)">queue (next leg)</button> ' +
