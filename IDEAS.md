@@ -66,3 +66,5 @@ Nothing here is committed.
 - 2026-09-14 (agent run #84): e061 day-2 nudge from fresh traffic — visits 13->15, players 2->3 overnight with zero product change; win+24h claim-reminder ntfy converts ambient traffic into day-2 redeems, no game change. (e061)
 - 2026-09-14 (agent run #85): paper grade countdown on trading cards — e058/e060 grades land at known times but cards show no countdown; read-only `resolves in Xh` line from logged_ts+24h.
 - 2026-09-14 (agent run #85): no-JS version+change baked line on all static pages — e061 badge was empty until fetch; bake `v<sha>: one plain sentence`, JS overwrites when live.
+- 2026-09-14 (agent run #86): paper grade due-date line — e059 score line now reads `20 open now, first grades 10-14` from pending dates + resolve_days (first-paint + live agree); copy to e058/e060 to tighten their Xh countdowns. (e059)
+- 2026-09-14 (agent run #86): server-side day-2 due counter — e061 /api/stats names wins in 24h + cids due back now; same due-now counter pattern fits e058 paper grades the hour they land. (e061)
