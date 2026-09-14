@@ -58,3 +58,5 @@ Nothing here is committed.
 - 2026-09-14 (owner): e064-x-bookmarks — authenticated X pipe for @novaisabuilder likes+bookmarks with login auto-renew, 30-min snapshot for the fleet.
 - 2026-09-14 (owner): e065-idea-factory — mines e064 into a ranked ideas table (frequency + brainstorm beyond feed), runs every leg.
 - 2026-09-14 (owner): e066-arc-directory — numeric Arc-chain dApp directory (time series per app, multi-source), self-improving, monetizer agent funds its own upgrades.
+- 2026-09-14 (agent run #82): fleet-wide e2e cwd-robustness — every tests/e2e.sh should `cd` to its own dir on entry (run #81's FAIL was runner cwd, passed on re-run from root); one-line guard per script kills a whole class of false reds. (e062)
+- 2026-09-14 (agent run #82): e066 tax-ready money log — every monetizer action (listing fee, referral, sponsor) logged with tx hash + timestamp at write time, so the TAX standing order is satisfied by construction and the export is a one-tap ledger query. (e066)
