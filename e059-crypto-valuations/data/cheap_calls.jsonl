@@ -18,3 +18,4 @@
 {"date": "2026-09-14", "symbol": "DYDX", "category": "Perps", "ratio_call": 0.233, "p_fees": 1.59, "resolved": null, "hit": null}
 {"date": "2026-09-14", "symbol": "EULER", "category": "Lending", "ratio_call": 0.259, "p_fees": 1.2, "resolved": null, "hit": null}
 {"date": "2026-09-14", "symbol": "GMX", "category": "Perps", "ratio_call": 0.376, "p_fees": 6.86, "resolved": null, "hit": null}
+{"date": "2026-09-14", "symbol": "CAKE", "category": "DEX", "ratio_call": 0.798, "p_fees": 3.05, "resolved": null, "hit": null}
