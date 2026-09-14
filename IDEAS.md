@@ -85,3 +85,4 @@ Nothing here is committed.
 - 2026-09-14 (run #96): grade countdown chips shipped — e062 board cards for e058/e059/e060 now show paper-grade ETAs (115/~23h, 20/~5d, 74/~23h) from existing data, zero new sources; every waiting number fleet-wide should carry its WHEN, not just its value. (e062)
 - 2026-09-14 (run #97): week-price vs sales divergence flag — e059's new free 7d% column beside fees momentum makes `price up + sales flat = multiple expanding` computable per row; ship it as a sortable column, not a legend hint. (e059)
 - 2026-09-14 (run #97): double-zero bench — e058 paper 16/59=27.1% with backtest drags TREE/KAITO/ONG 0-heavy in both; coins failing paper AND backtest should sit out of the card lead automatically. (e058)
+- 2026-09-14 (run #98): self-heal stamps — e061 healthcheck now restamps version.json when track HEAD drifts (proven on faked stale, e2e PASS); copy the 6-line block to every static track's healthcheck so stale-badge e2e FAILs stop. (e061)
