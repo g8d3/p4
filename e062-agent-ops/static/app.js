@@ -906,6 +906,7 @@ function dataLine(t) {
   }
   return '<div style="font-size:11px;opacity:.75">data: ' + esc(size) +
     (d.last ? ' · fresh ' + esc(age(d.last)) : '') + ' · every ' + esc(d.every || '?') +
+    (d.grade ? ' · &#9201; ' + esc(d.grade) : '') +
     (stale ? ' <span class=blk>STALE</span>' : '') + '</div>';
 }
 function renderLadder(d) {

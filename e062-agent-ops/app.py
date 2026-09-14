@@ -131,27 +131,91 @@ def get_channels(c):
         rows = {}
     return rows
 
+def _grade_eta(pend, due_ts):
+    # one-line countdown chip text, e.g. '68 to grade (~14h)'. Never raises.
+    try:
+        s = int(due_ts - time.time())
+        if s <= 0:
+            return '%d grading now' % pend
+        if s < 7200:
+            return '%d to grade (~%dm)' % (pend, max(1, s // 60))
+        if s < 172800:
+            return '%d to grade (~%dh)' % (pend, s // 3600)
+        return '%d to grade (~%dd)' % (pend, s // 86400)
+    except Exception:
+        return ''
+
 def track_data(t):
     # Freshness badge: is this project building a time series, and is it fresh?
     # Never breaks the board: every reader is guarded, unknown -> {}.
+    # grade = countdown chip: how many paper calls wait + when the next grades.
     try:
         if t == 'e058':
+            import json as _j  # noqa: F401 (symmetry with siblings)
             c = sqlite3.connect(os.path.join(P4, 'e058-funding-scanner', 'data.db'))
             n, mx = c.execute('SELECT COUNT(*), MAX(ts) FROM funding').fetchone()
+            try:
+                rows = c.execute('SELECT p.logged_ts FROM paper_calls p LEFT JOIN paper_outcomes o ON o.call_date=p.call_date AND o.coin=p.coin WHERE o.coin IS NULL').fetchall()
+            except Exception:
+                rows = []
             c.close()
-            return {'rows': n, 'last': mx or '', 'every': '15m'}
+            out = {'rows': n, 'last': mx or '', 'every': '15m'}
+            try:
+                import datetime as _dt
+                due = max(_dt.datetime.strptime(r[0], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=_dt.timezone.utc).timestamp() + 86400 for r in rows) if rows else 0
+                if rows and due:
+                    out['grade'] = _grade_eta(len(rows), due)
+            except Exception:
+                pass
+            return out
         if t == 'e059':
+            import json as _j
             dd = os.path.join(P4, 'e059-crypto-valuations', 'data')
             fs = [os.path.join(dd, f) for f in os.listdir(dd)]
             if not fs: return {}
             mt = max(os.path.getmtime(f) for f in fs)
-            return {'files': len(fs), 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(mt)), 'every': '24h'}
+            out = {'files': len(fs), 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(mt)), 'every': '24h'}
+            try:
+                pend, first_ts = 0, 0
+                for line in open(os.path.join(dd, 'cheap_calls.jsonl')):
+                    try:
+                        o = _j.loads(line)
+                    except Exception:
+                        continue
+                    if o.get('resolved') is None:
+                        pend += 1
+                        try:
+                            import datetime as _dt
+                            ts = _dt.datetime.strptime(o.get('date', ''), '%Y-%m-%d').replace(tzinfo=_dt.timezone.utc).timestamp()
+                            first_ts = min(first_ts, ts) if first_ts else ts
+                        except Exception:
+                            pass
+                if pend and first_ts:
+                    out['grade'] = _grade_eta(pend, first_ts + 7 * 86400)
+            except Exception:
+                pass
+            return out
         if t == 'e060':
             import json as _j
             r = _j.load(open(os.path.join(P4, 'e060-social-memecoin-radar', 'data', 'rotation.json')))
             calls = os.path.join(P4, 'e060-social-memecoin-radar', 'paper', 'calls.jsonl')
             n = sum(1 for _ in open(calls)) if os.path.isfile(calls) else 0
-            return {'days': n, 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(r.get('ts', 0))), 'every': '24h'}
+            out = {'days': n, 'last': time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(r.get('ts', 0))), 'every': '24h'}
+            try:
+                sc = _j.load(open(os.path.join(P4, 'e060-social-memecoin-radar', 'paper', 'score.json')))
+                pend = int(sc.get('pending', 0))
+                if pend:
+                    last_ts = 0
+                    for line in open(calls):
+                        try:
+                            last_ts = max(last_ts, int(_j.loads(line).get('ts', 0)))
+                        except Exception:
+                            pass
+                    if last_ts:
+                        out['grade'] = _grade_eta(pend, last_ts + 86400)
+            except Exception:
+                pass
+            return out
         if t in ('e062', 'e063', 'runner'):
             c = sqlite3.connect(DB)
             n = c.execute('SELECT COUNT(*) FROM runs').fetchone()[0]
