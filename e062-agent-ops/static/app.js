@@ -338,7 +338,7 @@ async function load() {
     (paused ? '<span class=pausedtag>paused</span>' : '') +
     '<span id="tg-' + t.track + '" style="margin-left:auto;font-size:11px;opacity:.6">' + (open ? '▾ close' : '▸ history + message') + '</span></div>' +
     '<div class=cbeat><span style="font-size:10px;opacity:.55">last:</span> ' + esc(t.beat ? (shortTime(t.beat.ts) + ' ' + t.beat.status + ' ' + fmtDetail(t.beat.note)) : '\u2014') + '</div>' +
-    ((t.focus || t.rung_note) ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + esc([t.focus, rungNext(t.rung).replace(/^next: /, ''), (t.rung_note || '').slice(0, 90)].filter(function(x){return x;}).join(' · ')) + '</div>' : '') +
+    ((t.focus || t.rung_note) ? nextLine(t) : '') +
     channelLine(t) +
     dataLine(t) +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '" onclick="event.stopPropagation()">' + esc(t.url) + '</a></div>' : '') +
@@ -844,11 +844,15 @@ function rungNext(r) {
   if (r === 4) return 'next: MONETIZED — business decision with you';
   return 'done — all 5 rungs reached';
 }
+function shorten(s, n) {
+  s = String(s || '');
+  return s.length > n ? s.slice(0, n) + '\u2026' : s;
+}
 function channelLine(t) {
   if (!t.best && !t.next) return '';
   const same = t.best && t.best === t.next;
-  let s = '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">versions:</span> BEST <b>' + esc(t.best || '?') + '</b>' + (t.best_note ? ' ' + esc(t.best_note) : '');
-  s += ' · NEXT <b>' + esc(t.next || '?') + '</b>' + (t.next_note ? ' ' + esc(t.next_note) : '');
+  let s = '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">versions:</span> BEST <b>' + esc(t.best || '?') + '</b>' + (t.best_note ? ' ' + esc(shorten(t.best_note, 60)) : '');
+  s += ' · NEXT <b>' + esc(t.next || '?') + '</b>' + (t.next_note ? ' ' + esc(shorten(t.next_note, 60)) : '');
   if (!same && t.next) s += ' <button style="padding:8px 14px;font-size:14px;font-weight:bold" onclick="event.stopPropagation();promoteChannel(\'' + t.track + '\',this)">PROMOTE NEXT \u2192 BEST</button><div style="font-size:10px;opacity:.55">NEXT wins automatically when its proof beats BEST — this button only forces it early.</div>';
   else s += ' <span style="font-size:10px;opacity:.55">in sync</span>';
   return s + '</div>';
@@ -922,6 +926,11 @@ function relCounts(rows, key) {
     else if (r.kind === 'money gate') c.gates++;
   });
   return c;
+}
+function nextLine(t) {
+  const full = [t.focus, rungNext(t.rung).replace(/^next: /, ''), (t.rung_note || '').slice(0, 90)].filter(function(x) { return x; }).join(' · ');
+  if (!full) return '';
+  return '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + clampCell(full) + '</div>';
 }
 function clampCell(txt) {
   // long text fills 3 lines max; tap opens the rest — no more stretched rows
