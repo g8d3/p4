@@ -930,7 +930,7 @@ function relCounts(rows, key) {
 function nextLine(t) {
   const full = [t.focus, rungNext(t.rung).replace(/^next: /, ''), (t.rung_note || '').slice(0, 90)].filter(function(x) { return x; }).join(' · ');
   if (!full) return '';
-  return '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">next:</span> ' + clampCell(full) + '</div>';
+  return '<details style="font-size:12px"><summary><span style="font-size:10px;opacity:.55">next:</span> ' + esc(shorten(full, 90)) + '</summary><div style="font-size:12px;opacity:.85;margin-top:4px">' + esc(full) + '</div></details>';
 }
 function clampCell(txt) {
   // long text fills 3 lines max; tap opens the rest — no more stretched rows

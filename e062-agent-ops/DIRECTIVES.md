@@ -23,6 +23,7 @@ Owner steers by talking to any agent session ("pause X", "approve #N",
 - IDEA PIPELINE (owner 2026-09-13): every leg banks ≥1 improvement idea in p4/IDEAS.md (one line + date + track). The board renders that file, so all ideas are public by construction — this experiment and all others.
 - CONFIGURABILITY RULE (owner pattern): every either/or display decision ships as a board toggle with a sane default (simple), never as a hardcoded choice.
 - DIRECTION (owner 2026-09-13): one proof loop per track, ALL of them, data by proposal (free sources auto, paid/credentialed propose + wait), no new tracks: e058 backtest->paper, e059 cheap-vs-peers alert, e060 first worthy ping, e061 day-2 player, e062 announce (#2 needs owner topic). The per-track `next:` line on its card IS the plan — advance it, update it via `ops.py focus` when done.
+- Focus text format (owner 2026-09-14): `score <metric>=<n> (<delta>) · next: <12 plain words max>`. Never paren-chains, never `+`-joined clauses. The card shows 90 chars + tap-expand; a focus that needs expanding to be understood failed.
 - Advance the lowest rung first; revive stale before starting new.
 - e058 (live money): conclusions-only ntfy; never open positions without
   an approved proposal, no matter the APY.
