@@ -207,7 +207,7 @@ details.cfg summary{cursor:pointer}
 .pos{color:#3ddc84}.secttl{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.9;margin:10px 0 4px;padding:6px 10px;background:rgba(127,127,127,.14);border-radius:8px}</style></head><body>
 <h2>e058 funding scanner <small id=ts></small></h2>
 <script>if(localStorage.e058t==='d')document.documentElement.classList.add('dark');</script>
-<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row>%%TOPROW%%</div><div style="font-size:12px;opacity:.7;margin-top:4px">steady \u2713 = held every check with solid backing \u00b7 new = first day, holding so far \u00b7 watch = thin backing \u2014 tap a coin for detail. <button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
+<div class=topcard id=top><div class=one id=top-one>%%TOPONE%%</div><div class=row id=top-row>%%TOPROW%%</div><details style="font-size:12px;opacity:.7;margin-top:4px"><summary>What the labels mean (tap to expand)</summary>steady \u2713 = held every check with solid backing \u00b7 new = first day, holding so far \u00b7 watch = thin backing \u2014 tap a coin for detail.</details><div style="margin-top:4px"><button onclick="loadTop()" style="padding:2px 8px;font-size:12px">refresh</button></div><div id=pulse style="font-size:12px;opacity:.7;margin-top:4px">%%PULSE%%</div></div>
 <details class=cfg id=fc><summary id=f-sum>Filter: all coins, top pay first (tap to narrow)</summary>
 <div id=f style="margin-top:6px">
 <label>APY <input id=a0 type=number value=0 style=width:70px>–<input id=a1 type=number value=100000 style=width:80px></label>
