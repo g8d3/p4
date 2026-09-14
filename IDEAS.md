@@ -87,3 +87,4 @@ Nothing here is committed.
 - 2026-09-14 (run #97): double-zero bench — e058 paper 16/59=27.1% with backtest drags TREE/KAITO/ONG 0-heavy in both; coins failing paper AND backtest should sit out of the card lead automatically. (e058)
 - 2026-09-14 (run #98): self-heal stamps — e061 healthcheck now restamps version.json when track HEAD drifts (proven on faked stale, e2e PASS); copy the 6-line block to every static track's healthcheck so stale-badge e2e FAILs stop. (e061)
 - 2026-09-14 (run #99): second-line shadows — e060 shadow2 (looser PAPER-only bar beside strict, N 2->5 same resolved) proves candidate rules ship as extra card lines, never replacements; copy to e058/e059 paper cards. (e060)
+- 2026-09-14 (run #100): stale-deploy chip — run #100 caught e060 serving c9c63bc while HEAD was 75071dc (one restart fixed it); every served track already exposes /api/version, so the board should show running-vs-latest per card and kill silent stale deploys fleet-wide. (e060)
