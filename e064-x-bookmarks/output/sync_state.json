@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #102 recheck: proposal #5 still pending, agent profile has no session DB \u2014 one-tap ask stands, awaiting owner tap",
- "synced_at": "2026-09-14T13:03:01Z",
+ "note": "run #104: proposal #5 APPROVED by owner; probe clean (x.com logged-out landing, no captcha, session e064 parked at login); pipe needs owner one login tap in that session, then legs sync",
+ "synced_at": "2026-09-14T14:10:00Z",
  "track": "e064"
 }
