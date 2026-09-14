@@ -17,7 +17,7 @@ N<20 resolved = THIN: never propose real money on THIN.
   re-fetches 24h later, hit = price up; paper/score.json holds the
   hit-rate; card shows it on first paint + /api/paper. Watch-only, never
   a position.
-- SCORE: resolved=0/0 (thin-data, first 24h outcomes land ~2026-09-14, 10 pending) — next leg resolves or reports pending count.
+- SCORE: resolved=0/0 (thin-data, first 24h outcomes land ~2026-09-14 05:33Z, 18 pending) — run #72 resolver re-run: 0 new, Sep-12 snapshots ungradeable (pre-priceUsd, no entry) — next leg grades or reports ballot.
 - EARLY-READ (run #42, FREE probe, no fetch): app.py early_read() compares
   latest worthy entries vs current rotation.json prices; card verdict +
   one-line expand + /api/paper carry per-call detail. Read 2026-09-13
@@ -132,3 +132,15 @@ N<20 resolved = THIN: never propose real money on THIN.
   per-detail src). Resolver re-run: 0 new, 18 pending (blocked-on-time,
   first grade ~6h). e2e PASS local+tailnet, d26eb44 live running==latest.
   SCORE: resolved=0/0 (delta 0 vs run #70) — FIX, not advance.
+- RUN #72 FIX+POWER (FREE, local only, no fetch): resolver re-run 0 new /
+  18 pending — Sep-12 pair ungradeable by construction (pre-priceUsd,
+  no entry price, skipped not dropped) + Sep-13 trio all <24h; first
+  canonical hit-rate lands ~2026-09-14 05:33Z (blocked-on-time). POWER:
+  per-call ballot ships (ISSUES #2+#3) — /api/paper pending_calls +
+  server <details id=ballot> + JS refresh: one line per pending snapshot
+  (coins, called Xh ago, grades in Yh). Verdict now LEADS with action
+  state (server + JS + copy slip: "WATCH — Top now: …" / "COLD — …",
+  breakout flips COLD→WATCH) and the lure word stays buried — BUY never
+  emitted on PAPER (watch-only, never a position). WORTHY-1 unchanged,
+  still PAPER. Early 2026-09-14 ~00:40Z: 0/3 up, avg -84.5% at 9.6h,
+  best BLAST -76.5% — COLD intraday, ex-pumped 0/1, 3/8 still tracked.

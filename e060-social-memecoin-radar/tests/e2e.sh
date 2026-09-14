@@ -14,6 +14,8 @@ grep -q 'style=float:right' /tmp/e60_root.html && fail "primary control still to
 grep -q '<th>pair</th>' /tmp/e60_root.html || fail "table header mislabeled (expected pair, not traders)"
 grep -q 'traders</th>' /tmp/e60_root.html && fail "stale traders header still served"
 grep -q '%%TOPONE%%\|%%PULSE%%' /tmp/e60_root.html && fail "server card placeholders unreplaced (no first-paint answer)"
+grep -q -i "WATCH — Top now:\|COLD —" /tmp/e60_root.html || fail "verdict does not lead with action state (WATCH/COLD)"
+grep -q 'id="ballot"' /tmp/e60_root.html || fail "paper ballot missing (per-call called-ago/grades-in countdowns)"
 grep -q -i "Top now:\|No rotation data" /tmp/e60_root.html || fail "no server-rendered verdict on first paint"
 grep -q -i "tokens · sample" /tmp/e60_root.html || fail "no server-rendered data pulse on first paint"
 grep -q "grades via live" /tmp/e60_root.html || fail "grade source not surfaced on card (UX law: every number shows its source)"
@@ -35,7 +37,7 @@ assert isinstance(r0["heat"], (int, float)), "heat not numeric"
 print(f"rotation ok: {len(d['rows'])} rows, stale={d['stale']}, heat0={d['rows'][0]['heat']}")
 EOF
 paper=$(curl -s -m 10 "$BASE/api/paper") || fail "paper unreachable"
-echo "$paper" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('ok') is True and 'paper_n' in d, d; assert d.get('grade_src'), 'grade_src missing'; assert (d.get('early') or {}).get('px_src'), 'early px_src missing'; print(f\"paper ok: resolved={d.get('paper_n')} pending-today={d.get('today_logged')} grade_src={d.get('grade_src')}\")" || fail "paper bad: $paper"
+echo "$paper" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('ok') is True and 'paper_n' in d, d; assert d.get('grade_src'), 'grade_src missing'; assert (d.get('early') or {}).get('px_src'), 'early px_src missing'; pc=d.get('pending_calls'); assert isinstance(pc,list) and pc, 'pending_calls missing'; assert all(('called_ago' in c and 'grades_in' in c) for c in pc), pc; print(f\"paper ok: resolved={d.get('paper_n')} pending-today={d.get('today_logged')} grade_src={d.get('grade_src')} ballot={len(pc)} snaps\")" || fail "paper bad: $paper"
 out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"

@@ -10,15 +10,19 @@ v<hash> [STALE—restart]` — same disease e058 had: bare `v` hash,
 `|`/`·` separators, dev-speak (`STALE—restart`). Wanted: labeled
 subsections (`data:`, `paper:`, `version`), words a stranger gets.
 
-## 2. Paper ballot section (UX §3, same pattern as e058 #8)
+## 2. Paper ballot section (UX §3, same pattern as e058 #8) — SHIPPED run #72
 
 18 pending calls, no visible list (early expand shows a few).
 Wanted: titled ballot — coin, entry, called-how-long-ago, status.
+Shipped: <details id=ballot> + /api/paper pending_calls (one line per
+pending snapshot: coins, called Xh ago, grades in Yh).
 
-## 3. Call time windows (UX §1)
+## 3. Call time windows (UX §1) — SHIPPED run #72
 
 Entry→now prices exist; the *when* doesn't travel with them.
 Wanted: every call carries `called Xh ago` + first-grade countdown.
+Shipped: ballot rows carry called-ago + grades-in per snapshot (server
++ JS refresh from /api/paper pending_calls).
 
 ## 4. Kill-clock on the card
 
