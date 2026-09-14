@@ -92,3 +92,5 @@ Nothing here is committed.
 - 2026-09-14 (run #101): collapsed summaries carry the score — e058 pb-sum shows graded %+cushion without expanding; every details block should carry its proof number in the summary line. (e058)
 - 2026-09-14 (run #102): stale-deploy auto-heal — run #102 caught e058 serving 36e0733 while track latest was be64985 (one restart, running==latest, e2e PASS); every served track already exposes /api/version, so the check is 15s per track per leg. (e058)
 - 2026-09-14 (run #102): thumbbar-presence audit — run #102 verified e058's bottom thumb bar in served HTML via curl (5 thumb buttons live), not assumed from source; phone-curl the thumbbar div per served app per leg. (e058)
+- 2026-09-14 (run #103): launch-signal guard — chainid.network lists an `ARC Mainnet` (1243, no explorer/TVL) anyone could file; e066 counts launch only on a numeric source (DefiLlama TVL>0 or live explorer+RPC), never a name-substring. (e066)
+- 2026-09-14 (run #103): intraday lean on e058 paper ballot — today's 74 logged calls grade only at 24h; an early-read line (current vs called spread, e060's early_read pattern) shows the lean hours early. (e058)
