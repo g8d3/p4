@@ -7,6 +7,16 @@
  "n": 125,
  "hits": 119,
  "precision": 0.952,
+ "deep": {
+  "n": 89,
+  "hits": 88,
+  "precision": 0.989
+ },
+ "shallow": {
+  "n": 36,
+  "hits": 31,
+  "precision": 0.861
+ },
  "calls": [
   {
    "symbol": "SOL",
@@ -249,14 +259,14 @@
   {
    "symbol": "SOL",
    "call": "2026-07-18",
-   "ratio_call": 0.19,
+   "ratio_call": 0.2,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "BNB",
    "call": "2026-07-18",
-   "ratio_call": 0.47,
+   "ratio_call": 0.48,
    "ratio_resolve": 0.29,
    "hit": true
   },
@@ -271,7 +281,7 @@
    "symbol": "ARB",
    "call": "2026-07-18",
    "ratio_call": 0.52,
-   "ratio_resolve": 0.68,
+   "ratio_resolve": 0.67,
    "hit": true
   },
   {
@@ -362,7 +372,7 @@
    "symbol": "SKY",
    "call": "2026-07-11",
    "ratio_call": 0.73,
-   "ratio_resolve": 0.79,
+   "ratio_resolve": 0.78,
    "hit": true
   },
   {
@@ -845,7 +855,7 @@
    "symbol": "GMX",
    "call": "2026-05-23",
    "ratio_call": 0.14,
-   "ratio_resolve": 0.2,
+   "ratio_resolve": 0.19,
    "hit": true
   },
   {

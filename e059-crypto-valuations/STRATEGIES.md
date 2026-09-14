@@ -20,3 +20,6 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
   resolved (8 pending, first outcomes ~30d).
 - PROPOSE for real: only on e2e PASS + paper precision ≥60% over N≥20 + owner tap.
 - Current score (run #73): backtest 95.2% (119/125, coverage 20→30 protos, new Yield cat, DYDX id fixed) · paper 20 pending, first resolves ~30d.
+
+## Deep-tier split (run #88)
+- BACKTEST split: deep ≤0.5× 88/89 = 98.9% vs shallow 0.5–0.8× 31/36 = 86.1% (total 119/125 = 95.2%). The ★ deep tier validates: deepest cheap calls stay cheap far more reliably. Score line now carries the split first-paint + live. Paper still 0 resolved / 20 pending (30d window, first grades 10-14) — precision flat by construction until paper grades.

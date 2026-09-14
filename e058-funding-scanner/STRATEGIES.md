@@ -48,3 +48,4 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
   20/50/100 x last_n 4/6/8) found no denser edge — stricter filters starve N
   further, so the bottleneck is data age (~2h more sampling to N>=20), not params.
 - Run #87: backtest 54.1% (279/516, +0.8pp vs run #86, --force re-grade, window to 2026-09-13T05:17Z) · paper still 11 resolved (7/11=63.6% THIN, next batch grades ~06:30Z). Stays PAPER.
+- Run #88: N 490→535 (292/535, 54.6%, +0.5pp vs run #87, window to 2026-09-13T05:47Z, 1878k rows) — second uptick leg, stays PAPER (paper 7/11=63.6% over bar BUT THIN). Live on card via /api/backtest, no restart. Next: paper N>=20, then PROPOSE only on paper edge ≥55% + owner tap.

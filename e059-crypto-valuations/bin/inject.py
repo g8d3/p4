@@ -61,6 +61,9 @@ def main():
     if bt.get("precision") is not None:
         score = (f"Cheap-vs-group calls stayed cheap {bt['precision']:.0%} "
                  f"({bt['hits']}/{bt['n']} backtested)")
+        dp = (bt.get("deep") or {})
+        if dp.get("precision") is not None:
+            score += f" \u2014 \u2605 deep {dp['precision']:.0%} ({dp['hits']}/{dp['n']})"
         if pp.get("n_pending"):
             ds = sorted((x.get("date") or "") for x in (cc.get("pending") or []) if x.get("date"))
             due = ""

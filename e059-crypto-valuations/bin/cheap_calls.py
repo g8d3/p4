@@ -131,9 +131,18 @@ def main():
                                 "ratio_call": round(r0[s], 2),
                                 "ratio_resolve": round(r1[s], 2), "hit": hit})
     bt_prec = round(bt_hits / bt_calls, 3) if bt_calls else None
+    deep_rows = [r for r in bt_rows if r["ratio_call"] <= 0.5]
+    deep_hits = sum(1 for r in deep_rows if r["hit"])
+    shal_rows = [r for r in bt_rows if 0.5 < r["ratio_call"] <= CHEAP]
+    shal_hits = sum(1 for r in shal_rows if r["hit"])
+    deep = {"n": len(deep_rows), "hits": deep_hits,
+            "precision": round(deep_hits / len(deep_rows), 3) if deep_rows else None}
+    shallow = {"n": len(shal_rows), "hits": shal_hits,
+               "precision": round(shal_hits / len(shal_rows), 3) if shal_rows else None}
     json.dump({"as_of": today, "method": f"weekly calls trailing {BACKTEST_WEEKS}wk, mcap held constant at latest",
                "cheap_le": CHEAP, "hit_lt": HIT, "resolve_days": RESOLVE_DAYS,
-               "n": bt_calls, "hits": bt_hits, "precision": bt_prec, "calls": bt_rows},
+               "n": bt_calls, "hits": bt_hits, "precision": bt_prec,
+               "deep": deep, "shallow": shallow, "calls": bt_rows},
               open(os.path.join(DATA, "cheap_backtest.json"), "w"), indent=1)
     print(f"backtest: {bt_hits}/{bt_calls} stayed cheap = {bt_prec} (mcap-constant, sales-trajectory)")
 
@@ -215,7 +224,8 @@ def main():
     hits = sum(1 for c in res if c.get("hit"))
     paper_prec = round(hits / len(res), 3) if res else None
     summary = {"as_of": today, "resolve_days": RESOLVE_DAYS,
-               "backtest": {"n": bt_calls, "hits": bt_hits, "precision": bt_prec},
+               "backtest": {"n": bt_calls, "hits": bt_hits, "precision": bt_prec,
+                            "deep": deep, "shallow": shallow},
                "paper": {"n_resolved": len(res), "hits": hits, "precision": paper_prec,
                          "n_pending": len(pen)},
                "pending": [{"symbol": c["symbol"], "date": c["date"],

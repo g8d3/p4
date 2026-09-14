@@ -107,7 +107,7 @@ function gradeDue(cc){
 }
 function scoreTxt(cc){
   const bt=(cc&&cc.backtest)||{}, pp=(cc&&cc.paper)||{};
-  if(bt.precision!=null)return `Cheap-vs-group calls stayed cheap ${Math.round(bt.precision*100)}% (${bt.hits}/${bt.n} backtested)`+(pp.n_pending?`, ${pp.n_pending} open now${gradeDue(cc)}.`:'.');
+  if(bt.precision!=null){const dp=bt.deep||{};const ds=(dp.precision!=null)?` — ★ deep ${Math.round(dp.precision*100)}% (${dp.hits}/${dp.n})`:'';return `Cheap-vs-group calls stayed cheap ${Math.round(bt.precision*100)}% (${bt.hits}/${bt.n} backtested)${ds}`+(pp.n_pending?`, ${pp.n_pending} open now${gradeDue(cc)}.`:'.');}
   return 'Cheap-call scorecard building — first grade after the next refresh.';
 }
 function verdict(){
