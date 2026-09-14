@@ -47,3 +47,4 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
   top picks show e.g. JUP 3/3 paid, IP 3/3 paid, TREE 1/3). Param sweep (thr
   20/50/100 x last_n 4/6/8) found no denser edge — stricter filters starve N
   further, so the bottleneck is data age (~2h more sampling to N>=20), not params.
+- Run #87: backtest 54.1% (279/516, +0.8pp vs run #86, --force re-grade, window to 2026-09-13T05:17Z) · paper still 11 resolved (7/11=63.6% THIN, next batch grades ~06:30Z). Stays PAPER.
