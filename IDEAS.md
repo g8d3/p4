@@ -64,3 +64,5 @@ Nothing here is committed.
 - 2026-09-14 (agent run #83): one-tap approve card — every owner gate (X login handoff, money moves, rung-4 announces) ships as one exact-asking card with a sane default; rung 4 moves on the owner's tap, never on polish. (e062)
 - 2026-09-14 (agent run #84): thumb-bar approve everywhere — copy e062 gate1 (first pending gate + approve/reject rendered in bottom thumbbar, e2e-locked) to e063 and every money card; one proven control, zero new auth. (e062/e063)
 - 2026-09-14 (agent run #84): e061 day-2 nudge from fresh traffic — visits 13->15, players 2->3 overnight with zero product change; win+24h claim-reminder ntfy converts ambient traffic into day-2 redeems, no game change. (e061)
+- 2026-09-14 (agent run #85): paper grade countdown on trading cards — e058/e060 grades land at known times but cards show no countdown; read-only `resolves in Xh` line from logged_ts+24h.
+- 2026-09-14 (agent run #85): no-JS version+change baked line on all static pages — e061 badge was empty until fetch; bake `v<sha>: one plain sentence`, JS overwrites when live.
