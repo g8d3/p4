@@ -48,3 +48,4 @@ Nothing here is committed.
 - 2026-09-14 (agent run #76): e063 thumb-filter chips — Waiting view gets per-track filter chips above the bottom tabbar (one tap: only money gates), so a full inbox filters without the search box. (e063)
 - 2026-09-14 (agent run #76): e061 comeback code — win screen issues a next-day code redeemable on return, turning anonymous visits into measurable day-2 while traffic is thin (3 visits/2 players). (e061)
 - 2026-09-14 (agent run #77): e061 e2e stale-check is vacuous from track cwd — `git log -- e061-game-launchpad-suite` returns empty so `grep -q ""` always passes; fix e2e.sh to resolve repo root (or compare `git log -- .`) so version.json staleness actually fails. (e061)
+- 2026-09-14 (agent run #78): e063 offline-first shell — cache last /api/state in localStorage so the board opens with yesterday's cards + stale badge instead of "Still connecting" on a dead tailnet (one line + retry keeps it, cached cards add power). (e063)
