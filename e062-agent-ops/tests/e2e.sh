@@ -1,6 +1,9 @@
 #!/bin/bash
 # e062 rung-3 e2e: verifies fleet board root + /api/board JSON shape. Exit nonzero on any failure.
 # Usage: tests/e2e.sh [base_url]   (default http://100.102.52.59:8322)
+# cwd-robust: always operate from the track dir, never the caller's cwd.
+E2E_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$E2E_DIR/.." || exit 1
 BASE="${1:-https://100.102.52.59:8322}"
 CURLK="-k"
 fail() { echo "E2E FAIL: $1"; exit 1; }
@@ -59,10 +62,10 @@ grep -q "LATEST" /tmp/e62_app.js || fail "projects header missing"
 grep -q "sesChips" /tmp/e62_app.js || fail "tappable run/ses chips missing"
 grep -q "sesFilter" /tmp/e62_app.js || fail "session isolate filter missing"
 grep -q "getHours" /tmp/e62_app.js || fail "local-time conversion missing"
-grep -q "THIS LEG" bin/runner.sh 2>/dev/null || grep -q "THIS LEG" e062-agent-ops/bin/runner.sh || fail "leg identity line missing"
-grep -q "run #N" e062-agent-ops/RUNNER_PROMPT.md || fail "step run-tag contract missing"
-grep -q "STRATEGY + DATA" e062-agent-ops/RUNNER_PROMPT.md || fail "strategy/data discipline missing"
-grep -q "DATA PULSE" e062-agent-ops/RUNNER_PROMPT.md || fail "data-pulse UI rule missing"
+grep -q "THIS LEG" bin/runner.sh || fail "leg identity line missing"
+grep -q "run #N" RUNNER_PROMPT.md || fail "step run-tag contract missing"
+grep -q "STRATEGY + DATA" RUNNER_PROMPT.md || fail "strategy/data discipline missing"
+grep -q "DATA PULSE" RUNNER_PROMPT.md || fail "data-pulse UI rule missing"
 ! grep -q '<table' /tmp/e62_root.html || fail "page-level tables still present (must be cards)"
 curl -sk -m 10 "$BASE/api/board" -o /tmp/e62_b.json || fail "board json unreachable"
 python3 -c "import json;d=json.load(open('/tmp/e62_b.json'))" || fail "board json bad"
@@ -75,8 +78,8 @@ grep -q 'id=live' /tmp/e62_root.html || fail "live panel missing"
 grep -q 'seg-persona' /tmp/e62_root.html || fail "persona switch missing"
 grep -q "setPersona" /tmp/e62_app.js || fail "setPersona missing"
 grep -q "renderLive" /tmp/e62_app.js || fail "renderLive missing"
-grep -q "def ack" ../bin/ops.py 2>/dev/null || grep -q "def ack" e062-agent-ops/bin/ops.py || fail "ops ack command missing"
-grep -q "NARRATE AS YOU GO" RUNNER_PROMPT.md 2>/dev/null || grep -q "NARRATE AS YOU GO" e062-agent-ops/RUNNER_PROMPT.md || fail "runner step-emit contract missing"
+grep -q "def ack" bin/ops.py || fail "ops ack command missing"
+grep -q "NARRATE AS YOU GO" RUNNER_PROMPT.md || fail "runner step-emit contract missing"
 # OWNER-FIRST reporting (owner law): run rows render a plain sentence in simple
 # mode with tech after ' | ' — fail closed so jargon can never creep back.
 grep -q '| tech:' /tmp/e62_app.js || fail "runLine missing owner | tech format"
@@ -87,7 +90,7 @@ code=$(curl -sk -m 10 -o /tmp/e62_runstate.json -w "%{http_code}" "$BASE/api/run
 python3 -c "import json; d=json.load(open('/tmp/e62_runstate.json')); assert d.get('ok') and 'running' in d, 'runstate shape'" || fail "runstate shape bad"
 # AUTH: app accounts (register/login/logout), mutations need login, money needs admin.
 # bad scope must fail WITHOUT spawning; nothing here spawns a leg or moves money.
-python3 - "$BASE" "$(cd "$(dirname "$0")/.." && pwd)/ops.db" <<'EOF' || fail "auth bad"
+python3 - "$BASE" "$E2E_DIR/../ops.db" <<'EOF' || fail "auth bad"
 import http.cookiejar, json, sqlite3, ssl, sys, time, urllib.request
 ssl._create_default_https_context = ssl._create_unverified_context
 base, dbpath = sys.argv[1], sys.argv[2]
