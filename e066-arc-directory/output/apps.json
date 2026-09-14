@@ -7,7 +7,7 @@
   "revenue_24h_usd",
   "x_mentions_24h"
  ],
- "note": "run #97: DefiLlama re-probed ($0). Still pre-launch - 467 chains, arc-like=2 unrelated (Archway/Starcoin). Probe re-runs each leg, first numeric rows land at launch.",
+ "note": "run #98: DefiLlama re-probed ($0). Still pre-launch - 485 chains (was 467), arc-like=3 unrelated (Archway/Starcoin/Map, name-substring only). Probe re-runs each leg, first numeric rows land at launch.",
  "sources": [
   {
    "kind": "free",
@@ -38,5 +38,5 @@
   "arc-lending-first"
  ],
  "apps": [],
- "last_probe": "2026-09-14T10:40:00Z"
+ "last_probe": "2026-09-14T11:05Z"
 }
