@@ -18,7 +18,9 @@ grep -q 'winTap' /tmp/e61_root.html || fail "win thumb tap handler missing (dead
 grep -q 'e061-runs' /tmp/e61_root.html || fail "runs/best loop missing"
 grep -q 'id="slip"' /tmp/e61_root.html || fail "paper slip block missing"
 grep -q 'id="btn-copy"' /tmp/e61_root.html || fail "slip copy button missing"
-grep -q 'id="verdict"' /tmp/e61_root.html || fail "verdict answer line missing"
+grep -q 'id="pulse"' /tmp/e61_root.html || fail "server pulse line missing"
+grep -q 'api/stats' /tmp/e61_root.html || fail "stats fetch missing"
+grep -q 'api/visit' /tmp/e61_root.html || fail "visit ping missing"
 grep -q 'e061-visits' /tmp/e61_root.html || fail "day-2 visit tracker missing"
 grep -q 'id="daybadge"' /tmp/e61_root.html || fail "day badge missing"
 grep -q '<summary>Fees:' /tmp/e61_root.html || fail "fees one-line summary missing"
@@ -36,6 +38,20 @@ assert d.get("pair") == "none deployed", d
 assert d.get("anvilRunning") is False, d
 assert d.get("disableReason"), "missing disableReason"
 print(f"status ok: pair={d['pair']} anvil={d['anvilRunning']}")
+EOF
+
+code=$(curl -s -m 10 -X POST -H 'Content-Type: application/json' -d '{"cid":"e2e-probe","ev":"visit"}' "$BASE/api/visit" -o /tmp/e61_visit.json -w "%{http_code}") || fail "visit endpoint unreachable"
+[ "$code" = "200" ] || fail "visit http=$code"
+code=$(curl -s -m 10 -X POST -H 'Content-Type: application/json' -d '{"cid":"","ev":"bogus"}' "$BASE/api/visit" -o /dev/null -w "%{http_code}") || fail "visit bad-input unreachable"
+[ "$code" = "400" ] || fail "visit bad-input http=$code (want 400)"
+BASE="$BASE" python3 - <<'EOF' || fail "visit/stats api broken"
+import json, os, urllib.request
+base = os.environ["BASE"]
+d = json.load(open("/tmp/e61_visit.json"))
+assert d.get("ok") is True, d
+s = json.load(urllib.request.urlopen(base + "/api/stats", timeout=10))
+assert s["visits"] >= 1 and "day2" in s and "lastAgeMin" in s, s
+print(f"stats ok: visits={s['visits']} players={s['players']} day2={s['day2']}")
 EOF
 
 # no secrets in served page (static demo must stay key-free)

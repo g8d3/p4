@@ -28,6 +28,7 @@
 <h1>e061 Suite Slice <small>(demo · tested · free, no funds)</small> <small id="ver" style="font-weight:normal;font-size:12px"></small></h1>
 <script>fetch('version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit;}).catch(()=>{});</script>
 <div id="verdict" role="status">…loading your status…<span class="day" id="daybadge"></span></div>
+<p id="pulse" style="font-size:.85rem;color:#555"><small id="pulsetext">players (server): …</small></p>
 <details class="box"><summary>Play → 7 coins → win → test buy (no funds).</summary>
 <p>Spec slice: play e046 canvas → 7 coins → win screen → one e052 test buy (fail-closed) + one e057 warning card. No wallet, no funds, no mainnet.</p></details>
 
@@ -122,6 +123,35 @@ function fillSlip(coins, max, perfect) {
   var wb = document.getElementById('btn-win');
   if (wb) wb.textContent = '🏆 Win ' + coins + '/' + max;
   try { verdictText(trackVisit(), body, rs); } catch (e) {}
+  serverPing('win'); serverPing('slip');
+}
+function serverCid() {
+  var c = null;
+  try { c = localStorage.getItem('e061-cid'); } catch (e) {}
+  if (!c) {
+    c = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem('e061-cid', c); } catch (e) {}
+  }
+  return c;
+}
+function ageText(m) {
+  if (m === null || m === undefined) return 'never yet';
+  if (m < 1) return 'just now';
+  if (m < 60) return Math.round(m) + 'm ago';
+  return Math.round(m / 60) + 'h ago';
+}
+function refreshPulse() {
+  fetch('api/stats', {cache: 'no-store'}).then(function(r){ return r.json(); }).then(function(s) {
+    var el = document.getElementById('pulsetext');
+    if (el) el.textContent = 'players (server): ' + s.visits + ' visits \u00b7 ' + s.players + ' players \u00b7 '
+      + s.day2 + ' back day-2 \u00b7 wins ' + s.wins + ' \u00b7 last sample ' + ageText(s.lastAgeMin);
+  }).catch(function(){});
+}
+function serverPing(ev) {
+  try {
+    fetch('api/visit', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({cid: serverCid(), ev: ev}), keepalive: true}).then(function(){ refreshPulse(); }).catch(function(){});
+  } catch (e) {}
 }
 window.addEventListener('message', function(e) {
   var d = e.data || {};
@@ -144,6 +174,8 @@ try {
     document.getElementById('slip').style.display = 'block';
   }
   verdictText(vst, saved, runStats());
+  refreshPulse();
+  serverPing('visit');
 } catch (e) {}
 function copySlip() {
   var t = document.getElementById('sliptext').textContent;
