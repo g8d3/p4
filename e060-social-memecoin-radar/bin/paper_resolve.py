@@ -140,15 +140,46 @@ def main():
         done_keys.add((o.get("date"), o.get("symbol"), o.get("chain")))
     new, pending = 0, 0
     pools = load_pools()
-    n_gecko = 0
-    for snap in load_jsonl(CALLS):
+    n_gecko, n_snap_fb = 0, 0
+    snaps_all = load_jsonl(CALLS)
+    # entry-price fallback (run #106, banked idea): pre-priceUsd snapshots
+    # carry no entry price/token. Index every priced sighting so an old
+    # worthy call can use the first same-(symbol,chain) price within 6h.
+    price_idx = {}
+    for s2 in snaps_all:
+        for e2 in s2.get("top", []) or []:
+            try:
+                px2 = float(e2.get("priceUsd"))
+            except (TypeError, ValueError):
+                continue
+            if e2.get("token"):
+                price_idx.setdefault((e2.get("symbol"), e2.get("chain")), []).append(
+                    (int(s2.get("ts", 0)), px2, e2.get("token")))
+    for v in price_idx.values():
+        v.sort()
+
+    def fallback_entry(symbol, chain, snap_ts):
+        for t, px, tk in price_idx.get((symbol, chain), []):
+            if 0 <= t - snap_ts <= 6 * 3600:
+                return px, tk, t
+        return None, None, None
+
+    for snap in snaps_all:
         for e in snap.get("top", []) or []:
             if not e.get("worthy"):
                 continue
+            entry_src = "entry"
+            entry_ts = int(snap.get("ts", now))
             try:
                 entry = float(e.get("priceUsd"))
             except (TypeError, ValueError):
-                continue  # pre-priceUsd snapshot: unresolvable, skip
+                entry, fb_token, fb_ts = fallback_entry(
+                    e.get("symbol"), e.get("chain"), entry_ts)
+                if entry is None:
+                    continue  # no priced sighting within 6h: still unresolvable
+                entry_src, entry_ts = "snapshot-fallback", fb_ts
+                e = dict(e, token=fb_token)
+                n_snap_fb += 1
             token, chain = e.get("token"), e.get("chain")
             if not token or not chain:
                 continue
@@ -159,7 +190,7 @@ def main():
             if age < DAY:
                 pending += 1
                 continue
-            px, src, rts = resolve_with_fallback(chain, token, int(snap.get("ts", now)), pools)
+            px, src, rts = resolve_with_fallback(chain, token, entry_ts, pools)
             if px is None:
                 print(f"resolve skip {e.get('symbol')}/{chain}: no price (dex+gecko)")
                 pending += 1
@@ -168,7 +199,8 @@ def main():
                 n_gecko += 1
             pct = round(100.0 * (px - entry) / entry, 2) if entry else 0.0
             rec = {"date": snap.get("date"), "symbol": e.get("symbol"),
-                   "chain": chain, "token": token, "entry_ts": snap.get("ts"),
+                   "chain": chain, "token": token, "entry_ts": entry_ts,
+                   "entry_src": entry_src,
                    "entry_price": entry, "resolve_ts": rts, "exit_price": px,
                    "pct_24h": pct, "hit": 1 if px > entry else 0, "src": src}
             os.makedirs(os.path.dirname(OUTCOMES), exist_ok=True)
@@ -214,7 +246,7 @@ def main():
     with open(SCORE, "w") as f:
         json.dump(score, f)
     print(f"score: resolved={resolved} hits={hits} "
-          f"hit_rate={score['hit_rate_pct']} pending={pending} new={new} gecko_fb={n_gecko} -> {SCORE}")
+          f"hit_rate={score['hit_rate_pct']} pending={pending} new={new} gecko_fb={n_gecko} snap_fb={n_snap_fb} -> {SCORE}")
 
 
 if __name__ == "__main__":
