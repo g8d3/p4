@@ -353,6 +353,20 @@ async function load() {
   const wt = document.getElementById('waiting');
   if (wt) wt.title = 'your notes + money gates waiting for a tap';
   if (wt) { wt.style.display = waitTotal ? '' : 'none'; } if (wt) wt.textContent = waitTotal ? ('● ' + waitTotal + ' waiting \u2014 tap to see') : '';
+  try {
+    const g1 = document.getElementById('gate1');
+    const pend1 = (d.proposals || []).filter(function(p) { return p.status === 'pending'; });
+    if (g1) {
+      if (pend1.length) {
+        const p = pend1[0];
+        g1.style.display = 'flex';
+        g1.innerHTML = '<span style="font-size:11px;opacity:.75">gate #' + p.id + ' ' + esc(p.track) + ': ' + esc(String(p.action).slice(0, 60)) + '</span>' +
+        '<button onclick="decide(' + p.id + ',\'approved\',this)" title="approve gate #' + p.id + ' (admin login)">approve ✓</button>' +
+        '<button onclick="decide(' + p.id + ',\'rejected\',this)" title="reject gate #' + p.id + '">no</button>' +
+        (pend1.length > 1 ? '<button onclick="waitFor(\'\',this)" title="see all ' + pend1.length + ' gates">+' + (pend1.length - 1) + '</button>' : '');
+      } else { g1.style.display = 'none'; g1.innerHTML = ''; }
+    }
+  } catch (e) {}
   document.getElementById('w').textContent =
     'funds $' + (d.runway.funds != null ? d.runway.funds.toFixed(2) : '?') + ' · in $' + d.runway.earned.toFixed(2) + ' · out $' + d.runway.spent.toFixed(2) +
     (d.usage ? ' · legs used ' + Number(d.usage.tokens).toLocaleString() + ' tok ($' + d.usage.cost_usd + ', 24h: ' + Number(d.usage.day_tokens).toLocaleString() + ')' : '');
