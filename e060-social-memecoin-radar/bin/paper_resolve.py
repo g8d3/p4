@@ -181,10 +181,25 @@ def main():
     outcomes = load_jsonl(OUTCOMES)
     resolved = len(outcomes)
     hits = sum(1 for o in outcomes if o.get("hit"))
+    # shadow bar (PAPER-tracked candidate, N<20 = THIN, never live on THIN):
+    # txns>=30k & vol>=1M would have kept CATFLIGHT(+2.6%) + Stunk only.
+    feats = {}
+    for line in load_jsonl(CALLS):
+        for e in (line.get("top") or []):
+            feats[(line.get("date"), e.get("symbol"), e.get("chain"))] = e
+    sh = [o for o in outcomes
+          if (lambda e: (float(e.get("txns_h24") or 0) >= 3e4 and
+                          float(e.get("vol_h24") or 0) >= 1e6))
+          (feats.get((o.get("date"), o.get("symbol"), o.get("chain")), {}))]
+    sh_hits = sum(1 for o in sh if o.get("hit"))
+    shadow = {"rule": "txns>=30k & vol>=1M", "n": len(sh), "hits": sh_hits,
+              "hit_rate_pct": round(100.0 * sh_hits / len(sh), 1) if sh else None,
+              "thin": len(sh) < 20}
     score = {"ok": True, "track": "e060", "updated_ts": now,
              "updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
              "resolved": resolved, "hits": hits,
              "hit_rate_pct": round(100.0 * hits / resolved, 1) if resolved else None,
+             "shadow": shadow,
              "pending": pending, "new_this_run": new}
     os.makedirs(os.path.dirname(SCORE), exist_ok=True)
     with open(SCORE, "w") as f:

@@ -145,3 +145,7 @@ N<20 resolved = THIN: never propose real money on THIN.
   still PAPER. Early 2026-09-14 ~00:40Z: 0/3 up, avg -84.5% at 9.6h,
   best BLAST -76.5% — COLD intraday, ex-pumped 0/1, 3/8 still tracked.
 - Run #87: FIRST GRADES 1/5 (20.0%, CATFLIGHT +2.6% HIT via dexscreener; Stunk -99.5%, CATAI -76.5%, FRONTIER -39.4%, PURRLTR -17.4% miss). N=5 THIN, stays PAPER. Early ex-pump decay confirmed — worthy bar may need lift next leg.
+
+## Worthy-bar autopsy (run #88)
+- 5 resolved, 1/5 = 20.0% (CATFLIGHT +2.6% HIT; Stunk -99.5%, FRONTIER -39.4%, PURRLTR -17.4%, CATAI -76.5% miss). All 5 were worthy=True — the bar as-is lets losers through.
+- Shadow candidate (PAPER-tracked, N=2 THIN, never live on THIN): txns>=30k & vol>=1M keeps CATFLIGHT + Stunk only = 1/2 = 50%. Served on card as `stricter bar 50% (1/2, trying)` via /api/paper shadow. Live bar unchanged until shadow N>=20.
