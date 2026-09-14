@@ -101,7 +101,7 @@ def main():
     use_cache = need <= have  # e057 copy only covers its own coins; refetch if ours missing
     markets, fresh_mkt = cached(
         "markets.json",
-        lambda: get(f"{CG}/coins/markets?vs_currency=usd&ids={','.join(ids)}"),
+        lambda: get(f"{CG}/coins/markets?vs_currency=usd&ids={','.join(ids)}&price_change_percentage=24h,7d"),
         max_age=(CACHE_AGE if use_cache else -1),
         reuse_ok=use_cache)
     if fresh_mkt:
@@ -109,6 +109,7 @@ def main():
     mcap = {m["id"]: m.get("market_cap") for m in (markets or [])}
     mvol = {m["id"]: m.get("total_volume") for m in (markets or [])}
     mchg = {m["id"]: m.get("price_change_percentage_24h") for m in (markets or [])}
+    mchg7 = {m["id"]: m.get("price_change_percentage_7d_in_currency") for m in (markets or [])}
     mcap_at = (os.path.getmtime(os.path.join(DATA, "markets.json")))
     mcap_at = datetime.fromtimestamp(mcap_at, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     missing = [p["symbol"] for p in protos if not mcap.get(p["cg_id"])]
@@ -175,6 +176,8 @@ def main():
             "volume_24h_usd": mvol.get(p["cg_id"]),
             "price_change_24h_pct": (round(mchg.get(p["cg_id"]), 2)
                                        if mchg.get(p["cg_id"]) is not None else None),
+            "price_change_7d_pct": (round(mchg7.get(p["cg_id"]), 2)
+                                       if mchg7.get(p["cg_id"]) is not None else None),
             "fees_30d_usd": round(fsum, 2), "fees_ann_usd": round(fann, 2),
             "revenue_30d_usd": round(rsum, 2), "revenue_ann_usd": round(rann, 2),
             "p_fees": round(mc / fann, 2) if mc and fann else None,

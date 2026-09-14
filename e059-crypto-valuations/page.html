@@ -58,6 +58,12 @@ function chg(p){
   const sign=p.price_change_24h_pct>=0?'+':'';
   return `<span class="${cls}">${sign}${p.price_change_24h_pct.toFixed(1)}%</span>`;
 }
+function chg7(p){
+  if(p.price_change_7d_pct==null)return '—';
+  const cls=p.price_change_7d_pct>=0?'up':'dn';
+  const sign=p.price_change_7d_pct>=0?'+':'';
+  return `<span class="${cls}">${sign}${p.price_change_7d_pct.toFixed(1)}%</span>`;
+}
 function vscat(p){
   const m=D.category_medians[p.category];
   if(p.p_fees==null||!m||!m.median_p_fees)return '—';
@@ -81,10 +87,10 @@ function trend(p){
 function render(){
   const list=[...D.protocols].filter(p=>filter==='ALL'||p.category===filter)
     .sort((a,b)=>cheapFirst?(ratio(a)-ratio(b)):((a.p_fees||1e18)-(b.p_fees||1e18)));
-  let h='<thead><tr><th>token</th><th class="c-name">name</th><th class="c-cat">cat</th><th class="c-mcap">mcap $B</th><th class="c-pf">P/Fees 30d</th><th class="c-vs">vs cat</th><th class="c-tr">sales 6wk</th><th class="c-vol">vol 24h</th><th class="c-chg">24h %</th><th class="c-7d">P/Fees 7d</th><th class="c-mom">momentum 7d/30d</th><th class="c-rev">P/Revenue</th><th class="c-thru">through</th></tr></thead><tbody>';
+  let h='<thead><tr><th>token</th><th class="c-name">name</th><th class="c-cat">cat</th><th class="c-mcap">mcap $B</th><th class="c-pf">P/Fees 30d</th><th class="c-vs">vs cat</th><th class="c-tr">sales 6wk</th><th class="c-vol">vol 24h</th><th class="c-chg">24h %</th><th class="c-chg7">7d %</th><th class="c-7d">P/Fees 7d</th><th class="c-mom">momentum 7d/30d</th><th class="c-rev">P/Revenue</th><th class="c-thru">through</th></tr></thead><tbody>';
   const med=filter!=='ALL'?D.category_medians[filter]:null;
-  if(med){const thin=(med.n!=null&&med.n<20)?' <span class="thin">thin</span>':'';h+=`<tr class="med"><td>◊</td><td class="c-name">${filter} median (n=${med.n})${thin}</td><td class="c-cat"></td><td class="c-mcap"></td><td class="c-pf">${med.median_p_fees??'—'}</td><td class="c-vs">1.0×</td><td class="c-tr"></td><td class="c-vol"></td><td class="c-chg"></td><td class="c-7d"></td><td class="c-mom">${med.median_momentum??'—'}×</td><td class="c-rev">${med.median_p_revenue??'—'}</td><td class="c-thru"></td></tr>`;
-  for(const p of list){h+=`<tr><td>${p.symbol}</td><td class="c-name">${p.name}</td><td class="c-cat">${p.category||''}</td><td class="c-mcap">${p.market_cap_usd==null?'—':(p.market_cap_usd/1e9).toFixed(1)}</td><td class="c-pf">${p.p_fees??'—'}</td><td class="c-vs">${vscat(p)}</td><td class="c-tr">${trend(p)}</td><td class="c-vol">${fmtVol(p.volume_24h_usd)}</td><td class="c-chg">${chg(p)}</td><td class="c-7d">${p.p_fees_7d??'—'}</td><td class="c-mom">${mom(p)}</td><td class="c-rev">${p.p_revenue??'—'}</td><td class="c-thru">${p.data_through}</td></tr>`}
+  if(med){const thin=(med.n!=null&&med.n<20)?' <span class="thin">thin</span>':'';h+=`<tr class="med"><td>◊</td><td class="c-name">${filter} median (n=${med.n})${thin}</td><td class="c-cat"></td><td class="c-mcap"></td><td class="c-pf">${med.median_p_fees??'—'}</td><td class="c-vs">1.0×</td><td class="c-tr"></td><td class="c-vol"></td><td class="c-chg"></td><td class="c-chg7"></td><td class="c-7d"></td><td class="c-mom">${med.median_momentum??'—'}×</td><td class="c-rev">${med.median_p_revenue??'—'}</td><td class="c-thru"></td></tr>`;
+  for(const p of list){h+=`<tr><td>${p.symbol}</td><td class="c-name">${p.name}</td><td class="c-cat">${p.category||''}</td><td class="c-mcap">${p.market_cap_usd==null?'—':(p.market_cap_usd/1e9).toFixed(1)}</td><td class="c-pf">${p.p_fees??'—'}</td><td class="c-vs">${vscat(p)}</td><td class="c-tr">${trend(p)}</td><td class="c-vol">${fmtVol(p.volume_24h_usd)}</td><td class="c-chg">${chg(p)}</td><td class="c-chg7">${chg7(p)}</td><td class="c-7d">${p.p_fees_7d??'—'}</td><td class="c-mom">${mom(p)}</td><td class="c-rev">${p.p_revenue??'—'}</td><td class="c-thru">${p.data_through}</td></tr>`}
   document.getElementById('t').innerHTML=h+'</tbody>';
   document.querySelectorAll('#cats button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
   document.querySelectorAll('#thumbbar button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
@@ -154,7 +160,7 @@ fetch('/multiples.json').then(r=>r.json()).then(d=>{
   document.getElementById('metasum').textContent=
     d.protocols.length+' coins priced vs sales — tap for what the columns mean.';
   document.getElementById('metadetail').textContent=
-    'vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · vol = 24h coin volume, 24h% = price move (full view) · sources: '+d.sources.join('; ');
+    'vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · vol = 24h coin volume, 24h% = price move (full view) · 7d% = week price move — compare vs momentum: price up + sales flat = multiple expanding · sources: '+d.sources.join('; ');
   const cats=['ALL',...(d.categories||[...new Set(d.protocols.map(p=>p.category))])];
   const btns=cats.map(c=>`<button data-c="${c}">${c}</button>`).join(' ');
   document.getElementById('cats').innerHTML=btns;
