@@ -17,4 +17,8 @@ leg re-ranks this table against the first real sync.
 | e062 one-tap approve card on the phone (proposal #5 pattern → every gate) | e064 login handoff + money gates both wait on owner taps; e063 money-gate cards exist but rung-4 needs the tap | compress: every owner decision becomes one exact-asking card with sane default | S (card template) | 7 |
 | e060 early-loss guard: auto-flag calls down >50% before 24h (BLAST -73% seen) | run #83 paper read: 2 early calls avg -86.4%, 0 resolved — losers show before grades land | repurpose: read-only risk badge, no trading | S (threshold + badge) | 7 |
 
+
+| Thumb-bar approve everywhere: e062 gate1 pattern copied to e063 + every money card | run #84 shipped gate1 (first pending gate w/ approve+reject in bottom thumbbar, e2e-locked) — same one-tap ask works for all gates fleet-wide | transplant: one proven control, zero new auth | S (copy render block) | 8 |
+| e061 day-2 nudge from fresh traffic (visits 13->15, players 2->3 overnight) | run #84 stats: new player arrived with zero product change — a win+24h claim-reminder ping converts ambient traffic into day-2 redeems | repurpose: ntfy already wired, no game change | S (win timestamp + ping) | 7 |
+
 Rising themes: Arc-launch (new, strongest) · steady-pays packaging · read-only alerts over trading · one-tap approvals.
