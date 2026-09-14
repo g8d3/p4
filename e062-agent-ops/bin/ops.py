@@ -8,7 +8,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS events(ts INTEGER, track TEXT, kind TEXT, summary TEXT, dedup_key TEXT UNIQUE);
 CREATE TABLE IF NOT EXISTS heartbeats(track TEXT PRIMARY KEY, ts INTEGER, status TEXT, note TEXT);
 CREATE TABLE IF NOT EXISTS rungs(track TEXT PRIMARY KEY, rung INTEGER, ts INTEGER, url TEXT, note TEXT);
-CREATE TABLE IF NOT EXISTS ledger(ts INTEGER, track TEXT, kind TEXT, usd REAL, note TEXT);
+CREATE TABLE IF NOT EXISTS ledger(ts INTEGER, track TEXT, kind TEXT, usd REAL, note TEXT, tx_hash TEXT DEFAULT '');
 CREATE TABLE IF NOT EXISTS trials(name TEXT PRIMARY KEY, ts INTEGER, renews_ts INTEGER, cost_usd REAL, status TEXT DEFAULT 'active', note TEXT);
 CREATE TABLE IF NOT EXISTS paused(track TEXT PRIMARY KEY, ts INTEGER, reason TEXT);
 CREATE TABLE IF NOT EXISTS channels(track TEXT PRIMARY KEY, best_sha TEXT DEFAULT '', best_note TEXT DEFAULT '', best_ts INTEGER DEFAULT 0, next_sha TEXT DEFAULT '', next_note TEXT DEFAULT '', next_ts INTEGER DEFAULT 0);
@@ -19,6 +19,11 @@ CREATE TABLE IF NOT EXISTS proposals(id INTEGER PRIMARY KEY AUTOINCREMENT, ts IN
 def db():
     c = sqlite3.connect(DB)
     c.executescript(SCHEMA)
+    try:
+        c.execute("ALTER TABLE ledger ADD COLUMN tx_hash TEXT DEFAULT ''")
+        c.commit()
+    except Exception:
+        pass  # column already exists (TAX doctrine: every money action keeps its tx hash)
     return c
 
 def init():
@@ -119,17 +124,17 @@ def trials(days=7):
         print(f'{n} renews {rd} ${co} ({left}d left) {no}{flag}')
     if not rows: print('(no active trials)')
 
-def spend(track, usd, note=''):
+def spend(track, usd, note='', tx_hash=''):
     c = db()
-    c.execute('INSERT INTO ledger VALUES (?,?,?, ?,?)' if False else 'INSERT INTO ledger VALUES (?,?,?,?,?)',
-              (int(__import__('time').time()), track, 'spend', float(usd), note))
+    c.execute('INSERT INTO ledger(ts,track,kind,usd,note,tx_hash) VALUES (?,?,?,?,?,?)',
+              (int(__import__('time').time()), track, 'spend', float(usd), note, tx_hash))
     c.commit(); c.close()
     print(f'spent ${usd} [{track}] {note}')
 
-def earn(track, usd, note=''):
+def earn(track, usd, note='', tx_hash=''):
     c = db()
-    c.execute('INSERT INTO ledger VALUES (?,?,?,?,?)',
-              (int(__import__('time').time()), track, 'earn', float(usd), note))
+    c.execute('INSERT INTO ledger(ts,track,kind,usd,note,tx_hash) VALUES (?,?,?,?,?,?)',
+              (int(__import__('time').time()), track, 'earn', float(usd), note, tx_hash))
     c.commit(); c.close()
     print(f'earned ${usd} [{track}] {note}')
 
