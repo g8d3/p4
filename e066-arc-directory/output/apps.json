@@ -7,7 +7,7 @@
   "revenue_24h_usd",
   "x_mentions_24h"
  ],
- "note": "run #99: DefiLlama re-probed ($0). Still pre-launch - 467 chains, arc-like=2 unrelated (Archway/Starcoin, name-substring only). Probe re-runs each leg, first numeric rows land at launch.",
+ "note": "run #100: DefiLlama re-probed ($0). Still pre-launch - 485 chains, arc-like=2 unrelated (Archway/Starcoin, name-substring only). Probe re-runs each leg, first numeric rows land at launch.",
  "sources": [
   {
    "kind": "free",
