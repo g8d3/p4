@@ -25,8 +25,8 @@
 </style>
 </head>
 <body>
-<h1>e061 Suite Slice <small>(demo · tested · free, no funds)</small> <small id="ver" style="font-weight:normal;font-size:12px"></small></h1>
-<script>fetch('version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit;}).catch(()=>{});</script>
+<h1>e061 Suite Slice <small>(demo · tested · free, no funds)</small> <small id="ver" style="font-weight:normal;font-size:12px">v19e756d</small> <small id="what" style="font-weight:normal;font-size:12px;color:#3d8e4f">win button claims your comeback code</small></h1>
+<script>fetch('version.json').then(r=>r.json()).then(v=>{var el=document.getElementById('ver');if(el)el.textContent='v'+v.commit;}).catch(()=>{});</script>
 <div id="verdict" role="status">…loading your status…<span class="day" id="daybadge"></span></div>
 <p id="pulse" style="font-size:.85rem;color:#555"><small id="pulsetext">players (server): …</small></p>
 <details class="box"><summary>Play → 7 coins → win → test buy (no funds).</summary>
