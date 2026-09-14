@@ -63,7 +63,9 @@ at 8 UTC, everything else silent. 24h new-payer rule stays as second
 layer if ever re-enabled. Wording decoded: `e058 new payer/daily
 funding digest` + `holding 4/4` + `(0 flips, OI rank 471)`.
 
-## 8. Paper ballot section (UX §3, queued 2026-09-13)
+## 8. Paper ballot section (UX §3, shipped 2026-09-13, countdowns 2026-09-14)
+
+Status 2026-09-14: every call carries called-Xh-ago + grades-in-Yh (server status string + called_ago_h/grades_in_h fields; resolved read hit/miss · called Xh ago); ballot countdown names each day's rolling grade window (81×09-13→grade 09-14 05:04–22:04 UTC · 35×09-14→grade 09-15) with machine-readable by_date. e2e locks countdown text + fields + windows.
 
 Problem: the 75 predictions live only in SQLite; `/api/paper` serves
 counts (plus first 5 names). The line reports a number about a list

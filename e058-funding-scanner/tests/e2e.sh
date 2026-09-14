@@ -147,6 +147,41 @@ grep -q "paper ballot" /tmp/e58_root.html || fail "paper ballot section missing 
 grep -q "loadPaper" /tmp/e58_root.html || fail "paper ballot loader missing"
 echo "ballot section ok: titled + loader live"
 
+# run #73: every pending call carries called-Xh-ago + grades-in-Yh, the
+# countdown names each day's rolling grade window, and the top list leads
+# with a proven payer (24h record, N>=5, hit-rate>=50%) — never the lure.
+python3 - <<'EOF2' || fail "ballot countdowns bad"
+import json
+import re
+
+d = json.load(open("/tmp/e58_ballot.json"))
+pend = [c for c in d["calls"] if c.get("hit") is None]
+assert pend, "no pending calls to grade"
+for c in pend:
+    assert "called" in c["status"] and "grades in" in c["status"], f"no countdowns: {c['status']}"
+    assert c.get("called_ago_h") is not None and c.get("grades_in_h") is not None, "missing countdown hours"
+assert re.search(r"\d+×\d{2}-\d{2}→grade", d["countdown"]), f"no rolling windows: {d['countdown']}"
+print(f"ballot countdowns ok: {len(pend)} pending, e.g. {pend[0]['status']} | {d['countdown']}")
+EOF2
+
+python3 - "$BASE" <<'EOF2' || fail "top-list lure guard bad"
+import json, re, sys, urllib.request
+base = sys.argv[1]
+persist = json.load(urllib.request.urlopen(base + "/api/persistence?threshold_bps=20&last_n=4", timeout=15))
+bt = json.load(urllib.request.urlopen(base + "/api/backtest", timeout=15))
+pc = bt.get("per_coin", {}) if bt.get("ok") else {}
+def good(c):
+    s = pc.get(c)
+    return bool(s) and s.get("n", 0) >= 5 and s.get("hit", 0) / max(1, s.get("n", 1)) >= 0.5
+goods = {r["coin"] for r in persist.get("rows", []) if good(r["coin"])}
+html = urllib.request.urlopen(base + "/", timeout=15).read().decode("utf-8", "replace")
+first = re.search(r"pickCoin\('([A-Z][A-Z0-9_-]*)'\)", html)
+assert first, "no server-rendered pick button"
+if goods:
+    assert first.group(1) in goods, f"top list leads with lure {first.group(1)}, proven: {sorted(goods)}"
+print(f"top-list ok: leads with proven {first.group(1)} (proven survivors: {sorted(goods)})")
+EOF2
+
 out=$(curl -s -m 10 "$BASE/api/version") || fail "version unreachable"
 echo "$out" | grep -q '"running"' || fail "version shape bad"
 echo "$out" | grep -Eq '"stale": *false' || fail "server STALE - restart after edits"

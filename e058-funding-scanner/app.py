@@ -277,12 +277,13 @@ function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `fli
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
 let pc={};try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)pc=b.per_coin;}catch(e){}
-const _tier=r=>[(r.verdict==='STEADY'?(pc[r.coin]?0:1):r.verdict==='WATCH'?2:3),-(+r.median_apy||0)];
+const _good=c=>{const s=pc[c];return !!(s&&+s.n>=5&&s.n>0&&(s.hit/s.n)>=0.5);};
+const _tier=r=>[(_good(r.coin)?0:(r.verdict==='STEADY'?1:(r.verdict==='WATCH'?2:(r.verdict==='FLIPPY'?3:2)))),-(+r.median_apy||0)];
 const _s=(a,b)=>{const x=_tier(a),y=_tier(b);return (x[0]-y[0])||(x[1]-y[1]);};
 const t=(d.rows||[]).slice().sort(_s).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHTML='';return;}
 const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
-const _pv=t.filter(r=>pc[r.coin]),_nw=t.length-_pv.length;one.textContent='Top pays now: '+(_pv.length?_pv.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r,true)}${held(r.coin)}`).join(' · '):'no proven pay yet — new coins holding below')+(_nw?` · +${_nw} new high pay${_nw>1?'s':''} below (unproven)`: '');
+const _pv=t.filter(r=>_good(r.coin)),_nw=t.length-_pv.length;one.textContent='Top pays now: '+(_pv.length?_pv.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r,true)}${held(r.coin)}`).join(' · '):'no proven pay yet — new coins holding below')+(_nw?` · +${_nw} new high pay${_nw>1?'s':''} below (unproven)`: '');
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r,!!pc[r.coin])}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
 function pickCoin(c){const r=(allRows||[]).find(x=>x.coin===c);const el=document.getElementById('coinDetail');if(!r){if(el)el.innerHTML='';return;}const pc=backPC[c];if(el)el.innerHTML=`<b>${c}</b> <span class=pos>${r.apy}% APY</span> · spread ${r.spread_bps}bps · long ${r.long} ${r.long_bps} / short ${r.short} ${r.short_bps} · legs ${r.n_legs} · OI ${r.oi_rank??'500+'} · paid ${pc?pc.hit+'/'+pc.n:'no history yet'} <button onclick="qFilter('${c}')" style="padding:2px 8px">filter to ${c}</button> <button onclick="clearCoin()" style="padding:2px 8px">✕</button>`;if(el)el.scrollIntoView({block:'nearest'});}
 function qFilter(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();}
@@ -499,25 +500,51 @@ def ballot():
         rows = c.execute('SELECT call_date, logged_ts, coin, median_apy, spread_bps, long_v, short_v, verdict FROM paper_calls ORDER BY logged_ts DESC, coin LIMIT 300').fetchall()
         outs = {(d, co): (h, s) for d, co, h, s in c.execute('SELECT call_date, coin, hit, spread_24h FROM paper_outcomes')}
         c.close()
-        calls, waits = [], []
+        calls, waits, win = [], [], {}
         for day, lts, coin, apy, sp, lo, sh, ve in rows:
+            base = _parse_ts(lts)
+            ago = (now - base).total_seconds() / 3600 if base else None
+            ago_h = round(ago, 1) if ago is not None and ago >= 0 else None
             o = outs.get((day, coin))
             if o is None:
-                base = _parse_ts(lts)
-                hrs = max(0.0, 24 - (now - base).total_seconds() / 3600) if base else 24.0
-                waits.append(hrs)
-                st = f"grading in {hrs:.0f}h"
-                hit, s24 = None, None
+                wait = max(0.0, 24 - ago) if ago is not None else 24.0
+                waits.append(wait)
+                w = win.setdefault(day, {'n': 0, 'first': lts, 'last': lts})
+                w['n'] += 1
+                w['first'] = min(w['first'], lts)
+                w['last'] = max(w['last'], lts)
+                if ago_h is not None:
+                    st = f"called {ago_h:.0f}h ago · grades in {wait:.0f}h"
+                else:
+                    st = f"grades in {wait:.0f}h"
+                hit, s24, wait_h = None, None, round(wait, 1)
             else:
                 hit, s24 = o
-                st = 'hit' if hit else 'miss'
+                st = ('hit' if hit else 'miss') + (f" · called {ago_h:.0f}h ago" if ago_h is not None else '')
+                wait_h = 0.0
             calls.append({'call_date': day, 'logged_ts': lts, 'coin': coin,
                           'median_apy': apy, 'spread_bps': sp, 'long_v': lo,
                           'short_v': sh, 'verdict': ve, 'status': st,
+                          'called_ago_h': ago_h, 'grades_in_h': wait_h,
                           'hit': hit, 'spread_24h': s24})
+        # Rolling grade windows, one per pending day (UX law: every number
+        # carries its time window) — e.g. 81×09-13→grade 09-14 05:04–22:04.
+        def _hh(s):
+            try: return str(s)[11:16]
+            except Exception: return '?'
+        wins = []
+        for day in sorted(win):
+            w = win[day]
+            b0 = _parse_ts(w['first'])
+            gday = (b0 + datetime.timedelta(hours=24)).strftime('%m-%d') if b0 else '?'
+            wins.append(f"{w['n']}×{day[5:]}→grade {gday} {_hh(w['first'])}–{_hh(w['last'])} UTC")
+        by_date = {day: {'pending': win[day]['n'], 'logged_first': win[day]['first'],
+                         'logged_last': win[day]['last']} for day in sorted(win)}
         cd = f"first grade ~{min(waits):.0f}h" if waits else 'all graded'
+        if wins:
+            cd += ' · ' + ' · '.join(wins)
         rule = 'hit = spread still \u226520bps at first snapshot \u226524h after logging'
-        return {'ok': True, 'rule': rule, 'countdown': cd, 'count': len(calls), 'calls': calls}
+        return {'ok': True, 'rule': rule, 'countdown': cd, 'count': len(calls), 'calls': calls, 'by_date': by_date}
     except Exception as e:
         return {'ok': False, 'error': str(e)[:200]}
 
@@ -553,12 +580,23 @@ def _server_card():
         _pc = _b.get('per_coin', {}) if _b.get('ok') else {}
     except Exception:
         _pc = {}
-    # Lead with what the owner can act on: proven steady first, thin-backing
-    # watch never leads the card (fleet-wide lure-lead fix, cf e060 run #64).
+    # Lead with what the owner can act on: proven pays first, never the
+    # lure number (fleet-wide lure-lead fix, cf e060 run #64). A proven
+    # payer (24h record, N>=5, hit-rate>=50%) leads whatever its current
+    # verdict; unproven "new" coins never lead, even when STEADY.
+    def _good(coin):
+        st = _pc.get(coin)
+        try:
+            return bool(st) and int(st.get('n', 0)) >= 5 and float(st.get('hit', 0)) / float(st.get('n', 1)) >= 0.5
+        except (TypeError, ValueError, ZeroDivisionError):
+            return False
     def _tier(r):
-        t = {'STEADY': 0, 'WATCH': 2, 'FLIPPY': 3}.get(r.get('verdict'), 1)
-        if r.get('verdict') == 'STEADY' and r.get('coin') not in _pc:
+        if _good(r.get('coin')):
+            t = 0  # proven pay — holdable edge first
+        elif r.get('verdict') == 'STEADY':
             t = 1  # new: holding so far, no 24h record yet
+        else:
+            t = {'WATCH': 2, 'FLIPPY': 3}.get(r.get('verdict'), 2)
         try:
             pay = -float(r.get('median_apy') or 0)
         except (TypeError, ValueError):
@@ -576,8 +614,8 @@ def _server_card():
             return 'new \u2014 holding so far'
         return _PLAIN.get(r.get('verdict'), r.get('verdict') or r.get('persist'))
     if t3:
-        _proven = [f"{r['coin']} {r['median_apy']}% {_verdict(r)}{_held(r['coin'])}" for r in t3 if _pc.get(r['coin'])]
-        _newn = sum(1 for r in t3 if not _pc.get(r['coin']))
+        _proven = [f"{r['coin']} {r['median_apy']}% {_verdict(r)}{_held(r['coin'])}" for r in t3 if _good(r['coin'])]
+        _newn = sum(1 for r in t3 if not _good(r['coin']))
         # One-line lure guard (run #67): biggest numbers are usually unproven
         # "new" coins — lead with proven pays only, collapse new to a count
         # so the owner taps holdable edge first (buttons below still list all).
