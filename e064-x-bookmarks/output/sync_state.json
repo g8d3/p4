@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #90 recheck: 9 x.com cookies in chrome-main/Default but guest-only (no auth_token/twid), still logged out, proposal #5 pending owner tap",
- "synced_at": "2026-09-14T07:10:00Z",
+ "note": "run #91 recheck: Default profile now holds 11 x.com cookies incl auth_token/ct0/twid (was 9 guest-only run #90) - login-looking but UNVERIFIED, proposal #5 still pending owner tap; no sync attempted on unverified session",
+ "synced_at": "2026-09-14T07:34:07Z",
  "track": "e064"
 }
