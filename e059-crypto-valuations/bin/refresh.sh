@@ -4,7 +4,7 @@
 cd "$(dirname "$0")/.." || exit 1
 echo "=== refresh $(date -Is)" >> refresh.log
 cp page.html output/index.html
-git log -1 --format=%h -- . > output/.commit 2>/dev/null
+git log -1 --format=%h -- page.html bin config.json tests > output/.commit 2>/dev/null
 python3 -c "import json,time; print(json.dumps({'track':'e059','commit':open('output/.commit').read().strip(),'date':time.strftime('%Y-%m-%d %H:%M')}))" > output/version.json 2>/dev/null
 rm -f output/.commit
 timeout 1200 python3 bin/valuations.py >> refresh.log 2>&1
