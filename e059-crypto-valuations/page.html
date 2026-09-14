@@ -119,12 +119,14 @@ function verdict(){
 function alertsHtml(){
   const l=cheapList().filter(p=>ratio(p)<=0.8).slice(0,5);
   if(l.length<5)return `<b>cheap-vs-peers alerts:</b> only ${l.length}/5 qualifiers ≤0.8× (thin coverage — widening next).`;
+  const deep=l.some(p=>ratio(p)<=0.5);
   const rows=l.map((p,i)=>{
     const m=D.category_medians[p.category];
     const thin=(m&&m.n<20)?` <span class="thin">thin n=${m.n}</span>`:'';
-    return `${i+1}. <b>${p.symbol}</b> — P/Fees ${p.p_fees??'—'}, ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}, thru ${p.data_through||'?'}`+thin;
+    const star=ratio(p)<=0.5?'★ ':'';
+    return `${i+1}. ${star}<b>${p.symbol}</b> — P/Fees ${p.p_fees??'—'}, ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}, thru ${p.data_through||'?'}`+thin;
   });
-  return `<b>cheap-vs-peers alerts (≤0.8× group):</b><br>`+rows.join('<br>');
+  return `<b>cheap-vs-peers alerts (≤0.8× group${deep?', ★≤0.5× deep':''}):</b><br>`+rows.join('<br>');
 }
 function slip(){
   const l=cheapList().slice(0,3);

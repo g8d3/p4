@@ -85,9 +85,13 @@ def main():
             n = m.get("n")
             thin = f' <span class="thin">thin n={n}</span>' if (n is not None and n < 20) else ""
             tw = TREND_WORDS.get(p.get("trend_dir"), "steady")
-            lines.append(f"{i}. <b>{p['symbol']}</b> — P/Fees {p.get('p_fees', '—')}, "
+            star = "★ " if r <= 0.5 else ""
+            lines.append(f"{i}. {star}<b>{p['symbol']}</b> — P/Fees {p.get('p_fees', '—')}, "
                            f"{r:.1f}× {p.get('category')} median, {tw}, thru {p.get('data_through', '?')}{thin}")
-        alerts = "<b>cheap-vs-peers alerts (≤0.8× group):</b><br>" + "<br>".join(lines)
+        head = ("<b>cheap-vs-peers alerts (≤0.8× group, ★≤0.5× deep):</b>"
+                if any(r <= 0.5 for r, _ in cheap) else
+                "<b>cheap-vs-peers alerts (≤0.8× group):</b>")
+        alerts = head + "<br>" + "<br>".join(lines)
     else:
         alerts = (f"<b>cheap-vs-peers alerts:</b> only {len(cheap)}/5 qualifiers ≤0.8× "
                   "(thin coverage — widening next).")
