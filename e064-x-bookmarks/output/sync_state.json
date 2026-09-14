@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #91 recheck: Default profile now holds 11 x.com cookies incl auth_token/ct0/twid (was 9 guest-only run #90) - login-looking but UNVERIFIED, proposal #5 still pending owner tap; no sync attempted on unverified session",
- "synced_at": "2026-09-14T07:34:07Z",
+ "note": "run #92 recheck: auth-looking cookies from run #91 are GONE (Default back to 9 guest-only x.com, no auth_token/ct0/twid in any profile) - session expired or logged out; proposal #5 still pending owner tap; no sync attempted",
+ "synced_at": "2026-09-14T08:10:00Z",
  "track": "e064"
 }
