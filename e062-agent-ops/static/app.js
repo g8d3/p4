@@ -422,6 +422,7 @@ function cardDetail(t) {
     '<div style="font-size:10px;opacity:.55;margin-top:6px">PROOF</div>' + ((t.focus || t.rung_note) ? nextLine(t) : '<div style="font-size:12px;opacity:.6">no focus set</div>') +
     '<div style="font-size:10px;opacity:.55;margin-top:6px">VERSIONS</div>' + channelLine(t) +
     (t.url ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">link:</span> <a href="' + esc(t.url) + '">' + esc(t.url) + '</a></div>' : '') +
+    ((t.track === 'e058' || t.track === 'e059' || t.track === 'e060') ? '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">books:</span> <a href="/api/tax/export" download>🧾 tax CSV — the ledger beside the trade</a></div>' : '') +
     '<div style="font-size:10px;opacity:.55;margin-top:6px">PLAN</div>' +
     '<div style="font-size:12px;opacity:.8">' + esc(t.plan || '') + '</div>' +
     '<div style="font-size:10px;opacity:.55;margin-top:6px">HISTORY (this project only)</div>' +
