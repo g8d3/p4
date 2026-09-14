@@ -29,7 +29,7 @@ with sync_playwright() as pw:
     nwidgets = pg.evaluate('window._widgets.length')
     check('3 default widgets rendered', nwidgets == 3, nwidgets)
     ncards = pg.locator('#cards .card').count()
-    check('6 project cards rendered', ncards == 6, ncards)
+    check('7 project cards rendered', ncards == 7, ncards)
     # waiting math: UI badge total vs API notes+pending
     api_wait = len(api.get('notes', [])) + len([p for p in api.get('proposals', []) if p['status'] == 'pending'])
     wtxt = pg.locator('#waiting').inner_text() if pg.locator('#waiting').count() else ''
