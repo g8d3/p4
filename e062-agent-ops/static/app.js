@@ -849,7 +849,7 @@ function channelLine(t) {
   const same = t.best && t.best === t.next;
   let s = '<div style="font-size:12px"><span style="font-size:10px;opacity:.55">versions:</span> BEST <b>' + esc(t.best || '?') + '</b>' + (t.best_note ? ' ' + esc(t.best_note) : '');
   s += ' · NEXT <b>' + esc(t.next || '?') + '</b>' + (t.next_note ? ' ' + esc(t.next_note) : '');
-  if (!same && t.next) s += ' <button onclick="event.stopPropagation();promoteChannel(\'' + t.track + '\',this)" title="make NEXT the stable version">promote NEXT→BEST</button>';
+  if (!same && t.next) s += ' <button style="padding:8px 14px;font-size:14px;font-weight:bold" onclick="event.stopPropagation();promoteChannel(\'' + t.track + '\',this)">PROMOTE NEXT \u2192 BEST</button><div style="font-size:10px;opacity:.55">NEXT wins automatically when its proof beats BEST — this button only forces it early.</div>';
   else s += ' <span style="font-size:10px;opacity:.55">in sync</span>';
   return s + '</div>';
 }

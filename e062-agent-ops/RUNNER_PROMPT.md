@@ -89,9 +89,7 @@ Rules:
   `ops.py emit <track> release "v<short-sha>: <OWNER_SENTENCE> | tech:
   e2e <PASS/FAIL>, score <metric>=<n> (<delta>)"` with dedup key
   `<track>:release:<sha>`.
-- BEST pins are the owner's. Never deploy over a pinned-best, never
-  unmark it. If latest is broken and unfixable in-leg, propose rollback
-  to best — don't rewrite history.
+- BEST moves on proof, not on taps: when your NEXT beats BEST's proof number with e2e PASS, run `ops.py promote-channel <track>` yourself and log the score delta. Never deploy a worse NEXT over BEST. If latest is broken and unfixable in-leg, roll back to best — don't rewrite history. The owner keeps veto only.
 
 ## STRATEGY + DATA (trading tracks: e058, e059, e060)
 
@@ -136,6 +134,7 @@ your log tail. Plain words first (a marketer reads them), tech after
    - After editing ANY served app (code or static), restart its server, curl its version endpoint, and confirm `running == latest` before you claim done. e062: `/api/version`. Static sites (e059 output/, e061 demo/): refresh their `version.json` via their refresh/version step.
    - A leg that ships files without restarting the server FAILED the leg — the owner would see yesterday's app.
    - Read your track's `next:` focus first (`ops.py focus <track>`); move THAT. When the proof step ships, update the focus line to the following step.
+   - Every served app shows its version AND its last change (one plain-words line, server-rendered) in its UI — the owner must SEE what moved without reading git log.
 7b. No secrets in repo (env only). Timeouts on every command. Browsers:
    `close --all`, 0 chrome processes at end.
 8. End: `ops.py beat <track> <ok|blocked> "<OWNER_SENTENCE> | tech: <detail>"`,
