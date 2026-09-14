@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #95 recheck: agent-browser profiles still guest-only (proposal #5 pending); BUT main Chrome Default holds x.com auth_token/ct0/twid exp 2027 (names+expiry only, values never read) — simpler one-tap ask possible, awaiting owner tap; no sync attempted",
- "synced_at": "2026-09-14T09:35:00Z",
+ "note": "run #96 recheck: proposal #5 still pending, no sync attempted; main Chrome Default x.com auth (exp 2027, names-only) unchanged \u2014 one-tap ask stands, awaiting owner tap",
+ "synced_at": "2026-09-14T10:10:00Z",
  "track": "e064"
 }
