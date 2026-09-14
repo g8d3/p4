@@ -71,6 +71,9 @@ EOF
 
 code=$(curl -s -m 10 "$BASE/version.json" -o /tmp/e59_version.json -w "%{http_code}") || fail "version.json unreachable"
 [ "$code" = "200" ] || fail "version.json http=$code"
-HEAD=$(git log -1 --format=%h -- e059-crypto-valuations 2>/dev/null || echo "?")
+E2E_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+HEAD=$(git -C "$E2E_DIR" log -1 --format=%h -- . 2>/dev/null || echo "?")
+[ -z "$HEAD" ] && HEAD="?"
+[ "$HEAD" = "?" ] && fail "cannot resolve track HEAD (run from a git checkout)"
 grep -q "$HEAD" /tmp/e59_version.json || fail "version.json stale (refresh.sh stamps it)"
 echo "E2E PASS ($BASE)"
