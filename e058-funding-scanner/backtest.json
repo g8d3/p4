@@ -6,14 +6,14 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-13T05:47:25Z",
- "n_signals": 535,
- "n_hit": 292,
- "hit_rate_pct": 54.6,
+ "window_last": "2026-09-13T06:03:26Z",
+ "n_signals": 545,
+ "n_hit": 300,
+ "hit_rate_pct": 55.0,
  "median_apy_decay": 1.0,
  "per_coin": {
   "AI": {
-   "n": 21,
+   "n": 22,
    "hit": 14
   },
   "ANSEM": {
@@ -21,8 +21,8 @@
    "hit": 0
   },
   "ARB": {
-   "n": 9,
-   "hit": 9
+   "n": 10,
+   "hit": 10
   },
   "B3": {
    "n": 3,
@@ -61,24 +61,24 @@
    "hit": 0
   },
   "HIVE": {
-   "n": 8,
-   "hit": 8
+   "n": 9,
+   "hit": 9
   },
   "IP": {
-   "n": 85,
-   "hit": 85
+   "n": 86,
+   "hit": 86
   },
   "JUP": {
-   "n": 85,
-   "hit": 67
+   "n": 86,
+   "hit": 68
   },
   "KAITO": {
    "n": 16,
    "hit": 0
   },
   "LSK": {
-   "n": 1,
-   "hit": 1
+   "n": 2,
+   "hit": 2
   },
   "MEME": {
    "n": 2,
@@ -105,8 +105,8 @@
    "hit": 1
   },
   "POWR": {
-   "n": 1,
-   "hit": 0
+   "n": 2,
+   "hit": 1
   },
   "PURR": {
    "n": 1,
@@ -121,8 +121,8 @@
    "hit": 0
   },
   "S": {
-   "n": 16,
-   "hit": 16
+   "n": 17,
+   "hit": 17
   },
   "SKHX": {
    "n": 5,
@@ -137,7 +137,7 @@
    "hit": 0
   },
   "STEEM": {
-   "n": 14,
+   "n": 15,
    "hit": 8
   },
   "TREE": {
@@ -145,8 +145,8 @@
    "hit": 1
   },
   "WAL": {
-   "n": 43,
-   "hit": 43
+   "n": 44,
+   "hit": 44
   },
   "XAU": {
    "n": 1,
@@ -161,7 +161,7 @@
    "hit": 2
   }
  },
- "computed_ts": "2026-09-14T06:01:17Z",
+ "computed_ts": "2026-09-14T06:30:27Z",
  "elapsed_s": 1.6,
- "summary": "54.6% of steady calls still paying 24h later (292/535, median APY kept 1.0x)"
+ "summary": "55.0% of steady calls still paying 24h later (300/545, median APY kept 1.0x)"
 }
