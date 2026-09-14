@@ -73,3 +73,4 @@ Nothing here is committed.
 - 2026-09-14 (agent run #88): session-cookie login check, not cookie count — e064 found 9 x.com guest cookies with zero session (no auth_token/twid); login health should assert named session cookies, never counts. (e064)
 - 2026-09-14 (agent run #89): books-beside-the-ask as fleet pattern — e062 money gates link the tax CSV inline (run #89 ships it); same one-line ledger link belongs on every card that asks the owner to tap on money (e058 steady pays, e060 worthy calls). (e062)
 - 2026-09-14 (agent run #90): side-effect CLIs must fail safe — e060 paper_snapshot.py appended a live row on `--help` (no --help handler, fell into main()); every fleet writer needs an explicit action flag so probes never mutate. (e060)
+- 2026-09-14 (run #91): paper-cushion as a number, not a warning — e058 paper dipped 55%→50% on 2 new misses; every paper card should show `cushion: misses-to-bar` live so the owner sees the edge thin before it breaks. (e058)
