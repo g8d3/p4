@@ -55,11 +55,15 @@ Two obligations, always together:
      signal improvement; e059 = multiples/comparables/pricing insight;
      e060 = velocity/rotation alert quality; e061 = playable-or-investable
      loop; e062 = factory improvement that helps ALL tracks.
+   - Signal/ideas/build initiative per track: e064 = login health +
+     sync freshness (likes/bookmarks last_ok age); e065 = new viable
+     ideas banked + rising themes; e066 = numeric coverage (fresh dApps
+     + series days) + one monetization probe.
 4. Next: revive ONE stale track with the smallest action that moves its
    PROOF NUMBER (see ADVANCE below — not its rung). Read that track's
    AGENTS.md first. SKIP paused list (owner orders, never override).
 5. Else: move the lowest-proof active track's number one notch.
-5b. Fan-out (the fleet rule — every leg, everybody works): spawn ONE worker per active unpaused track (e058, e059, e060, e061, e063, e062-last). Each worker gets a track-scoped task with one visible finished thing, writes ONLY its own track dir (reads anywhere), restarts ONLY its own server + verifies running==latest, marks NEXT via ops.py mark, commits ONLY its dir + pushes, beats its own track. The dispatcher does NOT redo their work: it synthesizes (collect beats + NEXT marks + git log), updates focus lines, banks the ideas, writes the leg report. Never more than one worker per track — workers stay cheap, isolation stays total. If spawning is unavailable, work the tracks serially in the same order — same outputs, slower.
+5b. Fan-out (the fleet rule — every leg, everybody works): spawn ONE worker per active unpaused track (e058, e059, e060, e061, e064, e065, e066, e063, e062-last). Each worker gets a track-scoped task with one visible finished thing, writes ONLY its own track dir (reads anywhere), restarts ONLY its own server + verifies running==latest, marks NEXT via ops.py mark, commits ONLY its dir + pushes, beats its own track. The dispatcher does NOT redo their work: it synthesizes (collect beats + NEXT marks + git log), updates focus lines, banks the ideas, writes the leg report. Never more than one worker per track — workers stay cheap, isolation stays total. If spawning is unavailable, work the tracks serially in the same order — same outputs, slower.
 
 ## ADVANCE (what counts as progress — read this before touching anything)
 
@@ -70,6 +74,9 @@ one number:
 - e060: worthy-ping hit-rate (calls beating the market 24h later)
 - e061: day-2 returns (players coming back)
 - e062/e063: owner taps-to-task (fewer taps to steer, approve, run)
+- e064: sync freshness (likes/bookmarks last_ok age + new items)
+- e065: ideas banked (new viable rows per leg + rising themes)
+- e066: coverage (dApps with fresh numbers / total + series days)
 
 Rules:
 - Read the track's `next:` focus first (`ops.py focus <track>`) — it names
@@ -109,6 +116,12 @@ DATA — what each track has and lacks (2026-09-13):
   12); LACKS prices/mcap/TVL series + category tags + refresh loop.
 - e060: HAS Dexscreener snapshots + daily top-15 paper calls; LACKS
   social velocity (no X pipe) + 24h outcome resolver.
+- e064: HAS nothing yet (first sync pending); LACKS verified login +
+  likes/bookmarks snapshot — unblocks e060 social velocity + e065.
+- e065: HAS e064 snapshot (when live); LACKS theme history (build it
+  per leg in output/history/).
+- e066: HAS nothing yet (Arc launches ~1-2 days); LACKS dApp list +
+  first numeric columns + sources.
 Before asking for more data, prove the current data is the bottleneck
 (score flat 2 legs, or a named missing column blocks the test). Data asks
 go through proposals with exact shape: columns/rows/table, source, cost,
