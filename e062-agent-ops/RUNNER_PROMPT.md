@@ -59,10 +59,7 @@ Two obligations, always together:
    PROOF NUMBER (see ADVANCE below — not its rung). Read that track's
    AGENTS.md first. SKIP paused list (owner orders, never override).
 5. Else: move the lowest-proof active track's number one notch.
-5b. Fan-out: a leg MAY run up to 3 parallel spikes (one per track max)
-    for independent research/builds, then synthesize + write state
-    yourself. Spikes are short, read-mostly, capped scope. Never more
-    than 3 — legs stay cheap.
+5b. Fan-out (the fleet rule — every leg, everybody works): spawn ONE worker per active unpaused track (e058, e059, e060, e061, e063, e062-last). Each worker gets a track-scoped task with one visible finished thing, writes ONLY its own track dir (reads anywhere), restarts ONLY its own server + verifies running==latest, marks NEXT via ops.py mark, commits ONLY its dir + pushes, beats its own track. The dispatcher does NOT redo their work: it synthesizes (collect beats + NEXT marks + git log), updates focus lines, banks the ideas, writes the leg report. Never more than one worker per track — workers stay cheap, isolation stays total. If spawning is unavailable, work the tracks serially in the same order — same outputs, slower.
 
 ## ADVANCE (what counts as progress — read this before touching anything)
 
