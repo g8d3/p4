@@ -13,6 +13,7 @@ tr.med td{font-weight:bold;background:#f0f6ff}
 button.on{background:#0366d6;color:#fff;border-color:#0366d6}
 .up{color:#0a0}.dn{color:#c00}
 .cheap{color:#0a0;font-weight:bold}.pricey{color:#c00}
+.thin{background:#ffe9c4;padding:0 6px;border-radius:8px;font-size:11px;white-space:nowrap}
 .spark{font-size:15px;letter-spacing:1px;white-space:nowrap}
 body.simple .c-name,body.simple .c-cat,body.simple .c-mcap,body.simple .c-7d,body.simple .c-mom,body.simple .c-rev,body.simple .c-thru,body.simple .c-vol,body.simple .c-chg{display:none}
 #thumbbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--tb,#fff);border-top:1px solid #ccc;padding:10px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;overflow-x:auto;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
@@ -31,6 +32,7 @@ No trading, no wallet, read-only. <a href="/multiples.json">JSON</a> <a href="/m
 <div id="verdict" class="cav" style="font-size:14px;margin:.4em 0">…</div>
 <div id="pulse" class="cav">…</div>
 <div id="score" class="cav" style="font-size:14px;margin:.4em 0">…</div>
+<div id="alerts" class="cav" style="font-size:13px;margin:.4em 0">…</div>
 <details id="meta" class="cav"><summary id="metasum">…</summary><div id="metadetail"></div></details>
 <div id="cats" style="margin:.6em 0"></div>
 <div class="twrap"><table id="t"></table></div>
@@ -62,7 +64,8 @@ function vscat(p){
   const r=p.p_fees/m.median_p_fees;
   const cls=r<=0.8?'cheap':(r>=1.5?'pricey':'');
   const tag=r<=0.8?' cheap':(r>=1.5?' pricey':'');
-  return `<span class="${cls}">${r.toFixed(1)}×${tag}</span>`;
+  const thin=(m.n!=null&&m.n<20)?' <span class="thin">thin n='+m.n+'</span>':'';
+  return `<span class="${cls}">${r.toFixed(1)}×${tag}</span>${thin}`;
 }
 function ratio(p){
   const m=D.category_medians[p.category];
@@ -80,7 +83,7 @@ function render(){
     .sort((a,b)=>cheapFirst?(ratio(a)-ratio(b)):((a.p_fees||1e18)-(b.p_fees||1e18)));
   let h='<thead><tr><th>token</th><th class="c-name">name</th><th class="c-cat">cat</th><th class="c-mcap">mcap $B</th><th class="c-pf">P/Fees 30d</th><th class="c-vs">vs cat</th><th class="c-tr">sales 6wk</th><th class="c-vol">vol 24h</th><th class="c-chg">24h %</th><th class="c-7d">P/Fees 7d</th><th class="c-mom">momentum 7d/30d</th><th class="c-rev">P/Revenue</th><th class="c-thru">through</th></tr></thead><tbody>';
   const med=filter!=='ALL'?D.category_medians[filter]:null;
-  if(med)h+=`<tr class="med"><td>◊</td><td class="c-name">${filter} median (n=${med.n})</td><td class="c-cat"></td><td class="c-mcap"></td><td class="c-pf">${med.median_p_fees??'—'}</td><td class="c-vs">1.0×</td><td class="c-tr"></td><td class="c-vol"></td><td class="c-chg"></td><td class="c-7d"></td><td class="c-mom">${med.median_momentum??'—'}×</td><td class="c-rev">${med.median_p_revenue??'—'}</td><td class="c-thru"></td></tr>`;
+  if(med){const thin=(med.n!=null&&med.n<20)?' <span class="thin">thin</span>':'';h+=`<tr class="med"><td>◊</td><td class="c-name">${filter} median (n=${med.n})${thin}</td><td class="c-cat"></td><td class="c-mcap"></td><td class="c-pf">${med.median_p_fees??'—'}</td><td class="c-vs">1.0×</td><td class="c-tr"></td><td class="c-vol"></td><td class="c-chg"></td><td class="c-7d"></td><td class="c-mom">${med.median_momentum??'—'}×</td><td class="c-rev">${med.median_p_revenue??'—'}</td><td class="c-thru"></td></tr>`;
   for(const p of list){h+=`<tr><td>${p.symbol}</td><td class="c-name">${p.name}</td><td class="c-cat">${p.category||''}</td><td class="c-mcap">${p.market_cap_usd==null?'—':(p.market_cap_usd/1e9).toFixed(1)}</td><td class="c-pf">${p.p_fees??'—'}</td><td class="c-vs">${vscat(p)}</td><td class="c-tr">${trend(p)}</td><td class="c-vol">${fmtVol(p.volume_24h_usd)}</td><td class="c-chg">${chg(p)}</td><td class="c-7d">${p.p_fees_7d??'—'}</td><td class="c-mom">${mom(p)}</td><td class="c-rev">${p.p_revenue??'—'}</td><td class="c-thru">${p.data_through}</td></tr>`}
   document.getElementById('t').innerHTML=h+'</tbody>';
   document.querySelectorAll('#cats button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
@@ -107,6 +110,16 @@ function verdict(){
   const p=l[0];
   return `Cheapest vs its group: ${p.symbol} at ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}.`;
 }
+function alertsHtml(){
+  const l=cheapList().filter(p=>ratio(p)<=0.8).slice(0,5);
+  if(l.length<5)return `<b>cheap-vs-peers alerts:</b> only ${l.length}/5 qualifiers ≤0.8× (thin coverage — widening next).`;
+  const rows=l.map((p,i)=>{
+    const m=D.category_medians[p.category];
+    const thin=(m&&m.n<20)?` <span class="thin">thin n=${m.n}</span>`:'';
+    return `${i+1}. <b>${p.symbol}</b> — P/Fees ${p.p_fees??'—'}, ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}, thru ${p.data_through||'?'}`+thin;
+  });
+  return `<b>cheap-vs-peers alerts (≤0.8× group):</b><br>`+rows.join('<br>');
+}
 function slip(){
   const l=cheapList().slice(0,3);
   const lines=l.map((p,i)=>`${i+1}. ${p.symbol} — ${(ratio(p)).toFixed(1)}× ${p.category} median, P/Fees ${p.p_fees??'—'}, ${trendWords(p)}`);
@@ -128,6 +141,7 @@ fetch('/multiples.json').then(r=>r.json()).then(d=>{
   if(stale)document.getElementById('fresh').classList.add('stale');
   document.getElementById('verdict').textContent=verdict();
   document.getElementById('pulse').textContent=pulse(d);
+  document.getElementById('alerts').innerHTML=alertsHtml();
   fetch('/cheap_calls.json').then(r=>r.json()).then(cc=>{document.getElementById('score').textContent=scoreTxt(cc);}).catch(()=>{});
   document.getElementById('metasum').textContent=
     d.protocols.length+' coins priced vs sales — tap for what the columns mean.';

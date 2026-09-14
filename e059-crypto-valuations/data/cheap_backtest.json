@@ -46,7 +46,7 @@
   {
    "symbol": "SKY",
    "call": "2026-08-08",
-   "ratio_call": 0.78,
+   "ratio_call": 0.77,
    "ratio_resolve": 0.91,
    "hit": true
   },
@@ -123,7 +123,7 @@
   {
    "symbol": "SKY",
    "call": "2026-08-01",
-   "ratio_call": 0.75,
+   "ratio_call": 0.74,
    "ratio_resolve": 0.87,
    "hit": true
   },
@@ -236,7 +236,7 @@
    "symbol": "YFI",
    "call": "2026-07-25",
    "ratio_call": 0.46,
-   "ratio_resolve": 0.87,
+   "ratio_resolve": 0.86,
    "hit": true
   },
   {
@@ -249,14 +249,14 @@
   {
    "symbol": "SOL",
    "call": "2026-07-18",
-   "ratio_call": 0.2,
+   "ratio_call": 0.19,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "BNB",
    "call": "2026-07-18",
-   "ratio_call": 0.48,
+   "ratio_call": 0.47,
    "ratio_resolve": 0.29,
    "hit": true
   },
@@ -271,7 +271,7 @@
    "symbol": "ARB",
    "call": "2026-07-18",
    "ratio_call": 0.52,
-   "ratio_resolve": 0.67,
+   "ratio_resolve": 0.68,
    "hit": true
   },
   {
@@ -285,7 +285,7 @@
    "symbol": "SKY",
    "call": "2026-07-18",
    "ratio_call": 0.73,
-   "ratio_resolve": 0.81,
+   "ratio_resolve": 0.8,
    "hit": true
   },
   {
@@ -642,7 +642,7 @@
    "symbol": "ARB",
    "call": "2026-06-13",
    "ratio_call": 0.69,
-   "ratio_resolve": 0.53,
+   "ratio_resolve": 0.54,
    "hit": true
   },
   {
@@ -845,7 +845,7 @@
    "symbol": "GMX",
    "call": "2026-05-23",
    "ratio_call": 0.14,
-   "ratio_resolve": 0.19,
+   "ratio_resolve": 0.2,
    "hit": true
   },
   {

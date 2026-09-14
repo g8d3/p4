@@ -65,6 +65,21 @@ def main():
     else:
         score = "Cheap-call scorecard building — first grade after the next refresh."
 
+    cheap = [(r, p) for r, p in rows if r <= 0.8][:5]
+    if len(cheap) >= 5:
+        lines = []
+        for i, (r, p) in enumerate(cheap, 1):
+            m = meds.get(p.get("category", ""), {})
+            n = m.get("n")
+            thin = f' <span class="thin">thin n={n}</span>' if (n is not None and n < 20) else ""
+            tw = TREND_WORDS.get(p.get("trend_dir"), "steady")
+            lines.append(f"{i}. <b>{p['symbol']}</b> — P/Fees {p.get('p_fees', '—')}, "
+                           f"{r:.1f}× {p.get('category')} median, {tw}, thru {p.get('data_through', '?')}{thin}")
+        alerts = "<b>cheap-vs-peers alerts (≤0.8× group):</b><br>" + "<br>".join(lines)
+    else:
+        alerts = (f"<b>cheap-vs-peers alerts:</b> only {len(cheap)}/5 qualifiers ≤0.8× "
+                  "(thin coverage — widening next).")
+
     html = open(os.path.join(ROOT, "page.html")).read()
     stale_cls = ' class="badge stale"' if stale else ' class="badge"'
     html = html.replace('<span class="badge" id="fresh">…</span>',
@@ -77,10 +92,12 @@ def main():
                         f'<div id="pulse" class="cav">{pulse}</div>')
     html = html.replace('<div id="score" class="cav" style="font-size:14px;margin:.4em 0">…</div>',
                         f'<div id="score" class="cav" style="font-size:14px;margin:.4em 0">{score}</div>')
+    html = html.replace('<div id="alerts" class="cav" style="font-size:13px;margin:.4em 0">…</div>',
+                        f'<div id="alerts" class="cav" style="font-size:13px;margin:.4em 0">{alerts}</div>')
     html = html.replace('<summary id="metasum">…</summary>',
                         f'<summary id="metasum">{len(d["protocols"])} coins priced vs sales — tap for what the columns mean.</summary>')
     open(os.path.join(OUT, "index.html"), "w").write(html)
-    print(f"inject ok: verdict={verdict!r} pulse={pulse!r} score={score!r}")
+    print(f"inject ok: verdict={verdict!r} pulse={pulse!r} score={score!r} alerts_n={len(cheap)}")
 
 
 if __name__ == "__main__":
