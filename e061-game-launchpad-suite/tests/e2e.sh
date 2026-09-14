@@ -60,6 +60,9 @@ EOF
 grep -qiE "sk-|api[_-]?key|mnemonic|private[_-]?key" /tmp/e61_root.html && fail "possible secret in page"
 code=$(curl -s -m 10 "$BASE/version.json" -o /tmp/e61_version.json -w "%{http_code}") || fail "version.json unreachable"
 [ "$code" = "200" ] || fail "version.json http=$code"
-HEAD=$(git log -1 --format=%h -- e061-game-launchpad-suite 2>/dev/null || echo "?")
+E2E_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+HEAD=$(git -C "$E2E_DIR" log -1 --format=%h -- . ':!demo/version.json' 2>/dev/null || echo "?")
+[ -z "$HEAD" ] && HEAD="?"
+[ "$HEAD" = "?" ] && fail "cannot resolve track HEAD (run from a git checkout)"
 grep -q "$HEAD" /tmp/e61_version.json || fail "version.json stale (run bin/version.sh)"
 echo "E2E PASS ($BASE)"
