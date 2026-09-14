@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #94 recheck: still 9 guest-only x.com cookies in chrome-main/Default, auth_token/ct0/twid absent all 4 profiles; proposal #5 still pending owner tap; no sync attempted",
- "synced_at": "2026-09-14T09:10:00Z",
+ "note": "run #95 recheck: agent-browser profiles still guest-only (proposal #5 pending); BUT main Chrome Default holds x.com auth_token/ct0/twid exp 2027 (names+expiry only, values never read) — simpler one-tap ask possible, awaiting owner tap; no sync attempted",
+ "synced_at": "2026-09-14T09:35:00Z",
  "track": "e064"
 }
