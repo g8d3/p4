@@ -26,3 +26,5 @@ leg re-ranks this table against the first real sync.
 | Server-side day-2 due counter (e061 ships wins24+due) | run #86: e061 /api/stats names wins in 24h + cids due back now — same due-now counter pattern fits e058 paper grades the hour they land | repurpose: read-only counter, no ping | S (stats field + line) | 7 |
 
 Rising themes: proof-countdowns (new) · one-tap approvals · Arc-launch · read-only alerts over trading.
+| CATFLIGHT autopsy: compare entry-age of e060's first hit vs 4 misses (run #87: 1/5, only +2.6% held) | run #87 grades: 4 misses bled -17% to -99% in 24h, all ex-pump names — entry delay may predict the bleed | repurpose: read-only autopsy, no trading | S (entry-ts vs outcome) | 7 |
+| e058 streak board: coins holding 3+ straight days get a streak mark on the card | run #87 backtest 54.1% (279/516) — persistence is the edge, streaks package it for the phone | package: read-only badge, no new data | S (consecutive-hold count) | 6 |
