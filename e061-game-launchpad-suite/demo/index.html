@@ -120,10 +120,51 @@ function fillSlip(coins, max, perfect) {
   try { localStorage.setItem('e061-slip', body); } catch (e) {}
   var rs = saveRun(coins);
   slip.style.display = 'block';
+  try {
+    var tmr = new Date(Date.now() + 864e5);
+    var forDay = dayStr(tmr);
+    var code = comebackCode(serverCid(), forDay);
+    localStorage.setItem('e061-comeback', JSON.stringify({code: code, forDay: forDay, redeemed: false}));
+    renderComeback();
+  } catch (e) {}
+  slip.style.display = 'block';
   var wb = document.getElementById('btn-win');
   if (wb) wb.textContent = '🏆 Win ' + coins + '/' + max;
   try { verdictText(trackVisit(), body, rs); } catch (e) {}
   serverPing('win'); serverPing('slip');
+}
+function comebackCode(cid, forDay) {
+  var h = 0; var s = forDay + ':' + cid;
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return 'G2-' + h.toString(36).toUpperCase().slice(-4).padStart(4, '0');
+}
+function renderComeback() {
+  var el = document.getElementById('comeback'); if (!el) return;
+  var cb = null;
+  try { cb = JSON.parse(localStorage.getItem('e061-comeback') || 'null'); } catch (e) {}
+  if (!cb) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  var today = dayStr(new Date());
+  if (cb.redeemed) { el.textContent = 'Comeback code ' + cb.code + ' redeemed \u2713 \u2014 play one run, the server counts day-2.'; return; }
+  if (cb.forDay <= today) {
+    el.innerHTML = '';
+    var t = document.createElement('span');
+    t.innerHTML = 'Comeback code due today: <b>' + cb.code + '</b> ';
+    var b = document.createElement('button');
+    b.textContent = 'Redeem \u2713'; b.onclick = function() { redeemComeback(); };
+    el.appendChild(t); el.appendChild(b);
+  } else {
+    el.innerHTML = 'Comeback code for ' + cb.forDay + ': <b>' + cb.code + '</b> \u2014 open this page that day and tap Redeem for Day-2 \u2713';
+  }
+}
+function redeemComeback() {
+  try {
+    var cb = JSON.parse(localStorage.getItem('e061-comeback') || 'null');
+    if (!cb) return;
+    cb.redeemed = true;
+    localStorage.setItem('e061-comeback', JSON.stringify(cb));
+  } catch (e) {}
+  renderComeback();
 }
 function serverCid() {
   var c = null;
@@ -174,6 +215,7 @@ try {
     document.getElementById('slip').style.display = 'block';
   }
   verdictText(vst, saved, runStats());
+  try { renderComeback(); } catch (e) {}
   refreshPulse();
   serverPing('visit');
 } catch (e) {}
@@ -200,6 +242,7 @@ function copySlip() {
     <p style="margin:.3rem 0"><button id="btn-copy" onclick="copySlip()">Copy slip</button>
     <small id="slipmsg" style="color:#3d8e4f"></small></p>
   </div>
+  <p id="comeback" style="display:none;background:#f2faf4;border:1px solid #3d8e4f;border-radius:8px;padding:.6rem;font-size:.9rem"></p>
 </div>
 
 <details class="box" id="sec-fees"><summary>Fees: 1% pot + 0.5% creator + 0.25% escrow (observed only).</summary>

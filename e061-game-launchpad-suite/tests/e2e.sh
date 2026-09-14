@@ -18,6 +18,8 @@ grep -q 'winTap' /tmp/e61_root.html || fail "win thumb tap handler missing (dead
 grep -q 'e061-runs' /tmp/e61_root.html || fail "runs/best loop missing"
 grep -q 'id="slip"' /tmp/e61_root.html || fail "paper slip block missing"
 grep -q 'id="btn-copy"' /tmp/e61_root.html || fail "slip copy button missing"
+grep -q 'id="comeback"' /tmp/e61_root.html || fail "comeback code block missing"
+grep -q 'redeemComeback' /tmp/e61_root.html || fail "comeback redeem handler missing"
 grep -q 'id="pulse"' /tmp/e61_root.html || fail "server pulse line missing"
 grep -q 'api/stats' /tmp/e61_root.html || fail "stats fetch missing"
 grep -q 'api/visit' /tmp/e61_root.html || fail "visit ping missing"
