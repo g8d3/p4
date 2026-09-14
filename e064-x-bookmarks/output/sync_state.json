@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #83 recheck: e041 is research docs only (no stored X session); agent-browser profile holds no X cookies; one-tap handoff proposal #5 still pending owner tap",
- "synced_at": "2026-09-14T03:40:00Z",
+ "note": "run #84 recheck: no cookie db in agent-browser profile, e041 docs-only, proposal #5 still pending owner tap",
+ "synced_at": "2026-09-14T04:05:00Z",
  "track": "e064"
 }
