@@ -355,6 +355,32 @@ def repo_state():
     except Exception:
         return '?', False
 
+@app.get('/api/table')
+def api_table(limit: int = 100):
+    # UX §14 prototype: stacked-column table over REAL board data.
+    # Read-only by construction: sqlite URI mode=ro, no write path exists.
+    # The AI layout proposal is computed from measured cell sizes:
+    # narrow columns -> grid cell, long-text columns -> stacked/truncated.
+    lim = max(10, min(200, limit))
+    c = sqlite3.connect(f'file:{DB}?mode=ro', uri=True)
+    rows = [{'ts': ts, 'track': t, 'kind': k, 'summary': s} for ts, t, k, s in
+            c.execute('SELECT datetime(ts,\'unixepoch\'), track, kind, summary FROM events ORDER BY ts DESC LIMIT ?', (lim,))]
+    stats = {}
+    for col in ('ts', 'track', 'kind', 'summary'):
+        lens = [len(str(r[col] or '')) for r in rows] or [0]
+        stats[col] = {'max': max(lens), 'avg': round(sum(lens) / len(lens))}
+    c.close()
+    layout = {}
+    for col, st in stats.items():
+        if st['avg'] > 80:
+            layout[col] = 'stacked'   # long text: stack instead of stretching the row
+        elif st['avg'] > 24:
+            layout[col] = 'truncated'  # medium: 1-line + expand
+        else:
+            layout[col] = 'grid'       # narrow: plain grid cell
+    return {'ok': True, 'rows': rows, 'stats': stats, 'ai_layout': layout,
+            'note': 'read-only mirror of ops.db events (mode=ro)'}
+
 @app.get('/api/version')
 def api_version():
     latest, dirty = repo_state()

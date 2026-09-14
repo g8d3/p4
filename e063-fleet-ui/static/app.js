@@ -1,6 +1,6 @@
 // fleet v2 UI: Waiting default, patch render, SSE live. No widget builder.
 let D = null; // last full state
-const S = {view: 'waiting', q: '', open: null, pg: 0};
+const S = {view: 'waiting', q: '', open: null, pg: 0, tsort: {k: 'ts', d: -1}, tmode: null, thide: {}, txpand: {}};
 const PER = 30;
 const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -118,6 +118,64 @@ function vProjects() {
     '</div>';
   }).join('') || '<div class=empty>no projects match.</div>';
 }
+// ---- UX §14 prototype: stacked-column table over REAL events (read-only /api/table mirror)
+// Modes per column: grid cell vs stacked line vs truncated-with-expand.
+// The AI proposes the layout from measured cell sizes (server ai_layout);
+// the owner overrides per table with the mode toggle. Never stretches rows.
+let T = null; // cached /api/table payload
+async function loadTable() {
+  try {
+    const r = await (await fetch('/api/table?limit=100')).json();
+    if (r.ok) { T = r; if (!S.tmode) S.tmode = (r.ai_layout && r.ai_layout.summary) || 'stacked'; render(); }
+  } catch (e) {}
+}
+function vTable() {
+  if (!T) { loadTable(); return '<div class=empty>loading real board rows (read-only)…</div>'; }
+  const cols = [
+    {k: 'ts', label: 'time', mode: 'grid'},
+    {k: 'track', label: 'track', mode: 'grid'},
+    {k: 'kind', label: 'kind', mode: 'grid'},
+    {k: 'summary', label: 'summary', mode: S.tmode || 'stacked'}
+  ].filter(c => !S.thide[c.k]);
+  let rows = (T.rows || []).filter(r => match(r.ts + ' ' + r.track + ' ' + r.kind + ' ' + r.summary));
+  const sk = S.tsort.k, sd = S.tsort.d;
+  rows = rows.slice().sort((a, b) => {
+    const x = String(a[sk] || ''), y = String(b[sk] || '');
+    return (x < y ? -1 : x > y ? 1 : 0) * sd;
+  });
+  const ai = T.ai_layout || {};
+  const cell = (r, i) => {
+    const m = S.tmode || 'stacked';
+    const full = String(r.summary || ''), key = 'tx' + i;
+    const open = !!S.txpand[key];
+    if (m === 'grid') return '<td class=c-grid>' + esc(full) + '</td>';
+    if (m === 'truncated' && !open)
+      return '<td class=c-trunc><span>' + esc(oneLine(full, 90)) + '</span> <a href=# onclick="S.txpand[\'' + key + '\']=1;render();return false">expand</a></td>';
+    if (open)
+      return '<td class=c-stack><div class=sl>' + esc(full) + '</div><a href=# onclick="S.txpand[\'' + key + '\']=0;render();return false">fold</a></td>';
+    // stacked: owner sentence on line 1, tech detail stacked below — row stays short
+    const p = splitOT(full);
+    return '<td class=c-stack><div class=sl><b>' + esc(oneLine(p.o, 110)) + '</b></div>' +
+      (p.t !== p.o ? '<div class="sl tech">' + esc(oneLine(p.t, 110)) + ' <a href=# onclick="S.txpand[\'' + key + '\']=1;render();return false">more</a></div>' : '') + '</td>';
+  };
+  return '<div class=card><b>events table — §14 prototype</b> <span class=meta>REAL rows (read-only ops.db, mode=ro) · ' + rows.length + ' shown · ' +
+    'AI layout: summary→' + esc(ai.summary || '?') + ' (avg ' + ((T.stats || {}).summary || {}).avg + 'ch) · ' +
+    '<a href=/api/table target=_blank>lineage: ops.db events → filter → this table</a></span>' +
+    '<div class=setrow>summary mode: <span class=seg>' + ['stacked', 'truncated', 'grid'].map(m =>
+      '<button class="' + ((S.tmode || 'stacked') === m ? 'on' : '') + '" onclick="S.tmode=\'' + m + '\';render()">' + m + '</button>').join('') + '</span></div>' +
+    '<div class=setrow>columns: ' + ['ts', 'track', 'kind', 'summary'].map(c =>
+      '<button class="' + (S.thide[c] ? '' : 'on') + '" onclick="S.thide[\'' + c + '\']=' + (S.thide[c] ? '0' : '1') + ';render()">' + c + '</button>').join(' ') + '</div></div>' +
+    '<div class=tblwrap><table class=tbl><thead><tr>' +
+    cols.map(c => '<th onclick="if(S.tsort.k===\'' + c.k + '\')S.tsort.d*=-1;else S.tsort={k:\'' + c.k + '\',d:1};render()">' + esc(c.label) +
+      (S.tsort.k === c.k ? (S.tsort.d > 0 ? ' ▲' : ' ▼') : '') + '<br><small>' + esc(c.mode) + '</small></th>').join('') +
+    '</tr></thead><tbody>' +
+    rows.slice(0, PER).map((r, i) => '<tr>' + cols.map(c =>
+      c.k === 'summary' ? cell(r, i)
+      : c.k === 'ts' ? '<td class=c-grid>' + esc(ago(r.ts)) + '</td>'
+      : c.k === 'track' ? '<td class=c-grid><span class=track>' + esc(r.track) + '</span></td>'
+      : '<td class=c-grid>' + esc(r[c.k]) + '</td>').join('') + '</tr>').join('') +
+    '</tbody></table></div>';
+}
 function vSessions() {
   const rows = (D.runs || []).filter(r => match('run #' + r.id + ' ' + (r.scope || '') + ' ' + (r.session || '') + ' ' + (r.summary || '')));
   return rows.slice(0, PER).map(r => {
@@ -186,13 +244,13 @@ function render() {
   if (!D) return;
   const f = saveFocus(), sy = window.scrollY;
   const n = waitItems().length;
-  const tabs = [['waiting', 'Waiting' + (n ? ' (' + n + ')' : '')], ['projects', 'Projects'], ['sessions', 'Sessions'], ['money', 'Money']];
+  const tabs = [['waiting', 'Waiting' + (n ? ' (' + n + ')' : '')], ['projects', 'Projects'], ['sessions', 'Sessions'], ['money', 'Money'], ['table', 'Table §14']];
   document.getElementById('tabs').innerHTML = tabs.map(t =>
     '<button class="' + (S.view === t[0] ? 'on' : '') + '" onclick="go(\'' + t[0] + '\')">' + esc(t[1]) + (t[0] === 'waiting' && n ? '<span class=bdg>' + n + '</span>' : '') + '</button>').join('');
   document.getElementById('tabbar').innerHTML = tabs.map(t =>
     '<button class="' + (S.view === t[0] ? 'on' : '') + '" onclick="go(\'' + t[0] + '\')">' + esc(t[1]) + '</button>').join('');
   const m = document.getElementById('main');
-  m.innerHTML = S.view === 'waiting' ? vWaiting() : S.view === 'projects' ? vProjects() : S.view === 'sessions' ? vSessions() : vMoney();
+  m.innerHTML = S.view === 'waiting' ? vWaiting() : S.view === 'projects' ? vProjects() : S.view === 'sessions' ? vSessions() : S.view === 'table' ? vTable() : vMoney();
   const r = D.runner || {};
   document.getElementById('runstate').textContent = r.running ? ('● #' + (r.run_id || '?') + ' ' + (r.scope || '') + ' running') : (r.run_id ? ('○ last #' + r.run_id + ' ' + (r.status || '')) : '○ idle');
   document.getElementById('runbtn').disabled = !!r.running;

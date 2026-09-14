@@ -60,6 +60,16 @@ a{color:inherit}
   #search{top:49px}
   body{padding-bottom:190px}
 }
+.tblwrap{max-height:60vh;overflow:auto;border:1px solid var(--bd);border-radius:var(--rad)}
+table.tbl{border-collapse:collapse;width:100%;font-size:13px}
+table.tbl thead th{position:sticky;top:0;background:var(--hd);border-bottom:1px solid var(--bd);padding:8px;cursor:pointer;text-align:left;font-size:12px;z-index:2;white-space:nowrap}
+table.tbl thead th small{font-weight:normal;opacity:.6}
+table.tbl td{border-bottom:1px dotted var(--bd);padding:6px 8px;vertical-align:top}
+table.tbl td.c-grid{white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+table.tbl td.c-trunc{max-width:100%}
+table.tbl td.c-stack{max-width:100%}
+table.tbl .sl{line-height:1.35}
+table.tbl .sl.tech{opacity:.75;font-size:12px}
 details{margin:6px 0}summary{cursor:pointer;font-size:13px}
 select,input[type=range]{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:4px 8px}
 .setrow{display:flex;gap:10px;align-items:center;margin:8px 0;font-size:13px;flex-wrap:wrap}
