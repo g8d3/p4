@@ -1,1 +1,11 @@
-{"counts":{"bookmarks":0,"likes":0},"last_ok":null,"login":"blocked-on-vault","note":"first leg scaffold: no vault credential path exists yet (e041 has no stored X session); next leg attempts login check once vault recipe lands","synced_at":"2026-09-14T03:25:00Z","track":"e064"}
+{
+ "counts": {
+  "bookmarks": 0,
+  "likes": 0
+ },
+ "last_ok": null,
+ "login": "blocked-on-vault",
+ "note": "run #83 recheck: e041 is research docs only (no stored X session); agent-browser profile holds no X cookies; one-tap handoff proposal #5 still pending owner tap",
+ "synced_at": "2026-09-14T03:40:00Z",
+ "track": "e064"
+}

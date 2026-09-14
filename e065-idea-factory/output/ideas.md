@@ -14,4 +14,7 @@ leg re-ranks this table against the first real sync.
 | Game launchpad day-2 loop: win → paper slip → claim reminder ping | e061 visits 11, players 2, day2=0 — traffic, not product, is the block | invert: reminder brings the player back, not a new feature | S (ntfy on win+24h) | 6 |
 | Tax-report-ready money log export (every spend/earn with tx hash → CSV) | owner TAX standing order 2026-09-14; e062 ledger already keeps tx_hash | compliance as product: one-tap export | S (ledger query) | 8 |
 
-Rising themes: Arc-launch (new, strongest) · steady-pays packaging · read-only alerts over trading.
+| e062 one-tap approve card on the phone (proposal #5 pattern → every gate) | e064 login handoff + money gates both wait on owner taps; e063 money-gate cards exist but rung-4 needs the tap | compress: every owner decision becomes one exact-asking card with sane default | S (card template) | 7 |
+| e060 early-loss guard: auto-flag calls down >50% before 24h (BLAST -73% seen) | run #83 paper read: 2 early calls avg -86.4%, 0 resolved — losers show before grades land | repurpose: read-only risk badge, no trading | S (threshold + badge) | 7 |
+
+Rising themes: Arc-launch (new, strongest) · steady-pays packaging · read-only alerts over trading · one-tap approvals.
