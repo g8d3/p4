@@ -269,8 +269,8 @@ async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100'
 const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
 sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${locTs(s.sent_ts)}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
 async function loadPaper(){try{const d=await (await fetch('/api/paper/calls')).json();
-const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?`(${(d.calls||[]).length} predictions, ${d.countdown||''})`:'(offline)';
-const rl=document.getElementById('pb-rule');if(rl&&d.ok)rl.textContent=d.rule+' · '+d.countdown;
+const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?`(${(d.calls||[]).length} predictions${d.paper_resolved?`, ${d.paper_resolved} graded ${d.paper_hit_rate_pct}% · ${d.cushion}`:''}, ${d.countdown||''})`:'(offline)';
+const rl=document.getElementById('pb-rule');if(rl&&d.ok)rl.textContent=d.rule+' · '+d.countdown+(d.cushion?' · '+d.cushion:'');
 const tb=document.getElementById('pb-b');if(tb)tb.innerHTML=(d.calls||[]).map(c=>`<tr onclick="pickCoin('${c.coin}')" style="cursor:pointer"><td>${c.coin}</td><td class=pos>${c.median_apy}</td><td>${c.long_v||''}\u2192${c.short_v||''}</td><td>${locTs(c.logged_ts)}</td><td>${c.status}</td></tr>`).join('');}catch(e){}}
 let lastTop=[];
 function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;if(v==='STEADY'&&!hasH)return 'new \u2014 holding so far';return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
@@ -544,7 +544,20 @@ def ballot():
         if wins:
             cd += ' · ' + ' · '.join(wins)
         rule = 'hit = spread still \u226520bps at first snapshot \u226524h after logging'
-        return {'ok': True, 'rule': rule, 'countdown': cd, 'count': len(calls), 'calls': calls, 'by_date': by_date}
+        # run #101: paper-cushion line — misses-to-bar as a number, not a warning.
+        # Owner reads the collapsed summary and knows if the paper edge is alive.
+        rh = sum(1 for h, s in outs.values() if h == 1)
+        rt = len(outs)
+        pend = len(waits)
+        import math as _m
+        if rt:
+            need = _m.ceil(0.30 * (rt + pend)) - rh
+            cushion = f"needs {need} of next {pend} to hold 30%" if need > 0 else f"above 30% bar by {-need}"
+            hr = round(100.0 * rh / rt, 1)
+        else:
+            cushion, hr = 'no grades yet', None
+        return {'ok': True, 'rule': rule, 'countdown': cd, 'count': len(calls), 'calls': calls, 'by_date': by_date,
+                'cushion': cushion, 'paper_hits': rh, 'paper_resolved': rt, 'paper_hit_rate_pct': hr}
     except Exception as e:
         return {'ok': False, 'error': str(e)[:200]}
 
