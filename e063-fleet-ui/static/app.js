@@ -51,12 +51,19 @@ function match(s) {
 function vWaiting() {
   const items = waitItems().filter(w => match(w.track + ' ' + w.text));
   if (!items.length) return '<div class=empty>✓ nothing waiting — inbox zero.<br>Tap Projects to steer, Money to review decided gates.</div>';
-  return items.slice(0, PER).map(w => w.k === 'g'
+  return items.slice(0, PER).map((w, i) => w.k === 'g'
     ? '<div class="card wait-gate"><div class=row1><span class=track>' + esc(w.track) + '</span><b>' + esc(w.text.split(' — ')[0]) + '</b><span class=meta>' + esc(ago(w.t)) + '</span></div>' +
       '<div class=beat>' + esc(fmt(w.text.split(' — ').slice(1).join(' — ') || w.text)) + '</div>' +
       '<div class=btns><button class=approve onclick="decide(' + w.id + ',\'approved\',this)">approve</button><button class=reject onclick="decide(' + w.id + ',\'rejected\',this)">reject</button></div></div>'
-    : '<div class="card wait-note"><div class=row1><span class=track>' + esc(w.track) + '</span><span class=meta>your note · ' + esc(ago(w.t)) + '</span></div>' +
-      '<div class=beat>' + esc(w.text) + '</div></div>').join('');
+    : waitNote(w, i)).join('');
+}
+function waitNote(w, i) {
+  // LONG TEXT RULE: waiting notes render as ONE line + expand, never full-length.
+  const key = 'wn' + i, open = !!S.txpand[key], full = String(w.text || ''), short = oneLine(full, 90);
+  const body = (open || short === full) ? esc(full) : esc(short);
+  const tog = short === full ? '' : ' <a href=# onclick="S.txpand[\'' + key + '\']=' + (open ? 0 : 1) + ';render();return false">' + (open ? 'fold' : 'expand') + '</a>';
+  return '<div class="card wait-note"><div class=row1><span class=track>' + esc(w.track) + '</span><span class=meta>your note · ' + esc(ago(w.t)) + '</span></div>' +
+    '<div class=beat>' + body + tog + '</div></div>';
 }
 function projHist(track) {
   const items = [];
