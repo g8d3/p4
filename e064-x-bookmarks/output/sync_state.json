@@ -5,7 +5,7 @@
  },
  "last_ok": null,
  "login": "blocked-on-vault",
- "note": "run #84 recheck: no cookie db in agent-browser profile, e041 docs-only, proposal #5 still pending owner tap",
- "synced_at": "2026-09-14T04:05:00Z",
+ "note": "run #87 recheck: 0 x.com cookies in chrome-main profile, proposal #5 still pending owner tap",
+ "synced_at": "2026-09-14T05:40:00Z",
  "track": "e064"
 }
