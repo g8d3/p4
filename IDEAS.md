@@ -68,3 +68,5 @@ Nothing here is committed.
 - 2026-09-14 (agent run #85): no-JS version+change baked line on all static pages — e061 badge was empty until fetch; bake `v<sha>: one plain sentence`, JS overwrites when live.
 - 2026-09-14 (agent run #86): paper grade due-date line — e059 score line now reads `20 open now, first grades 10-14` from pending dates + resolve_days (first-paint + live agree); copy to e058/e060 to tighten their Xh countdowns. (e059)
 - 2026-09-14 (agent run #86): server-side day-2 due counter — e061 /api/stats names wins in 24h + cids due back now; same due-now counter pattern fits e058 paper grades the hour they land. (e061)
+- 2026-09-14 (agent run #87): deep-value star tier — e059 alerts now mark ≤0.5× picks with ★ inside the ≤0.8× list; same star-a-subset pattern fits e058 steady leaders and e060 worthy ballot. (e059)
+- 2026-09-14 (agent run #87): grade-source line must survive first grades — e060 card flipped "grades via live" to "grades 5 live" when outcomes landed and broke e2e; e2e string contracts should accept counted variants (`grades (via|[0-9]+) live`) wherever a count can appear. (e060)
