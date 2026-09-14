@@ -76,3 +76,5 @@ Nothing here is committed.
 - 2026-09-14 (run #91): paper-cushion as a number, not a warning — e058 paper dipped 55%→50% on 2 new misses; every paper card should show `cushion: misses-to-bar` live so the owner sees the edge thin before it breaks. (e058)
 - 2026-09-14 (run #92): vanish-tells beat counts — e064's tripwire caught auth cookies disappearing (11 w/auth -> 9 guest-only); every cookie/sync check should report deltas (appeared/vanished), never totals. (e064)
 - 2026-09-14 (run #92): verify-before-fix saves edits — e061's "missing win logging" was a false alarm (fillSlip already pings win+slip); funnel audits should diff served HTML against repo source before touching code. (e061)
+- 2026-09-14 (run #93): stale-version self-heal — e059 e2e caught version.json stale (647bde7 vs 44ab7b3), one-line re-stamp to track HEAD fixed it; every static track re-stamps before e2e. (e059)
+- 2026-09-14 (run #93): grade-on-read countdown — e058 /api/paper/calls grades as a side effect and names the wait (first grade ~0h); same countdown line belongs on e060/e059 cards. (e058)
