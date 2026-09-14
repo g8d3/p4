@@ -55,3 +55,6 @@ Nothing here is committed.
 - 2026-09-14 (agent run #80): e060 verdict paragraph packs three grades (top + early + ex-pumped) in one breath; split to one lead line + tap-expand per cohort so the card reads in <30s. (e060)
 - 2026-09-14 (agent run #81): e060 pre-worthy 09-12 snapshots are permanently ungradable (no entry price, "cannot grade" rows sit forever) — backfill entry prices via cached Gecko OHLCV at snapshot ts so old calls join the hit-rate N instead of lingering as dead rows. (e060)
 - 2026-09-14 (agent run #81): e058 JUP slid 59/59→59/77 while IP 77/77 + WAL 35/35 stay perfect — same rule, different coins; per-venue decay probe (which leg flipped JUP from hold to miss) could turn the drag into a filter. (e058)
+- 2026-09-14 (owner): e064-x-bookmarks — authenticated X pipe for @novaisabuilder likes+bookmarks with login auto-renew, 30-min snapshot for the fleet.
+- 2026-09-14 (owner): e065-idea-factory — mines e064 into a ranked ideas table (frequency + brainstorm beyond feed), runs every leg.
+- 2026-09-14 (owner): e066-arc-directory — numeric Arc-chain dApp directory (time series per app, multi-source), self-improving, monetizer agent funds its own upgrades.

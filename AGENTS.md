@@ -54,6 +54,9 @@ Cron jobs that write into this repo (what to track, what to ignore): [e000-funda
 - [e052-pairforge/](e052-pairforge/) — PairForge: white-label memecoin launchpad paired with any trading strategy (perps/AMM/vaults), EVM+Solana, admin console, buyback/burn token, AI copilots, e2e-only (private repo `g8d3/pairforge`, ignored here)
 - [e056-agent-capacity/](e056-agent-capacity/) — tokens-first operating plan: capital frame (25/75), AI×crypto×games business stack, agent capacity priorities (tokens, browser access, cloud, payments, orchestration)
 - [e057-launchpad-trading/](e057-launchpad-trading/) — trading + LP strategies for launchpad tokens (base rates, levels, bid-side LP math) and the analytics product built on them
+- [e064-x-bookmarks/](e064-x-bookmarks/) — authenticated X pipe: @novaisabuilder likes + bookmarks snapshot, login auto-renew (feeds e065)
+- [e065-idea-factory/](e065-idea-factory/) — likes/bookmarks → ranked build-ideas table, brainstorms beyond the feed, every 30-min leg
+- [e066-arc-directory/](e066-arc-directory/) — numeric Arc-chain dApp directory: per-app time series, self-improving, monetizer agent
 
 ## Language
 
