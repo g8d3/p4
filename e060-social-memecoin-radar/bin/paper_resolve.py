@@ -243,6 +243,21 @@ def main():
              "shadow": shadow, "shadow2": shadow2,
              "pending": pending, "new_this_run": new}
     os.makedirs(os.path.dirname(SCORE), exist_ok=True)
+    # content-change guard (run #114): flat legs skip the write so the
+    # tree stays clean and the board stops seeing phantom diffs.
+    new_content = {k: v for k, v in score.items()
+                   if k not in ("updated_ts", "updated")}
+    try:
+        old_content = {k: v for k, v in
+                       json.load(open(SCORE)).items()
+                       if k not in ("updated_ts", "updated")}
+    except (OSError, ValueError):
+        old_content = None
+    if old_content == new_content:
+        print(f"score: resolved={resolved} hits={hits} "
+              f"hit_rate={score['hit_rate_pct']} pending={pending} new={new} "
+              f"gecko_fb={n_gecko} snap_fb={n_snap_fb} -> {SCORE} (unchanged, write skipped)")
+        return
     with open(SCORE, "w") as f:
         json.dump(score, f)
     print(f"score: resolved={resolved} hits={hits} "
