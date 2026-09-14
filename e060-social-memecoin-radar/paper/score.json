@@ -1,1 +1,1 @@
-{"ok": true, "track": "e060", "updated_ts": 1789376598, "updated": "2026-09-14T09:03:18Z", "resolved": 5, "hits": 1, "hit_rate_pct": 20.0, "shadow": {"rule": "txns>=30k & vol>=1M", "n": 2, "hits": 1, "hit_rate_pct": 50.0, "thin": true}, "pending": 50, "new_this_run": 0}
+{"ok": true, "track": "e060", "updated_ts": 1789378256, "updated": "2026-09-14T09:30:56Z", "resolved": 5, "hits": 1, "hit_rate_pct": 20.0, "shadow": {"rule": "txns>=30k & vol>=1M", "n": 2, "hits": 1, "hit_rate_pct": 50.0, "thin": true}, "pending": 61, "new_this_run": 0}
