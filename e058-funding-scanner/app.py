@@ -240,7 +240,7 @@ details.cfg summary{cursor:pointer}
 <div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small> <button id=moreb onclick="showAll()" style="display:none;padding:6px 12px;font-size:13px">show all</button></div>
 <div class=thumbbar><button onclick="topGo(this)">★ top</button><button id=tbslip onclick="copySlip(this)">copy slip</button><button onclick="fltGo()">filter</button><button onclick="clearQ()">✕ clear</button><button onclick="themeGo()">◐ theme</button></div>
 <div id=ver style="font-size:11px;opacity:.6;margin:56px 0 8px">%%VER%%</div>
-<script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
+<script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok&&(v.stale||v.dirty))document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE\u2014restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
 let allRows=[], showN=100, backPC={}, lastAge='';
@@ -697,6 +697,13 @@ def _server_card():
         _dg = 'Daily digest (tap to change time)'
     return html.escape(top), html.escape(pulse), _row, html.escape(_dg)
 
+def _plain_ver(msg):
+    import re as _re
+    m = _re.sub(r'^run\s*#?\d+\s*:\s*\w+\s*', '', msg or '')
+    m = _re.sub(r'\([^)]*\)', '', m).strip(' \u2014-')
+    m = _re.sub(r'\s{2,}', ' ', m).strip()
+    return m[:90]
+
 @app.get('/', response_class=HTMLResponse)
 def index():
     try:
@@ -708,7 +715,7 @@ def index():
                          text=True, cwd=BASE).stdout.strip() or ''
     except Exception:
         _vmsg = ''
-    verline = 'v' + _VRUN + ((' \u2014 ' + _vmsg[:90]) if _vmsg else '')
+    verline = 'v' + _VRUN + ((' \u2014 ' + _plain_ver(_vmsg)) if _plain_ver(_vmsg) else '')
     return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row).replace('%%DIGEST%%', digest).replace('%%VER%%', html.escape(verline)),
                         headers={'Cache-Control': 'no-store'})
 
