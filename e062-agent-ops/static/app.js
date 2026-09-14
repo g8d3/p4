@@ -643,6 +643,10 @@ function sqlCaption(w) {
     ' ORDER BY ' + (w.sortcol || 'time') + ' ' + String(w.sortdir || 'desc').toUpperCase() +
     ' LIMIT ' + w.n + ' OFFSET ' + ((w.p || 0) * w.n);
 }
+function sqlLine(w) {
+  if ((window._report || 'simple') === 'simple') return '';
+  return '<div style="font-size:11px;opacity:.6;margin-bottom:4px;font-family:monospace">SQL: ' + esc(sqlCaption(w)) + '</div>';
+}
 function selOpts(wi, field, opts) {
   const cur = window._widgets[wi][field];
   return opts.map(function(o) {
@@ -680,8 +684,7 @@ function renderTable(wi) {
   const box = document.getElementById('wc-' + wi);
   if (!w || !box) return;
   const rows = widgetRows(w);
-  let html = '<div style="font-size:11px;opacity:.6;margin-bottom:4px;font-family:monospace">SQL: ' +
-    esc(sqlCaption(w)) + '</div>' + colPicker(wi, w) + waitBanner(w, rows);
+  let html = sqlLine(w) + colPicker(wi, w) + waitBanner(w, rows);
   if (w.root === 'sessions') html += sesRoot(wi, w, rows);
   else if (w.root === 'waiting') html += waitRoot(wi, w, rows);
   else html += projRoot(wi, w, rows);
@@ -805,9 +808,13 @@ function groupTime(g) {
 }
 function waitBanner(w, rows) {
   if (String(w.q || '').toLowerCase().indexOf('is:waiting') < 0) return '';
-  return '<div style="border:1px solid #c0392b;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px">' +
-    '<b>\u26d4 ' + rows.length + ' need your tap.</b> Money gates: approve/reject below (money moves ONLY with your tap). ' +
-    'Notes: your words to that project\u2019s agent, read on the next leg. Tap any \u25cf badge to come back here.</div>';
+  const gates = rows.filter(function(r) { return r.propPending; }).length;
+  const notes = rows.length - gates;
+  let s = '<b>\u26d4 ' + rows.length + ' need your tap.</b> ';
+  if (gates) s += 'Money gates: approve/reject below (money moves ONLY with your tap). ';
+  s += notes ? (gates ? 'Plus your messages to the agents below — read on the next leg. ' : 'Your messages to the agents below — read on the next leg, nothing to approve. ') : '';
+  return '<div style="border:1px solid #c0392b;border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px">' + s +
+    'Tap any \u25cf badge to come back here.</div>';
 }
 /* ---- nested tables: one root entity per view, relations unfold inline ---- */
 function rootDefaults(root) {
@@ -1157,16 +1164,16 @@ function waitRoot(wi, w, rows) {
   w.p = Math.min(w.p || 0, maxp);
   const page = mem.slice(w.p * w.n, w.p * w.n + w.n);
   const wcols = visCols(w, 'waiting');
-  const whead = {item: 'ITEM', proj: 'PROJ', time: 'TIME', go: 'GO'};
+  const whead = {item: 'ITEM', proj: 'PROJ', time: 'TIME', go: 'ACTION'};
   let h = '<div class=rwrap><table class=rtable><thead><tr>' +
     wcols.map(function(c) { return '<th>' + whead[c[0]] + '</th>'; }).join('') +
     '</tr></thead><tbody>';
   page.forEach(function(r, i) {
     const uid = wi + ':wait:' + (w.p * w.n + i);
-    const item = r.kind === 'money gate' ? ('gate #' + r.propId) : r.kind;
+    const item = r.kind === 'money gate' ? ('gate #' + r.propId) : (r.kind === 'owner note' ? 'your message' : r.kind);
     const go = r.propPending
       ? '<button onclick="decide(' + r.propId + ',\'approved\',this)">approve</button> <button onclick="decide(' + r.propId + ',\'rejected\',this)">reject</button>'
-      : '<span style="opacity:.6">queued</span>';
+      : '<span style="opacity:.6">next leg</span>';
     const wcell = {
       item: '<td><b>' + esc(item) + '</b></td>',
       proj: '<td>' + esc(r.track) + '</td>',
