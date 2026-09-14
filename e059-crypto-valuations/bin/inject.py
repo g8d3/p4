@@ -61,7 +61,19 @@ def main():
     if bt.get("precision") is not None:
         score = (f"Cheap-vs-group calls stayed cheap {bt['precision']:.0%} "
                  f"({bt['hits']}/{bt['n']} backtested)")
-        score += f", {pp.get('n_pending', 0)} open now." if pp.get("n_pending") else "."
+        if pp.get("n_pending"):
+            ds = sorted((x.get("date") or "") for x in (cc.get("pending") or []) if x.get("date"))
+            due = ""
+            if ds:
+                try:
+                    from datetime import date as _d, timedelta as _t
+                    g = _d.fromisoformat(ds[0]) + _t(days=int(cc.get("resolve_days", 30)))
+                    due = f", first grades {g.month:02d}-{g.day:02d}"
+                except Exception:
+                    due = ""
+            score += f", {pp.get('n_pending', 0)} open now{due}."
+        else:
+            score += "."
     else:
         score = "Cheap-call scorecard building — first grade after the next refresh."
 

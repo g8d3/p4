@@ -99,9 +99,15 @@ function pulse(d){
   const thru=d.protocols.length?d.protocols[0].data_through:'?';
   return `Sampling ${d.protocols.length} coins daily from 2 free feeds (data through ${thru}).`;
 }
+function gradeDue(cc){
+  const p=((cc&&cc.pending)||[]).map(x=>x.date).filter(Boolean).sort();
+  if(!p.length)return '';
+  const d=new Date(p[0]+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+((cc&&cc.resolve_days)||30));
+  return `, first grades ${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+}
 function scoreTxt(cc){
   const bt=(cc&&cc.backtest)||{}, pp=(cc&&cc.paper)||{};
-  if(bt.precision!=null)return `Cheap-vs-group calls stayed cheap ${Math.round(bt.precision*100)}% (${bt.hits}/${bt.n} backtested)`+(pp.n_pending?`, ${pp.n_pending} open now.`:'.');
+  if(bt.precision!=null)return `Cheap-vs-group calls stayed cheap ${Math.round(bt.precision*100)}% (${bt.hits}/${bt.n} backtested)`+(pp.n_pending?`, ${pp.n_pending} open now${gradeDue(cc)}.`:'.');
   return 'Cheap-call scorecard building — first grade after the next refresh.';
 }
 function verdict(){
