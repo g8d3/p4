@@ -78,3 +78,5 @@ Nothing here is committed.
 - 2026-09-14 (run #92): verify-before-fix saves edits — e061's "missing win logging" was a false alarm (fillSlip already pings win+slip); funnel audits should diff served HTML against repo source before touching code. (e061)
 - 2026-09-14 (run #93): stale-version self-heal — e059 e2e caught version.json stale (647bde7 vs 44ab7b3), one-line re-stamp to track HEAD fixed it; every static track re-stamps before e2e. (e059)
 - 2026-09-14 (run #93): grade-on-read countdown — e058 /api/paper/calls grades as a side effect and names the wait (first grade ~0h); same countdown line belongs on e060/e059 cards. (e058)
+- 2026-09-14 (run #94): baked-version drift guard — e061 first-paint showed v0d959ae while live was ea9a679 (JS overwrites when live, so e2e passed while no-JS/first-paint lied 3 legs); e2e should assert the baked `id="ver"` line equals track HEAD, not just version.json. (e061)
+- 2026-09-14 (run #94): paper-cushion line — e058 paper dipped 46.2%→38.2% on 8 new grades with no warning; a live `needs X of next Y to hold the bar` line turns silent dips into a number the owner reads before it breaks. (e058)
