@@ -231,6 +231,12 @@ function copySlip() {
     navigator.clipboard.writeText(t).then(function(){done(true)}, function(){done(false)});
   } else { done(false); }
 }
+function shareSlip() {
+  var t = document.getElementById('sliptext').textContent || 'I won the e061 slice — 7 coins, no funds';
+  var m = document.getElementById('slipmsg');
+  if (navigator.share) { navigator.share({title: 'e061 win', text: t}).then(function(){ if(m) m.textContent='shared ✓ — see you tomorrow'; }, function(){ if(m) m.textContent='share closed'; }); }
+  else { copySlip(); }
+}
 </script>
 
 <div class="card" id="win">
@@ -242,7 +248,7 @@ function copySlip() {
   <p id="disableReason" style="color:#900"></p>
   <div id="slip"><b>Your paper slip (free, no funds)</b>
     <pre id="sliptext"></pre>
-    <p style="margin:.3rem 0"><button id="btn-copy" onclick="copySlip()">Copy slip</button>
+    <p style="margin:.3rem 0"><button id="btn-copy" onclick="copySlip()">Copy slip</button> <button id="btn-share" onclick="shareSlip()">Share win</button>
     <small id="slipmsg" style="color:#3d8e4f"></small></p>
   </div>
   <p id="comeback" style="display:none;background:#f2faf4;border:1px solid #3d8e4f;border-radius:8px;padding:.6rem;font-size:.9rem"></p>
