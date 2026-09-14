@@ -2,7 +2,7 @@
 """e062 fleet board — plans, changes, execution. Port 8322."""
 import hashlib, json, os, secrets as _secrets, sqlite3, subprocess, time
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 DB = os.environ.get('E062_DB', os.path.join(BASE, 'ops.db'))
@@ -589,6 +589,29 @@ def repo_state(sub=None):
         return head, bool(dirty)
     except Exception:
         return '?', False
+
+@app.get('/api/tax/export')
+def api_tax_export(year: int = 2026):
+    import csv, datetime, io
+    c = sqlite3.connect(DB)
+    try:
+        rows = c.execute(
+            "SELECT ts, track, kind, usd, tx_hash, note FROM ledger "
+            "WHERE strftime('%Y', ts, 'unixepoch')=? ORDER BY ts", (str(year),)).fetchall()
+    except Exception:
+        rows = []
+    c.close()
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(['ts', 'iso8601', 'track', 'kind', 'amount_usd', 'tx_hash', 'notes'])
+    for ts, tr, k, u, h, n in rows:
+        try:
+            iso = datetime.datetime.fromtimestamp(int(ts), datetime.timezone.utc).isoformat()
+        except Exception:
+            iso = ''
+        w.writerow([ts, iso, tr, k, u, h or '', n or ''])
+    return Response(content=buf.getvalue(), media_type='text/csv',
+                    headers={'Content-Disposition': f'attachment; filename="tax-{year}.csv"'})
 
 @app.get('/api/version')
 def api_version():
