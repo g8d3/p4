@@ -19,4 +19,4 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
   on the card (cheap_calls.json) + pre-rendered first paint. Current: 0/0
   resolved (8 pending, first outcomes ~30d).
 - PROPOSE for real: only on e2e PASS + paper precision ≥60% over N≥20 + owner tap.
-- Current score: backtest 93.5% (72/77) · paper collecting (day 1).
+- Current score (run #73): backtest 95.2% (119/125, coverage 20→30 protos, new Yield cat, DYDX id fixed) · paper 20 pending, first resolves ~30d.
