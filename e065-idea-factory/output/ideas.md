@@ -20,5 +20,7 @@ leg re-ranks this table against the first real sync.
 
 | Thumb-bar approve everywhere: e062 gate1 pattern copied to e063 + every money card | run #84 shipped gate1 (first pending gate w/ approve+reject in bottom thumbbar, e2e-locked) — same one-tap ask works for all gates fleet-wide | transplant: one proven control, zero new auth | S (copy render block) | 8 |
 | e061 day-2 nudge from fresh traffic (visits 13->15, players 2->3 overnight) | run #84 stats: new player arrived with zero product change — a win+24h claim-reminder ping converts ambient traffic into day-2 redeems | repurpose: ntfy already wired, no game change | S (win timestamp + ping) | 7 |
+| No-JS version+change line on every static page (e061 baked v+sha fallback) | run #85 phone check: e061 version badge renders empty until fetch resolves — blank on slow phones, owner can't see what moved | transplant: bake `v<sha>: one plain sentence` in HTML, JS overwrites when live | S (one line + keep fetcher) | 7 |
+| Paper grade countdown on the card (e058 grades ~05:04Z, e060 ~05:33Z) | run #85: both trading tracks blocked-on-time with known due times, but the card shows no countdown — owner can't see when proof lands | package: read-only countdown from logged_ts+24h, no trading | S (card line + max ts) | 7 |
 
-Rising themes: Arc-launch (new, strongest) · steady-pays packaging · read-only alerts over trading · one-tap approvals.
+Rising themes: proof-countdowns (new) · one-tap approvals · Arc-launch · read-only alerts over trading.
