@@ -107,6 +107,8 @@ def main():
     if fresh_mkt:
         time.sleep(CG_SLEEP)
     mcap = {m["id"]: m.get("market_cap") for m in (markets or [])}
+    mvol = {m["id"]: m.get("total_volume") for m in (markets or [])}
+    mchg = {m["id"]: m.get("price_change_percentage_24h") for m in (markets or [])}
     mcap_at = (os.path.getmtime(os.path.join(DATA, "markets.json")))
     mcap_at = datetime.fromtimestamp(mcap_at, timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     missing = [p["symbol"] for p in protos if not mcap.get(p["cg_id"])]
@@ -170,6 +172,9 @@ def main():
             "category": p.get("category", "Other"),
             "slugs_used": slugs,
             "market_cap_usd": mc, "mcap_at": mcap_at,
+            "volume_24h_usd": mvol.get(p["cg_id"]),
+            "price_change_24h_pct": (round(mchg.get(p["cg_id"]), 2)
+                                       if mchg.get(p["cg_id"]) is not None else None),
             "fees_30d_usd": round(fsum, 2), "fees_ann_usd": round(fann, 2),
             "revenue_30d_usd": round(rsum, 2), "revenue_ann_usd": round(rann, 2),
             "p_fees": round(mc / fann, 2) if mc and fann else None,
@@ -212,7 +217,8 @@ def main():
     json.dump(out, open(os.path.join(OUT, "multiples.json"), "w"), indent=1)
     with open(os.path.join(OUT, "multiples.csv"), "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["symbol", "name", "category", "cg_id", "slugs_used", "market_cap_usd",
-                                          "mcap_at", "fees_30d_usd", "fees_ann_usd", "revenue_30d_usd",
+                                          "mcap_at", "volume_24h_usd", "price_change_24h_pct",
+                                          "fees_30d_usd", "fees_ann_usd", "revenue_30d_usd",
                                           "revenue_ann_usd", "p_fees", "p_revenue", "fees_7d_usd",
                                           "fees_7d_ann_usd", "p_fees_7d", "fees_momentum",
                                           "revenue_7d_usd", "n_days",

@@ -20,6 +20,16 @@
     {"symbol": "GMX",  "name": "GMX",               "cg_id": "gmx",                      "llama": ["gmx-v2-perps", "gmx-v1-perps"], "category": "Perps"},
     {"symbol": "HYPE", "name": "Hyperliquid",       "cg_id": "hyperliquid",              "llama": ["hyperliquid-l1", "hyperliquid-perps", "hyperliquid-spot-orderbook", "hyperliquid-hlp"], "category": "Perps"},
     {"symbol": "JUP",  "name": "Jupiter",           "cg_id": "jupiter-exchange-solana",  "llama": ["jupiter-aggregator", "jupiter-perpetual-exchange"], "category": "DEX"},
-    {"symbol": "RAY",  "name": "Raydium",           "cg_id": "raydium",                  "llama": ["raydium-amm", "launchlab"], "category": "DEX"}
+    {"symbol": "RAY",  "name": "Raydium",           "cg_id": "raydium",                  "llama": ["raydium-amm", "launchlab"], "category": "DEX"},
+    {"symbol": "SUI",  "name": "Sui",               "cg_id": "sui",                     "llama": ["sui"],               "category": "L1"},
+    {"symbol": "NEAR", "name": "Near",              "cg_id": "near",                    "llama": ["near"],              "category": "L1"},
+    {"symbol": "APT",  "name": "Aptos",             "cg_id": "aptos",                   "llama": ["aptos"],             "category": "L1"},
+    {"symbol": "INJ",  "name": "Injective",         "cg_id": "injective-protocol",      "llama": ["injective"],         "category": "L1"},
+    {"symbol": "PENDLE","name": "Pendle",           "cg_id": "pendle",                  "llama": ["pendle-v2"],         "category": "Yield"},
+    {"symbol": "YFI",  "name": "Yearn",             "cg_id": "yearn-finance",           "llama": ["yearn-finance"],     "category": "Yield"},
+    {"symbol": "CVX",  "name": "Convex",            "cg_id": "convex-finance",          "llama": ["convex-finance"],    "category": "Yield"},
+    {"symbol": "MORPHO", "name": "Morpho",          "cg_id": "morpho",                  "llama": ["morpho-blue"],       "category": "Lending"},
+    {"symbol": "DYDX", "name": "dYdX",              "cg_id": "dydx",                    "llama": ["dydx-v4"],           "category": "Perps"},
+    {"symbol": "EULER", "name": "Euler",            "cg_id": "euler",                   "llama": ["euler-v2"],          "category": "Lending"}
   ]
 }
