@@ -1,0 +1,4 @@
+ops.db
+*.log
+crontab.bak
+__pycache__/

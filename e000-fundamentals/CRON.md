@@ -9,6 +9,7 @@ touch p4** — anything a cron writes into the repo must be classified here
 | `15 0 * * *` | `e025-hyperliquid-candle-tails/ag-16-live-monitor/bin/paper_trade_cron.sh` | `ag-16-live-monitor/output/paper_state.json`, `output/paper_trades.csv` | **tracked** | yes (heartbeat) |
 | `30 0 * * *` | `e040-traderdev-local-replica/bin/paper_tsmr_cron.sh` | `output/tsmr_paper_state.json` | **tracked** | yes (heartbeat) |
 | `@reboot` (+`sleep 90`) ×2 | same two wrappers, catch-up if the PC was off at run time | same files | **tracked** | yes |
+| `*/15 * * * *` | `e067-sys-panel/bin/healthcheck.sh` | `server.log` | **ignored** (local `.gitignore`) | no |
 | `25 10 * * *` | `e057-launchpad-tokens/bin/refresh.sh` | `data/` (raw API cache), `output/` (report, `stats.csv`, charts, `site/`), `refresh.log` | **all ignored** | no — the published site lives in `e057-launchpad-tokens/repo/` (`g8d3/launchpad-radar`) and deploys by its own GitHub Actions cron |
 | `*/15 * * * *` | `e058-funding-scanner/bin/sample.sh` | `data/` (funding snapshots), `data.db` (SQLite series), `sample.log` | **all ignored** | no |
 | `*/30 * * * *` | `e062-agent-ops/bin/runner.sh` | `runner.log`, `ops.db` (bus state) | **all ignored** | no (dispatcher legs; see DIRECTIVES.md) |
