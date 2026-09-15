@@ -10,6 +10,19 @@ html.dark .tl-thin{background:#5a3c00;color:#ffe9c4}
 /* every control block is a labeled unit: aligned grid, clear boundaries */
 .tl-views,.tl-stats,.tl-cmp,.tl-ctl{background:rgba(127,127,127,.08);border:1px solid #ccc;border-radius:8px;padding:6px 8px;margin:6px 0}
 html.dark .tl-views,html.dark .tl-stats,html.dark .tl-cmp,html.dark .tl-ctl{border-color:#444}
+/* stats context strip: describe + distribution + outlier highlight */
+.tl-dist{background:rgba(127,127,127,.08);border:1px solid #ccc;border-radius:8px;padding:6px 8px;margin:6px 0}
+html.dark .tl-dist{border-color:#444}
+.tl-hist{display:flex;align-items:flex-end;gap:2px;height:38px;margin-top:4px}
+.tl-hist span{flex:1;background:#0366d6;border-radius:2px 2px 0 0;min-width:4px}
+html.dark .tl-hist span{background:#7aa7ff}
+tr.tl-out td{background:rgba(255,180,0,.14)}
+.tl-cards-div .tl-card.tl-out{border-color:#c80;box-shadow:0 0 0 1px #c80}
+/* chip grids: equal thirds, aligned rows (never ragged) */
+.tl-views,.tl-stats{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.tl-views button,.tl-stats button{flex:1 1 30%}
+.tl-cmp{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.tl-cmp select{flex:1 1 25%}
 [id^="tl-pager-"]{background:rgba(127,127,127,.08);border:1px solid #ccc;border-radius:8px;padding:6px 8px;margin:6px 0}
 html.dark [id^="tl-pager-"]{border-color:#444}
 .tl-bar{display:inline-block;width:56px;height:10px;background:#e4e4e4;border-radius:3px;vertical-align:middle}

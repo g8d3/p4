@@ -44,8 +44,10 @@ that the table itself could have served in 1.
 Rules (per table, inline, not in a distant toolbar):
 - Tap a column header = sort by it (tap again = reverse). All sortable
   columns, including computed ones.
-- Filter INSIDE each column header (text input, range, or select), not in a
-  top bar. The user filters where the values are.
+- Filter INSIDE each column header (text input, min+max range, or select),
+  not in a top bar. The user filters where the values are. Uniform by
+  default: every sortable column has its filter (opt-out with `nofilter`,
+  never by accident — ragged filters = WARN `RAGGED_FILTERS`).
 - Page-size selector next to the pager (`10 / 25 / 50 / all`), not a fixed
   constant. The user decides the trade-off, per table.
 - Group-by + computed columns where the page already computes them

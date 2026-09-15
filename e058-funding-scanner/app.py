@@ -167,6 +167,7 @@ def _tl_table(ns, rows, cols, sort_key, sort_dir=-1, click=None, derived=None, t
                           sort_key=sort_key, sort_dir=sort_dir, ns=ns,
                           presets=_tl_presets(rows, cols),
                           suggestions=_tl_suggest(rows, cols, derived=derived),
+                          derived=derived,
                           card_layout=layout,
                           row_click=click[0] if click else None,
                           row_click_key=click[1] if click else 'token')
@@ -211,6 +212,20 @@ def status():
     coins = c.execute('SELECT COUNT(DISTINCT coin) FROM funding').fetchone()[0]
     c.close()
     return {'snapshots': [{'ts': t, 'rows': n} for t, n in snaps], 'coins': coins}
+
+@app.post('/api/suggest')
+async def suggest(req: Request):
+    """AI hook (U5): same suggestion shape as tablelib heuristics.
+    Heuristic engine today, model later — the GUI cannot tell them apart."""
+    try:
+        b = await req.json()
+    except Exception:
+        return JSONResponse({'suggestions': []})
+    rows = b.get('rows') or []
+    keys = b.get('cols') or []
+    cols = [{'key': k, 'label': k, 'kind': 'num'} for k in keys]
+    return JSONResponse({'suggestions': _tl_suggest(rows, cols, derived=(b.get('derived') or {}))})
+
 
 @app.get('/api/table')
 def table(min_apy: float = 0.0, max_apy: float = 1e9,

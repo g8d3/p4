@@ -14,6 +14,7 @@ function tlState(ns) {
       sortDir: saved.sortDir || d.sortDir || 1,
       filters: saved.filters || {},
       presets: d.presets || [], suggestions: d.suggestions || [],
+      derived: d.derived || {},
       layout: d.layout || null,
       rowClick: d.rowClick || null, uviews: [] };
     try { TL[ns].uviews = JSON.parse(localStorage['tl-uviews-' + ns] || '[]'); } catch (e) {}
@@ -110,6 +111,8 @@ function tlRender(ns) {
   var pages = Math.max(1, Math.ceil(list.length / s.per));
   if (s.page > pages) s.page = pages; if (s.page < 1) s.page = 1;
   var rows = list.slice((s.page - 1) * s.per, s.page * s.per);
+  s._dz = null;
+  if (s.statsFor) { var _d0 = tlDescribe(s.all, s.statsFor); if (_d0 && _d0.sd) s._dz = _d0; }
   s._scales = {};
   s.cols.forEach(function (c) {
     if (c.kind !== 'bar') return;
@@ -122,7 +125,7 @@ function tlRender(ns) {
       return '<th class="' + (c.cls || '') + ' tl-sort" onclick="tlSort(\'' + ns + '\',\'' + c.key + '\')">' + c.label + arr + '</th>';
     return '<th class="' + (c.cls || '') + '">' + c.label + '</th>';
   }).join('') + '</tr><tr>' + s.cols.map(function (c) {
-    if (!c.ph) return '<td class="' + (c.cls || '') + '"></td>';
+    if (c.nofilter || c.kind === 'spark' || c.kind === 'poly') return '<td class="' + (c.cls || '') + '"></td>';
     if (c.kind === 'num' || c.kind === 'pill' || c.kind === 'bar') {
       var fr = s.filters[c.key] || {};
       if (typeof fr !== 'object') fr = {};
@@ -133,10 +136,11 @@ function tlRender(ns) {
         + '<input id="tl-f-' + ns + '-' + c.key + '-hi" oninput="tlFilter(\'' + ns + '\',\'' + c.key + '\',this.value,\'hi\')" placeholder="\u2264 max" value="' + hi + '"></td>';
     }
     var fv = (s.filters[c.key] || '').toString().replace(/"/g, '&quot;');
-    return '<td class="' + (c.cls || '') + '"><input id="tl-f-' + ns + '-' + c.key + '" oninput="tlFilter(\'' + ns + '\',\'' + c.key + '\',this.value)" placeholder="' + c.ph + '" value="' + fv + '"></td>';
+    return '<td class="' + (c.cls || '') + '"><input id="tl-f-' + ns + '-' + c.key + '" oninput="tlFilter(\'' + ns + '\',\'' + c.key + '\',this.value)" placeholder="' + (c.ph || c.key) + '" value="' + fv + '"></td>';
   }).join('') + '</tr></thead><tbody>';
   rows.forEach(function (r) {
     var tr = '<tr>';
+    if (s._dz && Math.abs(tlZ(ns, r)) > 2) tr = '<tr class="tl-out">';
     if (s.rowClick) tr = '<tr onclick="' + s.rowClick[0] + '(\'' + String(r[s.rowClick[1]]).replace(/'/g, '') + '\')" style="cursor:pointer">';
     h += tr + s.cols.map(function (c) {
       var al = (c.kind === 'num' || c.kind === 'pill' || c.kind === 'bar') ? 'tl-n' : 'tl-t';
@@ -155,6 +159,7 @@ function tlRender(ns) {
     + '<button onclick="tlPage(\'' + ns + '\',1)">Next \u2192</button>';
 tlRenderViews(ns);
   tlRenderStats(ns);
+  tlRenderDist(ns);
   var cardsEl = document.getElementById('tl-cards-' + ns);
   var tEl = document.getElementById('tl-' + ns);
   if (tlIsCards() && cardsEl) { tlRenderCards(ns); }
@@ -204,7 +209,7 @@ function tlSetPer(ns, v) {
 }
 function tlSnap(ns) {
   var s = tlState(ns);
-  return { sortKey: s.sortKey, sortDir: s.sortDir, per: s.per, filters: s.filters,
+  return { sortKey: s.sortKey, sortDir: s.sortDir, per: s.per, filters: s.filters, stats_for: s.statsFor,
     density: document.body.classList.contains('simple') ? 'simple' : 'full',
     cards: document.body.classList.contains('tl-cards') ? 1 : 0 };
 }
@@ -215,6 +220,7 @@ function tlApplyState(ns, st) {
   if (st.sortDir !== undefined) s.sortDir = st.sortDir;
   if (st.per !== undefined) s.per = st.per;
   if (st.filters !== undefined) s.filters = st.filters;
+  s.statsFor = st.stats_for || null;
   if (st.density) { document.body.classList.toggle('simple', st.density === 'simple'); try { localStorage['tl-density'] = st.density; } catch (e) {} }
   if (st.cards !== undefined) { document.body.classList.toggle('tl-cards', !!st.cards); try { localStorage['tl-cards'] = st.cards ? '1' : '0'; } catch (e) {} }
   s.page = 1;
@@ -300,13 +306,23 @@ function tlSuggestion(ns, i) {
   tlApplyState(ns, s.suggestions[i].state);
   tlRender(ns);
 }
+function tlIdeasFlash(ns, msg) {
+  var b = document.querySelector('#tl-stats-' + ns + ' button[data-ideas]');
+  if (!b) return;
+  var t = b.textContent;
+  b.textContent = msg;
+  setTimeout(function () { b.textContent = t; }, 2200);
+}
 function tlIdeas(ns) {
   var s = tlState(ns);
   fetch('api/suggest', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ cols: s.cols.map(function (c) { return c.key; }), rows: s.all.slice(0, 200) }) })
-    .then(function (r) { return r.json(); })
-    .then(function (d) { if (d && d.suggestions && d.suggestions.length) { s.suggestions = d.suggestions; tlRenderStats(ns); } })
-    .catch(function () {});
+    body: JSON.stringify({ cols: s.cols.map(function (c) { return c.key; }), rows: s.all.slice(0, 200), derived: s.derived }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) {
+      if (d && d.suggestions && d.suggestions.length) { s.suggestions = d.suggestions; tlRenderStats(ns); }
+      else tlIdeasFlash(ns, 'heuristic only');
+    })
+    .catch(function () { tlIdeasFlash(ns, 'offline: heuristic only'); });
 }
 function tlCompute(ns) {
   var s = tlState(ns);
@@ -350,12 +366,63 @@ function tlRenderCards(ns) {
       }).join('');
       return '<div class="tl-r">' + cells + '</div>';
     }).join('');
-    return '<div class="tl-card"' + click + '>' + lrows + '</div>';
+    var out = (s._dz && Math.abs(tlZ(ns, r)) > 2) ? ' tl-out' : '';
+    return '<div class="tl-card' + out + '"' + click + '>' + lrows + '</div>';
   }).join('');
   var el = document.getElementById('tl-cards-' + ns);
   if (el) { el.innerHTML = h; el.style.display = ''; }
   var t = document.getElementById('tl-' + ns);
   if (t && t.parentElement) t.parentElement.style.display = 'none';
+}
+function tlDescribe(list, key) {
+  var vs = list.map(function (r) { return +r[key]; }).filter(function (x) { return !isNaN(x); });
+  if (!vs.length) return null;
+  vs.sort(function (a, b) { return a - b; });
+  var n = vs.length, mean = vs.reduce(function (a, b) { return a + b; }, 0) / n;
+  var sd = Math.sqrt(vs.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / n);
+  var med = (vs[Math.floor(n / 2)] + vs[Math.ceil(n / 2) - 1]) / 2;
+  return { n: n, min: vs[0], max: vs[n - 1], mean: mean, med: med, sd: sd };
+}
+function tlZ(ns, r) {
+  var s = tlState(ns);
+  if (!s.statsFor || !s._dz) return 0;
+  var v = +r[s.statsFor];
+  if (isNaN(v) || !s._dz.sd) return 0;
+  return (v - s._dz.mean) / s._dz.sd;
+}
+function tlRenderDist(ns) {
+  var s = tlState(ns);
+  var dp = document.getElementById('tl-dist-' + ns);
+  if (!s.statsFor) { if (dp) dp.remove(); s._dz = null; return; }
+  var st = tlDescribe(s.all, s.statsFor);
+  if (!st) { if (dp) dp.remove(); s._dz = null; return; }
+  s._dz = st;
+  var nb = 12, lo = st.min, hi = st.max, rng = (hi - lo) || 1, i;
+  var buckets = [];
+  for (i = 0; i < nb; i++) buckets.push(0);
+  s.all.forEach(function (r) {
+    var v = +r[s.statsFor];
+    if (isNaN(v)) return;
+    buckets[Math.min(nb - 1, Math.floor((v - lo) / rng * nb))]++;
+  });
+  var mx = Math.max.apply(0, buckets.concat([1]));
+  var bars = buckets.map(function (b) {
+    return '<span style="height:' + Math.max(2, Math.round(b / mx * 34)) + 'px" title="' + b + '"></span>';
+  }).join('');
+  if (!dp) {
+    var sp = document.getElementById('tl-stats-' + ns);
+    if (!sp || !sp.parentElement) return;
+    dp = document.createElement('div');
+    dp.id = 'tl-dist-' + ns;
+    dp.className = 'cav tl-dist';
+    sp.parentElement.insertBefore(dp, sp.nextSibling);
+  }
+  var f = function (x) { return Math.round(x * 100) / 100; };
+  dp.innerHTML = '<b>' + s.statsFor + '</b> n=' + st.n + ' min=' + f(st.min)
+    + ' max=' + f(st.max) + ' mean=' + f(st.mean) + ' med=' + f(st.med)
+    + ' sd=' + f(st.sd) + ' <button data-x="1">clear</button>'
+    + '<div class="tl-hist">' + bars + '</div>';
+  dp.querySelector('button[data-x]').onclick = function () { s.statsFor = null; tlRender(ns); };
 }
 function tlDensity(ns, v) {
   document.body.classList.toggle('simple', v === 'simple');

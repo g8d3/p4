@@ -236,6 +236,11 @@ def main():
              "Users cannot pin a view to the page or share it as a link.")
     else:
         info("views=found")
+    for _m in re.finditer(r'''onclick="tlSort\('([^']+)','([^']+)'\)''', body):
+        _ns, _key = _m.groups()
+        if not re.search(r' id="tl-f-%s-%s(?:-lo|-hi)?"' % (re.escape(_ns), re.escape(_key)), body):
+            warn("RAGGED_FILTERS", f"tl-{_ns}.{_key}: sortable but filterless — "
+                 "filters are uniform by default (opt-out with nofilter, never by accident).")
     for _pm in re.finditer(r'<div id="tl-(views|stats)-([^"]*)"[^>]*>(.*?)</div>',
                             body, flags=re.S):
         _kind, _ns, _panel = _pm.groups()

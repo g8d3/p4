@@ -149,7 +149,8 @@ def suggest(rows, columns, limit=6, derived=None):
                 "title": f"{len(outs)} outlier{plural} in {c['label']}",
                 "detail": f"{names} beyond 2 std (mean {d['mean']:.2f})",
                 "state": {"sortKey": c["key"], "sortDir": -1,
-                          "per": 10, "filters": {}}}))
+                          "per": 10, "filters": {},
+                          "stats_for": c["key"]}}))
     for i, a in enumerate(numcols):
         for b in numcols[i + 1:]:
             la, lb = _lineage(a["key"], derived), _lineage(b["key"], derived)
@@ -161,7 +162,8 @@ def suggest(rows, columns, limit=6, derived=None):
                     "title": f"{a['label']} ~ {b['label']}: {r:+.2f}",
                     "detail": "strong linear link — move together",
                     "state": {"sortKey": a["key"], "sortDir": -1,
-                              "per": 10, "filters": {}}}))
+                              "per": 10, "filters": {},
+                              "stats_for": a["key"]}}))
     ouls.sort(key=lambda t: t[0])
     cors.sort(key=lambda t: -t[0])
     ranked = [x[1] for x in ouls]

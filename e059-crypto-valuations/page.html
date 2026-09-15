@@ -60,17 +60,6 @@ function pulse(d){
   const thruTxt=lag?`${d.protocols.length-lag} current thru ${mode}, ${lag} lagging \u2014 marked stale`:`data through ${mode}`;
   return `Sampling ${d.protocols.length} coins daily from 2 free feeds (${thruTxt}).`;
 }
-function gradeDue(cc){
-  const p=((cc&&cc.pending)||[]).map(x=>x.date).filter(Boolean).sort();
-  if(!p.length)return '';
-  const d=new Date(p[0]+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+((cc&&cc.resolve_days)||30));
-  return `, first grades ${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
-}
-function scoreTxt(cc){
-  const bt=(cc&&cc.backtest)||{}, pp=(cc&&cc.paper)||{};
-  if(bt.precision!=null){const dp=bt.deep||{};const ds=(dp.precision!=null)?` — ★ deep ${Math.round(dp.precision*100)}% (${dp.hits}/${dp.n})`:'';return `Cheap-vs-group calls stayed cheap ${Math.round(bt.precision*100)}% (${bt.hits}/${bt.n} backtested)${ds}`+(pp.n_pending?`, ${pp.n_pending} open now${gradeDue(cc)}.`:'.');}
-  return 'Cheap-call scorecard building — first grade after the next refresh.';
-}
 function verdict(){
   const l=cheapList();
   if(!l.length)return D.protocols.length+' coins priced vs sales — tap below for what the columns mean.';
@@ -99,11 +88,9 @@ fetch('/multiples.json').then(r=>r.json()).then(d=>{
   if(stale)document.getElementById('fresh').classList.add('stale');
   document.getElementById('verdict').textContent=verdict();
   document.getElementById('pulse').textContent=pulse(d);
-  fetch('/cheap_calls.json').then(r=>r.json()).then(cc=>{document.getElementById('score').textContent=scoreTxt(cc);}).catch(()=>{});
+
   document.getElementById('metasum').textContent=
     d.protocols.length+' coins priced vs sales — tap for what the columns mean.';
-  document.getElementById('metadetail').textContent=
-    'vs cat = coin price vs its category median (<1× = cheaper) · sales 6wk = price-vs-sales each week, ↓ = getting cheaper · vol = 24h coin volume, 24h% = price move (full view) · 7d% = week price move — compare vs momentum: price up + sales flat = multiple expanding · sources: '+d.sources.join('; ');
   document.getElementById('thumbbar').innerHTML=` <button id="copybtn">copy top 3</button> <button id="darkbtn">dark</button>`;
   document.getElementById('copybtn').onclick=e=>copySlip(e.target);
   const darkLbl=()=>{document.getElementById('darkbtn').textContent=document.documentElement.classList.contains('dark')?'☀️ light':'🌙 dark'};

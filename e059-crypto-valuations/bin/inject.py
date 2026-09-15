@@ -104,7 +104,7 @@ def main():
         {"key": "vs", "label": "vs cat", "cls": "", "kind": "pill",
          "fmt": "{:.1f}", "pill_key": "n"},
         {"key": "trend", "label": "trend", "cls": "", "kind": "text"},
-        {"key": "thru", "label": "thru", "cls": "tl-nw", "kind": "text"},
+        {"key": "thru", "label": "thru", "cls": "", "kind": "text"},
     ]
     alert_rows = []
     for i, (r, p) in enumerate(cheap, 1):
@@ -197,7 +197,53 @@ def main():
                          per=10, sort_key="p_fees", sort_dir=1, ns="e59",
                          presets=presets,
                          suggestions=_tl_suggest(tl_rows, TL_COLUMNS, derived={
-                             "p7": "p_fees", "mom": "p_fees", "vs": "p_fees"}))
+                             "p7": "p_fees", "mom": "p_fees", "vs": "p_fees"}),
+                         derived={"p7": "p_fees", "mom": "p_fees", "vs": "p_fees"})
+
+    SCORE_COLS = [
+        {"key": "k", "label": "metric", "cls": "", "kind": "text"},
+        {"key": "v", "label": "value", "cls": "", "kind": "text"},
+    ]
+    _bt = (cc.get("backtest") or {})
+    _pp = (cc.get("paper") or {})
+    _dp = (_bt.get("deep") or {})
+    score_rows = []
+    if _bt.get("precision") is not None:
+        score_rows.append({"k": "cheap-vs-group stayed cheap",
+                           "v": "{:.0%}".format(_bt["precision"])})
+        score_rows.append({"k": "backtested",
+                           "v": "{}/{}".format(_bt.get("hits"), _bt.get("n"))})
+        if _dp.get("precision") is not None:
+            score_rows.append({"k": "deep stayed cheap",
+                               "v": "{:.0%} ({}/{})".format(_dp["precision"], _dp.get("hits"), _dp.get("n"))})
+        if _pp.get("n_pending"):
+            ds = sorted((x.get("date") or "") for x in (cc.get("pending") or []) if x.get("date"))
+            due = ""
+            if ds:
+                try:
+                    from datetime import date as _d, timedelta as _t
+                    g = _d.fromisoformat(ds[0]) + _t(days=int(cc.get("resolve_days", 30)))
+                    due = "{:02d}-{:02d}".format(g.month, g.day)
+                except Exception:
+                    due = ""
+            score_rows.append({"k": "open now", "v": str(_pp.get("n_pending", 0))})
+            if due:
+                score_rows.append({"k": "first grades", "v": due})
+    score_table = _tl_render(score_rows, SCORE_COLS, total=len(score_rows),
+                             page=1, per=10, ns="score", bare=True)
+    GLOSS_COLS = [
+        {"key": "k", "label": "column", "cls": "", "kind": "text"},
+        {"key": "v", "label": "means", "cls": "", "kind": "text"},
+    ]
+    gloss_rows = [
+        {"k": "vs cat", "v": "coin price vs its category median (<1x = cheaper)"},
+        {"k": "sales 6wk", "v": "price-vs-sales each week, down = getting cheaper"},
+        {"k": "vol", "v": "24h coin volume (full view)"},
+        {"k": "24h% / 7d%", "v": "price move; compare vs momentum: price up + sales flat = multiple expanding"},
+        {"k": "sources", "v": "; ".join(d.get("sources", []))},
+    ]
+    gloss_table = _tl_render(gloss_rows, GLOSS_COLS, total=len(gloss_rows),
+                             page=1, per=10, ns="gloss", bare=True)
 
     html = open(os.path.join(ROOT, "page.html")).read()
     stale_cls = ' class="badge stale"' if stale else ' class="badge"'
@@ -210,11 +256,13 @@ def main():
     html = html.replace('<div id="pulse" class="cav">…</div>',
                         f'<div id="pulse" class="cav">{pulse}</div>')
     html = html.replace('<div id="score" class="cav" style="font-size:14px;margin:.4em 0">…</div>',
-                        f'<div id="score" class="cav" style="font-size:14px;margin:.4em 0">{score}</div>')
+                        f'<div id="score" class="cav" style="font-size:14px;margin:.4em 0"><b>scorecard</b>{score_table}</div>')
     html = html.replace('<div id="alerts" class="cav" style="font-size:13px;margin:.4em 0">…</div>',
                         f'<div id="alerts" class="cav" style="font-size:13px;margin:.4em 0">{alerts}</div>')
     html = html.replace('<summary id="metasum">…</summary>',
                         f'<summary id="metasum">{len(d["protocols"])} coins priced vs sales — tap for what the columns mean.</summary>')
+    html = html.replace('<div id="metadetail"></div>',
+                        f'<div id="metadetail">{gloss_table}</div>')
     html = html.replace('<div id="table-slot">…</div>', tl_html)
     html = html.replace('<div id="medians" class="cav">…</div>',
                         f'<div id="medians" class="cav"><b>category medians</b>{med_table}</div>')

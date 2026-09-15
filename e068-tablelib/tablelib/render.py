@@ -67,7 +67,7 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
                  sort_dir=1, filters=None, density="simple", view="table",
                  ns="t", presets=None, share=True, suggestions=None,
                  scales=None, row_click=None, row_click_key="token",
-                 card_layout=None, bare=False):
+                 card_layout=None, bare=False, derived=None):
     filters = filters or {}
     pages = max(1, (total + per - 1) // per)
     page = min(max(page, 1), pages)
@@ -80,7 +80,7 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
         arr = ""
         if sort_key == c["key"]:
             arr = " &#9650;" if sort_dir == 1 else " &#9660;"
-        if c.get("kind") in ("text", "num", "pill", "bar"):
+        if not bare and c.get("kind") in ("text", "num", "pill", "bar"):
             ths.append(
                 f'<th class="{c.get("cls", "")} tl-sort" '
                 f'onclick="tlSort(\'{ns}\',\'{c["key"]}\')">'
@@ -89,28 +89,27 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
         else:
             ths.append(f'<th class="{c.get("cls", "")}">'
                        f'{_esc(c["label"])}</th>')
-        if c.get("ph"):
-            if c.get("kind") in ("num", "pill", "bar"):
-                f = filters.get(c["key"], {})
-                if not isinstance(f, dict):
-                    f = {}
-                frs.append(
-                    f'<td class="{c.get("cls", "")}"><input '
-                    f'id="tl-f-{ns}-{c["key"]}-lo" '
-                    f'oninput="tlFilter(\'{ns}\',\'{c["key"]}\',this.value,\'lo\')" '
-                    f'placeholder="\u2265 min" value="{_esc(f.get("lo", ""))}">' 
-                    f'<input id="tl-f-{ns}-{c["key"]}-hi" '
-                    f'oninput="tlFilter(\'{ns}\',\'{c["key"]}\',this.value,\'hi\')" '
-                    f'placeholder="\u2264 max" value="{_esc(f.get("hi", ""))}"></td>')
-            else:
-                fv = _esc(filters.get(c["key"], ""))
-                frs.append(
-                    f'<td class="{c.get("cls", "")}"><input '
-                    f'id="tl-f-{ns}-{c["key"]}" '
-                    f'oninput="tlFilter(\'{ns}\',\'{c["key"]}\',this.value)" '
-                    f'placeholder="{_esc(c["ph"])}" value="{fv}"></td>')
-        else:
+        if c.get("nofilter") or c.get("kind") in ("spark", "poly"):
             frs.append(f'<td class="{c.get("cls", "")}"></td>')
+        elif c.get("kind") in ("num", "pill", "bar"):
+            f = filters.get(c["key"], {})
+            if not isinstance(f, dict):
+                f = {}
+            frs.append(
+                f'<td class="{c.get("cls", "")}"><input '
+                f'id="tl-f-{ns}-{c["key"]}-lo" '
+                f'oninput="tlFilter(\'{ns}\',\'{c["key"]}\',this.value,\'lo\')" '
+                f'placeholder="\u2265 min" value="{_esc(f.get("lo", ""))}"> '
+                f'<input id="tl-f-{ns}-{c["key"]}-hi" '
+                f'oninput="tlFilter(\'{ns}\',\'{c["key"]}\',this.value,\'hi\')" '
+                f'placeholder="\u2264 max" value="{_esc(f.get("hi", ""))}"></td>')
+        else:
+            fv = _esc(filters.get(c["key"], ""))
+            frs.append(
+                f'<td class="{c.get("cls", "")}"><input '
+                f'id="tl-f-{ns}-{c["key"]}" '
+                f'oninput="tlFilter(\'{ns}\',\'{c["key"]}\',this.value)" '
+                f'placeholder="{_esc(c.get("ph", c["key"]))}" value="{fv}"></td>')
 
     scales = dict(scales or {})
     for c in columns:
@@ -156,7 +155,7 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
     stats = (f'<div id="tl-stats-{ns}" class="cav tl-stats">insights: '
              + _collapse(ns, "sug", sug_btns)
              + f' <button onclick="tlIdeas(\'{ns}\')">\u2728 ideas</button></div>')
-    cmp_ = (f'<div id="tl-cmp-{ns}" class="cav">compute: '
+    cmp_ = (f'<div id="tl-cmp-{ns}" class="cav tl-cmp">compute: '
             f'<select id="tl-cmp-op-{ns}"><option value="div">A/B</option>'
             f'<option value="sub">A-B</option><option value="add">A+B</option>'
             f'<option value="pct">A% of B</option></select> '
@@ -166,6 +165,7 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
     data = {"cols": columns, "rows": rows, "total": total, "per": per,
             "sortKey": sort_key, "sortDir": sort_dir, "layout": layout,
             "presets": presets, "suggestions": suggestions,
+            "derived": derived or {},
             "rowClick": ([row_click, row_click_key]
                           if row_click else None)}
     chips = (f'<span id="tl-presets-{ns}">' + _collapse(ns, "pre", [
