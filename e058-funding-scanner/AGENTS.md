@@ -44,8 +44,7 @@ Prototypes (proven 2026-09-12, not products):
 
 `bin/sample.sh` every 15 min (+0–150 s jitter): stealth capture →
 `data/loris_cap_*.json` → `bin/load.py` → `data.db`. All ignored
-(regenerable). Verify: `tail sample.log` (ends `sample OK`), row 8 of
-CRON.md. First manual run banked snapshot #4 (see report).
+(regenerable). Verify: `tail sample.log` (ends `sample OK`). First manual run banked snapshot #4 (see report).
 
 ## Conventions
 

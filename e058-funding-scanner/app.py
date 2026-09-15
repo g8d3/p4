@@ -16,10 +16,23 @@ DEX29 = ['zo','aster','bluefin','bullet','decibel','edgex','entropyio','extended
  'pacifica','paradex','paragon','phoenix','qfex','reya','risex','tradexyz',
  'txflow','variational','vest','woofipro']
 
+_CACHE: dict = {}
+def _cached(key, ttl, fn, *args, **kwargs):
+    """Tiny TTL memo: data refreshes every ~15min (cron), so short TTLs
+    trade <=60s staleness for skipping repeated full-table scans."""
+    now = time.time()
+    e = _CACHE.get(key)
+    if e is not None and e[0] > now:
+        return e[1]
+    v = fn(*args, **kwargs)
+    _CACHE[key] = (now + ttl, v)
+    return v
+
 def db():
     c = sqlite3.connect(DB)
     c.execute('CREATE TABLE IF NOT EXISTS funding(ts TEXT, coin TEXT, venue TEXT, bps8 REAL)')
     c.execute('CREATE INDEX IF NOT EXISTS idx_f ON funding(ts, coin)')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_funding_ts_venue_coin ON funding(ts, venue, coin)')
     c.execute('CREATE TABLE IF NOT EXISTS symbols(ts TEXT, coin TEXT, oi_rank INTEGER, price_usd REAL, oi_usd REAL, exchange_count INTEGER)')
     c.execute('CREATE TABLE IF NOT EXISTS signals(sent_ts TEXT, coin TEXT, median_apy REAL, spread_bps REAL, long_v TEXT, short_v TEXT, persist TEXT, oi_rank INTEGER, window TEXT)')
     c.execute('CREATE TABLE IF NOT EXISTS paper_calls(call_date TEXT, logged_ts TEXT, coin TEXT, median_apy REAL, spread_bps REAL, long_v TEXT, short_v TEXT, persist TEXT, verdict TEXT, UNIQUE(call_date, coin))')
@@ -133,8 +146,11 @@ _TL_PAPER_COLS = [
     {"key": "coin", "label": "coin", "cls": "", "kind": "text", "ph": "coin"},
     {"key": "apy", "label": "entry APY%", "cls": "", "kind": "num", "fmt": "{:.1f}"},
     {"key": "route", "label": "long→short", "cls": "tl-nw", "kind": "text"},
-    {"key": "logged", "label": "logged", "cls": "", "kind": "text"},
-    {"key": "status", "label": "status", "cls": "", "kind": "text"},
+    {"key": "logged", "label": "logged", "cls": "", "kind": "date"},
+    {"key": "ago_h", "label": "ago h", "cls": "", "kind": "num", "fmt": "{:.0f}"},
+    {"key": "in_h", "label": "grades in h", "cls": "", "kind": "num", "fmt": "{:.0f}"},
+    {"key": "verdict", "label": "verdict", "cls": "", "kind": "text"},
+    {"key": "hit", "label": "hit", "cls": "", "kind": "text"},
 ]
 _TL_SIG_COLS = [
     {"key": "sent", "label": "sent", "cls": "", "kind": "text"},
@@ -229,6 +245,16 @@ async def suggest(req: Request):
 
 @app.get('/api/table')
 def table(min_apy: float = 0.0, max_apy: float = 1e9,
+           oi_min: int = 0, oi_max: int = 9999,
+           min_legs: int = 2, q: str = '',
+           venues: str = '', dex_only: bool = True,
+           sort: str = 'apy'):
+    return _cached(('table', min_apy, max_apy, oi_min, oi_max, min_legs, q, venues, dex_only, sort),
+                   60, _table_compute,
+                   min_apy, max_apy, oi_min, oi_max, min_legs, q, venues, dex_only, sort)
+
+
+def _table_compute(min_apy: float = 0.0, max_apy: float = 1e9,
            oi_min: int = 0, oi_max: int = 9999,
            min_legs: int = 2, q: str = '',
            venues: str = '', dex_only: bool = True,
@@ -356,7 +382,7 @@ if(window.tlRender&&window.tlState){const st=tlState('sig');st.all=[];for(const 
 async function loadPaper(){try{const d=await (await fetch('/api/paper/calls')).json();
 const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?`(${(d.calls||[]).length} predictions${d.paper_resolved?`, ${d.paper_resolved} graded ${d.paper_hit_rate_pct}%`:''} · ${d.countdown_short||d.countdown||''})`:'(offline)';
 const rl=document.getElementById('pb-rule');if(rl&&d.ok)rl.textContent=d.rule+' · '+d.countdown+(d.cushion?' · '+d.cushion:'');
-window._paperRows=(d.calls||[]);if(window.tlRender&&window.tlState){const st=tlState('paper');st.all=(d.calls||[]).map(c=>({coin:c.coin,apy:c.median_apy,route:(c.long_v||'')+'→'+(c.short_v||''),logged:locTs(c.logged_ts),status:c.status}));tlRender('paper');}}catch(e){}}
+window._paperRows=(d.calls||[]);if(window.tlRender&&window.tlState){const st=tlState('paper');st.all=(d.calls||[]).map(c=>({coin:c.coin,apy:c.median_apy,route:(c.long_v||'')+'→'+(c.short_v||''),logged:c.logged_ts,ago_h:c.called_ago_h,in_h:c.grades_in_h,verdict:c.verdict,hit:(c.hit===1?'hit':(c.hit===0?'miss':'…'))}));tlRender('paper');}}catch(e){}}
 let lastTop=[];
 function shortV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return 'flippy';if(v==='STEADY')return hasH?'steady \u2713':'new';if(v==='WATCH')return 'watch';return v||'';}
 function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;if(v==='STEADY'&&!hasH)return 'new \u2014 holding so far';return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
@@ -387,17 +413,27 @@ def persistence(threshold_bps: float = 20.0, last_n: int = 4,
     """Spread persistence across snapshots (8h-bps).
     Survivor = spread >= threshold_bps in ALL of the last_n snapshots.
     Ranked by median window APY desc."""
+    return _cached(('persistence', threshold_bps, last_n, min_legs, dex_only, venues),
+                   120, _persistence_compute,
+                   threshold_bps, last_n, min_legs, dex_only, venues)
+
+
+def _persistence_compute(threshold_bps: float = 20.0, last_n: int = 4,
+                         min_legs: int = 2, dex_only: bool = True, venues: str = ''):
     c = db()
     snaps = [r[0] for r in c.execute('SELECT DISTINCT ts FROM funding ORDER BY ts')]
     if not snaps: return {'snapshots': [], 'rows': []}
+    window = snaps[-last_n:] if last_n > 0 else snaps
     if venues:
         vlist = [v.strip() for v in venues.split(',') if v.strip()]
     else:
         vlist = DEX29 if dex_only else None
-    q0 = 'SELECT ts, coin, venue, bps8 FROM funding'
-    args: list = []
+    # Window-scoped scan: persistence only ever looks at the last_n
+    # snapshots, so never read the full history (was: 3.2M rows/scan).
+    q0 = 'SELECT ts, coin, venue, bps8 FROM funding WHERE ts IN (%s)' % ','.join('?' * len(window))
+    args: list = list(window)
     if vlist:
-        q0 += ' WHERE venue IN (%s)' % ','.join('?' * len(vlist))
+        q0 += ' AND venue IN (%s)' % ','.join('?' * len(vlist))
         args += vlist
     per = {}  # (ts, coin) -> [(venue, bps)]
     for ts, coin, venue, bps in c.execute(q0, args):
@@ -409,7 +445,6 @@ def persistence(threshold_bps: float = 20.0, last_n: int = 4,
         oi = dict(c.execute('SELECT coin, oi_rank FROM symbols WHERE ts=?', (snaps[-1],)))
     except Exception: pass
     c.close()
-    window = snaps[-last_n:] if last_n > 0 else snaps
     rows = []
     for coin in {k[1] for k in per}:
         hist = []
@@ -544,25 +579,37 @@ def _paper_run(log_today=True):
         logged = c.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (today,)).fetchone()[0]
     snaps = [r[0] for r in c.execute('SELECT DISTINCT ts FROM funding ORDER BY ts')]
     days = [r[0] for r in c.execute('SELECT DISTINCT call_date FROM paper_calls ORDER BY call_date')]
+    snap_dt = [(s, _parse_ts(s)) for s in snaps]
     resolved_days, rh, rt = 0, 0, 0
     for day in days:
         pending = c.execute('SELECT coin, logged_ts FROM paper_calls WHERE call_date=? AND (call_date, coin) NOT IN (SELECT call_date, coin FROM paper_outcomes)', (day,)).fetchall()
         if pending:
-            done = 0
+            # Group pending calls by target snapshot: one query per
+            # snapshot instead of one connection per coin (was: 73x).
+            by_tgt = {}
             for coin, lts in pending:
                 base = _parse_ts(lts)
                 if not base: continue
                 cutoff = base + datetime.timedelta(hours=24)
-                tgt = next((s for s in snaps if (_parse_ts(s) or cutoff) >= cutoff), None)
+                tgt = next((s for s, dt in snap_dt if (dt or cutoff) >= cutoff), None)
                 if tgt is None: continue
-                s24 = _spread_at(coin, tgt)
-                if s24 is None: continue
-                hit = 1 if s24 >= PAPER_THRESHOLD_BPS else 0
-                try:
-                    c.execute('INSERT OR IGNORE INTO paper_outcomes VALUES (?,?,?,?,?)',
-                              (day, coin, hit, s24, now.strftime('%Y-%m-%dT%H:%M:%SZ')))
-                    done += 1
-                except Exception: pass
+                by_tgt.setdefault(tgt, []).append(coin)
+            for tgt, coins in by_tgt.items():
+                q = 'SELECT coin, bps8 FROM funding WHERE ts=? AND coin IN (%s) AND venue IN (%s)' % (
+                    ','.join('?' * len(coins)), ','.join('?' * len(DEX29)))
+                legs = {}
+                for co, b in c.execute(q, [tgt] + coins + DEX29):
+                    try: legs.setdefault(co, []).append(float(b))
+                    except (TypeError, ValueError): pass
+                for co in coins:
+                    ll = legs.get(co, [])
+                    if len(ll) < 2: continue
+                    s24 = round(max(ll) - min(ll), 2)
+                    hit = 1 if s24 >= PAPER_THRESHOLD_BPS else 0
+                    try:
+                        c.execute('INSERT OR IGNORE INTO paper_outcomes VALUES (?,?,?,?,?)',
+                                  (day, co, hit, s24, now.strftime('%Y-%m-%dT%H:%M:%SZ')))
+                    except Exception: pass
             c.commit()
         dh, dt = c.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes WHERE call_date=?', (day,)).fetchone()
         if dt and dt == c.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (day,)).fetchone()[0]:
@@ -579,6 +626,10 @@ def _paper_run(log_today=True):
 def ballot():
     """Paper ballot list: every logged call + outcome status (ISSUES #8).
     One endpoint serves the ballot table + countdown; newest first."""
+    return _cached(('ballot',), 60, _ballot_compute)
+
+
+def _ballot_compute():
     try:
         now = datetime.datetime.now(datetime.timezone.utc)
         _paper_run(log_today=False)
@@ -809,6 +860,10 @@ def _plain_ver(msg):
 
 @app.get('/', response_class=HTMLResponse)
 def index():
+    return _cached(('index',), 45, _index_compute)
+
+
+def _index_compute():
     try:
         top, pulse, row, digest = _server_card()
     except Exception:
@@ -828,9 +883,13 @@ def index():
         _b = ballot()
         _paper_rows = [{'coin': c.get('coin'), 'apy': c.get('median_apy'),
                          'route': f"{c.get('long_v', '')}→{c.get('short_v', '')}",
-                         'logged': c.get('logged_ts'), 'status': c.get('status')}
+                         'logged': c.get('logged_ts'),
+                         'ago_h': c.get('called_ago_h'), 'in_h': c.get('grades_in_h'),
+                         'verdict': c.get('verdict'),
+                         'hit': ('hit' if c.get('hit') == 1 else
+                                 'miss' if c.get('hit') == 0 else '\u2026')}
                         for c in (_b.get('calls') or [])]
-        paper_html = _tl_table('paper', _paper_rows, _TL_PAPER_COLS, 'apy', -1, ('pickCoin', 'coin'), derived={'apy': 'spread'}, layout=[['coin', 'apy'], ['route'], ['logged', 'status']])
+        paper_html = _tl_table('paper', _paper_rows, _TL_PAPER_COLS, 'apy', -1, ('pickCoin', 'coin'), derived={'apy': 'spread'}, layout=[['coin', 'apy'], ['route'], ['logged', 'verdict'], ['ago_h', 'in_h', 'hit']])
     except Exception:
         paper_html = '<div class=cav>ballot: offline</div>'
     try:

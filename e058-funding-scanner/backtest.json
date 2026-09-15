@@ -397,7 +397,7 @@
    "hit": 15
   }
  },
- "computed_ts": "2026-09-15T19:02:55Z",
+ "computed_ts": "2026-09-15T19:31:54Z",
  "elapsed_s": 2.7,
  "summary": "46.3% of steady calls still paying 24h later (1107/2389, median APY kept 1.0x)"
 }
