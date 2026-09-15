@@ -6,22 +6,22 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-14T00:47:56Z",
- "n_signals": 1450,
- "n_hit": 711,
- "hit_rate_pct": 49.0,
+ "window_last": "2026-09-14T10:17:56Z",
+ "n_signals": 2033,
+ "n_hit": 963,
+ "hit_rate_pct": 47.4,
  "median_apy_decay": 1.0,
  "per_coin": {
   "4": {
-   "n": 10,
+   "n": 11,
    "hit": 0
   },
   "AI": {
-   "n": 38,
-   "hit": 15
+   "n": 42,
+   "hit": 16
   },
   "AMAT": {
-   "n": 1,
+   "n": 27,
    "hit": 0
   },
   "ANKR": {
@@ -32,21 +32,25 @@
    "n": 2,
    "hit": 0
   },
+  "API3": {
+   "n": 13,
+   "hit": 0
+  },
   "ARB": {
-   "n": 73,
-   "hit": 44
+   "n": 96,
+   "hit": 52
   },
   "ARM": {
    "n": 6,
    "hit": 0
   },
   "ASTS": {
-   "n": 3,
+   "n": 29,
    "hit": 0
   },
   "B3": {
-   "n": 28,
-   "hit": 6
+   "n": 34,
+   "hit": 11
   },
   "BAN": {
    "n": 2,
@@ -73,8 +77,16 @@
    "hit": 0
   },
   "BNC": {
-   "n": 6,
+   "n": 16,
    "hit": 6
+  },
+  "BOT": {
+   "n": 2,
+   "hit": 0
+  },
+  "BRENT": {
+   "n": 9,
+   "hit": 0
   },
   "BTC": {
    "n": 2,
@@ -85,7 +97,7 @@
    "hit": 0
   },
   "CASHCAT": {
-   "n": 5,
+   "n": 6,
    "hit": 0
   },
   "CBRS": {
@@ -97,16 +109,20 @@
    "hit": 0
   },
   "CL": {
-   "n": 7,
-   "hit": 7
+   "n": 33,
+   "hit": 8
   },
   "COIN": {
    "n": 1,
    "hit": 0
   },
+  "DATA": {
+   "n": 5,
+   "hit": 0
+  },
   "DEEP": {
-   "n": 81,
-   "hit": 35
+   "n": 90,
+   "hit": 44
   },
   "DELL": {
    "n": 2,
@@ -120,17 +136,21 @@
    "n": 1,
    "hit": 0
   },
-  "GPRO": {
-   "n": 2,
+  "FOLKS": {
+   "n": 3,
    "hit": 0
+  },
+  "GPRO": {
+   "n": 25,
+   "hit": 22
   },
   "HEMI": {
-   "n": 12,
-   "hit": 0
+   "n": 19,
+   "hit": 2
   },
   "HIVE": {
-   "n": 69,
-   "hit": 21
+   "n": 105,
+   "hit": 57
   },
   "HOOD": {
    "n": 15,
@@ -145,32 +165,32 @@
    "hit": 0
   },
   "IP": {
-   "n": 160,
-   "hit": 160
+   "n": 196,
+   "hit": 196
   },
   "IREN": {
    "n": 3,
    "hit": 0
   },
   "JUP": {
-   "n": 149,
-   "hit": 131
+   "n": 174,
+   "hit": 138
   },
   "KAITO": {
    "n": 16,
    "hit": 0
   },
   "KIOXIA": {
-   "n": 11,
+   "n": 12,
    "hit": 1
   },
   "KORU": {
-   "n": 1,
+   "n": 27,
    "hit": 0
   },
   "LSK": {
-   "n": 55,
-   "hit": 50
+   "n": 88,
+   "hit": 75
   },
   "MEME": {
    "n": 9,
@@ -205,7 +225,7 @@
    "hit": 0
   },
   "NATGAS": {
-   "n": 7,
+   "n": 23,
    "hit": 2
   },
   "NBIS": {
@@ -220,17 +240,25 @@
    "n": 3,
    "hit": 1
   },
+  "PAYP": {
+   "n": 9,
+   "hit": 0
+  },
   "POLYX": {
-   "n": 21,
-   "hit": 13
+   "n": 30,
+   "hit": 15
+  },
+  "POPMART": {
+   "n": 7,
+   "hit": 0
   },
   "POWER": {
    "n": 3,
    "hit": 0
   },
   "POWR": {
-   "n": 69,
-   "hit": 39
+   "n": 86,
+   "hit": 53
   },
   "PURR": {
    "n": 13,
@@ -249,23 +277,23 @@
    "hit": 0
   },
   "S": {
-   "n": 32,
-   "hit": 32
+   "n": 68,
+   "hit": 68
   },
   "SKHX": {
-   "n": 10,
-   "hit": 3
+   "n": 23,
+   "hit": 6
   },
   "SLP": {
    "n": 6,
    "hit": 1
   },
   "SMCI": {
-   "n": 5,
+   "n": 31,
    "hit": 0
   },
   "SMSN": {
-   "n": 2,
+   "n": 7,
    "hit": 0
   },
   "SNDK": {
@@ -273,7 +301,7 @@
    "hit": 0
   },
   "SNXX": {
-   "n": 6,
+   "n": 10,
    "hit": 0
   },
   "SOXL": {
@@ -285,24 +313,28 @@
    "hit": 0
   },
   "STEEM": {
-   "n": 39,
-   "hit": 23
+   "n": 48,
+   "hit": 32
   },
   "SUI": {
    "n": 1,
    "hit": 0
+  },
+  "T": {
+   "n": 8,
+   "hit": 7
   },
   "TREE": {
    "n": 72,
    "hit": 1
   },
   "UNITREE": {
-   "n": 4,
-   "hit": 0
+   "n": 34,
+   "hit": 20
   },
   "WAL": {
-   "n": 118,
-   "hit": 101
+   "n": 154,
+   "hit": 108
   },
   "XAU": {
    "n": 2,
@@ -313,11 +345,11 @@
    "hit": 0
   },
   "ZHIPU": {
-   "n": 16,
-   "hit": 13
+   "n": 23,
+   "hit": 15
   }
  },
- "computed_ts": "2026-09-15T01:01:23Z",
- "elapsed_s": 1.9,
- "summary": "49.0% of steady calls still paying 24h later (711/1450, median APY kept 1.0x)"
+ "computed_ts": "2026-09-15T10:30:49Z",
+ "elapsed_s": 2.6,
+ "summary": "47.4% of steady calls still paying 24h later (963/2033, median APY kept 1.0x)"
 }

@@ -671,7 +671,8 @@ def _server_card():
         pc.close()
     except Exception:
         ph = 'paper: logging'
-    pulse = (f"data: {n//1000}k rows, sample {age_m:.0f}m ago every ~{cad}m | "
+    _hr = f"{n/1e6:.1f}M" if n >= 1_000_000 else f"{n//1000}k"
+    pulse = (f"data: {_hr} rows, sample {age_m:.0f}m ago every ~{cad}m | "
              f"{bt} · {ph} | version {_VRUN}")
     if t3:
         _row = ''.join(
