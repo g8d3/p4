@@ -6,10 +6,10 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-14T12:48:00Z",
- "n_signals": 2199,
- "n_hit": 1029,
- "hit_rate_pct": 46.8,
+ "window_last": "2026-09-14T13:17:30Z",
+ "n_signals": 2228,
+ "n_hit": 1039,
+ "hit_rate_pct": 46.6,
  "median_apy_decay": 1.0,
  "per_coin": {
   "4": {
@@ -89,7 +89,7 @@
    "hit": 0
   },
   "BRENT": {
-   "n": 19,
+   "n": 21,
    "hit": 0
   },
   "BTC": {
@@ -98,6 +98,10 @@
   },
   "C": {
    "n": 1,
+   "hit": 0
+  },
+  "CAP": {
+   "n": 2,
    "hit": 0
   },
   "CASHCAT": {
@@ -113,7 +117,7 @@
    "hit": 0
   },
   "CL": {
-   "n": 43,
+   "n": 45,
    "hit": 8
   },
   "COIN": {
@@ -168,17 +172,21 @@
    "n": 2,
    "hit": 0
   },
+  "IOTA": {
+   "n": 1,
+   "hit": 0
+  },
   "IP": {
-   "n": 206,
-   "hit": 206
+   "n": 208,
+   "hit": 208
   },
   "IREN": {
    "n": 3,
    "hit": 0
   },
   "JUP": {
-   "n": 184,
-   "hit": 148
+   "n": 186,
+   "hit": 150
   },
   "KAITO": {
    "n": 16,
@@ -193,12 +201,12 @@
    "hit": 0
   },
   "LA": {
-   "n": 10,
+   "n": 12,
    "hit": 8
   },
   "LSK": {
-   "n": 98,
-   "hit": 84
+   "n": 100,
+   "hit": 86
   },
   "MEME": {
    "n": 9,
@@ -249,11 +257,11 @@
    "hit": 1
   },
   "PAYP": {
-   "n": 19,
+   "n": 21,
    "hit": 0
   },
   "POLYX": {
-   "n": 40,
+   "n": 42,
    "hit": 17
   },
   "POPMART": {
@@ -265,7 +273,7 @@
    "hit": 0
   },
   "POWR": {
-   "n": 91,
+   "n": 93,
    "hit": 53
   },
   "PURR": {
@@ -285,8 +293,8 @@
    "hit": 0
   },
   "S": {
-   "n": 78,
-   "hit": 78
+   "n": 80,
+   "hit": 80
   },
   "SKHX": {
    "n": 23,
@@ -321,7 +329,7 @@
    "hit": 0
   },
   "STEEM": {
-   "n": 52,
+   "n": 54,
    "hit": 32
   },
   "SUI": {
@@ -329,7 +337,7 @@
    "hit": 0
   },
   "T": {
-   "n": 18,
+   "n": 20,
    "hit": 11
   },
   "TREE": {
@@ -341,8 +349,8 @@
    "hit": 20
   },
   "WAL": {
-   "n": 164,
-   "hit": 116
+   "n": 166,
+   "hit": 118
   },
   "XAU": {
    "n": 2,
@@ -357,7 +365,7 @@
    "hit": 15
   }
  },
- "computed_ts": "2026-09-15T13:00:52Z",
- "elapsed_s": 2.3,
- "summary": "46.8% of steady calls still paying 24h later (1029/2199, median APY kept 1.0x)"
+ "computed_ts": "2026-09-15T13:31:17Z",
+ "elapsed_s": 2.6,
+ "summary": "46.6% of steady calls still paying 24h later (1039/2228, median APY kept 1.0x)"
 }
