@@ -620,7 +620,7 @@ PAGE = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport con
 %%EARLYDETAIL%%
 %%BALLOT%%
 <details><summary>Your radar sorts with one tap below \u2014 tap for details.</summary>
-<p>Your top mover sits on top; tap \U0001f525 \U0001f680 \U0001f4b0 below to re-sort. Details: cheapest free plan, <b>heat</b> = score + trade-speed + 24h-move size; per-row <b>pair ↗</b> opens that pair on Dexscreener (free, no key — their free link lands on the pair page, not the trades tab). <a href=/api/rotation>JSON</a> <a href=/health>health</a> <small id=ver></small></p></details>
+<p>Your top mover sits on top; tap \U0001f525 \U0001f680 \U0001f4b0 below to re-sort. Details: cheapest free plan, <b>heat</b> = score + trade-speed + 24h-move size; per-row <b>pair ↗</b> opens that pair on Dexscreener (free, no key — their free link lands on the pair page, not the trades tab). <a href=/api/rotation>JSON</a> <a href=/health>health</a> <small id=ver>v%%VER%%</small></p></details>
 <div class=twrap><table id=t></table></div>
 <nav class=thumbbar><button data-k=heat class=on>🔥 Heat</button><button data-k=movers>🚀 Movers</button><button data-k=vol>💰 Volume</button><button id=refresh>↻ Refresh</button><button id=copy>📋 Copy</button><button id=dark>🌙</button></nav>
 <script>if(localStorage.e60==='d')document.documentElement.classList.add('dark')
@@ -668,7 +668,7 @@ class H(BaseHTTPRequestHandler):
             _ballot = ballot_html()
         except Exception:
             _ballot = ""
-        body = PAGE.replace("%%TOPONE%%", top).replace("%%PULSE%%", pulse).replace("%%EARLYDETAIL%%", _early).replace("%%BALLOT%%", _ballot).encode("utf-8")
+        body = PAGE.replace("%%TOPONE%%", top).replace("%%PULSE%%", pulse).replace("%%EARLYDETAIL%%", _early).replace("%%BALLOT%%", _ballot).replace("%%VER%%", _VRUN).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
