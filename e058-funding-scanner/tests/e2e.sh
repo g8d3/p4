@@ -109,7 +109,8 @@ assert isinstance(pc, dict) and len(pc) > 0, "per_coin record missing"
 assert all("hit" in v and "n" in v for v in pc.values()), "per_coin shape bad"
 print(f"backtest ok: {d['summary']}")
 EOF
-grep -q "held 24h" /tmp/e58_root.html || fail "run32 backtest answer missing from card"
+grep -q 'id="ppulse"' /tmp/e58_root.html || fail "run32 backtest answer missing from card"
+grep -q "backtest 24h" /tmp/e58_root.html || fail "run32 backtest row missing from pulse table"
 
 # run #33: paper loop live (auto-log today, resolve 24h later) + server-rendered
 # verdict/pulse (no-JS answer) inside the existing topcard
@@ -124,7 +125,7 @@ EOF
 python3 - <<'EOF' || fail "server-rendered card bad"
 h = open("/tmp/e58_root.html").read()
 assert "Top pays now:" in h and ("steady" in h or "watch" in h or "flippy" in h or "none holding" in h), "no server verdict"
-assert "sample" in h and "held 24h" in h and "version " in h, "no server pulse (want labeled data/backtest/paper/version)"
+assert "sample" in h and "backtest 24h" in h and "paper 24h" in h and "version" in h, "no server pulse table (want rows/sample/backtest/paper/version)"
 assert "%%TOPONE%%" not in h and "%%PULSE%%" not in h, "unexpanded markers served"
 print("server card ok: verdict + pulse rendered, no markers")
 EOF
