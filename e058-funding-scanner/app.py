@@ -190,7 +190,7 @@ def table(min_apy: float = 0.0, max_apy: float = 1e9,
 INDEX = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
 <title>e058 funding scanner</title>
 <style>:root{--bg:#fff;--fg:#111;--bd:#ccc;--hd:#eee}html.dark{--bg:#111418;--fg:#e6e6e6;--bd:#333;--hd:#1e2228}
-body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);padding-bottom:76px}table{border-collapse:collapse;width:100%;font-size:14px}
+body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);padding-bottom:124px}table{border-collapse:collapse;width:100%;font-size:14px}
 td,th{border:1px solid var(--bd);padding:4px 6px;text-align:right}td:first-child,th:first-child{text-align:left}
 th{position:sticky;top:0;background:var(--hd);z-index:2}input,select,button{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:4px 8px}
 button{cursor:pointer}button:disabled{opacity:.4}
