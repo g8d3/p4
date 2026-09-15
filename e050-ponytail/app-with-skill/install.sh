@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ponytail with-skill — install + run (174 lines, ponytail full)
+# ponytail with-skill — install + run (207 lines, ponytail full)
 # fast path: skips apt update unless --update passed; pip SSL fallback to apt
 set -e
 echo "[ponytail] with-skill install+run"
