@@ -273,6 +273,7 @@ const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?`(${(d.call
 const rl=document.getElementById('pb-rule');if(rl&&d.ok)rl.textContent=d.rule+' · '+d.countdown+(d.cushion?' · '+d.cushion:'');
 const tb=document.getElementById('pb-b');if(tb)tb.innerHTML=(d.calls||[]).map(c=>`<tr onclick="pickCoin('${c.coin}')" style="cursor:pointer"><td>${c.coin}</td><td class=pos>${c.median_apy}</td><td>${c.long_v||''}\u2192${c.short_v||''}</td><td>${locTs(c.logged_ts)}</td><td>${c.status}</td></tr>`).join('');}catch(e){}}
 let lastTop=[];
+function shortV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return 'flippy';if(v==='STEADY')return hasH?'steady \u2713':'new';if(v==='WATCH')return 'watch';return v||'';}
 function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;if(v==='STEADY'&&!hasH)return 'new \u2014 holding so far';return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
 async function loadTop(){const one=document.getElementById('top-one'),row=document.getElementById('top-row');
 try{const d=await (await fetch('/api/persistence?threshold_bps=20&last_n=4')).json();
@@ -283,7 +284,7 @@ const _s=(a,b)=>{const x=_tier(a),y=_tier(b);return (x[0]-y[0])||(x[1]-y[1]);};
 const t=(d.rows||[]).slice().sort(_s).slice(0,3);lastTop=t;
 if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHTML='';return;}
 const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
-const _pv=t.filter(r=>_good(r.coin)),_nw=t.length-_pv.length;one.textContent='Top pays now: '+(_pv.length?_pv.map(r=>`${r.coin} ${r.median_apy}% ${plainV(r,true)}${held(r.coin)}`).join(' · '):'no proven pay yet — new coins holding below')+(_nw?` · +${_nw} new high pay${_nw>1?'s':''} below (unproven)`: '');
+const _pv=t.filter(r=>_good(r.coin)),_nw=t.length-_pv.length;one.textContent='Top pays now: '+(_pv.length?_pv.map(r=>`${r.coin} ${r.median_apy}% ${shortV(r,true)}`).join(' \u00b7 '):'no proven pay yet \u2014 new coins holding below')+(_nw?` \u00b7 +${_nw} new high pay${_nw>1?'s':''} below (unproven)`: '')+' \u00b7 tap a coin for why';
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r,!!pc[r.coin])}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
 function pickCoin(c){const r=(allRows||[]).find(x=>x.coin===c);const el=document.getElementById('coinDetail');if(!r){if(el)el.innerHTML='';return;}const pc=backPC[c];if(el)el.innerHTML=`<b>${c}</b> <span class=pos>${r.apy}% APY</span> · spread ${r.spread_bps}bps · long ${r.long} ${r.long_bps} / short ${r.short} ${r.short_bps} · legs ${r.n_legs} · OI ${r.oi_rank??'500+'} · paid ${pc?pc.hit+'/'+pc.n:'no history yet'} <button onclick="qFilter('${c}')" style="padding:2px 8px">filter to ${c}</button> <button onclick="clearCoin()" style="padding:2px 8px">✕</button>`;if(el)el.scrollIntoView({block:'nearest'});}
 function qFilter(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();}
@@ -624,15 +625,15 @@ def _server_card():
     def _held(coin):
         st = _pc.get(coin)
         return f" ({st['hit']}/{st['n']} paid)" if st else ''
-    _PLAIN = {'STEADY': 'steady \u2713', 'WATCH': 'watch \u2014 thin backing'}
+    _PLAIN = {'STEADY': 'steady', 'WATCH': 'watch'}
     def _verdict(r):
         if r.get('verdict') == 'FLIPPY':
-            return f"flippy \u2014 edge moves between {r.get('long','?')} and {r.get('short','?')}"
+            return 'flippy'
         if r.get('verdict') == 'STEADY' and r.get('coin') not in _pc:
-            return 'new \u2014 holding so far'
+            return 'new'
         return _PLAIN.get(r.get('verdict'), r.get('verdict') or r.get('persist'))
     if t3:
-        _proven = [f"{r['coin']} {r['median_apy']}% {_verdict(r)}{_held(r['coin'])}" for r in t3 if _good(r['coin'])]
+        _proven = [f"{r['coin']} {r['median_apy']}% {_verdict(r)}" for r in t3 if _good(r['coin'])]
         _newn = sum(1 for r in t3 if not _good(r['coin']))
         # One-line lure guard (run #67): biggest numbers are usually unproven
         # "new" coins — lead with proven pays only, collapse new to a count
@@ -640,6 +641,7 @@ def _server_card():
         top = 'Top pays now: ' + (' \u00b7 '.join(_proven) if _proven else 'no proven pay yet \u2014 new coins holding below')
         if _newn:
             top += f" \u00b7 +{_newn} new high pay{'s' if _newn > 1 else ''} below (unproven)"
+        top += " \u00b7 tap a coin for why"
     else:
         top = 'Top pays now: none holding right now'
     try:
