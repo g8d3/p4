@@ -109,10 +109,12 @@ function render(){
 function locTs(s){try{s=String(s||'').trim();if(!s)return '\u2014';const d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function cheapList(){return [...D.protocols].filter(p=>ratio(p)<1e17).sort((a,b)=>ratio(a)-ratio(b))}
 function trendWords(p){return p.trend_dir===-1?'getting cheaper':(p.trend_dir===1?'getting pricier':'steady')}
+function modeThru(d){const c={};for(const p of d.protocols){if(p.data_through)c[p.data_through]=(c[p.data_through]||0)+1}let m='?',n=-1;for(const k in c){if(c[k]>n){n=c[k];m=k}}return m}
 function pulse(d){
-  const ts=[...new Set(d.protocols.map(p=>p.data_through).filter(Boolean))].sort();
-  const thru=ts.length>1?`mixed ${ts[0]}→${ts[ts.length-1]}`:(ts[0]||'?');
-  return `Sampling ${d.protocols.length} coins daily from 2 free feeds (data ${thru}).`;
+  const mode=modeThru(d);
+  const lag=d.protocols.filter(p=>p.data_through!==mode).length;
+  const thruTxt=lag?`${d.protocols.length-lag} current thru ${mode}, ${lag} lagging \u2014 marked stale`:`data through ${mode}`;
+  return `Sampling ${d.protocols.length} coins daily from 2 free feeds (${thruTxt}).`;
 }
 function gradeDue(cc){
   const p=((cc&&cc.pending)||[]).map(x=>x.date).filter(Boolean).sort();
@@ -129,7 +131,8 @@ function verdict(){
   const l=cheapList();
   if(!l.length)return D.protocols.length+' coins priced vs sales — tap below for what the columns mean.';
   const p=l[0];
-  return `Cheapest vs its group: ${p.symbol} at ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}.`;
+  const stale=p.data_through!==modeThru(D)?' (stale data)':'';
+  return `Cheapest vs its group: ${p.symbol} at ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}${stale}.`;
 }
 function alertsHtml(){
   const l=cheapList().filter(p=>ratio(p)<=0.8).slice(0,5);
@@ -138,8 +141,9 @@ function alertsHtml(){
   const rows=l.map((p,i)=>{
     const m=D.category_medians[p.category];
     const thin=(m&&m.n<20)?` <span class="thin">thin n=${m.n}</span>`:'';
+    const stale=p.data_through!==modeThru(D)?' <span class="thin">stale</span>':'';
     const star=ratio(p)<=0.5?'★ ':'';
-    return `${i+1}. ${star}<b>${p.symbol}</b> — P/Fees ${p.p_fees??'—'}, ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}, thru ${p.data_through||'?'}`+thin;
+    return `${i+1}. ${star}<b>${p.symbol}</b> — P/Fees ${p.p_fees??'—'}, ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}, thru ${p.data_through||'?'}${stale}`+thin;
   });
   return `<b>cheap-vs-peers alerts (≤0.8× group${deep?', ★≤0.5× deep':''}):</b><br>`+rows.join('<br>');
 }

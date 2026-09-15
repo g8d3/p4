@@ -39,10 +39,14 @@ def main():
         if p.get("p_fees") and mp:
             rows.append((p["p_fees"] / mp, p))
     rows.sort(key=lambda t: t[0])
+    from collections import Counter as _Counter
+    _thrus = sorted(p.get('data_through', '?') for p in d['protocols'] if p.get('data_through'))
+    mode_thru = _Counter(_thrus).most_common(1)[0][0] if _thrus else '?'
     if rows:
         r, p = rows[0]
         tw = TREND_WORDS.get(p.get("trend_dir"), "steady")
-        verdict = f"Cheapest vs its group: {p['symbol']} at {r:.1f}x {p.get('category')} median, {tw}."
+        stale_v = " (stale data)" if p.get("data_through") != mode_thru else ""
+        verdict = f"Cheapest vs its group: {p['symbol']} at {r:.1f}x {p.get('category')} median, {tw}{stale_v}."
     else:
         verdict = f"{len(d['protocols'])} coins priced vs sales — tap below for what the columns mean."
 
@@ -54,10 +58,12 @@ def main():
     except Exception:
         badge, stale = "LIVE ?", False
     thrus = sorted(p.get('data_through', '?') for p in d['protocols'] if p.get('data_through'))
-    if len(thrus) > 1 and thrus[0] != thrus[-1]:
-        thru_txt = f"data mixed {thrus[0]}\u2192{thrus[-1]}"
+    n_lag = sum(1 for t in thrus if t != mode_thru)
+    if n_lag:
+        thru_txt = (f"{len(thrus) - n_lag} current thru {mode_thru}, "
+                    f"{n_lag} lagging \u2014 marked stale")
     else:
-        thru_txt = f"data through {(thrus[0] if thrus else '?')}"
+        thru_txt = f"data through {mode_thru}"
     pulse = (f"Sampling {len(d['protocols'])} coins daily from 2 free feeds "
              f"({thru_txt}).")
 
@@ -92,10 +98,11 @@ def main():
             m = meds.get(p.get("category", ""), {})
             n = m.get("n")
             thin = f' <span class="thin">thin n={n}</span>' if (n is not None and n < 20) else ""
+            stale = ' <span class="thin">stale</span>' if p.get('data_through') != mode_thru else ""
             tw = TREND_WORDS.get(p.get("trend_dir"), "steady")
             star = "★ " if r <= 0.5 else ""
             lines.append(f"{i}. {star}<b>{p['symbol']}</b> — P/Fees {p.get('p_fees', '—')}, "
-                           f"{r:.1f}× {p.get('category')} median, {tw}, thru {p.get('data_through', '?')}{thin}")
+                           f"{r:.1f}× {p.get('category')} median, {tw}, thru {p.get('data_through', '?')}{stale}{thin}")
         head = ("<b>cheap-vs-peers alerts (≤0.8× group, ★≤0.5× deep):</b>"
                 if any(r <= 0.5 for r, _ in cheap) else
                 "<b>cheap-vs-peers alerts (≤0.8× group):</b>")
@@ -155,7 +162,9 @@ def main():
             f"<td class=\"c-7d\">{p.get('p_fees_7d', '\u2014')}</td>"
             f"<td class=\"c-mom\">{mom}</td>"
             f"<td class=\"c-rev\">{p.get('p_revenue', '\u2014')}</td>"
-            f"<td class=\"c-thru\">{p.get('data_through', '?')}</td></tr>")
+            f"<td class=\"c-thru\">{p.get('data_through', '?')}" +
+            (" <span class=\"thin\">stale</span>" if p.get('data_through') != mode_thru else "") +
+            "</td></tr>")
     ssr_table = f'<table id="t">{thead}' + "".join(ssr_rows) + "</tbody></table>"
     ssr_pager = (f'Page 1/{pages} \u00b7 {total} rows \u00b7 {PER} per page '
                  f'<button onclick="chgPage(-1)">\u2190 Prev</button> '
