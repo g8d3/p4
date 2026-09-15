@@ -32,7 +32,7 @@ not a tweak shipped. Rung 4 moves on the owner's tap, never on polish.
 
 ## Conventions
 
-- No secrets in repo (env only). Every writer is a cron per CRON.md rules.
+- No secrets in repo (env only). Every writer is a cron per the cron-writer rules in e000-fundamentals/AGENTS.md.
 - Status lines: BUILDING / BLOCKED / PROVEN + numbers. Nothing else.
 
 ## Runner (forever legs) + autonomy

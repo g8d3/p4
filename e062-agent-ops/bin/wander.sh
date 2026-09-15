@@ -59,7 +59,17 @@ try:
     d = json.load(open(os.path.join(p4, 'e059-crypto-valuations', 'output', 'multiples.json')))
     thrus = {p.get('data_through', '?') for p in d['protocols']}
     if len(thrus) > 1:
-        findings.append(f"e059 mixed data_through {sorted(thrus)} — coins compared across different cutoffs")
+        # run162: mixed cutoffs are DISCLOSED on the page (prose "marked stale"
+        # or table-first form: freshness table w/ lagging row + per-row stale
+        # column). 3rd sighting dies here: fire only when disclosure is missing.
+        try:
+            _page = open(os.path.join(p4, 'e059-crypto-valuations', 'output', 'index.html')).read()
+            _disclosed = ('lagging' in _page and ('marked stale' in _page
+                or 'freshTable' in _page or '>stale<' in _page))
+        except Exception:
+            _disclosed = False
+        if not _disclosed:
+            findings.append(f"e059 mixed data_through {sorted(thrus)} — coins compared across different cutoffs")
 except Exception as e:
     findings.append(f"e059 multiples.json unreadable: {e}")
 out = {'ts': os.path.basename(shots), 'findings': findings}
