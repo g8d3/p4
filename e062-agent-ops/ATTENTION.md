@@ -7,6 +7,7 @@ fixing confusion before it is reported) are the real score.
 
 | date | app | issue | found_by | hrs_unnoticed | why missed |
 |------|-----|-------|----------|---------------|------------|
+| 2026-09-15 | wander | capture shelf bare at review (shots/ empty, no newest-shot age to check) | wander run129 | ~12 | capture cron writes nothing on quiet days and no leg asserted shelf age; fixed: review asserts newest-shot age first, beats wander-empty |
 | 2026-09-13 | e058 | signals show no time window (from→to present, why qualified) | owner | ~8 | legs polished copy, never asked "does the owner know what this signal IS" |
 | 2026-09-13 | e058 | `urgent if bigger ×` label unreadable | owner | ~8 | config box shipped without read-aloud test |
 | 2026-09-13 | e058 | filter covers main table only, silently skips signals | owner | ~8 | filter tested on one section, honesty rule didn't exist |
