@@ -365,7 +365,12 @@ def paper_score():
             s = json.load(f)
         n = int(s.get("resolved") or 0)
         if n > 0:
-            return f"worthy hit-rate {s.get('hit_rate_pct')}% ({s.get('hits')}/{n})"
+            base = f"worthy hit-rate {s.get('hit_rate_pct')}% ({s.get('hits')}/{n})"
+            mix = s.get("pending_mix") or {}
+            if mix.get("n_awaiting"):
+                base += (f" · pipeline {mix.get('pass_bar')}/"
+                         f"{mix.get('n_awaiting')} pass strict")
+            return base
         pend = int(s.get("pending") or 0)
         if pend > 0:
             cd = grade_countdown()

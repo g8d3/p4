@@ -139,6 +139,7 @@ def main():
     for o in outcomes:
         done_keys.add((o.get("date"), o.get("symbol"), o.get("chain")))
     new, pending = 0, 0
+    pend_feats, n_stale = [], 0
     pools = load_pools()
     n_gecko, n_snap_fb = 0, 0
     snaps_all = load_jsonl(CALLS)
@@ -189,11 +190,17 @@ def main():
             age = now - int(snap.get("ts", now))
             if age < DAY:
                 pending += 1
+                try:
+                    pend_feats.append({"txns_h24": e.get("txns_h24"),
+                                       "vol_h24": e.get("vol_h24")})
+                except Exception:
+                    pass
                 continue
             px, src, rts = resolve_with_fallback(chain, token, entry_ts, pools)
             if px is None:
                 print(f"resolve skip {e.get('symbol')}/{chain}: no price (dex+gecko)")
                 pending += 1
+                n_stale += 1
                 continue
             if src != "dexscreener":
                 n_gecko += 1
@@ -236,11 +243,21 @@ def main():
     shadow2 = {"rule": "txns>=10k & vol>=300k", "n": len(sh2), "hits": sh2_hits,
                "hit_rate_pct": round(100.0 * sh2_hits / len(sh2), 1) if sh2 else None,
                "thin": len(sh2) < 20}
+    # pending_mix (run #159, saved-data put to work, FREE no fetch): entry-
+    # time quality of the awaiting set under the STRICT bar (the 50% thin
+    # one). Tells the owner whether the pipeline behind the flat hit-rate
+    # is strong or thin.
+    bar_pass = sum(1 for f in pend_feats
+                   if (lambda d: (float(d.get("txns_h24") or 0) >= 3e4 and
+                                   float(d.get("vol_h24") or 0) >= 1e6))(f))
+    pending_mix = {"n_awaiting": len(pend_feats), "pass_bar": bar_pass,
+                   "stale_unresolvable": n_stale}
     score = {"ok": True, "track": "e060", "updated_ts": now,
              "updated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
              "resolved": resolved, "hits": hits,
              "hit_rate_pct": round(100.0 * hits / resolved, 1) if resolved else None,
              "shadow": shadow, "shadow2": shadow2,
+             "pending_mix": pending_mix,
              "pending": pending, "new_this_run": new}
     os.makedirs(os.path.dirname(SCORE), exist_ok=True)
     # content-change guard (run #114): flat legs skip the write so the
