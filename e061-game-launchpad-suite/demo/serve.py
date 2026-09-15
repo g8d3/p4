@@ -16,6 +16,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 LOG = os.path.join(HERE, "visits.jsonl")
 EVENTS = ("visit", "win", "slip")
 
+# MIDNIGHT-CROSSER GUARD (run #120): test/health probes must never count
+# as players or returning players. visits still logs them (traffic),
+# but players/day2 only count real device cids.
+PROBE_PREFIXES = ("e2e-", "probe", "test-", "health")
+
+
+def _is_probe(cid):
+    c = str(cid or "")
+    return c == "e2e-probe" or c.startswith(PROBE_PREFIXES)
+
 
 def stats():
     # DATA PULSE: is it sampling (rows), how fresh (last-sample age), cadence.
@@ -42,7 +52,7 @@ def stats():
                 elif r.get("ev") == "slip":
                     out["slips"] += 1
                 c, d = r.get("cid"), r.get("day")
-                if c and d:
+                if c and d and not _is_probe(c):
                     days.setdefault(c, set()).add(d)
                 if r.get("ts") and (last is None or r["ts"] > last):
                     last = r["ts"]
@@ -59,6 +69,8 @@ def stats():
                 except Exception:
                     continue
                 if r.get("ev") == "win" and r.get("cid") and r.get("ts"):
+                    if _is_probe(r.get("cid")):
+                        continue
                     try:
                         t = datetime.fromisoformat(r["ts"])
                     except Exception:
