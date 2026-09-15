@@ -92,7 +92,7 @@
    "symbol": "EULER",
    "call": "2026-08-09",
    "ratio_call": 0.2,
-   "ratio_resolve": 0.25,
+   "ratio_resolve": 0.24,
    "hit": true
   },
   {
@@ -120,7 +120,7 @@
    "symbol": "ARB",
    "call": "2026-08-02",
    "ratio_call": 0.56,
-   "ratio_resolve": 0.75,
+   "ratio_resolve": 0.76,
    "hit": true
   },
   {
@@ -133,7 +133,7 @@
   {
    "symbol": "SKY",
    "call": "2026-08-02",
-   "ratio_call": 0.74,
+   "ratio_call": 0.73,
    "ratio_resolve": 0.86,
    "hit": true
   },
@@ -141,7 +141,7 @@
    "symbol": "GMX",
    "call": "2026-08-02",
    "ratio_call": 0.14,
-   "ratio_resolve": 0.16,
+   "ratio_resolve": 0.17,
    "hit": true
   },
   {
@@ -176,7 +176,7 @@
    "symbol": "SOL",
    "call": "2026-07-26",
    "ratio_call": 0.17,
-   "ratio_resolve": 0.17,
+   "ratio_resolve": 0.18,
    "hit": true
   },
   {
@@ -197,13 +197,13 @@
    "symbol": "ARB",
    "call": "2026-07-26",
    "ratio_call": 0.51,
-   "ratio_resolve": 0.73,
+   "ratio_resolve": 0.74,
    "hit": true
   },
   {
    "symbol": "UNI",
    "call": "2026-07-26",
-   "ratio_call": 0.41,
+   "ratio_call": 0.42,
    "ratio_resolve": 0.85,
    "hit": true
   },
@@ -211,14 +211,14 @@
    "symbol": "SKY",
    "call": "2026-07-26",
    "ratio_call": 0.71,
-   "ratio_resolve": 0.83,
+   "ratio_resolve": 0.82,
    "hit": true
   },
   {
    "symbol": "GMX",
    "call": "2026-07-26",
    "ratio_call": 0.15,
-   "ratio_resolve": 0.14,
+   "ratio_resolve": 0.15,
    "hit": true
   },
   {
@@ -274,7 +274,7 @@
    "symbol": "ARB",
    "call": "2026-07-19",
    "ratio_call": 0.5,
-   "ratio_resolve": 0.66,
+   "ratio_resolve": 0.67,
    "hit": true
   },
   {
@@ -302,7 +302,7 @@
    "symbol": "JUP",
    "call": "2026-07-19",
    "ratio_call": 0.71,
-   "ratio_resolve": 1.75,
+   "ratio_resolve": 1.74,
    "hit": false
   },
   {
@@ -357,7 +357,7 @@
   {
    "symbol": "ARB",
    "call": "2026-07-12",
-   "ratio_call": 0.51,
+   "ratio_call": 0.52,
    "ratio_resolve": 0.63,
    "hit": true
   },
@@ -365,7 +365,7 @@
    "symbol": "SKY",
    "call": "2026-07-12",
    "ratio_call": 0.71,
-   "ratio_resolve": 0.78,
+   "ratio_resolve": 0.77,
    "hit": true
   },
   {
@@ -379,7 +379,7 @@
    "symbol": "JUP",
    "call": "2026-07-12",
    "ratio_call": 0.72,
-   "ratio_resolve": 1.38,
+   "ratio_resolve": 1.37,
    "hit": false
   },
   {
@@ -400,7 +400,7 @@
    "symbol": "YFI",
    "call": "2026-07-12",
    "ratio_call": 0.43,
-   "ratio_resolve": 0.56,
+   "ratio_resolve": 0.57,
    "hit": true
   },
   {
@@ -420,7 +420,7 @@
   {
    "symbol": "BNB",
    "call": "2026-07-05",
-   "ratio_call": 0.49,
+   "ratio_call": 0.48,
    "ratio_resolve": 0.39,
    "hit": true
   },
@@ -435,7 +435,7 @@
    "symbol": "ARB",
    "call": "2026-07-05",
    "ratio_call": 0.55,
-   "ratio_resolve": 0.57,
+   "ratio_resolve": 0.58,
    "hit": true
   },
   {
@@ -511,7 +511,7 @@
   {
    "symbol": "ARB",
    "call": "2026-06-28",
-   "ratio_call": 0.7,
+   "ratio_call": 0.71,
    "ratio_resolve": 0.52,
    "hit": true
   },
@@ -581,7 +581,7 @@
   {
    "symbol": "ARB",
    "call": "2026-06-21",
-   "ratio_call": 0.73,
+   "ratio_call": 0.74,
    "ratio_resolve": 0.5,
    "hit": true
   },
@@ -595,7 +595,7 @@
   {
    "symbol": "JUP",
    "call": "2026-06-21",
-   "ratio_call": 0.77,
+   "ratio_call": 0.76,
    "ratio_resolve": 0.74,
    "hit": true
   },
@@ -603,7 +603,7 @@
    "symbol": "APT",
    "call": "2026-06-21",
    "ratio_call": 0.2,
-   "ratio_resolve": 0.18,
+   "ratio_resolve": 0.17,
    "hit": true
   },
   {
@@ -749,8 +749,8 @@
   {
    "symbol": "EULER",
    "call": "2026-06-07",
-   "ratio_call": 0.32,
-   "ratio_resolve": 0.23,
+   "ratio_call": 0.31,
+   "ratio_resolve": 0.22,
    "hit": true
   },
   {
@@ -778,7 +778,7 @@
    "symbol": "ARB",
    "call": "2026-05-31",
    "ratio_call": 0.54,
-   "ratio_resolve": 0.68,
+   "ratio_resolve": 0.69,
    "hit": true
   },
   {
@@ -791,7 +791,7 @@
   {
    "symbol": "RAY",
    "call": "2026-05-31",
-   "ratio_call": 0.61,
+   "ratio_call": 0.62,
    "ratio_resolve": 0.92,
    "hit": true
   },
@@ -819,7 +819,7 @@
   {
    "symbol": "EULER",
    "call": "2026-05-31",
-   "ratio_call": 0.31,
+   "ratio_call": 0.3,
    "ratio_resolve": 0.3,
    "hit": true
   },
@@ -840,8 +840,8 @@
   {
    "symbol": "ARB",
    "call": "2026-05-24",
-   "ratio_call": 0.55,
-   "ratio_resolve": 0.72,
+   "ratio_call": 0.56,
+   "ratio_resolve": 0.73,
    "hit": true
   },
   {
