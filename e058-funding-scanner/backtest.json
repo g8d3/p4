@@ -6,10 +6,10 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-14T13:17:30Z",
- "n_signals": 2228,
- "n_hit": 1039,
- "hit_rate_pct": 46.6,
+ "window_last": "2026-09-14T14:47:53Z",
+ "n_signals": 2305,
+ "n_hit": 1077,
+ "hit_rate_pct": 46.7,
  "median_apy_decay": 1.0,
  "per_coin": {
   "4": {
@@ -36,9 +36,13 @@
    "n": 13,
    "hit": 0
   },
+  "APT": {
+   "n": 4,
+   "hit": 4
+  },
   "ARB": {
-   "n": 96,
-   "hit": 52
+   "n": 100,
+   "hit": 56
   },
   "ARM": {
    "n": 6,
@@ -89,7 +93,7 @@
    "hit": 0
   },
   "BRENT": {
-   "n": 21,
+   "n": 26,
    "hit": 0
   },
   "BTC": {
@@ -101,7 +105,7 @@
    "hit": 0
   },
   "CAP": {
-   "n": 2,
+   "n": 7,
    "hit": 0
   },
   "CASHCAT": {
@@ -117,7 +121,7 @@
    "hit": 0
   },
   "CL": {
-   "n": 45,
+   "n": 50,
    "hit": 8
   },
   "COIN": {
@@ -144,8 +148,12 @@
    "n": 1,
    "hit": 0
   },
+  "FARTCOIN": {
+   "n": 1,
+   "hit": 0
+  },
   "FOLKS": {
-   "n": 12,
+   "n": 14,
    "hit": 0
   },
   "GPRO": {
@@ -177,16 +185,16 @@
    "hit": 0
   },
   "IP": {
-   "n": 208,
-   "hit": 208
+   "n": 213,
+   "hit": 213
   },
   "IREN": {
    "n": 3,
    "hit": 0
   },
   "JUP": {
-   "n": 186,
-   "hit": 150
+   "n": 191,
+   "hit": 155
   },
   "KAITO": {
    "n": 16,
@@ -201,12 +209,12 @@
    "hit": 0
   },
   "LA": {
-   "n": 12,
+   "n": 15,
    "hit": 8
   },
   "LSK": {
-   "n": 100,
-   "hit": 86
+   "n": 105,
+   "hit": 90
   },
   "MEME": {
    "n": 9,
@@ -217,7 +225,7 @@
    "hit": 0
   },
   "MON": {
-   "n": 4,
+   "n": 5,
    "hit": 4
   },
   "MORPHO": {
@@ -257,7 +265,11 @@
    "hit": 1
   },
   "PAYP": {
-   "n": 21,
+   "n": 26,
+   "hit": 0
+  },
+  "PEPE": {
+   "n": 1,
    "hit": 0
   },
   "POLYX": {
@@ -273,8 +285,8 @@
    "hit": 0
   },
   "POWR": {
-   "n": 93,
-   "hit": 53
+   "n": 98,
+   "hit": 58
   },
   "PURR": {
    "n": 13,
@@ -293,8 +305,8 @@
    "hit": 0
   },
   "S": {
-   "n": 80,
-   "hit": 80
+   "n": 85,
+   "hit": 85
   },
   "SKHX": {
    "n": 23,
@@ -329,7 +341,7 @@
    "hit": 0
   },
   "STEEM": {
-   "n": 54,
+   "n": 59,
    "hit": 32
   },
   "SUI": {
@@ -337,7 +349,7 @@
    "hit": 0
   },
   "T": {
-   "n": 20,
+   "n": 25,
    "hit": 11
   },
   "TREE": {
@@ -349,12 +361,12 @@
    "hit": 20
   },
   "WAL": {
-   "n": 166,
-   "hit": 118
+   "n": 171,
+   "hit": 123
   },
   "XAU": {
-   "n": 2,
-   "hit": 1
+   "n": 3,
+   "hit": 2
   },
   "XCN": {
    "n": 12,
@@ -365,7 +377,7 @@
    "hit": 15
   }
  },
- "computed_ts": "2026-09-15T14:01:07Z",
- "elapsed_s": 2.6,
- "summary": "46.6% of steady calls still paying 24h later (1039/2228, median APY kept 1.0x)"
+ "computed_ts": "2026-09-15T15:01:43Z",
+ "elapsed_s": 2.5,
+ "summary": "46.7% of steady calls still paying 24h later (1077/2305, median APY kept 1.0x)"
 }
