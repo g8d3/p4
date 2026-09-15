@@ -4,7 +4,7 @@ SQLite store (timestamped funding series) + FastAPI JSON + static table UI.
 Run: python3 app.py  (port 8320)"""
 import datetime, html, json, glob, os, sqlite3, time
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -111,6 +111,78 @@ def load_all():
 
 app = FastAPI()
 
+import sys as _sys
+_sys.path.insert(0, os.path.join(os.path.dirname(BASE), 'e068-tablelib'))
+from tablelib.render import render_table as _tl_render
+from tablelib.stats import auto_presets as _tl_presets, suggest as _tl_suggest
+
+_TL_DIR = os.path.join(os.path.dirname(BASE), 'e068-tablelib', 'tablelib')
+
+_TL_COINS_COLS = [
+    {"key": "coin", "label": "coin", "cls": "", "kind": "text", "ph": "coin"},
+    {"key": "apy", "label": "APY%", "cls": "", "kind": "num", "fmt": "{:.1f}", "ph": "\u2264 max"},
+    {"key": "spread", "label": "spread bps", "cls": "", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "long", "label": "long", "cls": "", "kind": "text", "ph": "venue"},
+    {"key": "long_bps", "label": "long bps", "cls": "", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "short", "label": "short", "cls": "", "kind": "text", "ph": "venue"},
+    {"key": "short_bps", "label": "short bps", "cls": "", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "legs", "label": "legs", "cls": "", "kind": "num"},
+    {"key": "oi", "label": "OI", "cls": "", "kind": "text"},
+]
+_TL_PAPER_COLS = [
+    {"key": "coin", "label": "coin", "cls": "", "kind": "text", "ph": "coin"},
+    {"key": "apy", "label": "entry APY%", "cls": "", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "route", "label": "long→short", "cls": "tl-nw", "kind": "text"},
+    {"key": "logged", "label": "logged", "cls": "", "kind": "text"},
+    {"key": "status", "label": "status", "cls": "", "kind": "text"},
+]
+_TL_SIG_COLS = [
+    {"key": "sent", "label": "sent", "cls": "", "kind": "text"},
+    {"key": "coin", "label": "coin", "cls": "", "kind": "text", "ph": "coin"},
+    {"key": "apy", "label": "med APY%", "cls": "", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "spread", "label": "spread", "cls": "", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "long", "label": "long", "cls": "", "kind": "text"},
+    {"key": "short", "label": "short", "cls": "", "kind": "text"},
+    {"key": "persist", "label": "persist", "cls": "", "kind": "text"},
+    {"key": "oi", "label": "OI", "cls": "", "kind": "text"},
+]
+
+
+def _tl_coin_rows(rows):
+    out = []
+    for r in rows or []:
+        oi = r.get('oi_rank')
+        out.append({'coin': r.get('coin'), 'apy': r.get('apy'),
+                    'spread': r.get('spread_bps'),
+                    'long': r.get('long'), 'long_bps': r.get('long_bps'),
+                    'short': r.get('short'), 'short_bps': r.get('short_bps'),
+                    'legs': r.get('n_legs'),
+                    'oi': oi if isinstance(oi, int) else '500+'})
+    return out
+
+
+def _tl_table(ns, rows, cols, sort_key, sort_dir=-1, click=None, derived=None, total=None, layout=None):
+    try:
+        return _tl_render(rows, cols, total=(total if total is not None else len(rows)), page=1, per=10,
+                          sort_key=sort_key, sort_dir=sort_dir, ns=ns,
+                          presets=_tl_presets(rows, cols),
+                          suggestions=_tl_suggest(rows, cols, derived=derived),
+                          card_layout=layout,
+                          row_click=click[0] if click else None,
+                          row_click_key=click[1] if click else 'token')
+    except Exception as e:
+        return f'<div class=cav>table offline ({html.escape(str(e)[:80])})</div>'
+
+
+@app.get('/tl/tablelib.js')
+def _tl_js():
+    return FileResponse(os.path.join(_TL_DIR, 'table.js'), media_type='application/javascript')
+
+
+@app.get('/tl/tablelib.css')
+def _tl_css():
+    return FileResponse(os.path.join(_TL_DIR, 'table.css'), media_type='text/css')
+
 import subprocess as _sp
 _VSTART = int(time.time())
 try:
@@ -188,7 +260,7 @@ def table(min_apy: float = 0.0, max_apy: float = 1e9,
     return {'ts': ts, 'dex_only': dex_only, 'count': len(rows), 'rows': rows[:500]}
 
 INDEX = """<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
-<title>e058 funding scanner</title>
+<title>e058 funding scanner</title><link rel=stylesheet href="/tl/tablelib.css">
 <style>:root{--bg:#fff;--fg:#111;--bd:#ccc;--hd:#eee}html.dark{--bg:#111418;--fg:#e6e6e6;--bd:#333;--hd:#1e2228}
 body{font-family:system-ui;margin:8px;background:var(--bg);color:var(--fg);padding-bottom:124px}table{border-collapse:collapse;width:100%;font-size:14px}
 td,th{border:1px solid var(--bd);padding:4px 6px;text-align:right}td:first-child,th:first-child{text-align:left}
@@ -230,35 +302,33 @@ details.cfg summary{cursor:pointer}
 </div></details>
 </div></details>
 <div id=s style="margin:8px 0"><details><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
-<div class=twrap><table><thead><tr><th>sent</th><th>coin</th><th>med APY%</th><th>spread</th><th>long</th><th>short</th><th>persist</th><th>OI</th></tr></thead><tbody id=sb></tbody></table></div></details></div>
+%%SIGNALS%%</details></div>
 <div id=pb style="margin:8px 0"><details><summary><b>paper ballot</b> <small id=pb-sum>(today's predictions, newest first)</small></summary><div style="font-size:12px;opacity:.7;margin:4px 0" id=pb-rule>hit = spread still \u226520bps a day later</div> <button onclick=loadPaper() style="padding:2px 8px;font-size:12px">refresh</button>
-<div class=twrap><table><thead><tr><th>coin</th><th>entry APY%</th><th>long\u2192short</th><th>logged</th><th>status</th></tr></thead><tbody id=pb-b></tbody></table></div></details></div>
+%%PAPER%%</details></div>
 <div class=secttl>coins <small id=coins-sum style="text-transform:none;letter-spacing:0;opacity:.7"></small></div>
 <div id=coinDetail style="margin:4px 0;font-size:13px"></div>
-<div class=twrap><table><thead><tr><th>coin</th><th>APY%</th><th>spread bps</th><th>long</th><th>short</th><th>legs</th><th>OI</th></tr></thead>
-<tbody id=b></tbody></table></div>
-<div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small> <button id=moreb onclick="showAll()" style="display:none;padding:6px 12px;font-size:13px">show all</button></div>
+%%COINS%%
+<div style="margin:4px 0;font-size:13px"><small id=morec style="opacity:.7"></small></div>
 <div class=thumbbar><button onclick="topGo(this)">★ top</button><button id=tbslip onclick="copySlip(this)">copy slip</button><button onclick="fltGo()">filter</button><button onclick="clearQ()">✕ clear</button><button onclick="themeGo()">◐ theme</button></div>
 <div id=ver style="font-size:11px;opacity:.6;margin:56px 0 8px">%%VER%%</div>
+<script src="/tl/tablelib.js"></script>
 <script>fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok&&(v.stale||v.dirty))document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE\u2014restart':'')+(v.dirty?' *':'');}).catch(()=>{});</script>
 <script>function locTs(s){try{s=String(s||'').trim();if(!s||s==='unknown')return s||'\u2014';let d;if(/^\d+$/.test(s))d=new Date(+s*1000);else d=new Date(s.replace(' ','T')+(/Z|[+-]\d{2}:?\d{2}$/.test(s)?'':'Z'));if(isNaN(d))return String(s);const p=n=>(n<10?'0':'')+n;return p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}catch(e){return String(s);}}
 function locHour(h){try{const d=new Date();d.setUTCHours(+h,0,0,0);const p=n=>(n<10?'0':'')+n;return p(d.getHours())+':'+p(d.getMinutes());}catch(e){return '?';}}
-let allRows=[], showN=100, backPC={}, lastAge='';
+let allRows=[], backPC={}, lastAge='';
 function sampleAge(ts){try{const ms=Date.now()-new Date(String(ts||'')).getTime();if(!(ms>=0))return '';return ms<36e5?` · sample ${Math.max(1,Math.round(ms/6e4))}m ago`:` · sample ${(ms/36e6).toFixed(1)}h ago`;}catch(e){return '';}}
-function paidTag(c){const s=backPC[c];return s?` <small style="opacity:.65">${s.hit}/${s.n}</small>`:' <small style="opacity:.65">no history yet</small>';}
-function rowHtml(r){return `<tr onclick="pickCoin('${r.coin}')" style="cursor:pointer"><td>${r.coin}${paidTag(r.coin)}</td><td class=pos>${r.apy}</td><td>${r.spread_bps}</td><td>${r.long} ${r.long_bps}</td><td>${r.short} ${r.short_bps}</td><td>${r.n_legs}</td><td>${r.oi_rank??'500+'}</td></tr>`;}
-function showAll(){showN=allRows.length;document.getElementById('b').innerHTML=allRows.map(rowHtml).join('');const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`all ${allRows.length} by pay${lastAge}`;const mc=document.getElementById('morec');if(mc)mc.textContent=`showing all ${allRows.length} coins`;const mb=document.getElementById('moreb');if(mb)mb.style.display='none';}
-async function load(){showN=100;const g=id=>document.getElementById(id).value;
+function coinLibRow(r){return {coin:r.coin,apy:r.apy,spread:r.spread_bps,long:r.long,long_bps:r.long_bps,short:r.short,short_bps:r.short_bps,legs:r.n_legs,oi:(typeof r.oi_rank==='number'?r.oi_rank:'500+')};}
+async function load(){const g=id=>document.getElementById(id).value;
 try{const b=await (await fetch('/api/backtest')).json();if(b&&b.ok&&b.per_coin)backPC=b.per_coin;}catch(e){}
 const d=await (await fetch(`/api/table?min_apy=${g('a0')}&max_apy=${g('a1')}&oi_min=${g('o0')}&oi_max=${g('o1')}&min_legs=${g('ml')}&q=${g('q')}&sort=${g('s')}`)).json();
 document.getElementById('ts').textContent=locTs(d.ts||'')||'no data';
 lastAge=sampleAge(d.ts);
 allRows=d.rows||[];const total=(d.count??allRows.length);
-document.getElementById('c').textContent=`showing ${Math.min(showN,allRows.length)} of ${total}`;
-const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`top ${Math.min(showN,allRows.length)} of ${total} by pay${lastAge}`;
-const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: top ${Math.min(showN,allRows.length)} of ${total}${qq?' matching '+qq:''}, best pay first (tap to narrow)`;}
-document.getElementById('b').innerHTML=allRows.slice(0,showN).map(rowHtml).join('');
-const mc=document.getElementById('morec'),mb=document.getElementById('moreb');if(allRows.length>showN){if(mc)mc.textContent=`top 100 by pay — tap show all for ${total}`;if(mb)mb.style.display='';}else{if(mc)mc.textContent=allRows.length?`${allRows.length} coins`:'no coins match';if(mb)mb.style.display='none';}}
+document.getElementById('c').textContent=`${allRows.length} loaded of ${total}`;
+const cs=document.getElementById('coins-sum');if(cs)cs.textContent=`${total} by pay${lastAge} — pager below`;
+const fs=document.getElementById('f-sum');if(fs){const qq=(g('q')||'').trim().toUpperCase();fs.textContent=`Filter: ${total}${qq?' matching '+qq:''}, best pay first (tap to narrow)`;}
+if(window.tlRender&&window.tlState){const st=tlState('coins');st.all=allRows.map(coinLibRow);tlRender('coins');}
+const mc=document.getElementById('morec'),mb=document.getElementById('moreb');if(mc)mc.textContent=allRows.length?`${total} coins — tap headers to sort, filter inside columns`:'no coins match';if(mb)mb.style.display='none';}
 async function loadCfg(){try{const c=await (await fetch('/api/report-config')).json();
 rh.value=c.report_hour_utc;rt.value=c.threshold_bps;rn.value=c.last_n;rtn.value=c.top_n;ru.value=c.urgent_mult;
 const rs=document.getElementById('r-sum');if(rs)rs.textContent=`Daily digest ${c.report_hour_utc}:00 UTC (=${locHour(c.report_hour_utc)} your time), top ${c.top_n} over ${c.threshold_bps}bps (tap to change time)`;}catch(e){}}
@@ -267,11 +337,11 @@ try{const r=await (await fetch('/api/report-config',{method:'POST',headers:{'Con
 rc.textContent=r.ok?'saved':'ERR: '+(r.error||'?');}catch(e){rc.textContent='ERR: unreachable';}}
 async function loadSig(){try{const d=await (await fetch('/api/signals?limit=100')).json();
 const ss=document.getElementById('sig-sum');if(ss)ss.textContent=`(${(d.rows||[]).length} alerts, newest first)`;
-sb.innerHTML=(d.rows||[]).map(s=>`<tr><td>${locTs(s.sent_ts)}</td><td>${s.coin}</td><td class=pos>${s.median_apy}</td><td>${s.spread_bps}</td><td>${s.long_v}</td><td>${s.short_v}</td><td>${s.persist}</td><td>${s.oi_rank??''}</td></tr>`).join('');}catch(e){}}
+if(window.tlRender&&window.tlState){const st=tlState('sig');st.all=[];for(const s of (d.rows||[])){st.all.push({sent:locTs(s.sent_ts),coin:s.coin,apy:s.median_apy,spread:s.spread_bps,long:s.long_v,short:s.short_v,persist:s.persist,oi:(typeof s.oi_rank==='number'?s.oi_rank:'')});}tlRender('sig');}}catch(e){}}
 async function loadPaper(){try{const d=await (await fetch('/api/paper/calls')).json();
 const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?`(${(d.calls||[]).length} predictions${d.paper_resolved?`, ${d.paper_resolved} graded ${d.paper_hit_rate_pct}%`:''} · ${d.countdown_short||d.countdown||''})`:'(offline)';
 const rl=document.getElementById('pb-rule');if(rl&&d.ok)rl.textContent=d.rule+' · '+d.countdown+(d.cushion?' · '+d.cushion:'');
-const tb=document.getElementById('pb-b');if(tb)tb.innerHTML=(d.calls||[]).map(c=>`<tr onclick="pickCoin('${c.coin}')" style="cursor:pointer"><td>${c.coin}</td><td class=pos>${c.median_apy}</td><td>${c.long_v||''}\u2192${c.short_v||''}</td><td>${locTs(c.logged_ts)}</td><td>${c.status}</td></tr>`).join('');}catch(e){}}
+window._paperRows=(d.calls||[]);if(window.tlRender&&window.tlState){const st=tlState('paper');st.all=(d.calls||[]).map(c=>({coin:c.coin,apy:c.median_apy,route:(c.long_v||'')+'→'+(c.short_v||''),logged:locTs(c.logged_ts),status:c.status}));tlRender('paper');}}catch(e){}}
 let lastTop=[];
 function shortV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return 'flippy';if(v==='STEADY')return hasH?'steady \u2713':'new';if(v==='WATCH')return 'watch';return v||'';}
 function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;if(v==='STEADY'&&!hasH)return 'new \u2014 holding so far';return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
@@ -286,7 +356,7 @@ if(!t.length){one.textContent='Top pays now: none holding right now';row.innerHT
 const held=c=>pc[c]?` (${pc[c].hit}/${pc[c].n} paid)`:'';
 const _pv=t.filter(r=>_good(r.coin)),_nw=t.length-_pv.length;one.textContent='Top pays now: '+(_pv.length?_pv.map(r=>`${r.coin} ${r.median_apy}% ${shortV(r,true)}`).join(' \u00b7 '):'no proven pay yet \u2014 new coins holding below')+(_nw?` \u00b7 +${_nw} new high pay${_nw>1?'s':''} below (unproven)`: '')+' \u00b7 tap a coin for why';
 row.innerHTML=t.map(r=>`<button class=pick onclick="pickCoin('${r.coin}')">${r.coin}<br><b class=pos>${r.median_apy}%</b> <small>${plainV(r,!!pc[r.coin])}${held(r.coin)} ${r.long||''}→${r.short||''}</small></button>`).join('');}catch(e){one.textContent='Top pays now: offline';}}
-function pickCoin(c){const r=(allRows||[]).find(x=>x.coin===c);const el=document.getElementById('coinDetail');if(!r){if(el)el.innerHTML='';return;}const pc=backPC[c];if(el)el.innerHTML=`<b>${c}</b> <span class=pos>${r.apy}% APY</span> · spread ${r.spread_bps}bps · long ${r.long} ${r.long_bps} / short ${r.short} ${r.short_bps} · legs ${r.n_legs} · OI ${r.oi_rank??'500+'} · paid ${pc?pc.hit+'/'+pc.n:'no history yet'} <button onclick="qFilter('${c}')" style="padding:2px 8px">filter to ${c}</button> <button onclick="clearCoin()" style="padding:2px 8px">✕</button>`;if(el)el.scrollIntoView({block:'nearest'});}
+function pickCoin(c){const r=(allRows||[]).find(x=>x.coin===c);const el=document.getElementById('coinDetail');if(!r){const pr=(window._paperRows||[]).find(x=>x.coin===c);if(el)el.innerHTML=pr?`<b>${c}</b> paper ${pr.median_apy}% APY · ${pr.status||''}`:'';return;}const pc=backPC[c];if(el)el.innerHTML=`<b>${c}</b> <span class=pos>${r.apy}% APY</span> · spread ${r.spread_bps}bps · long ${r.long} ${r.long_bps} / short ${r.short} ${r.short_bps} · legs ${r.n_legs} · OI ${r.oi_rank??'500+'} · paid ${pc?pc.hit+'/'+pc.n:'no history yet'} <button onclick="qFilter('${c}')" style="padding:2px 8px">filter to ${c}</button> <button onclick="clearCoin()" style="padding:2px 8px">✕</button>`;if(el)el.scrollIntoView({block:'nearest'});}
 function qFilter(c){const fc=document.getElementById('fc');if(fc&&!fc.open)fc.open=true;document.getElementById('q').value=c;load();}
 function clearCoin(){const el=document.getElementById('coinDetail');if(el)el.innerHTML='';clearQ();}
 function fltGo(){const fc=document.getElementById('fc');if(fc)fc.open=true;document.getElementById('fc').scrollIntoView();const q=document.getElementById('q');if(q)q.focus({preventScroll:true});}
@@ -734,7 +804,31 @@ def index():
     except Exception:
         _vmsg = ''
     verline = 'v' + _VRUN + ((' \u2014 ' + _plain_ver(_vmsg)) if _plain_ver(_vmsg) else '')
-    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row).replace('%%DIGEST%%', digest).replace('%%VER%%', html.escape(verline)),
+    try:
+        _t = table()
+        coins_html = _tl_table('coins', _tl_coin_rows(_t.get('rows')), _TL_COINS_COLS, 'apy', -1, ('pickCoin', 'coin'), derived={'apy': 'spread', 'spread': ['long_bps', 'short_bps']}, total=_t.get('count'), layout=[['coin', 'apy'], ['spread'], ['long', 'short'], ['long_bps', 'short_bps'], ['legs', 'oi']])
+    except Exception:
+        coins_html = '<div class=cav>coins: offline</div>'
+    try:
+        _b = ballot()
+        _paper_rows = [{'coin': c.get('coin'), 'apy': c.get('median_apy'),
+                         'route': f"{c.get('long_v', '')}→{c.get('short_v', '')}",
+                         'logged': c.get('logged_ts'), 'status': c.get('status')}
+                        for c in (_b.get('calls') or [])]
+        paper_html = _tl_table('paper', _paper_rows, _TL_PAPER_COLS, 'apy', -1, ('pickCoin', 'coin'), derived={'apy': 'spread'}, layout=[['coin', 'apy'], ['route'], ['logged', 'status']])
+    except Exception:
+        paper_html = '<div class=cav>ballot: offline</div>'
+    try:
+        _s = signal_history()
+        _sig_rows = [{'sent': r.get('sent_ts'), 'coin': r.get('coin'), 'apy': r.get('median_apy'),
+                       'spread': r.get('spread_bps'), 'long': r.get('long_v'), 'short': r.get('short_v'),
+                       'persist': r.get('persist'),
+                       'oi': (r.get('oi_rank') if isinstance(r.get('oi_rank'), int) else '')}
+                      for r in (_s.get('rows') or [])]
+        sig_html = _tl_table('sig', _sig_rows, _TL_SIG_COLS, 'sent', -1, derived={'apy': 'spread'})
+    except Exception:
+        sig_html = '<div class=cav>signals: offline</div>'
+    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row).replace('%%DIGEST%%', digest).replace('%%VER%%', html.escape(verline)).replace('%%COINS%%', coins_html).replace('%%PAPER%%', paper_html).replace('%%SIGNALS%%', sig_html),
                         headers={'Cache-Control': 'no-store'})
 
 if __name__ == '__main__':

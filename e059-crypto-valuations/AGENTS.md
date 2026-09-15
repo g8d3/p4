@@ -46,6 +46,7 @@ fail-closed on shape so a partial pipeline can never serve silently.
 ## Inherits
 - [../e000-fundamentals/TABLE_FIRST.md](../e000-fundamentals/TABLE_FIRST.md) — table-first rule + table_check.py
 - [../e000-fundamentals/TABLE_UX.md](../e000-fundamentals/TABLE_UX.md) — table UX rules (contrast, columns, inline SQL)
+- [../e068-tablelib/AGENTS.md](../e068-tablelib/AGENTS.md) — tables via tablelib (this page is its first client)
 
 ## First tasks
 

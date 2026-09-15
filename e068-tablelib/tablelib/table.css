@@ -1,0 +1,28 @@
+/* tablelib/table.css — shared table skin. Namespace tl-.
+   Never restyle host pages. Pills declare bg+fg in BOTH themes (U1). */
+.tl-sort{cursor:pointer;text-decoration:underline dotted;white-space:nowrap}
+.tl-nw{white-space:nowrap}
+td.tl-n{text-align:right}td.tl-t{text-align:left}
+thead input{width:100%;box-sizing:border-box;font-size:12px;padding:2px 4px}
+.tl-thin{background:#ffe9c4;color:#5a3c00;padding:0 6px;border-radius:8px;font-size:11px;white-space:nowrap}
+html.dark .tl-thin{background:#5a3c00;color:#ffe9c4}
+.tl-ctl button{margin:2px;padding:3px 10px;cursor:pointer}
+/* every control block is a labeled unit: aligned grid, clear boundaries */
+.tl-views,.tl-stats,.tl-cmp,.tl-ctl{background:rgba(127,127,127,.08);border:1px solid #ccc;border-radius:8px;padding:6px 8px;margin:6px 0}
+html.dark .tl-views,html.dark .tl-stats,html.dark .tl-cmp,html.dark .tl-ctl{border-color:#444}
+[id^="tl-pager-"]{background:rgba(127,127,127,.08);border:1px solid #ccc;border-radius:8px;padding:6px 8px;margin:6px 0}
+html.dark [id^="tl-pager-"]{border-color:#444}
+.tl-bar{display:inline-block;width:56px;height:10px;background:#e4e4e4;border-radius:3px;vertical-align:middle}
+.tl-bar>span{display:block;height:100%;background:#0366d6;border-radius:3px}
+html.dark .tl-bar{background:#333}
+html.dark .tl-bar>span{background:#7aa7ff}
+.tl-stats button{margin:2px;padding:3px 10px;cursor:pointer}
+.tl-stats svg,.twrap svg{vertical-align:middle}
+/* grouped cards (U2): fields grouped per row, hero title per card */
+.tl-cards-div .tl-card{border:1px solid #ccc;border-radius:10px;margin:8px 0;padding:6px 10px}
+.tl-cards-div .tl-r{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;padding:3px 0}
+.tl-cards-div .tl-r+.tl-r{border-top:1px dotted #bbb}
+.tl-cards-div .tl-f i{opacity:.6;font-style:normal;font-size:12px;margin-right:4px}
+.tl-cards-div .tl-hero{font-size:19px;font-weight:bold;margin-right:auto}
+html.dark .tl-cards-div .tl-card{border-color:#444}
+html.dark .tl-cards-div .tl-r+.tl-r{border-color:#555}

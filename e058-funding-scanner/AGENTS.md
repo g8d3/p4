@@ -52,3 +52,6 @@ CRON.md. First manual run banked snapshot #4 (see report).
 - Every command: timeout it, background long runs, `close --all` browsers.
 - Never print secrets. Paper-track before live. $50 single-spend cap.
 - Venue APIs change — freshness tracking doubles as integration monitor.
+
+## Inherits
+- [../e068-tablelib/AGENTS.md](../e068-tablelib/AGENTS.md) — tables via tablelib (coins/paper/signals migrated)
