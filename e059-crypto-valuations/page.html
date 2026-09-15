@@ -102,8 +102,9 @@ function locTs(s){try{s=String(s||'').trim();if(!s)return '\u2014';const d=new D
 function cheapList(){return [...D.protocols].filter(p=>ratio(p)<1e17).sort((a,b)=>ratio(a)-ratio(b))}
 function trendWords(p){return p.trend_dir===-1?'getting cheaper':(p.trend_dir===1?'getting pricier':'steady')}
 function pulse(d){
-  const thru=d.protocols.length?d.protocols[0].data_through:'?';
-  return `Sampling ${d.protocols.length} coins daily from 2 free feeds (data through ${thru}).`;
+  const ts=[...new Set(d.protocols.map(p=>p.data_through).filter(Boolean))].sort();
+  const thru=ts.length>1?`mixed ${ts[0]}→${ts[ts.length-1]}`:(ts[0]||'?');
+  return `Sampling ${d.protocols.length} coins daily from 2 free feeds (data ${thru}).`;
 }
 function gradeDue(cc){
   const p=((cc&&cc.pending)||[]).map(x=>x.date).filter(Boolean).sort();
