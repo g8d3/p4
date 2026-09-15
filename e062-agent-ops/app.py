@@ -8,7 +8,9 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DB = os.environ.get('E062_DB', os.path.join(BASE, 'ops.db'))
 P4 = '/home/vuos/code/p4'
 TRACKS = {'e058': 'funding scanner', 'e059': 'valuations', 'e060': 'social radar',
-          'e061': 'game suite', 'e062': 'agent ops', 'e063': 'fleet ui v2', 'runner': 'dispatcher legs'}
+          'e061': 'game suite', 'e062': 'agent ops', 'e063': 'fleet ui v2',
+          'e064': 'x bookmarks', 'e065': 'idea factory', 'e066': 'arc directory',
+          'runner': 'dispatcher legs'}
 
 def get_prefs():
     import sqlite3

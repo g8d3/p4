@@ -9,7 +9,9 @@ E062 = '/home/vuos/code/p4/e062-agent-ops'
 DB = os.environ.get('E062_DB', os.path.join(E062, 'ops.db'))
 P4 = '/home/vuos/code/p4'
 TRACKS = {'e058': 'funding scanner', 'e059': 'valuations', 'e060': 'social radar',
-          'e061': 'game suite', 'e062': 'agent ops', 'e063': 'fleet ui v2', 'runner': 'dispatcher legs'}
+          'e061': 'game suite', 'e062': 'agent ops', 'e063': 'fleet ui v2',
+          'e064': 'x bookmarks', 'e065': 'idea factory', 'e066': 'arc directory',
+          'runner': 'dispatcher legs'}
 RUN_LOCK = '/tmp/e062-runner.lock'
 
 app = FastAPI()
