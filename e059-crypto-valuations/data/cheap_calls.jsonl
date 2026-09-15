@@ -19,3 +19,15 @@
 {"date": "2026-09-14", "symbol": "EULER", "category": "Lending", "ratio_call": 0.259, "p_fees": 1.2, "resolved": null, "hit": null}
 {"date": "2026-09-14", "symbol": "GMX", "category": "Perps", "ratio_call": 0.376, "p_fees": 6.86, "resolved": null, "hit": null}
 {"date": "2026-09-14", "symbol": "CAKE", "category": "DEX", "ratio_call": 0.798, "p_fees": 3.05, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "SOL", "category": "L1", "ratio_call": 0.172, "p_fees": 213.89, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "BNB", "category": "L1", "ratio_call": 0.304, "p_fees": 379.13, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "TRX", "category": "L1", "ratio_call": 0.089, "p_fees": 110.73, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "ARB", "category": "L2", "ratio_call": 0.769, "p_fees": 168.05, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "UNI", "category": "DEX", "ratio_call": 0.55, "p_fees": 2.1, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "CAKE", "category": "DEX", "ratio_call": 0.798, "p_fees": 3.05, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "GMX", "category": "Perps", "ratio_call": 0.364, "p_fees": 6.84, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "RAY", "category": "DEX", "ratio_call": 0.361, "p_fees": 1.38, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "APT", "category": "L1", "ratio_call": 0.368, "p_fees": 458.26, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "INJ", "category": "L1", "ratio_call": 0.195, "p_fees": 243.07, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "CVX", "category": "Yield", "ratio_call": 0.683, "p_fees": 7.06, "resolved": null, "hit": null}
+{"date": "2026-09-15", "symbol": "EULER", "category": "Lending", "ratio_call": 0.256, "p_fees": 1.2, "resolved": null, "hit": null}

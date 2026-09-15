@@ -23,3 +23,6 @@ A strategy degrading two legs running gets demoted to PAPER, never defended.
 
 ## Deep-tier split (run #88)
 - BACKTEST split: deep ≤0.5× 88/89 = 98.9% vs shallow 0.5–0.8× 31/36 = 86.1% (total 119/125 = 95.2%). The ★ deep tier validates: deepest cheap calls stay cheap far more reliably. Score line now carries the split first-paint + live. Paper still 0 resolved / 20 pending (30d window, first grades 10-14) — precision flat by construction until paper grades.
+
+## Run #123 (2026-09-15)
+- BACKTEST 119/124=96.0% (+2 hits vs run122 117/124=94.4%, trailing-12wk re-resolve, N=124 NOT THIN) · paper 0 resolved / 33 pending (30d window, first grades 10-14). First-paint was stale (117/124) until inject re-ran — writer-plus-inject now one chain. Stays PAPER (paper N=0). Next: hold LIVE badge daily; PROPOSE only on paper precision ≥60% over N≥20 + owner tap.
