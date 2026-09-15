@@ -3,15 +3,15 @@
   "network": "robinhood",
   "pool": "robinhood_0x4c25338827fb1227ee9d021320f8c282d613ecf8180cbfdf3e27e5a764c978ff",
   "pool_addr": "0x4c25338827fb1227ee9d021320f8c282d613ecf8180cbfdf3e27e5a764c978ff",
-  "px_usd": "0.0008219203134",
-  "ts": 1789338734
+  "px_usd": "0.0005261721095",
+  "ts": 1789434131
  },
  "0x9E410F73143C08A6A61Db99075Ba77895B4CE858": {
   "network": "robinhood",
   "pool": "robinhood_0xc2110f58c8143b981bac231b71ac5cc3bb32f8badff16768db6895104a787151",
   "pool_addr": "0xc2110f58c8143b981bac231b71ac5cc3bb32f8badff16768db6895104a787151",
-  "px_usd": "0.000002945069544",
-  "ts": 1789338736
+  "px_usd": "0.00000278200538",
+  "ts": 1789434135
  },
  "2HFakYaUp8au5oZThEvZ8wvSqoTreTQAvqtvoKarpump": {
   "network": "solana",
@@ -59,13 +59,13 @@
   "network": "solana",
   "pool": "solana_8Tfvhwk6swWCjo7DNKrp89wWqrTdj6o9HBoDhfXT2dy6",
   "pool_addr": "8Tfvhwk6swWCjo7DNKrp89wWqrTdj6o9HBoDhfXT2dy6",
-  "px_usd": "0.0001786874153",
-  "ts": 1789338850
+  "px_usd": "0.000006814753593",
+  "ts": 1789434182
  },
  "_meta": {
-  "ts": 1789382044,
-  "tokens": 22,
-  "resolved": 15,
+  "ts": 1789434189,
+  "tokens": 25,
+  "resolved": 18,
   "source": "geckoterminal-free"
  },
  "0x1cDb289BeFDFaC8aF945a288BCdcCc382cB34d32": {
@@ -105,8 +105,10 @@
  },
  "0xAaeA5EC642E0b3ebbE7B484AD3702a408cA743C9": {
   "network": "robinhood",
-  "error": "HTTP Error 429: Too Many Requests",
-  "ts": 1789382020
+  "pool": "robinhood_0x278c50bfed107785adad57860f5b96e595a05864d4a7add4ed32e59f589534af",
+  "pool_addr": "0x278c50bfed107785adad57860f5b96e595a05864d4a7add4ed32e59f589534af",
+  "px_usd": "0.000003671311598",
+  "ts": 1789434139
  },
  "0xDD5Ce3ee4aFD7F85ffB0b05e6DcCB87BE268071C": {
   "network": "robinhood",
@@ -144,5 +146,24 @@
   "pool_addr": "4e8nUMuLrD4y4YbrS4nVtFkbp9fnb5Y2Y4wtXCH1kQ2D",
   "px_usd": "0.0001267047829",
   "ts": 1789382041
+ },
+ "0x25fc5d4618078455a292690b4Ad06e227453cb06": {
+  "network": "robinhood",
+  "pool": "robinhood_0x91f378eebf09f8990938a5b6b85ce43d8ecb3f26abf30cc21e594930e125c213",
+  "pool_addr": "0x91f378eebf09f8990938a5b6b85ce43d8ecb3f26abf30cc21e594930e125c213",
+  "px_usd": "0.00002928998726",
+  "ts": 1789434125
+ },
+ "0x5F74b471746be666E40524721aCBc19Ef3967777": {
+  "network": "bsc",
+  "pool": "bsc_0xe1d0dd80dfb836ed2e8a0f6902210b9c17eebbfd",
+  "pool_addr": "0xe1d0dd80dfb836ed2e8a0f6902210b9c17eebbfd",
+  "px_usd": "0.00000976018295",
+  "ts": 1789434128
+ },
+ "5KGs4UpLsbEfHCXEDGWNcYb3WsLUvcBJSGzoTTvkpump": {
+  "network": "solana",
+  "error": "HTTP Error 429: Too Many Requests",
+  "ts": 1789434155
  }
 }
