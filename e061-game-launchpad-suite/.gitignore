@@ -1,2 +1,5 @@
+# runtime data: server-logged play counts, never committed
+demo/visits.jsonl
+demo/server.log
 *.db
 *.db-journal
