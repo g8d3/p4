@@ -61,3 +61,12 @@ Legs keep shipping verdict guards while score sits 0/0
 (blocked-on-time). Copy polish during measurement-wait is motion
 without movement — rank measurement and UX-law violations above
 wording guards until first grade lands (~2026-09-14).
+
+## 5. Thin flag on shadow bars (UX §7 honesty, found run #130 as owner)
+
+Opened the card as the owner: `stricter bar 60.0% (3/5, trying)` reads as a
+winning system, but N=5 is THIN (rule: N<20) and the API already said
+thin:true — the card just didn't render it. Same for looser bar (3/9).
+Fixed run #130: card appends `· thin` from `p.shadow.thin` /
+`p.shadow2.thin` next to each bar; e2e PASS, running==latest after restart.
+Story: never let a small percent travel without its sample size on a phone.
