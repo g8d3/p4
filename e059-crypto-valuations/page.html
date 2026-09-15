@@ -27,7 +27,7 @@ html.dark a{color:#8ab4ff}html.dark .cav{color:#aaa}html.dark .twrap{border-colo
 </style>
 <link rel="stylesheet" href="tablelib.css"></head>
 <body class="simple">
-<h1>e059 valuation multiples <span class="badge" id="fresh">…</span> <small id="ver" style="font-weight:normal"></small></h1>
+<h1>e059 valuation multiples <span class="badge" id="fresh">…</span> <small id="ver" style="font-weight:normal">v… · P/TVL on every cheap call</small></h1>
 <script>if(localStorage.e59==='d')document.documentElement.classList.add('dark')</script>
 <details class="cav"><summary>Coins priced against their sales — tap for sources.</summary>Top crypto protocols — P/Fees + P/Revenue (30d annualised, DefiLlama free + CoinGecko public).
 No trading, no wallet, read-only. <a href="/multiples.json">JSON</a> <a href="/multiples.csv">CSV</a></details>
@@ -94,7 +94,7 @@ function copySlip(btn){
   else fallback();
   function fallback(){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');done()}catch(e){}document.body.removeChild(ta);}
 }
-fetch('/version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit;}).catch(()=>{});
+fetch('/version.json').then(r=>r.json()).then(v=>{document.getElementById('ver').textContent='v'+v.commit+' · P/TVL on every cheap call';}).catch(()=>{});
 fetch('/multiples.json').then(r=>r.json()).then(d=>{
   D=d;
   const ageH=(Date.now()/1000-new Date(d.as_of).getTime()/1000)/3600;

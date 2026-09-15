@@ -320,8 +320,8 @@ def main():
     fresh_ts = f' data-ts="{as_ep}"' if as_ep is not None else ""
     html = html.replace('<span class="badge" id="fresh">…</span>',
                         f'<span{stale_cls} id="fresh"{fresh_ts}>{badge}</span>')
-    html = html.replace('<small id="ver" style="font-weight:normal"></small>',
-                        f'<small id="ver" style="font-weight:normal">v{commit}</small>')
+    html = html.replace('<small id="ver" style="font-weight:normal">v… · P/TVL on every cheap call</small>',
+                        f'<small id="ver" style="font-weight:normal">v{commit} · P/TVL on every cheap call</small>')
     html = html.replace('<div id="verdict" class="cav" style="font-size:14px;margin:.4em 0">…</div>',
                         f'<div id="verdict" class="cav" style="font-size:14px;margin:.4em 0">{verdict}</div>')
     html = html.replace('<div id="pulse" class="cav">…</div>',
