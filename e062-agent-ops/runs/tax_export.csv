@@ -1,0 +1,4 @@
+ts,iso8601,track,kind,amount_usd,tx_hash,notes
+1789192755,2026-09-12T05:59:15Z,e058,spend,0.3,,"bridge+gas estimate template, delete"
+1789252412,2026-09-12T22:33:32Z,e062,spend,0.0,,T1 leg: owner-first reporting enforcement (beat guard + runLine owner|tech + heartbeat retrofit + e2e assert); no paid calls
+1789290273,2026-09-13T09:04:33Z,e060,spend,0.0,,"run #41 early-read probe (Dexscreener free + local, no fetch)"

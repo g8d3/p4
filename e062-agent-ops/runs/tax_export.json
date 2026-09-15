@@ -1,0 +1,54 @@
+{
+  "exported_at": "2026-09-14T00:39:48Z",
+  "db": "ops.db",
+  "filters": {
+    "track": null,
+    "year": null,
+    "kind": null
+  },
+  "columns": [
+    "ts",
+    "iso8601",
+    "track",
+    "kind",
+    "amount_usd",
+    "tx_hash",
+    "notes"
+  ],
+  "summary": {
+    "n": 3,
+    "spent_usd": 0.3,
+    "earned_usd": 0,
+    "net_usd": -0.3,
+    "onchain_actions": 0
+  },
+  "rows": [
+    {
+      "ts": 1789192755,
+      "iso8601": "2026-09-12T05:59:15Z",
+      "track": "e058",
+      "kind": "spend",
+      "amount_usd": 0.3,
+      "tx_hash": "",
+      "notes": "bridge+gas estimate template, delete"
+    },
+    {
+      "ts": 1789252412,
+      "iso8601": "2026-09-12T22:33:32Z",
+      "track": "e062",
+      "kind": "spend",
+      "amount_usd": 0.0,
+      "tx_hash": "",
+      "notes": "T1 leg: owner-first reporting enforcement (beat guard + runLine owner|tech + heartbeat retrofit + e2e assert); no paid calls"
+    },
+    {
+      "ts": 1789290273,
+      "iso8601": "2026-09-13T09:04:33Z",
+      "track": "e060",
+      "kind": "spend",
+      "amount_usd": 0.0,
+      "tx_hash": "",
+      "notes": "run #41 early-read probe (Dexscreener free + local, no fetch)"
+    }
+  ]
+}
