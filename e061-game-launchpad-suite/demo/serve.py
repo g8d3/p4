@@ -144,6 +144,27 @@ class H(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.split("?")[0] == "/api/stats":
             return self._json(stats())
+        if self.path.split("?")[0] in ("/", "/index.html"):
+            # BAKED PULSE (run #144): slow phones saw `players (server): …`
+            # until the JS fetch landed. Server bakes current counts into
+            # the HTML; refreshPulse() still upgrades it live after load.
+            try:
+                s = stats()
+                html = open(os.path.join(HERE, "index.html")).read()
+                baked = ("players (server): %d visits \u00b7 %d players \u00b7 "
+                         "%d back day-2 \u00b7 wins %d" %
+                         (s["visits"], s["players"], s["day2"], s["wins"]))
+                html = html.replace("players (server): \u2026", baked)
+                body = html.encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            except Exception:
+                pass
         return super().do_GET()
 
 
