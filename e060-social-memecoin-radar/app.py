@@ -256,6 +256,8 @@ def grade_src_line():
                 parts.append(f"{live_n} live")
             if backup_n:
                 parts.append(f"{backup_n} backup")
+            if npools and not backup_n:
+                parts.append(f"backup {npools} pools ready")
             return f"grades {' + '.join(parts)}"
     except Exception:
         pass

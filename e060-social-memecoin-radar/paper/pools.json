@@ -17,8 +17,8 @@
   "network": "solana",
   "pool": "solana_GDv74w6ALCmH6Yg7sZw46L2Q6nhbTBFJkPnQCaQcKr5B",
   "pool_addr": "GDv74w6ALCmH6Yg7sZw46L2Q6nhbTBFJkPnQCaQcKr5B",
-  "px_usd": "0.000002304523747",
-  "ts": 1789338737
+  "px_usd": "0.000002396750037",
+  "ts": 1789435869
  },
  "66aBzVKucLmWvY2JEU5CjAYcUSz7YcpoBDfXXWV9pump": {
   "network": "solana",
@@ -63,9 +63,9 @@
   "ts": 1789434182
  },
  "_meta": {
-  "ts": 1789434189,
+  "ts": 1789435909,
   "tokens": 25,
-  "resolved": 18,
+  "resolved": 22,
   "source": "geckoterminal-free"
  },
  "0x1cDb289BeFDFaC8aF945a288BCdcCc382cB34d32": {
@@ -112,18 +112,24 @@
  },
  "0xDD5Ce3ee4aFD7F85ffB0b05e6DcCB87BE268071C": {
   "network": "robinhood",
-  "error": "HTTP Error 429: Too Many Requests",
-  "ts": 1789382023
+  "pool": "robinhood_0x5f967ab6fd60ef400301f2130ecba239cf43264533fe6841686f7eac1e16cf4a",
+  "pool_addr": "0x5f967ab6fd60ef400301f2130ecba239cf43264533fe6841686f7eac1e16cf4a",
+  "px_usd": "0.000003036132381",
+  "ts": 1789435865
  },
  "3nkVw4JwdDLGM23Wzqpy2ptAPV5YgMnokEBgijDBpump": {
   "network": "solana",
-  "error": "HTTP Error 429: Too Many Requests",
-  "ts": 1789382026
+  "pool": "solana_3WbMNEXoXSGWpgXbAwWpGANVXGZSN5bQr1LNu76aFzSZ",
+  "pool_addr": "3WbMNEXoXSGWpgXbAwWpGANVXGZSN5bQr1LNu76aFzSZ",
+  "px_usd": "0.0004639036628",
+  "ts": 1789435872
  },
  "4JiyyzzVFpkXgmTnggFdjuibMZ42ovozoneZU4xVpump": {
   "network": "solana",
-  "error": "HTTP Error 429: Too Many Requests",
-  "ts": 1789382029
+  "pool": "solana_9xkoikYUirL96mvqnKV9ggE87RLszXfQpSRhYfY8iZ3A",
+  "pool_addr": "9xkoikYUirL96mvqnKV9ggE87RLszXfQpSRhYfY8iZ3A",
+  "px_usd": "0.000002676711368",
+  "ts": 1789435875
  },
  "9GPG5ifxoBXQroVTHmGanxmFGxYDTFPZqKunGueKpump": {
   "network": "solana",
@@ -163,7 +169,9 @@
  },
  "5KGs4UpLsbEfHCXEDGWNcYb3WsLUvcBJSGzoTTvkpump": {
   "network": "solana",
-  "error": "HTTP Error 429: Too Many Requests",
-  "ts": 1789434155
+  "pool": "solana_6U9HJU24RZxixDsWR2aUAYUiZM757r6xvYNUGNodSs9v",
+  "pool_addr": "6U9HJU24RZxixDsWR2aUAYUiZM757r6xvYNUGNodSs9v",
+  "px_usd": "0.000002483044976",
+  "ts": 1789435879
  }
 }
