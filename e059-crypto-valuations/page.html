@@ -16,7 +16,7 @@ button.on{background:#0366d6;color:#fff;border-color:#0366d6}
 .thin{background:#ffe9c4;color:#5a3c00;padding:0 6px;border-radius:8px;font-size:11px;white-space:nowrap}
 html.dark .thin{background:#5a3c00;color:#ffe9c4}
 .spark{font-size:15px;letter-spacing:1px;white-space:nowrap}
-body.simple .c-name,body.simple .c-cat,body.simple .c-mcap,body.simple .c-7d,body.simple .c-mom,body.simple .c-rev,body.simple .c-thru,body.simple .c-vol,body.simple .c-chg{display:none}
+body.simple .c-name,body.simple .c-cat,body.simple .c-mcap,body.simple .c-7d,body.simple .c-mom,body.simple .c-rev,body.simple .c-thru,body.simple .c-stale,body.simple .c-vol,body.simple .c-chg{display:none}
 #thumbbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--tb,#fff);border-top:1px solid #ccc;padding:10px 8px calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;overflow-x:auto;box-shadow:0 -2px 8px rgba(0,0,0,.08)}
 #thumbbar button{flex:0 0 auto;padding:10px 16px;font-size:15px;border-radius:10px}
 html.dark #thumbbar{background:#161a20;border-color:#444}
@@ -43,6 +43,16 @@ No trading, no wallet, read-only. <a href="/multiples.json">JSON</a> <a href="/m
 <div id="thumbbar"></div>
 <script>
 let D=null;
+/* tablelib date-kind shim: native support lands in parallel. Until the
+   vendored tablelib.js formats kind=date itself, format epoch cells as
+   MM/DD HH:MM (UTC) and stamp data-ts after every render. Idempotent:
+   skips cells the native lib already stamped. */
+function tlEpoch(v){if(v===null||v===undefined||v==='')return null;if(typeof v==='number'&&isFinite(v))return Math.floor(v>1e12?v/1000:v);var t=Date.parse(String(v));return isNaN(t)?null:Math.floor(t/1000);}
+function tlDateFmt(ep){var d=new Date(ep*1000);var p=function(n){return (n<10?'0':'')+n;};return p(d.getUTCMonth()+1)+'/'+p(d.getUTCDate())+' '+p(d.getUTCHours())+':'+p(d.getUTCMinutes());}
+function epDay(s){try{var m=String(s||'').trim().slice(0,10).split('-');if(m.length<3)return null;return Math.floor(Date.UTC(+m[0],+m[1]-1,+m[2])/1000);}catch(e){return null;}}
+(function(){if(typeof window.tlCell!=='function')return;var orig=window.tlCell;var probe=null;try{probe=orig('__probe__',{x:1757894400},{key:'x',kind:'date',label:'x'});}catch(e){}if(probe!==null&&probe!=='1757894400'&&String(probe).indexOf('1757894400')<0)return;window.tlCell=function(ns,r,c){if(c&&c.kind==='date'){var v=r[c.key];if(v===null||v===undefined||v==='')return '—';var ep=tlEpoch(v);if(ep===null)return String(v);return tlDateFmt(ep);}return orig(ns,r,c);};})();
+function tlDateFix(ns){try{var s=tlState(ns);var dk=[];s.cols.forEach(function(c,i){if(c.kind==='date')dk.push({i:i,key:c.key});});if(!dk.length)return;var list=tlFiltered(ns);var rows=list.slice((s.page-1)*s.per,s.page*s.per);var tb=document.querySelector('#tl-'+ns+' tbody');if(!tb)return;rows.forEach(function(r,ri){var tr=tb.children[ri];if(!tr)return;dk.forEach(function(dd){var td=tr.children[dd.i];if(!td||td.hasAttribute('data-ts'))return;var ep=tlEpoch(r[dd.key]);if(ep===null)return;td.setAttribute('data-ts',String(ep));td.textContent=tlDateFmt(ep);});});}catch(e){}}
+(function(){if(typeof window.tlRender!=='function')return;var orig=window.tlRender;window.tlRender=function(ns){orig(ns);tlDateFix(ns);};})();
 /* table rendered by tablelib; categories = auto preset chips. */
 /* cells rendered by tablelib now; ratio() stays for verdict/alerts/slip. */
 function ratio(p){
@@ -55,17 +65,22 @@ function cheapList(){return [...D.protocols].filter(p=>ratio(p)<1e17).sort((a,b)
 function trendWords(p){return p.trend_dir===-1?'getting cheaper':(p.trend_dir===1?'getting pricier':'steady')}
 function modeThru(d){const c={};for(const p of d.protocols){if(p.data_through)c[p.data_through]=(c[p.data_through]||0)+1}let m='?',n=-1;for(const k in c){if(c[k]>n){n=c[k];m=k}}return m}
 function pulse(d){
-  const mode=modeThru(d);
-  const lag=d.protocols.filter(p=>p.data_through!==mode).length;
-  const thruTxt=lag?`${d.protocols.length-lag} current thru ${mode}, ${lag} lagging \u2014 marked stale`:`data through ${mode}`;
-  return `Sampling ${d.protocols.length} coins daily from 2 free feeds (${thruTxt}).`;
+  return `Sampling ${d.protocols.length} coins daily from 2 free feeds.`;
+}
+function freshTable(d){
+  var mode=modeThru(d);
+  var mep=epDay(mode);
+  var lag=d.protocols.filter(function(p){return p.data_through!==mode;}).length;
+  var cur=d.protocols.length-lag;
+  return '<div class="twrap"><table><thead><tr><th>coverage</th><th>coins</th><th>through</th></tr></thead><tbody>'
+    +'<tr><td data-l="coverage">current</td><td data-l="coins">'+cur+'</td><td data-l="through" data-ts="'+mep+'">'+tlDateFmt(mep)+'</td></tr>'
+    +'<tr><td data-l="coverage">lagging</td><td data-l="coins">'+lag+'</td><td data-l="through">—</td></tr>'
+    +'</tbody></table></div>';
 }
 function verdict(){
   const l=cheapList();
   if(!l.length)return D.protocols.length+' coins priced vs sales — tap below for what the columns mean.';
-  const p=l[0];
-  const stale=p.data_through!==modeThru(D)?' (stale data)':'';
-  return `Cheapest vs its group: ${p.symbol} at ${(ratio(p)).toFixed(1)}× ${p.category} median, ${trendWords(p)}${stale}.`;
+  return `Cheapest vs its group: ${l[0].symbol}.`;
 }
 function slip(){
   const l=cheapList().slice(0,3);
@@ -84,10 +99,13 @@ fetch('/multiples.json').then(r=>r.json()).then(d=>{
   D=d;
   const ageH=(Date.now()/1000-new Date(d.as_of).getTime()/1000)/3600;
   const stale=ageH>49;
-  document.getElementById('fresh').textContent=(stale?'STALE ':'LIVE ')+locTs(d.as_of);
-  if(stale)document.getElementById('fresh').classList.add('stale');
+  const freshEl=document.getElementById('fresh');
+  freshEl.textContent=(stale?'STALE ':'LIVE ')+locTs(d.as_of);
+  var aep=tlEpoch(d.as_of);
+  if(aep!==null)freshEl.setAttribute('data-ts',String(aep));
+  if(stale)freshEl.classList.add('stale');
   document.getElementById('verdict').textContent=verdict();
-  document.getElementById('pulse').textContent=pulse(d);
+  document.getElementById('pulse').innerHTML=pulse(d)+freshTable(d);
 
   document.getElementById('metasum').textContent=
     d.protocols.length+' coins priced vs sales — tap for what the columns mean.';

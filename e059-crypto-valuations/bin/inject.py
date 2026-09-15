@@ -71,6 +71,12 @@ def datize(html, label, epochs):
 def main():
     d = json.load(open(os.path.join(OUT, "multiples.json")))
     try:
+        _tvl = json.load(open(os.path.join(OUT, "tvl.json")))
+        _tvlmap = {r.get("symbol"): r.get("p_tvl") for r in (_tvl.get("rows") or [])}
+        _tvlcov = _tvl.get("coverage", "?")
+    except Exception:
+        _tvlmap, _tvlcov = {}, "?"
+    try:
         cc = json.load(open(os.path.join(OUT, "cheap_calls.json")))
     except Exception:
         cc = {}
@@ -242,6 +248,8 @@ def main():
         {"key": "p7", "label": "P/Fees 7d", "cls": "c-7d", "kind": "num", "fmt": "{:.2f}"},
         {"key": "mom", "label": "momentum 7d/30d", "cls": "c-mom", "kind": "num", "fmt": "{:.2f}"},
         {"key": "prev", "label": "P/Revenue", "cls": "c-rev", "kind": "num", "fmt": "{:.2f}"},
+        {"key": "ptvl", "label": "P/TVL", "cls": "c-ptvl", "kind": "num",
+         "fmt": "{:.2f}", "ph": "\u2264 max"},
         {"key": "thru", "label": "through", "cls": "c-thru tl-nw", "kind": "date"},
         {"key": "stale", "label": "stale", "cls": "c-stale", "kind": "text", "ph": "stale?"},
     ]
@@ -265,6 +273,7 @@ def main():
             "chg7": p.get("price_change_7d_pct"),
             "p7": p.get("p_fees_7d"), "mom": p.get("fees_momentum"),
             "prev": p.get("p_revenue"),
+            "ptvl": _tvlmap.get(p.get("symbol")),
             "thru": epoch_day(p.get("data_through")),
             "stale": ("stale" if p.get("data_through") != mode_thru else "ok"),
         })
@@ -293,6 +302,7 @@ def main():
         {"k": "momentum", "v": "7d fees / 30d fees pace (>1 = accelerating)"},
         {"k": "P/Fees 7d", "v": "price / 7d-annualised fees"},
         {"k": "P/Revenue", "v": "price / annualised protocol revenue"},
+        {"k": "P/TVL", "v": "price / locked value (free TVL " + str(_tvlcov) + "); lower = cheaper vs deposits"},
         {"k": "through", "v": "data date of that coin row"},
         {"k": "stale", "v": "ok = current, stale = lagging the mode date"},
         {"k": "deep", "v": "star = 0.5x group or cheaper"},
