@@ -6,10 +6,10 @@
  "min_legs": 2,
  "lookahead_h": 24,
  "window_first": "2026-09-12T02:25:15Z",
- "window_last": "2026-09-14T12:17:31Z",
- "n_signals": 2168,
- "n_hit": 1019,
- "hit_rate_pct": 47.0,
+ "window_last": "2026-09-14T12:48:00Z",
+ "n_signals": 2199,
+ "n_hit": 1029,
+ "hit_rate_pct": 46.8,
  "median_apy_decay": 1.0,
  "per_coin": {
   "4": {
@@ -89,7 +89,7 @@
    "hit": 0
   },
   "BRENT": {
-   "n": 17,
+   "n": 19,
    "hit": 0
   },
   "BTC": {
@@ -113,7 +113,7 @@
    "hit": 0
   },
   "CL": {
-   "n": 41,
+   "n": 43,
    "hit": 8
   },
   "COIN": {
@@ -125,7 +125,7 @@
    "hit": 0
   },
   "DEEP": {
-   "n": 93,
+   "n": 95,
    "hit": 44
   },
   "DELL": {
@@ -141,7 +141,7 @@
    "hit": 0
   },
   "FOLKS": {
-   "n": 10,
+   "n": 12,
    "hit": 0
   },
   "GPRO": {
@@ -169,23 +169,23 @@
    "hit": 0
   },
   "IP": {
-   "n": 204,
-   "hit": 204
+   "n": 206,
+   "hit": 206
   },
   "IREN": {
    "n": 3,
    "hit": 0
   },
   "JUP": {
-   "n": 182,
-   "hit": 146
+   "n": 184,
+   "hit": 148
   },
   "KAITO": {
    "n": 16,
    "hit": 0
   },
   "KIOXIA": {
-   "n": 13,
+   "n": 14,
    "hit": 1
   },
   "KORU": {
@@ -193,12 +193,12 @@
    "hit": 0
   },
   "LA": {
-   "n": 8,
+   "n": 10,
    "hit": 8
   },
   "LSK": {
-   "n": 96,
-   "hit": 82
+   "n": 98,
+   "hit": 84
   },
   "MEME": {
    "n": 9,
@@ -249,11 +249,11 @@
    "hit": 1
   },
   "PAYP": {
-   "n": 17,
+   "n": 19,
    "hit": 0
   },
   "POLYX": {
-   "n": 38,
+   "n": 40,
    "hit": 17
   },
   "POPMART": {
@@ -265,7 +265,7 @@
    "hit": 0
   },
   "POWR": {
-   "n": 89,
+   "n": 91,
    "hit": 53
   },
   "PURR": {
@@ -285,8 +285,8 @@
    "hit": 0
   },
   "S": {
-   "n": 76,
-   "hit": 76
+   "n": 78,
+   "hit": 78
   },
   "SKHX": {
    "n": 23,
@@ -321,7 +321,7 @@
    "hit": 0
   },
   "STEEM": {
-   "n": 50,
+   "n": 52,
    "hit": 32
   },
   "SUI": {
@@ -329,7 +329,7 @@
    "hit": 0
   },
   "T": {
-   "n": 16,
+   "n": 18,
    "hit": 11
   },
   "TREE": {
@@ -341,8 +341,8 @@
    "hit": 20
   },
   "WAL": {
-   "n": 162,
-   "hit": 114
+   "n": 164,
+   "hit": 116
   },
   "XAU": {
    "n": 2,
@@ -357,7 +357,7 @@
    "hit": 15
   }
  },
- "computed_ts": "2026-09-15T12:32:17Z",
+ "computed_ts": "2026-09-15T13:00:52Z",
  "elapsed_s": 2.3,
- "summary": "47.0% of steady calls still paying 24h later (1019/2168, median APY kept 1.0x)"
+ "summary": "46.8% of steady calls still paying 24h later (1029/2199, median APY kept 1.0x)"
 }
