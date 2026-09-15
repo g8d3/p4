@@ -36,11 +36,14 @@ No trading, no wallet, read-only. <a href="/multiples.json">JSON</a> <a href="/m
 <details id="meta" class="cav"><summary id="metasum">…</summary><div id="metadetail"></div></details>
 <div id="cats" style="margin:.6em 0"></div>
 <div class="twrap"><table id="t"></table></div>
+<div id="pager" class="cav">…</div>
 <div id="cavs" class="cav"></div>
 <div id="thumbbar"></div>
 <script>
 let D=null, filter='ALL', cheapFirst=false;
-function setFilter(c){filter=c;render()}
+let page=0; const PER=10;
+function chgPage(d){page+=d;render()}
+function setFilter(c){filter=c;page=0;render()}
 function mom(p){
   if(p.fees_momentum==null)return '—';
   const cls=p.fees_momentum>=1?'up':'dn';
@@ -90,8 +93,13 @@ function render(){
   let h='<thead><tr><th>token</th><th class="c-name">name</th><th class="c-cat">cat</th><th class="c-mcap">mcap $B</th><th class="c-pf">P/Fees 30d</th><th class="c-vs">vs cat</th><th class="c-tr">sales 6wk</th><th class="c-vol">vol 24h</th><th class="c-chg">24h %</th><th class="c-chg7">7d %</th><th class="c-7d">P/Fees 7d</th><th class="c-mom">momentum 7d/30d</th><th class="c-rev">P/Revenue</th><th class="c-thru">through</th></tr></thead><tbody>';
   const med=filter!=='ALL'?D.category_medians[filter]:null;
   if(med){const thin=(med.n!=null&&med.n<20)?' <span class="thin">thin</span>':'';h+=`<tr class="med"><td>◊</td><td class="c-name">${filter} median (n=${med.n})${thin}</td><td class="c-cat"></td><td class="c-mcap"></td><td class="c-pf">${med.median_p_fees??'—'}</td><td class="c-vs">1.0×</td><td class="c-tr"></td><td class="c-vol"></td><td class="c-chg"></td><td class="c-chg7"></td><td class="c-7d"></td><td class="c-mom">${med.median_momentum??'—'}×</td><td class="c-rev">${med.median_p_revenue??'—'}</td><td class="c-thru"></td></tr>`;
-  for(const p of list){h+=`<tr><td>${p.symbol}</td><td class="c-name">${p.name}</td><td class="c-cat">${p.category||''}</td><td class="c-mcap">${p.market_cap_usd==null?'—':(p.market_cap_usd/1e9).toFixed(1)}</td><td class="c-pf">${p.p_fees??'—'}</td><td class="c-vs">${vscat(p)}</td><td class="c-tr">${trend(p)}</td><td class="c-vol">${fmtVol(p.volume_24h_usd)}</td><td class="c-chg">${chg(p)}</td><td class="c-chg7">${chg7(p)}</td><td class="c-7d">${p.p_fees_7d??'—'}</td><td class="c-mom">${mom(p)}</td><td class="c-rev">${p.p_revenue??'—'}</td><td class="c-thru">${p.data_through}</td></tr>`}
+  const totalPages=Math.max(1,Math.ceil(list.length/PER));
+  if(page>=totalPages)page=totalPages-1; if(page<0)page=0;
+  const rows=list.slice(page*PER,(page+1)*PER);
+  for(const p of rows){h+=`<tr><td>${p.symbol}</td><td class="c-name">${p.name}</td><td class="c-cat">${p.category||''}</td><td class="c-mcap">${p.market_cap_usd==null?'—':(p.market_cap_usd/1e9).toFixed(1)}</td><td class="c-pf">${p.p_fees??'—'}</td><td class="c-vs">${vscat(p)}</td><td class="c-tr">${trend(p)}</td><td class="c-vol">${fmtVol(p.volume_24h_usd)}</td><td class="c-chg">${chg(p)}</td><td class="c-chg7">${chg7(p)}</td><td class="c-7d">${p.p_fees_7d??'—'}</td><td class="c-mom">${mom(p)}</td><td class="c-rev">${p.p_revenue??'—'}</td><td class="c-thru">${p.data_through}</td></tr>`}
   document.getElementById('t').innerHTML=h+'</tbody>';
+  const pg=document.getElementById('pager');
+  if(pg){pg.innerHTML=`Page ${page+1}/${totalPages} · ${list.length} rows · ${PER} per page <button onclick="chgPage(-1)">← Prev</button> <button onclick="chgPage(1)">Next →</button>`;}
   document.querySelectorAll('#cats button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
   document.querySelectorAll('#thumbbar button[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c===filter));
   document.getElementById('cheapbtn').classList.toggle('on',cheapFirst);
@@ -168,7 +176,7 @@ fetch('/multiples.json').then(r=>r.json()).then(d=>{
   document.getElementById('thumbbar').innerHTML=btns+` <button id="cheapbtn">💰 cheap first</button> <button id="copybtn">📋 copy top 3</button> <button id="simplebtn">📱 simple</button><button id="fullbtn">📊 full</button> <button id="darkbtn">🌙 dark</button>`;
   document.querySelectorAll('#cats button').forEach(b=>b.onclick=()=>setFilter(b.dataset.c));
   document.querySelectorAll('#thumbbar button[data-c]').forEach(b=>b.onclick=()=>setFilter(b.dataset.c));
-  document.getElementById('cheapbtn').onclick=()=>{cheapFirst=!cheapFirst;render()};
+  document.getElementById('cheapbtn').onclick=()=>{cheapFirst=!cheapFirst;page=0;render()};
   document.getElementById('copybtn').onclick=e=>copySlip(e.target);
   const darkLbl=()=>{document.getElementById('darkbtn').textContent=document.documentElement.classList.contains('dark')?'☀️ light':'🌙 dark'};
   darkLbl();

@@ -53,8 +53,13 @@ def main():
         badge = f"{'STALE' if stale else 'LIVE'} {as_of.month:02d}/{as_of.day:02d} {as_of.hour:02d}:{as_of.minute:02d}"
     except Exception:
         badge, stale = "LIVE ?", False
+    thrus = sorted(p.get('data_through', '?') for p in d['protocols'] if p.get('data_through'))
+    if len(thrus) > 1 and thrus[0] != thrus[-1]:
+        thru_txt = f"data mixed {thrus[0]}\u2192{thrus[-1]}"
+    else:
+        thru_txt = f"data through {(thrus[0] if thrus else '?')}"
     pulse = (f"Sampling {len(d['protocols'])} coins daily from 2 free feeds "
-             f"(data through {d['protocols'][0].get('data_through', '?') if d['protocols'] else '?'}).")
+             f"({thru_txt}).")
 
     bt = (cc.get("backtest") or {})
     pp = (cc.get("paper") or {})
@@ -99,6 +104,63 @@ def main():
         alerts = (f"<b>cheap-vs-peers alerts:</b> only {len(cheap)}/5 qualifiers ≤0.8× "
                   "(thin coverage — widening next).")
 
+    PER = 10
+    by_fee = sorted(d["protocols"],
+                    key=lambda p: (p.get("p_fees") is None, p.get("p_fees") or 0))
+    total, pages = len(by_fee), max(1, (len(by_fee) + PER - 1) // PER)
+
+    def _fmt_vol(v):
+        if v is None:
+            return "\u2014"
+        if v >= 1e9:
+            return f"{v / 1e9:.1f}B"
+        if v >= 1e6:
+            return f"{round(v / 1e6)}M"
+        return f"{round(v / 1e3)}k"
+
+    def _pct(v):
+        if v is None:
+            return "\u2014"
+        return f"{'+' if v >= 0 else ''}{v:.1f}%"
+
+    thead = ("<thead><tr><th>token</th><th class=\"c-name\">name</th>"
+             "<th class=\"c-cat\">cat</th><th class=\"c-mcap\">mcap $B</th>"
+             "<th class=\"c-pf\">P/Fees 30d</th><th class=\"c-vs\">vs cat</th>"
+             "<th class=\"c-tr\">sales 6wk</th><th class=\"c-vol\">vol 24h</th>"
+             "<th class=\"c-chg\">24h %</th><th class=\"c-chg7\">7d %</th>"
+             "<th class=\"c-7d\">P/Fees 7d</th>"
+             "<th class=\"c-mom\">momentum 7d/30d</th>"
+             "<th class=\"c-rev\">P/Revenue</th>"
+             "<th class=\"c-thru\">through</th></tr></thead><tbody>")
+    ssr_rows = []
+    for p in by_fee[:PER]:
+        m = meds.get(p.get("category", ""), {})
+        mp = m.get("median_p_fees")
+        r = (p["p_fees"] / mp) if (p.get("p_fees") and mp) else None
+        thin = (f' <span class="thin">thin n={m.get("n")}</span>'
+                if m.get("n") is not None and m["n"] < 20 else "")
+        vs = (f"{r:.1f}{thin}" if r is not None else "\u2014")
+        mcap = "\u2014" if p.get("market_cap_usd") is None else f"{p['market_cap_usd'] / 1e9:.1f}"
+        mom = "\u2014" if p.get("fees_momentum") is None else f"{p['fees_momentum']:.2f}\u00d7"
+        ssr_rows.append(
+            f"<tr><td>{p['symbol']}</td><td class=\"c-name\">{p['name']}</td>"
+            f"<td class=\"c-cat\">{p.get('category', '')}</td>"
+            f"<td class=\"c-mcap\">{mcap}</td>"
+            f"<td class=\"c-pf\">{p.get('p_fees', '\u2014')}</td>"
+            f"<td class=\"c-vs\">{vs}</td>"
+            f"<td class=\"c-tr\">{p.get('trend_spark') or '\u2014'}</td>"
+            f"<td class=\"c-vol\">{_fmt_vol(p.get('volume_24h_usd'))}</td>"
+            f"<td class=\"c-chg\">{_pct(p.get('price_change_24h_pct'))}</td>"
+            f"<td class=\"c-chg7\">{_pct(p.get('price_change_7d_pct'))}</td>"
+            f"<td class=\"c-7d\">{p.get('p_fees_7d', '\u2014')}</td>"
+            f"<td class=\"c-mom\">{mom}</td>"
+            f"<td class=\"c-rev\">{p.get('p_revenue', '\u2014')}</td>"
+            f"<td class=\"c-thru\">{p.get('data_through', '?')}</td></tr>")
+    ssr_table = f'<table id="t">{thead}' + "".join(ssr_rows) + "</tbody></table>"
+    ssr_pager = (f'Page 1/{pages} \u00b7 {total} rows \u00b7 {PER} per page '
+                 f'<button onclick="chgPage(-1)">\u2190 Prev</button> '
+                 f'<button onclick="chgPage(1)">Next \u2192</button>')
+
     html = open(os.path.join(ROOT, "page.html")).read()
     stale_cls = ' class="badge stale"' if stale else ' class="badge"'
     html = html.replace('<span class="badge" id="fresh">…</span>',
@@ -115,6 +177,9 @@ def main():
                         f'<div id="alerts" class="cav" style="font-size:13px;margin:.4em 0">{alerts}</div>')
     html = html.replace('<summary id="metasum">…</summary>',
                         f'<summary id="metasum">{len(d["protocols"])} coins priced vs sales — tap for what the columns mean.</summary>')
+    html = html.replace('<table id="t"></table>', ssr_table)
+    html = html.replace('<div id="pager" class="cav">…</div>',
+                        f'<div id="pager" class="cav">{ssr_pager}</div>')
     open(os.path.join(OUT, "index.html"), "w").write(html)
     print(f"inject ok: verdict={verdict!r} pulse={pulse!r} score={score!r} alerts_n={len(cheap)}")
 

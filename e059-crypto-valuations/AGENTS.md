@@ -43,6 +43,9 @@ trend columns and breaks e2e. The ONLY blessed refresh is `bin/refresh.sh`
 (valuations -> trend -> cheap_calls -> inject -> version stamp). e2e stays
 fail-closed on shape so a partial pipeline can never serve silently.
 
+## Inherits
+- [../e000-fundamentals/TABLE_FIRST.md](../e000-fundamentals/TABLE_FIRST.md) — table-first rule + table_check.py
+
 ## First tasks
 
 1. Survey fundamentals sources (Token Terminal, Artemis, DefiLlama
