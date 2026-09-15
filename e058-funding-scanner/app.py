@@ -672,8 +672,23 @@ def _server_card():
     except Exception:
         ph = 'paper: logging'
     _hr = f"{n/1e6:.1f}M" if n >= 1_000_000 else f"{n//1000}k"
+    try:
+        _rn = _rh = _tn = _th = 0
+        for _st in _pc.values():
+            _n = int(_st.get('n', 0) or 0)
+            _h = int(_st.get('hit', 0) or 0)
+            if _n >= 5:
+                _rn += _n
+                _rh += _h
+            else:
+                _tn += _n
+                _th += _h
+        _gate = (f" · gate: proven {round(100.0*_rh/max(1,_rn),1)}% vs thin {round(100.0*_th/max(1,_tn),1)}%"
+                 if (_rn + _tn) > 0 else '')
+    except Exception:
+        _gate = ''
     pulse = (f"data: {_hr} rows, sample {age_m:.0f}m ago every ~{cad}m | "
-             f"{bt} · {ph} | version {_VRUN}")
+             f"{bt} · {ph}{_gate} | version {_VRUN}")
     if t3:
         _row = ''.join(
             f"<button class=pick onclick=\"pickCoin('{html.escape(r['coin'])}')\">"
