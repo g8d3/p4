@@ -159,11 +159,10 @@ _TL_PAPER_COLS = [
     {"key": "verdict", "label": "verdict", "cls": "", "kind": "text"},
     {"key": "entry", "label": "entry", "cls": "", "kind": "date"},
     {"key": "exit", "label": "exit", "cls": "", "kind": "date"},
+    {"key": "grade_at", "label": "grades", "cls": "", "kind": "date"},
     {"key": "spout", "label": "spread out", "cls": "", "kind": "num", "fmt": "{:.1f}"},
     {"key": "delta", "label": "Δ spread", "cls": "", "kind": "num", "fmt": "{:+.1f}"},
     {"key": "result", "label": "result", "cls": "", "kind": "text"},
-    {"key": "ago_h", "label": "ago h", "cls": "", "kind": "num", "fmt": "{:.0f}"},
-    {"key": "in_h", "label": "grades in h", "cls": "", "kind": "num", "fmt": "{:.0f}"},
 ]
 _TL_PWIN_COLS = [
     {"key": "day", "label": "day", "cls": "", "kind": "text"},
@@ -374,8 +373,8 @@ details.cfg summary{cursor:pointer}
 </div></details>
 </div></details>
 <div id=s style="margin:8px 0"><details><summary><b>signal history</b> <small id=sig-sum>(every sent alert, newest first)</small></summary> <button onclick=loadSig() style="padding:2px 8px;font-size:12px">refresh</button>
-%%SIGNALS%%</details></div>
-<div id=pb style="margin:8px 0"><details><summary><b>paper ballot</b> <small id=pb-sum>(tap to expand)</small></summary>%%PSUMMARY%%%%PWIN%% <button onclick=loadPaper() style="padding:2px 8px;font-size:12px">refresh</button>
+%%SIGNALS%%<div style="margin:4px 0;font-size:12px;opacity:.7">alerts by hour (UTC):</div>%%SIGHOURS%%</details></div>
+<div id=pb style="margin:8px 0"><details><summary><b>paper ballot</b> <small id=pb-sum>(tap to expand)</small></summary><div style="margin:4px 0;font-size:12px;opacity:.7">Funnel: each row feeds the next — snapshot → holders → alerts + paper → graded.</div>%%FUNNEL%%%%PSUMMARY%%<div style="margin:4px 0;font-size:12px;opacity:.7">Pending calls grouped by day — each grades ~24h after its first log.</div>%%PWIN%% <button onclick=loadPaper() style="padding:2px 8px;font-size:12px">refresh</button>
 %%PAPER%%</details></div>
 <div class=secttl>coins <small id=coins-sum style="text-transform:none;letter-spacing:0;opacity:.7"></small></div>
 <div id=coinDetail style="margin:4px 0;font-size:13px"></div>
@@ -425,8 +424,8 @@ async function loadPaper(){try{const d=await (await fetch('/api/paper/calls')).j
 const ss=document.getElementById('pb-sum');if(ss)ss.textContent=d.ok?'(tap to expand)':'(offline)';
 const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
 if(d.ok){set('ps-pred',String((d.calls||[]).length));set('ps-graded',`${d.paper_resolved??0} (${d.paper_hit_rate_pct??'—'}%)`);set('ps-wait',`${d.waiting??0} · ${d.grade_status||''}`);set('ps-rule',d.rule||'');set('ps-cushion',d.cushion||'');
-if(window.tlRender&&window.tlState){const st=tlState('pwin');st.all=Object.keys(d.by_date||{}).sort().map(day=>{const w=d.by_date[day];let g='?';try{const t=new Date(String(w.logged_first||'').replace(' ','T')+'Z').getTime()+864e5;if(!isNaN(t))g=new Date(t).toISOString();}catch(e){}return {day:day,pending:w.pending,first:w.logged_first,last:w.logged_last,grades:g};});tlRender('pwin');}}
-window._paperRows=(d.calls||[]);if(window.tlRender&&window.tlState){const st=tlState('paper');st.all=(d.calls||[]).map(c=>{const dl=(c.spread_24h!=null&&c.spread_bps!=null)?Math.round((c.spread_24h-c.spread_bps)*10)/10:null;return {coin:c.coin,apy:c.median_apy,long:c.long_v,short:c.short_v,spin:c.spread_bps,persist:c.persist,flips:c.flips,oi:(typeof c.oi_rank==='number'?c.oi_rank:'500+'),verdict:c.verdict,entry:c.logged_ts,exit:c.exit_ts,spout:c.spread_24h,delta:dl,result:(c.hit===1?'hit':(c.hit===0?'miss':'…')),ago_h:c.called_ago_h,in_h:c.grades_in_h};});tlRender('paper');}}catch(e){}}
+if(window.tlRender&&window.tlState){const st=tlState('pwin');st.all=Object.keys(d.by_date||{}).sort().map(day=>{const w=d.by_date[day];let g='?';try{const s0=String(w.logged_first||'');let t=Date.parse(s0);if(isNaN(t))t=Date.parse(s0.replace(' ','T')+'Z');if(!isNaN(t))g=new Date(t+864e5).toISOString();}catch(e){}return {day:day,pending:w.pending,first:w.logged_first,last:w.logged_last,grades:g};});tlRender('pwin');}}
+window._paperRows=(d.calls||[]);if(window.tlRender&&window.tlState){const st=tlState('paper');st.all=(d.calls||[]).map(c=>{const dl=(c.spread_24h!=null&&c.spread_bps!=null)?Math.round((c.spread_24h-c.spread_bps)*10)/10:null;return {coin:c.coin,apy:c.median_apy,long:c.long_v,short:c.short_v,spin:c.spread_bps,persist:c.persist,flips:c.flips,oi:(typeof c.oi_rank==='number'?c.oi_rank:'500+'),verdict:c.verdict,entry:c.logged_ts,exit:c.exit_ts,grade_at:c.grade_at,spout:c.spread_24h,delta:dl,result:(c.hit===1?'hit':(c.hit===0?'miss':'…'))};});tlRender('paper');}}catch(e){}}
 let lastTop=[];
 function shortV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return 'flippy';if(v==='STEADY')return hasH?'steady \u2713':'new';if(v==='WATCH')return 'watch';return v||'';}
 function plainV(r,hasH){const v=r.verdict||r.persist;if(v==='FLIPPY')return `flippy \u2014 edge moves between ${r.long||'?'} and ${r.short||'?'}`;if(v==='STEADY'&&!hasH)return 'new \u2014 holding so far';return v==='STEADY'?'steady \u2713':v==='WATCH'?'watch \u2014 thin backing':(v||'');}
@@ -715,8 +714,11 @@ def _ballot_compute():
                     st = f"grades in {wait:.0f}h"
                 hit, s24, wait_h = None, None, round(wait, 1)
                 rts = None
+                try: grd = (base + datetime.timedelta(hours=24)).strftime('%Y-%m-%dT%H:%M:%SZ') if base else None
+                except Exception: grd = None
             else:
                 hit, s24, rts = o
+                grd = rts
                 st = ('hit' if hit else 'miss') + (f" · called {ago_h:.0f}h ago" if ago_h is not None else '')
                 wait_h = 0.0
             calls.append({'call_date': day, 'logged_ts': lts, 'coin': coin,
@@ -724,7 +726,7 @@ def _ballot_compute():
                           'short_v': sh, 'verdict': ve, 'status': st,
                           'persist': pe, 'flips': fl, 'oi_rank': oi,
                           'called_ago_h': ago_h, 'grades_in_h': wait_h,
-                          'hit': hit, 'spread_24h': s24, 'exit_ts': rts})
+                          'hit': hit, 'spread_24h': s24, 'exit_ts': rts, 'grade_at': grd})
         # Rolling grade windows, one per pending day (UX law: every number
         # carries its time window) — e.g. 81×09-13→grade 09-14 05:04–22:04.
         def _hh(s):
@@ -848,12 +850,12 @@ def _server_card():
         _wf = str(b.get('window_first', ''))[:16].replace('T', ' ')
         _wrange = f"{_wf[5:]}Z \u2192 {_wl[5:]}Z" if _wl and _wf else ((_wl[5:] + 'Z') if _wl else '?')
         if b.get('ok'):
-            _brows = [('backtest 24h', f"{b.get('hit_rate_pct')}% ({b.get('n_hit')}/{b.get('n_signals')})", 'past signals still paying 24h later'),
-                      ('backtest window', _wrange, 'signals evaluated in this range')]
+            _brows = [('replay 24h', f"{b.get('hit_rate_pct')}% ({b.get('n_hit')}/{b.get('n_signals')})", 'history replay: past signals still paying 24h later'),
+                      ('replay window', _wrange, 'signals evaluated in this range')]
         else:
-            _brows = [('backtest 24h', 'pending', 'no backtest computed yet')]
+            _brows = [('replay 24h', 'pending', 'no replay computed yet')]
     except Exception:
-        _brows = [('backtest 24h', 'pending', 'no backtest computed yet')]
+        _brows = [('replay 24h', 'pending', 'no replay computed yet')]
     try:
         pc = db()
         pr = pc.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes').fetchone()
@@ -963,19 +965,18 @@ def _index_compute():
                          'spin': _sp, 'persist': c.get('persist'), 'flips': c.get('flips'),
                          'oi': (c.get('oi_rank') if isinstance(c.get('oi_rank'), int) else '500+'),
                          'verdict': c.get('verdict'), 'entry': c.get('logged_ts'),
-                         'exit': c.get('exit_ts'), 'spout': _s24, 'delta': _dl,
+                         'exit': c.get('exit_ts'), 'grade_at': c.get('grade_at'), 'spout': _s24, 'delta': _dl,
                          'result': ('hit' if c.get('hit') == 1 else
-                                    'miss' if c.get('hit') == 0 else '\u2026'),
-                         'ago_h': c.get('called_ago_h'), 'in_h': c.get('grades_in_h')})
-        paper_html = _tl_table('paper', _paper_rows, _TL_PAPER_COLS, 'apy', -1, ('pickCoin', 'coin'), derived={'apy': 'spin', 'delta': ['spin', 'spout']}, layout=[['coin', 'apy'], ['long', 'short'], ['spin', 'spout'], ['delta', 'result'], ['persist', 'flips'], ['oi', 'verdict'], ['entry', 'exit'], ['ago_h', 'in_h']])
+                                    'miss' if c.get('hit') == 0 else '\u2026')})
+        paper_html = _tl_table('paper', _paper_rows, _TL_PAPER_COLS, 'apy', -1, ('pickCoin', 'coin'), derived={'apy': 'spin', 'delta': ['spin', 'spout']}, layout=[['coin', 'apy'], ['long', 'short'], ['spin', 'spout'], ['delta', 'result'], ['persist', 'flips'], ['oi', 'verdict'], ['entry', 'exit'], ['grade_at']])
         _hr = _b.get('paper_hit_rate_pct')
         _graded = f"{_b.get('paper_resolved', 0)} ({_hr}% hit)" if _hr is not None else f"{_b.get('paper_resolved', 0)} graded"
         psum_html = (f'<table id="psummary"><tbody>'
             f"<tr><td>calls logged</td><td id='ps-pred'>{_b.get('count', 0)}</td><td>every paper prediction ever recorded</td></tr>"
             f"<tr><td>graded</td><td id='ps-graded'>{_graded}</td><td>old enough to check 24h later; % still paying</td></tr>"
             f"<tr><td>waiting</td><td id='ps-wait'>{_b.get('waiting', 0)} \u00b7 {html.escape(str(_b.get('grade_status', '')))}</td><td>logged &lt;24h ago; grade pending</td></tr>"
-            f"<tr><td>hit rule</td><td id='ps-rule'>{html.escape(str(_b.get('rule', '')))}</td><td>how a call scores a hit</td></tr>"
-            f"<tr><td>cushion vs 30%</td><td id='ps-cushion'>{html.escape(str(_b.get('cushion', '')))}</td><td>hits needed from pending to hold the bar</td></tr>"
+            f"<tr><td>hit rule</td><td id='ps-rule'>{html.escape(str(_b.get('rule', '')))}</td><td>how a call scores; exit is the first snapshot \u226524h after logging</td></tr>"
+            f"<tr><td>cushion vs 30%</td><td id='ps-cushion'>{html.escape(str(_b.get('cushion', '')))}</td><td>bar: paper must hold \u226530% hits; hits still needed from pending</td></tr>"
             '</tbody></table>')
         _pwin_rows = []
         for _day in sorted(_b.get('by_date') or {}):
@@ -987,10 +988,24 @@ def _index_compute():
                                'first': _w.get('logged_first'), 'last': _w.get('logged_last'),
                                'grades': _g})
         pwin_html = _tl_table('pwin', _pwin_rows, _TL_PWIN_COLS, 'day', 1)
+        _fc = db()
+        _mts = _fc.execute('SELECT MAX(ts) FROM funding').fetchone()[0]
+        _snapn = _fc.execute('SELECT COUNT(*) FROM funding WHERE ts=?', (_mts,)).fetchone()[0] if _mts else 0
+        _sign = _fc.execute('SELECT COUNT(*), MAX(sent_ts) FROM signals').fetchone()
+        _fc.close()
+        _hp = persistence()
+        funnel_html = (f'<table id="pfunnel"><tbody>'
+            f"<tr><td>snapshot rows</td><td>{_snapn:,}</td><td>readings in the latest capture (venues × coins)</td></tr>"
+            f"<tr><td>holding 4/4 \u226520bps</td><td>{_hp.get('count', 0)}</td><td>coins whose spread survived 4 straight checks</td></tr>"
+            f"<tr><td>signals sent</td><td>{_sign[0] or 0} total</td><td>Telegram alerts: digest \u226550bps top-10 + urgent \u2265150bps; list shows last 100</td></tr>"
+            f"<tr><td>paper logged</td><td>{_b.get('count', 0)}</td><td>steady-set calls in the 24h experiment</td></tr>"
+            f"<tr><td>graded</td><td>{_graded}</td><td>with 24h outcome; the tradable verdict</td></tr>"
+            '</tbody></table>')
     except Exception:
         paper_html = '<div class=cav>ballot: offline</div>'
         psum_html = '<div class=cav>summary: offline</div>'
         pwin_html = ''
+        funnel_html = ''
     try:
         _p = persistence()
         _pwl = len(_p.get('snapshots') or [])
@@ -1013,9 +1028,15 @@ def _index_compute():
                        'oi': (r.get('oi_rank') if isinstance(r.get('oi_rank'), int) else '')}
                       for r in (_s.get('rows') or [])]
         sig_html = _tl_table('sig', _sig_rows, _TL_SIG_COLS, 'sent', -1, derived={'apy': 'spread'})
+        _sh = db()
+        _shrows = _sh.execute("SELECT substr(sent_ts,12,2) h, COUNT(*) FROM signals GROUP BY h ORDER BY h").fetchall()
+        _sh.close()
+        sighours_html = ('<table id="sighours"><tbody>' + ''.join(
+            f"<tr><td>{h}h</td><td>{n}</td></tr>" for h, n in _shrows) + '</tbody></table>') if _shrows else ''
     except Exception:
         sig_html = '<div class=cav>signals: offline</div>'
-    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row).replace('%%DIGEST%%', digest).replace('%%VER%%', html.escape(verline)).replace('%%COINS%%', coins_html).replace('%%PERS%%', pers_html).replace('%%PERSSUM%%', pers_sum).replace('%%SURV%%', surv_html).replace('%%PAPER%%', paper_html).replace('%%PSUMMARY%%', psum_html).replace('%%PWIN%%', pwin_html).replace('%%SIGNALS%%', sig_html),
+        sighours_html = ''
+    return HTMLResponse(INDEX.replace('%%TOPONE%%', top).replace('%%PULSE%%', pulse).replace('%%TOPROW%%', row).replace('%%DIGEST%%', digest).replace('%%VER%%', html.escape(verline)).replace('%%COINS%%', coins_html).replace('%%PERS%%', pers_html).replace('%%PERSSUM%%', pers_sum).replace('%%SURV%%', surv_html).replace('%%PAPER%%', paper_html).replace('%%FUNNEL%%', funnel_html).replace('%%PSUMMARY%%', psum_html).replace('%%PWIN%%', pwin_html).replace('%%SIGNALS%%', sig_html).replace('%%SIGHOURS%%', sighours_html),
                         headers={'Cache-Control': 'no-store'})
 
 if __name__ == '__main__':
