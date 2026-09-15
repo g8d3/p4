@@ -36,6 +36,13 @@ mint-premium/discount + hours badge (US geo-blocked). Formulas: P/Fees
 (30d-annualized), P/ProtocolRevenue, PEG-style on revenue CAGR,
 Premium_token vs equity close — all freshness-badged + comparables.
 
+## Pipeline rule (run #145 self-miss)
+
+NEVER run `bin/valuations.py` standalone — it rebuilds multiples.json WITHOUT
+trend columns and breaks e2e. The ONLY blessed refresh is `bin/refresh.sh`
+(valuations -> trend -> cheap_calls -> inject -> version stamp). e2e stays
+fail-closed on shape so a partial pipeline can never serve silently.
+
 ## First tasks
 
 1. Survey fundamentals sources (Token Terminal, Artemis, DefiLlama
