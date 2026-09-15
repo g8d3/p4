@@ -461,23 +461,23 @@ def _paper_run(log_today=True):
     resolved_days, rh, rt = 0, 0, 0
     for day in days:
         pending = c.execute('SELECT coin, logged_ts FROM paper_calls WHERE call_date=? AND (call_date, coin) NOT IN (SELECT call_date, coin FROM paper_outcomes)', (day,)).fetchall()
-        if not pending: continue
-        done = 0
-        for coin, lts in pending:
-            base = _parse_ts(lts)
-            if not base: continue
-            cutoff = base + datetime.timedelta(hours=24)
-            tgt = next((s for s in snaps if (_parse_ts(s) or cutoff) >= cutoff), None)
-            if tgt is None: continue
-            s24 = _spread_at(coin, tgt)
-            if s24 is None: continue
-            hit = 1 if s24 >= PAPER_THRESHOLD_BPS else 0
-            try:
-                c.execute('INSERT OR IGNORE INTO paper_outcomes VALUES (?,?,?,?,?)',
-                          (day, coin, hit, s24, now.strftime('%Y-%m-%dT%H:%M:%SZ')))
-                done += 1
-            except Exception: pass
-        c.commit()
+        if pending:
+            done = 0
+            for coin, lts in pending:
+                base = _parse_ts(lts)
+                if not base: continue
+                cutoff = base + datetime.timedelta(hours=24)
+                tgt = next((s for s in snaps if (_parse_ts(s) or cutoff) >= cutoff), None)
+                if tgt is None: continue
+                s24 = _spread_at(coin, tgt)
+                if s24 is None: continue
+                hit = 1 if s24 >= PAPER_THRESHOLD_BPS else 0
+                try:
+                    c.execute('INSERT OR IGNORE INTO paper_outcomes VALUES (?,?,?,?,?)',
+                              (day, coin, hit, s24, now.strftime('%Y-%m-%dT%H:%M:%SZ')))
+                    done += 1
+                except Exception: pass
+            c.commit()
         dh, dt = c.execute('SELECT COALESCE(SUM(hit),0), COUNT(*) FROM paper_outcomes WHERE call_date=?', (day,)).fetchone()
         if dt and dt == c.execute('SELECT COUNT(*) FROM paper_calls WHERE call_date=?', (day,)).fetchone()[0]:
             resolved_days += 1
