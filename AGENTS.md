@@ -6,7 +6,7 @@ For conventions, environment, and shared principles, see [e000-fundamentals/AGEN
 
 Design decisions and session history: [e000-fundamentals/trail.md](e000-fundamentals/trail.md).
 
-Cron jobs that write into this repo (what to track, what to ignore): [e000-fundamentals/CRON.md](e000-fundamentals/CRON.md).
+Cron-writer policy (what a scheduled job may write, tracked vs ignored): [e000-fundamentals/AGENTS.md](e000-fundamentals/AGENTS.md) (Scheduled jobs).
 
 ## Experiments
 

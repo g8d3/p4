@@ -117,7 +117,7 @@ function renderPorts(d){portsData=d.rows||[];
 $('#portsMeta').textContent=d.rows.length+' puertos escuchando · '+new Date().toLocaleTimeString()+(d.cached?' ⚡':'');
 let h='<div class="card" style="overflow:auto"><table><tr><th>puerto</th><th>proceso / comando</th><th class="hideM">PID·usr</th><th>qué hace (IA)</th><th>acciones</th></tr>';
 for(const r of portsData){
-h+=`<tr><td><code>:${r.port}</code><br><span class="badge ${r.http?'b-ok':'b-warn'}">${r.http?'HTTP '+r.status:'no-HTTP'}</span></td>
+h+=`<tr><td><code>:${r.port}</code><br><span class="badge ${r.http?'b-ok':'b-warn'}">${r.http?((r.scheme||'http').toUpperCase()+' '+r.status):'no-HTTP'}</span></td>
 <td><b>${esc(r.cmdline.split(' ')[0].split('/').pop()||'(kernel)')}</b><div class=cmd>${esc(r.cmdline.slice(0,220))}</div><div class="mut hideM">${esc(r.cwd||'')}</div></td>
 <td class=hideM>${r.pid||'—'}<br><span class=mut>${esc(r.user)} · ${r.mem_mb}MB</span></td>
 <td class=desc>${esc(r.description||'')}<br><button class=act onclick="regenDesc(${r.port},this)">✨</button></td>
@@ -139,7 +139,7 @@ $('#portsList').innerHTML=h+'</table></div>';}
 async function loadPorts(force){
 if(FC.ports&&!force){try{renderPorts(FC.ports)}catch(e){}}
 const d=await api('/api/ports');FC.ports=d;renderPorts(d);}
-function visit(p){window.open('http://'+location.hostname+':'+p,'_blank')}
+function visit(p){const r=(portsData||[]).find(x=>x.port===p);const s=(r&&r.scheme)||'http';window.open(s+'://'+location.hostname+':'+p,'_blank')}
 function copyText(t){navigator.clipboard.writeText(t);alert('copiado')}
 async function killPid(pid,force){
 if(!confirm((force?'MATAR (SIGKILL) ':'Terminar (SIGTERM) ')+'pid '+pid+'?'))return;

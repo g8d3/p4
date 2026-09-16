@@ -98,7 +98,7 @@ def auto_presets(rows, columns, per=10):
     ranked.sort(key=lambda t: t[0])
     cat_chips = []
     for c in columns:
-        if c.get("kind") != "text" or c.get("nofacet"):
+        if c.get("kind") not in ("text",) or c.get("nofacet"):
             continue
         vals = sorted({str(r.get(c["key"], "")) for r in rows
                        if r.get(c["key"]) not in (None, "")})

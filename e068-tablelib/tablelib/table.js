@@ -39,12 +39,103 @@ function tlVal(r, k) {
   var v = r[k];
   return (v === null || v === undefined) ? '' : v;
 }
+/* Date support: epoch s/ms, ISO-8601, MM/DD[/YYYY] [HH:MM], plus
+   standalone relative EN ('3h ago', 'in 2d') and ES ('hace 3 horas',
+   'en 20 minutos', 'ayer/hoy/ma\u00f1ana'). Returns epoch seconds or NaN.
+   Mirrors tablelib/render.py parse_ts. */
+var _TL_UNITS = { s: 1, sec: 1, secs: 1, seg: 1, second: 1, seconds: 1, segundo: 1, segundos: 1,
+  m: 60, min: 60, mins: 60, minute: 60, minutes: 60, minuto: 1 * 60, minutos: 60,
+  h: 3600, hr: 3600, hrs: 3600, hour: 3600, hours: 3600, hora: 3600, horas: 3600,
+  d: 86400, day: 86400, days: 86400, dia: 86400, dias: 86400, 'd\u00eda': 86400, 'd\u00edas': 86400,
+  w: 604800, wk: 604800, wks: 604800, week: 604800, weeks: 604800, semana: 604800, semanas: 604800 };
+var _TL_DAYW = { ayer: -86400, yesterday: -86400, hoy: 0, today: 0, 'ma\u00f1ana': 86400, manana: 86400, tomorrow: 86400 };
+function tlRelSecs(rest) {
+  var tot = 0, found = false, m, re = /(\d+|un|una)\s*([a-z\u00e1\u00e9\u00ed]+)/g;
+  while ((m = re.exec(rest.toLowerCase())) !== null) {
+    var sec = _TL_UNITS[m[2]];
+    if (sec == null) return NaN;
+    tot += ((m[1] === 'un' || m[1] === 'una') ? 1 : +m[1]) * sec;
+    found = true;
+  }
+  return found ? tot : NaN;
+}
+function tlRelTs(t, now) {
+  if (_TL_DAYW[t] != null) return now + _TL_DAYW[t];
+  var m = t.match(/^(hace|en|dentro de)\s+(.+)$/);
+  if (m) { var s = tlRelSecs(m[2]); return isNaN(s) ? NaN : (m[1] === 'hace' ? now - s : now + s); }
+  m = t.match(/^(.+)\s+ago$/);
+  if (m) { var s2 = tlRelSecs(m[1]); return isNaN(s2) ? NaN : now - s2; }
+  m = t.match(/^in\s+(.+)$/);
+  if (m) { var s3 = tlRelSecs(m[1]); return isNaN(s3) ? NaN : now + s3; }
+  return NaN;
+}
+function tlTs(v, now) {
+  if (v === null || v === undefined) return NaN;
+  if (typeof v === 'number') {
+    var f = v >= 1e12 ? v / 1000 : v;
+    return (f >= 1e9 && f <= 5e9) ? f : NaN;
+  }
+  var t = String(v).trim();
+  if (!t) return NaN;
+  now = (now != null ? now : Date.now() / 1000);
+  if (/^\d+(\.\d+)?$/.test(t)) return tlTs(+t, now);
+  var m = t.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (m) {
+    var yr = m[3] ? +m[3] + (m[3].length === 2 ? 2000 : 0) : new Date().getUTCFullYear();
+    var d = Date.UTC(yr, +m[1] - 1, +m[2], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+    if (!isNaN(d)) return d / 1000;
+  }
+  var p = Date.parse(t);
+  if (!isNaN(p)) return p / 1000;
+  return tlRelTs(t.toLowerCase(), now);
+}
+function tlBoundTs(s) {
+  if (s === '' || s == null) return NaN;
+  if (/^\d+(\.\d+)?$/.test(String(s).trim())) return tlTs(+s);
+  var p = Date.parse(s);
+  return isNaN(p) ? NaN : p / 1000;
+}
+function tlFmtTs(ts) {
+  var d = new Date(ts * 1000), q = function (x) { return (x < 10 ? '0' : '') + x; };
+  return q(d.getUTCMonth() + 1) + '/' + q(d.getUTCDate()) + ' ' + q(d.getUTCHours()) + ':' + q(d.getUTCMinutes());
+}
+function tlIsoTs(ts) { try { return new Date(ts * 1000).toISOString().replace(/\.\d+Z$/, 'Z'); } catch (e) { return ''; } }
+function tlDateCols(ns) {
+  var s = tlState(ns);
+  if (!s._datecols) {
+    s._datecols = {};
+    s.cols.forEach(function (c) {
+      if (c.kind === 'date') { s._datecols[c.key] = 1; return; }
+      if (c.kind !== 'text' || c.nofilter) return;
+      var n = 0, hit = 0;
+      for (var i = 0; i < s.all.length && n < 50; i++) {
+        var v = s.all[i][c.key];
+        if (v === null || v === undefined || v === '') continue;
+        n++;
+        if (!isNaN(tlTs(v))) hit++;
+      }
+      if (n >= 3 && hit / n >= 0.8) s._datecols[c.key] = 1;
+    });
+  }
+  return s._datecols;
+}
 function tlFiltered(ns) {
-  var s = tlState(ns), out = s.all.filter(function (r) {
+  var s = tlState(ns), dc = tlDateCols(ns);
+  var kinds = {};
+  s.cols.forEach(function (c) { kinds[c.key] = dc[c.key] ? 'date' : c.kind; });
+  var out = s.all.filter(function (r) {
     for (var k in s.filters) {
       var f = s.filters[k];
       if (f === '' || f == null) continue;
       var v = tlVal(r, k);
+      if (kinds[k] === 'date') {
+        var ts = tlTs(v);
+        var b = (typeof f === 'object' && f !== null) ? f : { lo: f };
+        var lo = tlBoundTs(b.lo), hi = tlBoundTs(b.hi);
+        if (!isNaN(lo) && !(ts >= lo)) return false;
+        if (!isNaN(hi) && !(ts <= hi)) return false;
+        continue;
+      }
       if (typeof f === 'object') {
         if (f.lo !== '' && f.lo != null && !(+v >= +f.lo)) return false;
         if (f.hi !== '' && f.hi != null && !(+v <= +f.hi)) return false;
@@ -54,8 +145,15 @@ function tlFiltered(ns) {
     return true;
   });
   if (s.sortKey) {
-    var k = s.sortKey, d = s.sortDir;
+    var k = s.sortKey, d = s.sortDir, kd = dc[s.sortKey] ? 'date' : null;
     out.sort(function (a, b) {
+      if (kd === 'date') {
+        var xa = tlTs(tlVal(a, k)), xb = tlTs(tlVal(b, k));
+        if (isNaN(xa) && isNaN(xb)) return 0;
+        if (isNaN(xa)) return 1;
+        if (isNaN(xb)) return -1;
+        return (xa - xb) * d;
+      }
       var x = tlVal(a, k), y = tlVal(b, k);
       return (x > y ? 1 : x < y ? -1 : 0) * d;
     });
@@ -103,6 +201,13 @@ function tlCell(ns, r, c) {
   if (c.kind === 'spark') return (v instanceof Array) ? tlSparkArr(v) : String(v);
   if (c.kind === 'poly') return (v instanceof Array) ? tlPolyArr(v) : String(v);
   if (c.kind === 'num') return tlFmt(v, c.fmt);
+  if (c.kind === 'date' || (TL[ns] && TL[ns]._datecols && TL[ns]._datecols[c.key])) {
+    var ts = tlTs(v);
+    if (isNaN(ts)) return String(v).replace(/</g, '&lt;');
+    if (c.kind === 'date')
+      return '<span title="' + tlIsoTs(ts) + '">' + tlFmtTs(ts) + '</span>';
+    return String(v).replace(/</g, '&lt;');
+  }
   return String(v);
 }
 function tlRender(ns) {
@@ -119,13 +224,24 @@ function tlRender(ns) {
     var vs = s.all.map(function (r) { return +r[c.key]; }).filter(function (x) { return !isNaN(x); });
     s._scales[c.key] = vs.length ? [Math.min.apply(0, vs), Math.max.apply(0, vs)] : [0, 1];
   });
+  s._datecols = null;
+  tlDateCols(ns);
   var h = '<thead><tr>' + s.cols.map(function (c) {
     var arr = (s.sortKey === c.key) ? (s.sortDir === 1 ? ' &#9650;' : ' &#9660;') : '';
-    if (c.kind === 'text' || c.kind === 'num' || c.kind === 'pill' || c.kind === 'bar')
+    if (c.kind === 'text' || c.kind === 'num' || c.kind === 'pill' || c.kind === 'bar' || c.kind === 'date')
       return '<th class="' + (c.cls || '') + ' tl-sort" onclick="tlSort(\'' + ns + '\',\'' + c.key + '\')">' + c.label + arr + '</th>';
     return '<th class="' + (c.cls || '') + '">' + c.label + '</th>';
   }).join('') + '</tr><tr>' + s.cols.map(function (c) {
     if (c.nofilter || c.kind === 'spark' || c.kind === 'poly') return '<td class="' + (c.cls || '') + '"></td>';
+    if (c.kind === 'date' || s._datecols[c.key]) {
+      var fr = s.filters[c.key] || {};
+      if (typeof fr !== 'object' || fr === null) fr = {};
+      var lo = String(fr.lo != null ? fr.lo : '').replace(/"/g, '&quot;');
+      var hi = String(fr.hi != null ? fr.hi : '').replace(/"/g, '&quot;');
+      return '<td class="' + (c.cls || '') + '">'
+        + '<input type="datetime-local" title="from (UTC)" id="tl-f-' + ns + '-' + c.key + '-lo" oninput="tlFilter(\'' + ns + '\',\'' + c.key + '\',this.value,\'lo\')" value="' + lo + '"> '
+        + '<input type="datetime-local" title="to (UTC)" id="tl-f-' + ns + '-' + c.key + '-hi" oninput="tlFilter(\'' + ns + '\',\'' + c.key + '\',this.value,\'hi\')" value="' + hi + '"></td>';
+    }
     if (c.kind === 'num' || c.kind === 'pill' || c.kind === 'bar') {
       var fr = s.filters[c.key] || {};
       if (typeof fr !== 'object') fr = {};
@@ -144,7 +260,12 @@ function tlRender(ns) {
     if (s.rowClick) tr = '<tr onclick="' + s.rowClick[0] + '(\'' + String(r[s.rowClick[1]]).replace(/'/g, '') + '\')" style="cursor:pointer">';
     h += tr + s.cols.map(function (c) {
       var al = (c.kind === 'num' || c.kind === 'pill' || c.kind === 'bar') ? 'tl-n' : 'tl-t';
-      return '<td data-l="' + c.label + '" class="' + (c.cls || '') + ' ' + al + '">' + tlCell(ns, r, c) + '</td>';
+      var dts = '';
+      if (c.kind === 'date' || s._datecols[c.key]) {
+        var _t = tlTs(r[c.key]);
+        if (!isNaN(_t)) dts = ' data-ts="' + Math.floor(_t) + '"';
+      }
+      return '<td data-l="' + c.label + '" class="' + (c.cls || '') + ' ' + al + '"' + dts + '>' + tlCell(ns, r, c) + '</td>';
     }).join('') + '</tr>';
   });
   var t = document.getElementById('tl-' + ns);

@@ -113,10 +113,21 @@ so the user knows to send the orchestrator there.
 
 ### Scheduled jobs
 
-Anything a cron writes into this repo is registered in
-[CRON.md](CRON.md) — the tracked-and-auto-pushed paths, the ignored ones, and
-the rules for adding a new scheduled writer. Read it before adding a cron
-entry or an experiment that regenerates files on a timer.
+`crontab -l` is the single registry — grouped by function (probes, servers,
+collectors, traders, ops). No second table lives here on purpose.
+Every path a cron writes into this repo is either tracked-with-autopush or
+explicitly ignored:
+- **Tracked + auto-pushed** — the file *is* the deliverable and a daily
+  commit is the heartbeat. The wrapper commits only inside its own
+  experiment dir (`git add -A -- <exp>/<path>/` + commit + push; copy
+  `e040-traderdev-local-replica/bin/paper_tsmr_cron.sh`).
+- **Ignored** — regenerable/raw/heavy (`*.log`, `output/`, `data/`, caches,
+  charts): add the path to `.gitignore` plus a local `.gitignore` naming
+  it, so the policy survives root-level edits.
+Adding a cron that writes into the repo: write under the experiment dir,
+pick a bucket above, and note it in the experiment's `AGENTS.md` (what it
+writes, how to verify). Read this section before adding a cron entry or an
+experiment that regenerates files on a timer.
 
 ### The completion watcher (structural, no memory needed)
 

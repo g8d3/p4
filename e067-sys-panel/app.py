@@ -266,13 +266,36 @@ def proc_info(pid: int) -> dict:
 
 
 def probe_http(port: int) -> dict:
-    try:
-        req = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
-        with urllib.request.urlopen(req, timeout=1.2) as r:
-            return {"http": True, "status": r.status}
-    except Exception as e:
-        code = getattr(e, "code", None)
-        return {"http": code is not None, "status": code or 0}
+    import ssl
+    # HEAD is fast (no body); some servers 405/501 on HEAD but serve GET
+    # fine, so fall back to GET only in that case. https-only servers
+    # (e062 :8322, e063 :8325, tailnet cert) reset plain-http connections,
+    # so a connection-level http failure falls through to trying https.
+    def attempt(scheme: str, method: str, timeout: float):
+        url = f"{scheme}://127.0.0.1:{port}/"
+        req = urllib.request.Request(url, method=method)
+        try:
+            if scheme == "https":
+                ctx = ssl._create_unverified_context()
+                with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
+                    return (True, r.status)
+            else:
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    return (True, r.status)
+        except Exception as e:
+            code = getattr(e, "code", None)
+            return (True, code) if code else None
+    for scheme in ("http", "https"):
+        r = attempt(scheme, "HEAD", 1.2)
+        if r is None:
+            continue  # connection-level failure: try next scheme
+        ok, status = r
+        if status in (405, 501):  # HEAD unsupported — what does GET say?
+            g = attempt(scheme, "GET", 4.0)
+            if g is not None:
+                return {"http": True, "status": g[1], "scheme": scheme}
+        return {"http": True, "status": status, "scheme": scheme}
+    return {"http": False, "status": 0, "scheme": ""}
 
 
 def scan_ports() -> list:

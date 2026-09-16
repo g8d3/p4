@@ -46,6 +46,13 @@ Prototypes (proven 2026-09-12, not products):
 `data/loris_cap_*.json` → `bin/load.py` → `data.db`. All ignored
 (regenerable). Verify: `tail sample.log` (ends `sample OK`). First manual run banked snapshot #4 (see report).
 
+Retention cron (live since 2026-09-15): `bin/prune.py --days=5 --apply`
+daily 04:40 (`# e058-prune` in section C) — deletes funding/symbols rows
+and ingested `data/loris_cap_*` files older than 5 days, then VACUUMs.
+Writes `prune.log` (ignored). Verify: `tail prune.log` (ends with VACUUM
+`NM -> MM` line). 5 days covers paper grading (~2d) + backtest (~3d)
+with margin; ceiling ≈ 500MB at current ingest (~850k rows/day).
+
 ## Conventions
 
 - Every command: timeout it, background long runs, `close --all` browsers.
