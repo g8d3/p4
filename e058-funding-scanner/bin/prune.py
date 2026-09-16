@@ -3,8 +3,8 @@
 
 Deletes funding/symbols rows older than --days (default 14), drops
 ingested data/loris_cap_* files older than --days, then VACUUMs.
-Paper grading needs ~2 days, backtest window ~3 days — 14 is plenty safe.
-Run: python3 bin/prune.py [--days 14] [--apply]  (dry-run by default)
+Paper grading needs ~2 days, backtest window ~3 days — 5 is plenty safe.
+Run: python3 bin/prune.py [--days=5] [--apply]  (dry-run by default)
 """
 import datetime, glob, os, sqlite3, sys, time
 
