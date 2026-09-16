@@ -10,6 +10,13 @@ Cache: data/rotation.json (5 min TTL), stale-badged when Dexscreener unreachable
 """
 import html
 import json, math, os, subprocess as _sp, threading, time, urllib.request
+import calendar as _cal, re as _re, sys as _sys
+_sys.path.insert(0, "/home/vuos/code/p4/e068-tablelib")
+try:
+    from tablelib.render import render_table as _render_table
+except Exception:
+    _render_table = None
+TL_DIR = "/home/vuos/code/p4/e068-tablelib/tablelib"
 _BASE = os.path.dirname(os.path.abspath(__file__))
 _VSTART = int(time.time())
 try:
@@ -335,27 +342,129 @@ def pending_calls():
         return []
 
 
+# ---- tablelib tables (unstructured-text ban: ballot + early moves as tables
+# with atomic columns). render_table() comes from e068-tablelib (read-only);
+# the server-side date shim only patches what the lib render.py does not yet
+# emit (sortable date headers, datetime-local from/to filters, data-ts +
+# UTC 'MM/DD HH:MM' cells) and no-ops once the lib upgrade lands.
+BALLOT_COLS = [
+    {"key": "date", "label": "Date", "kind": "date"},
+    {"key": "symbols", "label": "Symbols", "kind": "text", "ph": "symbol"},
+    {"key": "called", "label": "Called", "kind": "date"},
+    {"key": "grades_in_h", "label": "Grades in (h)", "kind": "num", "fmt": "{:.1f}"},
+    {"key": "n", "label": "N", "kind": "num"},
+    {"key": "status", "label": "Status", "kind": "text", "ph": "status"},
+]
+EARLY_COLS = [
+    {"key": "called", "label": "Called", "kind": "date"},
+    {"key": "symbol", "label": "Symbol", "kind": "text", "ph": "symbol"},
+    {"key": "pct", "label": "Pct%", "kind": "num", "fmt": "{:+.1f}"},
+    {"key": "entry", "label": "Entry", "kind": "num", "fmt": "{:.6g}"},
+    {"key": "cur", "label": "Now", "kind": "num", "fmt": "{:.6g}"},
+    {"key": "pair", "label": "Pair", "kind": "text", "nofilter": True},
+]
+
+
+def _epoch_of_day(ds):
+    """'YYYY-MM-DD' -> epoch seconds (UTC midnight) or None."""
+    try:
+        return _cal.timegm(time.strptime(str(ds), "%Y-%m-%d"))
+    except Exception:
+        return None
+
+
+def _fmt_ts(ts):
+    """Epoch -> UTC 'MM/DD HH:MM' (mirrors table.js tlFmtTs)."""
+    try:
+        return time.strftime("%m/%d %H:%M", time.gmtime(float(ts)))
+    except (TypeError, ValueError):
+        return "\u2014"
+
+
+def _iso_ts(ts):
+    try:
+        return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(float(ts)))
+    except (TypeError, ValueError):
+        return ""
+
+
+def _fnum(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _tl_patch_dates(t_html, ns, date_cols):
+    """Forward-compatible shim for the tablelib date contract
+    (column {"kind": "date"}, value = epoch seconds, <td data-ts>).
+    Only patches what the lib did not already render, so it no-ops
+    once the parallel lib upgrade lands in render.py."""
+    for key, label in date_cols:
+        lab = html.escape(label, quote=True)
+        m = _re.search(r'<th class="([^"]*)">' + _re.escape(lab) + r"</th>", t_html)
+        if m and "tl-sort" not in m.group(1) and f"tlSort('{ns}','{key}')" not in t_html:
+            t_html = (t_html[:m.start()] +
+                      f'<th class="{m.group(1)} tl-sort" onclick="tlSort(\'{ns}\',\'{key}\')">{lab}</th>' +
+                      t_html[m.end():])
+        m = _re.search(r'<input id="tl-f-' + _re.escape(ns) + r"-" + _re.escape(key) + r'"[^>]*>', t_html)
+        if m and "datetime-local" not in m.group(0):
+            t_html = (t_html[:m.start()] +
+                      f'<input type="datetime-local" title="from (UTC)" id="tl-f-{ns}-{key}-lo" '
+                      f'oninput="tlFilter(\'{ns}\',\'{key}\',this.value,\'lo\')" value=""> '
+                      f'<input type="datetime-local" title="to (UTC)" id="tl-f-{ns}-{key}-hi" '
+                      f'oninput="tlFilter(\'{ns}\',\'{key}\',this.value,\'hi\')" value="">' +
+                      t_html[m.end():])
+
+        def _cell_sub(mm, _lab=lab):
+            ts = mm.group(2)
+            return (f'<td data-l="{_lab}" class="{mm.group(1)}" data-ts="{ts}">'
+                    f'<span title="{_iso_ts(ts)}">{_fmt_ts(ts)}</span></td>')
+        t_html = _re.sub(r'<td data-l="' + _re.escape(lab) + r'" class="([^"]*)">(-?\d+(?:\.\d+)?)</td>',
+                         _cell_sub, t_html)
+    return t_html
+
+
+def _tl_patch_links(t_html, label="Pair"):
+    """Render a URL text cell as a short link (tablelib has no link kind)."""
+
+    def _link_sub(mm):
+        return (f'<td data-l="{html.escape(label, quote=True)}" class="{mm.group(1)}">'
+                f'<a href="{mm.group(2)}">pair \u2197</a></td>')
+    return _re.sub(r'<td data-l="' + _re.escape(html.escape(label, quote=True)) +
+                   r'" class="([^"]*)">(https?[^<]*)</td>', _link_sub, t_html)
+
+
 def ballot_html():
-    """Paper ballot expand (LONG TEXT RULE): one line per pending snapshot —
-    coins, called Xh ago, grades in Yh. Empty when nothing pending."""
-    calls = pending_calls()
+    """Paper ballot expand: one tablelib table over pending snapshots —
+    atomic columns (Date, Symbols, Called, Grades in (h), N, Status)."""
+    try:
+        calls = pending_calls()
+    except Exception:
+        return ""
     if not calls:
         return ""
     try:
         total = sum(c.get("n", 0) for c in calls)
-        summ = (f"Paper ballot: {total} calls resolving \u2014 tap for each call.")
-        rows = "".join(
-            (lambda syms: f"<div>{html.escape(str(c.get('date', '?')))} "
-            f"{html.escape(', '.join(syms[:6]) + (f' +{len(syms)-6} more' if len(syms) > 6 else ''))} "
-            f"<small>{html.escape(c.get('called_ago', '?'))}, "
-            f"{html.escape(c.get('grades_in', '?'))}</small></div>")
-            (c.get('symbols', []))
-            for c in calls)
+        summ = f"Paper ballot: {total} calls resolving \u2014 tap for each call."
+        t = ""
+        if _render_table is not None:
+            rows = [{
+                "date": _epoch_of_day(c.get("date")),
+                "symbols": ", ".join(c.get("symbols") or []),
+                "called": c.get("called_ts") or None,
+                "grades_in_h": c.get("remain_h"),
+                "n": c.get("n", 0),
+                "status": "pending" if c.get("n") else "unpriced",
+            } for c in calls]
+            t = _render_table(rows, BALLOT_COLS, total=len(rows), per=25, ns="ballot")
+            t = _tl_patch_dates(t, "ballot", (("date", "Date"), ("called", "Called")))
         return (f"<details id=\"ballot\" style='margin:.2em 0;font-size:13px;color:#555'>"
                 f"<summary>{html.escape(summ)}</summary>"
-                f"<div>{rows}</div></details>")
+                f"<div class=\"tl-live\" id=\"tl-live-ballot\">{t}</div></details>")
     except Exception:
         return ""
+
 
 
 def paper_score():
@@ -449,6 +558,7 @@ def early_read():
             out = {"n": len(moves), "up": ups,
                    "avg_pct": round(sum(moves) / len(moves), 1),
                    "age_h": round(age_h, 1), "date": snap.get("date"),
+                   "called_ts": int(snap.get("ts", 0)) or None,
                    "detail": detail, "best": best,
                    "px_src": "dexscreener-live",
                    "px_age": fmt_age(time.time() - os.path.getmtime(CACHE)),
@@ -506,29 +616,35 @@ def breakout():
 
 
 def early_detail_html():
-    """One-line summary + expand for per-call early moves (LONG TEXT RULE)."""
-    e = early_read()
+    """Per-call early moves as a tablelib table: Called, Symbol, Pct%,
+    Entry, Now, Pair (all atomic; Pair is a link)."""
+    try:
+        e = early_read()
+    except Exception:
+        return ""
     if not e or not e.get("detail"):
         return ""
     try:
-        ups = e["up"]
-        n = e["n"]
-        best = e.get("best") or {}
-        summ = (f"Early moves: {ups}/{n} up, best {best.get('symbol', '?')} "
-                f"{best.get('pct', 0):+.1f}% via live \u2014 tap for each call.")
-        rows = "".join(
-            f"<div>{html.escape(str(x.get('symbol','?')))} "
-            f"{x.get('pct', 0):+.1f}%"
-            f" <small>entry {html.escape(str(x.get('entry') or '?'))} \u2192 now "
-            f"{html.escape(str(x.get('cur') or '?'))} via live</small>"
-            + (f" <a href=\"{html.escape(x['pairUrl'], quote=True)}\">pair ↗</a>" if x.get('pairUrl') else "")
-            + "</div>"
-            for x in e["detail"])
-        return (f"<details style='margin:.2em 0;font-size:13px;color:#555'>"
+        summ = f"Early moves: {e['n']} calls via live \u2014 tap for each call."
+        t = ""
+        if _render_table is not None:
+            rows = [{
+                "called": e.get("called_ts") or None,
+                "symbol": x.get("symbol", "?"),
+                "pct": x.get("pct"),
+                "entry": _fnum(x.get("entry")),
+                "cur": _fnum(x.get("cur")),
+                "pair": x.get("pairUrl") or "",
+            } for x in e["detail"]]
+            t = _render_table(rows, EARLY_COLS, total=len(rows), per=25, ns="early")
+            t = _tl_patch_dates(t, "early", (("called", "Called"),))
+            t = _tl_patch_links(t, "Pair")
+        return (f"<details id=\"earlydetail\" style='margin:.2em 0;font-size:13px;color:#555'>"
                 f"<summary>{html.escape(summ)}</summary>"
-                f"<div>{rows}</div></details>")
+                f"<div class=\"tl-live\" id=\"tl-live-early\">{t}</div></details>")
     except Exception:
         return ""
+
 
 
 def server_card():
@@ -544,7 +660,6 @@ def server_card():
         top = max(rows, key=lambda r: r.get("heat") or 0)
         w = is_worthy(top)
         chg = top.get("priceChange_h24")
-        chgs = f"{chg}%" if chg is not None else "—"
         br = breakout()
         br_txt = (f". 🔥 {br.get('symbol')} up +{float(br.get('pct')):.1f}% since its call"
                   if br else "")
@@ -561,8 +676,7 @@ def server_card():
         else:
             wtxt = "quiet, no calls standing out"
         state = "WATCH" if (w or br) else "COLD"
-        verdict = (f"{state} \u2014 Top now: {top.get('symbol')} \u2014 {wtxt}"
-                   f"{br_txt}{early_line()}")
+        verdict = (f"{state} \u2014 Top now: {top.get('symbol')} \u2014 {wtxt}{br_txt}")
     else:
         verdict = "COLD \u2014 No rotation data right now \u2014 refresh in a minute"
     pulse = (f"{live} {len(rows)} tokens · sample {fmt_age(age)} (every 5m) | "
@@ -635,11 +749,16 @@ const worthy=r=>(r.heat||0)>=80&&(r.vol_h24||0)>=5e5&&(r.txns_h24||0)>=1e4;
 const falling=r=>{const c=parseFloat(r.priceChange_h24);return isFinite(c)&&c<=-50};
 const pumped=r=>{const c=parseFloat(r.priceChange_h24);return isFinite(c)&&c>=200};
 const verdictFor=t=>{const w=worthy(t);if(w&&falling(t))return 'falling — not a buy, watch only';if(w&&pumped(t))return 'pumped — not a buy, watch only';return w?'worth a look':'quiet, no calls standing out'};
-function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){const ST=worthy(top)?'WATCH':'COLD';document.getElementById('v').innerHTML='<b>'+ST+' \u2014 Top now: '+top.symbol+'</b> \u2014 '+verdictFor(top)+' <small>heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'\u2014')+'%</small>'+(PSUFFIX||'');SLIP='e060 '+ST+' paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+(falling(top)?' FALLING':(pumped(top)?' PUMPED':''))+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>chain</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>pair</th></tr></thead><tbody>';
+const e60p2=n=>String(n).padStart(2,'0');
+function e60FmtTs(s){try{const d=new Date((+s)*1000);return e60p2(d.getUTCMonth()+1)+'/'+e60p2(d.getUTCDate())+' '+e60p2(d.getUTCHours())+':'+e60p2(d.getUTCMinutes())}catch(_){return'—'}}
+function e60DayTs(ds){try{const t=Date.parse(ds+'T00:00:00Z');return isFinite(t)?Math.floor(t/1000):null}catch(_){return null}}
+function e60BallotTbl(calls){let h='<div class=twrap><table><thead><tr><th>Date</th><th>Symbols</th><th>Called</th><th>Grades in (h)</th><th>N</th><th>Status</th></tr></thead><tbody>';for(const c of calls){const dts=e60DayTs(c.date);const gi=(c.remain_h==null)?'—':(+c.remain_h).toFixed(1);h+=`<tr><td${dts!=null?` data-ts="${dts}"`:''}>${dts!=null?e60FmtTs(dts):(c.date||'—')}</td><td>${(c.symbols||[]).join(', ')}</td><td${c.called_ts?` data-ts="${c.called_ts}"`:''}>${c.called_ts?e60FmtTs(c.called_ts):'—'}</td><td>${gi}</td><td>${c.n||0}</td><td>${c.n?'pending':'unpriced'}</td></tr>`}return h+'</tbody></table></div>'}
+function e60EarlyTbl(e){let h='<div class=twrap><table><thead><tr><th>Called</th><th>Symbol</th><th>Pct%</th><th>Entry</th><th>Now</th><th>Pair</th></tr></thead><tbody>';for(const x of e.detail){const p=(x.pct==null?'—':((x.pct>0?'+':'')+x.pct+'%'));h+=`<tr><td${e.called_ts?` data-ts="${e.called_ts}"`:''}>${e.called_ts?e60FmtTs(e.called_ts):'—'}</td><td>${x.symbol}</td><td>${p}</td><td>${x.entry||'—'}</td><td>${x.cur||'—'}</td><td>${x.pairUrl?`<a href="${String(x.pairUrl).replace(/"/g,'&quot;')}">pair ↗</a>`:'—'}</td></tr>`}return h+'</tbody></table></div>'}
+function render(){const rows=[...ROWS].sort(KEYS[CUR]);const top=[...ROWS].sort(KEYS.heat)[0];if(top){const ST=worthy(top)?'WATCH':'COLD';document.getElementById('v').innerHTML='<b>'+ST+' \u2014 Top now: '+top.symbol+'</b> \u2014 '+verdictFor(top)+(PSUFFIX||'');SLIP='e060 '+ST+' paper: '+top.symbol+' ('+top.chain+') heat '+top.heat+' vol '+fmt(top.vol_h24)+' chg '+(top.priceChange_h24??'?')+'% boost $'+top.boost_usd+' '+(top.pairUrl||top.dsUrl||'')+(falling(top)?' FALLING':(pumped(top)?' PUMPED':''))+' — watch only, not a position';}let h='<thead><tr><th>token</th><th>chain</th><th>heat</th><th>chg24h%</th><th>vol24h</th><th>boost$</th><th>pair</th></tr></thead><tbody>';
 for(const r of rows){h+=`<tr><td>${r.symbol}</td><td><small>${r.chain}</small></td><td><b>${r.heat??'—'}</b>${worthy(r)?' ⚡':''}</td><td>${r.priceChange_h24??'—'}${falling(r)?' 📉':(pumped(r)?' ⚠️':'')}</td><td>${fmt(r.vol_h24)}</td><td>${r.boost_usd}</td><td>${r.pairUrl?`<a href="${r.pairUrl}">pair ↗</a>`:'—'}</td></tr>`}
 document.getElementById('t').innerHTML=h+'</tbody>'}
 fetch('/api/version').then(r=>r.json()).then(v=>{if(v.ok)document.getElementById('ver').textContent='v'+v.running+(v.stale?' STALE—restart':'')+(v.dirty?' *':'')}).catch(()=>{});
-function loadAll(){fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`+(p.shadow&&p.shadow.n?` · stricter bar ${p.shadow.hit_rate_pct}% (${p.shadow.hits}/${p.shadow.n}, trying${p.shadow.thin?' · thin':''})`:'')+(p.shadow2&&p.shadow2.n?` · looser bar ${p.shadow2.hit_rate_pct}% (${p.shadow2.hits}/${p.shadow2.n}, trying${p.shadow2.thin?' · thin':''})`:'');else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`+(p.grade_src?' · '+p.grade_src:'')}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.n){let b='';if(p.early.best&&p.early.best.pct!=null)b=`, best ${p.early.best.symbol} ${(p.early.best.pct>0?'+':'')+p.early.best.pct}%`;let br='';if(p.early.best&&p.early.best.pct!=null&&p.early.best.pct>=20)br=` · 🔥 ${p.early.best.symbol} +${p.early.best.pct}% since call`;if(br){try{if(v.textContent.indexOf('COLD \u2014')>=0)v.textContent=v.textContent.replace('COLD \u2014','WATCH \u2014')}catch(_){}}t+=`${br} · early ${p.early.up}/${p.early.n} up (avg ${p.early.avg_pct>0?'+':''}${p.early.avg_pct}%, ~${p.early.age_h}h in${b}) via live`};if(p.early.capped&&p.early.capped.n!==p.early.n){t+=` · ex-pumped ${p.early.capped.up}/${p.early.capped.n} up (avg ${p.early.capped.avg_pct>0?'+':''}${p.early.capped.avg_pct}%)`}if(p.early.tracked_partial){t+=' · '+p.early.tracked+' still tracked'}try{const bl=document.getElementById('ballot');if(bl&&p&&p.ok&&Array.isArray(p.pending_calls)&&p.pending_calls.length){const tot=p.pending_calls.reduce((a,c)=>a+(c.n||0),0);bl.querySelector('summary').textContent='Paper ballot: '+tot+' calls resolving \u2014 tap for each call.';bl.querySelector('div').innerHTML=p.pending_calls.map(c=>'<div>'+c.date+' '+(c.symbols.slice(0,6).join(', ')+(c.symbols.length>6?' +'+(c.symbols.length-6)+' more':''))+' <small>'+c.called_ago+', '+c.grades_in+'</small></div>').join('')}}catch(_){}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('earlydetail');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const bo=(e.best&&e.best.pct!=null&&e.best.pct>=20)?'🔥 ':'';const summ=`${bo}Early moves: ${e.up}/${e.n} up, best ${(e.best||{}).symbol||'?'} ${((e.best||{}).pct>0?'+':'')+((e.best||{}).pct??0)}% via live \u2014 tap for each call.`;ed.querySelector('summary').textContent=summ;ed.querySelector('div').innerHTML=e.detail.map(x=>`<div>${x.symbol} ${(x.pct>0?'+':'')+x.pct}%${x.entry?` <small>entry ${x.entry} → now ${x.cur||'?'} via live</small>`:''}${x.pairUrl?` <a href="${x.pairUrl}">trades</a>`:''}</div>`).join('')}}catch(_){}}) });}
+function loadAll(){fetch('/api/rotation').then(r=>r.json()).then(d=>{ROWS=d.rows;render();const ageS=Math.max(0,Date.now()/1000-d.ts);const age=ageS<90?Math.round(ageS)+'s ago':ageS<5400?Math.round(ageS/60)+'m ago':(ageS/3600).toFixed(1)+'h ago';Promise.all([fetch('/api/paper').then(r=>r.json()).catch(()=>null),fetch('/api/version').then(r=>r.json()).catch(()=>null)]).then(([p,vv])=>{let sc='worthy score: logging first calls';if(p&&p.ok){if(p.paper_n)sc=`worthy hit-rate ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`+(p.shadow&&p.shadow.n?` · stricter bar ${p.shadow.hit_rate_pct}% (${p.shadow.hits}/${p.shadow.n}, trying${p.shadow.thin?' · thin':''})`:'')+(p.shadow2&&p.shadow2.n?` · looser bar ${p.shadow2.hit_rate_pct}% (${p.shadow2.hits}/${p.shadow2.n}, trying${p.shadow2.thin?' · thin':''})`:'');else if(p.pending)sc=`${p.pending} worthy calls resolving (${(p.grade_cd||'first outcome <24h')})`+(p.grade_src?' · '+p.grade_src:'')}document.getElementById('s').innerHTML=(d.stale?'<span class="badge stale">STALE</span> ':'<span class=badge>LIVE</span> ')+d.rows.length+' tokens · sample '+age+' (every 5m) | '+sc+(vv&&vv.ok?' | v'+vv.running+(vv.stale?' STALE\u2014restart':'')+(vv.dirty?' *':''):'');const v=document.getElementById('v');let t='';if(p&&p.ok){if(p.paper_n)t=` · paper ${p.paper_hit_rate_pct}% (${p.paper_n_hit}/${p.paper_n})`;else if(p.pending)t=` · ${p.pending} calls resolving (${(p.grade_cd||'grading soon')})`}if(p&&p.ok&&p.early&&p.early.best&&p.early.best.pct!=null&&p.early.best.pct>=20){const br=` · 🔥 ${p.early.best.symbol} +${p.early.best.pct}% since call`;try{if(v.textContent.indexOf('COLD \u2014')>=0)v.textContent=v.textContent.replace('COLD \u2014','WATCH \u2014')}catch(_){}t+=br}try{const bl=document.getElementById('tl-live-ballot');if(bl&&p&&p.ok&&Array.isArray(p.pending_calls)&&p.pending_calls.length){const tot=p.pending_calls.reduce((a,c)=>a+(c.n||0),0);const bd=document.getElementById('ballot');if(bd)bd.querySelector('summary').textContent='Paper ballot: '+tot+' calls resolving \u2014 tap for each call.';bl.innerHTML=e60BallotTbl(p.pending_calls)}}catch(_){}PSUFFIX=t;if(SLIP&&t&&SLIP.indexOf('resolving')<0&&SLIP.indexOf('hit-rate')<0)SLIP+=t;if(t&&v.textContent.indexOf('paper')<0&&v.textContent.indexOf('resolving')<0&&v.textContent.indexOf('early')<0)v.textContent+=t;try{const ed=document.getElementById('tl-live-early');if(ed&&p&&p.ok&&p.early&&p.early.detail){const e=p.early;const bd2=document.getElementById('earlydetail');if(bd2)bd2.querySelector('summary').textContent=`Early moves: ${e.n} calls via live \u2014 tap for each call.`;ed.innerHTML=e60EarlyTbl(e)}}catch(_){}}) });}
 loadAll();
 document.getElementById('refresh').onclick=()=>{const b=document.getElementById('refresh');b.textContent='↻…';loadAll();setTimeout(()=>{loadAll();b.textContent='↻ Refresh'},7000)};
 document.querySelectorAll('.thumbbar [data-k]').forEach(b=>b.onclick=()=>{CUR=b.dataset.k;document.querySelectorAll('.thumbbar [data-k]').forEach(x=>x.classList.toggle('on',x===b));render()});
@@ -649,6 +768,11 @@ document.getElementById('dark').onclick=()=>{document.documentElement.classList.
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def do_GET(self):
+        _p = self.path.split("?", 1)[0]
+        if _p == "/tl/tablelib.js":
+            return self.send_file(os.path.join(TL_DIR, "table.js"), "application/javascript")
+        if _p == "/tl/tablelib.css":
+            return self.send_file(os.path.join(TL_DIR, "table.css"), "text/css")
         if self.path == "/health":
             body = json.dumps({"ok": True, "track": "e060"}).encode()
             return self.send(body, "application/json")
@@ -666,20 +790,32 @@ class H(BaseHTTPRequestHandler):
         except Exception:
             top, pulse = "Top pick unavailable", ""
         try:
-            _early = early_detail_html().replace("<details", '<details id="earlydetail"', 1)
+            _early = early_detail_html()
         except Exception:
             _early = ""
         try:
             _ballot = ballot_html()
         except Exception:
             _ballot = ""
-        body = PAGE.replace("%%TOPONE%%", top).replace("%%PULSE%%", pulse).replace("%%EARLYDETAIL%%", _early).replace("%%BALLOT%%", _ballot).replace("%%VER%%", _VRUN).encode("utf-8")
+        _assets = ('<link rel="stylesheet" href="/tl/tablelib.css">'
+                   '<script src="/tl/tablelib.js"></script>') if (_early or _ballot) else ""
+        body = PAGE.replace("</head>", _assets + "</head>", 1).replace("%%TOPONE%%", top).replace("%%PULSE%%", pulse).replace("%%EARLYDETAIL%%", _early).replace("%%BALLOT%%", _ballot).replace("%%VER%%", _VRUN).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         self.wfile.write(body)
+    def send_file(self, path, ctype):
+        """Serve tablelib client assets fresh from e068 (no vendored copies)."""
+        try:
+            with open(path, "rb") as f:
+                data = f.read()
+        except Exception:
+            self.send_response(404)
+            self.end_headers()
+            return
+        self.send(data, ctype)
     def send(self, body, ctype):
         self.send_response(200)
         self.send_header("Content-Type", ctype)
