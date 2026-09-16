@@ -24,8 +24,8 @@ upstream/
 certs/
 
 # generated pipeline outputs (except experiments whose deliverables live in output/)
-# Anything a cron writes into this repo is classified in e000-fundamentals/CRON.md:
-# tracked+auto-pushed (the negations below) or ignored (everything else).
+# Anything a cron writes into this repo is classified in e000-fundamentals/AGENTS.md
+# (Scheduled jobs): tracked+auto-pushed (the negations below) or ignored (everything else).
 output/
 !e040-traderdev-local-replica/output/
 !e025-hyperliquid-candle-tails/ag-01-data/output/
@@ -96,3 +96,7 @@ e054-money-agent/w0/
 e054-money-agent/jobs/
 e057-launchpad-tokens/data/
 e057-launchpad-tokens/repo/
+
+# e068 tablelib: verification screenshots + generated demo page (rebuild via example/build.py)
+e068-tablelib/photos/
+e068-tablelib/example/index.html
