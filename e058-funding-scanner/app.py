@@ -691,6 +691,12 @@ def _ballot_compute():
     try:
         now = datetime.datetime.now(datetime.timezone.utc)
         _paper_run(log_today=False)
+        try:
+            _vvv = json.load(open(os.path.join(BASE, 'data', 'volume.json')))
+            _vols_b = _vvv.get('vols', {}) or {}
+            _floor_b = float(_vvv.get('floor_usd', 1000000))
+        except Exception:
+            _vols_b, _floor_b = {}, 1000000.0
         c = db()
         rows = c.execute('SELECT call_date, logged_ts, coin, median_apy, spread_bps, long_v, short_v, verdict, persist, flips, oi_rank FROM paper_calls ORDER BY logged_ts DESC, coin LIMIT 300').fetchall()
         outs = {(d, co): (h, s, rt_) for d, co, h, s, rt_ in c.execute('SELECT call_date, coin, hit, spread_24h, resolved_ts FROM paper_outcomes')}
@@ -726,6 +732,8 @@ def _ballot_compute():
                           'short_v': sh, 'verdict': ve, 'status': st,
                           'persist': pe, 'flips': fl, 'oi_rank': oi,
                           'called_ago_h': ago_h, 'grades_in_h': wait_h,
+                          'vol_usd': round(_vols_b.get(str(coin).upper(), 0) or 0),
+                          'sized': bool((_vols_b.get(str(coin).upper(), 0) or 0) >= _floor_b),
                           'hit': hit, 'spread_24h': s24, 'exit_ts': rts, 'grade_at': grd})
         # Rolling grade windows, one per pending day (UX law: every number
         # carries its time window) — e.g. 81×09-13→grade 09-14 05:04–22:04.
@@ -895,10 +903,39 @@ def _server_card():
                  if (_rn + _tn) > 0 else [])
     except Exception:
         _gate_rows = []
+    # run #167: size filter — free Binance quoteVolume joined into the
+    # paper grade (bin/volume.py, $0). Thin-volume steady pays are
+    # suspected mirages; the owner reads sized-vs-thin in one glance.
+    try:
+        _vv = json.load(open(os.path.join(BASE, 'data', 'volume.json')))
+        _vols = _vv.get('vols', {}) or {}
+        _floor = float(_vv.get('floor_usd', 1000000))
+        _vts = _vv.get('ts', '?')
+        _pcc = db()
+        _outs = _pcc.execute(
+            'SELECT coin, hit FROM paper_outcomes').fetchall()
+        _pcc.close()
+        _sn = _sh = _tn2 = _th2 = 0
+        for _co, _hh in _outs:
+            if (_vols.get(str(_co).upper(), 0) or 0) >= _floor:
+                _sn += 1
+                _sh += int(_hh or 0)
+            else:
+                _tn2 += 1
+                _th2 += int(_hh or 0)
+        _size_rows = ([('sized (\u2265$1M vol)',
+                         f"{round(100.0*_sh/max(1,_sn),1)}% ({_sh}/{_sn})",
+                         f"big-market calls, vol {_vts[5:10]}"),
+                        ('thin-vol (<$1M)',
+                         f"{round(100.0*_th2/max(1,_tn2),1)}% ({_th2}/{_tn2})",
+                         'small-market: likely mirage, not trusted')]
+                 if (_sn + _tn2) > 0 else [])
+    except Exception:
+        _size_rows = []
     _prows = ([('rows', _hr, 'funding readings stored'),
                ('sample', f"{age_m:.0f}m ago", 'time since last snapshot'),
                ('cadence', f"~{cad}m", 'median gap between snapshots')]
-              + _brows + _prows_p + _gate_rows + [('version', _VRUN, 'code running now')])
+              + _brows + _prows_p + _gate_rows + _size_rows + [('version', _VRUN, 'code running now')])
     pulse = ('<table id="ppulse"><tbody>' + ''.join(
         f"<tr><td>{html.escape(str(k))}</td><td>{html.escape(str(v))}</td><td>{html.escape(str(m))}</td></tr>"
         for k, v, m in _prows) + '</tbody></table>')
