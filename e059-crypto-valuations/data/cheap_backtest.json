@@ -1,895 +1,902 @@
 {
- "as_of": "2026-09-15",
+ "as_of": "2026-09-16",
  "method": "weekly calls trailing 12wk, mcap held constant at latest",
  "cheap_le": 0.8,
  "hit_lt": 1.0,
  "resolve_days": 30,
- "n": 125,
- "hits": 119,
+ "n": 126,
+ "hits": 120,
  "precision": 0.952,
  "deep": {
-  "n": 90,
-  "hits": 89,
+  "n": 89,
+  "hits": 88,
   "precision": 0.989
  },
  "shallow": {
-  "n": 35,
-  "hits": 30,
-  "precision": 0.857
+  "n": 37,
+  "hits": 32,
+  "precision": 0.865
  },
  "calls": [
   {
    "symbol": "SOL",
-   "call": "2026-08-09",
+   "call": "2026-08-10",
    "ratio_call": 0.16,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-08-09",
-   "ratio_call": 0.37,
+   "call": "2026-08-10",
+   "ratio_call": 0.36,
    "ratio_resolve": 0.31,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-08-09",
+   "call": "2026-08-10",
    "ratio_call": 0.05,
    "ratio_resolve": 0.08,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-08-09",
-   "ratio_call": 0.64,
-   "ratio_resolve": 0.81,
+   "call": "2026-08-10",
+   "ratio_call": 0.66,
+   "ratio_resolve": 0.8,
    "hit": true
   },
   {
    "symbol": "UNI",
-   "call": "2026-08-09",
-   "ratio_call": 0.45,
+   "call": "2026-08-10",
+   "ratio_call": 0.47,
    "ratio_resolve": 0.56,
    "hit": true
   },
   {
    "symbol": "SKY",
-   "call": "2026-08-09",
-   "ratio_call": 0.77,
-   "ratio_resolve": 0.91,
+   "call": "2026-08-10",
+   "ratio_call": 0.78,
+   "ratio_resolve": 0.92,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-08-09",
-   "ratio_call": 0.15,
+   "call": "2026-08-10",
+   "ratio_call": 0.16,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
+   "symbol": "RAY",
+   "call": "2026-08-10",
+   "ratio_call": 0.78,
+   "ratio_resolve": 0.45,
+   "hit": true
+  },
+  {
    "symbol": "APT",
-   "call": "2026-08-09",
+   "call": "2026-08-10",
    "ratio_call": 0.22,
    "ratio_resolve": 0.36,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-08-09",
+   "call": "2026-08-10",
    "ratio_call": 0.09,
    "ratio_resolve": 0.18,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-08-09",
-   "ratio_call": 0.53,
+   "call": "2026-08-10",
+   "ratio_call": 0.54,
    "ratio_resolve": 1.0,
    "hit": false
   },
   {
    "symbol": "EULER",
-   "call": "2026-08-09",
+   "call": "2026-08-10",
    "ratio_call": 0.21,
-   "ratio_resolve": 0.25,
+   "ratio_resolve": 0.26,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-08-02",
+   "call": "2026-08-03",
    "ratio_call": 0.17,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-08-02",
-   "ratio_call": 0.42,
-   "ratio_resolve": 0.32,
+   "call": "2026-08-03",
+   "ratio_call": 0.4,
+   "ratio_resolve": 0.33,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-08-02",
+   "call": "2026-08-03",
    "ratio_call": 0.05,
    "ratio_resolve": 0.07,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-08-02",
-   "ratio_call": 0.59,
-   "ratio_resolve": 0.79,
+   "call": "2026-08-03",
+   "ratio_call": 0.6,
+   "ratio_resolve": 0.8,
    "hit": true
   },
   {
    "symbol": "UNI",
-   "call": "2026-08-02",
+   "call": "2026-08-03",
    "ratio_call": 0.39,
-   "ratio_resolve": 0.68,
+   "ratio_resolve": 0.64,
    "hit": true
   },
   {
    "symbol": "SKY",
-   "call": "2026-08-02",
-   "ratio_call": 0.74,
-   "ratio_resolve": 0.87,
+   "call": "2026-08-03",
+   "ratio_call": 0.75,
+   "ratio_resolve": 0.88,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-08-02",
-   "ratio_call": 0.14,
+   "call": "2026-08-03",
+   "ratio_call": 0.15,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-08-02",
+   "call": "2026-08-03",
    "ratio_call": 0.19,
    "ratio_resolve": 0.33,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-08-02",
+   "call": "2026-08-03",
    "ratio_call": 0.09,
    "ratio_resolve": 0.16,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-08-02",
-   "ratio_call": 0.47,
+   "call": "2026-08-03",
+   "ratio_call": 0.48,
    "ratio_resolve": 1.0,
    "hit": false
   },
   {
    "symbol": "EULER",
-   "call": "2026-08-02",
+   "call": "2026-08-03",
    "ratio_call": 0.21,
    "ratio_resolve": 0.23,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.16,
-   "ratio_resolve": 0.18,
+   "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.5,
    "ratio_resolve": 0.32,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.05,
    "ratio_resolve": 0.07,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.54,
-   "ratio_resolve": 0.77,
+   "ratio_resolve": 0.78,
    "hit": true
   },
   {
    "symbol": "UNI",
-   "call": "2026-07-26",
-   "ratio_call": 0.43,
-   "ratio_resolve": 0.83,
+   "call": "2026-07-27",
+   "ratio_call": 0.41,
+   "ratio_resolve": 0.84,
    "hit": true
   },
   {
    "symbol": "SKY",
-   "call": "2026-07-26",
-   "ratio_call": 0.72,
+   "call": "2026-07-27",
+   "ratio_call": 0.73,
    "ratio_resolve": 0.84,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-07-26",
-   "ratio_call": 0.15,
+   "call": "2026-07-27",
+   "ratio_call": 0.14,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.17,
    "ratio_resolve": 0.33,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.09,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.46,
-   "ratio_resolve": 0.92,
+   "ratio_resolve": 0.94,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-07-26",
+   "call": "2026-07-27",
    "ratio_call": 0.21,
    "ratio_resolve": 0.22,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.19,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.47,
    "ratio_resolve": 0.29,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.06,
    "ratio_resolve": 0.05,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.53,
-   "ratio_resolve": 0.7,
+   "ratio_resolve": 0.72,
    "hit": true
   },
   {
    "symbol": "UNI",
-   "call": "2026-07-19",
-   "ratio_call": 0.56,
-   "ratio_resolve": 0.78,
+   "call": "2026-07-20",
+   "ratio_call": 0.55,
+   "ratio_resolve": 0.8,
    "hit": true
   },
   {
    "symbol": "SKY",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.73,
    "ratio_resolve": 0.8,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.15,
    "ratio_resolve": 0.13,
    "hit": true
   },
   {
    "symbol": "JUP",
-   "call": "2026-07-19",
-   "ratio_call": 0.74,
-   "ratio_resolve": 1.83,
+   "call": "2026-07-20",
+   "ratio_call": 0.77,
+   "ratio_resolve": 1.62,
    "hit": false
   },
   {
    "symbol": "APT",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.17,
-   "ratio_resolve": 0.25,
+   "ratio_resolve": 0.26,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-07-19",
+   "call": "2026-07-20",
    "ratio_call": 0.1,
-   "ratio_resolve": 0.1,
+   "ratio_resolve": 0.11,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-07-19",
-   "ratio_call": 0.41,
-   "ratio_resolve": 0.66,
+   "call": "2026-07-20",
+   "ratio_call": 0.42,
+   "ratio_resolve": 0.87,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-07-19",
-   "ratio_call": 0.23,
+   "call": "2026-07-20",
+   "ratio_call": 0.22,
    "ratio_resolve": 0.21,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.21,
    "ratio_resolve": 0.16,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.47,
-   "ratio_resolve": 0.35,
+   "ratio_resolve": 0.34,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.06,
    "ratio_resolve": 0.05,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.55,
-   "ratio_resolve": 0.66,
+   "ratio_resolve": 0.67,
    "hit": true
   },
   {
    "symbol": "SKY",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.72,
    "ratio_resolve": 0.79,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.16,
-   "ratio_resolve": 0.16,
+   "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "JUP",
-   "call": "2026-07-12",
-   "ratio_call": 0.74,
-   "ratio_resolve": 1.39,
+   "call": "2026-07-13",
+   "ratio_call": 0.75,
+   "ratio_resolve": 1.41,
    "hit": false
   },
   {
    "symbol": "APT",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.17,
    "ratio_resolve": 0.23,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.11,
-   "ratio_resolve": 0.09,
+   "ratio_resolve": 0.1,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.42,
-   "ratio_resolve": 0.55,
+   "ratio_resolve": 0.56,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-07-12",
+   "call": "2026-07-13",
    "ratio_call": 0.23,
    "ratio_resolve": 0.21,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-07-05",
+   "call": "2026-07-06",
    "ratio_call": 0.24,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-07-05",
-   "ratio_call": 0.49,
-   "ratio_resolve": 0.4,
+   "call": "2026-07-06",
+   "ratio_call": 0.48,
+   "ratio_resolve": 0.39,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-07-05",
+   "call": "2026-07-06",
    "ratio_call": 0.06,
    "ratio_resolve": 0.05,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-07-05",
+   "call": "2026-07-06",
    "ratio_call": 0.58,
    "ratio_resolve": 0.61,
    "hit": true
   },
   {
    "symbol": "SKY",
-   "call": "2026-07-05",
-   "ratio_call": 0.78,
-   "ratio_resolve": 0.75,
+   "call": "2026-07-06",
+   "ratio_call": 0.73,
+   "ratio_resolve": 0.76,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-07-05",
-   "ratio_call": 0.16,
+   "call": "2026-07-06",
+   "ratio_call": 0.17,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "JUP",
-   "call": "2026-07-05",
-   "ratio_call": 0.68,
-   "ratio_resolve": 1.0,
+   "call": "2026-07-06",
+   "ratio_call": 0.66,
+   "ratio_resolve": 1.04,
    "hit": false
   },
   {
    "symbol": "RAY",
-   "call": "2026-07-05",
-   "ratio_call": 0.75,
-   "ratio_resolve": 1.0,
+   "call": "2026-07-06",
+   "ratio_call": 0.73,
+   "ratio_resolve": 0.96,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-07-05",
+   "call": "2026-07-06",
    "ratio_call": 0.17,
    "ratio_resolve": 0.2,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-07-05",
+   "call": "2026-07-06",
    "ratio_call": 0.11,
    "ratio_resolve": 0.09,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-07-05",
-   "ratio_call": 0.41,
-   "ratio_resolve": 0.49,
+   "call": "2026-07-06",
+   "ratio_call": 0.42,
+   "ratio_resolve": 0.67,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-07-05",
-   "ratio_call": 0.25,
+   "call": "2026-07-06",
+   "ratio_call": 0.23,
    "ratio_resolve": 0.21,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-06-28",
+   "call": "2026-06-29",
    "ratio_call": 0.33,
    "ratio_resolve": 0.16,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-06-28",
-   "ratio_call": 0.54,
-   "ratio_resolve": 0.5,
+   "call": "2026-06-29",
+   "ratio_call": 0.55,
+   "ratio_resolve": 0.49,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-06-28",
+   "call": "2026-06-29",
    "ratio_call": 0.07,
    "ratio_resolve": 0.05,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-06-28",
-   "ratio_call": 0.74,
-   "ratio_resolve": 0.55,
+   "call": "2026-06-29",
+   "ratio_call": 0.73,
+   "ratio_resolve": 0.56,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-06-28",
+   "call": "2026-06-29",
    "ratio_call": 0.18,
    "ratio_resolve": 0.14,
    "hit": true
   },
   {
    "symbol": "JUP",
-   "call": "2026-06-28",
-   "ratio_call": 0.69,
-   "ratio_resolve": 0.83,
+   "call": "2026-06-29",
+   "ratio_call": 0.68,
+   "ratio_resolve": 0.82,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-06-28",
+   "call": "2026-06-29",
    "ratio_call": 0.21,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-06-28",
-   "ratio_call": 0.12,
+   "call": "2026-06-29",
+   "ratio_call": 0.13,
    "ratio_resolve": 0.09,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-06-28",
+   "call": "2026-06-29",
    "ratio_call": 0.41,
    "ratio_resolve": 0.47,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-06-28",
+   "call": "2026-06-29",
    "ratio_call": 0.31,
    "ratio_resolve": 0.21,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-06-21",
+   "call": "2026-06-22",
    "ratio_call": 0.33,
-   "ratio_resolve": 0.19,
+   "ratio_resolve": 0.18,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-06-21",
-   "ratio_call": 0.61,
-   "ratio_resolve": 0.47,
+   "call": "2026-06-22",
+   "ratio_call": 0.55,
+   "ratio_resolve": 0.51,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-06-21",
+   "call": "2026-06-22",
    "ratio_call": 0.07,
    "ratio_resolve": 0.06,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-06-21",
-   "ratio_call": 0.78,
+   "call": "2026-06-22",
+   "ratio_call": 0.77,
    "ratio_resolve": 0.53,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-06-21",
+   "call": "2026-06-22",
    "ratio_call": 0.18,
    "ratio_resolve": 0.15,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-06-21",
+   "call": "2026-06-22",
    "ratio_call": 0.2,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-06-21",
+   "call": "2026-06-22",
    "ratio_call": 0.12,
    "ratio_resolve": 0.1,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-06-21",
-   "ratio_call": 0.43,
-   "ratio_resolve": 0.44,
+   "call": "2026-06-22",
+   "ratio_call": 0.42,
+   "ratio_resolve": 0.57,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-06-21",
+   "call": "2026-06-22",
    "ratio_call": 0.31,
    "ratio_resolve": 0.22,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.35,
    "ratio_resolve": 0.21,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.62,
    "ratio_resolve": 0.47,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.07,
    "ratio_resolve": 0.06,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-06-14",
-   "ratio_call": 0.71,
-   "ratio_resolve": 0.56,
+   "call": "2026-06-15",
+   "ratio_call": 0.72,
+   "ratio_resolve": 0.55,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.17,
    "ratio_resolve": 0.16,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.21,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.12,
-   "ratio_resolve": 0.11,
+   "ratio_resolve": 0.1,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-06-14",
-   "ratio_call": 0.48,
-   "ratio_resolve": 0.43,
+   "call": "2026-06-15",
+   "ratio_call": 0.47,
+   "ratio_resolve": 0.42,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-06-14",
+   "call": "2026-06-15",
    "ratio_call": 0.32,
    "ratio_resolve": 0.23,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.36,
    "ratio_resolve": 0.23,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-06-07",
-   "ratio_call": 0.74,
+   "call": "2026-06-08",
+   "ratio_call": 0.72,
    "ratio_resolve": 0.47,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.08,
    "ratio_resolve": 0.06,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.69,
    "ratio_resolve": 0.57,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.16,
    "ratio_resolve": 0.16,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.22,
    "ratio_resolve": 0.17,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.13,
    "ratio_resolve": 0.11,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.53,
-   "ratio_resolve": 0.43,
+   "ratio_resolve": 0.54,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-06-07",
+   "call": "2026-06-08",
    "ratio_call": 0.32,
    "ratio_resolve": 0.23,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.3,
-   "ratio_resolve": 0.32,
+   "ratio_resolve": 0.31,
    "hit": true
   },
   {
    "symbol": "BNB",
-   "call": "2026-05-31",
-   "ratio_call": 0.68,
-   "ratio_resolve": 0.55,
+   "call": "2026-06-01",
+   "ratio_call": 0.67,
+   "ratio_resolve": 0.56,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.07,
    "ratio_resolve": 0.07,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.57,
    "ratio_resolve": 0.72,
    "hit": true
   },
   {
    "symbol": "GMX",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.14,
    "ratio_resolve": 0.18,
    "hit": true
   },
   {
    "symbol": "RAY",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.56,
-   "ratio_resolve": 0.84,
+   "ratio_resolve": 0.83,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.19,
    "ratio_resolve": 0.21,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.12,
    "ratio_resolve": 0.13,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.51,
-   "ratio_resolve": 0.42,
+   "ratio_resolve": 0.41,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-05-31",
+   "call": "2026-06-01",
    "ratio_call": 0.31,
    "ratio_resolve": 0.31,
    "hit": true
   },
   {
    "symbol": "SOL",
-   "call": "2026-05-24",
+   "call": "2026-05-25",
    "ratio_call": 0.33,
    "ratio_resolve": 0.33,
    "hit": true
   },
   {
    "symbol": "TRX",
-   "call": "2026-05-24",
+   "call": "2026-05-25",
    "ratio_call": 0.08,
    "ratio_resolve": 0.07,
    "hit": true
   },
   {
    "symbol": "ARB",
-   "call": "2026-05-24",
-   "ratio_call": 0.59,
-   "ratio_resolve": 0.77,
+   "call": "2026-05-25",
+   "ratio_call": 0.58,
+   "ratio_resolve": 0.76,
    "hit": true
   },
   {
    "symbol": "AAVE",
-   "call": "2026-05-24",
-   "ratio_call": 0.77,
+   "call": "2026-05-25",
+   "ratio_call": 0.79,
    "ratio_resolve": 1.0,
    "hit": false
   },
   {
    "symbol": "GMX",
-   "call": "2026-05-24",
+   "call": "2026-05-25",
    "ratio_call": 0.13,
    "ratio_resolve": 0.18,
    "hit": true
   },
   {
    "symbol": "RAY",
-   "call": "2026-05-24",
-   "ratio_call": 0.48,
-   "ratio_resolve": 0.93,
+   "call": "2026-05-25",
+   "ratio_call": 0.52,
+   "ratio_resolve": 0.89,
    "hit": true
   },
   {
    "symbol": "APT",
-   "call": "2026-05-24",
+   "call": "2026-05-25",
    "ratio_call": 0.22,
    "ratio_resolve": 0.2,
    "hit": true
   },
   {
    "symbol": "INJ",
-   "call": "2026-05-24",
+   "call": "2026-05-25",
    "ratio_call": 0.15,
    "ratio_resolve": 0.12,
    "hit": true
   },
   {
    "symbol": "YFI",
-   "call": "2026-05-24",
+   "call": "2026-05-25",
    "ratio_call": 0.54,
-   "ratio_resolve": 0.42,
+   "ratio_resolve": 0.53,
    "hit": true
   },
   {
    "symbol": "EULER",
-   "call": "2026-05-24",
-   "ratio_call": 0.29,
+   "call": "2026-05-25",
+   "ratio_call": 0.3,
    "ratio_resolve": 0.31,
    "hit": true
   }
