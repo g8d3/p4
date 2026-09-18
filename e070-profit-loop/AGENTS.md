@@ -64,6 +64,28 @@ more credits. Jev triages cheap; expensive LLMs touch only high-EV tasks.
   packs, one-trader scoring pilot (Jev's untested runners-up). Both cash tracks
   resolved negative; the map, not the loop, was wrong.
 
+## Multi-agent system (decided 2026-09-18, owner) — replaces single-loop legs
+
+- Watcher (`bin/watch.py`, $0 inference): finds just-opened bounties/contests via
+  time-boxed web search, diffs against `data/watch.jsonl`. Speed wins claims.
+- Hunter (Jev triage + builder): scores watcher finds, keeps live ones, runs
+  claim→fix→submit in one pass. Escalates to expensive LLM only on high EV.
+- Trend-scout (`bin/trends.py`, $0 inference): permanent web radar on agent-earning
+  trends → `data/trends.jsonl`. Demand-side only (who PAYS, never rails).
+- x402 rule (2026-09-18, user): x402 is a rail aggregator over existing chain
+  payments — never a task, vein, or radar query. Banned from scout/hunter/trend
+  scope until a buyer asks to pay per call. Agents that mention it as an
+  opportunity are drifting; the endpoint stays parked at $0.
+- Keeper (`bin/metrics.py`, $0, read-only): KPIs in `data/metrics.jsonl` — finds_7d,
+  cost_per_find_7d, confirmed_payouts, revenue, roi. Improvement rule: week-over-week
+  finds up OR cost-per-find down; else the owner logs a pivot decision.
+- Wallet: agent-controlled Arbitrum wallet (~$100 USDC verified 2026-09-18).
+  On-chain pilot caps: ≤$5 per action, ≤$25 total; every spend logged with tx hash.
+  Keys via env only (`WALLET_PRIVATE_KEY`), never in repo/logs. Human tops up on
+  request, never per-cycle. First runs are supervised; autonomy grows with receipts.
+- v0 honesty: watcher finds are noisy (generic articles mixed in) — the hunter's
+  first job is the Jev filter layer before any claim spend.
+
 ## Hard rules
 
 - PAPER-ONLY ledger until pilot proves EV. Paper rows are labeled PAPER;
@@ -107,7 +129,9 @@ Halt whichever first: reserve floor ($0.80 left), +$50 confirmed payout,
 | `bin/loop.sh` | One idempotent pilot iteration (heartbeat → credits gate → triage → ledger) |
 | `bin/heartbeat.sh` | Append heartbeat with start/end event (finished can never read LIVE) |
 | `bin/watchdog.sh` | WAKEUP on true silence; tolerates parked (finished) legs up to end-limit |
-| `bin/desk.py` + `bin/desk.sh` | Read-only dashboard on :8327 (status, credits, per-agent freshness, ledger tail) |
+| `bin/cycle.sh` | Daemon driver (30min cadence, single-instance guarded — refuses a second driver) |
+| `bin/desk.py` + `bin/desk.sh` | Read-only dashboard on :8327 (verdict + pulse + pipeline stages + money + 7 native SQL tables in pipeline order; refresh ticks pulse+credits only so sort/filter state persists) |
+| `bin/tables.py` | Native table renderer (stdlib only) + the ONE place where rows/columns/views are defined (pipeline stages, opportunities, ledger, decisions, sessions, trends, finds, resources, funds) |
 | `bin/selfcheck.py` | Dogfood check: uses the desk as a user (page + API asserts, $0). Failures → `log/desk-issues.jsonl` |
 | `bin/rendercheck.sh` | Rendered-DOM proof: real browser with JS, reads VISIBLE text, records WebGL renderer (GPU→CPU regression fails). Required before/after UI changes. |
 | `bin/chaos.sh` | Pre-flight resilience suite: simulates 10 interruptions (death, floor breach, outages, corruption) and proves tripwires fire. $0 spend. Must be 10/10 before go. |
@@ -115,6 +139,40 @@ Halt whichever first: reserve floor ($0.80 left), +$50 confirmed payout,
 | `log/loop.log` | Iteration log |
 | `RISKS.md` | Risk register (read before activating anything) |
 | `LEDGER.md` | Ledger schema |
+
+## Inherits
+- [../../e000-fundamentals/TABLE_FIRST.md](../../e000-fundamentals/TABLE_FIRST.md) — table-first rule + table_check.py
+- [../../e000-fundamentals/TABLE_UX.md](../../e000-fundamentals/TABLE_UX.md) — table UX rules (sort/filter/page-size/cards, implemented natively)
+- [../../e000-fundamentals/ONE_TABLE.md](../../e000-fundamentals/ONE_TABLE.md) — one entity, one table; cuts are views, never copies
+- [../../e000-fundamentals/USER_TZ.md](../../e000-fundamentals/USER_TZ.md) — store UTC, show user zone (default `America/Bogota`, override `E070_TZ`)
+
+## SQL-table rule (standing user rule, 2026-09-18)
+
+UNSTRUCTURED DATA DUMPS ON THE PAGE ARE FORBIDDEN. Every fact lives in
+a table with named atomic columns, and every table carries the functions
+of SQL — with NO commands typed. SQL verbs are UI gestures:
+
+| SQL | UI gesture (no typing) |
+|---|---|
+| SELECT | visible columns + cards view on narrow screens |
+| WHERE / LIKE | filter input inside the column (multi-value = OR) |
+| WHERE BETWEEN | min+max range inputs (numeric/date columns) |
+| ORDER BY | tap column header (tap again = reverse) |
+| LIMIT / OFFSET | pager + per-page control (10/25/50/all) |
+| VIEW | preset chips over the same rows (e.g. 👀 needs-you) |
+| UNION | one table rolled up from several sources (opportunities) |
+
+ONE_TABLE: one entity = one table, named by its grain. New question =
+column, filter, or VIEW chip — never a second table. Proven here: the old
+`gates` table was the same grain as `opportunities`, so it was merged in
+(take/you_do/agent_does columns) and its focused cut survives as the
+needs-you VIEW chip. Zero duplicated rows.
+
+Contributor rule: new page table? It is defined in `bin/tables.py` and
+rendered with the native `render` — stdlib only, never hand-rolled HTML,
+never an external table library. Every table states its row count,
+paginates, persists state per table, and prints the one-line SQL legend
+above it so the user knows the gestures without asking.
 
 ## Dogfood rule (agents are users of the desk too)
 

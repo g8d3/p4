@@ -19,7 +19,7 @@ try:
     print(json.JSONDecoder().raw_decode(s)[0])
 except Exception:
     print('')"; }
-TEXT=$(grab "document.body.innerText.slice(0, 4000)")
+TEXT=$(grab "document.body.innerText.slice(0, 12000)")
 RENDERER=$(grab "(() => { const c = document.createElement('canvas'); const g = c.getContext('webgl2') || c.getContext('webgl'); if (!g) return 'NO-WEBGL'; const d = g.getExtension('WEBGL_debug_renderer_info'); return d ? g.getParameter(d.UNMASKED_RENDERER_WEBGL) : 'WEBGL-NO-INFO'; })()")
 timeout 30 agent-browser --session "$SESS" close > /dev/null 2>&1
 [ -z "$TEXT" ] && { echo "RENDERCHECK FAIL: empty rendered text"; exit 1; }
@@ -28,7 +28,7 @@ FAIL=""
 for pat in '${' 'undefined' 'NaN' '$$' 'loading'; do
   case "$TEXT" in *"$pat"*) FAIL="$FAIL artifact:$pat;";; esac
 done
-for need in 'profit loop' 'status' 'workers' 'ledger'; do
+for need in 'profit loop' 'funds' 'workers' 'ledger'; do
   case "$TEXT" in *"$need"*|*"${need^}"*) ;; *) FAIL="$FAIL missing:$need;";; esac
 done
 case "$TEXT" in *'left (floor $'*) ;; *) FAIL="$FAIL prices-unfilled;";; esac

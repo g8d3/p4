@@ -33,6 +33,23 @@ try:
     for needle in ["profit loop", "api/state", "ledger tail", "workers"]:
         if needle not in page.lower():
             issues.append("page missing section: %s" % needle)
+    for needle in ["ORDER BY", "tdata-", "tView", "tSort", "tFilter",
+                   "LIMIT", "WHERE", "saved VIEW"]:
+        if needle not in page:
+            issues.append("page missing native SQL-table contract: %s" % needle)
+    if "tablelib" in page.lower() or "tl-data-" in page:
+        issues.append("external table library leak: desk must be native (stdlib only)")
+    import re as _re
+    if "times " not in page:
+        issues.append("page missing active-zone footer (USER_TZ)")
+    if not _re.search(r"UTC[+-]\d", page):
+        issues.append("no user-zone labels on times (USER_TZ)")
+    body_rows = len(_re.findall(r"<tr>", page.split("<script")[0]))
+    if body_rows < 5:
+        issues.append("no SSR table rows (TABLE_FIRST NO_TABLE): found %d" % body_rows)
+    for needle in ["rows)", "Page", "per page"]:
+        if needle not in page:
+            issues.append("page missing counter/pagination: %s" % needle)
     # NOTE: never grep rendered artifacts ($$, ${...}) in raw HTML — the JS
     # template `$${x}` is correct ($ + interpolation) and only a rendered-DOM
     # check (bin/rendercheck.sh) can judge pixels. See 2026-09-18 incident.
