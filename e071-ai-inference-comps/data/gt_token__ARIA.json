@@ -11,13 +11,13 @@
    "coingecko_coin_id": "aria-3",
    "total_supply": "1000000000000000000000000000.0",
    "normalized_total_supply": "1000000000.0",
-   "price_usd": "0.002355053412",
-   "fdv_usd": "2340580.30201416",
-   "total_reserve_in_usd": "143089.50578184528382318767260390114",
+   "price_usd": "0.003376179987",
+   "fdv_usd": "3352055.30757884",
+   "total_reserve_in_usd": "203954.27080265201734654878038596254",
    "volume_usd": {
-    "h24": "674056.334349768"
+    "h24": "771448.896532823"
    },
-   "market_cap_usd": "0.0",
+   "market_cap_usd": "3376179.98736848",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,

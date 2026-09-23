@@ -1,0 +1,86 @@
+[
+ {
+  "chainId": "solana",
+  "dexId": "meteora",
+  "url": "https://dexscreener.com/solana/dj8qzbm3zori4yivmpilbbuc67cq737vqatnbmrjgcvz",
+  "pairAddress": "DJ8qzBm3ZoRi4YiVmpiLBBuc67cq737vqaTNbMRJGcvZ",
+  "labels": [
+   "DLMM"
+  ],
+  "baseToken": {
+   "address": "6SjVTj1VGwFSXn7wEjwFm77LvACeTqB7sQUebYKX8Ds5",
+   "name": "Solrouter",
+   "symbol": "ROUTER"
+  },
+  "quoteToken": {
+   "address": "So11111111111111111111111111111111111111112",
+   "name": "Wrapped SOL",
+   "symbol": "SOL"
+  },
+  "priceNative": "0.00003408",
+  "priceUsd": "0.003933",
+  "txns": {
+   "m5": {
+    "buys": 9,
+    "sells": 2
+   },
+   "h1": {
+    "buys": 30,
+    "sells": 13
+   },
+   "h6": {
+    "buys": 249,
+    "sells": 251
+   },
+   "h24": {
+    "buys": 577,
+    "sells": 549
+   }
+  },
+  "volume": {
+   "h24": 254631.27,
+   "h6": 128814.25,
+   "h1": 11797.89,
+   "m5": 1900.47
+  },
+  "priceChange": {
+   "m5": -0.03,
+   "h1": -3.69,
+   "h6": -4.31,
+   "h24": 5.87
+  },
+  "liquidity": {
+   "usd": 149930.05,
+   "base": 20248552,
+   "quote": 609.01398
+  },
+  "fdv": 3933306,
+  "marketCap": 2766209,
+  "pairCreatedAt": 1777563763000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/NMsGeZOdeJPJ9X0N?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/x9B1aCwiac9VFtpy?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/6SjVTj1VGwFSXn7wEjwFm77LvACeTqB7sQUebYKX8Ds5?timestamp=1790177400000",
+   "websites": [
+    {
+     "url": "https://solrouter.com/",
+     "label": "Website"
+    },
+    {
+     "url": "https://docs.solrouter.com/",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/SolRouterAI",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/solrouter",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

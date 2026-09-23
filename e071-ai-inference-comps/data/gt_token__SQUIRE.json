@@ -9,15 +9,15 @@
    "decimals": 6,
    "image_url": "https://coin-images.coingecko.com/coins/images/102173114/large/etfp6n05zbfkhqs4izbpe4ckcdvw.?1777893106",
    "coingecko_coin_id": "pod-the-squire",
-   "total_supply": "999817238249163.0",
-   "normalized_total_supply": "999817238.249163",
-   "price_usd": "0.001482856403",
-   "fdv_usd": "1482585.39363616",
-   "total_reserve_in_usd": "152641.16621236339207969285591676",
+   "total_supply": "999817236480879.0",
+   "normalized_total_supply": "999817236.480879",
+   "price_usd": "0.001593613782",
+   "fdv_usd": "1593322.52778903",
+   "total_reserve_in_usd": "144596.53397317393900767554921676",
    "volume_usd": {
-    "h24": "249806.200153767"
+    "h24": "214428.003561925"
    },
-   "market_cap_usd": "1482585.3968759",
+   "market_cap_usd": "1593322.52778903",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,

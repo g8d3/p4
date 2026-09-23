@@ -291,7 +291,7 @@ def main():
         minted_pct = round((tot - circ) / tot * 100, 2) if tot and circ else None
         net_pct = round((circ - mx) / mx * 100, 2) if circ and mx else None
         u = next(x for x in UNI if x["symbol"] == b["symbol"])
-        gid = b.get("coingecko_gt") or u.get("coingecko_id")
+        gid = None if u.get("coingecko_block") else (b.get("coingecko_gt") or u.get("coingecko_id"))
         rows.append({
             **b,
             "sales_ann_usd": sales_ann, "earnings_ann_usd": earn_ann, "tvl_usd": tvl,
@@ -370,7 +370,7 @@ def main():
                       "shares": "mcap_share=capital dominance only; volume_share/liquidity_share live; sales_share=revenue/universe_revenue and usage_share=tokens-or-calls/universe total, both null until per-project inference-revenue feeds land",
                       "history": "DEX rows: GeckoTerminal day candles -> ATH/ATL/dates, full-rule sig-low, 30d spark; supply_total prefers GT normalized supply, else public-RPC totalSupply",
                       "sig_low": "lowest 1d close post-ATH (>=7d old) with >=20pct drawdown else weakest post-ATH low (weak=1)",
-                      "age": "DEX rows: oldest pairCreatedAt; majors: curated genesis_date in universe.json (TAO 2021-01-09, VVV 2025-01-27, DOT 2020-05-26; ROUTER null, uncertain row)",
+                      "age": "DEX rows: oldest pairCreatedAt; majors: curated genesis_date in universe.json (TAO 2021-01-09, VVV 2025-01-27)",
                       "venues": "taker cost=taker_fee+slippage at size (CPMM 50/50 proxy); maker/lp economics=lp_apr_proxy on depth; dynamic-fee venues flagged, never faked"},
            "columns_note": "every cell numeric/epoch/null; names+urls never in cells (venues/unlocks are rows, not strings)",
            "tokens_rows": rows}

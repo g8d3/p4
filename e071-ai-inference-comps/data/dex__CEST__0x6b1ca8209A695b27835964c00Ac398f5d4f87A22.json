@@ -17,50 +17,50 @@
    "name": "Ether",
    "symbol": "ETH"
   },
-  "priceNative": "0.00000004120",
-  "priceUsd": "0.0001140",
+  "priceNative": "0.00000006259",
+  "priceUsd": "0.0001676",
   "txns": {
    "m5": {
-    "buys": 0,
+    "buys": 2,
     "sells": 1
    },
    "h1": {
-    "buys": 8,
-    "sells": 17
+    "buys": 10,
+    "sells": 12
    },
    "h6": {
-    "buys": 30,
-    "sells": 90
+    "buys": 27,
+    "sells": 63
    },
    "h24": {
-    "buys": 70,
-    "sells": 201
+    "buys": 113,
+    "sells": 283
    }
   },
   "volume": {
-   "h24": 22486.77,
-   "h6": 8838.94,
-   "h1": 1128.77,
-   "m5": 8.29
+   "h24": 35567.65,
+   "h6": 7439.05,
+   "h1": 4718.66,
+   "m5": 162.26
   },
   "priceChange": {
-   "m5": -0.16,
-   "h1": -4.81,
-   "h6": -17.74,
-   "h24": -36.97
+   "m5": 1.57,
+   "h1": 50.49,
+   "h6": 49.78,
+   "h24": 6.14
   },
   "liquidity": {
-   "usd": 32894.35,
-   "base": 144225882,
-   "quote": 5.943
+   "usd": 39227.76,
+   "base": 117021644,
+   "quote": 7.3246
   },
-  "fdv": 112847,
-  "marketCap": 112847,
+  "fdv": 165859,
+  "marketCap": 165859,
   "pairCreatedAt": 1789835355000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/niuzLDFpxW-xHbpX?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/_qbfGtxqX44GrSFu?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0x6b1ca8209a695b27835964c00ac398f5d4f87a22?timestamp=1790127300000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0x6b1ca8209a695b27835964c00ac398f5d4f87a22?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://cestus.network/",

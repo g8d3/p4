@@ -1,0 +1,86 @@
+[
+ {
+  "chainId": "base",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/base/0x5f547579519beaa158cddd3543604029165f66e86a00c373d0ee90c38784921b",
+  "pairAddress": "0x5f547579519beaa158cddd3543604029165f66e86a00c373d0ee90c38784921b",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0x23A2847d772803f9EFC64B4277b782b06296FE51",
+   "name": "Dot",
+   "symbol": "DOT"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.000003052",
+  "priceUsd": "0.008162",
+  "txns": {
+   "m5": {
+    "buys": 9,
+    "sells": 9
+   },
+   "h1": {
+    "buys": 71,
+    "sells": 39
+   },
+   "h6": {
+    "buys": 181,
+    "sells": 92
+   },
+   "h24": {
+    "buys": 389,
+    "sells": 251
+   }
+  },
+  "volume": {
+   "h24": 394982.88,
+   "h6": 133734.03,
+   "h1": 47587.83,
+   "m5": 425.35
+  },
+  "priceChange": {
+   "m5": -0.18,
+   "h1": 2.98,
+   "h6": -7.91,
+   "h24": -15.53
+  },
+  "liquidity": {
+   "usd": 501441.18,
+   "base": 37377106,
+   "quote": 73.4254
+  },
+  "fdv": 7185816,
+  "marketCap": 6781953,
+  "pairCreatedAt": 1779901859000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/dicwjZDJp7ma1FU9?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/q1Ds1M-OJ3j0_d_f?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0x23a2847d772803f9efc64b4277b782b06296fe51?timestamp=1790177400000",
+   "websites": [
+    {
+     "url": "https://usedot.xyz/",
+     "label": "Website"
+    },
+    {
+     "url": "http://git.usedot.xyz/",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/usedotai",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/usedotxyz",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

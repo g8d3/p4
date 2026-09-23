@@ -17,50 +17,50 @@
    "name": "NVIDIA \u2022 Robinhood Token",
    "symbol": "NVDA"
   },
-  "priceNative": "0.00001302",
-  "priceUsd": "0.002974",
+  "priceNative": "0.00001012",
+  "priceUsd": "0.002313",
   "txns": {
    "m5": {
-    "buys": 1,
-    "sells": 2
+    "buys": 2,
+    "sells": 3
    },
    "h1": {
-    "buys": 18,
-    "sells": 31
+    "buys": 33,
+    "sells": 39
    },
    "h6": {
-    "buys": 198,
-    "sells": 247
+    "buys": 127,
+    "sells": 147
    },
    "h24": {
-    "buys": 740,
-    "sells": 974
+    "buys": 632,
+    "sells": 731
    }
   },
   "volume": {
-   "h24": 698603.01,
-   "h6": 176599.86,
-   "h1": 11365.54,
-   "m5": 338.38
+   "h24": 491029.77,
+   "h6": 70805.57,
+   "h1": 17732.69,
+   "m5": 350.64
   },
   "priceChange": {
-   "m5": 0.47,
-   "h1": 7.8,
-   "h6": 12.89,
-   "h24": -23.78
+   "m5": -0.45,
+   "h1": -8.99,
+   "h6": -1.97,
+   "h24": -41.87
   },
   "liquidity": {
-   "usd": 211558.55,
-   "base": 45492945,
-   "quote": 333.993
+   "usd": 180387.28,
+   "base": 49029078,
+   "quote": 293.2158
   },
-  "fdv": 2936872,
-  "marketCap": 2936872,
+  "fdv": 2284200,
+  "marketCap": 2284200,
   "pairCreatedAt": 1789582090000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/ORh2hujB0dWITqn3?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/LJ85dp8F9D2nH14a?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xdc45b71d7203c2e8baafc43a19bca0eb993bb54e?timestamp=1790127000000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xdc45b71d7203c2e8baafc43a19bca0eb993bb54e?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://darkwoods.ai/",

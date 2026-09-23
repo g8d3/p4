@@ -11,13 +11,13 @@
    "coingecko_coin_id": "orbio-so",
    "total_supply": "949999905220192059882646536.0",
    "normalized_total_supply": "949999905.220192",
-   "price_usd": "0.0592106224",
-   "fdv_usd": "56250083.8014425",
-   "total_reserve_in_usd": "2736624.21615609449152331186702590863604170793799195318129244",
+   "price_usd": "0.06844249419",
+   "fdv_usd": "65020360.8378126",
+   "total_reserve_in_usd": "2987758.6360561389866217493715942557374362920205886417229962",
    "volume_usd": {
-    "h24": "3617238.58779507"
+    "h24": "4125080.12481958"
    },
-   "market_cap_usd": "56250091.2786207",
+   "market_cap_usd": "65020369.480801",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,

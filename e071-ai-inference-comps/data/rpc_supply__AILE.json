@@ -3,13 +3,13 @@
  "result": {
   "context": {
    "apiVersion": "4.3.0-rc.0",
-   "slot": 449197231
+   "slot": 449735427
   },
   "value": {
-   "amount": "944460681669500",
+   "amount": "944458620009227",
    "decimals": 6,
-   "uiAmount": 944460681.6695,
-   "uiAmountString": "944460681.6695"
+   "uiAmount": 944458620.009227,
+   "uiAmountString": "944458620.009227"
   }
  },
  "id": 1

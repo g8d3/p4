@@ -11,11 +11,11 @@
    "coingecko_coin_id": "modam",
    "total_supply": "999998242250313111728022096.0",
    "normalized_total_supply": "999998242.250313",
-   "price_usd": "0.00006106153608",
-   "fdv_usd": "60450.33022229",
-   "total_reserve_in_usd": "13659.169226262388653378844915476505048575",
+   "price_usd": "0.00003910568854",
+   "fdv_usd": "38714.2534868677",
+   "total_reserve_in_usd": "10765.302112694657016184363666227215048575",
    "volume_usd": {
-    "h24": "127637.117555407"
+    "h24": "109810.385633937"
    },
    "market_cap_usd": "0.0",
    "launchpad_details": {
@@ -37,7 +37,7 @@
       "type": "pool"
      },
      {
-      "id": "robinhood_0x134a19fc28e01016878908080777bc0e26ef078574b1e1061be57687174786bf",
+      "id": "robinhood_0xda913cbeef7caacdeb649e9043c117178baeab6527d2526e6eae2602423ed234",
       "type": "pool"
      }
     ]

@@ -11,13 +11,13 @@
    "coingecko_coin_id": "sable-network-2",
    "total_supply": "1000000000000000000000000000.0",
    "normalized_total_supply": "1000000000.0",
-   "price_usd": "0.0006730749415",
-   "fdv_usd": "629325.070265581",
-   "total_reserve_in_usd": "40493.586926611793435317048890746481",
+   "price_usd": "0.000638095225",
+   "fdv_usd": "596619.035333998",
+   "total_reserve_in_usd": "38277.166653596930130178743121266481",
    "volume_usd": {
-    "h24": "120625.282924609"
+    "h24": "106381.210394396"
    },
-   "market_cap_usd": "629325.070265581",
+   "market_cap_usd": "596619.035333998",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,

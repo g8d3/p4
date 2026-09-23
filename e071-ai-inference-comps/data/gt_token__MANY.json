@@ -9,15 +9,15 @@
    "decimals": 18,
    "image_url": "https://coin-images.coingecko.com/coins/images/102176698/large/manyways.jpg?1788507503",
    "coingecko_coin_id": "manyways-inference",
-   "total_supply": "999850219611098172291019617.0",
-   "normalized_total_supply": "999850219.611098",
-   "price_usd": "0.003045877424",
-   "fdv_usd": "2982510.10120217",
-   "total_reserve_in_usd": "297110.9978895893751713360609382015733370252709187008920208096",
+   "total_supply": "999727822192803401515566376.0",
+   "normalized_total_supply": "999727822.192803",
+   "price_usd": "0.003349585004",
+   "fdv_usd": "3279489.27949939",
+   "total_reserve_in_usd": "290289.2950120183351823175948585126333370252709187008920208096",
    "volume_usd": {
-    "h24": "680528.307490603"
+    "h24": "536190.620276581"
    },
-   "market_cap_usd": "3045877.42393518",
+   "market_cap_usd": "3349585.00390667",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,
@@ -29,11 +29,11 @@
    "top_pools": {
     "data": [
      {
-      "id": "robinhood_0x9e285a946fa0f8cd2efba68b55d2fddcce55442e8561c34559d595d8c5ac09ad",
+      "id": "robinhood_0x25c0dad350613a02f2c0843f02dd15c30c45e20417909bef8a6311d54dc4d43a",
       "type": "pool"
      },
      {
-      "id": "robinhood_0x25c0dad350613a02f2c0843f02dd15c30c45e20417909bef8a6311d54dc4d43a",
+      "id": "robinhood_0x9e285a946fa0f8cd2efba68b55d2fddcce55442e8561c34559d595d8c5ac09ad",
       "type": "pool"
      },
      {

@@ -11,11 +11,11 @@
    "coingecko_coin_id": "heyaskr",
    "total_supply": "1000000000000000000000000000.0",
    "normalized_total_supply": "1000000000.0",
-   "price_usd": "0.004074138741",
-   "fdv_usd": "3491642.15180947",
-   "total_reserve_in_usd": "220061.2145069454753620764478864934402436719941307216",
+   "price_usd": "0.003737158715",
+   "fdv_usd": "3202816.21125092",
+   "total_reserve_in_usd": "216131.80887502628713647481152531538289822142018758318723568",
    "volume_usd": {
-    "h24": "1357190.03612575"
+    "h24": "756621.938981693"
    },
    "market_cap_usd": "0.0",
    "launchpad_details": {
@@ -33,11 +33,11 @@
       "type": "pool"
      },
      {
-      "id": "robinhood_0x96fb4a1fd38054c6bf42f17721045ebdc132297afc7505381d1bbf5ccf5618bf",
+      "id": "robinhood_0x7d0dd05c447254e1f93b38aefbb7c03f6f9979c4",
       "type": "pool"
      },
      {
-      "id": "robinhood_0x7d0dd05c447254e1f93b38aefbb7c03f6f9979c4",
+      "id": "robinhood_0x96fb4a1fd38054c6bf42f17721045ebdc132297afc7505381d1bbf5ccf5618bf",
       "type": "pool"
      }
     ]

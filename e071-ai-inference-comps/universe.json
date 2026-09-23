@@ -21,32 +21,27 @@
    "tier": "S"
   },
   {
-   "chain": "major",
-   "coingecko_id": "router-protocol-2",
-   "cmc_slug": "router-protocol-2",
-   "source_tweet": "shawred A-tier",
+   "chain": "solana",
+   "mint": "6SjVTj1VGwFSXn7wEjwFm77LvACeTqB7sQUebYKX8Ds5",
+   "note": "resolved 2026-09-23 via @SolRouterAI bio ($ROUTER CA); DexScreener solana/Solrouter verified",
+   "source_tweet": "shawred A-tier; @SolRouterAI",
    "symbol": "ROUTER",
-   "tier": "A",
-   "uncertain": 1,
-   "note": "ticker collision: router-protocol-2 (ROUTE, cross-chain, $52k) vs AI Router Protocol ($AIR, inference). Shawred inference context favors $AIR \u2014 resolve before trusting ROUTER row."
+   "tier": "A"
   },
   {
-   "chain": "major",
-   "coingecko_id": "polkadot",
-   "cmc_slug": "polkadot-new",
-   "genesis_date": "2020-05-26",
-   "note": "ticker collision possible; verify vs ROUTER/DOT inference project",
-   "source_tweet": "shawred A-tier $DOT",
+   "chain": "base",
+   "mint": "0x23A2847d772803f9EFC64B4277b782b06296FE51",
+   "note": "resolved 2026-09-23 via @usedotai bio (Live on @base); DexScreener base/Dot verified, site usedot.xyz. CG coin `dot` verified 2026-09-23 (base contract + usedot.xyz match) — it is the Dot listing, NOT Polkadot (`polkadot`).",
+   "source_tweet": "shawred A-tier $DOT; @usedotai",
    "symbol": "DOT",
-   "tier": "A",
-   "uncertain": 1
+   "tier": "A"
   },
   {
    "chain": "base",
    "mint": "0xed664536023d8e4b1640c394777d34abaff1df8f",
-   "note": "shawred A-tier ORBIO (base leg)",
+   "note": "RELabeled 2026-09-23: all feeds (DexScreener Dolphin/POD, GT dolphin-2, CG dolphin-2 dphn.ai) agree this mint is Dolphin, NOT Orbio — was mislabeled ORBIO.b (base leg). Thread-side re-verify; collides with SQUIRE $POD note.",
    "source_tweet": "shawred",
-   "symbol": "ORBIO.b",
+   "symbol": "DOLPHIN",
    "tier": "A"
   },
   {
@@ -92,7 +87,7 @@
   {
    "chain": "robinhood",
    "mint": "0x6b1ca8209A695b27835964c00Ac398f5d4f87A22",
-   "note": "contract resolved 2026-09-22 via DexScreener search (Cestus Network, robinhood primary pool; secondary 0x1258Af9d5E3f2A31E585711966Ac295B64ddF6A5 exists, ~10x smaller)",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Cestus Network, robinhood primary pool; secondary 0x1258Af9d5E3f2A31E585711966Ac295B64ddF6A5 exists, ~10x smaller). CG `cestus-network` tracks the SECONDARY mint 0x1258..., not ours — no CG link.",
    "source_tweet": "shawred",
    "symbol": "CEST",
    "tier": "B"
@@ -146,7 +141,7 @@
   {
    "chain": "robinhood",
    "mint": "0xC7Db9a7034d061fecA50F0a25636Bcc83cA717D9",
-   "note": "contract resolved 2026-09-22 via DexScreener search (Fab, robinhood top pool)",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Fab, robinhood top pool). CG `fab` contract-verified 2026-09-23 but branding is Fab_RWA (fabrwa.xyz), not proof-of-silicon — thread-side re-verify.",
    "source_tweet": "sal_ash $FAB proof-of-silicon",
    "symbol": "FAB",
    "tier": "C"

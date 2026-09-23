@@ -11,11 +11,11 @@
    "coingecko_coin_id": null,
    "total_supply": "1000000000000000.0",
    "normalized_total_supply": "1000000000.0",
-   "price_usd": "0.00003794161109",
-   "fdv_usd": "37941.6110865708",
-   "total_reserve_in_usd": "9360.8090243272822542153906413",
+   "price_usd": "0.00004890657321",
+   "fdv_usd": "48906.5732063609",
+   "total_reserve_in_usd": "10408.0709005294481166216364836",
    "volume_usd": {
-    "h24": "26946.2372053706"
+    "h24": "16833.5804983173"
    },
    "market_cap_usd": null,
    "launchpad_details": {

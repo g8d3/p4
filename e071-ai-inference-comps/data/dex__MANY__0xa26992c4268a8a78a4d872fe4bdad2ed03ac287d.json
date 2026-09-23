@@ -17,50 +17,49 @@
    "name": "Ether",
    "symbol": "ETH"
   },
-  "priceNative": "0.000001139",
-  "priceUsd": "0.003152",
+  "priceNative": "0.000001162",
+  "priceUsd": "0.003113",
   "txns": {
    "m5": {
     "buys": 0,
-    "sells": 1
+    "sells": 0
    },
    "h1": {
-    "buys": 8,
-    "sells": 24
+    "buys": 7,
+    "sells": 13
    },
    "h6": {
-    "buys": 110,
-    "sells": 160
+    "buys": 64,
+    "sells": 84
    },
    "h24": {
-    "buys": 335,
-    "sells": 554
+    "buys": 303,
+    "sells": 520
    }
   },
   "volume": {
-   "h24": 176078.6,
-   "h6": 60666.53,
-   "h1": 6862.69,
-   "m5": 17.54
+   "h24": 170896.77,
+   "h6": 18911.65,
+   "h1": 5169.53,
+   "m5": 0
   },
   "priceChange": {
-   "m5": -0.1,
-   "h1": -6.38,
-   "h6": 0.54,
-   "h24": -32.37
+   "h1": -7,
+   "h6": -4.09,
+   "h24": -0.57
   },
   "liquidity": {
-   "usd": 175448.46,
-   "base": 27824613,
-   "quote": 31.6984
+   "usd": 172101.43,
+   "base": 27640541,
+   "quote": 32.1349
   },
-  "fdv": 3087166,
-  "marketCap": 3087166,
+  "fdv": 3047888,
+  "marketCap": 3047888,
   "pairCreatedAt": 1788262817000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/d1Z8ZqoAjTAIKGxu?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/fMjR-oy4x_Cl7coZ?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa26992c4268a8a78a4d872fe4bdad2ed03ac287d?timestamp=1790127000000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa26992c4268a8a78a4d872fe4bdad2ed03ac287d?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://manyways.dev/",

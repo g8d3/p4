@@ -14,49 +14,49 @@
    "name": "Wrapped SOL",
    "symbol": "SOL"
   },
-  "priceNative": "0.000002635",
-  "priceUsd": "0.0003134",
+  "priceNative": "0.000002798",
+  "priceUsd": "0.0003240",
   "txns": {
    "m5": {
     "buys": 0,
     "sells": 0
    },
    "h1": {
-    "buys": 1,
-    "sells": 0
-   },
-   "h6": {
-    "buys": 10,
+    "buys": 4,
     "sells": 4
    },
+   "h6": {
+    "buys": 85,
+    "sells": 40
+   },
    "h24": {
-    "buys": 41,
-    "sells": 27
+    "buys": 98,
+    "sells": 59
    }
   },
   "volume": {
-   "h24": 9494.15,
-   "h6": 552.38,
-   "h1": 99.02,
+   "h24": 16779.14,
+   "h6": 15254.55,
+   "h1": 390.86,
    "m5": 0
   },
   "priceChange": {
-   "h1": 1.07,
-   "h6": 2.48,
-   "h24": -5.24
+   "h1": 2.58,
+   "h6": 6.52,
+   "h24": 5.72
   },
   "liquidity": {
-   "usd": 72636.18,
-   "base": 115809254,
-   "quote": 305.4853
+   "usd": 72901.01,
+   "base": 111864393,
+   "quote": 316.5599
   },
-  "fdv": 313372,
-  "marketCap": 313372,
+  "fdv": 323931,
+  "marketCap": 323931,
   "pairCreatedAt": 1759932655000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/90cde7c675e2c2000673c5faad4e37db145607b42dfa197d382ee37691298d3e?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/57e6f06162f2edf07a1a222448795ce18d91edbaddb3ee33efc13fb169ed5f00?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump?timestamp=1790127300000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://opanarchyfoundation.com/",

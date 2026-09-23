@@ -100,3 +100,6 @@ e057-launchpad-tokens/repo/
 # e068 tablelib: verification screenshots + generated demo page (rebuild via example/build.py)
 e068-tablelib/photos/
 e068-tablelib/example/index.html
+
+# e071 refresh lock (cron scratch, never commit)
+.refresh.lock

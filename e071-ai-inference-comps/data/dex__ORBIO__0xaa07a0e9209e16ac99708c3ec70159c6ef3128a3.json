@@ -17,50 +17,50 @@
    "name": "Global Dollar",
    "symbol": "USDG"
   },
-  "priceNative": "0.07353",
-  "priceUsd": "0.07353",
+  "priceNative": "0.07132",
+  "priceUsd": "0.07132",
   "txns": {
    "m5": {
-    "buys": 5,
-    "sells": 10
+    "buys": 2,
+    "sells": 5
    },
    "h1": {
-    "buys": 119,
-    "sells": 139
+    "buys": 63,
+    "sells": 63
    },
    "h6": {
-    "buys": 1080,
-    "sells": 1175
+    "buys": 251,
+    "sells": 350
    },
    "h24": {
-    "buys": 2403,
-    "sells": 2206
+    "buys": 2173,
+    "sells": 2329
    }
   },
   "volume": {
-   "h24": 2299680.95,
-   "h6": 818638.37,
-   "h1": 133277.5,
-   "m5": 7117.44
+   "h24": 2264940.21,
+   "h6": 423804.4,
+   "h1": 82212.81,
+   "m5": 3242.15
   },
   "priceChange": {
-   "m5": -0.44,
-   "h1": 8.47,
-   "h6": 28.16,
-   "h24": -8.04
+   "m5": 0.16,
+   "h1": 2.89,
+   "h6": -7.7,
+   "h24": 2.91
   },
   "liquidity": {
-   "usd": 681017.65,
-   "base": 3055516,
-   "quote": 456319
+   "usd": 598063.39,
+   "base": 2475719,
+   "quote": 421478
   },
-  "fdv": 69861523,
-  "marketCap": 69861523,
+  "fdv": 67760524,
+  "marketCap": 67760524,
   "pairCreatedAt": 1789888014000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/04Bm6o4q2LWDsFBz?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/Um8cYPqUXHnyNPs5?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3?timestamp=1790127000000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://orbio.so/",

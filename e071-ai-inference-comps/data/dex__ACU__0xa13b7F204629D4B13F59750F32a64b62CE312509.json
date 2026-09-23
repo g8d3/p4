@@ -17,8 +17,8 @@
    "name": "Aria",
    "symbol": "Aria"
   },
-  "priceNative": "47480.8123",
-  "priceUsd": "116.73",
+  "priceNative": "53039.6859",
+  "priceUsd": "213.65",
   "txns": {
    "m5": {
     "buys": 0,
@@ -29,36 +29,36 @@
     "sells": 0
    },
    "h6": {
-    "buys": 1,
-    "sells": 1
+    "buys": 2,
+    "sells": 3
    },
    "h24": {
-    "buys": 2,
-    "sells": 9
+    "buys": 7,
+    "sells": 5
    }
   },
   "volume": {
-   "h24": 2182.06,
-   "h6": 522.63,
+   "h24": 2373.59,
+   "h6": 1120.01,
    "h1": 0,
    "m5": 0
   },
   "priceChange": {
-   "h6": -9.81,
-   "h24": -44.59
+   "h6": 45.07,
+   "h24": 65.07
   },
   "liquidity": {
-   "usd": 26249.46,
-   "base": 112.4364,
-   "quote": 5338572
+   "usd": 45457.89,
+   "base": 106.3813,
+   "quote": 5642434
   },
-  "fdv": 58363,
-  "marketCap": 58363,
+  "fdv": 106828,
+  "marketCap": 106828,
   "pairCreatedAt": 1789551791000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/g7UP-8VX5y418dBq?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/gCfT000DkV6rR1Ww?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa13b7f204629d4b13f59750f32a64b62ce312509?timestamp=1790127300000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa13b7f204629d4b13f59750f32a64b62ce312509?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://entelic.io/",

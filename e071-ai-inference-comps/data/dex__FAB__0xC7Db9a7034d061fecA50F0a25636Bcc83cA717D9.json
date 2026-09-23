@@ -17,49 +17,50 @@
    "name": "Ether",
    "symbol": "ETH"
   },
-  "priceNative": "0.0000001194",
-  "priceUsd": "0.0003308",
+  "priceNative": "0.0000001195",
+  "priceUsd": "0.0003201",
   "txns": {
    "m5": {
     "buys": 0,
-    "sells": 0
+    "sells": 1
    },
    "h1": {
-    "buys": 7,
-    "sells": 15
+    "buys": 14,
+    "sells": 18
    },
    "h6": {
-    "buys": 151,
-    "sells": 203
+    "buys": 42,
+    "sells": 82
    },
    "h24": {
-    "buys": 430,
-    "sells": 620
+    "buys": 337,
+    "sells": 517
    }
   },
   "volume": {
-   "h24": 114764.7,
-   "h6": 37301.74,
-   "h1": 2215.11,
-   "m5": 0
+   "h24": 94723.23,
+   "h6": 14175.96,
+   "h1": 4682.38,
+   "m5": 5.66
   },
   "priceChange": {
-   "h1": 1.5,
-   "h6": 12.51,
-   "h24": -8.01
+   "m5": -0.08,
+   "h1": 5.97,
+   "h6": -18.73,
+   "h24": 33.31
   },
   "liquidity": {
-   "usd": 56062.68,
-   "base": 84713956,
-   "quote": 10.118
+   "usd": 54218.92,
+   "base": 84665954,
+   "quote": 10.1238
   },
-  "fdv": 323386,
-  "marketCap": 323386,
+  "fdv": 312842,
+  "marketCap": 312842,
   "pairCreatedAt": 1788737221000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/RsAZDnuCSPK9SRSD?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/oZ2rrdoG7VCChAcu?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xc7db9a7034d061feca50f0a25636bcc83ca717d9?timestamp=1790127300000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xc7db9a7034d061feca50f0a25636bcc83ca717d9?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://fabrwa.xyz/",

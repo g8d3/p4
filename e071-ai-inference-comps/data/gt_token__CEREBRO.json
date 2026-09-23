@@ -11,13 +11,13 @@
    "coingecko_coin_id": "cerebro-2",
    "total_supply": "1000000000000000000000000000.0",
    "normalized_total_supply": "1000000000.0",
-   "price_usd": "0.002751635079",
-   "fdv_usd": "2696569.33556382",
-   "total_reserve_in_usd": "104878.9611464612308654409110855334253166074666968410282323754",
+   "price_usd": "0.002524427532",
+   "fdv_usd": "2473908.66787457",
+   "total_reserve_in_usd": "84168.26678707160156123812044244460059666365436884491521195",
    "volume_usd": {
-    "h24": "527345.80390656"
+    "h24": "512654.03302223"
    },
-   "market_cap_usd": "2751635.0786567",
+   "market_cap_usd": "2524427.53173013",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,

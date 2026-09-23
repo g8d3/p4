@@ -11,13 +11,13 @@
    "coingecko_coin_id": "fab",
    "total_supply": "1000000000000000000000000000.0",
    "normalized_total_supply": "1000000000.0",
-   "price_usd": "0.0002488927991",
-   "fdv_usd": "243245.622552871",
-   "total_reserve_in_usd": "51315.140401827913793479330977815644802872717134129874",
+   "price_usd": "0.0003036306777",
+   "fdv_usd": "296659.53396418",
+   "total_reserve_in_usd": "59841.150353116819775028646705058744802872717134129874",
    "volume_usd": {
-    "h24": "128795.24409554"
+    "h24": "111335.680895079"
    },
-   "market_cap_usd": "248892.799133186",
+   "market_cap_usd": "303630.677742369",
    "launchpad_details": {
     "graduation_percentage": 100.0,
     "completed": true,

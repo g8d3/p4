@@ -17,49 +17,49 @@
    "name": "USD Coin",
    "symbol": "USDC"
   },
-  "priceNative": "0.002785",
-  "priceUsd": "0.002785",
+  "priceNative": "0.002477",
+  "priceUsd": "0.002477",
   "txns": {
    "m5": {
-    "buys": 0,
+    "buys": 3,
     "sells": 2
    },
    "h1": {
-    "buys": 40,
-    "sells": 17
+    "buys": 73,
+    "sells": 21
    },
    "h6": {
-    "buys": 301,
-    "sells": 248
+    "buys": 218,
+    "sells": 117
    },
    "h24": {
-    "buys": 737,
-    "sells": 769
+    "buys": 859,
+    "sells": 674
    }
   },
   "volume": {
-   "h24": 385828.97,
-   "h6": 160990.66,
-   "h1": 13899.18,
-   "m5": 89.44
+   "h24": 391025.23,
+   "h6": 72736.43,
+   "h1": 18286.03,
+   "m5": 884
   },
   "priceChange": {
-   "m5": -0.31,
-   "h1": -6,
-   "h6": -14.97,
-   "h24": -7.24
+   "m5": 0.55,
+   "h1": -4.71,
+   "h6": -16.19,
+   "h24": -29.01
   },
   "liquidity": {
-   "usd": 237087.36,
-   "base": 42562459,
-   "quote": 118543
+   "usd": 223588.72,
+   "base": 45131032,
+   "quote": 111796
   },
-  "fdv": 2785035,
-  "marketCap": 2785035,
+  "fdv": 2476929,
+  "marketCap": 2476929,
   "pairCreatedAt": 1788468891000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/2Wm42J-3pd4h0Cs5?width=800&height=800&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups?timestamp=1790127000000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://minirouter.sh/",

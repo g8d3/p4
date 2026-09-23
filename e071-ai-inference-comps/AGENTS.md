@@ -3,7 +3,7 @@
 Live comparables for the AI-inference coin universe from 3 X threads
 (2026-09-19/21): `@Shawred0` tier list, `@sal_ash_` RH-chain scan (11 names
 >$100k), `@entyper` SQUIRE/Pod deep-dive. ~21 unique assets, Solana + Base +
-RH chain + majors (TAO, VVV, ROUTER, DOT).
+RH chain + majors (TAO, VVV).
 
 ## Inherits
 - [../e000-fundamentals/TABLE_FIRST.md](../e000-fundamentals/TABLE_FIRST.md) — table-first rule + table_check.py
@@ -79,3 +79,18 @@ Daily (1d) closes, sequence: initial_price → ATL → ATH → sig_low → curre
   (16/22); CMC only where listings exist (5/22: 4 majors + ORBIO — rest
   unlisted, verified via CG search + CMC 404s). `through` label -> latest
   sync. Frozen panes (sticky title row + first column) via tablelib.
+- v4 (2026-09-23): ROUTER/DOT collision resolved via X bios — ROUTER =
+  @SolRouterAI solana `6SjVTj1VGwFSXn7wEjwFm77LvACeTqB7sQUebYKX8Ds5`
+  (Solrouter, solrouter.com), DOT = @usedotai base
+  `0x23A2847d772803f9EFC64B4277b782b06296FE51` (Dot, usedot.xyz).
+  Both now DEX rows (DexScreener verified); majors shrink to TAO/VVV.
+  No uncertain rows left.
+- v5 (2026-09-23): CG/CMC link sweep (contract-verified per token).
+  CG 16/22: DOT `dot` is the Dot listing (base contract + usedot.xyz
+  match), NOT Polkadot — earlier block removed. Unlisted: MINI, CEST
+  (CG cestus-network tracks secondary mint 0x1258..., not ours), DARK,
+  AILE, CREDIT, ACU. CMC: only TAO/VVV/ORBIO listed — 19 microcaps
+  verified unlisted (near-misses mini/credit/sable-finance/aria-ai
+  rejected by contract). Nulls stay null, never guessed.
+  Collateral: `ORBIO.b` relabeled `DOLPHIN` — DexScreener/GT/CG unanimous
+  the base mint is Dolphin/POD (dphn.ai), not an Orbio leg.

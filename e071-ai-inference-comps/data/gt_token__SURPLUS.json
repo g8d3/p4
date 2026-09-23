@@ -11,13 +11,13 @@
    "coingecko_coin_id": "surplus-intelligence",
    "total_supply": "100000000000000000000000000000.0",
    "normalized_total_supply": "100000000000.0",
-   "price_usd": "0.00008672752014",
-   "fdv_usd": "8672733.2758554",
-   "total_reserve_in_usd": "2035558.77969930033984579351707309270099533936134",
+   "price_usd": "0.0000905748732",
+   "fdv_usd": "9057467.7504071",
+   "total_reserve_in_usd": "2058332.76169182095618500428177818842656393936134",
    "volume_usd": {
-    "h24": "382223.700291781"
+    "h24": "345200.523403796"
    },
-   "market_cap_usd": "8672752.01424375"
+   "market_cap_usd": "9057487.32005635"
   },
   "relationships": {
    "top_pools": {
@@ -31,7 +31,7 @@
       "type": "pool"
      },
      {
-      "id": "base_0xbcf23f30a90f6d7c288facdc932ff8f8b68b0f30",
+      "id": "base_0xd9db5ff90ff8f8c7a42ba9e12b129c876c65cbb0ac63048959848562b9c46d3a",
       "type": "pool"
      }
     ]

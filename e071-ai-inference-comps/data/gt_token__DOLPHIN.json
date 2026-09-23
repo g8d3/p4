@@ -11,13 +11,13 @@
    "coingecko_coin_id": "dolphin-2",
    "total_supply": "500000000000000000000000000.0",
    "normalized_total_supply": "500000000.0",
-   "price_usd": "0.3733383106",
-   "fdv_usd": "186669155.238366",
-   "total_reserve_in_usd": "3252698.1879667808882052086708527082667084574",
+   "price_usd": "0.365333289",
+   "fdv_usd": "182666644.442752",
+   "total_reserve_in_usd": "3196925.7135711454742667806542749859467051052058",
    "volume_usd": {
-    "h24": "183149.503585376"
+    "h24": "222881.015801147"
    },
-   "market_cap_usd": "30980489.8893742"
+   "market_cap_usd": "30341975.773564"
   },
   "relationships": {
    "top_pools": {

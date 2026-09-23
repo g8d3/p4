@@ -1,0 +1,41 @@
+{
+ "data": {
+  "id": "base_0x23a2847d772803f9efc64b4277b782b06296fe51",
+  "type": "token",
+  "attributes": {
+   "address": "0x23a2847d772803f9efc64b4277b782b06296fe51",
+   "name": "Dot",
+   "symbol": "DOT",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102174001/large/erwvkdmick9fryu8uh2no16jc9fx.?1781766527",
+   "coingecko_coin_id": "dot",
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.007865677327",
+   "fdv_usd": "6924647.0446433",
+   "total_reserve_in_usd": "691928.338071782389804471581841377185148819696",
+   "volume_usd": {
+    "h24": "393778.522337937"
+   },
+   "market_cap_usd": "6535463.06122127"
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "base_0x5f547579519beaa158cddd3543604029165f66e86a00c373d0ee90c38784921b",
+      "type": "pool"
+     },
+     {
+      "id": "base_0xf80cccbd31d0171f2034b67c5df2436b3a71fdf1dc23820d0dde6d7e6fecf9dd",
+      "type": "pool"
+     },
+     {
+      "id": "base_0x9acb070a4a4ad25dee1c530b712e4e7c78a0a1163a5d933f4a703433456c8f02",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

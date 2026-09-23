@@ -14,50 +14,50 @@
    "name": "Wrapped SOL",
    "symbol": "SOL"
   },
-  "priceNative": "0.0000004536",
-  "priceUsd": "0.00005394",
+  "priceNative": "0.0000004191",
+  "priceUsd": "0.00004837",
   "txns": {
    "m5": {
-    "buys": 1,
+    "buys": 2,
     "sells": 1
    },
    "h1": {
-    "buys": 10,
-    "sells": 2
+    "buys": 5,
+    "sells": 5
    },
    "h6": {
-    "buys": 19,
-    "sells": 13
+    "buys": 20,
+    "sells": 26
    },
    "h24": {
-    "buys": 154,
-    "sells": 187
+    "buys": 105,
+    "sells": 101
    }
   },
   "volume": {
-   "h24": 18484.25,
-   "h6": 2549.85,
-   "h1": 1597.26,
-   "m5": 125.44
+   "h24": 16790.15,
+   "h6": 2068.9,
+   "h1": 112.7,
+   "m5": 12.79
   },
   "priceChange": {
-   "m5": 0.84,
-   "h1": 27.96,
-   "h6": 38.64,
-   "h24": 17.33
+   "m5": 0.1,
+   "h1": 1.06,
+   "h6": -14.64,
+   "h24": 17.68
   },
   "liquidity": {
-   "usd": 20407.36,
-   "base": 207646613,
-   "quote": 77.4189
+   "usd": 18979.85,
+   "base": 215784041,
+   "quote": 74.006958
   },
-  "fdv": 50949,
-  "marketCap": 50949,
+  "fdv": 45689,
+  "marketCap": 45689,
   "pairCreatedAt": 1789155426000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/jkBnM5peDmP_QwZs?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/v-31gAOfgnYRx5Dg?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump?timestamp=1790127300000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://aile.sh/",

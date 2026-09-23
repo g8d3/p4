@@ -17,49 +17,49 @@
    "name": "Ether",
    "symbol": "ETH"
   },
-  "priceNative": "0.0001352",
-  "priceUsd": "0.3741",
+  "priceNative": "0.0001378",
+  "priceUsd": "0.3696",
   "txns": {
    "m5": {
     "buys": 0,
     "sells": 0
    },
    "h1": {
-    "buys": 13,
-    "sells": 1
+    "buys": 11,
+    "sells": 25
    },
    "h6": {
-    "buys": 21,
-    "sells": 35
+    "buys": 46,
+    "sells": 68
    },
    "h24": {
-    "buys": 88,
-    "sells": 116
+    "buys": 188,
+    "sells": 136
    }
   },
   "volume": {
-   "h24": 165309.02,
-   "h6": 62529.44,
-   "h1": 15549.87,
+   "h24": 163589.01,
+   "h6": 40220.12,
+   "h1": 7321.99,
    "m5": 0
   },
   "priceChange": {
-   "h1": 0.03,
-   "h6": 0.65,
-   "h24": -3.57
+   "h1": 0.51,
+   "h6": -4.02,
+   "h24": -0.8
   },
   "liquidity": {
-   "usd": 3708307.51,
-   "base": 5743108,
-   "quote": 563.6272
+   "usd": 3633882.08,
+   "base": 5701422,
+   "quote": 569.2739
   },
-  "fdv": 187087807,
-  "marketCap": 31049870,
+  "fdv": 184842181,
+  "marketCap": 30703345,
   "pairCreatedAt": 1772474055000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/yvk1_wC6hGaydQGL?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/rHG4lqfgr1vl9wyy?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0xed664536023d8e4b1640c394777d34abaff1df8f?timestamp=1790127000000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0xed664536023d8e4b1640c394777d34abaff1df8f?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://dphn.ai",

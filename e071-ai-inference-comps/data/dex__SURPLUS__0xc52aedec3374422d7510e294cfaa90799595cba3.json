@@ -17,50 +17,49 @@
    "name": "Wrapped Ether",
    "symbol": "WETH"
   },
-  "priceNative": "0.00000003073",
-  "priceUsd": "0.00008494",
+  "priceNative": "0.00000003455",
+  "priceUsd": "0.00009249",
   "txns": {
    "m5": {
-    "buys": 1,
-    "sells": 1
+    "buys": 0,
+    "sells": 0
    },
    "h1": {
-    "buys": 7,
-    "sells": 1
+    "buys": 12,
+    "sells": 16
    },
    "h6": {
-    "buys": 94,
-    "sells": 31
+    "buys": 53,
+    "sells": 46
    },
    "h24": {
-    "buys": 285,
-    "sells": 210
+    "buys": 223,
+    "sells": 179
    }
   },
   "volume": {
-   "h24": 282816.49,
-   "h6": 65548.87,
-   "h1": 6331.9,
-   "m5": 3172.54
+   "h24": 273303.07,
+   "h6": 82134.74,
+   "h1": 22535.73,
+   "m5": 0
   },
   "priceChange": {
-   "m5": -1.45,
-   "h1": 0.18,
-   "h6": -3.49,
-   "h24": 3.34
+   "h1": 4.28,
+   "h6": -5.02,
+   "h24": 1.84
   },
   "liquidity": {
-   "usd": 953975.16,
-   "base": 6062523245,
-   "quote": 158.8157
+   "usd": 984045.38,
+   "base": 5763504757,
+   "quote": 168.4756
   },
-  "fdv": 8494514,
-  "marketCap": 8494514,
+  "fdv": 9249359,
+  "marketCap": 9249359,
   "pairCreatedAt": 1778944831000,
   "info": {
    "imageUrl": "https://cdn.dexscreener.com/cms/images/Irhr0Zu5nmPuMsRC?width=800&height=800&quality=95&format=auto",
    "header": "https://cdn.dexscreener.com/cms/images/zYQs2iQ48rJUQ-LL?width=1500&height=500&quality=95&format=auto",
-   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0xc52aedec3374422d7510e294cfaa90799595cba3?timestamp=1790127300000",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0xc52aedec3374422d7510e294cfaa90799595cba3?timestamp=1790177400000",
    "websites": [
     {
      "url": "https://www.surplusintelligence.ai/",

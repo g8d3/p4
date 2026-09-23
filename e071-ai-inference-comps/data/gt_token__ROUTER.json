@@ -1,0 +1,41 @@
+{
+ "data": {
+  "id": "solana_6SjVTj1VGwFSXn7wEjwFm77LvACeTqB7sQUebYKX8Ds5",
+  "type": "token",
+  "attributes": {
+   "address": "6SjVTj1VGwFSXn7wEjwFm77LvACeTqB7sQUebYKX8Ds5",
+   "name": "Solrouter",
+   "symbol": "ROUTER",
+   "decimals": 9,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102173232/large/solrouter-logo.png?1778487434",
+   "coingecko_coin_id": "solrouter",
+   "total_supply": "999945139557210074.0",
+   "normalized_total_supply": "999945139.55721",
+   "price_usd": "0.004115385306",
+   "fdv_usd": "4115159.53460464",
+   "total_reserve_in_usd": "108720.8395731390716022258247837259",
+   "volume_usd": {
+    "h24": "328409.760720655"
+   },
+   "market_cap_usd": "2894261.89368674"
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "solana_DJ8qzBm3ZoRi4YiVmpiLBBuc67cq737vqaTNbMRJGcvZ",
+      "type": "pool"
+     },
+     {
+      "id": "solana_Aq4jqjq4gQuxFoB4cVMZZLVPhBE8Q1yum7y9YKestqM4",
+      "type": "pool"
+     },
+     {
+      "id": "solana_9Gt3xw7Yg8zze1421swKV81RVJ7AvQuc4igEaURq2DDy",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}
