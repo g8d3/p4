@@ -1,0 +1,188 @@
+{
+ "comment": "e071 universe: 22 inference assets from 3 X threads 2026-09-19/21. chain: solana|base|robinhood|major. id_kind: dexscreener chain+mint or coingecko id. seed_mcap_usd = thread quote at tweet time (fallback only).",
+ "tokens": [
+  {
+   "chain": "major",
+   "coingecko_id": "bittensor",
+   "cmc_slug": "bittensor",
+   "genesis_date": "2021-01-09",
+   "genesis_note": "Kusanagi genesis 2021-01-09; chain relaunched as Nakamoto 2021-11-02",
+   "source_tweet": "shawred S-tier",
+   "symbol": "TAO",
+   "tier": "S"
+  },
+  {
+   "chain": "major",
+   "coingecko_id": "venice-token",
+   "cmc_slug": "venice-token",
+   "genesis_date": "2025-01-27",
+   "source_tweet": "shawred S-tier",
+   "symbol": "VVV",
+   "tier": "S"
+  },
+  {
+   "chain": "major",
+   "coingecko_id": "router-protocol-2",
+   "cmc_slug": "router-protocol-2",
+   "source_tweet": "shawred A-tier",
+   "symbol": "ROUTER",
+   "tier": "A",
+   "uncertain": 1,
+   "note": "ticker collision: router-protocol-2 (ROUTE, cross-chain, $52k) vs AI Router Protocol ($AIR, inference). Shawred inference context favors $AIR \u2014 resolve before trusting ROUTER row."
+  },
+  {
+   "chain": "major",
+   "coingecko_id": "polkadot",
+   "cmc_slug": "polkadot-new",
+   "genesis_date": "2020-05-26",
+   "note": "ticker collision possible; verify vs ROUTER/DOT inference project",
+   "source_tweet": "shawred A-tier $DOT",
+   "symbol": "DOT",
+   "tier": "A",
+   "uncertain": 1
+  },
+  {
+   "chain": "base",
+   "mint": "0xed664536023d8e4b1640c394777d34abaff1df8f",
+   "note": "shawred A-tier ORBIO (base leg)",
+   "source_tweet": "shawred",
+   "symbol": "ORBIO.b",
+   "tier": "A"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3",
+   "cmc_slug": "orbio-so",
+   "seed_mcap_usd": 78500000,
+   "source_tweet": "sal_ash $78.5M marketplace tokenized inference credits",
+   "symbol": "ORBIO",
+   "tier": "A"
+  },
+  {
+   "chain": "solana",
+   "mint": "EN2nnxrg8uUi6x2sJkzNPd2eT6rB9rdSoQNNaENA4RZA",
+   "seed_mcap_usd": 2000000,
+   "source_tweet": "entyper SQUIRE/Pod the Squire; shawred A-tier $POD",
+   "symbol": "SQUIRE",
+   "tier": "A"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xA74a94c15B95f8d5F3abDd2Db00F6c7384037B55",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Aria, robinhood, top vol/liq pool)",
+   "source_tweet": "sal_ash $ARIA gateway",
+   "symbol": "ARIA",
+   "tier": "B"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xa26992c4268a8a78a4d872fe4bdad2ed03ac287d",
+   "seed_mcap_usd": 3720000,
+   "source_tweet": "sal_ash $MANY routing platform; shawred B-tier",
+   "symbol": "MANY",
+   "tier": "B"
+  },
+  {
+   "chain": "solana",
+   "mint": "Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups",
+   "source_tweet": "shawred B-tier $MINI",
+   "symbol": "MINI",
+   "tier": "B"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0x6b1ca8209A695b27835964c00Ac398f5d4f87A22",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Cestus Network, robinhood primary pool; secondary 0x1258Af9d5E3f2A31E585711966Ac295B64ddF6A5 exists, ~10x smaller)",
+   "source_tweet": "shawred",
+   "symbol": "CEST",
+   "tier": "B"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xa92768863a55d8A0591709f7f5E594A249d36Ea3",
+   "note": "contract resolved 2026-09-22 via DexScreener search (heyaskr, robinhood, top vol/liq pools)",
+   "source_tweet": "shawred",
+   "symbol": "ASKR",
+   "tier": "B"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xeb24a2663af4ee979dcbfe39cb95b5f12d369c4b",
+   "seed_mcap_usd": 3640000,
+   "source_tweet": "sal_ash $CEREBRO 1.5pct fee funds credit pool",
+   "symbol": "CEREBRO",
+   "tier": "B"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xDc45b71d7203c2e8baafC43A19BcA0Eb993bB54E",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Darkwoods DARK, robinhood top pool; verify vs sal_ash private-enclave project)",
+   "source_tweet": "sal_ash $DARK private no-log enclaves; shawred C-tier",
+   "symbol": "DARK",
+   "tier": "C"
+  },
+  {
+   "chain": "solana",
+   "mint": "3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump",
+   "source_tweet": "shawred C-tier $OPAN",
+   "symbol": "OPAN",
+   "tier": "C"
+  },
+  {
+   "chain": "solana",
+   "mint": "8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump",
+   "source_tweet": "shawred C-tier $AILE",
+   "symbol": "AILE",
+   "tier": "C"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xf7894d31d569e6330592d346ecfefdf4257f3ec1",
+   "seed_mcap_usd": 739000,
+   "source_tweet": "sal_ash $SABLE inference+sandbox+RWA vault",
+   "symbol": "SABLE",
+   "tier": "C"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xC7Db9a7034d061fecA50F0a25636Bcc83cA717D9",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Fab, robinhood top pool)",
+   "source_tweet": "sal_ash $FAB proof-of-silicon",
+   "symbol": "FAB",
+   "tier": "C"
+  },
+  {
+   "chain": "base",
+   "mint": "0xc52aedec3374422d7510e294cfaa90799595cba3",
+   "seed_mcap_usd": 260000,
+   "source_tweet": "sal_ash $Surplus idle-capacity resale",
+   "symbol": "SURPLUS",
+   "tier": "C"
+  },
+  {
+   "chain": "solana",
+   "mint": "As9FpeL4rnXYmmAn6ZqJpaFojdoW2yU9MfHUNfbupump",
+   "seed_mcap_usd": 229000,
+   "source_tweet": "sal_ash $credit Orbio credit token",
+   "symbol": "CREDIT",
+   "tier": "C"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0x7c651eE2F3c1C456Ac3aFC483b834c823649a0E2",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Modam DAM, robinhood only pool; verify vs sal_ash GPU-network project)",
+   "source_tweet": "sal_ash $DAM GPU network",
+   "symbol": "DAM",
+   "tier": "C"
+  },
+  {
+   "chain": "robinhood",
+   "mint": "0xa13b7F204629D4B13F59750F32a64b62CE312509",
+   "note": "contract resolved 2026-09-22 via DexScreener search (Aria Compute Unit, robinhood; same project as ARIA)",
+   "note": "same project as ARIA",
+   "source_tweet": "sal_ash $ACU Aria compute unit",
+   "symbol": "ACU",
+   "tier": "C"
+  }
+ ]
+}

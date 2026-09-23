@@ -1,0 +1,94 @@
+[
+ {
+  "chainId": "solana",
+  "dexId": "pumpswap",
+  "url": "https://dexscreener.com/solana/4cpvihvjkuusxq3hfrs8wniukffbpdqz2h6jhkjexoyd",
+  "pairAddress": "4CPVihvjKUUsXq3HFrS8wniUKffbpDqz2h6jHKjeXoYD",
+  "baseToken": {
+   "address": "EN2nnxrg8uUi6x2sJkzNPd2eT6rB9rdSoQNNaENA4RZA",
+   "name": "Pod the Squire",
+   "symbol": "SQUIRE"
+  },
+  "quoteToken": {
+   "address": "So11111111111111111111111111111111111111112",
+   "name": "Wrapped SOL",
+   "symbol": "SOL"
+  },
+  "priceNative": "0.00001440",
+  "priceUsd": "0.001715",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 20,
+    "sells": 16
+   },
+   "h6": {
+    "buys": 341,
+    "sells": 402
+   },
+   "h24": {
+    "buys": 1290,
+    "sells": 1239
+   }
+  },
+  "volume": {
+   "h24": 231768.23,
+   "h6": 73463.13,
+   "h1": 3971.16,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": -5.14,
+   "h6": 16.96,
+   "h24": -2.34
+  },
+  "liquidity": {
+   "usd": 198567.9,
+   "base": 57941193,
+   "quote": 833.08387
+  },
+  "fdv": 1714890,
+  "marketCap": 1714890,
+  "pairCreatedAt": 1773874927000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/c5d8GcAwQXpbNGRJ?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/8VsHaBkVw-TmRGuW?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/EN2nnxrg8uUi6x2sJkzNPd2eT6rB9rdSoQNNaENA4RZA?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://github.com/podthesquire",
+     "label": "Website"
+    },
+    {
+     "url": "https://level5.cloud",
+     "label": "Level5.cloud"
+    },
+    {
+     "url": "https://cli.city",
+     "label": "cli.city"
+    },
+    {
+     "url": "https://usepod.ai",
+     "label": "usepod.ai"
+    },
+    {
+     "url": "https://github.com/Sortis-AI/pod_trades",
+     "label": "Pod the Trader"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/squire_bot",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/pod_the_squire",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

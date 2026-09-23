@@ -2,6 +2,10 @@
    Zero config: reads spec+rows from #tl-data-{ns}. State persists per ns.
    Tap header = sort. Filters live in the thead. Page size next to pager. */
 var TL = TL || {};
+function tlEsc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 function tlState(ns) {
   if (!TL[ns]) {
     var el = document.getElementById('tl-data-' + ns);
@@ -179,6 +183,13 @@ function tlPolyArr(a) {
 }
 function tlFmt(v, fmt) {
   if (v === null || v === undefined || !fmt) return v;
+  var g = fmt.match(/\{:\.?(\d+)g\}/);
+  if (g && !isNaN(+v)) {
+    var p = (+v).toPrecision(+g[1]);
+    if (p.indexOf('e') < 0 && p.indexOf('E') < 0 && p.indexOf('.') >= 0)
+      p = p.replace(/0+$/, '').replace(/\.$/, '');
+    return p;
+  }
   var m = fmt.match(/\{:([+]?)\.(\d+)f\}/);
   if (!m || isNaN(+v)) return v;
   var s = (+v).toFixed(+m[2]);
@@ -198,17 +209,23 @@ function tlCell(ns, r, c) {
     var pct = Math.max(0, Math.min(100, (+v - sc[0]) / ((sc[1] - sc[0]) || 1) * 100));
     return '<span class="tl-bar"><span style="width:' + pct.toFixed(0) + '%"></span></span> ' + tlFmt(v, c.fmt);
   }
-  if (c.kind === 'spark') return (v instanceof Array) ? tlSparkArr(v) : String(v);
-  if (c.kind === 'poly') return (v instanceof Array) ? tlPolyArr(v) : String(v);
+  if (c.kind === 'spark') return (v instanceof Array) ? tlSparkArr(v) : tlEsc(v);
+  if (c.kind === 'poly') return (v instanceof Array) ? tlPolyArr(v) : tlEsc(v);
+  if (c.kind === 'link') {
+    var u = String(v).trim();
+    if (!/^https?:\/\/[^\s<>"']+$/.test(u)) return '\u2014';
+    var t = tlEsc(c.link_text || '\u2197');
+    return '<a href="' + tlEsc(u) + '" target="_blank" rel="noopener" title="' + tlEsc(u) + '">' + t + '</a>';
+  }
   if (c.kind === 'num') return tlFmt(v, c.fmt);
   if (c.kind === 'date' || (TL[ns] && TL[ns]._datecols && TL[ns]._datecols[c.key])) {
     var ts = tlTs(v);
-    if (isNaN(ts)) return String(v).replace(/</g, '&lt;');
+    if (isNaN(ts)) return tlEsc(v);
     if (c.kind === 'date')
       return '<span title="' + tlIsoTs(ts) + '">' + tlFmtTs(ts) + '</span>';
-    return String(v).replace(/</g, '&lt;');
+    return tlEsc(v);
   }
-  return String(v);
+  return tlEsc(v);
 }
 function tlRender(ns) {
   var s = tlState(ns);
@@ -232,7 +249,7 @@ function tlRender(ns) {
       return '<th class="' + (c.cls || '') + ' tl-sort" onclick="tlSort(\'' + ns + '\',\'' + c.key + '\')">' + c.label + arr + '</th>';
     return '<th class="' + (c.cls || '') + '">' + c.label + '</th>';
   }).join('') + '</tr><tr>' + s.cols.map(function (c) {
-    if (c.nofilter || c.kind === 'spark' || c.kind === 'poly') return '<td class="' + (c.cls || '') + '"></td>';
+    if (c.nofilter || c.kind === 'spark' || c.kind === 'poly' || c.kind === 'link') return '<td class="' + (c.cls || '') + '"></td>';
     if (c.kind === 'date' || s._datecols[c.key]) {
       var fr = s.filters[c.key] || {};
       if (typeof fr !== 'object' || fr === null) fr = {};
@@ -281,6 +298,7 @@ function tlRender(ns) {
 tlRenderViews(ns);
   tlRenderStats(ns);
   tlRenderDist(ns);
+  tlMarkSeg(ns);
   var cardsEl = document.getElementById('tl-cards-' + ns);
   var tEl = document.getElementById('tl-' + ns);
   if (tlIsCards() && cardsEl) { tlRenderCards(ns); }
@@ -386,7 +404,7 @@ function tlRenderViews(ns) {
   var pe = document.getElementById('tl-presets-' + ns);
   if (pe) {
     pe.innerHTML = tlChipCollapse(ns, 'pre', s.presets, function (v, i) {
-      return '<button data-p="' + i + '">' + String(v.name).replace(/</g, '&lt;') + '</button>';
+      return '<button data-p="' + i + '">' + tlEsc(v.name) + '</button>';
     });
     pe.querySelectorAll('button[data-p]').forEach(function (b) {
       b.onclick = function () { tlApplyView(ns, +b.dataset.p, 1); };
@@ -398,7 +416,7 @@ function tlRenderViews(ns) {
   var el = document.getElementById('tl-uviews-' + ns);
   if (!el) return;
   el.innerHTML = s.uviews.map(function (v, i) {
-    return '<button data-i="' + i + '">' + v.name.replace(/</g, '&lt;') + '</button>';
+    return '<button data-i="' + i + '">' + tlEsc(v.name) + '</button>';
   }).join('');
   el.querySelectorAll('button').forEach(function (b) {
     b.onclick = function () { tlApplyView(ns, +b.dataset.i, 0); };
@@ -409,7 +427,7 @@ function tlRenderStats(ns) {
   var el = document.getElementById('tl-stats-' + ns);
   if (!el) return;
   var h = 'insights: ' + tlChipCollapse(ns, 'sug', s.suggestions, function (g, i) {
-    return '<button data-i="' + i + '" title="' + String(g.detail || '').replace(/"/g, '&quot;') + '">💡 ' + String(g.title).replace(/</g, '&lt;') + '</button>';
+    return '<button data-i="' + i + '" title="' + tlEsc(g.detail || '') + '">\uD83D\uDCA1 ' + tlEsc(g.title) + '</button>';
   }) + ' <button data-ideas="1">✨ ideas</button>';
   el.innerHTML = h;
   el.querySelectorAll('button[data-i]').forEach(function (b) {
@@ -476,16 +494,20 @@ function tlRenderCards(ns) {
   var layout = s.layout || [s.cols.map(function (c) { return c.key; })];
   var byKey = {};
   s.cols.forEach(function (c) { byKey[c.key] = c; });
+  var hideHid = document.body.classList.contains('simple');
   var h = rows.map(function (r) {
     var click = s.rowClick ? ' onclick="' + s.rowClick[0] + '(\'' + String(r[s.rowClick[1]]).replace(/'/g, '') + '\')" style="cursor:pointer"' : '';
     var lrows = layout.map(function (group, gi) {
-      var cells = group.map(function (k, ki) {
+      var cells = [];
+      group.forEach(function (k, ki) {
         var c = byKey[k];
-        if (!c) return '';
-        if (gi === 0 && ki === 0) return '<span class="tl-f tl-hero">' + tlCell(ns, r, c) + '</span>';
-        return '<span class="tl-f"><i>' + c.label + '</i> ' + tlCell(ns, r, c) + '</span>';
-      }).join('');
-      return '<div class="tl-r">' + cells + '</div>';
+        if (!c) return;
+        if (hideHid && (c.cls || '').split(/\s+/).indexOf('c-hid') >= 0) return;
+        if (gi === 0 && ki === 0) cells.push('<span class="tl-f tl-hero">' + tlCell(ns, r, c) + '</span>');
+        else cells.push('<span class="tl-f ' + (c.cls || '') + '"><i>' + c.label + '</i> ' + tlCell(ns, r, c) + '</span>');
+      });
+      if (!cells.length) return '';
+      return '<div class="tl-r">' + cells.join('') + '</div>';
     }).join('');
     var out = (s._dz && Math.abs(tlZ(ns, r)) > 2) ? ' tl-out' : '';
     return '<div class="tl-card' + out + '"' + click + '>' + lrows + '</div>';
@@ -549,7 +571,27 @@ function tlDensity(ns, v) {
   document.body.classList.toggle('simple', v === 'simple');
   try { localStorage['tl-density'] = v; } catch (e) {}
 }
+function tlTable(ns) {
+  document.body.classList.remove('tl-cards');
+  try { localStorage['tl-cards'] = '0'; } catch (e) {}
+  tlRender(ns);
+}
 function tlCards(ns) {
-  var on = document.body.classList.toggle('tl-cards');
-  try { localStorage['tl-cards'] = on ? '1' : '0'; } catch (e) {}
+  document.body.classList.add('tl-cards');
+  try { localStorage['tl-cards'] = '1'; } catch (e) {}
+  tlRender(ns);
+}
+function tlMarkSeg(ns) {
+  var el = document.getElementById('tl-ctl-' + ns);
+  if (!el) return;
+  var simple = document.body.classList.contains('simple');
+  var cards = document.body.classList.contains('tl-cards');
+  el.querySelectorAll('button').forEach(function (b) {
+    var o = b.getAttribute('onclick') || '';
+    var on = (o.indexOf('simple') >= 0 && simple)
+      || (o.indexOf('full') >= 0 && !simple)
+      || (o.indexOf('tlTable') >= 0 && !cards)
+      || (o.indexOf('tlCards') >= 0 && cards);
+    b.classList.toggle('on', !!on);
+  });
 }

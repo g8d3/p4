@@ -204,7 +204,12 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
                  sort_dir=1, filters=None, density="simple", view="table",
                  ns="t", presets=None, share=True, suggestions=None,
                  scales=None, row_click=None, row_click_key="token",
-                 card_layout=None, bare=False, derived=None):
+                 card_layout=None, bare=False, derived=None,
+                 insights=True, compute=True):
+    # row_click is a JS function NAME (not code): allow [A-Za-z_][A-Za-z0-9_]*
+    # only, else ignore (avoids onclick injection via config).
+    if row_click is not None and not _re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', str(row_click)):
+        row_click = None
     filters = filters or {}
     # Date-kind columns (explicit or auto-detected from values) get
     # range inputs + chronological sort + data-ts on cells.
@@ -232,7 +237,7 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
         else:
             ths.append(f'<th class="{c.get("cls", "")}">'
                        f'{_esc(c["label"])}</th>')
-        if c.get("nofilter") or c.get("kind") in ("spark", "poly"):
+        if c.get("nofilter") or c.get("kind") in ("spark", "poly", "link"):
             frs.append(f'<td class="{c.get("cls", "")}"></td>')
         elif c.get("kind") == "date" or c["key"] in datecols:
             f = filters.get(c["key"], {})
@@ -313,16 +318,17 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
         f'title="{_esc(s.get("detail", ""))}">\U0001f4a1 '
         f'{_esc(s.get("title", ""))}</button>'
         for i, s in enumerate(suggestions)]
-    stats = (f'<div id="tl-stats-{ns}" class="cav tl-stats">insights: '
+    stats = ((f'<div id="tl-stats-{ns}" class="cav tl-stats">insights: '
              + _collapse(ns, "sug", sug_btns)
              + f' <button onclick="tlIdeas(\'{ns}\')">\u2728 ideas</button></div>')
+             if insights else '')
     cmp_ = (f'<div id="tl-cmp-{ns}" class="cav tl-cmp">compute: '
             f'<select id="tl-cmp-op-{ns}"><option value="div">A/B</option>'
             f'<option value="sub">A-B</option><option value="add">A+B</option>'
             f'<option value="pct">A% of B</option></select> '
             f'<select id="tl-cmp-a-{ns}">{numopts}</select> '
             f'<select id="tl-cmp-b-{ns}">{numopts_b}</select> '
-            f'<button onclick="tlCompute(\'{ns}\')">+ column</button></div>')
+            f'<button onclick="tlCompute(\'{ns}\')">+ column</button></div>' if compute else '')
     data = {"cols": columns, "rows": rows, "total": total, "per": per,
             "sortKey": sort_key, "sortDir": sort_dir, "layout": layout,
             "presets": presets, "suggestions": suggestions,
@@ -336,8 +342,9 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
     share_btns = (f'<button onclick="tlSaveView(\'{ns}\')">+ save</button>'
                    f'<button onclick="tlShare(\'{ns}\')">share</button>'
                    if share else "")
-    views = (f'<div id="tl-views-{ns}" class="cav tl-views">views: '
+    views = ((f'<div id="tl-views-{ns}" class="cav tl-views">views: '
              f'{chips}<span id="tl-uviews-{ns}"></span>{share_btns}</div>')
+             if (presets or share) else '')
     if bare:
         return (f'<div class="twrap"><table id="tl-{ns}"><thead><tr>'
                 + "".join(ths) + "</tr></thead><tbody>" + "".join(body)
@@ -350,6 +357,7 @@ def render_table(rows, columns, total, page=1, per=10, sort_key=None,
         f'<div id="tl-ctl-{ns}" class="cav tl-ctl">density: '
         f'<button onclick="tlDensity(\'{ns}\',\'simple\')">simple</button>'
         f'<button onclick="tlDensity(\'{ns}\',\'full\')">full</button> '
+        f'view: <button onclick="tlTable(\'{ns}\')">table</button>'
         f'<button onclick="tlCards(\'{ns}\')">cards</button></div>'
         f'<div class="twrap"><table id="tl-{ns}"><thead><tr>'
         + "".join(ths) + "</tr><tr>" + "".join(frs)
@@ -392,9 +400,20 @@ def _poly(vals, w=80, h=20):
             f'fill="none" stroke="currentColor" stroke-width="1.5"/></svg>')
 
 
+def _link_cell(v, c):
+    u = str(v).strip()
+    if not _re.match(r'^https?://[^\s<>"\']+$', u):
+        return "\u2014"
+    t = _esc(str(c.get("link_text", "\u2197")))
+    return (f'<a href="{_esc(u)}" target="_blank" rel="noopener" '
+            f'title="{_esc(u)}">{t}</a>')
+
+
 def _cell(v, c, r, scales):
     if v is None:
         return "\u2014"
+    if c.get("kind") == "link":
+        return _link_cell(v, c)
     if c.get("kind") == "pill":
         pill = r.get(c.get("pill_key", ""), "")
         badge = (f' <span class="tl-thin">thin n={_esc(pill)}</span>'

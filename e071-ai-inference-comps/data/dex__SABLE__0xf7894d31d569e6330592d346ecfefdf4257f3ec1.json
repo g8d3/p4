@@ -1,0 +1,85 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0x1efb6a4a5abebe078b2f09ef21ad64d5e1eb180b89fb939ed032b4383d358b6c",
+  "pairAddress": "0x1efb6a4a5abebe078b2f09ef21ad64d5e1eb180b89fb939ed032b4383d358b6c",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xf7894d31D569e6330592D346ecfeFdf4257F3EC1",
+   "name": "Sable Network",
+   "symbol": "SABLE"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.0000002338",
+  "priceUsd": "0.0006477",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 9,
+    "sells": 9
+   },
+   "h6": {
+    "buys": 80,
+    "sells": 128
+   },
+   "h24": {
+    "buys": 346,
+    "sells": 444
+   }
+  },
+  "volume": {
+   "h24": 126424.34,
+   "h6": 46914.63,
+   "h1": 1591.14,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": 5.34,
+   "h6": -5.22,
+   "h24": -4.44
+  },
+  "liquidity": {
+   "usd": 78438.29,
+   "base": 60548119,
+   "quote": 14.1563
+  },
+  "fdv": 605632,
+  "marketCap": 605632,
+  "pairCreatedAt": 1789414304000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/T7tkTLBYgrTlVpV2?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/M8wowiNTb9gE706c?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xf7894d31d569e6330592d346ecfefdf4257f3ec1?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://buildsable.com",
+     "label": "Website"
+    },
+    {
+     "url": "https://buildsable.com/docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/sablenetwork?s=11",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/SableNetworkPortal",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

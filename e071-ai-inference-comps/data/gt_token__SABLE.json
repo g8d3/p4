@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xf7894d31d569e6330592d346ecfefdf4257f3ec1",
+  "type": "token",
+  "attributes": {
+   "address": "0xf7894d31d569e6330592d346ecfefdf4257f3ec1",
+   "name": "Sable Network",
+   "symbol": "SABLE",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102178410/large/v5cef1lbwbee5a256e312skbbhlb.?1789485313",
+   "coingecko_coin_id": "sable-network-2",
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.0006730749415",
+   "fdv_usd": "629325.070265581",
+   "total_reserve_in_usd": "40493.586926611793435317048890746481",
+   "volume_usd": {
+    "h24": "120625.282924609"
+   },
+   "market_cap_usd": "629325.070265581",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-14T19:31:44.000Z",
+    "migrated_destination_pool_address": "0x1efb6a4a5abebe078b2f09ef21ad64d5e1eb180b89fb939ed032b4383d358b6c"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0x1efb6a4a5abebe078b2f09ef21ad64d5e1eb180b89fb939ed032b4383d358b6c",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0xf59eda78e190d9a1ad93f3e991ed80c16ac1f3ed82e2bf4a55c8e4c674d5cbe7",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x399040472916403fc411a960b523bfe4cf082ce9411278d942747f0b95ab4edd",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xdc45b71d7203c2e8baafc43a19bca0eb993bb54e",
+  "type": "token",
+  "attributes": {
+   "address": "0xdc45b71d7203c2e8baafc43a19bca0eb993bb54e",
+   "name": "Darkwoods",
+   "symbol": "DARK",
+   "decimals": 18,
+   "image_url": "https://assets.geckoterminal.com/9kepyh97lvtf9bziwupbjgze6zdc",
+   "coingecko_coin_id": null,
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.002837513673",
+   "fdv_usd": "2837513.67306393",
+   "total_reserve_in_usd": "36402.023370963790967642269102011416",
+   "volume_usd": {
+    "h24": "842526.093885413"
+   },
+   "market_cap_usd": null,
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-16T18:08:10.000Z",
+    "migrated_destination_pool_address": "0x99c8f9fb1f73ccd0977fd39ff3508c387223b3be27aa984c09dd06c2f4674e4e"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0x99c8f9fb1f73ccd0977fd39ff3508c387223b3be27aa984c09dd06c2f4674e4e",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x9ab82c817cef90c8c66114a7561288ac50a4ee10172b0608258f5225dbad6f0c",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x847f4143ed88613927be31f84a13e16a79ad59a05a786aef6a4eccc46b195279",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

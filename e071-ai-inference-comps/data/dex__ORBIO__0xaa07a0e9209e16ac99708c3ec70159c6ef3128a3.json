@@ -1,0 +1,78 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0xea9f200e13055b82f175f44f592c4c13dd8c9d9320a66487d3c5cd90d68550ef",
+  "pairAddress": "0xea9f200e13055b82f175f44f592c4c13dd8c9d9320a66487d3c5cd90d68550ef",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xAa07A0e9209e16aC99708C3EC70159c6eF3128A3",
+   "name": "Orbio.so",
+   "symbol": "ORBIO"
+  },
+  "quoteToken": {
+   "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+   "name": "Global Dollar",
+   "symbol": "USDG"
+  },
+  "priceNative": "0.07353",
+  "priceUsd": "0.07353",
+  "txns": {
+   "m5": {
+    "buys": 5,
+    "sells": 10
+   },
+   "h1": {
+    "buys": 119,
+    "sells": 139
+   },
+   "h6": {
+    "buys": 1080,
+    "sells": 1175
+   },
+   "h24": {
+    "buys": 2403,
+    "sells": 2206
+   }
+  },
+  "volume": {
+   "h24": 2299680.95,
+   "h6": 818638.37,
+   "h1": 133277.5,
+   "m5": 7117.44
+  },
+  "priceChange": {
+   "m5": -0.44,
+   "h1": 8.47,
+   "h6": 28.16,
+   "h24": -8.04
+  },
+  "liquidity": {
+   "usd": 681017.65,
+   "base": 3055516,
+   "quote": 456319
+  },
+  "fdv": 69861523,
+  "marketCap": 69861523,
+  "pairCreatedAt": 1789888014000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/04Bm6o4q2LWDsFBz?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/Um8cYPqUXHnyNPs5?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://orbio.so/",
+     "label": "Website"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/orbiodotso",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

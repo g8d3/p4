@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0x6b1ca8209a695b27835964c00ac398f5d4f87a22",
+  "type": "token",
+  "attributes": {
+   "address": "0x6b1ca8209a695b27835964c00ac398f5d4f87a22",
+   "name": "Cestus Network",
+   "symbol": "CEST",
+   "decimals": 18,
+   "image_url": "https://assets.geckoterminal.com/psjw8szuuauehfnct0ywlwktw1qx",
+   "coingecko_coin_id": null,
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.0001410234868",
+   "fdv_usd": "141023.486797819",
+   "total_reserve_in_usd": "18606.61287848624540298853831738513",
+   "volume_usd": {
+    "h24": "21808.0145402955"
+   },
+   "market_cap_usd": null,
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-19T16:29:15.000Z",
+    "migrated_destination_pool_address": "0xdcd61e8d9a2d6502d66a8c0764e1aa89dfac2a9ad64fcf21f9ef44423383a513"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0xdcd61e8d9a2d6502d66a8c0764e1aa89dfac2a9ad64fcf21f9ef44423383a513",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x22c2634b9dfc59949d12f7dc53283e3e80225c19168c7417c93e7212bb58fd94",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x37f4f0a434d47d67ab69dcf2d41a691ef9e7d0b27f6bf97f08ad7998dbb3a9ef",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

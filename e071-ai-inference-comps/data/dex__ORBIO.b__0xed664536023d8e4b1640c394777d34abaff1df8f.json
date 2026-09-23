@@ -1,0 +1,85 @@
+[
+ {
+  "chainId": "base",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/base/0x7c84276e317f128b55bd270dbfba3ef94c84b984c124a1de7c4f72da90bfba45",
+  "pairAddress": "0x7c84276e317f128b55bd270dbfba3ef94c84b984c124a1de7c4f72da90bfba45",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xeD664536023d8E4b1640C394777D34aBAFF1dF8F",
+   "name": "Dolphin",
+   "symbol": "POD"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.0001352",
+  "priceUsd": "0.3741",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 13,
+    "sells": 1
+   },
+   "h6": {
+    "buys": 21,
+    "sells": 35
+   },
+   "h24": {
+    "buys": 88,
+    "sells": 116
+   }
+  },
+  "volume": {
+   "h24": 165309.02,
+   "h6": 62529.44,
+   "h1": 15549.87,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": 0.03,
+   "h6": 0.65,
+   "h24": -3.57
+  },
+  "liquidity": {
+   "usd": 3708307.51,
+   "base": 5743108,
+   "quote": 563.6272
+  },
+  "fdv": 187087807,
+  "marketCap": 31049870,
+  "pairCreatedAt": 1772474055000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/yvk1_wC6hGaydQGL?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/rHG4lqfgr1vl9wyy?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0xed664536023d8e4b1640c394777d34abaff1df8f?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://dphn.ai",
+     "label": "Website"
+    },
+    {
+     "url": "https://huggingface.co/dphn/models?sort=downloads",
+     "label": "Hugging Face"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/dphnAI",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/dphnAI",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

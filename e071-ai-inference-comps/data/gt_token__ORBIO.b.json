@@ -1,0 +1,41 @@
+{
+ "data": {
+  "id": "base_0xed664536023d8e4b1640c394777d34abaff1df8f",
+  "type": "token",
+  "attributes": {
+   "address": "0xed664536023d8e4b1640c394777d34abaff1df8f",
+   "name": "Dolphin",
+   "symbol": "POD",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/70187/large/1_to_1_Dolphin_imresizer.jpg?1760947185",
+   "coingecko_coin_id": "dolphin-2",
+   "total_supply": "500000000000000000000000000.0",
+   "normalized_total_supply": "500000000.0",
+   "price_usd": "0.3733383106",
+   "fdv_usd": "186669155.238366",
+   "total_reserve_in_usd": "3252698.1879667808882052086708527082667084574",
+   "volume_usd": {
+    "h24": "183149.503585376"
+   },
+   "market_cap_usd": "30980489.8893742"
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "base_0x7c84276e317f128b55bd270dbfba3ef94c84b984c124a1de7c4f72da90bfba45",
+      "type": "pool"
+     },
+     {
+      "id": "base_0x48c5d4a6677ed59646a9c6465db2562be4a20aec",
+      "type": "pool"
+     },
+     {
+      "id": "base_0xe927e760cbfa73c570d8a587f270aa588012fd1b9a9bd9cb062b4d272df88746",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,76 @@
+[
+ {
+  "chainId": "solana",
+  "dexId": "meteora",
+  "url": "https://dexscreener.com/solana/cp222ubb6wy2j3enmbmmeggqdggwdcuada358ldn7hxx",
+  "pairAddress": "CP222Ubb6wY2J3EnMbMmEGGQdgGWDcUADa358LDN7HxX",
+  "labels": [
+   "DYN2"
+  ],
+  "baseToken": {
+   "address": "Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups",
+   "name": "Minirouter.sh",
+   "symbol": "MINI"
+  },
+  "quoteToken": {
+   "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+   "name": "USD Coin",
+   "symbol": "USDC"
+  },
+  "priceNative": "0.002785",
+  "priceUsd": "0.002785",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 2
+   },
+   "h1": {
+    "buys": 40,
+    "sells": 17
+   },
+   "h6": {
+    "buys": 301,
+    "sells": 248
+   },
+   "h24": {
+    "buys": 737,
+    "sells": 769
+   }
+  },
+  "volume": {
+   "h24": 385828.97,
+   "h6": 160990.66,
+   "h1": 13899.18,
+   "m5": 89.44
+  },
+  "priceChange": {
+   "m5": -0.31,
+   "h1": -6,
+   "h6": -14.97,
+   "h24": -7.24
+  },
+  "liquidity": {
+   "usd": 237087.36,
+   "base": 42562459,
+   "quote": 118543
+  },
+  "fdv": 2785035,
+  "marketCap": 2785035,
+  "pairCreatedAt": 1788468891000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/2Wm42J-3pd4h0Cs5?width=800&height=800&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://minirouter.sh/",
+     "label": "Website"
+    },
+    {
+     "url": "https://minirouter.sh/docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": []
+  }
+ }
+]

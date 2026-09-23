@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xa26992c4268a8a78a4d872fe4bdad2ed03ac287d",
+  "type": "token",
+  "attributes": {
+   "address": "0xa26992c4268a8a78a4d872fe4bdad2ed03ac287d",
+   "name": "Manyways Inference",
+   "symbol": "MANY",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102176698/large/manyways.jpg?1788507503",
+   "coingecko_coin_id": "manyways-inference",
+   "total_supply": "999850219611098172291019617.0",
+   "normalized_total_supply": "999850219.611098",
+   "price_usd": "0.003045877424",
+   "fdv_usd": "2982510.10120217",
+   "total_reserve_in_usd": "297110.9978895893751713360609382015733370252709187008920208096",
+   "volume_usd": {
+    "h24": "680528.307490603"
+   },
+   "market_cap_usd": "3045877.42393518",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-01T11:40:17.000Z",
+    "migrated_destination_pool_address": "0x25c0dad350613a02f2c0843f02dd15c30c45e20417909bef8a6311d54dc4d43a"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0x9e285a946fa0f8cd2efba68b55d2fddcce55442e8561c34559d595d8c5ac09ad",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x25c0dad350613a02f2c0843f02dd15c30c45e20417909bef8a6311d54dc4d43a",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0xbebaba4328547a157037a951308794af6f7048e17b4a6f082d1f7f3eb3775077",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

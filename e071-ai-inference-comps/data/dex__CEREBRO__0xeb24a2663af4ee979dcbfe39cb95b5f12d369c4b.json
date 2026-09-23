@@ -1,0 +1,81 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0xb553e268a7790255e0db206aa27fa32e805b431645b230441fbd8beeb7618fc8",
+  "pairAddress": "0xb553e268a7790255e0db206aa27fa32e805b431645b230441fbd8beeb7618fc8",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xEb24a2663af4Ee979dCbfE39cB95B5F12D369c4B",
+   "name": "Cerebro",
+   "symbol": "CEREBRO"
+  },
+  "quoteToken": {
+   "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+   "name": "NVIDIA \u2022 Robinhood Token",
+   "symbol": "NVDA"
+  },
+  "priceNative": "0.00001444",
+  "priceUsd": "0.003297",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 0,
+    "sells": 1
+   },
+   "h6": {
+    "buys": 53,
+    "sells": 49
+   },
+   "h24": {
+    "buys": 173,
+    "sells": 265
+   }
+  },
+  "volume": {
+   "h24": 116568.27,
+   "h6": 29158.51,
+   "h1": 152.2,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": -1.14,
+   "h6": 27.23,
+   "h24": -17.54
+  },
+  "liquidity": {
+   "usd": 169599.3,
+   "base": 25759364,
+   "quote": 370.7936
+  },
+  "fdv": 3231420,
+  "marketCap": 3231420,
+  "pairCreatedAt": 1788967286000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/auoyQHdBrVVgLdVL?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/4vOoBxtxIzMzqNlw?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xeb24a2663af4ee979dcbfe39cb95b5f12d369c4b?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://cerebrocredit.xyz/#contact",
+     "label": "Website"
+    },
+    {
+     "url": "https://cerebro-3.gitbook.io/cerebro-docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/Cerebro_RH",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

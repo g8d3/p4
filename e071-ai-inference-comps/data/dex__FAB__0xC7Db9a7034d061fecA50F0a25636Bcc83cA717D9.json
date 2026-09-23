@@ -1,0 +1,81 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0xd904401ae3b0ac8a6d5047f6375b45de92c412689413e0548be725ea89b373a8",
+  "pairAddress": "0xd904401ae3b0ac8a6d5047f6375b45de92c412689413e0548be725ea89b373a8",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xC7Db9a7034d061fecA50F0a25636Bcc83cA717D9",
+   "name": "Fab",
+   "symbol": "FAB"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.0000001194",
+  "priceUsd": "0.0003308",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 7,
+    "sells": 15
+   },
+   "h6": {
+    "buys": 151,
+    "sells": 203
+   },
+   "h24": {
+    "buys": 430,
+    "sells": 620
+   }
+  },
+  "volume": {
+   "h24": 114764.7,
+   "h6": 37301.74,
+   "h1": 2215.11,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": 1.5,
+   "h6": 12.51,
+   "h24": -8.01
+  },
+  "liquidity": {
+   "usd": 56062.68,
+   "base": 84713956,
+   "quote": 10.118
+  },
+  "fdv": 323386,
+  "marketCap": 323386,
+  "pairCreatedAt": 1788737221000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/RsAZDnuCSPK9SRSD?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/oZ2rrdoG7VCChAcu?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xc7db9a7034d061feca50f0a25636bcc83ca717d9?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://fabrwa.xyz/",
+     "label": "Website"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/Fab_RWA",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/siliconfab",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

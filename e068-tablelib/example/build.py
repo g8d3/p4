@@ -20,6 +20,7 @@ COLUMNS = [
      "fmt": "{:.1f}", "ph": "\u2264 max", "pill_key": "n"},
     {"key": "chg", "label": "24h %", "cls": "c-chg", "kind": "num", "fmt": "{:+.1f}"},
     {"key": "thru", "label": "through", "cls": "c-thru tl-nw", "kind": "text"},
+    {"key": "site", "label": "site", "cls": "", "kind": "link", "nofilter": True},
 ]
 
 NAMES = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta",
@@ -41,6 +42,7 @@ def main():
             "n": [10, 6, 5][i % 3],
             "chg": round(-13.1 + ((i * 37) % 21) * 1.3, 1),
             "thru": "2026-09-15",
+            "site": f"https://example.com/token/T{i:02d}",
             "trend": [round(1 + ((i * 7 + j * 13) % 10) + j * (0.5 if i % 2 else -0.3), 1)
                       for j in range(6)],
             "curve": [round(5 + 4 * (1 - abs(j - 2.5) / 2.5) + (i % 3), 1)

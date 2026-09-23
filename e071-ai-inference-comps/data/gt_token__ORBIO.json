@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3",
+  "type": "token",
+  "attributes": {
+   "address": "0xaa07a0e9209e16ac99708c3ec70159c6ef3128a3",
+   "name": "Orbio.so",
+   "symbol": "ORBIO",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102176665/large/orbio.jpg?1788424660",
+   "coingecko_coin_id": "orbio-so",
+   "total_supply": "949999905220192059882646536.0",
+   "normalized_total_supply": "949999905.220192",
+   "price_usd": "0.0592106224",
+   "fdv_usd": "56250083.8014425",
+   "total_reserve_in_usd": "2736624.21615609449152331186702590863604170793799195318129244",
+   "volume_usd": {
+    "h24": "3617238.58779507"
+   },
+   "market_cap_usd": "56250091.2786207",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-01T00:45:52.000Z",
+    "migrated_destination_pool_address": "0xa95b1fbdccb15d2b07509b980f63adab8a94303b1781f5ebc53b72942d12ddc1"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0xea9f200e13055b82f175f44f592c4c13dd8c9d9320a66487d3c5cd90d68550ef",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x4b83b47e62e9a5986a7badf9d2369911034a01c079532ede3c2819f332ac830a",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0xa95b1fbdccb15d2b07509b980f63adab8a94303b1781f5ebc53b72942d12ddc1",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,78 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0x99c8f9fb1f73ccd0977fd39ff3508c387223b3be27aa984c09dd06c2f4674e4e",
+  "pairAddress": "0x99c8f9fb1f73ccd0977fd39ff3508c387223b3be27aa984c09dd06c2f4674e4e",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xDc45b71d7203c2e8baafC43A19BcA0Eb993bB54E",
+   "name": "Darkwoods",
+   "symbol": "DARK"
+  },
+  "quoteToken": {
+   "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+   "name": "NVIDIA \u2022 Robinhood Token",
+   "symbol": "NVDA"
+  },
+  "priceNative": "0.00001302",
+  "priceUsd": "0.002974",
+  "txns": {
+   "m5": {
+    "buys": 1,
+    "sells": 2
+   },
+   "h1": {
+    "buys": 18,
+    "sells": 31
+   },
+   "h6": {
+    "buys": 198,
+    "sells": 247
+   },
+   "h24": {
+    "buys": 740,
+    "sells": 974
+   }
+  },
+  "volume": {
+   "h24": 698603.01,
+   "h6": 176599.86,
+   "h1": 11365.54,
+   "m5": 338.38
+  },
+  "priceChange": {
+   "m5": 0.47,
+   "h1": 7.8,
+   "h6": 12.89,
+   "h24": -23.78
+  },
+  "liquidity": {
+   "usd": 211558.55,
+   "base": 45492945,
+   "quote": 333.993
+  },
+  "fdv": 2936872,
+  "marketCap": 2936872,
+  "pairCreatedAt": 1789582090000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/ORh2hujB0dWITqn3?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/LJ85dp8F9D2nH14a?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xdc45b71d7203c2e8baafc43a19bca0eb993bb54e?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://darkwoods.ai/",
+     "label": "Website"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/darkwoodslabs",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0x7c651ee2f3c1c456ac3afc483b834c823649a0e2",
+  "type": "token",
+  "attributes": {
+   "address": "0x7c651ee2f3c1c456ac3afc483b834c823649a0e2",
+   "name": "Modam",
+   "symbol": "DAM",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102178543/large/4c0p90yd5c6gclnftzw37sg6nwae.?1789888820",
+   "coingecko_coin_id": "modam",
+   "total_supply": "999998242250313111728022096.0",
+   "normalized_total_supply": "999998242.250313",
+   "price_usd": "0.00006106153608",
+   "fdv_usd": "60450.33022229",
+   "total_reserve_in_usd": "13659.169226262388653378844915476505048575",
+   "volume_usd": {
+    "h24": "127637.117555407"
+   },
+   "market_cap_usd": "0.0",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-17T22:58:12.000Z",
+    "migrated_destination_pool_address": "0x58269d3b9947ce19a6d17ad676ead1900edb920251a53c1dc707df03f276c7b4"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0x58269d3b9947ce19a6d17ad676ead1900edb920251a53c1dc707df03f276c7b4",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0xec9b209867bebabeb629b7232ae3a9fc4328d7876aa8979a5c3d567382180126",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x134a19fc28e01016878908080777bc0e26ef078574b1e1061be57687174786bf",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

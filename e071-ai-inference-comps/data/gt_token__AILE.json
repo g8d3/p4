@@ -1,0 +1,39 @@
+{
+ "data": {
+  "id": "solana_8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump",
+  "type": "token",
+  "attributes": {
+   "address": "8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump",
+   "name": "AILE",
+   "symbol": "AILE",
+   "decimals": 6,
+   "image_url": "https://assets.geckoterminal.com/c29jrgg973tvjj7cnsulstamo3kc",
+   "coingecko_coin_id": null,
+   "total_supply": "1000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.00003794161109",
+   "fdv_usd": "37941.6110865708",
+   "total_reserve_in_usd": "9360.8090243272822542153906413",
+   "volume_usd": {
+    "h24": "26946.2372053706"
+   },
+   "market_cap_usd": null,
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-11T19:37:06.000Z",
+    "migrated_destination_pool_address": "PibATxvKbXFdzrugGGZSz8CLrX35h9v6EZ9bo99TK4z"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "solana_PibATxvKbXFdzrugGGZSz8CLrX35h9v6EZ9bo99TK4z",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

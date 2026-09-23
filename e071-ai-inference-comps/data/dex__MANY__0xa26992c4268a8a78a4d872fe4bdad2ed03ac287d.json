@@ -1,0 +1,78 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0x25c0dad350613a02f2c0843f02dd15c30c45e20417909bef8a6311d54dc4d43a",
+  "pairAddress": "0x25c0dad350613a02f2c0843f02dd15c30c45e20417909bef8a6311d54dc4d43a",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xa26992C4268A8a78a4d872FE4BDAD2Ed03aC287d",
+   "name": "Manyways Inference",
+   "symbol": "MANY"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.000001139",
+  "priceUsd": "0.003152",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 1
+   },
+   "h1": {
+    "buys": 8,
+    "sells": 24
+   },
+   "h6": {
+    "buys": 110,
+    "sells": 160
+   },
+   "h24": {
+    "buys": 335,
+    "sells": 554
+   }
+  },
+  "volume": {
+   "h24": 176078.6,
+   "h6": 60666.53,
+   "h1": 6862.69,
+   "m5": 17.54
+  },
+  "priceChange": {
+   "m5": -0.1,
+   "h1": -6.38,
+   "h6": 0.54,
+   "h24": -32.37
+  },
+  "liquidity": {
+   "usd": 175448.46,
+   "base": 27824613,
+   "quote": 31.6984
+  },
+  "fdv": 3087166,
+  "marketCap": 3087166,
+  "pairCreatedAt": 1788262817000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/d1Z8ZqoAjTAIKGxu?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/fMjR-oy4x_Cl7coZ?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa26992c4268a8a78a4d872fe4bdad2ed03ac287d?timestamp=1790127000000",
+   "websites": [
+    {
+     "url": "https://manyways.dev/",
+     "label": "Website"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/manyways_rh",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

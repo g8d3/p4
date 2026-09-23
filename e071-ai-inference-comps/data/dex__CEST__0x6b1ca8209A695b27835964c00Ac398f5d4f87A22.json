@@ -1,0 +1,86 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0xdcd61e8d9a2d6502d66a8c0764e1aa89dfac2a9ad64fcf21f9ef44423383a513",
+  "pairAddress": "0xdcd61e8d9a2d6502d66a8c0764e1aa89dfac2a9ad64fcf21f9ef44423383a513",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0x6b1ca8209A695b27835964c00Ac398f5d4f87A22",
+   "name": "Cestus Network",
+   "symbol": "CEST"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.00000004120",
+  "priceUsd": "0.0001140",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 1
+   },
+   "h1": {
+    "buys": 8,
+    "sells": 17
+   },
+   "h6": {
+    "buys": 30,
+    "sells": 90
+   },
+   "h24": {
+    "buys": 70,
+    "sells": 201
+   }
+  },
+  "volume": {
+   "h24": 22486.77,
+   "h6": 8838.94,
+   "h1": 1128.77,
+   "m5": 8.29
+  },
+  "priceChange": {
+   "m5": -0.16,
+   "h1": -4.81,
+   "h6": -17.74,
+   "h24": -36.97
+  },
+  "liquidity": {
+   "usd": 32894.35,
+   "base": 144225882,
+   "quote": 5.943
+  },
+  "fdv": 112847,
+  "marketCap": 112847,
+  "pairCreatedAt": 1789835355000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/niuzLDFpxW-xHbpX?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/_qbfGtxqX44GrSFu?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0x6b1ca8209a695b27835964c00ac398f5d4f87a22?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://cestus.network/",
+     "label": "Website"
+    },
+    {
+     "url": "https://docs.cestus.network/",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/CestusNetwork",
+     "type": "twitter"
+    },
+    {
+     "url": "https://t.me/cestus_network",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

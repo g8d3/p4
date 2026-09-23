@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "solana_Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups",
+  "type": "token",
+  "attributes": {
+   "address": "Ax5dAamJPeuaLpFUzs9FdcpoUhHDcxyjPzxCJQidjups",
+   "name": "Minirouter.sh",
+   "symbol": "MINI",
+   "decimals": 6,
+   "image_url": "https://assets.geckoterminal.com/q6bmcrz4le5bayq42e6emo134bcj",
+   "coingecko_coin_id": null,
+   "total_supply": "1000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.003406170748",
+   "fdv_usd": "3406170.74764461",
+   "total_reserve_in_usd": "148364.719146765706421542118061",
+   "volume_usd": {
+    "h24": "432779.923816481"
+   },
+   "market_cap_usd": null,
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-03T20:54:51.000Z",
+    "migrated_destination_pool_address": "CP222Ubb6wY2J3EnMbMmEGGQdgGWDcUADa358LDN7HxX"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "solana_CP222Ubb6wY2J3EnMbMmEGGQdgGWDcUADa358LDN7HxX",
+      "type": "pool"
+     },
+     {
+      "id": "solana_7NWyQjusXtKVP88WBvvZJpF14MiyiwN8APV9qrQWUk57",
+      "type": "pool"
+     },
+     {
+      "id": "solana_64BSmy7BESiHnWYzLdPso6FuXymh7H8jTkaiyfbBg1YD",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

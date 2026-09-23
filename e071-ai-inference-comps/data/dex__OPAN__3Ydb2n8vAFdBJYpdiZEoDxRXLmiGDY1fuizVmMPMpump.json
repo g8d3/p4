@@ -1,0 +1,74 @@
+[
+ {
+  "chainId": "solana",
+  "dexId": "pumpswap",
+  "url": "https://dexscreener.com/solana/4kfz4pk6d7ctts458qmqcic78qdhxq9jn3zevc5bc72s",
+  "pairAddress": "4kfz4pK6D7cTTS458QMqCic78QDhXQ9JN3ZEvC5bc72S",
+  "baseToken": {
+   "address": "3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump",
+   "name": "Opanarchy",
+   "symbol": "OPAN"
+  },
+  "quoteToken": {
+   "address": "So11111111111111111111111111111111111111112",
+   "name": "Wrapped SOL",
+   "symbol": "SOL"
+  },
+  "priceNative": "0.000002635",
+  "priceUsd": "0.0003134",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 1,
+    "sells": 0
+   },
+   "h6": {
+    "buys": 10,
+    "sells": 4
+   },
+   "h24": {
+    "buys": 41,
+    "sells": 27
+   }
+  },
+  "volume": {
+   "h24": 9494.15,
+   "h6": 552.38,
+   "h1": 99.02,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": 1.07,
+   "h6": 2.48,
+   "h24": -5.24
+  },
+  "liquidity": {
+   "usd": 72636.18,
+   "base": 115809254,
+   "quote": 305.4853
+  },
+  "fdv": 313372,
+  "marketCap": 313372,
+  "pairCreatedAt": 1759932655000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/90cde7c675e2c2000673c5faad4e37db145607b42dfa197d382ee37691298d3e?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/57e6f06162f2edf07a1a222448795ce18d91edbaddb3ee33efc13fb169ed5f00?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://opanarchyfoundation.com/",
+     "label": "Website"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/Opanarchyai",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

@@ -58,3 +58,8 @@ python3 ../e000-fundamentals/bin/table_check.py <your-experiment> --served <page
 
 New table feature? It lands HERE with its Tier 2 check in `table_check.py`,
 not copy-pasted into an experiment. One implementation, all tables inherit it.
+
+## Docs
+
+Start with [README.md](README.md) (quickstart, kinds, params, vendoring,
+security, known warts) — not the `render.py` docstring. Version in [VERSION](VERSION).

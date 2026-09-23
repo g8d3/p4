@@ -1,0 +1,86 @@
+[
+ {
+  "chainId": "base",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/base/0xfc25fdd217e288d03a877f0b7d49e0bbe52b2288c88de929125062569fc7eb2a",
+  "pairAddress": "0xfc25fdd217e288d03a877f0b7d49e0bbe52b2288c88de929125062569fc7eb2a",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xC52aeDec3374422d7510E294cfAa90799595CBa3",
+   "name": "Surplus Intelligence",
+   "symbol": "Surplus"
+  },
+  "quoteToken": {
+   "address": "0x4200000000000000000000000000000000000006",
+   "name": "Wrapped Ether",
+   "symbol": "WETH"
+  },
+  "priceNative": "0.00000003073",
+  "priceUsd": "0.00008494",
+  "txns": {
+   "m5": {
+    "buys": 1,
+    "sells": 1
+   },
+   "h1": {
+    "buys": 7,
+    "sells": 1
+   },
+   "h6": {
+    "buys": 94,
+    "sells": 31
+   },
+   "h24": {
+    "buys": 285,
+    "sells": 210
+   }
+  },
+  "volume": {
+   "h24": 282816.49,
+   "h6": 65548.87,
+   "h1": 6331.9,
+   "m5": 3172.54
+  },
+  "priceChange": {
+   "m5": -1.45,
+   "h1": 0.18,
+   "h6": -3.49,
+   "h24": 3.34
+  },
+  "liquidity": {
+   "usd": 953975.16,
+   "base": 6062523245,
+   "quote": 158.8157
+  },
+  "fdv": 8494514,
+  "marketCap": 8494514,
+  "pairCreatedAt": 1778944831000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/Irhr0Zu5nmPuMsRC?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/zYQs2iQ48rJUQ-LL?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/base/0xc52aedec3374422d7510e294cfaa90799595cba3?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://www.surplusintelligence.ai/",
+     "label": "Website"
+    },
+    {
+     "url": "https://www.surplusintelligence.ai/docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/AskSurplus",
+     "type": "twitter"
+    },
+    {
+     "url": "https://discord.gg/VS6bF2k2WX",
+     "type": "discord"
+    }
+   ]
+  }
+ }
+]

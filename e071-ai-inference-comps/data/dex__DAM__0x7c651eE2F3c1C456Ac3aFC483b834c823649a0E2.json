@@ -1,0 +1,82 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0x58269d3b9947ce19a6d17ad676ead1900edb920251a53c1dc707df03f276c7b4",
+  "pairAddress": "0x58269d3b9947ce19a6d17ad676ead1900edb920251a53c1dc707df03f276c7b4",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0x7c651eE2F3c1C456Ac3aFC483b834c823649a0E2",
+   "name": "Modam",
+   "symbol": "DAM"
+  },
+  "quoteToken": {
+   "address": "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+   "name": "NVIDIA \u2022 Robinhood Token",
+   "symbol": "NVDA"
+  },
+  "priceNative": "0.0000001711",
+  "priceUsd": "0.00003866",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 1
+   },
+   "h1": {
+    "buys": 4,
+    "sells": 10
+   },
+   "h6": {
+    "buys": 111,
+    "sells": 146
+   },
+   "h24": {
+    "buys": 478,
+    "sells": 580
+   }
+  },
+  "volume": {
+   "h24": 127520.71,
+   "h6": 26946.62,
+   "h1": 863.39,
+   "m5": 13.91
+  },
+  "priceChange": {
+   "m5": -1.39,
+   "h1": 3.24,
+   "h6": -43.51,
+   "h24": -72.92
+  },
+  "liquidity": {
+   "usd": 17222.34,
+   "base": 222703405,
+   "quote": 38.1215
+  },
+  "fdv": 38280,
+  "marketCap": 38280,
+  "pairCreatedAt": 1789685892000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/VbaV-vK6lagunS6t?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/QPOSdsc9X-Ze5x1t?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0x7c651ee2f3c1c456ac3afc483b834c823649a0e2?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://modam.tech/",
+     "label": "Website"
+    },
+    {
+     "url": "https://modam.tech/#docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/onmodam",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

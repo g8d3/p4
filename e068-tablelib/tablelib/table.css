@@ -3,10 +3,29 @@
 .tl-sort{cursor:pointer;text-decoration:underline dotted;white-space:nowrap}
 .tl-nw{white-space:nowrap}
 td.tl-n{text-align:right}td.tl-t{text-align:left}
+/* grid: bordered table + cells in both themes */
+.twrap table{border-collapse:collapse;border:1px solid #ccc}
+.twrap th,.twrap td{border:1px solid #ccc;padding:3px 8px}
+html.dark .twrap table{border-color:#444}
+html.dark .twrap th,html.dark .twrap td{border-color:#444}
+/* frozen panes: scroll inside the table, title row + first column stick */
+.twrap{overflow:auto;max-height:72vh}
+.twrap thead tr:first-child th{position:sticky;top:0;z-index:3;background:#fff;box-shadow:0 1px #ccc}
+.twrap th:first-child,.twrap td:first-child{position:sticky;left:0;z-index:1;background:#fff}
+.twrap tbody td:first-child{box-shadow:1px 0 #ccc}
+.twrap thead tr:first-child th:first-child{z-index:4;box-shadow:0 1px #ccc,1px 0 #ccc}
+html.dark .twrap thead tr:first-child th,html.dark .twrap th:first-child,html.dark .twrap td:first-child{background:#222}
+html.dark .twrap thead tr:first-child th{box-shadow:0 1px #444}
+html.dark .twrap tbody td:first-child{box-shadow:1px 0 #444}
+html.dark .twrap thead tr:first-child th:first-child{box-shadow:0 1px #444,1px 0 #444}
 thead input{width:100%;box-sizing:border-box;font-size:12px;padding:2px 4px}
+/* numeric min/max share one filter cell: side by side, not stacked */
+thead td input[id$="-lo"],thead td input[id$="-hi"]{width:48%;display:inline-block}
+thead td input[id$="-lo"]{margin-right:4%}
 .tl-thin{background:#ffe9c4;color:#5a3c00;padding:0 6px;border-radius:8px;font-size:11px;white-space:nowrap}
 html.dark .tl-thin{background:#5a3c00;color:#ffe9c4}
 .tl-ctl button{margin:2px;padding:3px 10px;cursor:pointer}
+.tl-ctl button.on{background:#0366d6;color:#fff;border-color:#0366d6}
 /* every control block is a labeled unit: aligned grid, clear boundaries */
 .tl-views,.tl-stats,.tl-cmp,.tl-ctl{background:rgba(127,127,127,.08);border:1px solid #ccc;border-radius:8px;padding:6px 8px;margin:6px 0}
 html.dark .tl-views,html.dark .tl-stats,html.dark .tl-cmp,html.dark .tl-ctl{border-color:#444}

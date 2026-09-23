@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xc7db9a7034d061feca50f0a25636bcc83ca717d9",
+  "type": "token",
+  "attributes": {
+   "address": "0xc7db9a7034d061feca50f0a25636bcc83ca717d9",
+   "name": "Fab",
+   "symbol": "FAB",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102176860/large/fab.jpg?1788930045",
+   "coingecko_coin_id": "fab",
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.0002488927991",
+   "fdv_usd": "243245.622552871",
+   "total_reserve_in_usd": "51315.140401827913793479330977815644802872717134129874",
+   "volume_usd": {
+    "h24": "128795.24409554"
+   },
+   "market_cap_usd": "248892.799133186",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-06T23:27:01.000Z",
+    "migrated_destination_pool_address": "0xd904401ae3b0ac8a6d5047f6375b45de92c412689413e0548be725ea89b373a8"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0xd904401ae3b0ac8a6d5047f6375b45de92c412689413e0548be725ea89b373a8",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x7e9bc59b1c6798859de8812dfe0fbaf0dcc33fa094ef83b37ec916fef9ea3469",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x28053d429a9c986da366d7442b839c7e47692440a0e5e3d3d8f2d793648890a9",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

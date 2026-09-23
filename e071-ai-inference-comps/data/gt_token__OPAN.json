@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "solana_3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump",
+  "type": "token",
+  "attributes": {
+   "address": "3Ydb2n8vAFdBJYpdiZEoDxRXLmiGDY1fuizVmMPMpump",
+   "name": "Opanarchy",
+   "symbol": "OPAN",
+   "decimals": 6,
+   "image_url": "https://coin-images.coingecko.com/coins/images/70228/large/Black_and_White_Minimalist_Monoline_Illustrated_Modern_Sketch_AI_Robot_Logo.png?1761123206",
+   "coingecko_coin_id": "opanarchy-2",
+   "total_supply": "999631314656684.0",
+   "normalized_total_supply": "999631314.656684",
+   "price_usd": "0.0003060996034",
+   "fdv_usd": "305986.748961503",
+   "total_reserve_in_usd": "41459.341149984695458081686996",
+   "volume_usd": {
+    "h24": "15672.7424315554"
+   },
+   "market_cap_usd": "305986.748961503",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2025-10-08T14:10:55.000Z",
+    "migrated_destination_pool_address": "4kfz4pK6D7cTTS458QMqCic78QDhXQ9JN3ZEvC5bc72S"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "solana_4kfz4pK6D7cTTS458QMqCic78QDhXQ9JN3ZEvC5bc72S",
+      "type": "pool"
+     },
+     {
+      "id": "solana_CJJmmvMq6CPrkZQGpvPJPV36hYej4EutH51raDpTk6ae",
+      "type": "pool"
+     },
+     {
+      "id": "solana_HMvJsbggZq6EuAdnzLRpc8gaxCWboGh6ZSTM83uVuMUx",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

@@ -137,13 +137,14 @@ def suggest(rows, columns, limit=6, derived=None):
     derived = derived or {}
     ouls, cors = [], []
     numcols = [c for c in columns if c.get("kind") in ("num", "pill", "bar")]
+    label_key = next((c["key"] for c in columns if c.get("kind") == "text"), "?")
     for c in numcols:
         d = describe(rows, c["key"])
         if not d.get("n"):
             continue
         outs = outliers(rows, c["key"])
         if 1 <= len(outs) <= 8:
-            names = ", ".join(str(r.get("token", r.get("coin", "?"))) for r in outs[:3])
+            names = ", ".join(str(r.get(label_key, "?")) for r in outs[:3])
             plural = "s" if len(outs) != 1 else ""
             ouls.append((len(outs), {
                 "title": f"{len(outs)} outlier{plural} in {c['label']}",

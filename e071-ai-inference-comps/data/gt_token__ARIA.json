@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xa74a94c15b95f8d5f3abdd2db00f6c7384037b55",
+  "type": "token",
+  "attributes": {
+   "address": "0xa74a94c15b95f8d5f3abdd2db00f6c7384037b55",
+   "name": "Aria",
+   "symbol": "Aria",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102178558/large/ARIA_LOGO.jpg?1789977841",
+   "coingecko_coin_id": "aria-3",
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.002355053412",
+   "fdv_usd": "2340580.30201416",
+   "total_reserve_in_usd": "143089.50578184528382318767260390114",
+   "volume_usd": {
+    "h24": "674056.334349768"
+   },
+   "market_cap_usd": "0.0",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-15T13:13:58.000Z",
+    "migrated_destination_pool_address": "0x84ee7bda8d15c2605eb78326862827f961d659cc2ba97d26845cd0156e6e5606"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0x84ee7bda8d15c2605eb78326862827f961d659cc2ba97d26845cd0156e6e5606",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0xae0a6747dedafd0902b3bf91b86e944df7861effba43176a4afd5fbcf0ef2bf5",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x13fae42d724a49d74024b439879f5c3e654ec4882e7b75f630e6db12aaa062e4",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

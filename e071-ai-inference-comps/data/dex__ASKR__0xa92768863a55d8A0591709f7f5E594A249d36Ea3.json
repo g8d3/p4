@@ -1,0 +1,85 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0x90b75d6e9ac1e7efc3154c89e155121f7d7c0e54ebbd3dbba379650deb64d41e",
+  "pairAddress": "0x90b75d6e9ac1e7efc3154c89e155121f7d7c0e54ebbd3dbba379650deb64d41e",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xa92768863a55d8A0591709f7f5E594A249d36Ea3",
+   "name": "heyaskr",
+   "symbol": "ASKR"
+  },
+  "quoteToken": {
+   "address": "0x0000000000000000000000000000000000000000",
+   "name": "Ether",
+   "symbol": "ETH"
+  },
+  "priceNative": "0.000001318",
+  "priceUsd": "0.003653",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 6,
+    "sells": 12
+   },
+   "h6": {
+    "buys": 87,
+    "sells": 129
+   },
+   "h24": {
+    "buys": 407,
+    "sells": 689
+   }
+  },
+  "volume": {
+   "h24": 364548.56,
+   "h6": 55738.39,
+   "h1": 3407.15,
+   "m5": 0
+  },
+  "priceChange": {
+   "h1": 0.11,
+   "h6": -7.6,
+   "h24": -44.67
+  },
+  "liquidity": {
+   "usd": 186275.03,
+   "base": 25496124,
+   "quote": 33.6185
+  },
+  "fdv": 3130709,
+  "marketCap": 3130709,
+  "pairCreatedAt": 1789756615000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/bcAStL1BliBpjSwb?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/N7UXPnKDRFsxQtwr?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa92768863a55d8a0591709f7f5e594a249d36ea3?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://heyaskr.ai/",
+     "label": "Website"
+    },
+    {
+     "url": "https://heyaskr.ai/docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/heyaskr",
+     "type": "twitter"
+    },
+    {
+     "url": "https://telegram.me/heyaskr",
+     "type": "telegram"
+    }
+   ]
+  }
+ }
+]

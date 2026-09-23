@@ -1,0 +1,79 @@
+[
+ {
+  "chainId": "solana",
+  "dexId": "pumpswap",
+  "url": "https://dexscreener.com/solana/pibatxvkbxfdzrugggzsz8clrx35h9v6ez9bo99tk4z",
+  "pairAddress": "PibATxvKbXFdzrugGGZSz8CLrX35h9v6EZ9bo99TK4z",
+  "baseToken": {
+   "address": "8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump",
+   "name": "AILE",
+   "symbol": "AILE"
+  },
+  "quoteToken": {
+   "address": "So11111111111111111111111111111111111111112",
+   "name": "Wrapped SOL",
+   "symbol": "SOL"
+  },
+  "priceNative": "0.0000004536",
+  "priceUsd": "0.00005394",
+  "txns": {
+   "m5": {
+    "buys": 1,
+    "sells": 1
+   },
+   "h1": {
+    "buys": 10,
+    "sells": 2
+   },
+   "h6": {
+    "buys": 19,
+    "sells": 13
+   },
+   "h24": {
+    "buys": 154,
+    "sells": 187
+   }
+  },
+  "volume": {
+   "h24": 18484.25,
+   "h6": 2549.85,
+   "h1": 1597.26,
+   "m5": 125.44
+  },
+  "priceChange": {
+   "m5": 0.84,
+   "h1": 27.96,
+   "h6": 38.64,
+   "h24": 17.33
+  },
+  "liquidity": {
+   "usd": 20407.36,
+   "base": 207646613,
+   "quote": 77.4189
+  },
+  "fdv": 50949,
+  "marketCap": 50949,
+  "pairCreatedAt": 1789155426000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/jkBnM5peDmP_QwZs?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/v-31gAOfgnYRx5Dg?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/solana/8d3bQS9vNy3BfqK9dX95JRoaTbWoiuL2hzmSFLDopump?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://aile.sh/",
+     "label": "Website"
+    },
+    {
+     "url": "https://aile.sh/docs",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/AileLabs",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

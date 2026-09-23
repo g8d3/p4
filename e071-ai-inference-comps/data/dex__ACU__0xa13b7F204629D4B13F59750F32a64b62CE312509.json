@@ -1,0 +1,80 @@
+[
+ {
+  "chainId": "robinhood",
+  "dexId": "uniswap",
+  "url": "https://dexscreener.com/robinhood/0xe23faea2a0ded62e006c7cf67ae0502aae7ba1c90ac649518e93d242b9fa6a74",
+  "pairAddress": "0xe23faea2a0ded62e006c7cf67ae0502aae7ba1c90ac649518e93d242b9fa6a74",
+  "labels": [
+   "v4"
+  ],
+  "baseToken": {
+   "address": "0xa13b7F204629D4B13F59750F32a64b62CE312509",
+   "name": "Aria Compute Unit",
+   "symbol": "ACU"
+  },
+  "quoteToken": {
+   "address": "0xA74a94c15B95f8d5F3abDd2Db00F6c7384037B55",
+   "name": "Aria",
+   "symbol": "Aria"
+  },
+  "priceNative": "47480.8123",
+  "priceUsd": "116.73",
+  "txns": {
+   "m5": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h1": {
+    "buys": 0,
+    "sells": 0
+   },
+   "h6": {
+    "buys": 1,
+    "sells": 1
+   },
+   "h24": {
+    "buys": 2,
+    "sells": 9
+   }
+  },
+  "volume": {
+   "h24": 2182.06,
+   "h6": 522.63,
+   "h1": 0,
+   "m5": 0
+  },
+  "priceChange": {
+   "h6": -9.81,
+   "h24": -44.59
+  },
+  "liquidity": {
+   "usd": 26249.46,
+   "base": 112.4364,
+   "quote": 5338572
+  },
+  "fdv": 58363,
+  "marketCap": 58363,
+  "pairCreatedAt": 1789551791000,
+  "info": {
+   "imageUrl": "https://cdn.dexscreener.com/cms/images/g7UP-8VX5y418dBq?width=800&height=800&quality=95&format=auto",
+   "header": "https://cdn.dexscreener.com/cms/images/gCfT000DkV6rR1Ww?width=1500&height=500&quality=95&format=auto",
+   "openGraph": "https://cdn.dexscreener.com/token-images/og/robinhood/0xa13b7f204629d4b13f59750f32a64b62ce312509?timestamp=1790127300000",
+   "websites": [
+    {
+     "url": "https://entelic.io/",
+     "label": "Website"
+    },
+    {
+     "url": "https://entelic.io/tokenomics/",
+     "label": "Docs"
+    }
+   ],
+   "socials": [
+    {
+     "url": "https://x.com/Entelic_Aria",
+     "type": "twitter"
+    }
+   ]
+  }
+ }
+]

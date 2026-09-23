@@ -1,0 +1,41 @@
+{
+ "data": {
+  "id": "base_0xc52aedec3374422d7510e294cfaa90799595cba3",
+  "type": "token",
+  "attributes": {
+   "address": "0xc52aedec3374422d7510e294cfaa90799595cba3",
+   "name": "Surplus Intelligence",
+   "symbol": "Surplus",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102173622/large/image2.png?1780503707",
+   "coingecko_coin_id": "surplus-intelligence",
+   "total_supply": "100000000000000000000000000000.0",
+   "normalized_total_supply": "100000000000.0",
+   "price_usd": "0.00008672752014",
+   "fdv_usd": "8672733.2758554",
+   "total_reserve_in_usd": "2035558.77969930033984579351707309270099533936134",
+   "volume_usd": {
+    "h24": "382223.700291781"
+   },
+   "market_cap_usd": "8672752.01424375"
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "base_0xfc25fdd217e288d03a877f0b7d49e0bbe52b2288c88de929125062569fc7eb2a",
+      "type": "pool"
+     },
+     {
+      "id": "base_0x6374a491d659d06d56d41507daae5c4dc7c2a92c1a61aa79586f059b83f6f9dd",
+      "type": "pool"
+     },
+     {
+      "id": "base_0xbcf23f30a90f6d7c288facdc932ff8f8b68b0f30",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

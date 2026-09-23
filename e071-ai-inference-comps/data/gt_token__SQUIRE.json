@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "solana_EN2nnxrg8uUi6x2sJkzNPd2eT6rB9rdSoQNNaENA4RZA",
+  "type": "token",
+  "attributes": {
+   "address": "EN2nnxrg8uUi6x2sJkzNPd2eT6rB9rdSoQNNaENA4RZA",
+   "name": "Pod the Squire",
+   "symbol": "SQUIRE",
+   "decimals": 6,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102173114/large/etfp6n05zbfkhqs4izbpe4ckcdvw.?1777893106",
+   "coingecko_coin_id": "pod-the-squire",
+   "total_supply": "999817238249163.0",
+   "normalized_total_supply": "999817238.249163",
+   "price_usd": "0.001482856403",
+   "fdv_usd": "1482585.39363616",
+   "total_reserve_in_usd": "152641.16621236339207969285591676",
+   "volume_usd": {
+    "h24": "249806.200153767"
+   },
+   "market_cap_usd": "1482585.3968759",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-03-18T23:02:07.000Z",
+    "migrated_destination_pool_address": "4CPVihvjKUUsXq3HFrS8wniUKffbpDqz2h6jHKjeXoYD"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "solana_4CPVihvjKUUsXq3HFrS8wniUKffbpDqz2h6jHKjeXoYD",
+      "type": "pool"
+     },
+     {
+      "id": "solana_6Lr4QzjxeKZKJ77FRuGcmNENmCnf7zBSr9bNBZqLGdTu",
+      "type": "pool"
+     },
+     {
+      "id": "solana_Eb8yELeCoKBsy4Hfmo3HQ72ZaCs1N4AWWhuZPSPnXRGo",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}

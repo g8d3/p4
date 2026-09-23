@@ -1,0 +1,47 @@
+{
+ "data": {
+  "id": "robinhood_0xeb24a2663af4ee979dcbfe39cb95b5f12d369c4b",
+  "type": "token",
+  "attributes": {
+   "address": "0xeb24a2663af4ee979dcbfe39cb95b5f12d369c4b",
+   "name": "Cerebro",
+   "symbol": "CEREBRO",
+   "decimals": 18,
+   "image_url": "https://coin-images.coingecko.com/coins/images/102178411/large/aljoj8fer3pm5tq1q4r0z2kxe4cm.?1789486484",
+   "coingecko_coin_id": "cerebro-2",
+   "total_supply": "1000000000000000000000000000.0",
+   "normalized_total_supply": "1000000000.0",
+   "price_usd": "0.002751635079",
+   "fdv_usd": "2696569.33556382",
+   "total_reserve_in_usd": "104878.9611464612308654409110855334253166074666968410282323754",
+   "volume_usd": {
+    "h24": "527345.80390656"
+   },
+   "market_cap_usd": "2751635.0786567",
+   "launchpad_details": {
+    "graduation_percentage": 100.0,
+    "completed": true,
+    "completed_at": "2026-09-09T15:21:26.000Z",
+    "migrated_destination_pool_address": "0xb553e268a7790255e0db206aa27fa32e805b431645b230441fbd8beeb7618fc8"
+   }
+  },
+  "relationships": {
+   "top_pools": {
+    "data": [
+     {
+      "id": "robinhood_0x402added27e8b8daa0e8141e05f7cec46a8a5549944a77ef122e541e54596700",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0xb553e268a7790255e0db206aa27fa32e805b431645b230441fbd8beeb7618fc8",
+      "type": "pool"
+     },
+     {
+      "id": "robinhood_0x917e419b4dc175ea01b5c6346e2adcea6b00ce5dfcd007d434335d783d90fa60",
+      "type": "pool"
+     }
+    ]
+   }
+  }
+ }
+}
