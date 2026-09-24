@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>leg log</title>
+<style>body{font-family:system-ui;margin:1em;font-size:15px}pre{white-space:pre-wrap;word-break:break-word;font-size:13px}a{font-size:16px}</style>
+</head><body><a href=agents.html>← back</a><h1 id=t></h1><pre id=b>loading…</pre>
+<script>async function up(){try{const f=new URLSearchParams(location.search).get('file');if(!f)return;
+document.getElementById('t').textContent=f;
+const t=await (await fetch(f+'?'+Date.now())).text();
+document.getElementById('b').textContent=t;}catch(e){}}
+up();setInterval(up,5000);</script></body></html>

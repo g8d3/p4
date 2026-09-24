@@ -119,7 +119,7 @@ function val(r,k){const v=r[k];if(v==null)return sd>0?Infinity:-Infinity;return 
 const KEYS=['agent','task','start','end','tin','tout','cost','status','rc',null,null];
 function render(){const tb=document.getElementById('tb');if(!tb)return;
 const s=[...legs].sort((a,b)=>{const x=val(a,sk),y=val(b,sk);return (x<y?-1:x>y?1:0)*sd;});
-tb.innerHTML=s.map(r=>'<tr class="'+r.status+'">'+[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.rc??'—',r.note,'<a href="'+(r.log||'#')+'">open</a>'].map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
+tb.innerHTML=s.map(r=>'<tr class="'+r.status+'">'+[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.rc??'—',r.note,'<a href="log.html?file='+(r.log||'')+'">open</a>'].map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
 document.querySelectorAll('#t th').forEach((th,i)=>{const base=th.textContent.replace(/[ ▲▼]/g,'');th.textContent=base+((KEYS[i]&&KEYS[i]===sk)?(sd>0?' ▲':' ▼'):'');});}
 async function up(){try{const r=await (await fetch('legs.json?'+Date.now())).text();
 if(r===last)return;last=r;const d=JSON.parse(r);
@@ -136,4 +136,12 @@ html = f"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport co
 <style>th{{cursor:pointer}}</style>
 {js}</body></html>"""
 open(os.path.join(base, 'agents.html'), 'w').write(html)
+open(os.path.join(base, 'log.html'), 'w').write("""<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>leg log</title>
+<style>body{font-family:system-ui;margin:1em;font-size:15px}pre{white-space:pre-wrap;word-break:break-word;font-size:13px}a{font-size:16px}</style>
+</head><body><a href=agents.html>← back</a><h1 id=t></h1><pre id=b>loading…</pre>
+<script>async function up(){try{const f=new URLSearchParams(location.search).get('file');if(!f)return;
+document.getElementById('t').textContent=f;
+const t=await (await fetch(f+'?'+Date.now())).text();
+document.getElementById('b').textContent=t;}catch(e){}}
+up();setInterval(up,5000);</script></body></html>""")
 print(f"agents.html + legs.json: {len(rows)} legs, heartbeat {hb}")

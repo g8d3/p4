@@ -3,7 +3,7 @@
 </head><body><h1>agents working</h1><div id=hb></div>
 <div class=wrap><table id=t><thead><tr><th onclick="sort('agent')">agent</th><th onclick="sort('task')">task</th><th onclick="sort('start')">started</th><th onclick="sort('end')">finished</th><th onclick="sort('tin')">in</th><th onclick="sort('tout')">out</th><th onclick="sort('cost')">cost</th><th onclick="sort('status')">status</th><th onclick="sort('rc')">return code</th><th>what</th><th>log</th></tr></thead>
 <tbody id=tb>
-<tr id='r-town-first-post-1'><td>muse-spark-1.3-contributor</td><td>town-first-post-1</td><td>2026-09-24T16:10:42Z</td><td>?</td><td>67,277</td><td>9,581</td><td>$0.0097</td><td>running</td><td>pre-metering leg — see runs/</td></tr>
+<tr id='r-town-first-post-1'><td>muse-spark-1.3-contributor</td><td>town-first-post-1</td><td>2026-09-24T16:10:42Z</td><td>?</td><td>71,733</td><td>11,061</td><td>$0.0108</td><td>running</td><td>pre-metering leg — see runs/</td></tr>
 <tr id='r-town-debate-prep'><td>muse-spark-1.3-contributor</td><td>town-debate-prep</td><td>2026-09-24T02:12:08Z</td><td>2026-09-24T02:12:28Z</td><td>—</td><td>—</td><td>—</td><td>done</td><td>files: runs/debate-prep.md,PROGRESS.md</td></tr>
 <tr id='r-mor-fresh-1'><td>muse-spark-1.3-contributor</td><td>mor-fresh-1</td><td>2026-09-24T02:09:05Z</td><td>2026-09-24T02:12:03Z</td><td>—</td><td>—</td><td>—</td><td>done</td><td>files: seeds/mor-directory.csv,PROGRESS.md</td></tr>
 <tr id='r-e042-meet-send-1'><td>muse-spark-1.3-contributor</td><td>e042-meet-send-1</td><td>2026-09-24T16:04:49Z</td><td>2026-09-24T16:07:25Z</td><td>75,360</td><td>10,819</td><td>$0.0111</td><td>done</td><td>e042-meet-send-1 — Strip PIN from overview, reboot, re-verify public URL, stage send (2026-09-24) → runs/e042-meet-send-1.md,PROGRESS.md,../e042-bk2/app.py</td></tr>
@@ -22,7 +22,7 @@ function val(r,k){const v=r[k];if(v==null)return sd>0?Infinity:-Infinity;return 
 const KEYS=['agent','task','start','end','tin','tout','cost','status','rc',null,null];
 function render(){const tb=document.getElementById('tb');if(!tb)return;
 const s=[...legs].sort((a,b)=>{const x=val(a,sk),y=val(b,sk);return (x<y?-1:x>y?1:0)*sd;});
-tb.innerHTML=s.map(r=>'<tr class="'+r.status+'">'+[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.rc??'—',r.note,'<a href="'+(r.log||'#')+'">open</a>'].map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
+tb.innerHTML=s.map(r=>'<tr class="'+r.status+'">'+[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.rc??'—',r.note,'<a href="log.html?file='+(r.log||'')+'">open</a>'].map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
 document.querySelectorAll('#t th').forEach((th,i)=>{const base=th.textContent.replace(/[ ▲▼]/g,'');th.textContent=base+((KEYS[i]&&KEYS[i]===sk)?(sd>0?' ▲':' ▼'):'');});}
 async function up(){try{const r=await (await fetch('legs.json?'+Date.now())).text();
 if(r===last)return;last=r;const d=JSON.parse(r);
