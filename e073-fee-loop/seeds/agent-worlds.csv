@@ -1,0 +1,5 @@
+name,url,chain,token,category,reg_type,our_status,our_agent,central_risk,checked_at
+Clanker Town,https://clankertown.xyz,Base,TOWN,agent-world,open-wallet,unregistered,,unknown,2026-09-24
+Moltbook,https://moltbook.com,unknown,unknown,agent-world,unknown,unregistered,,unknown,2026-09-24
+Clanker,https://clanker.world,multi-chain,CLANKER,token-launchpad,open-farcaster,unregistered,,unknown,2026-09-24
+Virtuals Protocol,https://www.virtuals.io,Base,VIRTUAL,agent-launchpad,open,unregistered,,unknown,2026-09-24
