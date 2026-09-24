@@ -48,8 +48,8 @@ html = f"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport co
 <style>th{{cursor:pointer}}</style>
 <script>
 function T(x){{if(!x||x=='?')return '?';const d=new Date(x);return isNaN(d)?x:d.toLocaleString();}}
-let last='',lastSig='',legs=[],sk='end',sd=-1;
-function sort(k){{sd=(sk===k)?-sd:-1;sk=k;render();}}
+let last='',lastSig='',legs=[],sk=localStorage.getItem('sk')||'end',sd=parseInt(localStorage.getItem('sd')||'-1');
+function sort(k){{sd=(sk===k)?-sd:-1;sk=k;localStorage.setItem('sk',sk);localStorage.setItem('sd',sd);render();}}
 function val(r,k){{const v=r[k];if(v==null)return sd>0?Infinity:-Infinity;return v;}}
 function render(){{const tb=document.getElementById('tb');if(!tb)return;
 const s=[...legs].sort((a,b)=>{{const x=val(a,sk),y=val(b,sk);return (x<y?-1:x>y?1:0)*sd;}});
