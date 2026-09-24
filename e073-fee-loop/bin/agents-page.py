@@ -46,7 +46,9 @@ html = f"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport co
 {tr}</table></div>
 <script>
 function T(x){{if(!x||x=='?')return '?';const d=new Date(x);return isNaN(d)?x:d.toLocaleString();}}
-async function up(){{try{{const d=await (await fetch('legs.json?'+Date.now())).json();
+let last='';
+async function up(){{try{{const r=await (await fetch('legs.json?'+Date.now())).text();
+if(r===last)return;last=r;const d=JSON.parse(r);
 document.getElementById('hb').textContent='loop heartbeat: '+T(d.heartbeat)+' · updated '+T(d.generated_at);
 const t=document.getElementById('t');
 for(const r of d.legs){{let row=document.getElementById('r-'+r.task);
