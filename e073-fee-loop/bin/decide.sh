@@ -14,7 +14,7 @@ if ! flock -n 9; then echo "decider skipped: already running"; exit 0; fi
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 SESS="e073-decide-$TS"
 LEG_START=$(date +%s)
-echo "$(date -u +%FT%TZ) DECIDE start" >> log/llm-legs.log
+echo "$(date -u +%FT%TZ) LEG decide-$TS start" >> log/llm-legs.log
 date -u +%FT%TZ > log/last-decide
 
 timeout 1200 pi --provider opencode-go --model muse-spark-1.3-contributor --session-id "$SESS" --print "
@@ -61,4 +61,5 @@ print(json.dumps({"ts": datetime.datetime.now(datetime.timezone.utc).strftime("%
   "note": f"decider rc={rc}"}))
 EOF
 python3 bin/agents-page.py >> log/tick.log 2>&1 || true
-echo "$(date -u +%FT%TZ) DECIDE rc=$RC"
+if [ $RC -eq 0 ]; then echo "$(date -u +%FT%TZ) LEG decide-$TS done" >> log/llm-legs.log; else echo "$(date -u +%FT%TZ) LEG decide-$TS rc=$RC" >> log/llm-legs.log; fi
+echo "DECIDE rc=$RC"

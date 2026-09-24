@@ -3,7 +3,28 @@
 upserts rows (no full reload). Regen writes both files; run after each leg
 (llm-leg.sh hook) and each tick (tick.sh hook) so heartbeat stays fresh.
 Usage: python3 bin/agents-page.py"""
-import json, os, re
+import json, os, re, time
+LIVE_MODEL = 'muse-spark-1.3-contributor'
+UPAT = re.compile(r'"usage":\{"input":(\d+),"output":(\d+),[^}]*?"total":([0-9.e-]+)\}')
+def live_usage(tid):
+    ti = to = 0; cost = 0.0; cutoff = time.time() - 1800
+    try: roots = [os.path.join(os.path.expanduser('~/.pi/agent/sessions'), d)
+                  for d in os.listdir(os.path.expanduser('~/.pi/agent/sessions'))]
+    except OSError: return None
+    for root in roots:
+        for dp, _, fns in os.walk(root):
+            for fn in fns:
+                p = os.path.join(dp, fn)
+                try:
+                    if os.path.getmtime(p) < cutoff: continue
+                    raw = open(p, errors='ignore').read()
+                    if tid not in fn and tid not in raw[:4000]: continue
+                except OSError: continue
+                for a, b, c in UPAT.findall(raw):
+                    ti += int(a); to += int(b)
+                    try: cost += float(c)
+                    except ValueError: pass
+    return (ti, to, round(cost, 6)) if ti else None
 def rc_of(note):
     m = re.search(r'rc=(\d+)', note or '')
     return int(m.group(1)) if m else None
@@ -37,6 +58,17 @@ for line in load('log/llm-legs.log'):
     ts, tid, what = m.groups()
     if what == 'start': starts[tid] = ts
     else: ends[tid] = {'ts': ts, 'ok': what.startswith('done')}
+import glob as _glob
+def transcript_done(tid):
+    pats = _glob.glob(os.path.join(base, 'runs', f'leg-*-{tid}.md'))
+    pats += _glob.glob(os.path.join(base, 'runs', f'{tid}.md'))
+    if tid.startswith('decide-'):
+        pats += _glob.glob(os.path.join(base, 'runs', f'{tid}.md'))
+    for p in pats:
+        try:
+            if 'LEG_DONE' in open(p, errors='ignore').read(): return True
+        except OSError: pass
+    return False
 spend = {}
 for line in load('ledger/credits.jsonl'):
     try: e = json.loads(line)
@@ -46,13 +78,18 @@ rows = []
 for tid in sorted(set(starts) | set(spend), reverse=True):
     s = spend.get(tid, {})
     en = ends.get(tid)
+    done = bool(en and en['ok']) or (spend.get(tid) and transcript_done(tid))
     rows.append({'task': tid, 'agent': s.get('model', '?'), 'start': starts.get(tid, '?'),
         'end': s.get('ts', '?'), 'tin': s.get('tokens_in'), 'tout': s.get('tokens_out'),
         'cost': s.get('cost_usd'), 'note': s.get('note', ''),
-        'status': 'done' if en and en['ok'] else ('failed' if en else 'running')})
+        'status': 'done' if done else ('failed' if en else 'running')})
 for r in rows:
     r['note'] = desc(r['task'], r['note'] or 'pre-metering leg — see runs/')
     r['rc'] = rc_of(spend.get(r['task'], {}).get('note', ''))
+    if r['status'] == 'running' and r['tin'] is None:
+        lv = live_usage(r['task'])
+        if lv: r['tin'], r['tout'], r['cost'] = lv
+        if r['agent'] == '?': r['agent'] = LIVE_MODEL
 try: hb = open(os.path.join(base, 'log/heartbeat'), errors='ignore').read().strip()
 except OSError: hb = '?'
 now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
