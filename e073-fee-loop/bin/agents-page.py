@@ -6,6 +6,24 @@ Usage: python3 bin/agents-page.py"""
 import json, os, re
 from datetime import datetime, timezone
 base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+def desc(tid, fallback):
+    import glob
+    rep = os.path.join(base, 'runs', f'{tid}.md')
+    title = ''
+    if os.path.exists(rep):
+        for l in open(rep, errors='ignore').read().splitlines():
+            if l.startswith('# '): title = l[2:].strip()[:100]; break
+    fs = sorted(glob.glob(os.path.join(base, 'runs', f'leg-*-{tid}.md')))
+    files = ''
+    if fs:
+        try: lines = open(fs[-1], errors='ignore').read().splitlines()
+        except OSError: lines = []
+        done = [l.strip() for l in lines if l.strip().startswith('LEG_DONE')]
+        if done:
+            m = re.search(r'files=(\S+)', done[0])
+            if m: files = m.group(1)[:80]
+    if title and files: return f'{title} → {files}'
+    return title or (f'files: {files}' if files else fallback)
 def load(p):
     try: return open(os.path.join(base, p), errors='ignore').read().splitlines()
     except OSError: return []
@@ -29,6 +47,8 @@ for tid in sorted(set(starts) | set(spend), reverse=True):
         'end': s.get('ts', '?'), 'tin': s.get('tokens_in'), 'tout': s.get('tokens_out'),
         'cost': s.get('cost_usd'), 'note': s.get('note', ''),
         'status': 'done' if en and en['ok'] else ('failed' if en else 'running')})
+for r in rows:
+    r['note'] = desc(r['task'], r['note'] or 'pre-metering leg — see runs/')
 try: hb = open(os.path.join(base, 'log/heartbeat'), errors='ignore').read().strip()
 except OSError: hb = '?'
 now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')

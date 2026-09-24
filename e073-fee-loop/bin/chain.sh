@@ -19,9 +19,13 @@ while true; do
     exit 0
   fi
   # LLM legs first: if the queue holds tasks, an agent works (bounded, locked).
+  # Queue empty -> decider queues the next outward task (throttled 20 min).
   # Fee ticks (free) fill the gaps between intelligence.
   if [ -s LEG_QUEUE ]; then
     bash bin/llm-leg.sh >> log/tick.log 2>&1 || true
+    date -u +%FT%TZ > log/heartbeat
+  elif [ ! -f log/last-decide ] || [ $(( $(date +%s) - $(date -d "$(cat log/last-decide)" +%s 2>/dev/null || echo 0) )) -gt 1200 ]; then
+    bash bin/decide.sh >> log/tick.log 2>&1 || true
     date -u +%FT%TZ > log/heartbeat
   fi
   if bash bin/tick.sh >> log/tick.log 2>&1; then
