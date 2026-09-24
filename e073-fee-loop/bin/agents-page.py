@@ -174,10 +174,11 @@ if(r===last)return;last=r;const d=JSON.parse(r);
 const sig=JSON.stringify(d.legs);if(sig===lastSig)return;lastSig=sig;
 document.getElementById('hb').textContent='loop heartbeat: '+T(d.heartbeat)+' · updated '+T(d.generated_at);
 legs=d.legs;render();}catch(e){}}
-up();setInterval(up,5000);</script>"""
+up();setInterval(up,3000);</script>"""
 html = f"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>agents working</title>
 <style>body{{font-family:system-ui;margin:1em;font-size:16px}}.wrap{{overflow-x:auto;-webkit-overflow-scrolling:touch}}table{{border-collapse:collapse}}#t{{min-width:640px}}td,th{{border:1px solid #ccc;padding:6px 8px;font-size:14px}}th{{background:#f0f0f0}}.running{{background:#fff3cd}}.failed{{background:#f8d7da}}.done{{background:#d4edda}}#hb{{margin:1em 0;font-weight:bold}}</style>
 </head><body><h1>agents working</h1><div id=hb></div>
+<div id=cad>checks state every ~3s · page refreshes every 3s · new agent within 5min of idle</div>
 <div class=wrap><table id=t><thead><tr><th onclick="sort('agent')">agent</th><th onclick="sort('task')">task</th><th onclick="sort('start')">started</th><th onclick="sort('end')">finished</th><th onclick="sort('tin')">in</th><th onclick="sort('tout')">out</th><th onclick="sort('cost')">cost</th><th onclick="sort('status')">status</th><th onclick="sort('rc')">return code</th><th>what</th><th>log</th></tr></thead>
 <tbody id=tb>
 {tr}</tbody></table></div>
@@ -204,7 +205,7 @@ document.getElementById('b').innerHTML=clean.map(l=>{const s=l.trim();
 if(s.startsWith('LEG_DONE'))return '<b style="color:green">'+esc(l)+'</b>';
 if(/fail|error|rc=[1-9]/i.test(s))return '<b style="color:red">'+esc(l)+'</b>';
 return esc(l);}).join('\n')||'(no readable output yet — leg starting)';}catch(e){}}
-up();setInterval(up,5000);</script></body></html>""")
+up();setInterval(up,3000);</script></body></html>""")
 open(os.path.join(base, 'session.html'), 'w').write(r"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>agent live</title>
 <style>body{font-family:system-ui;margin:1em;font-size:15px}#meta{position:sticky;top:0;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:14px}#c{margin-top:1em}.you{background:#e7f3ff;border-radius:8px;padding:8px;margin:6px 0}.agent{background:#f0f0f0;border-radius:8px;padding:8px;margin:6px 0;white-space:pre-wrap;word-break:break-word}.tool{color:#666;font-size:13px;margin:4px 0;white-space:pre-wrap;word-break:break-word}a{font-size:16px}</style>
 </head><body><a href=agents.html>← back</a> <a id=raw href=#>raw log</a><div id=meta>…</div><div id=c></div>

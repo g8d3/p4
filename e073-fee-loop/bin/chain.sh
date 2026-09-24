@@ -24,7 +24,7 @@ while true; do
   if [ -s LEG_QUEUE ]; then
     bash bin/llm-leg.sh >> log/tick.log 2>&1 || true
     date -u +%FT%TZ > log/heartbeat
-  elif [ ! -f log/last-decide ] || [ $(( $(date +%s) - $(date -d "$(cat log/last-decide)" +%s 2>/dev/null || echo 0) )) -gt 1200 ]; then
+  elif [ ! -f log/last-decide ] || [ $(( $(date +%s) - $(date -d "$(cat log/last-decide)" +%s 2>/dev/null || echo 0) )) -gt 300 ]; then
     bash bin/decide.sh >> log/tick.log 2>&1 || true
     date -u +%FT%TZ > log/heartbeat
   fi
