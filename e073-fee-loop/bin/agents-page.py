@@ -45,11 +45,12 @@ html = f"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport co
 <div class=wrap><table id=t><tr><th>agent</th><th>task</th><th>started</th><th>finished</th><th>in</th><th>out</th><th>cost</th><th>status</th><th>what</th></tr>
 {tr}</table></div>
 <script>
+function T(x){{if(!x||x=='?')return '?';const d=new Date(x);return isNaN(d)?x:d.toLocaleString();}}
 async function up(){{try{{const d=await (await fetch('legs.json?'+Date.now())).json();
-document.getElementById('hb').textContent='loop heartbeat: '+d.heartbeat+' · updated '+d.generated_at;
+document.getElementById('hb').textContent='loop heartbeat: '+T(d.heartbeat)+' · updated '+T(d.generated_at);
 const t=document.getElementById('t');
 for(const r of d.legs){{let row=document.getElementById('r-'+r.task);
-const c=[r.agent,r.task,r.start,r.end,r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.note].map(x=>'<td>'+x+'</td>').join('');
+const c=[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.note].map(x=>'<td>'+x+'</td>').join('');
 if(!row){{row=t.insertRow(1);row.id='r-'+r.task;}}
 row.innerHTML=c;row.className=r.status;}}}}catch(e){{}}}}
 up();setInterval(up,5000);</script></body></html>"""
