@@ -110,3 +110,7 @@ e072-clanker-town/.token
 # e073 generated live views (regen every 5s)
 e073-fee-loop/sessions/
 e073-fee-loop/legs.json
+
+# e074 runtime: ticker rewrites heartbeat every 20s, logs churn (never commit)
+e074-dodo-loop/data/heartbeat.json
+e074-dodo-loop/log/
