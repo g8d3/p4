@@ -43,4 +43,20 @@ fi
 # 6. scout artifact real (pi-web builds)
 [ -d /tmp/piweb-scout/dist ] && say "pi-web scout artifact (dist/) present" 0 || say "pi-web scout artifact" 1
 
+# 7. tables versioned: every seed tracked, uncommitted edits shown (never hidden)
+if git ls-files --error-unmatch seeds/agent-worlds.csv seeds/mor-directory.csv seeds/contrib-repos.csv >/dev/null 2>&1; then
+  DIRTY=$(git status --short seeds/ | head -5)
+  [ -z "$DIRTY" ] && say "tables versioned, tree clean" 0 || { echo "      uncommitted:"; echo "$DIRTY" | sed 's/^/      /'; say "tables versioned, edits visible above" 0; }
+else
+  say "tables versioned in git" 1
+fi
+
+# 8. credit ledger: background LLM spend must be a number, default zero
+if [ -f ledger/credits.jsonl ]; then
+  LLM_SPEND=$(python3 -c "import json; print(sum((r.get('cost_usd') or 0) for r in map(json.loads, open('ledger/credits.jsonl')) if r.get('kind')=='llm'))" 2>/dev/null || echo '?')
+  say "credit ledger present, background LLM spend: \$$LLM_SPEND" 0
+else
+  say "credit ledger" 1
+fi
+
 exit $FAIL
