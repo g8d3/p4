@@ -1,0 +1,87 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>e074 desk — Dodo Loop</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:.35rem .5rem;font-size:.85rem;text-align:left}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin:1rem 0}.card{border:1px solid #ccc;padding:.6rem;border-radius:8px}.card b{font-size:1.2rem}small{color:#666}a{color:#06c}</style></head><body>
+<div id=live style="padding:.7rem 1rem;border-radius:10px;font-weight:600;background:#fff3cd;border:1px solid #e6c200">… connecting to loop …</div>
+<h1>e074 — Dodo Loop desk</h1><small>rendered 2026-09-24 19:33 UTC · watch this page, not the chat · live parts update without reload</small>
+<script>
+let lastIter = 3;
+async function poll(){
+  try{
+    const r = await fetch('data/heartbeat.json?x='+Date.now(), {cache:'no-store'});
+    const h = await r.json();
+    const age = Math.max(0, Math.round((Date.now() - Date.parse(h.ts))/1000));
+    const alive = age < 60;
+    document.getElementById('live').style.background = alive ? '#d4edda' : '#f8d7da';
+    document.getElementById('live').style.borderColor = alive ? '#28a745' : '#dc3545';
+    document.getElementById('live').textContent = (alive ? '🟢 WORKING' : '🔴 STALLED') + ' — Stage ' + h.stage + ' — ' + h.task + ' — tick ' + age + 's ago (iter ' + h.iter + ') — you do: ' + h.you_do;
+    if (h.iter !== lastIter) location.reload();
+  }catch(e){
+    document.getElementById('live').textContent = '⚪ CONNECTING — fetching heartbeat… (if this persists, ticker is down)';
+  }
+}
+async function feed(){
+  try{
+    const r = await fetch('data/activity.jsonl?x='+Date.now(), {cache:'no-store'});
+    const t = await r.text();
+    const lines = t.trim().split('
+').slice(-15).reverse();
+    document.getElementById('feed').innerHTML = lines.map(l => {
+      try{ const a = JSON.parse(l); return '<div>• <b>'+a.actor+'</b> '+a.action+' — '+a.detail+' <small>'+a.ts+'</small></div>'; }
+      catch(e){ return '<div>'+l+'</div>'; }
+    }).join('');
+  }catch(e){}
+}
+setInterval(poll, 5000); poll();
+setInterval(feed, 5000); feed();
+</script>
+<div class=cards>
+<div class=card><div>PULSE</div><b>🟢 LIVE</b><br><small>iters 3 · last 2026-09-24T19:33:41Z</small></div>
+<div class=card><div>SPEND (proxy)</div><b>~47,893 tok</b><br><small>18 actions · 24,357 bytes changed · proxy, not billing</small></div>
+<div class=card><div>DODO GATE</div><b>26/26</b><br><small>READY ✅</small></div>
+<div class=card><div>SITE</div><b><a href="site/index.html">open site</a></b><br><small><a href="site/pricing.html">pricing</a> · packet: data/product-packet.json</small></div>
+</div>
+<h2>Live work — real agent actions (no proxy)</h2><div id=feed style="background:#111;color:#0f0;padding:.7rem;border-radius:8px;font-family:monospace;font-size:.8rem">… waiting for activity …</div><p><small>Every write/edit/bash by owner + builder lands here with timestamp. Proxy token card below is estimate only — this feed is truth. Full transcripts: ask in chat for session <code>01a0d4e7</code>.</small></p>
+<h2>Plan — where we are</h2><table><tr><th></th><th>Stage</th><th>State</th></tr><tr><td>✅</td><td>Stage 1: Mechanical (footer/pricing/legal)</td><td>DONE</td></tr>
+<tr><td>✅</td><td>Stage 2: Functional (real product works)</td><td>DONE</td></tr>
+<tr><td>✅</td><td>Stage 3: Trust (about/docs/brand/domain)</td><td>DONE</td></tr>
+<tr><td>✅</td><td>Stage 4: Reviewer (would Dodo approve?)</td><td>SUBMITTABLE</td></tr>
+</table><p><small>Stage 1 mechanical only is NOT submittable. You should wait until Stage 4 says SUBMITTABLE. No action from you until then.</small></p>
+<h2>Human gates</h2><table><tr><th>Gate</th><th>State</th><th>Where</th></tr><tr><td>Product data (agent)</td><td>SUBMITTABLE — all 4 stages pass</td><td>data/product-packet.json</td></tr>
+<tr><td>Persona KYC (you)</td><td>LOCKED until SUBMITTABLE — I tell you when</td><td>Dodo Dashboard &gt; Verification</td></tr>
+<tr><td>Bank IBAN (you)</td><td>LOCKED until SUBMITTABLE — name must match ID</td><td>Dodo Dashboard &gt; Verification</td></tr>
+</table>
+<h2>Dodo checklist (latest)</h2><table><tr><th></th><th>Check</th><th>Detail</th></tr><tr><td>✅</td><td>page:index.html</td><td>exists</td></tr>
+<tr><td>✅</td><td>page:pricing.html</td><td>exists</td></tr>
+<tr><td>✅</td><td>page:terms.html</td><td>exists</td></tr>
+<tr><td>✅</td><td>page:privacy.html</td><td>exists</td></tr>
+<tr><td>✅</td><td>page:refunds.html</td><td>exists</td></tr>
+<tr><td>✅</td><td>page:contact.html</td><td>exists</td></tr>
+<tr><td>✅</td><td>footer-link:pricing.html on index</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:pricing.html on pricing</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:terms.html on index</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:terms.html on pricing</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:privacy.html on index</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:privacy.html on pricing</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:refunds.html on index</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:refunds.html on pricing</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:contact.html on index</td><td>found</td></tr>
+<tr><td>✅</td><td>footer-link:contact.html on pricing</td><td>found</td></tr>
+<tr><td>✅</td><td>pricing:amount visible</td><td>Pro $6/mo + $49 lifetime</td></tr>
+<tr><td>✅</td><td>pricing:interval visible</td><td>interval stated</td></tr>
+<tr><td>✅</td><td>product:description on index</td><td>packet description matches site</td></tr>
+<tr><td>✅</td><td>contact:route visible</td><td>support email present</td></tr>
+<tr><td>✅</td><td>refunds:policy visible</td><td>refund policy present</td></tr>
+<tr><td>✅</td><td>stage2:real-extraction</td><td>client-side PDF text extraction works</td></tr>
+<tr><td>✅</td><td>stage2:sample-file</td><td>sample PDF present</td></tr>
+<tr><td>✅</td><td>stage3:about-page</td><td>about/founder page</td></tr>
+<tr><td>✅</td><td>stage3:how-page</td><td>how-it-works with screenshots</td></tr>
+<tr><td>✅</td><td>stage3:real-domain-contact</td><td>contact uses real domain</td></tr>
+</table>
+<h2>Iterations (newest first)</h2><table><tr><th>#</th><th>Time</th><th>Result</th><th>Gate</th><th>Actions</th><th>Note</th></tr><tr><td>3</td><td>2026-09-24T19:33:41Z</td><td>READY</td><td>26/26</td><td>6</td><td>iter 3 gate 26/26</td></tr>
+<tr><td>2</td><td>2026-09-24T19:19:56Z</td><td>WORKING</td><td>21/26</td><td>6</td><td>iter 2 gate 21/26</td></tr>
+<tr><td>1</td><td>2026-09-24T19:12:39Z</td><td>READY</td><td>21/21</td><td>6</td><td>iter 1 gate 21/21</td></tr>
+</table>
+<h2>Explore</h2><nav><a href="site/index.html">Site home</a> · <a href="site/pricing.html">Pricing</a> · <a href="site/terms.html">Terms</a> · <a href="site/privacy.html">Privacy</a> · <a href="site/refunds.html">Refunds</a> · <a href="site/contact.html">Contact</a> · <a href="data/product-packet.json">product-packet.json</a> · <a href="data/ledger.jsonl">ledger.jsonl</a> · <a href="log/loop.log">loop.log</a> · <a href="AGENTS.md">AGENTS.md</a> · <a href="desk.html">desk (same as this page)</a></nav><p><a href="./">← back to hub</a> · every page links back here.</p>
+<h2>Site preview (live)</h2><iframe src="site/index.html" style="width:100%;height:480px;border:1px solid #ccc;border-radius:8px"></iframe>
+<h2>How to advance</h2><p><code>bash bin/loop.sh</code> from <code>e074-dodo-loop/</code>. Each run appends one ledger row and re-renders this page.</p>
+</body></html>

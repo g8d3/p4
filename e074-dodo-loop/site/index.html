@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>SnapConvert — PDF to text in seconds</title><link rel=stylesheet href="style.css"></head><body>
+<header><small><a href="../">← hub</a></small> <b>SnapConvert</b> <nav><a href="index.html">Home</a> <a href="how.html">How it works</a> <a href="about.html">About</a> <a href="pricing.html">Pricing</a></nav></header>
+<main>
+<h1>SnapConvert turns PDFs into clean text in seconds, in your browser.</h1>
+<p>Drop a PDF, get clean text. Free for 5 conversions a month. Pro unlocks unlimited length and batch mode.</p>
+<p><a class=cta href="pricing.html">See pricing — $6/mo Pro, $49 lifetime</a></p>
+<h2>Try it now — free, files stay in your browser</h2>
+<p>No upload: extraction runs locally with pdf.js. First 3 pages shown below. No account needed for the preview.</p>
+<p>Try with our <a href="sample.pdf">sample.pdf</a> if you have no file handy.</p>
+<input type=file id=f accept="application/pdf">
+<p id=status role=status>Pick a PDF to extract text from the first 3 pages.</p>
+<pre id=out>Text output appears here.</pre>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const f = document.getElementById('f'), out = document.getElementById('out'), status = document.getElementById('status');
+f.onchange = async () => {
+  const file = f.files[0];
+  if (!file) return;
+  status.textContent = 'Reading ' + file.name + ' ...';
+  out.textContent = '';
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const n = Math.min(pdf.numPages, 3);
+    status.textContent = file.name + ': ' + pdf.numPages + ' page(s), showing first ' + n + '.';
+    let text = '';
+    for (let i = 1; i <= n; i++) {
+      const page = await pdf.getPage(i);
+      const tc = await page.getTextContent();
+      text += '--- page ' + i + ' ---\n' + tc.items.map(it => it.str).join(' ') + '\n\n';
+    }
+    out.textContent = text.trim() || '(no extractable text on first ' + n + ' page(s) — scanned image PDFs are not supported yet)';
+  } catch (e) {
+    status.textContent = 'Could not read ' + file.name + '.';
+    out.textContent = 'Error: ' + (e && e.message ? e.message : e);
+  }
+};
+</script>
+</main>
+<footer><a href="pricing.html">Pricing</a> · <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refunds.html">Refunds</a> · <a href="contact.html">Contact</a><br><small>support@snapconvert.site · Instant browser delivery · Fully automated</small></footer>
+</body></html>

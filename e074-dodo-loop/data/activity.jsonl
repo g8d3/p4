@@ -1,0 +1,11 @@
+{"ts":"2026-09-24T19:32:44Z","actor":"owner","action":"bash","detail":"ticker alive, heartbeat serving","files":[]}
+{"ts":"2026-09-24T19:32:53Z","actor":"owner","action":"spawn","detail":"builder subsession 01a0d4e7 started: Stage 2+3","files":[]}
+{"ts":"2026-09-24T19:34:00Z","actor":"owner","action":"heartbeat","detail":"ticker restarted, builder session linked","files":[]}
+{"ts": "2026-09-24T19:33:38Z", "actor": "builder", "action": "write", "detail": "index.html: real pdf.js client-side extraction first 3 pages, no fake demo", "files": ["site/index.html"]}
+{"ts": "2026-09-24T19:33:38Z", "actor": "builder", "action": "bash", "detail": "generated minimal 1-page sample.pdf with raw PDF bytes", "files": ["site/sample.pdf"]}
+{"ts": "2026-09-24T19:33:38Z", "actor": "builder", "action": "write", "detail": "created about.html founder/why/contact with hub+footer", "files": ["site/about.html"]}
+{"ts": "2026-09-24T19:33:38Z", "actor": "builder", "action": "write", "detail": "created how.html 3 steps with instructions", "files": ["site/how.html"]}
+{"ts": "2026-09-24T19:33:38Z", "actor": "builder", "action": "edit", "detail": "replaced support@snapconvert.example.com with support@snapconvert.site", "files": ["site/contact.html", "site/pricing.html", "site/refunds.html", "site/privacy.html", "data/product-packet.json"]}
+{"ts": "2026-09-24T19:33:41Z", "actor": "builder", "action": "bash", "detail": "verified 26/26 dodo_check READY/SUBMITTABLE", "files": ["bin/dodo_check.py"]}
+{"ts": "2026-09-24T19:33:41Z", "actor": "builder", "action": "bash", "detail": "ran bin/loop.sh iteration", "files": ["bin/loop.sh", "data/ledger.jsonl", "desk.html"]}
+{"ts":"2026-09-24T19:33:49Z","actor":"owner","action":"verify","detail":"26/26 confirmed, stage 4 SUBMITTABLE","files":["desk.html","index.html"]}
