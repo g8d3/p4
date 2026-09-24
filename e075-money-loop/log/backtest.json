@@ -1,0 +1,485 @@
+{
+  "ok": true,
+  "fee_round_trip": 0.0009,
+  "coins": [
+    "BTC",
+    "ETH",
+    "HYPE",
+    "SOL",
+    "PUMP",
+    "ZEC",
+    "XRP",
+    "LIT",
+    "DOGE",
+    "CRV",
+    "AAVE",
+    "XMR"
+  ],
+  "strategies": {
+    "S_FUND": {
+      "full": {
+        "n": 594,
+        "win_rate": 0.4949,
+        "expectancy": -0.00349,
+        "total": -0.9444,
+        "sharpe": -1.294,
+        "maxdd": -0.9672
+      },
+      "oos": {
+        "n": 268,
+        "win_rate": 0.4888,
+        "expectancy": -0.00431,
+        "total": -0.8061,
+        "sharpe": -1.389,
+        "maxdd": -0.9278
+      },
+      "recommendation": "NOGO",
+      "note": "funding fade, 1d hold"
+    },
+    "S_REV": {
+      "full": {
+        "n": 588,
+        "win_rate": 0.4677,
+        "expectancy": 0.00287,
+        "total": -0.539,
+        "sharpe": 0.595,
+        "maxdd": -0.8846
+      },
+      "oos": {
+        "n": 367,
+        "win_rate": 0.4932,
+        "expectancy": 0.00768,
+        "total": 2.674,
+        "sharpe": 1.595,
+        "maxdd": -0.6703
+      },
+      "recommendation": "GO",
+      "note": "e025 decline reversion, LONG 5d"
+    }
+  },
+  "overall": "GO",
+  "deploy_candidate": "S_REV",
+  "paper_default": "S_REV",
+  "per_coin": {
+    "BTC": {
+      "days": 1321,
+      "fund_full": {
+        "n": 134,
+        "win_rate": 0.4701,
+        "expectancy": -0.00022,
+        "total": -0.0726,
+        "sharpe": -0.165,
+        "maxdd": -0.2818
+      },
+      "fund_oos": {
+        "n": 76,
+        "win_rate": 0.4605,
+        "expectancy": 0.00086,
+        "total": 0.038,
+        "sharpe": 0.604,
+        "maxdd": -0.1844
+      },
+      "rev_full": {
+        "n": 68,
+        "win_rate": 0.5,
+        "expectancy": 0.0046,
+        "total": 0.2192,
+        "sharpe": 1.536,
+        "maxdd": -0.4179
+      },
+      "rev_oos": {
+        "n": 41,
+        "win_rate": 0.5854,
+        "expectancy": 0.00523,
+        "total": 0.1459,
+        "sharpe": 1.665,
+        "maxdd": -0.4179
+      }
+    },
+    "ETH": {
+      "days": 1321,
+      "fund_full": {
+        "n": 64,
+        "win_rate": 0.5938,
+        "expectancy": 0.00425,
+        "total": 0.2648,
+        "sharpe": 2.386,
+        "maxdd": -0.2769
+      },
+      "fund_oos": {
+        "n": 16,
+        "win_rate": 0.5,
+        "expectancy": -0.00666,
+        "total": -0.1088,
+        "sharpe": -4.006,
+        "maxdd": -0.2058
+      },
+      "rev_full": {
+        "n": 64,
+        "win_rate": 0.4219,
+        "expectancy": 0.00066,
+        "total": -0.1444,
+        "sharpe": 0.16,
+        "maxdd": -0.4182
+      },
+      "rev_oos": {
+        "n": 37,
+        "win_rate": 0.4865,
+        "expectancy": 0.01068,
+        "total": 0.2842,
+        "sharpe": 2.316,
+        "maxdd": -0.2986
+      }
+    },
+    "HYPE": {
+      "days": 617,
+      "fund_full": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 41,
+        "win_rate": 0.3902,
+        "expectancy": -0.0105,
+        "total": -0.5243,
+        "sharpe": -1.632,
+        "maxdd": -0.6119
+      },
+      "rev_oos": {
+        "n": 25,
+        "win_rate": 0.32,
+        "expectancy": -0.01396,
+        "total": -0.3649,
+        "sharpe": -2.909,
+        "maxdd": -0.5166
+      }
+    },
+    "SOL": {
+      "days": 1321,
+      "fund_full": {
+        "n": 43,
+        "win_rate": 0.5116,
+        "expectancy": -0.00712,
+        "total": -0.3275,
+        "sharpe": -2.195,
+        "maxdd": -0.4282
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 69,
+        "win_rate": 0.4783,
+        "expectancy": 0.00455,
+        "total": 0.0532,
+        "sharpe": 0.997,
+        "maxdd": -0.4459
+      },
+      "rev_oos": {
+        "n": 43,
+        "win_rate": 0.4884,
+        "expectancy": -0.00133,
+        "total": -0.1834,
+        "sharpe": -0.314,
+        "maxdd": -0.4459
+      }
+    },
+    "PUMP": {
+      "days": 400,
+      "fund_full": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 28,
+        "win_rate": 0.3929,
+        "expectancy": 0.0069,
+        "total": 0.0198,
+        "sharpe": 1.143,
+        "maxdd": -0.4824
+      },
+      "rev_oos": {
+        "n": 16,
+        "win_rate": 0.5,
+        "expectancy": 0.02097,
+        "total": 0.3103,
+        "sharpe": 4.437,
+        "maxdd": -0.217
+      }
+    },
+    "ZEC": {
+      "days": 1315,
+      "fund_full": {
+        "n": 23,
+        "win_rate": 0.6522,
+        "expectancy": 0.0317,
+        "total": 0.8172,
+        "sharpe": 5.756,
+        "maxdd": -0.2626
+      },
+      "fund_oos": {
+        "n": 23,
+        "win_rate": 0.6522,
+        "expectancy": 0.0317,
+        "total": 0.8172,
+        "sharpe": 5.756,
+        "maxdd": -0.2626
+      },
+      "rev_full": {
+        "n": 27,
+        "win_rate": 0.4074,
+        "expectancy": 0.028,
+        "total": 0.6442,
+        "sharpe": 3.724,
+        "maxdd": -0.3271
+      },
+      "rev_oos": {
+        "n": 23,
+        "win_rate": 0.3913,
+        "expectancy": 0.03125,
+        "total": 0.6442,
+        "sharpe": 4.147,
+        "maxdd": -0.3271
+      }
+    },
+    "XRP": {
+      "days": 1321,
+      "fund_full": {
+        "n": 138,
+        "win_rate": 0.4348,
+        "expectancy": -0.01197,
+        "total": -0.8411,
+        "sharpe": -4.644,
+        "maxdd": -0.8438
+      },
+      "fund_oos": {
+        "n": 82,
+        "win_rate": 0.4268,
+        "expectancy": -0.01855,
+        "total": -0.8126,
+        "sharpe": -6.309,
+        "maxdd": -0.8157
+      },
+      "rev_full": {
+        "n": 67,
+        "win_rate": 0.4925,
+        "expectancy": 0.00363,
+        "total": 0.1006,
+        "sharpe": 1.024,
+        "maxdd": -0.274
+      },
+      "rev_oos": {
+        "n": 45,
+        "win_rate": 0.4444,
+        "expectancy": 0.00437,
+        "total": 0.0684,
+        "sharpe": 1.071,
+        "maxdd": -0.274
+      }
+    },
+    "LIT": {
+      "days": 235,
+      "fund_full": {
+        "n": 6,
+        "win_rate": 0.3333,
+        "expectancy": -0.00722,
+        "total": -0.0554,
+        "sharpe": -2.032,
+        "maxdd": -0.1625
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 13,
+        "win_rate": 0.6154,
+        "expectancy": 0.03354,
+        "total": 0.4482,
+        "sharpe": 6.51,
+        "maxdd": -0.1841
+      },
+      "rev_oos": {
+        "n": 7,
+        "win_rate": 0.7143,
+        "expectancy": 0.0743,
+        "total": 0.6036,
+        "sharpe": 14.465,
+        "maxdd": -0.0498
+      }
+    },
+    "DOGE": {
+      "days": 1321,
+      "fund_full": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 69,
+        "win_rate": 0.4638,
+        "expectancy": -0.00133,
+        "total": -0.2773,
+        "sharpe": -0.306,
+        "maxdd": -0.4699
+      },
+      "rev_oos": {
+        "n": 40,
+        "win_rate": 0.45,
+        "expectancy": 0.00217,
+        "total": -0.089,
+        "sharpe": 0.431,
+        "maxdd": -0.4519
+      }
+    },
+    "CRV": {
+      "days": 1321,
+      "fund_full": {
+        "n": 123,
+        "win_rate": 0.4959,
+        "expectancy": -0.00497,
+        "total": -0.5683,
+        "sharpe": -1.605,
+        "maxdd": -0.7148
+      },
+      "fund_oos": {
+        "n": 71,
+        "win_rate": 0.5352,
+        "expectancy": -0.00452,
+        "total": -0.3845,
+        "sharpe": -1.317,
+        "maxdd": -0.5785
+      },
+      "rev_full": {
+        "n": 71,
+        "win_rate": 0.4648,
+        "expectancy": -0.0036,
+        "total": -0.4764,
+        "sharpe": -0.66,
+        "maxdd": -0.7426
+      },
+      "rev_oos": {
+        "n": 40,
+        "win_rate": 0.475,
+        "expectancy": 0.00952,
+        "total": 0.2236,
+        "sharpe": 1.884,
+        "maxdd": -0.3985
+      }
+    },
+    "AAVE": {
+      "days": 1321,
+      "fund_full": {
+        "n": 63,
+        "win_rate": 0.5238,
+        "expectancy": -0.00682,
+        "total": -0.4013,
+        "sharpe": -2.647,
+        "maxdd": -0.4829
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 56,
+        "win_rate": 0.4821,
+        "expectancy": -0.00152,
+        "total": -0.278,
+        "sharpe": -0.317,
+        "maxdd": -0.5694
+      },
+      "rev_oos": {
+        "n": 40,
+        "win_rate": 0.6,
+        "expectancy": 0.01078,
+        "total": 0.2837,
+        "sharpe": 2.192,
+        "maxdd": -0.3942
+      }
+    },
+    "XMR": {
+      "days": 1210,
+      "fund_full": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "fund_oos": {
+        "n": 0,
+        "win_rate": 0.0,
+        "expectancy": 0.0,
+        "total": 0.0,
+        "sharpe": 0.0,
+        "maxdd": 0.0
+      },
+      "rev_full": {
+        "n": 15,
+        "win_rate": 0.6667,
+        "expectancy": 0.01702,
+        "total": 0.208,
+        "sharpe": 3.532,
+        "maxdd": -0.2911
+      },
+      "rev_oos": {
+        "n": 10,
+        "win_rate": 0.7,
+        "expectancy": -0.00538,
+        "total": -0.0886,
+        "sharpe": -1.223,
+        "maxdd": -0.2911
+      }
+    }
+  }
+}

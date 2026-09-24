@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Money Loop — is my money working?</title>
+<style>body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.55}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:.35rem .5rem;font-size:.9rem;text-align:left}th{background:#f5f5f5}small,.dim{color:#666}#pulse{padding:.9rem 1.1rem;border-radius:10px;font-size:1.05rem;background:#d4edda;border:2px solid #28a745}details{margin-top:1rem;border:1px solid #ccc;border-radius:8px;padding:.6rem 1rem}summary{cursor:pointer;font-weight:600}</style>
+<meta http-equiv=refresh content=60></head><body>
+<h1>Is my money working?</h1>
+<div id=pulse>Awake and checking on its own. Last check 7 seconds ago, next one in about 30 minutes. Your money is untouched.</div>
+<p><small>Updated 2026-09-24 20:34 UTC · this page refreshes every minute · you never need to read the chat.</small></p>
+
+<h2>Your money</h2>
+<p><b>$0 spent. 0 orders placed.</b> This version of the program cannot place orders — that part has not been built. Spending limits for the future: max $5 per trade, $25 total, full stop if losses pass $-10.</p>
+<p>Wallet 0x6646...5156 — trading account: 0.0, spot account: no data, Arbitrum dollars: could not be read right now. Nothing was moved.</p>
+
+<h2>The two strategies</h2>
+<h3>Strategy 1: buy the dip after bad days</h3><p>After a very bad day, or a down day almost nobody traded, it buys and holds for 5 days. In the second half of the price history it would have traded <b>367 times</b>, averaging <b>+0.77% per trade</b>, won 49% of them after fees.</p>
+<h3>Strategy 2: bet against the crowd</h3><p>When most traders pile in one direction, it bets the other way for 1 day. In the second half of the price history it would have traded <b>268 times</b>, averaging <b>-0.43% per trade</b>, won 49% of them after fees.</p>
+<p><b>Verdict: strategy 1 looks good on paper and is the current candidate. No real money moves until you approve it in writing.</b> Your written approval is still missing.</p>
+
+<h2>What this program is (and isn't)</h2>
+<p>It is a fixed checklist, not a thinking mind: re-check the two strategies on old price data, peek at the wallet without touching it, write down the result, redraw this page. No artificial intelligence runs inside it. The AI is the builder outside it — the one who wrote this page and improves the checklist between runs.</p>
+
+<h2>Latest checks (who ran them)</h2>
+<table><tr><th>when</th><th>who ran it</th><th>result</th></tr><tr><td>2026-09-24T20:34:12Z</td><td>my builder's manual run</td><td>GO</td></tr>
+<tr><td>2026-09-24T20:31:38Z</td><td>unknown</td><td>GO</td></tr>
+<tr><td>2026-09-24T20:31:22Z</td><td>unknown</td><td>GO</td></tr>
+<tr><td>2026-09-24T20:24:10Z</td><td>unknown</td><td>GO</td></tr>
+<tr><td>2026-09-24T20:18:48Z</td><td>unknown</td><td>GO</td></tr>
+<tr><td>2026-09-24T20:18:33Z</td><td>unknown</td><td>GO</td></tr>
+</table>
+
+<details><summary>Details for the builder (numbers, gates, controls)</summary>
+<p class=dim>Overall: GO · checks run: 6 · written approval: no · "
+S_REV out-of-sample: {&#x27;n&#x27;: 367, &#x27;win_rate&#x27;: 0.4932, &#x27;expectancy&#x27;: 0.00768, &#x27;total&#x27;: 2.674, &#x27;sharpe&#x27;: 1.595, &#x27;maxdd&#x27;: -0.6703} · S_FUND out-of-sample: {&#x27;n&#x27;: 268, &#x27;win_rate&#x27;: 0.4888, &#x27;expectancy&#x27;: -0.00431, &#x27;total&#x27;: -0.8061, &#x27;sharpe&#x27;: -1.389, &#x27;maxdd&#x27;: -0.9278}</p>
+<p class=dim>Stop it any time by creating a file called STOP in the program folder; delete it to resume. The automatic schedule runs every 30 minutes. Contracts: AGENTS.md · data/config.json · data/ledger.jsonl</p>
+</details>
+</body></html>

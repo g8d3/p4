@@ -1,0 +1,18 @@
+{
+  "address_prefix": "0x6646...5156",
+  "perp": {
+    "ok": true,
+    "accountValue": "0.0",
+    "totalMarginUsed": "0.0"
+  },
+  "spot": {
+    "ok": true,
+    "accountValue": null,
+    "totalMarginUsed": null
+  },
+  "evm_arbitrum_usdc": {
+    "ok": false,
+    "reason": "<urlopen error [Errno -2] Name or service not known>"
+  },
+  "live_orders_placed": 0
+}
