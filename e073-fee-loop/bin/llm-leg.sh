@@ -26,9 +26,11 @@ fi
 
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 OUT="runs/leg-$TS-$TASK_ID.md"
+SESS="e073-leg-$TS-$TASK_ID"
+LEG_START=$(date +%s)
 echo "$(date -u +%FT%TZ) LEG $TASK_ID start" >> log/llm-legs.log
 
-timeout 1200 pi --provider opencode-go --model muse-spark-1.3-contributor --print "
+timeout 1200 pi --provider opencode-go --model muse-spark-1.3-contributor --session-id "$SESS" --print "
 You are a table-tending leg in /home/vuos/code/p4/e073-fee-loop.
 Hard rules: read-only except the files named below. No keys/tokens in output.
 Never invent numbers: every cell comes from a command you ran (curl/GitHub API) or stays empty.
@@ -42,14 +44,43 @@ When done: (1) write the changed files, (2) append one line to PROGRESS.md leg l
 " > "$OUT" 2>&1
 RC=$?
 
-COST=""  # pi --print does not emit usage; reconcile via OpenCode dashboard
-python3 - "$TASK_ID" "$TS" "$RC" <<'EOF' >> ledger/credits.jsonl
+# Real per-leg metering: sum usage blocks from this leg's session file(s).
+# Falls back to nulls (metered=false) when nothing parseable is found.
+read TOK_IN TOK_OUT LEG_COST METERED <<< $(LEG_START="$LEG_START" SESS="$SESS" python3 - <<'EOF'
+import os, re, time
+start = int(os.environ['LEG_START'])
+sess = os.environ['SESS']
+pat = re.compile(r'"usage":\{"input":(\d+),"output":(\d+),[^}]*?"total":([0-9.e-]+)\}')
+ti = to = 0
+cost = 0.0
+for dp, _, fns in os.walk(os.path.expanduser('~/.pi/agent/sessions')):
+    for fn in fns:
+        p = os.path.join(dp, fn)
+        try:
+            if os.path.getmtime(p) < start:
+                continue
+            if sess not in fn and sess not in open(p, errors='ignore').read(4000):
+                continue
+            raw = open(p, errors='ignore').read()
+        except OSError:
+            continue
+        for a, b, c in pat.findall(raw):
+            ti += int(a); to += int(b)
+            try: cost += float(c)
+            except ValueError: pass
+print(ti, to, round(cost, 6), str(ti > 0).lower())
+EOF
+)
+python3 - "$TASK_ID" "$TS" "$RC" "$TOK_IN" "$TOK_OUT" "$LEG_COST" "$METERED" <<'EOF' >> ledger/credits.jsonl
 import json, sys, datetime
 tid, ts, rc = sys.argv[1], sys.argv[2], int(sys.argv[3])
+ti, to, cost, metered = sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7] == 'true'
 print(json.dumps({"ts": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
   "agent": "dispatcher", "kind": "llm", "model": "muse-spark-1.3-contributor",
-  "task": tid, "tokens_in": None, "tokens_out": None, "cost_usd": None,
-  "metered": False, "note": f"leg rc={rc}; reconcile via OpenCode dashboard"}))
+  "task": tid, "tokens_in": int(ti) if metered else None,
+  "tokens_out": int(to) if metered else None,
+  "cost_usd": float(cost) if metered else None, "metered": metered,
+  "note": f"leg rc={rc}" + ("" if metered else "; no session usage found")}))
 EOF
 
 if [ $RC -eq 0 ] && grep -q "LEG_DONE" "$OUT"; then
