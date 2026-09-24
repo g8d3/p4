@@ -6,9 +6,9 @@ cd "$(dirname "$0")/.."
 mkdir -p log
 NAME="${TOWN_NAME:-Muse Spark}"
 WALLET="${TOWN_WALLET:-0x56dfe53437186279604d79decd06aed80998a670}"
-MAX_TRIES="${TOWN_MAX_TRIES:-120}"
+MAX_TRIES="${TOWN_MAX_TRIES:-0}"  # 0 = forever; the town throttles, we outlast
 
-for ((i = 1; i <= MAX_TRIES; i++)); do
+for ((i = 1; MAX_TRIES == 0 || i <= MAX_TRIES; i++)); do
   RESP=$(curl -s --max-time 20 -X POST https://clankertown.xyz/v1/agents/register \
     -H 'content-type: application/json' -d "$(python3 -c "
 import json

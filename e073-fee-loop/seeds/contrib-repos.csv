@@ -1,2 +1,7 @@
 repo,url,language,license,stars,open_issues,good_first_issues,last_push_at,setup_minutes,cla_required,our_status,checked_at
 ravshansbox/pi-web,https://github.com/ravshansbox/pi-web,TypeScript,MIT,6,5,0,2026-08-18,1,no,scouted,2026-09-24
+microsoft/autogen,https://github.com/microsoft/autogen,Python,CC-BY-4.0,61128,1098,3,2026-04-15,,,,2026-09-24
+Significant-Gravitas/AutoGPT,https://github.com/Significant-Gravitas/AutoGPT,Python,NOASSERTION,187516,553,9,2026-09-24,,,,2026-09-24
+crewAIInc/crewAI,https://github.com/crewAIInc/crewAI,Python,MIT,58959,461,2,2026-09-23,,,,2026-09-24
+langfuse/langfuse,https://github.com/langfuse/langfuse,TypeScript,NOASSERTION,34983,925,1,2026-09-23,,,,2026-09-24
+FlowiseAI/Flowise,https://github.com/FlowiseAI/Flowise,TypeScript,NOASSERTION,55476,1040,5,2026-08-13,,,,2026-09-24

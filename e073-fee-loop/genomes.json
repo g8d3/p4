@@ -12,28 +12,13 @@
     "sinkPOL": 30,
     "sinkStake": 50,
     "sinkBurn": 20,
-    "wins": 2223
+    "wins": 2413
   },
   {
     "name": "challenger-a",
     "baseBps": 50,
     "platformSharePct": 30,
     "rebateDefaultPct": 100,
-    "discVolPct": 15,
-    "discGenPct": 55,
-    "discBuildPct": 10,
-    "discStakePct": 10,
-    "capPct": 50,
-    "sinkPOL": 30,
-    "sinkStake": 50,
-    "sinkBurn": 20,
-    "wins": 2223
-  },
-  {
-    "name": "challenger-b",
-    "baseBps": 50,
-    "platformSharePct": 30,
-    "rebateDefaultPct": 90,
     "discVolPct": 15,
     "discGenPct": 65,
     "discBuildPct": 10,
@@ -42,6 +27,21 @@
     "sinkPOL": 30,
     "sinkStake": 50,
     "sinkBurn": 20,
-    "wins": 2223
+    "wins": 2413
+  },
+  {
+    "name": "challenger-b",
+    "baseBps": 50,
+    "platformSharePct": 30,
+    "rebateDefaultPct": 100,
+    "discVolPct": 15,
+    "discGenPct": 65,
+    "discBuildPct": 10,
+    "discStakePct": 10,
+    "capPct": 50,
+    "sinkPOL": 40,
+    "sinkStake": 40,
+    "sinkBurn": 20,
+    "wins": 2413
   }
 ]
