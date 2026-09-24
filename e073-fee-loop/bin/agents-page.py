@@ -142,6 +142,7 @@ open(os.path.join(base, 'log.html'), 'w').write("""<!doctype html><html><head><m
 <script>async function up(){try{const f=new URLSearchParams(location.search).get('file');if(!f)return;
 document.getElementById('t').textContent=f;
 const t=await (await fetch(f+'?'+Date.now())).text();
-document.getElementById('b').textContent=t;}catch(e){}}
+const clean=t.split('\\n').filter(l=>{const s=l.trim();return s&&!s.startsWith('[')&&!s.startsWith('Warning')&&!s.includes('sync-opencode')&&!s.includes('zz-groq');});
+document.getElementById('b').textContent=clean.join('\\n')||'(no readable output yet — leg starting)';}catch(e){}}
 up();setInterval(up,5000);</script></body></html>""")
 print(f"agents.html + legs.json: {len(rows)} legs, heartbeat {hb}")
