@@ -42,6 +42,14 @@ for dp, _, fns in os.walk(root):
             except ValueError: pass
 print(f"\npi sessions (7d): ${pi_cost:.4f} | in: {pi_in:,} out: {pi_out:,}", end="")
 print(f"\ncombined 7d measured: ${d7[0] + pi_cost:.4f}", end="")
+# month-to-date vs plan: owner routinely uses <50%, so pace matters, not the cap
+mtd = q("select coalesce(sum(cost),0) from session where strftime('%Y-%m', datetime(time_updated/1000,'unixepoch')) = strftime('%Y-%m','now')")[0]
+import calendar
+import datetime
+now = datetime.datetime.now(datetime.timezone.utc)
+days_in = calendar.monthrange(now.year, now.month)[1]
+left = days_in - now.day + 1
+print(f"\nMTD db-measured: ${mtd:.2f} | day {now.day}/{days_in} ({left} left)", end="")
 if cap not in ("unlimited", ""):
     try:
         rem = float(cap) - d7[0]
