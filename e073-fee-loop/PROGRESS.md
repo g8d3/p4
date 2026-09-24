@@ -47,3 +47,4 @@ never tick counts. This file is the single place to check.
 - 2026-09-24 leg: contrib-sweep-1 done (+5 agent-tooling rows w/ open good-first-issues, all GitHub-API verified, scout cols empty) → contrib-repos.csv now 6 rows.
 - 2026-09-24 leg: FIRST LLM LEG DONE (muse-spark-1.3-contributor): contrib-sweep-1 added 5 verified rows (autogen, AutoGPT, crewAI, langfuse, Flowise) → 6 repos; queue popped; spend logged. Town worker hit 120-try cap, restarted unbounded. Credit meter live: $0.95/7d measured locally, no API.
 - 2026-09-24 leg: pi-web scout done (clone+install+build 6s, MIT, no CLA, 5 open issues) → contrib row filled; PROGRESS.md created; town try ~39 still throttled; fee chain alive.
+- 2026-09-24 leg: demand-probe-1 done (11 products ranked by outside-want evidence: #1 e042-bk2 38 members/76 credits/721 purchases real workbook data, rest no outside users, stars/town/search empty) → runs/demand-probe-1.md.
