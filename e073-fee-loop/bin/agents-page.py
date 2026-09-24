@@ -85,8 +85,8 @@ for tid in sorted(set(starts) | set(spend), reverse=True):
         'status': 'done' if done else ('failed' if en else 'running')})
 RC_MEAN = {0: 'success', 124: 'timeout (20min cap)'}
 def rc_txt(rc):
-    if rc is None: return '— running'
-    return f"{rc} — {RC_MEAN.get(rc, 'failed')}"
+    if rc is None: return 'running'
+    return RC_MEAN.get(rc, 'failed')
 for r in rows:
     r['note'] = desc(r['task'], r['note'] or 'pre-metering leg — see runs/')
     r['rc'] = rc_txt(rc_of(spend.get(r['task'], {}).get('note', '')))
