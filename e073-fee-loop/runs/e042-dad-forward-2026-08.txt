@@ -1,0 +1,10 @@
+Papá, cierre de agosto listo para su visto bueno (verificado en copia, en vivo no se tocó nada):
+
+Antes (en vivo, lo que usted ve hoy): acción a 10000.00, ganancia de agosto en 0, todas las ganancias de socios en 0.
+Después (copia con cierre aplicado, lo que vería al aprobar): interés 64500, diezmo 6450, ganancia 58050, acción a 10003.81 sobre 15218 acciones. Ejemplo: socia de 184 acciones gana 701.04; de 252 gana 960.12.
+
+En vivo sigue intacto: valorizaciones en 0 filas y los 61 pagos sin dividir. La copia ya probó el SQL (61 pagos divididos, caja intacta) y el mes guardado.
+
+Mire la aplicación aquí (entra con el PIN que le di por llamada): https://vuos-hcar5000mi.tail6918b0.ts.net/
+
+Respóndame con una sola palabra: APRUEBO (corremos el cierre en vivo y le mostramos el antes/después) o ESPERAMOS (borramos la copia y todo queda como está).
