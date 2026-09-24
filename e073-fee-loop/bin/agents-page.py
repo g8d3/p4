@@ -167,7 +167,7 @@ function val(r,k){const v=r[k];if(v==null)return sd>0?Infinity:-Infinity;return 
 const KEYS=['agent','task','start','end','tin','tout','cost','status','rc',null,null];
 function render(){const tb=document.getElementById('tb');if(!tb)return;
 const s=[...legs].sort((a,b)=>{const x=val(a,sk),y=val(b,sk);return (x<y?-1:x>y?1:0)*sd;});
-tb.innerHTML=s.map(r=>'<tr class="'+r.status+'">'+[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.rc??'—',r.note,'<a href="log.html?file='+(r.log||'')+'">open</a>'].map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
+tb.innerHTML=s.map(r=>'<tr class="'+r.status+'">'+[r.agent,r.task,T(r.start),T(r.end),r.tin??'—',r.tout??'—',r.cost??'—',r.status,r.rc??'—',r.note,'<a href="'+(r.log||'#')+'">open</a>'].map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
 document.querySelectorAll('#t th').forEach((th,i)=>{const base=th.textContent.replace(/[ ▲▼]/g,'');th.textContent=base+((KEYS[i]&&KEYS[i]===sk)?(sd>0?' ▲':' ▼'):'');});}
 async function up(){try{const r=await (await fetch('legs.json?'+Date.now())).text();
 if(r===last)return;last=r;const d=JSON.parse(r);
@@ -212,9 +212,9 @@ open(os.path.join(base, 'session.html'), 'w').write(r"""<!doctype html><html><he
 <script>function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 let last='';
 async function up(){try{const t=new URLSearchParams(location.search).get('task');if(!t)return;
-document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
 const r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();
 if(r===last)return;last=r;const d=JSON.parse(r);
+document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
 document.getElementById('meta').textContent='in '+d.totals.in.toLocaleString()+' · out '+d.totals.out.toLocaleString()+' · $'+d.totals.cost+' · '+d.updated;
 const c=document.getElementById('c');const stick=(innerHeight+scrollY>document.body.scrollHeight-200);
 c.innerHTML=d.messages.map(m=>'<div class="'+m.who+'">'+esc(m.text)+'</div>').join('');

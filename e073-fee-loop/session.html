@@ -4,9 +4,9 @@
 <script>function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 let last='';
 async function up(){try{const t=new URLSearchParams(location.search).get('task');if(!t)return;
-document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
 const r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();
 if(r===last)return;last=r;const d=JSON.parse(r);
+document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
 document.getElementById('meta').textContent='in '+d.totals.in.toLocaleString()+' · out '+d.totals.out.toLocaleString()+' · $'+d.totals.cost+' · '+d.updated;
 const c=document.getElementById('c');const stick=(innerHeight+scrollY>document.body.scrollHeight-200);
 c.innerHTML=d.messages.map(m=>'<div class="'+m.who+'">'+esc(m.text)+'</div>').join('');
