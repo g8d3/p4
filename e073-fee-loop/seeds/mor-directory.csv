@@ -1,12 +1,12 @@
-Proveedor,Modelo,Comision_Base_Pct,Comision_Fija_USD,Recargo_FX_Pct,Paises_Impuestos_Cobertura,Frecuencia_Pago_Dias,Market_Share_MoR_Pct,Manejo_Impuestos,Soporte_Afiliados,Enfoque_Principal
-Paddle,MoR Pure,5,0.5,1.5,200,30,32,Automático,No Nativo,SaaS B2B escalables y Mid-Market
-Lemon Squeezy,MoR Pure,5,0.5,1.5,150,15,18,Automático,Nativo,"Indie Hackers, Creadores y SaaS"
-FastSpring,MoR Pure,5.9,0.95,0.5,200,15,14,Automático,Nativo,Software de Escritorio y B2B Enterprise
-Whop,MoR / Marketplace,3,0.3,1,130,1,11,Automático,Nativo,"Comunidades, Cursos, Bots y Digital Goods"
-2Checkout (Verifone),MoR Pure,5.6,0.6,2,200,15,8,Automático,Nativo,E-commerce Global y Software Legacy
-Gumroad,MoR Pure,10,0.3,0,120,7,6,Automático,Nativo,Creadores de Contenido y eBooks
-Dodo Payments,MoR Pure,4,0.4,1.5,160,7,4,Automático,Nativo,Startups AI y Developers
-Creem,MoR Pure,3.9,0.4,1,150,14,2.5,Automático,Nativo,SaaS Emergentes e Indie Hackers
-PayPro Global,MoR Pure,4.9,0.85,1,200,14,2,Automático,Nativo,"Software, Micro-SaaS y Apps"
-Polar.sh,MoR Open Source,5,0.5,1,150,7,1.5,Automático,No Nativo,"Open Source, GitHub Devs y SaaS"
-Freemius,MoR Vertical,7,0,0,170,30,1,Automático,Nativo,Plugins y Themes de WordPress
+Proveedor,Modelo,Comision_Base_Pct,Comision_Fija_USD,Recargo_FX_Pct,Paises_Impuestos_Cobertura,Frecuencia_Pago_Dias,Market_Share_MoR_Pct,Manejo_Impuestos,Soporte_Afiliados,Enfoque_Principal,homepage_url,http_status,checked_at
+Paddle,MoR Pure,5,0.5,1.5,200,30,32,Automático,No Nativo,SaaS B2B escalables y Mid-Market,https://www.paddle.com,200,2026-09-24
+Lemon Squeezy,MoR Pure,5,0.5,1.5,150,15,18,Automático,Nativo,"Indie Hackers, Creadores y SaaS",https://www.lemonsqueezy.com,200,2026-09-24
+FastSpring,MoR Pure,5.9,0.95,0.5,200,15,14,Automático,Nativo,Software de Escritorio y B2B Enterprise,https://fastspring.com,200,2026-09-24
+Whop,MoR / Marketplace,3,0.3,1,130,1,11,Automático,Nativo,"Comunidades, Cursos, Bots y Digital Goods",https://whop.com,200,2026-09-24
+2Checkout (Verifone),MoR Pure,5.6,0.6,2,200,15,8,Automático,Nativo,E-commerce Global y Software Legacy,https://www.2checkout.com,200,2026-09-24
+Gumroad,MoR Pure,10,0.5,0,120,7,6,Automático,Nativo,Creadores de Contenido y eBooks,https://gumroad.com,200,2026-09-24
+Dodo Payments,MoR Pure,4,0.4,1.5,160,7,4,Automático,Nativo,Startups AI y Developers,https://dodopayments.com,200,2026-09-24
+Creem,MoR Pure,3.9,0.4,1,150,14,2.5,Automático,Nativo,SaaS Emergentes e Indie Hackers,https://www.creem.io,200,2026-09-24
+PayPro Global,MoR Pure,4.9,0.85,1,200,14,2,Automático,Nativo,"Software, Micro-SaaS y Apps",https://payproglobal.com,200,2026-09-24
+Polar.sh,MoR Open Source,5,0.5,1,150,7,1.5,Automático,No Nativo,"Open Source, GitHub Devs y SaaS",https://polar.sh,200,2026-09-24
+Freemius,MoR Vertical,7,0,0,170,30,1,Automático,Nativo,Plugins y Themes de WordPress,https://freemius.com,200,2026-09-24

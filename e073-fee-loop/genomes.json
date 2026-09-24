@@ -12,7 +12,7 @@
     "sinkPOL": 30,
     "sinkStake": 50,
     "sinkBurn": 20,
-    "wins": 2413
+    "wins": 7268
   },
   {
     "name": "challenger-a",
@@ -24,10 +24,10 @@
     "discBuildPct": 10,
     "discStakePct": 10,
     "capPct": 50,
-    "sinkPOL": 30,
-    "sinkStake": 50,
+    "sinkPOL": 40,
+    "sinkStake": 40,
     "sinkBurn": 20,
-    "wins": 2413
+    "wins": 7268
   },
   {
     "name": "challenger-b",
@@ -39,9 +39,9 @@
     "discBuildPct": 10,
     "discStakePct": 10,
     "capPct": 50,
-    "sinkPOL": 40,
-    "sinkStake": 40,
+    "sinkPOL": 30,
+    "sinkStake": 50,
     "sinkBurn": 20,
-    "wins": 2413
+    "wins": 7268
   }
 ]

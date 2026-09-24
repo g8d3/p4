@@ -103,3 +103,6 @@ e068-tablelib/example/index.html
 
 # e071 refresh lock (cron scratch, never commit)
 .refresh.lock
+
+# e072 clanker-town: bearer token (never publish)
+e072-clanker-town/.token
