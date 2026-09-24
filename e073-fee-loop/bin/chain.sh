@@ -18,13 +18,14 @@ while true; do
     echo "$(date -u +%FT%TZ) CHAIN stop requested, exiting"
     exit 0
   fi
-  # LLM legs first: if the queue holds tasks, an agent works (bounded, locked).
-  # Queue empty -> decider queues the next outward task (throttled 20 min).
-  # Fee ticks (free) fill the gaps between intelligence.
+  # Agents back-to-back: queued legs run immediately, no tick/sleep between.
+  # Ticks (free paper epochs) only fill idle gaps.
   if [ -s LEG_QUEUE ]; then
     bash bin/llm-leg.sh >> log/tick.log 2>&1 || true
     date -u +%FT%TZ > log/heartbeat
-  elif [ ! -f log/last-decide ] || [ $(( $(date +%s) - $(date -d "$(cat log/last-decide)" +%s 2>/dev/null || echo 0) )) -gt 300 ]; then
+    continue
+  fi
+  if [ ! -f log/last-decide ] || [ $(( $(date +%s) - $(date -d "$(cat log/last-decide)" +%s 2>/dev/null || echo 0) )) -gt 300 ]; then
     bash bin/decide.sh >> log/tick.log 2>&1 || true
     date -u +%FT%TZ > log/heartbeat
   fi
