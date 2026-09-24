@@ -2,9 +2,14 @@
 <style>body{font-family:system-ui;margin:1em;font-size:15px}#meta{position:sticky;top:0;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:14px}#c{margin-top:1em}.you{background:#e7f3ff;border-radius:8px;padding:8px;margin:6px 0}.agent{background:#f0f0f0;border-radius:8px;padding:8px;margin:6px 0;white-space:pre-wrap;word-break:break-word}.tool{color:#666;font-size:13px;margin:4px 0;white-space:pre-wrap;word-break:break-word}a{font-size:16px}</style>
 </head><body><a href=agents.html>← back</a> <a id=raw href=#>raw log</a><div id=meta>…</div><div id=c></div>
 <script>function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-let last='';
+let last='',fails=0;
 async function up(){try{const t=new URLSearchParams(location.search).get('task');if(!t)return;
-const r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();
+let r='';try{r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();}catch(e){r='';}
+if(!r){if(++fails>=3){try{const L=await (await fetch('legs.json?'+Date.now())).json();
+const row=(L.legs||[]).find(x=>x.task===t);
+if(row&&row.log&&!row.log.startsWith('session'))location.href=row.log;
+else{document.getElementById('meta').textContent='session not ready yet — retrying…';}}catch(e){}}return;}
+fails=0;
 if(r===last)return;last=r;const d=JSON.parse(r);
 document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
 document.getElementById('meta').textContent='in '+d.totals.in.toLocaleString()+' · out '+d.totals.out.toLocaleString()+' · $'+d.totals.cost+' · '+d.updated;

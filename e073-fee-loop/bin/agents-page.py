@@ -4,6 +4,8 @@ upserts rows (no full reload). Regen writes both files; run after each leg
 (llm-leg.sh hook) and each tick (tick.sh hook) so heartbeat stays fresh.
 Usage: python3 bin/agents-page.py"""
 import json, os, re, time
+from datetime import datetime, timedelta, timezone
+_recent = (datetime.now(timezone.utc) - timedelta(minutes=15)).strftime('%Y-%m-%dT%H:%M:%SZ')
 SESS_ROOT = os.path.expanduser('~/.pi/agent/sessions')
 LIVE_MODEL = 'muse-spark-1.3-contributor'
 UPAT = re.compile(r'"usage":\{"input":(\d+),"output":(\d+),[^}]*?"total":([0-9.e-]+)\}')
@@ -143,7 +145,7 @@ for r in rows:
         lv = live_usage(r['task'])
         if lv: r['tin'], r['tout'], r['cost'] = lv
         if r['agent'] == '?': r['agent'] = LIVE_MODEL
-    if r['status'] == 'running':
+    if r['status'] == 'running' or (s.get('ts', '') > _recent):
         sv = session_view(r['task'])
         if sv:
             os.makedirs(os.path.join(base, 'sessions'), exist_ok=True)
@@ -210,9 +212,14 @@ open(os.path.join(base, 'session.html'), 'w').write(r"""<!doctype html><html><he
 <style>body{font-family:system-ui;margin:1em;font-size:15px}#meta{position:sticky;top:0;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:14px}#c{margin-top:1em}.you{background:#e7f3ff;border-radius:8px;padding:8px;margin:6px 0}.agent{background:#f0f0f0;border-radius:8px;padding:8px;margin:6px 0;white-space:pre-wrap;word-break:break-word}.tool{color:#666;font-size:13px;margin:4px 0;white-space:pre-wrap;word-break:break-word}a{font-size:16px}</style>
 </head><body><a href=agents.html>← back</a> <a id=raw href=#>raw log</a><div id=meta>…</div><div id=c></div>
 <script>function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
-let last='';
+let last='',fails=0;
 async function up(){try{const t=new URLSearchParams(location.search).get('task');if(!t)return;
-const r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();
+let r='';try{r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();}catch(e){r='';}
+if(!r){if(++fails>=3){try{const L=await (await fetch('legs.json?'+Date.now())).json();
+const row=(L.legs||[]).find(x=>x.task===t);
+if(row&&row.log&&!row.log.startsWith('session'))location.href=row.log;
+else{document.getElementById('meta').textContent='session not ready yet — retrying…';}}catch(e){}}return;}
+fails=0;
 if(r===last)return;last=r;const d=JSON.parse(r);
 document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
 document.getElementById('meta').textContent='in '+d.totals.in.toLocaleString()+' · out '+d.totals.out.toLocaleString()+' · $'+d.totals.cost+' · '+d.updated;
