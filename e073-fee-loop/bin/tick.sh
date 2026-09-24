@@ -12,4 +12,5 @@ echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
 bash bin/epoch.sh
 python3 bin/leaderboard.py > LEADERBOARD.md
+python3 bin/agents-page.py >> log/tick.log 2>&1 || true
 echo "$(date -u +%FT%TZ) OK epoch done"
