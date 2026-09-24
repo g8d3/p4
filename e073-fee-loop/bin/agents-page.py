@@ -39,11 +39,11 @@ tr = '\n'.join(
     f"<tr id='r-{r['task']}'>" + "".join(f"<td>{c}</td>" for c in
     [r['agent'], r['task'], r['start'], r['end'], fmt(r['tin']), fmt(r['tout']),
      fmt(r['cost']), r['status'], r['note']]) + "</tr>" for r in rows)
-html = f"""<!doctype html><html><head><meta charset=utf-8><title>agents working</title>
-<style>body{{font-family:system-ui;margin:2em}}table{{border-collapse:collapse}}td,th{{border:1px solid #ccc;padding:4px 8px;font-size:13px}}th{{background:#f0f0f0}}.running{{background:#fff3cd}}.failed{{background:#f8d7da}}.done{{background:#d4edda}}#hb{{margin:1em 0;font-weight:bold}}</style>
+html = f"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>agents working</title>
+<style>body{{font-family:system-ui;margin:1em;font-size:16px}}.wrap{{overflow-x:auto;-webkit-overflow-scrolling:touch}}table{{border-collapse:collapse;min-width:640px}}td,th{{border:1px solid #ccc;padding:6px 8px;font-size:14px}}th{{background:#f0f0f0}}.running{{background:#fff3cd}}.failed{{background:#f8d7da}}.done{{background:#d4edda}}#hb{{margin:1em 0;font-weight:bold}}</style>
 </head><body><h1>agents working</h1><div id=hb></div>
-<table id=t><tr><th>agent</th><th>task</th><th>started</th><th>finished</th><th>in</th><th>out</th><th>cost</th><th>status</th><th>what</th></tr>
-{tr}</table>
+<div class=wrap><table id=t><tr><th>agent</th><th>task</th><th>started</th><th>finished</th><th>in</th><th>out</th><th>cost</th><th>status</th><th>what</th></tr>
+{tr}</table></div>
 <script>
 async function up(){{try{{const d=await (await fetch('legs.json?'+Date.now())).json();
 document.getElementById('hb').textContent='loop heartbeat: '+d.heartbeat+' · updated '+d.generated_at;
