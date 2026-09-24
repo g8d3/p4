@@ -18,6 +18,12 @@ while true; do
     echo "$(date -u +%FT%TZ) CHAIN stop requested, exiting"
     exit 0
   fi
+  # LLM legs first: if the queue holds tasks, an agent works (bounded, locked).
+  # Fee ticks (free) fill the gaps between intelligence.
+  if [ -s LEG_QUEUE ]; then
+    bash bin/llm-leg.sh >> log/tick.log 2>&1 || true
+    date -u +%FT%TZ > log/heartbeat
+  fi
   if bash bin/tick.sh >> log/tick.log 2>&1; then
     date -u +%FT%TZ > log/heartbeat
   else
