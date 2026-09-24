@@ -106,3 +106,7 @@ e068-tablelib/example/index.html
 
 # e072 clanker-town: bearer token (never publish)
 e072-clanker-town/.token
+
+# e073 generated live views (regen every 5s)
+e073-fee-loop/sessions/
+e073-fee-loop/legs.json
