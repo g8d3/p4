@@ -15,6 +15,7 @@ TS=$(date -u +%Y%m%dT%H%M%SZ)
 SESS="e073-decide-$TS"
 LEG_START=$(date +%s)
 echo "$(date -u +%FT%TZ) LEG decide-$TS start" >> log/llm-legs.log
+python3 bin/agents-page.py >> log/tick.log 2>&1 || true
 date -u +%FT%TZ > log/last-decide
 
 timeout 1200 pi --provider opencode-go --model muse-spark-1.3-contributor --session-id "$SESS" --print "

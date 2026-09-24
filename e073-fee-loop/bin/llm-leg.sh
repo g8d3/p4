@@ -29,6 +29,7 @@ OUT="runs/leg-$TS-$TASK_ID.md"
 SESS="e073-leg-$TS-$TASK_ID"
 LEG_START=$(date +%s)
 echo "$(date -u +%FT%TZ) LEG $TASK_ID start" >> log/llm-legs.log
+python3 bin/agents-page.py >> log/tick.log 2>&1 || true
 
 timeout 1200 pi --provider opencode-go --model muse-spark-1.3-contributor --session-id "$SESS" --print "
 You are a table-tending leg in /home/vuos/code/p4/e073-fee-loop.
