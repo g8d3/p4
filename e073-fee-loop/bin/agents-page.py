@@ -4,27 +4,69 @@ upserts rows (no full reload). Regen writes both files; run after each leg
 (llm-leg.sh hook) and each tick (tick.sh hook) so heartbeat stays fresh.
 Usage: python3 bin/agents-page.py"""
 import json, os, re, time
+SESS_ROOT = os.path.expanduser('~/.pi/agent/sessions')
 LIVE_MODEL = 'muse-spark-1.3-contributor'
 UPAT = re.compile(r'"usage":\{"input":(\d+),"output":(\d+),[^}]*?"total":([0-9.e-]+)\}')
-def live_usage(tid):
-    ti = to = 0; cost = 0.0; cutoff = time.time() - 1800
-    try: roots = [os.path.join(os.path.expanduser('~/.pi/agent/sessions'), d)
-                  for d in os.listdir(os.path.expanduser('~/.pi/agent/sessions'))]
+def session_path(tid):
+    cutoff = time.time() - 3600
+    try: roots = [os.path.join(SESS_ROOT, d) for d in os.listdir(SESS_ROOT)]
     except OSError: return None
+    best = None
     for root in roots:
         for dp, _, fns in os.walk(root):
             for fn in fns:
+                if not fn.endswith('.jsonl') or '.pi-web-activity' in fn: continue
                 p = os.path.join(dp, fn)
                 try:
                     if os.path.getmtime(p) < cutoff: continue
-                    raw = open(p, errors='ignore').read()
-                    if tid not in fn and tid not in raw[:4000]: continue
+                    if tid in fn: return p
+                    if tid in open(p, errors='ignore').read(4000): return p
                 except OSError: continue
-                for a, b, c in UPAT.findall(raw):
-                    ti += int(a); to += int(b)
-                    try: cost += float(c)
-                    except ValueError: pass
+    return best
+def live_usage(tid):
+    p = session_path(tid)
+    if not p: return None
+    ti = to = 0; cost = 0.0
+    try: raw = open(p, errors='ignore').read()
+    except OSError: return None
+    for a, b, c in UPAT.findall(raw):
+        ti += int(a); to += int(b)
+        try: cost += float(c)
+        except ValueError: pass
     return (ti, to, round(cost, 6)) if ti else None
+def session_view(tid):
+    p = session_path(tid)
+    if not p: return None
+    msgs = []
+    ti = to = 0; cost = 0.0
+    try: lines = open(p, errors='ignore').read().splitlines()
+    except OSError: return None
+    for l in lines:
+        m = re.search(r'"usage":\{"input":(\d+),"output":(\d+),[^}]*?"total":([0-9.e-]+)\}', l)
+        if m:
+            ti += int(m.group(1)); to += int(m.group(2))
+            try: cost += float(m.group(3))
+            except ValueError: pass
+            continue
+        try: e = json.loads(l)
+        except ValueError: continue
+        if e.get('type') != 'message': continue
+        msg = e.get('message', {})
+        role = msg.get('role')
+        parts = msg.get('content')
+        if not isinstance(parts, list): continue
+        for part in parts:
+            t = part.get('type')
+            if t == 'text' and role in ('user', 'assistant'):
+                txt = part.get('text', '')
+                if txt.strip(): msgs.append({'who': 'agent' if role == 'assistant' else 'you', 'text': txt[:2000]})
+            elif t == 'toolCall':
+                args = json.dumps(part.get('arguments', {}))[:120]
+                msgs.append({'who': 'tool', 'text': f"{part.get('name')}: {args}"})
+    return {'updated': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'totals': {'in': ti, 'out': to, 'cost': round(cost, 6)},
+            'raw': log_of(tid),
+            'messages': msgs[-120:]}
 def rc_of(note):
     m = re.search(r'rc=(\d+)', note or '')
     return int(m.group(1)) if m else None
@@ -101,6 +143,12 @@ for r in rows:
         lv = live_usage(r['task'])
         if lv: r['tin'], r['tout'], r['cost'] = lv
         if r['agent'] == '?': r['agent'] = LIVE_MODEL
+    if r['status'] == 'running':
+        sv = session_view(r['task'])
+        if sv:
+            os.makedirs(os.path.join(base, 'sessions'), exist_ok=True)
+            json.dump(sv, open(os.path.join(base, 'sessions', r['task'] + '.json'), 'w'))
+            r['log'] = 'session.html?task=' + r['task']
 try: hb = open(os.path.join(base, 'log/heartbeat'), errors='ignore').read().strip()
 except OSError: hb = '?'
 now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -157,4 +205,18 @@ if(s.startsWith('LEG_DONE'))return '<b style="color:green">'+esc(l)+'</b>';
 if(/fail|error|rc=[1-9]/i.test(s))return '<b style="color:red">'+esc(l)+'</b>';
 return esc(l);}).join('\n')||'(no readable output yet — leg starting)';}catch(e){}}
 up();setInterval(up,5000);</script></body></html>""")
+open(os.path.join(base, 'session.html'), 'w').write(r"""<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>agent live</title>
+<style>body{font-family:system-ui;margin:1em;font-size:15px}#meta{position:sticky;top:0;background:#111;color:#fff;padding:8px;border-radius:8px;font-size:14px}#c{margin-top:1em}.you{background:#e7f3ff;border-radius:8px;padding:8px;margin:6px 0}.agent{background:#f0f0f0;border-radius:8px;padding:8px;margin:6px 0;white-space:pre-wrap;word-break:break-word}.tool{color:#666;font-size:13px;margin:4px 0;white-space:pre-wrap;word-break:break-word}a{font-size:16px}</style>
+</head><body><a href=agents.html>← back</a> <a id=raw href=#>raw log</a><div id=meta>…</div><div id=c></div>
+<script>function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+let last='';
+async function up(){try{const t=new URLSearchParams(location.search).get('task');if(!t)return;
+document.getElementById('raw').href=d.raw?('log.html?file='+d.raw):'#';
+const r=await (await fetch('sessions/'+t+'.json?'+Date.now())).text();
+if(r===last)return;last=r;const d=JSON.parse(r);
+document.getElementById('meta').textContent='in '+d.totals.in.toLocaleString()+' · out '+d.totals.out.toLocaleString()+' · $'+d.totals.cost+' · '+d.updated;
+const c=document.getElementById('c');const stick=(innerHeight+scrollY>document.body.scrollHeight-200);
+c.innerHTML=d.messages.map(m=>'<div class="'+m.who+'">'+esc(m.text)+'</div>').join('');
+if(stick)scrollTo(0,document.body.scrollHeight);}catch(e){}}
+up();setInterval(up,3000);</script></body></html>""")
 print(f"agents.html + legs.json: {len(rows)} legs, heartbeat {hb}")
