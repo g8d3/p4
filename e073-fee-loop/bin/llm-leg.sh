@@ -16,6 +16,14 @@ if [ -z "$TASK_ID" ]; then TASK_ID=$(head -1 LEG_QUEUE | cut -d'|' -f1 | tr -d '
 TASK=$(grep -m1 "^$TASK_ID |" LEG_QUEUE || grep -m1 "^$TASK_ID|" LEG_QUEUE || true)
 [ -z "$TASK" ] && { echo "task $TASK_ID not in queue"; exit 1; }
 
+# Budget gate: halt when capped and remaining < $1 (meter needs no API).
+CAP=$(grep -m1 '^cap_usd=' ledger/BUDGET 2>/dev/null | cut -d= -f2 || echo unlimited)
+if [ "${CAP:-unlimited}" != "unlimited" ] && [ -n "${CAP:-}" ]; then
+  SPENT=$(python3 -c "import sqlite3; print(sqlite3.connect('/home/vuos/.local/share/opencode/opencode.db').execute(\"select coalesce(sum(cost),0) from session where datetime(time_updated/1000,'unixepoch') >= datetime('now','-7 days')\").fetchone()[0])" 2>/dev/null || echo 0)
+  REM=$(python3 -c "print(float('$CAP') - float('$SPENT'))" 2>/dev/null || echo 0)
+  if python3 -c "exit(0 if float('$REM') < 1.0 else 1)"; then echo "leg skipped: budget remaining \$$REM < \$1.00"; exit 0; fi
+fi
+
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 OUT="runs/leg-$TS-$TASK_ID.md"
 echo "$(date -u +%FT%TZ) LEG $TASK_ID start" >> log/llm-legs.log

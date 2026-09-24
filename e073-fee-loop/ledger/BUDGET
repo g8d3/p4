@@ -1,0 +1,6 @@
+# Credit budget: the cap the dispatcher obeys. No opencode API exists;
+# the meter (bin/credits-meter.sh) measures spend from the local ledger.
+cap_usd=unlimited
+# Owner order 2026-09-24: use all credits. To cap, set e.g. cap_usd=20
+# (period = rolling 7 days). Legs halt when remaining < 1.00.
+note=meter reads ~/.local/share/opencode/opencode.db session.cost (USD, real)

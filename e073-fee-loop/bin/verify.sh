@@ -59,4 +59,13 @@ else
   say "credit ledger" 1
 fi
 
+
+# 9. credit meter reads real spend (no API; local ledgers)
+if bash bin/credits-meter.sh >/dev/null 2>&1; then
+  SPEND7=$(bash bin/credits-meter.sh 2>/dev/null | grep -oE 'combined 7d measured: \$[0-9.]+' || echo unknown)
+  say "credit meter live ($SPEND7)" 0
+else
+  say "credit meter" 1
+fi
+
 exit $FAIL
