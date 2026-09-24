@@ -61,7 +61,11 @@ fi
 
 
 # 9. credit meter reads real spend (no API; local ledgers)
-if bash bin/credits-meter.sh >/dev/null 2>&1; then
+# 9b. authoritative Console summary (service key pull, emails never committed)
+if [ -f ledger/usage-summary.json ]; then
+  CONSOLE=$(python3 -c "import json; d=json.load(open('ledger/usage-summary.json')); print(f\"console {d['month']}: {d['tokens_in']+d['tokens_out']:,} tokens, \${d['charged_usd']}, {d['records_mtd']} calls, pulled {d['pulled_at'][:10]}\")" 2>/dev/null || echo console-summary-unreadable)
+  say "credit meter live ($SPEND7; $CONSOLE)" 0
+elif bash bin/credits-meter.sh >/dev/null 2>&1; then
   SPEND7=$(bash bin/credits-meter.sh 2>/dev/null | grep -oE 'combined 7d measured: \$[0-9.]+' || echo unknown)
   say "credit meter live ($SPEND7)" 0
 else

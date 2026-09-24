@@ -1,0 +1,45 @@
+{
+ "month": "2026-09",
+ "records_mtd": 15989,
+ "tokens_in": 54136070,
+ "tokens_out": 8437873,
+ "charged_usd": 0.0,
+ "by_source_rows": {
+  "go": 15984,
+  "credit": 5
+ },
+ "top_models": [
+  {
+   "m": "opencode-go/muse-spark-1.3-contributor",
+   "in": 48052757,
+   "out": 5802629
+  },
+  {
+   "m": "opencode-go/muse-spark-1.2-contributor",
+   "in": 5507938,
+   "out": 390091
+  },
+  {
+   "m": "opencode-go/qwen3.8-flash",
+   "in": 121512,
+   "out": 1977762
+  },
+  {
+   "m": "opencode-go/deepseek-v4.1-flash",
+   "in": 282371,
+   "out": 233212
+  },
+  {
+   "m": "opencode-go/deepseek-v4-flash-vision-exp",
+   "in": 142317,
+   "out": 24855
+  },
+  {
+   "m": "opencode/muse-spark-1.3-contributor-free",
+   "in": 23025,
+   "out": 2660
+  }
+ ],
+ "active_days": 22,
+ "pulled_at": "2026-09-24T02:06:33Z"
+}
