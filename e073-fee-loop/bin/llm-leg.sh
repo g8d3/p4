@@ -90,3 +90,4 @@ else
   echo "$(date -u +%FT%TZ) LEG $TASK_ID rc=$RC, kept in queue" >> log/llm-legs.log
 fi
 echo "leg $TASK_ID rc=$RC -> $OUT"
+python3 bin/agents-page.py >> log/tick.log 2>&1 || true
