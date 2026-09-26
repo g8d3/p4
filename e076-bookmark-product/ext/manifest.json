@@ -11,7 +11,7 @@
   "content_scripts": [
     {
       "matches": ["https://x.com/i/bookmarks*", "https://twitter.com/i/bookmarks*", "https://x.com/i/history*", "https://twitter.com/i/history*"],
-      "js": ["content.js"],
+      "js": ["loader.js"],
       "run_at": "document_idle"
     }
   ],

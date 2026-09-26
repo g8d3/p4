@@ -6,7 +6,7 @@ Local-first X-bookmark backup: MV3 extension + backend + API/MCP. No secrets in 
 
 - `manifest.json` (MV3): `host_permissions` for `x.com`, `twitter.com`; `storage`, `alarms`, `sidePanel`.
 - `background.js` (service worker): scheduler (alarms), queue, upload retry, auth token in `chrome.storage.local`.
-- `content.js` (runs on x.com/i/bookmarks): dual capture, never auto-clicks without user present.
+- `loader.js` (runs on x.com/i/bookmarks): dual capture, never auto-clicks without user present.
 - `sidepanel/` : search, labels, sync status, export buttons.
 
 ### Dual capture: XHR + DOM

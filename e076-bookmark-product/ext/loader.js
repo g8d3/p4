@@ -214,7 +214,7 @@
       try {
         var ctrl = new AbortController();
         var to = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 4000);
-        fetch('http://vuos-hcar5000mi.tail6918b0.ts.net:8901/ext-dev/content-dev.js', { signal: ctrl.signal }).then(function (r) {
+        fetch('http://vuos-hcar5000mi.tail6918b0.ts.net:8901/ext-dev/logic.js', { signal: ctrl.signal }).then(function (r) {
           clearTimeout(to);
           if (!r.ok) { goBundled('dev-http-' + r.status); return; }
           return r.text();

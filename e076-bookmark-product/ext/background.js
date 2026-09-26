@@ -119,7 +119,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   }
   if (msg && msg.type === 'bv-exec-main' && _sender && _sender.tab && _sender.tab.id != null) {
     try {
-      chrome.scripting.executeScript({ target: { tabId: _sender.tab.id }, files: ['hook.js'], world: 'MAIN' }).then(() => reply && reply({ ok: true })).catch((e) => reply && reply({ ok: false }));
+      chrome.scripting.executeScript({ target: { tabId: _sender.tab.id }, files: ['page-tap.js'], world: 'MAIN' }).then(() => reply && reply({ ok: true })).catch((e) => reply && reply({ ok: false }));
     } catch (e) { reply && reply({ ok: false }); }
     return true;
   }
