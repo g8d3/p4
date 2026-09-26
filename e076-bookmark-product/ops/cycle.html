@@ -55,7 +55,7 @@ const tabs=document.getElementById('tabs');
 function showTab(id,push){
  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));
  [...tabs.children].forEach((x,i)=>x.classList.toggle('on',TABS[i][1]===id));
- if(push){try{history.replaceState(null,'','#'+id)}catch(e){}}
+ if(push){try{history.replaceState(null,'','#'+id)}catch(e){}try{localStorage.setItem('bv.subtab',id)}catch(e){}}
 }
 TABS.forEach(([t,id],i)=>{
  const b=document.createElement('button');b.textContent=t;

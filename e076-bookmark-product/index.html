@@ -25,7 +25,7 @@ const P=[
 const nav=document.getElementById('nav'),v=document.getElementById('v');
 P.forEach(([t,u],i)=>{
  const b=document.createElement('button');b.textContent=t;
- b.onclick=()=>{v.src=u;[...nav.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');location.hash=i};
+ b.onclick=()=>{let s=u;try{if(u.indexOf('ops/cycle')===0){const st=localStorage.getItem('bv.subtab');if(st)s=u+'#'+st}}catch(e){}v.src=s;[...nav.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');location.hash=i};
  nav.appendChild(b);
 });
 const n=parseInt((location.hash||'#0').slice(1))||0;
