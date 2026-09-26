@@ -1,3 +1,4 @@
 loop/legs/
 loop/runner.log
 ops/__pycache__/
+ops/telemetry.jsonl
