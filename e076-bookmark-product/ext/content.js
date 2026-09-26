@@ -167,12 +167,20 @@
     if (chrome.storage && chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener(function (chg) {
         if (chg[IMPORT_KEY] && chg[IMPORT_KEY].newValue) importMaybeStart(chg[IMPORT_KEY].newValue);
+        if (chg['bv.tuning']) pushTuning();
         hudPaint();
       });
     }
   } catch (e) {}
 
   // --- In-page HUD: status + pause/resume right on x.com, no tab-hopping ---
+  function pushTuning() {
+    try {
+      chrome.storage.local.get('bv.tuning', function (o) {
+        try { window.postMessage({ __bvTuning: o['bv.tuning'] || null }, '*'); } catch (e) {}
+      });
+    } catch (e) {}
+  }
   function beat() {
     try { chrome.runtime.sendMessage({ type: 'bv-heartbeat', page: location.href }); } catch (e) {}
   }
@@ -180,6 +188,7 @@
     injectHook();
     domScrape();
     importGet().then(importMaybeStart);
+    pushTuning();
     hudPaint();
     try { setInterval(hudPaint, 5000); } catch (e) {}
     beat();

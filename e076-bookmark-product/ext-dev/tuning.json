@@ -1,0 +1,6 @@
+{"v": 1, "note": "dev tuning: fetched by ext in dev mode, bundled defaults otherwise",
+ "namePaths": ["core.user_results.result.legacy.screen_name", "core.user_results.result.legacy.name"],
+ "deepName": true, "deepDepth": 6,
+ "scrollPx": 650, "tickMs": 2800, "tickJitterMs": 900, "maxScrolls": 1500,
+ "matchUrl": ["Bookmark", "bookmark"],
+ "matchUrlHistory": ["graphql"]}

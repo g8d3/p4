@@ -717,6 +717,24 @@
     });
   });
   document.getElementById('planBtn').addEventListener('click', fetchPlan);
+  chrome.storage.local.get('bv.devMode').then(function (o) {
+    document.getElementById('devMode').checked = !!o['bv.devMode'];
+  });
+  document.getElementById('devMode').addEventListener('change', function (e) {
+    chrome.runtime.sendMessage({ type: 'bv-devmode', on: e.target.checked }, function () {
+      document.getElementById('tuneHint').textContent = e.target.checked
+        ? 'Dev mode ON: tuning loads from server. Tap Refresh tuning, then scroll.'
+        : 'Off = store build (frozen).';
+    });
+  });
+  document.getElementById('tuneBtn').addEventListener('click', function () {
+    document.getElementById('tuneHint').textContent = 'Fetching…';
+    chrome.runtime.sendMessage({ type: 'bv-tuning-refresh' }, function (r) {
+      document.getElementById('tuneHint').textContent = r && r.ok
+        ? 'Tuning v' + r.v + ' applied. Scroll to feel it.'
+        : 'Server unreachable — frozen tuning stays.';
+    });
+  });
   document.getElementById('sync').addEventListener('click', function () {
     document.getElementById('status').textContent = 'Syncing…';
     chrome.runtime.sendMessage({ type: 'bv-sync-now' }, function (r) {

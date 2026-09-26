@@ -111,6 +111,11 @@
   <button class="btn" id="save">Save settings</button>
   <button class="btn" id="sync">Sync now</button>
   <p class="hint">Uploads only with a token. Test mode: stays local until you add one.</p>
+  <div class="row" id="devRow">
+    <label><input type="checkbox" id="devMode" style="width:auto"> Developer mode (tuning loads from server, no reinstall)</label>
+    <div><button class="btn" id="tuneBtn" style="margin:8px 0 0">Refresh tuning</button></div>
+    <div class="hint" id="tuneHint" style="padding:0">Off = store build (frozen). On = my latest tuning applies on next scroll.</div>
+  </div>
   <div class="row" id="health"></div>
   <div class="row" id="planRow">
     <div id="plan" role="status">Plan: checking…</div>

@@ -4,6 +4,19 @@ importScripts('resilience.js');
 
 const QUEUE_KEY = 'bv.queue.v1';
 const DEV_BASE = 'http://vuos-hcar5000mi.tail6918b0.ts.net:8901';
+async function tuningRefresh() {
+  try {
+    const on = (await chrome.storage.local.get('bv.devMode'))['bv.devMode'];
+    if (!on) return (await chrome.storage.local.get('bv.tuning'))['bv.tuning'] || null;
+    const r = await fetch(DEV_BASE + '/ext-dev/tuning.json').catch(() => null);
+    if (r && r.ok) {
+      const j = await r.json();
+      await chrome.storage.local.set({ 'bv.tuning': j });
+      return j;
+    }
+  } catch (e) {}
+  return null;
+}
 async function devTel(kind, payload) {
   try {
     const off = (await chrome.storage.local.get('bv.devTelOff'))['bv.devTelOff'];
@@ -126,6 +139,14 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg && msg.type === 'bv-heartbeat') {
     touchStatus({ watching: true, lastSeenPage: msg.page || '', at: new Date().toISOString() })
       .then(() => reply && reply({ ok: true }));
+    return true;
+  }
+  if (msg && msg.type === 'bv-tuning-refresh') {
+    tuningRefresh().then((j) => reply && reply({ ok: !!j, v: (j && j.v) || 0 }));
+    return true;
+  }
+  if (msg && msg.type === 'bv-devmode') {
+    chrome.storage.local.set({ 'bv.devMode': !!msg.on }).then(() => reply && reply({ ok: true }));
     return true;
   }
   if (msg && msg.type === 'bv-stats') {
