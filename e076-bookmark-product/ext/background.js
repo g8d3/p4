@@ -93,6 +93,12 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
     enqueue(msg.records || []).then((added) => reply && reply({ added }));
     return true;
   }
+  if (msg && msg.type === 'bv-exec-main' && sender && sender.tab && sender.tab.id != null) {
+    try {
+      chrome.scripting.executeScript({ target: { tabId: sender.tab.id }, files: ['hook.js'], world: 'MAIN' }).then(() => reply && reply({ ok: true })).catch((e) => reply && reply({ ok: false }));
+    } catch (e) { reply && reply({ ok: false }); }
+    return true;
+  }
   if (msg && msg.type === 'bv-sync-now') {
     trySync().then((r) => reply && reply(r));
     return true;

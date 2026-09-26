@@ -19,70 +19,9 @@
     return rec;
   }
 
-  // --- XHR hook: page-context script observes fetch/XHR bookmark payloads ---
+  // --- XHR hook: runs in MAIN world via background (CSP-safe, no inline script) ---
   function injectHook() {
-    var s = document.createElement('script');
-    s.textContent = '(' + hookFn.toString() + ')();';
-    (document.head || document.documentElement).appendChild(s);
-    s.remove();
-  }
-  function hookFn() {
-    function pick(obj, out) {
-      if (!obj || typeof obj !== 'object') return;
-      if (Array.isArray(obj)) { for (var i = 0; i < obj.length; i++) pick(obj[i], out); return; }
-      // GraphQL tweet shape: legacy.full_text + core.user_results.legacy.screen_name
-      if (obj.legacy && typeof obj.legacy.full_text === 'string' &&
-          (obj.rest_id || obj.legacy.id_str)) {
-        var user = '';
-        try { user = obj.core.user_results.result.legacy.screen_name || ''; } catch (e) {}
-        out.push({
-          id: String(obj.rest_id || obj.legacy.id_str),
-          text: obj.legacy.full_text.slice(0, 2000),
-          author: user,
-          created_at: obj.legacy.created_at || '',
-          source: 'xhr'
-        });
-        return;
-      }
-      for (var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) pick(obj[k], out); }
-    }
-    function emit(payload) {
-      try {
-        var out = [];
-        var data = typeof payload === 'string' ? JSON.parse(payload) : payload;
-        pick(data, out);
-        if (out.length) window.postMessage({ __bv: true, records: out.slice(0, 100) }, '*');
-      } catch (e) {}
-    }
-    var of = window.fetch;
-    var historyPage = /\/i\/history/.test(location.pathname);
-    window.fetch = function () {
-      return of.apply(this, arguments).then(function (res) {
-        var url = '';
-        try { url = (typeof arguments[0] === 'string' ? arguments[0] : arguments[0].url) || ''; } catch (e) {}
-        if (/Bookmark|bookmark/i.test(url) || (historyPage && /graphql/i.test(url))) {
-          try {
-            res.clone().text().then(emit).catch(function () {});
-          } catch (e) {}
-        }
-        return res;
-      });
-    };
-    var ox = window.XMLHttpRequest.prototype.open;
-    window.XMLHttpRequest.prototype.open = function (m, u) {
-      try { this.__bvUrl = String(u || ''); } catch (e) {}
-      return ox.apply(this, arguments);
-    };
-    var os = window.XMLHttpRequest.prototype.send;
-    window.XMLHttpRequest.prototype.send = function () {
-      var self = this;
-      self.addEventListener('load', function () {
-        if (/Bookmark|bookmark/i.test(self.__bvUrl || '') || (historyPage && /graphql/i.test(self.__bvUrl || ''))) {
-          try { emit(self.responseText || ''); } catch (e) {}
-        }
-      });
-      return os.apply(this, arguments);
-    };
+    try { chrome.runtime.sendMessage({ type: 'bv-exec-main' }); } catch (e) {}
   }
 
   window.addEventListener('message', function (ev) {
