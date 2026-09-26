@@ -1,29 +1,7 @@
-// Sidepanel: Saved search reads GET /v1/bookmarks?q=&label= when online
-// (server search + label filter), merged with local-only items; falls back
-// to chrome.storage.local queue when offline or without API base + token.
-// Labels are local-first: always saved on device (bv.labels.v1 / bv.labeldefs.v1),
-// mirrored to GET/POST /v1/labels and POST/DELETE /v1/bookmarks/:id/labels when
-// an API base + token is configured. Without them, everything stays local.
-// Approvals are local-first too (bv.approvals.v1): propose creates a pending
-// item, Approve/Reject only flips its status — nothing runs on propose.
-(function () {
+  function mountPanel(SH) {
+    var fetch = bgFetch;
+
   'use strict';
-  // HTTP-preview fallback: the real extension provides chrome.storage;
-  // over plain http (screenshots, reviews) emulate it on localStorage.
-  if (typeof chrome === 'undefined' || !chrome.storage) {
-    var __bvMem = {};
-    try { __bvMem = JSON.parse(localStorage.getItem('bv.preview.v1') || '{}'); } catch (e) { __bvMem = {}; }
-    var __bvSave = function () { try { localStorage.setItem('bv.preview.v1', JSON.stringify(__bvMem)); } catch (e) {} };
-    var __bvGet = function (k) {
-      return new Promise(function (res) {
-        var o = {};
-        (Array.isArray(k) ? k : [k]).forEach(function (key) { o[key] = __bvMem[key]; });
-        res(o);
-      });
-    };
-    var __bvSet = function (o) { return new Promise(function (res) { Object.keys(o).forEach(function (k) { __bvMem[k] = o[k]; }); __bvSave(); res(); }); };
-    window.chrome = { storage: { local: { get: __bvGet, set: __bvSet }, onChanged: { addListener: function () {} } }, runtime: { sendMessage: function (m, cb) { if (cb) cb({}); } } };
-  }
   var QUEUE_KEY = 'bv.queue.v1';
   var LABELS_KEY = 'bv.labels.v1';
   var LABELDEFS_KEY = 'bv.labeldefs.v1';
@@ -34,31 +12,24 @@
   var activeLoc = ''; // '' | 'device' | 'server'
   var verifyOn = false; // save-order verification overlay (Saved pane setting)
 
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('nav.tabs button'));
-  var panes = Array.prototype.slice.call(document.querySelectorAll('.pane'));
+  var tabs = Array.prototype.slice.call(SH.querySelectorAll('nav.tabs button'));
+  var panes = Array.prototype.slice.call(SH.querySelectorAll('.pane'));
   function showPane(id, pushHash) {
     tabs.forEach(function (x) { x.setAttribute('aria-selected', x.dataset.pane === id ? 'true' : 'false'); });
     panes.forEach(function (p) { p.classList.toggle('active', p.id === id); });
-    // replaceState, not location.hash: no scroll steal, shareable link.
+    // storage only in-page: never touch the page URL.
     // + storage: mobile panels reopen fresh on every icon tap (hash lost), storage survives.
-    if (pushHash) { try { history.replaceState(null, '', '#' + id.replace(/^pane-/, '')); } catch (e) {} }
+    if (pushHash) { try { void 0(null, '', '#' + id.replace(/^pane-/, '')); } catch (e) {} }
     try { chrome.storage.local.set({ 'bv.pane': id }); } catch (e) {}
   }
   tabs.forEach(function (b) {
-    b.addEventListener('click', function () { showPane(b.dataset.pane, true); });
+    b.addEventListener('click', function () { showPane(b.dataset.pane, false); });
   });
-  // Deep link: index.html#labels opens the Labels pane on load (for links + screenshots).
-  // Storage fallback: mobile panels reopen fresh (hash lost) — last pane wins.
-  (function () {
-    function apply(id) { if (document.getElementById(id)) showPane(id, false); }
-    var h = (location.hash || '').replace('#', '');
-    if (h && document.getElementById('pane-' + h)) { apply('pane-' + h); return; }
-    try {
-      chrome.storage.local.get('bv.pane').then(function (o) {
-        if (o && o['bv.pane']) apply(o['bv.pane']);
-      });
-    } catch (e) {}
-  })();
+  try {
+    chrome.storage.local.get('bv.pane').then(function (o) {
+      if (o && o['bv.pane'] && SH.getElementById(o['bv.pane'])) showPane(o['bv.pane'], false);
+    });
+  } catch (e) {}
 
   function getQueue() {
     return chrome.storage.local.get(QUEUE_KEY).then(function (o) { return o[QUEUE_KEY] || []; });
@@ -154,14 +125,22 @@
     return 'seen';
   }
   var ST_LABEL = { both: 'liked + bookmarked', liked: 'liked', saved: 'bookmarked', seen: 'seen', quoted: 'quoted' };
-  function kindBadge(r) {
-    // Post type only (article/poll/media…); never a second status. Tweets show nothing.
-    var k = (r && r.kind) || 'tweet';
-    return (k && k !== 'tweet') ? '<span class="kind">' + esc(k) + '</span>' : '';
+  // DOM builders (no HTML strings): structure lives in panel.html <template>,
+  // text goes through textContent (auto-escaped).
+  function mk(tag, cls, text) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text != null) el.textContent = text;
+    return el;
   }
-  function statusBadge(r) {
+  function cloneTpl(id) {
+    var t = SH.getElementById(id);
+    var n = t && t.content && t.content.firstElementChild;
+    return n ? n.cloneNode(true) : null;
+  }
+  function statusEl(r) {
     var st = statusOf(r);
-    return '<span class="st st-' + st + '">' + ST_LABEL[st] + '</span>';
+    return mk('span', 'st st-' + st, ST_LABEL[st]);
   }
   function pageBadges(r) {
     return pagesOf(r).map(function (p) {
@@ -243,7 +222,7 @@
     });
   }
   function render(q, map, qstr, serverData) {
-    var list = document.getElementById('list');
+    var list = SH.getElementById('list');
     qstr = (qstr || '').toLowerCase();
     var items, mode, all, syncedIds = {}, pendingCount = 0;
     function locMatch(r) {
@@ -280,11 +259,9 @@
       items = all.slice(0, 100);
       mode = (serverData === 'error') ? 'offline' : 'local';
     }
-    function syncBadge(r) {
-      if (mode !== 'server') return '<span class="syncpend">this device</span>';
-      return syncedIds[r.id]
-        ? '<span class="syncok">on server</span>'
-        : '<span class="syncpend">upload pending</span>';
+    function syncEl(r) {
+      if (mode !== 'server') return mk('span', 'syncpend', 'this device');
+      return syncedIds[r.id] ? mk('span', 'syncok', 'on server') : mk('span', 'syncpend', 'upload pending');
     }
     var nLiked = 0, nSaved = 0, nBoth = 0, nQuoted = 0, nSeen = 0;
     all.forEach(function (r) {
@@ -308,47 +285,81 @@
     var saveRank = {};
     ranked.forEach(function (r, i) { if (!saveRank[r.id]) saveRank[r.id] = i + 1; });
     var newestSaved = ranked[0] || null, oldestSaved = ranked[ranked.length - 1] || null;
-    function rankBadge(r) {
-      if (!verifyOn || !saveRank[r.id]) return '';
-      return '<span class="ord">saved #' + saveRank[r.id] + '</span>';
-    }
+
     return getLabelDefs().then(function (defs) {
       var dupes = dupeCounts(items);
       var dupeShown = 0;
-      list.innerHTML = items.length ? items.map(function (r) {
+      function buildItem(r) {
+        var li = cloneTpl('t-item');
         var dk = normText(r);
         var isDupe = dk.length >= 20 && dupes[dk] > 1;
         if (isDupe) dupeShown++;
-        var dupeBadge = isDupe
-          ? '<span class="dupe" title="Same text saved ' + dupes[dk] + ' times">Possible duplicate \u00d7' + dupes[dk] + '</span>' : '';
-        var labs = labelsOf(r, map);
-        var chips = labs.map(function (l) {
-          return '<span class="chip">' + esc(l) +
-            '<button data-act="detach" data-id="' + esc(r.id) + '" data-label="' + esc(l) +
-            '" title="Remove label" aria-label="Remove ' + esc(l) + '">×</button></span>';
-        }).join('');
-        var opts = defs.filter(function (d) { return labs.indexOf(d) < 0; })
-          .map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + '</option>'; })
-          .join('');
-        var attach = defs.length && opts
-          ? '<div class="attach"><select data-attach-for="' + esc(r.id) +
-            '" aria-label="Attach label">' + opts +
-            '</select><button data-act="attach" data-id="' + esc(r.id) + '">Add</button></div>'
-          : '';
-        var openUrl = 'https://x.com/i/status/' + encodeURIComponent(r.id);
-        var full = String(r.text || '');
-        var needMore = full.length > 220;
+        li.dataset.tid = r.id;
+        li.querySelector('.txt').textContent = String(r.text || '');
+        var more = li.querySelector('.morebtn');
+        if (String(r.text || '').length > 220) { more.hidden = false; more.dataset.id = r.id; }
+        else { more.remove(); }
+        var metas = li.querySelectorAll('.meta');
+        metas[0].querySelector('.ma').textContent = '@' + (r.author || '?');
+        metas[0].querySelector('.md').textContent = fmtDate(r.created_at);
+        metas[0].querySelector('.open').href = 'https://x.com/i/status/' + encodeURIComponent(r.id);
+        if (isDupe) {
+          var db = mk('span', 'dupe', 'Possible duplicate \u00d7' + dupes[dk]);
+          db.title = 'Same text saved ' + dupes[dk] + ' times';
+          metas[0].appendChild(db);
+        }
+        var m2 = metas[1];
+        m2.appendChild(statusEl(r));
         var kind = (r && r.kind && r.kind !== 'tweet') ? r.kind : '';
-        return '<li data-tid="' + esc(r.id) + '"><div class="txt collapsed">' + esc(full) + '</div>' +
-          (needMore ? '<button class="morebtn" data-act="more" data-id="' + esc(r.id) + '">Show all</button>' : '') +
-          '<div class="meta"><span>@' + esc(r.author || '?') + '</span><span>' + esc(fmtDate(r.created_at)) + '</span>' +
-          '<a class="open" href="' + openUrl + '" target="_blank" rel="noopener">Open</a>' + dupeBadge + '</div>' +
-          '<div class="meta">' + statusBadge(r) + kindBadge(r) + rankBadge(r) + syncBadge(r) + '</div>' +
-          (chips ? '<div class="chips">' + chips + '</div>' : '') + attach + '</li>';
-      }).join('') : (qstr || activeLabel
-        ? '<li>No matches for this search. <button data-act="clear">Clear search</button></li>'
-        : '<li>No saved bookmarks yet. Browse your X bookmarks and they appear here.</li>');
-      var st = document.getElementById('status');
+        if (kind) m2.appendChild(mk('span', 'kind', kind));
+        if (verifyOn && saveRank[r.id]) m2.appendChild(mk('span', 'ord', 'saved #' + saveRank[r.id]));
+        m2.appendChild(syncEl(r));
+        var labs = labelsOf(r, map);
+        var chipsBox = li.querySelector('.chips');
+        if (labs.length) {
+          chipsBox.hidden = false;
+          labs.forEach(function (l) {
+            var chip = mk('span', 'chip', l);
+            var x = mk('button', null, '\u00d7');
+            x.dataset.act = 'detach'; x.dataset.id = r.id; x.dataset.label = l;
+            x.title = 'Remove label'; x.setAttribute('aria-label', 'Remove ' + l);
+            chip.appendChild(x);
+            chipsBox.appendChild(chip);
+          });
+        } else { chipsBox.remove(); }
+        var box = li.querySelector('.attach');
+        var opts = defs.filter(function (d) { return labs.indexOf(d) < 0; });
+        if (defs.length && opts.length) {
+          box.hidden = false;
+          var sel = document.createElement('select');
+          sel.dataset.attachFor = r.id;
+          sel.setAttribute('aria-label', 'Attach label');
+          opts.forEach(function (d) {
+            var o = document.createElement('option');
+            o.value = d; o.textContent = d;
+            sel.appendChild(o);
+          });
+          var add = mk('button', null, 'Add');
+          add.dataset.act = 'attach'; add.dataset.id = r.id;
+          box.appendChild(sel); box.appendChild(add);
+        } else { box.remove(); }
+        return li;
+      }
+      list.textContent = '';
+      if (items.length) {
+        items.forEach(function (r) { list.appendChild(buildItem(r)); });
+      } else {
+        var empty = mk('li', null, (qstr || activeLabel)
+          ? 'No matches for this search. '
+          : 'No saved bookmarks yet. Browse your X bookmarks and they appear here.');
+        if (qstr || activeLabel) {
+          var cb = mk('button', null, 'Clear search');
+          cb.dataset.act = 'clear';
+          empty.appendChild(cb);
+        }
+        list.appendChild(empty);
+      }
+      var st = SH.getElementById('status');
       var orderNote = items.length > 1 ? ' · newest first' : '';
       var dupeNote = dupeShown ? ' · ' + dupeShown + ' possible duplicate' + (dupeShown > 1 ? 's' : '') : '';
       var filterNote = (activeType ? ' · showing ' + activeType : '') +
@@ -365,7 +376,7 @@
         st.textContent = q.length + ' on this device only (no sync yet — tap Sync now)' +
           ' · ' + items.length + ' shown (' + typeLine + ')' + filterNote + orderNote + dupeNote;
       }
-      var vl = document.getElementById('verifyLine');
+      var vl = SH.getElementById('verifyLine');
       if (vl) {
         if (verifyOn && newestSaved) {
           vl.style.display = '';
@@ -409,8 +420,8 @@
       /^http:\/\/127\.0\.0\.1(:\d+)?\/\S*/.test(s)) && s.length <= 500;
   }
   function renderWebhooksPane(local, serverState) {
-    var ul = document.getElementById('whList');
-    var status = document.getElementById('whStatus');
+    var ul = SH.getElementById('whList');
+    var status = SH.getElementById('whStatus');
     if (!ul || !status) return;
     var seen = {};
     var urls = (local || []).map(function (w) { return typeof w === 'string' ? w : w.url; })
@@ -419,9 +430,9 @@
         seen[u] = true;
         return true;
       });
-    ul.innerHTML = urls.length ? urls.map(function (u) {
-      return '<li>' + esc(u) + '</li>';
-    }).join('') : '<li>No webhook URLs yet. Add one above.</li>';
+    ul.textContent = '';
+    if (urls.length) urls.forEach(function (u) { ul.appendChild(mk('li', null, u)); });
+    else ul.appendChild(mk('li', null, 'No webhook URLs yet. Add one above.'));
     if (serverState === null) {
       status.textContent = urls.length
         ? urls.length + ' URL(s), saved on this device only (no API base + token in Sync tab).'
@@ -456,31 +467,39 @@
     });
   }
   function renderLabelsPane(defs, map, serverState) {
-    var ul = document.getElementById('labList');
-    var status = document.getElementById('labStatus');
+    var ul = SH.getElementById('labList');
+    var status = SH.getElementById('labStatus');
     var counts = {};
     Object.keys(map).forEach(function (id) {
       (map[id] || []).forEach(function (l) { counts[l] = (counts[l] || 0) + 1; });
     });
-    ul.innerHTML = defs.length ? defs.map(function (d) {
+    ul.textContent = '';
+    if (!defs.length) { ul.appendChild(mk('li', null, 'No labels yet. Create one above.')); }
+    defs.forEach(function (d) {
       var c = counts[d] || 0;
-      var on = activeLabel === d ? ' · showing' : '';
-      return '<li><span class="nm">' + esc(d) + '</span>' +
-        '<span class="ct">' + c + ' saved' + esc(on) + '</span>' +
-        '<button data-act="filter" data-label="' + esc(d) + '">' +
-        (activeLabel === d ? 'Clear' : 'Show') + '</button></li>';
-    }).join('') : '<li>No labels yet. Create one above.</li>';
+      var li = mk('li');
+      li.appendChild(mk('span', 'nm', d));
+      li.appendChild(mk('span', 'ct', c + ' saved' + (activeLabel === d ? ' · showing' : '')));
+      var b = mk('button', null, activeLabel === d ? 'Clear' : 'Show');
+      b.dataset.act = 'filter'; b.dataset.label = d;
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
     status.textContent = serverState === null
       ? 'Local-only (no API base + token in Sync tab).'
       : serverState === 'ok'
         ? defs.length + ' label(s), synced with server.'
         : defs.length + ' label(s), saved locally (server unreachable, will retry).';
     // filter dropdown in Saved pane
-    var sel = document.getElementById('labelFilter');
+    var sel = SH.getElementById('labelFilter');
     var cur = activeLabel;
-    sel.innerHTML = '<option value="">All labels</option>' + defs.map(function (d) {
-      return '<option value="' + esc(d) + '"' + (d === cur ? ' selected' : '') + '>' + esc(d) + '</option>';
-    }).join('');
+    sel.options.length = 0;
+    sel.appendChild(new Option('All labels', ''));
+    defs.forEach(function (d) {
+      var o = new Option(d, d);
+      if (d === cur) o.selected = true;
+      sel.appendChild(o);
+    });
   }
 
   // --- approvals: propose -> approve/reject (local-first; server mirror) ---
@@ -520,19 +539,28 @@
     });
   }
   function renderApprovalsPane(local, serverState) {
-    var ul = document.getElementById('apList');
-    var status = document.getElementById('apStatus');
+    var ul = SH.getElementById('apList');
+    var status = SH.getElementById('apStatus');
     if (!ul || !status) return;
     var items = (local || []).slice(-50).reverse();
-    ul.innerHTML = items.length ? items.map(function (p) {
+    ul.textContent = '';
+    if (items.length) items.forEach(function (p) {
       var st = p.status || 'pending';
-      var actions = st === 'pending'
-        ? '<div class="row2"><button data-act="ap-approve" data-id="' + esc(p.id) + '">Approve</button>' +
-          '<button data-act="ap-reject" data-id="' + esc(p.id) + '">Reject</button></div>'
-        : '';
-      return '<li><span class="t">' + esc(p.title || '(untitled)') + '</span>' +
-        '<span class="st">' + esc(st) + '</span>' + actions + '</li>';
-    }).join('') : '<li>No proposed actions. Propose one above to try the flow.</li>';
+      var li = mk('li');
+      li.appendChild(mk('span', 't', p.title || '(untitled)'));
+      li.appendChild(mk('span', 'st', st));
+      if (st === 'pending') {
+        var row = mk('div', 'row2');
+        var ok = mk('button', null, 'Approve');
+        ok.dataset.act = 'ap-approve'; ok.dataset.id = p.id;
+        var no = mk('button', null, 'Reject');
+        no.dataset.act = 'ap-reject'; no.dataset.id = p.id;
+        row.appendChild(ok); row.appendChild(no);
+        li.appendChild(row);
+      }
+      ul.appendChild(li);
+    });
+    else ul.appendChild(mk('li', null, 'No proposed actions. Propose one above to try the flow.'));
     var pending = (local || []).filter(function (p) { return (p.status || 'pending') === 'pending'; }).length;
     if (serverState === null) {
       status.textContent = pending
@@ -568,11 +596,11 @@
     });
   }
 
-  document.getElementById('whAdd').addEventListener('click', function () {
-    var inp = document.getElementById('whUrl');
+  SH.getElementById('whAdd').addEventListener('click', function () {
+    var inp = SH.getElementById('whUrl');
     var url = String(inp.value || '').trim();
     if (!validWebhookUrl(url)) {
-      var st0 = document.getElementById('whStatus');
+      var st0 = SH.getElementById('whStatus');
       if (st0) st0.textContent = 'Enter an https:// URL (http://localhost allowed for testing).';
       inp.focus();
       return;
@@ -591,12 +619,12 @@
     });
   });
   function refresh() {
-    var qstr = document.getElementById('search').value;
+    var qstr = SH.getElementById('search').value;
     return Promise.all([getQueue(), getLabelMap(), getLabelDefs(), serverSearch(qstr, activeLabel)]).then(function (parts) {
       var q = parts[0], map = parts[1], defs = parts[2], serverData = parts[3];
       return render(q, map, qstr, serverData).then(function () {
         chrome.runtime.sendMessage({ type: 'bv-stats' }, function (s) {
-          var h = document.getElementById('health');
+          var h = SH.getElementById('health');
           if (!h) return;
           if (!s) { h.textContent = ''; return; }
           // HTTP preview has no background worker: fall back to the local queue count.
@@ -631,8 +659,8 @@
 
   function cleanName(s) { return String(s || '').trim().replace(/\s+/g, ' ').slice(0, 40); }
 
-  document.getElementById('labCreate').addEventListener('click', function () {
-    var inp = document.getElementById('labName');
+  SH.getElementById('labCreate').addEventListener('click', function () {
+    var inp = SH.getElementById('labName');
     var name = cleanName(inp.value);
     if (!name) { inp.focus(); return; }
     getLabelDefs().then(function (defs) {
@@ -649,8 +677,8 @@
     });
   });
 
-  document.getElementById('apAdd').addEventListener('click', function () {
-    var inp = document.getElementById('apTitle');
+  SH.getElementById('apAdd').addEventListener('click', function () {
+    var inp = SH.getElementById('apTitle');
     var title = String(inp.value || '').trim().replace(/\s+/g, ' ').slice(0, 120);
     if (!title) { inp.focus(); return; }
     var item = { id: 'local-' + Date.now(), kind: 'general', title: title,
@@ -665,7 +693,7 @@
     });
   });
 
-  document.addEventListener('click', function (ev) {
+  SH.addEventListener('click', function (ev) {
     var t = ev.target;
     if (!t || !t.dataset || !t.dataset.act) return;
     var id = t.dataset.id, label = t.dataset.label;
@@ -673,13 +701,13 @@
       activeLabel = '';
       activeType = '';
       activeLoc = '';
-      var si = document.getElementById('search');
+      var si = SH.getElementById('search');
       if (si) si.value = '';
-      var lf = document.getElementById('labelFilter');
+      var lf = SH.getElementById('labelFilter');
       if (lf) lf.value = '';
-      var tf = document.getElementById('typeFilter');
+      var tf = SH.getElementById('typeFilter');
       if (tf) tf.value = '';
-      var lf2 = document.getElementById('locFilter');
+      var lf2 = SH.getElementById('locFilter');
       if (lf2) lf2.value = '';
       refresh();
     } else if (t.dataset.act === 'detach') {
@@ -689,7 +717,7 @@
         return setLabelMap(map);
       }).then(function () { return serverDetach(id, label); }).then(refresh);
     } else if (t.dataset.act === 'attach') {
-      var sel = document.querySelector('select[data-attach-for="' + CSS.escape(id) + '"]');
+      var sel = SH.querySelector('select[data-attach-for="' + CSS.escape(id) + '"]');
       var name = sel ? cleanName(sel.value) : '';
       if (!name) return;
       Promise.all([getLabelMap(), getLabelDefs()]).then(function (parts) {
@@ -719,7 +747,7 @@
         return false;
       }).then(refreshApprovals);
     } else if (t.dataset.act === 'more') {
-      var box = document.querySelector('li[data-tid="' + CSS.escape(id) + '"] .txt');
+      var box = SH.querySelector('li[data-tid="' + CSS.escape(id) + '"] .txt');
       if (box) {
         var open = box.classList.toggle('expanded');
         box.classList.toggle('collapsed', !open);
@@ -728,48 +756,48 @@
     } else if (t.dataset.act === 'filter') {
       activeLabel = (activeLabel === label) ? '' : label;
       // jump to Saved pane so the result is visible (no scroll steal: tab switch only)
-      showPane('pane-saved', true);
+      showPane('pane-saved', false);
       refresh();
     }
   });
 
-  document.getElementById('clearSearch').addEventListener('click', function () {
+  SH.getElementById('clearSearch').addEventListener('click', function () {
     activeLabel = '';
     activeType = '';
     activeLoc = '';
-    document.getElementById('search').value = '';
-    document.getElementById('labelFilter').value = '';
-    document.getElementById('typeFilter').value = '';
-    document.getElementById('locFilter').value = '';
+    SH.getElementById('search').value = '';
+    SH.getElementById('labelFilter').value = '';
+    SH.getElementById('typeFilter').value = '';
+    SH.getElementById('locFilter').value = '';
     refresh(); // user-initiated: no scroll steal, list re-renders in place
   });
-  document.getElementById('typeFilter').addEventListener('change', function (ev) {
+  SH.getElementById('typeFilter').addEventListener('change', function (ev) {
     activeType = ev.target.value || '';
     refresh();
   });
-  document.getElementById('locFilter').addEventListener('change', function (ev) {
+  SH.getElementById('locFilter').addEventListener('change', function (ev) {
     activeLoc = ev.target.value || '';
     refresh();
   });
   try {
     chrome.storage.local.get('bv.verifyOrder').then(function (o) {
       verifyOn = !!(o && o['bv.verifyOrder']);
-      var cb = document.getElementById('verifyOrder');
+      var cb = SH.getElementById('verifyOrder');
       if (cb) cb.checked = verifyOn;
     });
   } catch (e) {}
-  document.getElementById('verifyOrder').addEventListener('change', function (ev) {
+  SH.getElementById('verifyOrder').addEventListener('change', function (ev) {
     verifyOn = !!ev.target.checked;
     try { chrome.storage.local.set({ 'bv.verifyOrder': verifyOn }); } catch (e) {}
     refresh();
   });
-  document.getElementById('labelFilter').addEventListener('change', function (ev) {
+  SH.getElementById('labelFilter').addEventListener('change', function (ev) {
     activeLabel = ev.target.value || '';
     refresh();
   });
 
   var searchTimer = null;
-  document.getElementById('search').addEventListener('input', function () {
+  SH.getElementById('search').addEventListener('input', function () {
     // Debounced so each keystroke does not hammer GET /v1/bookmarks; no scroll steal.
     if (searchTimer) clearTimeout(searchTimer);
     searchTimer = setTimeout(refresh, 250);
@@ -800,8 +828,8 @@
     catch (e) { return d.toLocaleString(); }
   }
   function renderImport(st) {
-    var el = document.getElementById('impStatus');
-    var bs = document.getElementById('impStart');
+    var el = SH.getElementById('impStatus');
+    var bs = SH.getElementById('impStart');
     if (!el) return;
     if (!st || (!st.wish && !st.state)) {
       el.textContent = 'Not started yet. Your place is kept on this device.';
@@ -825,12 +853,12 @@
   function refreshImport() {
     return Promise.all([getImport(), getQueue()]).then(function (parts) {
       renderImport(parts[0]);
-      var bar = document.getElementById('impBar');
+      var bar = SH.getElementById('impBar');
       if (bar) {
         var sc = (parts[0] && parts[0].scrolls) || 0;
         bar.style.width = Math.min(100, Math.round(sc / 15)) + '%'; // 1500 max scrolls
       }
-      var qb = document.getElementById('impQueue');
+      var qb = SH.getElementById('impQueue');
       if (qb) {
         var b = 0, l = 0, bo = 0;
         parts[1].forEach(function (r) {
@@ -845,7 +873,7 @@
       }
     });
   }
-  var __impStart = document.getElementById('impStart');
+  var __impStart = SH.getElementById('impStart');
   if (__impStart) __impStart.addEventListener('click', function () {
     getImport().then(function (cur) {
       var fresh = (!cur || cur.state === 'done')
@@ -854,7 +882,7 @@
       return setImport(fresh);
     });
   });
-  var __impPause = document.getElementById('impPause');
+  var __impPause = SH.getElementById('impPause');
   if (__impPause) __impPause.addEventListener('click', function () {
     setImport({ wish: 'pause', state: 'paused' });
   });
@@ -869,7 +897,7 @@
   }
 
   function fetchPlan() {
-    var el = document.getElementById('plan');
+    var el = SH.getElementById('plan');
     return getApi().then(function (a) {
       if (!a.apiBase || !a.token) {
         el.textContent = 'Plan: Free (local-only, no account connected).';
@@ -892,30 +920,30 @@
     });
   }
 
-  document.getElementById('save').addEventListener('click', function () {
-    var apiBase = document.getElementById('apiBase').value.trim();
-    var token = document.getElementById('token').value.trim();
+  SH.getElementById('save').addEventListener('click', function () {
+    var apiBase = SH.getElementById('apiBase').value.trim();
+    var token = SH.getElementById('token').value.trim();
     chrome.storage.local.set({ 'bv.apiBase': apiBase, 'bv.token': token }).then(function () {
-      document.getElementById('status').textContent = apiBase && token ? 'Settings saved.' : 'Cleared — staying local-only.';
+      SH.getElementById('status').textContent = apiBase && token ? 'Settings saved.' : 'Cleared — staying local-only.';
       fetchPlan();
       refresh();
     });
   });
-  document.getElementById('planBtn').addEventListener('click', fetchPlan);
+  SH.getElementById('planBtn').addEventListener('click', fetchPlan);
   chrome.storage.local.get('bv.devMode').then(function (o) {
-    document.getElementById('devMode').checked = !!o['bv.devMode'];
+    SH.getElementById('devMode').checked = !!o['bv.devMode'];
   });
-  document.getElementById('devMode').addEventListener('change', function (e) {
+  SH.getElementById('devMode').addEventListener('change', function (e) {
     chrome.runtime.sendMessage({ type: 'bv-devmode', on: e.target.checked }, function () {
-      document.getElementById('tuneHint').textContent = e.target.checked
+      SH.getElementById('tuneHint').textContent = e.target.checked
         ? 'Dev mode ON: tuning loads from server. Tap Refresh tuning, then scroll.'
         : 'Off = store build (frozen).';
     });
   });
-  document.getElementById('tuneBtn').addEventListener('click', function () {
-    document.getElementById('tuneHint').textContent = 'Fetching…';
+  SH.getElementById('tuneBtn').addEventListener('click', function () {
+    SH.getElementById('tuneHint').textContent = 'Fetching…';
     chrome.runtime.sendMessage({ type: 'bv-tuning-refresh' }, function (r) {
-      document.getElementById('tuneHint').textContent = r && r.ok
+      SH.getElementById('tuneHint').textContent = r && r.ok
         ? 'Tuning v' + r.v + ' applied. Scroll to feel it.'
         : 'Server unreachable — frozen tuning stays.';
     });
@@ -925,13 +953,13 @@
     catch (e) { return 'preview'; }
   }
   function checkVersions() {
-    var box = document.getElementById('buildBox');
+    var box = SH.getElementById('buildBox');
     var inst = installedVer();
     box.textContent = 'This extension: ' + inst + ' · checking published…';
     getApi().then(function (a) {
       var ops = (a.apiBase || DEFAULT_BASE).replace(/:8899\/?$/, ':8901');
       if (!/:8901/.test(ops)) ops = OPS_BASE;
-      var lane = document.getElementById('devMode').checked
+      var lane = SH.getElementById('devMode').checked
         ? 'Logic lane: REMOTE (auto-updates ON)'
         : 'Logic lane: FROZEN bundled copy (turn on Developer mode)';
       return Promise.all([
@@ -963,17 +991,17 @@
       });
     });
   }
-  document.getElementById('verCheck').addEventListener('click', checkVersions);
-  document.getElementById('sync').addEventListener('click', function () {
-    document.getElementById('status').textContent = 'Syncing…';
+  SH.getElementById('verCheck').addEventListener('click', checkVersions);
+  SH.getElementById('sync').addEventListener('click', function () {
+    SH.getElementById('status').textContent = 'Syncing…';
     chrome.runtime.sendMessage({ type: 'bv-sync-now' }, function (r) {
-      document.getElementById('status').textContent = r && r.ok
+      SH.getElementById('status').textContent = r && r.ok
         ? 'Synced ' + (r.synced || 0) + ' bookmark(s).'
         : 'Still local (' + ((r && r.reason) || 'no connection') + '). Nothing lost.';
       refresh();
     });
   });
-  document.getElementById('wipe').addEventListener('click', function () {
+  SH.getElementById('wipe').addEventListener('click', function () {
     if (!confirm('Erase ALL saved tweets on this device AND on the server? Labels stay.')) return;
     var keys = [QUEUE_KEY, LABELS_KEY, IMPORT_KEY];
     chrome.storage.local.remove(keys, function () {
@@ -987,7 +1015,7 @@
       });
     });
   });
-  document.getElementById('dl').addEventListener('click', function () {
+  SH.getElementById('dl').addEventListener('click', function () {
     Promise.all([getQueue(), getLabelMap()]).then(function (parts) {
       var q = parts[0].map(function (r) {
         return Object.assign({}, r, { labels: labelsOf(r, parts[1]) });
@@ -1002,13 +1030,16 @@
   });
 
   getApi().then(function (a) {
-    document.getElementById('apiBase').value = a.apiBase;
-    document.getElementById('token').value = a.token;
-    var vs = document.getElementById('viewServer');
+    SH.getElementById('apiBase').value = a.apiBase;
+    SH.getElementById('token').value = a.token;
+    var vs = SH.getElementById('viewServer');
     if (vs && a.apiBase) vs.href = a.apiBase.replace(/\/$/, '') + '/view';
   });
   refresh();
   refreshImport();
   fetchPlan();
   checkVersions();
-})();
+
+  
+    try { window.BVAPP.refresh = refresh; } catch (e) {}
+  }

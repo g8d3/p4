@@ -1,0 +1,5 @@
+// BookmarkVault in-page app (v0.3.0): capture engine + full panel UI.
+// Delivered remotely (devMode) or as bundled snapshot; the whole UI
+// rides the hot lane. Legacy sidepanel/ files remain as fallback.
+(function () {
+'use strict';

@@ -51,6 +51,22 @@
     rec.pages.forEach(function (p) {
       if (prev.pages.indexOf(p) < 0) { prev.pages.push(p); changed = true; }
     });
+    // Button states ride BOTH paths: merge them even when XHR wins the text,
+    // or DOM-only knowledge (liked/saved buttons) dies in dedupe. True is
+    // sticky; false only fills unknowns (an unlike needs an XHR round-trip).
+    if ((rec.liked === true || rec.liked === false) && prev.liked !== rec.liked) {
+      if (prev.liked == null || rec.liked === true) { prev.liked = rec.liked; changed = true; }
+    }
+    if ((rec.saved === true || rec.saved === false) && prev.saved !== rec.saved) {
+      if (prev.saved == null || rec.saved === true) { prev.saved = rec.saved; changed = true; }
+    }
+    if (prev.kind === 'tweet' && rec.kind && rec.kind !== 'tweet') { prev.kind = rec.kind; changed = true; }
+    if (!prev.saveOrder && rec.saveOrder) { prev.saveOrder = rec.saveOrder; changed = true; }
+    if (changed) {
+      if (prev.liked === true && prev.pages.indexOf('likes') < 0) prev.pages.push('likes');
+      if (prev.saved === true && prev.pages.indexOf('bookmarks') < 0) prev.pages.push('bookmarks');
+      prev.page = prev.pages[0];
+    }
     if (prev.source === 'xhr' && rec.source === 'dom') return changed ? prev : null; // XHR wins
     if (prev.source === 'dom' && rec.source === 'xhr') {
       prev.text = rec.text; prev.author = rec.author || prev.author;
@@ -269,7 +285,10 @@
         var wasDrag = pillEndDrag(true);
         if (!wasDrag && dt < 800) {
           try { ev.preventDefault(); } catch (e) {}
-          try { window.BVAPP.open(); } catch (e2) {}
+          try {
+            if (window.BVAPP.isOpen()) window.BVAPP.close();
+            else window.BVAPP.open();
+          } catch (e2) {}
         }
       });
       pillEl.addEventListener('pointercancel', function () { pillEndDrag(false); });
@@ -333,8 +352,8 @@
   window.__bvEngineStart = start; // boot is coordinated (see prelude below)
 })();
 
-  // Static/remote boot coordination. Static manifest scripts run before the
-  // loader's async decision; remote eval sets __bvRemote on full success.
+  // Boot: static manifest delivery only. Remote eval is CSP-blocked on
+  // x.com, so there is nothing to wait for (docs/extension-devtooling.md).
   window.__bvStandDown = true; // engine never self-starts
   (function bvCoordinate() {
     function go() {
@@ -345,22 +364,11 @@
       } catch (e) {}
       try { chrome.runtime.sendMessage({ type: 'bv-devnote', note: 'panel-ui-boot' }); } catch (e2) {}
     }
-    if (window.__bvIsRemote) { go(); return; } // remote eval: boot now
-    try {
-      chrome.storage.local.get('bv.devMode', function (o) {
-        if (o && o['bv.devMode']) {
-          var t0 = Date.now(); // static file: give remote eval 4s, else boot bundled
-          (function wait() {
-            if (window.__bvRemote) return; // remote won: stand down
-            if (Date.now() - t0 > 4000) go();
-            else setTimeout(wait, 200);
-          })();
-        } else go(); // frozen: boot bundled now
-      });
-    } catch (e) { go(); }
+    try { go(); } catch (e) {}
   })();
 
-  // ---------- SHELL: shadow-DOM overlay + backend proxy ----------
+
+
   // Backend calls are proxied through the background service worker:
   // content scripts must not fetch http endpoints from https pages.
   function bgFetch(url, opts) {
@@ -490,8 +498,8 @@
   <select id="typeFilter" aria-label="Filter by type">
     <option value="">All types</option>
     <option value="likes">Liked</option>
-    <option value="bookmarks">Saved</option>
-    <option value="both">Both (liked + saved)</option>
+    <option value="bookmarks">Bookmarked</option>
+    <option value="both">Liked + bookmarked</option>
   </select>
   <label class="verifyrow"><input type="checkbox" id="verifyOrder"> Verify save order (newest/oldest)</label>
   <select id="locFilter" aria-label="Filter by location">
@@ -580,8 +588,9 @@
   <button role="tab" aria-selected="false" data-pane="pane-sync">Sync</button>
   <button role="tab" aria-selected="false" data-pane="pane-hooks">Hooks</button>
   <button role="tab" aria-selected="false" data-pane="pane-export">Export</button>
-</nav></div>`;
-  var BV_SH = null, BV_MOUNTED = false;
+</nav>
+<template id="t-item"><li><div class="txt collapsed"></div><button class="morebtn" data-act="more" hidden>Show all</button><div class="meta"><span class="ma"></span><span class="md"></span><a class="open" target="_blank" rel="noopener">Open</a></div><div class="meta m2"></div><div class="chips" hidden></div><div class="attach" hidden></div></li></template></div>`;
+  var BV_SH = null, BV_MOUNTED = false, BV_OPEN = false;
   function bvShell() {
     if (BV_SH) return BV_SH;
     try {
@@ -599,13 +608,7 @@
       sheet0.style.display = 'none';
       sh.appendChild(sheet0);
       (document.body || document.documentElement).appendChild(host);
-      var _nav = sh.querySelector('nav.tabs');
-      if (_nav && !sh.getElementById('bv-navclose')) {
-        var _c = document.createElement('button');
-        _c.id = 'bv-navclose'; _c.textContent = 'Close';
-        _c.addEventListener('click', function () { window.BVAPP.close(); });
-        _nav.appendChild(_c);
-      }
+      /* nav has no Close cell: the pill toggles open/close */
       BV_SH = sh;
       return sh;
     } catch (e) { return null; }
@@ -618,17 +621,21 @@
     try {
       var sheet = sh.getElementById('bv-app');
       if (sheet) sheet.style.display = 'flex';
+      BV_OPEN = true;
     } catch (e) {}
     try { if (window.BVAPP.refresh) window.BVAPP.refresh(); } catch (e) {}
   };
+  window.BVAPP.isOpen = function () { return BV_OPEN; };
   window.BVAPP.close = function () {
     try {
       var sh = BV_SH;
       var sheet = sh && sh.getElementById('bv-app');
       if (sheet) sheet.style.display = 'none';
+      BV_OPEN = false;
     } catch (e) {}
   };
   try { chrome.runtime.sendMessage({ type: 'bv-devnote', note: 'panel-boot' }); } catch (e) {}
+
 
   function mountPanel(SH) {
     var fetch = bgFetch;
@@ -756,10 +763,23 @@
     if (saved) return 'saved';
     return 'seen';
   }
-  var ST_LABEL = { both: 'both', liked: 'liked', saved: 'saved', seen: 'seen', quoted: 'quoted' };
-  function statusBadge(r) {
+  var ST_LABEL = { both: 'liked + bookmarked', liked: 'liked', saved: 'bookmarked', seen: 'seen', quoted: 'quoted' };
+  // DOM builders (no HTML strings): structure lives in panel.html <template>,
+  // text goes through textContent (auto-escaped).
+  function mk(tag, cls, text) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text != null) el.textContent = text;
+    return el;
+  }
+  function cloneTpl(id) {
+    var t = SH.getElementById(id);
+    var n = t && t.content && t.content.firstElementChild;
+    return n ? n.cloneNode(true) : null;
+  }
+  function statusEl(r) {
     var st = statusOf(r);
-    return '<span class="st st-' + st + '">' + ST_LABEL[st] + '</span>';
+    return mk('span', 'st st-' + st, ST_LABEL[st]);
   }
   function pageBadges(r) {
     return pagesOf(r).map(function (p) {
@@ -878,11 +898,9 @@
       items = all.slice(0, 100);
       mode = (serverData === 'error') ? 'offline' : 'local';
     }
-    function syncBadge(r) {
-      if (mode !== 'server') return '<span class="syncpend">this device</span>';
-      return syncedIds[r.id]
-        ? '<span class="syncok">on server</span>'
-        : '<span class="syncpend">upload pending</span>';
+    function syncEl(r) {
+      if (mode !== 'server') return mk('span', 'syncpend', 'this device');
+      return syncedIds[r.id] ? mk('span', 'syncok', 'on server') : mk('span', 'syncpend', 'upload pending');
     }
     var nLiked = 0, nSaved = 0, nBoth = 0, nQuoted = 0, nSeen = 0;
     all.forEach(function (r) {
@@ -893,7 +911,7 @@
       else if (st === 'quoted') nQuoted++;
       else nSeen++;
     });
-    var typeLine = nBoth + ' both · ' + nLiked + ' liked · ' + nSaved + ' saved' +
+    var typeLine = nBoth + ' liked+bookmarked · ' + nLiked + ' liked · ' + nSaved + ' bookmarked' +
       (nQuoted ? ' · ' + nQuoted + ' quoted' : '') + (nSeen ? ' · ' + nSeen + ' seen' : '');
     // Save-order rank from X sortIndex (larger = more recent bookmark; X sends
     // no bookmark creation date, so this ordering is the sync check).
@@ -906,47 +924,80 @@
     var saveRank = {};
     ranked.forEach(function (r, i) { if (!saveRank[r.id]) saveRank[r.id] = i + 1; });
     var newestSaved = ranked[0] || null, oldestSaved = ranked[ranked.length - 1] || null;
-    function rankBadge(r) {
-      if (!verifyOn || !saveRank[r.id]) return '';
-      return '<span class="ord">saved #' + saveRank[r.id] + '</span>';
-    }
+
     return getLabelDefs().then(function (defs) {
       var dupes = dupeCounts(items);
       var dupeShown = 0;
-      list.innerHTML = items.length ? items.map(function (r) {
+      function buildItem(r) {
+        var li = cloneTpl('t-item');
         var dk = normText(r);
         var isDupe = dk.length >= 20 && dupes[dk] > 1;
         if (isDupe) dupeShown++;
-        var dupeBadge = isDupe
-          ? '<span class="dupe" title="Same text saved ' + dupes[dk] + ' times">Possible duplicate \u00d7' + dupes[dk] + '</span>' : '';
-        var labs = labelsOf(r, map);
-        var chips = labs.map(function (l) {
-          return '<span class="chip">' + esc(l) +
-            '<button data-act="detach" data-id="' + esc(r.id) + '" data-label="' + esc(l) +
-            '" title="Remove label" aria-label="Remove ' + esc(l) + '">×</button></span>';
-        }).join('');
-        var opts = defs.filter(function (d) { return labs.indexOf(d) < 0; })
-          .map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + '</option>'; })
-          .join('');
-        var attach = defs.length && opts
-          ? '<div class="attach"><select data-attach-for="' + esc(r.id) +
-            '" aria-label="Attach label">' + opts +
-            '</select><button data-act="attach" data-id="' + esc(r.id) + '">Add</button></div>'
-          : '<div class="attach"><span class="hint" style="padding:0">No more labels — create one in the Labels tab.</span></div>';
-        var openUrl = 'https://x.com/i/status/' + encodeURIComponent(r.id);
-        var full = String(r.text || '');
-        var needMore = full.length > 220;
+        li.dataset.tid = r.id;
+        li.querySelector('.txt').textContent = String(r.text || '');
+        var more = li.querySelector('.morebtn');
+        if (String(r.text || '').length > 220) { more.hidden = false; more.dataset.id = r.id; }
+        else { more.remove(); }
+        var metas = li.querySelectorAll('.meta');
+        metas[0].querySelector('.ma').textContent = '@' + (r.author || '?');
+        metas[0].querySelector('.md').textContent = fmtDate(r.created_at);
+        metas[0].querySelector('.open').href = 'https://x.com/i/status/' + encodeURIComponent(r.id);
+        if (isDupe) {
+          var db = mk('span', 'dupe', 'Possible duplicate \u00d7' + dupes[dk]);
+          db.title = 'Same text saved ' + dupes[dk] + ' times';
+          metas[0].appendChild(db);
+        }
+        var m2 = metas[1];
+        m2.appendChild(statusEl(r));
         var kind = (r && r.kind && r.kind !== 'tweet') ? r.kind : '';
-        return '<li data-tid="' + esc(r.id) + '"><div class="txt collapsed">' + esc(full) + '</div>' +
-          (needMore ? '<button class="morebtn" data-act="more" data-id="' + esc(r.id) + '">Show all</button>' : '') +
-          '<div class="meta"><span>@' + esc(r.author || '?') + '</span><span>' + esc(fmtDate(r.created_at)) + '</span>' +
-          '<span class="src">' + esc(r.source || '?') + '</span>' + pageBadges(r) +
-          (kind ? '<span class="kind">' + esc(kind) + '</span>' : '') + statusBadge(r) + rankBadge(r) + syncBadge(r) +
-          '<a class="open" href="' + openUrl + '" target="_blank" rel="noopener">Open</a>' + dupeBadge + '</div>' +
-          (chips ? '<div class="chips">' + chips + '</div>' : '') + attach + '</li>';
-      }).join('') : (qstr || activeLabel
-        ? '<li>No matches for this search. <button data-act="clear">Clear search</button></li>'
-        : '<li>No saved bookmarks yet. Browse your X bookmarks and they appear here.</li>');
+        if (kind) m2.appendChild(mk('span', 'kind', kind));
+        if (verifyOn && saveRank[r.id]) m2.appendChild(mk('span', 'ord', 'saved #' + saveRank[r.id]));
+        m2.appendChild(syncEl(r));
+        var labs = labelsOf(r, map);
+        var chipsBox = li.querySelector('.chips');
+        if (labs.length) {
+          chipsBox.hidden = false;
+          labs.forEach(function (l) {
+            var chip = mk('span', 'chip', l);
+            var x = mk('button', null, '\u00d7');
+            x.dataset.act = 'detach'; x.dataset.id = r.id; x.dataset.label = l;
+            x.title = 'Remove label'; x.setAttribute('aria-label', 'Remove ' + l);
+            chip.appendChild(x);
+            chipsBox.appendChild(chip);
+          });
+        } else { chipsBox.remove(); }
+        var box = li.querySelector('.attach');
+        var opts = defs.filter(function (d) { return labs.indexOf(d) < 0; });
+        if (defs.length && opts.length) {
+          box.hidden = false;
+          var sel = document.createElement('select');
+          sel.dataset.attachFor = r.id;
+          sel.setAttribute('aria-label', 'Attach label');
+          opts.forEach(function (d) {
+            var o = document.createElement('option');
+            o.value = d; o.textContent = d;
+            sel.appendChild(o);
+          });
+          var add = mk('button', null, 'Add');
+          add.dataset.act = 'attach'; add.dataset.id = r.id;
+          box.appendChild(sel); box.appendChild(add);
+        } else { box.remove(); }
+        return li;
+      }
+      list.textContent = '';
+      if (items.length) {
+        items.forEach(function (r) { list.appendChild(buildItem(r)); });
+      } else {
+        var empty = mk('li', null, (qstr || activeLabel)
+          ? 'No matches for this search. '
+          : 'No saved bookmarks yet. Browse your X bookmarks and they appear here.');
+        if (qstr || activeLabel) {
+          var cb = mk('button', null, 'Clear search');
+          cb.dataset.act = 'clear';
+          empty.appendChild(cb);
+        }
+        list.appendChild(empty);
+      }
       var st = SH.getElementById('status');
       var orderNote = items.length > 1 ? ' · newest first' : '';
       var dupeNote = dupeShown ? ' · ' + dupeShown + ' possible duplicate' + (dupeShown > 1 ? 's' : '') : '';
@@ -1018,9 +1069,9 @@
         seen[u] = true;
         return true;
       });
-    ul.innerHTML = urls.length ? urls.map(function (u) {
-      return '<li>' + esc(u) + '</li>';
-    }).join('') : '<li>No webhook URLs yet. Add one above.</li>';
+    ul.textContent = '';
+    if (urls.length) urls.forEach(function (u) { ul.appendChild(mk('li', null, u)); });
+    else ul.appendChild(mk('li', null, 'No webhook URLs yet. Add one above.'));
     if (serverState === null) {
       status.textContent = urls.length
         ? urls.length + ' URL(s), saved on this device only (no API base + token in Sync tab).'
@@ -1061,14 +1112,18 @@
     Object.keys(map).forEach(function (id) {
       (map[id] || []).forEach(function (l) { counts[l] = (counts[l] || 0) + 1; });
     });
-    ul.innerHTML = defs.length ? defs.map(function (d) {
+    ul.textContent = '';
+    if (!defs.length) { ul.appendChild(mk('li', null, 'No labels yet. Create one above.')); }
+    defs.forEach(function (d) {
       var c = counts[d] || 0;
-      var on = activeLabel === d ? ' · showing' : '';
-      return '<li><span class="nm">' + esc(d) + '</span>' +
-        '<span class="ct">' + c + ' saved' + esc(on) + '</span>' +
-        '<button data-act="filter" data-label="' + esc(d) + '">' +
-        (activeLabel === d ? 'Clear' : 'Show') + '</button></li>';
-    }).join('') : '<li>No labels yet. Create one above.</li>';
+      var li = mk('li');
+      li.appendChild(mk('span', 'nm', d));
+      li.appendChild(mk('span', 'ct', c + ' saved' + (activeLabel === d ? ' · showing' : '')));
+      var b = mk('button', null, activeLabel === d ? 'Clear' : 'Show');
+      b.dataset.act = 'filter'; b.dataset.label = d;
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
     status.textContent = serverState === null
       ? 'Local-only (no API base + token in Sync tab).'
       : serverState === 'ok'
@@ -1077,9 +1132,13 @@
     // filter dropdown in Saved pane
     var sel = SH.getElementById('labelFilter');
     var cur = activeLabel;
-    sel.innerHTML = '<option value="">All labels</option>' + defs.map(function (d) {
-      return '<option value="' + esc(d) + '"' + (d === cur ? ' selected' : '') + '>' + esc(d) + '</option>';
-    }).join('');
+    sel.options.length = 0;
+    sel.appendChild(new Option('All labels', ''));
+    defs.forEach(function (d) {
+      var o = new Option(d, d);
+      if (d === cur) o.selected = true;
+      sel.appendChild(o);
+    });
   }
 
   // --- approvals: propose -> approve/reject (local-first; server mirror) ---
@@ -1123,15 +1182,24 @@
     var status = SH.getElementById('apStatus');
     if (!ul || !status) return;
     var items = (local || []).slice(-50).reverse();
-    ul.innerHTML = items.length ? items.map(function (p) {
+    ul.textContent = '';
+    if (items.length) items.forEach(function (p) {
       var st = p.status || 'pending';
-      var actions = st === 'pending'
-        ? '<div class="row2"><button data-act="ap-approve" data-id="' + esc(p.id) + '">Approve</button>' +
-          '<button data-act="ap-reject" data-id="' + esc(p.id) + '">Reject</button></div>'
-        : '';
-      return '<li><span class="t">' + esc(p.title || '(untitled)') + '</span>' +
-        '<span class="st">' + esc(st) + '</span>' + actions + '</li>';
-    }).join('') : '<li>No proposed actions. Propose one above to try the flow.</li>';
+      var li = mk('li');
+      li.appendChild(mk('span', 't', p.title || '(untitled)'));
+      li.appendChild(mk('span', 'st', st));
+      if (st === 'pending') {
+        var row = mk('div', 'row2');
+        var ok = mk('button', null, 'Approve');
+        ok.dataset.act = 'ap-approve'; ok.dataset.id = p.id;
+        var no = mk('button', null, 'Reject');
+        no.dataset.act = 'ap-reject'; no.dataset.id = p.id;
+        row.appendChild(ok); row.appendChild(no);
+        li.appendChild(row);
+      }
+      ul.appendChild(li);
+    });
+    else ul.appendChild(mk('li', null, 'No proposed actions. Propose one above to try the flow.'));
     var pending = (local || []).filter(function (p) { return (p.status || 'pending') === 'pending'; }).length;
     if (serverState === null) {
       status.textContent = pending
@@ -1439,7 +1507,7 @@
           else if (st === 'saved') b++;
         });
         qb.textContent = parts[1].length
-          ? 'Waiting on this device: ' + bo + ' both · ' + l + ' liked · ' + b + ' saved.'
+          ? 'Waiting on this device: ' + bo + ' liked+bookmarked · ' + l + ' liked · ' + b + ' bookmarked.'
           : 'Queue empty — everything captured is on the server (or nothing captured yet).';
       }
     });

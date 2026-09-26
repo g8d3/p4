@@ -113,3 +113,17 @@ would die the same way here). What survives: static manifest delivery
 (`tuning.json`: match patterns, scroll speed, name paths — plain JSON,
 no eval), and backend-side changes. Rule of thumb going forward: behavior
 tuning without reinstall; code changes need file refresh + reload.
+
+## 2026-09-26 — eval attempt removed (v0.3.8)
+
+Since remote eval is CSP-dead on x.com, the loader no longer attempts it:
+no more console error, no 4s wait. Boot is static-manifest only;
+`tuning.json` (data) still flows remotely. `bv-fetch-*` handlers removed.
+
+## 2026-09-26 — templates, zero innerHTML (v0.3.10)
+
+Owner critique: HTML-in-JS soup. Item skeleton now lives in
+ext-dev/panel.html as <template id="t-item">; rows are built with
+createElement/textContent (auto-escaped, no esc() needed); label dropdown
+uses the Option API. panel-app.js contains zero innerHTML. Same rule for
+any future dynamic markup: structure in HTML, data via DOM.

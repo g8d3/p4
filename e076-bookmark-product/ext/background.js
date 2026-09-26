@@ -4,11 +4,6 @@ importScripts('resilience.js');
 
 const QUEUE_KEY = 'bv.queue.v1';
 const DEV_BASE = 'http://vuos-hcar5000mi.tail6918b0.ts.net:8901';
-async function fetchText(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('http-' + r.status);
-  return await r.text();
-}
 async function tuningRefresh() {
   try {
     const on = (await chrome.storage.local.get('bv.devMode'))['bv.devMode'];
@@ -177,20 +172,6 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   }
   if (msg && msg.type === 'bv-sync-now') {
     trySync().then((r) => reply && reply(r));
-    return true;
-  }
-  if (msg && msg.type === 'bv-fetch-remote') {
-    // Hot lane: panel.js source for the content world (devMode ON).
-    fetchText(DEV_BASE + '/ext-dev/panel.js')
-      .then((code) => reply && reply({ ok: true, code }))
-      .catch(() => reply && reply({ ok: false }));
-    return true;
-  }
-  if (msg && msg.type === 'bv-fetch-local') {
-    // Bundled snapshot for frozen/offline runs (same file, release copy).
-    fetchText(chrome.runtime.getURL('panel.js'))
-      .then((code) => reply && reply({ ok: true, code }))
-      .catch(() => reply && reply({ ok: false }));
     return true;
   }
   if (msg && msg.type === 'bv-api') {

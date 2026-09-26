@@ -190,6 +190,17 @@ VIEW_HTML = """<!doctype html>
     if (Array.isArray(r.pages) && r.pages.length) return r.pages;
     return [r.page || 'bookmarks'];
   }
+  function statusOf(r) {
+    if (r && r.context === 'quoted') return 'quoted';
+    var p = pagesOf(r);
+    var liked = (r && r.liked === true) || (r && r.liked !== false && p.indexOf('likes') >= 0);
+    var saved = (r && r.saved === true) || (r && r.saved !== false && p.indexOf('bookmarks') >= 0);
+    if (liked && saved) return 'both';
+    if (liked) return 'liked';
+    if (saved) return 'saved';
+    return 'seen';
+  }
+  var ST_LABEL = { both: 'liked + bookmarked', liked: 'liked', saved: 'bookmarked', seen: 'seen', quoted: 'quoted' };
   function load() {
     fetch('/v1/bookmarks', { headers: { 'Authorization': 'Bearer local-view' } })
       .then(function (res) { return res.json(); })
@@ -216,9 +227,8 @@ VIEW_HTML = """<!doctype html>
       return ((r.text || '') + ' ' + (r.author || '')).toLowerCase().indexOf(q) >= 0;
     }).slice(0, 200);
     document.getElementById('list').innerHTML = shown.length ? shown.map(function (r) {
-      var badges = pagesOf(r).map(function (p) {
-        return '<span class="pg pg-' + esc(p) + '">' + esc(p) + '</span>';
-      }).join('');
+      var st = statusOf(r);
+      var badges = '<span class="pg pg-' + esc(st === 'both' ? 'bookmarks' : st === 'saved' ? 'bookmarks' : st === 'liked' ? 'likes' : 'other') + '">' + esc(ST_LABEL[st]) + '</span>';
       var labs = (r.labels || []).map(function (l) {
         return '<span class="lab">' + esc(l) + '</span>';
       }).join('');
