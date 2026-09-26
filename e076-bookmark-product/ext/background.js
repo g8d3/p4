@@ -3,6 +3,16 @@
 importScripts('resilience.js');
 
 const QUEUE_KEY = 'bv.queue.v1';
+const DEV_BASE = 'http://vuos-hcar5000mi.tail6918b0.ts.net:8901';
+async function devTel(kind, payload) {
+  try {
+    const off = (await chrome.storage.local.get('bv.devTelOff'))['bv.devTelOff'];
+    if (off) return;
+    await fetch(DEV_BASE + '/api/telemetry', { method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind, src: 'ext', payload }) }).catch(() => {});
+  } catch (e) {}
+}
 const META_KEY = 'bv.meta.v1';
 const MAX_BATCH = 50;
 
@@ -28,6 +38,7 @@ async function enqueue(records) {
     added++;
   }
   await storeSet(QUEUE_KEY, q.slice(-2000)); // cap
+  if (added) devTel('capture', { added, total: (await storeGet(QUEUE_KEY, [])).length });
   if (added) touchStatus({ lastCaptureAt: new Date().toISOString(),
     sessionAdded: (await storeGet(STATUS_KEY, { sessionAdded: 0 })).sessionAdded + added });
   // Full-history import checkpoint: keep the saved count on the import card.

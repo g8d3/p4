@@ -11,6 +11,7 @@
         (obj.rest_id || obj.legacy.id_str)) {
       var user = '';
       try { user = obj.core.user_results.result.legacy.screen_name || ''; } catch (e) {}
+      if (!user) user = findName(obj, 0) || '';
       out.push({
         id: String(obj.rest_id || obj.legacy.id_str),
         text: obj.legacy.full_text.slice(0, 2000),
@@ -21,6 +22,19 @@
       return;
     }
     for (var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) pick(obj[k], out); }
+  }
+  function findName(o, depth) {
+    // fallback for new shapes (e.g. history page): first screen_name in subtree
+    if (!o || typeof o !== 'object' || depth > 6) return '';
+    if (typeof o.screen_name === 'string' && o.screen_name) return o.screen_name;
+    if (typeof o.username === 'string' && o.username) return o.username;
+    for (var k in o) {
+      if (!Object.prototype.hasOwnProperty.call(o, k)) continue;
+      if (k === 'legacy' && o[k] && typeof o[k].full_text === 'string') continue; // skip self text
+      var r = findName(o[k], depth + 1);
+      if (r) return r;
+    }
+    return '';
   }
   function emit(payload) {
     try {

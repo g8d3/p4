@@ -41,6 +41,11 @@ class H(SimpleHTTPRequestHandler):
             st["leg_running"] = os.path.exists("/tmp/e076-runner.lock") and self._locked()
             return self._send(st)
         if self.path == "/api/inbox": return self._send(load(INBOX, []))
+        if self.path == "/api/telemetry":
+            try:
+                tl = open(os.path.join(EXP, "ops", "telemetry.jsonl"), errors="replace").read().splitlines()[-50:]
+                return self._send([json.loads(x) for x in tl])
+            except Exception: return self._send([])
         if self.path == "/api/log":
             lines = []
             try:
@@ -74,6 +79,14 @@ class H(SimpleHTTPRequestHandler):
             ib.append({"id": int(time.time()), "from": "human", "text": b.get("text", "")[:5000],
                        "created": time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())})
             save(INBOX, ib); return self._send({"ok": True})
+        if self.path == "/api/telemetry":
+            if len(b.get("payload", "") if isinstance(b.get("payload"), str) else "") > 200000:
+                return self._send({"ok": False, "why": "too-big"})
+            b["_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            b["_ip"] = self.client_address[0]
+            with open(os.path.join(EXP, "ops", "telemetry.jsonl"), "a") as f:
+                f.write(json.dumps(b)[:200000] + "\n")
+            return self._send({"ok": True})
         if self.path == "/api/run":
             if self._locked(): return self._send({"ok": False, "why": "leg already running"})
             subprocess.Popen(["nohup", os.path.join(EXP, "loop", "run.sh")],
