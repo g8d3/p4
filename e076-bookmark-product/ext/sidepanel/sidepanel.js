@@ -37,16 +37,24 @@
     tabs.forEach(function (x) { x.setAttribute('aria-selected', x.dataset.pane === id ? 'true' : 'false'); });
     panes.forEach(function (p) { p.classList.toggle('active', p.id === id); });
     // replaceState, not location.hash: no scroll steal, shareable link.
+    // + storage: mobile panels reopen fresh on every icon tap (hash lost), storage survives.
     if (pushHash) { try { history.replaceState(null, '', '#' + id.replace(/^pane-/, '')); } catch (e) {} }
+    try { chrome.storage.local.set({ 'bv.pane': id }); } catch (e) {}
   }
   tabs.forEach(function (b) {
     b.addEventListener('click', function () { showPane(b.dataset.pane, true); });
   });
   // Deep link: index.html#labels opens the Labels pane on load (for links + screenshots).
+  // Storage fallback: mobile panels reopen fresh (hash lost) — last pane wins.
   (function () {
+    function apply(id) { if (document.getElementById(id)) showPane(id, false); }
     var h = (location.hash || '').replace('#', '');
-    var want = h ? document.getElementById('pane-' + h) : null;
-    if (want) showPane('pane-' + h, false);
+    if (h && document.getElementById('pane-' + h)) { apply('pane-' + h); return; }
+    try {
+      chrome.storage.local.get('bv.pane').then(function (o) {
+        if (o && o['bv.pane']) apply(o['bv.pane']);
+      });
+    } catch (e) {}
   })();
 
   function getQueue() {
