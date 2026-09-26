@@ -37,20 +37,17 @@ button.act{background:#111;color:#fff;border-radius:8px;padding:12px 20px;font-s
 .msg.answer{color:#333;background:#f6f6f6;border-left:3px solid #111;padding:8px 10px;border-radius:0 8px 8px 0}
 </style>
 <div class="tabs" id="tabs"></div>
-<div class="page" id="p-status"><div id="s" class="big">loading…</div><details class="muted"><summary>How legs run</summary>You write, a leg auto-starts in ~1 min, ships one step, table + inbox update. Run forces one now.</details><div id="roadmap"></div><button class="act" id="runb" onclick="runLeg()">Run next leg</button> <span class="muted" id="runst"></span><div class="muted" id="livelogcap" style="display:none">What is happening now:</div><pre id="livelog" class="muted" style="white-space:pre-wrap;max-height:180px;overflow:auto"></pre></div>
-<div class="page" id="p-legs"><table id="legs"></table><p class="muted" id="legsmore"></p></div>
-<div class="page" id="p-blocked"><div id="b"></div></div>
-<div class="page" id="p-inbox"><div class="banner"><b>How this inbox works.</b> Nothing here is applied instantly. Your messages wait in the list below → press <b>Run next leg</b> (here or on Status) → the next leg reads everything new and ships one small step. One box only: write below, then run.<br><span class="muted" id="queuehint"></span></div><label for="askt"><b>New message for the next leg</b></label><textarea id="askt" rows="4" placeholder="Write here… (multiline: Enter = new line)"></textarea><button class="act" onclick="ask()">Queue message</button> <button class="act" onclick="runLeg(this)">Run next leg now</button><div id="ib" style="margin-top:12px"></div></div>
-<div class="page" id="p-ext"><div class="card"><b>Try the extension (free, owner build)</b><p>Desktop Chrome: download, unzip, chrome://extensions, Developer mode, Load unpacked.</p><p>Mobile Quetta: download, unzip, extensions page, load unpacked.</p><p><a href="../ext/bookmarkvault-ext.zip"><button class="act">Download ext</button></a></p><p class="muted">Test mode, no keys. Store listing later.</p></div></div>
-<div class="page" id="p-vers"><div id="vers">loading…</div></div>
-<div class="page" id="p-keys">
-<div class="banner"><b>Test mode is fine.</b> The backend runs without keys (billing grants only <code>plan:test</code>). Wire a key only when ready to go live. Keys stay in <b>this browser only</b> — never sent, never saved in the project.</div>
+<div class="page" id="p-progress"><div id="s" class="big">loading…</div><details class="muted"><summary>How legs run</summary>You write, a leg auto-starts in ~1 min, ships one step, table + inbox update. Run forces one now.</details><div id="roadmap"></div><button class="act" id="runb" onclick="runLeg()">Run next leg</button> <span class="muted" id="runst"></span><div class="muted" id="livelogcap" style="display:none">What is happening now:</div><pre id="livelog" class="muted" style="white-space:pre-wrap;max-height:180px;overflow:auto"></pre><h3>Legs</h3><table id="legs"></table><p class="muted" id="legsmore"></p></div>
+<div class="page" id="p-inbox"><div class="banner"><b>How this inbox works.</b> Nothing here is applied instantly. Your messages wait in the list below → press <b>Run next leg</b> (here or on Progress) → the next leg reads everything new and ships one small step. One box only: write below, then run.<br><span class="muted" id="queuehint"></span></div><label for="askt"><b>New message for the next leg</b></label><textarea id="askt" rows="4" placeholder="Write here… (multiline: Enter = new line)"></textarea><button class="act" onclick="ask()">Queue message</button> <button class="act" onclick="runLeg(this)">Run next leg now</button><div id="ib" style="margin-top:12px"></div></div>
+<div class="page" id="p-build"><div class="card"><b>Try the extension (free, owner build)</b><p>Desktop Chrome: download, unzip, chrome://extensions, Developer mode, Load unpacked.</p><p>Mobile Quetta: download, unzip, extensions page, load unpacked.</p><p><a href="../ext/bookmarkvault-ext.zip"><button class="act">Download ext</button></a></p><p class="muted">Test mode, no keys. Store listing later.</p><p class="muted">Owner build <span id="ownerBuild">v0.3.5</span> — the extension sidepanel (Sync → This build) tells you if yours is older.</p></div><h3>Versions</h3><div id="vers">loading…</div></div>
+<div class="page" id="p-setup"><h3>Needs you</h3><div id="b"></div><h3>Keys</h3><div class="banner"><b>Test mode is fine.</b> The backend runs without keys (billing grants only <code>plan:test</code>). Wire a key only when ready to go live. Keys stay in <b>this browser only</b> — never sent, never saved in the project.</div>
 
 <div id="ks">loading needs…</div>
 <pre id="ko" class="muted"></pre>
 </div>
 <script>
-const TABS=[["Status","status"],["Legs","legs"],["Todo","blocked"],["Inbox","inbox"],["Keys","keys"],["Ext","ext"],["Vers","vers"]];
+const TABS=[["Progress","progress"],["Inbox","inbox"],["Setup","setup"],["Build","build"]];
+const TAB_ALIAS={status:"progress",legs:"progress",blocked:"setup",todo:"setup",keys:"setup",ext:"build",vers:"build"};
 const tabs=document.getElementById('tabs');
 function showTab(id,push){
  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));
@@ -62,7 +59,7 @@ TABS.forEach(([t,id],i)=>{
  b.onclick=()=>showTab(id,true);
  tabs.appendChild(b);
 });
-showTab(TABS.some(t=>t[1]===(location.hash||'').replace('#',''))?(location.hash||'').replace('#',''):'status',false);
+(function(){var h=(location.hash||'').replace('#','');h=TAB_ALIAS[h]||h;showTab(TABS.some(t=>t[1]===h)?h:'progress',false);})();
 async function j(f){return (await fetch(f)).json()}
 function fmt(ts){
  if(!ts)return '\u2014';
@@ -78,7 +75,7 @@ async function loadInbox(){
  const ib=await j('/api/inbox').catch(()=>[]);
  let lastHuman=-1;ib.forEach((m,i)=>{if(m.from==='human')lastHuman=i});
  const unread=ib.slice(lastHuman+1).filter(m=>m.from!=='human').length;
- TABS[3][0]=(unread?`Inbox ${unread}`:'Inbox');tabs.children[3].textContent=TABS[3][0];
+ TABS[1][0]=(unread?`Inbox ${unread}`:'Inbox');tabs.children[1].textContent=TABS[1][0];
  const yours=ib.filter(m=>m.from==='human').length, shipped=ib.filter(m=>m.from!=='human').length;
  const q=document.getElementById('queuehint');
  if(q)q.textContent=`${yours} message(s) from you \u00b7 ${shipped} update(s) from the cycle. New messages ship on the next leg \u2014 press Run next leg.`;
@@ -107,9 +104,10 @@ async function runLeg(btn){const b=btn||document.getElementById('runb');const st
   document.getElementById('s').innerHTML=`<span class="pill bad">running</span> <b>Leg #${run.n}</b> \u00b7 ${fmt(run.started)} (your time)<br><br>Leg is running now — this table already lists it below.`;
   await renderLegsFromState(s);}}catch(e){}
  for(let i=0;i<36;i++){await new Promise(rr=>setTimeout(rr,10000));try{const s=await j('../loop/state.json').catch(()=>null);if(s)await renderLegsFromState(s);}catch(e){}const s2=await j('/api/status').catch(()=>null);if(s2&&(s2.last_status!=='running'||s2.last_leg>LAST_LEG)){location.reload();return}}st.textContent='still running — refresh later';b.disabled=false}
-async function loadVers(){try{const v=await j('../loop/versions.json');const vs=(v.versions||[]).slice().sort((x,y)=>x.rank-y.rank);document.getElementById('vers').innerHTML='<table><tr><th>v</th><th>rank</th><th>legs</th><th>show</th><th>notes</th></tr>'+vs.map(x=>`<tr onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'" style='cursor:pointer'><td>${x.v}</td><td>#${x.rank}</td><td>${x.legs}</td><td>${x.presentable?'\u2714 showable':'not yet'}</td><td>${x.notes}</td></tr><tr style='display:none'><td colspan='5' class='muted'>Tap a leg # in the Legs tab for its step.</td></tr>`).join('')+'</table>';}catch(e){document.getElementById('vers').textContent='No versions yet.';}}
+async function loadVers(){try{const v=await j('../loop/versions.json');const vs=(v.versions||[]).slice().sort((x,y)=>x.rank-y.rank);document.getElementById('vers').innerHTML='<table><tr><th>v</th><th>rank</th><th>legs</th><th>show</th><th>notes</th></tr>'+vs.map(x=>`<tr onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'" style='cursor:pointer'><td>${x.v}</td><td>#${x.rank}</td><td>${x.legs}</td><td>${x.presentable?'\u2714 showable':'not yet'}</td><td>${x.notes}</td></tr><tr style='display:none'><td colspan='5' class='muted'>Tap a leg # in the Progress tab for its step.</td></tr>`).join('')+'</table>';}catch(e){document.getElementById('vers').textContent='No versions yet.';}}
 async function pollLog(){let running=false;try{const s=await j('/api/status');running=s&&s.last_status==='running';}catch(e){}const el=document.getElementById('livelog');const cap=document.getElementById('livelogcap');if(!running){if(el)el.style.display='none';if(cap)cap.style.display='none';return}if(el){el.style.display='';if(cap)cap.style.display='';try{const l=await j('/api/log');const lines=(l.log||[]);el.textContent=lines.length?lines.join('\n\u2022 '):'Working — first update lands in seconds…';}catch(e){}setTimeout(pollLog,3000)}}
 loadInbox();pollLog();loadVers();
+fetch('../ext/build.json').then(r=>r.json()).then(b=>{try{var d=new Date(b.built_at);var w=isNaN(d)?String(b.built_at||'?'):d.toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});document.getElementById('ownerBuild').textContent='v'+b.version+' · built '+w;}catch(e){}}).catch(()=>{});
 (async()=>{
  const needs=await j('needs.json').catch(()=>[]);
  const ks=document.getElementById('ks');
@@ -118,7 +116,7 @@ loadInbox();pollLog();loadVers();
   const has=!!get(n.field).trim();
   const pill=has?'<span class="pill ok">saved here</span>':(n.status==='optional'?'<span class="pill">optional</span>':'<span class="pill bad">needs you</span>');
   return `<div class="card">${pill} <b>${n.title}</b><br><span class="muted">Stored as <code>${n.field}</code> — browser only.</span><input id="k_${n.id}" type="${n.sensitive?'password':'text'}" autocomplete="off" spellcheck="false" placeholder="${n.field}" value="${get(n.field).replace(/"/g,'&quot;')}"></div>`;
- }).join('')+`<p class="muted">Autosaves as you type. Steps per key live in the Todo tab.</p>`;
+ }).join('')+`<p class="muted">Autosaves as you type. Steps per key live under Needs you above.</p>`;
  needs.forEach(n=>{
   document.getElementById('k_'+n.id).addEventListener('input',e=>{try{localStorage.setItem(n.field,e.target.value.trim())}catch(_){}
    document.getElementById('ko').textContent='Saved in this browser at '+new Date().toLocaleTimeString()+'.';});
@@ -135,8 +133,7 @@ let LAST_LEG=0;
  document.getElementById('s').innerHTML=
   `${pill} <b>Leg #${st.last_leg}</b> · ${fmt(st.updated)} (your time)<br><br>${st.last_summary}<br><br>Next: <b>${st.next}</b><br><span class="muted">Version ${st.version} · mode ${st.cycle}</span>`;
  try{const q=s.next_queue||[];if(q.length)document.getElementById('roadmap').innerHTML='<b>Coming legs:</b><ol>'+q.slice(0,4).map(x=>'<li>'+x+'</li>').join('')+'</ol>';}catch(e){}
- TABS[1][0]=`Legs ${s.legs.length}`;tabs.children[1].textContent=TABS[1][0];
- if(s&&s.legs){
+  if(s&&s.legs){
   const all=s.legs.slice().reverse(),show=all.slice(0,10);
   document.getElementById('legs').innerHTML='<tr><th>#</th><th>status</th><th>when</th><th>model</th><th>in/out</th><th>took</th><th>what</th></tr>'+
   show.map(l=>{const dur=l.duration_s!=null?l.duration_s+'s':'\u2014';return `<tr><td>${l.n}</td><td>${l.status}</td><td><span class="muted">${fmt(l.ended||l.started)}</span></td><td>${(l.model||'\u2014').split('/').pop()}</td><td>${l.input_tokens??'\u2014'}/${l.output_tokens??'\u2014'}</td><td>${dur}</td><td>${l.summary}</td></tr>`}).join('');
@@ -144,9 +141,9 @@ let LAST_LEG=0;
   if(all.length>10)document.getElementById('legsmore').textContent=`Showing 10 of ${all.length}. Older legs stay in loop/legs/ logs.`;
  }
  const blocked=new Set(st.blocked||[]);
- TABS[2][0]=`Todo ${blocked.size}`;tabs.children[2].textContent=TABS[2][0];
+ TABS[2][0]=`Setup${blocked.size?` ${blocked.size}`:''}`;tabs.children[2].textContent=TABS[2][0];
  document.getElementById('b').innerHTML=needs.filter(x=>blocked.has(x.id)).map(x=>
-  `<div class="card"><b>${x.title}</b><p>${x.why}</p><p>${x.steps.map((s,i)=>`${i+1}. ${s}`).join('<br>')}</p><p>${(x.links||[]).map(l=>`<a href="${l}" target=_blank>${l}</a>`).join(' ')}</p><p class="muted">Paste as <code>${x.field}</code></p><button class="act" onclick="tabs.children[4].click()">Go to Keys</button></div>`).join('')||'Nothing blocked. The cycle is building on its own.';
+  `<div class="card"><b>${x.title}</b><p>${x.why}</p><p>${x.steps.map((s,i)=>`${i+1}. ${s}`).join('<br>')}</p><p>${(x.links||[]).map(l=>`<a href="${l}" target=_blank>${l}</a>`).join(' ')}</p><p class="muted">Paste as <code>${x.field}</code></p><button class="act" onclick="document.getElementById('ks').scrollIntoView()">Go to keys below</button></div>`).join('')||'Nothing blocked. The cycle is building on its own.';
 })();
 </script>
 </html>

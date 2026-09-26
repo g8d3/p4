@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BookmarkVault v0.1.0 — Hub</title>
-<!-- BookmarkVault v0.1.0 -->
+<title>BookmarkVault v0.2.0 — Hub</title>
+<!-- BookmarkVault v0.2.0 -->
 <style>
 body{font-family:system-ui;margin:0}
 nav{background:#111;color:#fff;padding:6px;display:flex;gap:4px;position:fixed;bottom:0;left:0;right:0;overflow-x:auto;white-space:nowrap}
@@ -25,7 +25,7 @@ const P=[
 const nav=document.getElementById('nav'),v=document.getElementById('v');
 P.forEach(([t,u],i)=>{
  const b=document.createElement('button');b.textContent=t;
- b.onclick=()=>{let s=u;try{if(u.indexOf('ops/cycle')===0){const st=localStorage.getItem('bv.subtab');if(st)s=u+'#'+st}}catch(e){}v.src=s;[...nav.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');location.hash=i};
+ b.onclick=()=>{let s=u;try{if(s.indexOf('?')<0)s+='?v=2'}catch(e){}try{if(u.indexOf('ops/cycle')===0){const st=localStorage.getItem('bv.subtab');if(st)s+='#'+st}}catch(e){}v.src=s;[...nav.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');location.hash=i};
  nav.appendChild(b);
 });
 const n=parseInt((location.hash||'#0').slice(1))||0;

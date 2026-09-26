@@ -25,6 +25,16 @@ def save(p, o):
 class H(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw): super().__init__(*a, directory=EXP, **kw)
     def log_message(self, *a): pass
+    def end_headers(self):
+        # Owner iterates fast and mobile browsers cache hard: never cache
+        # HTML/JSON so cycle.html + loop state always render fresh.
+        try:
+            if self.path.split("?")[0].endswith((".html", ".json")):
+                self.send_header("Cache-Control", "no-store")
+            # Local dev server: let the extension sidepanel check versions.
+            self.send_header("Access-Control-Allow-Origin", "*")
+        except Exception: pass
+        super().end_headers()
     def _send(self, o, code=200):
         b = json.dumps(o).encode()
         self.send_response(code); self.send_header("Content-Type", "application/json")

@@ -4,6 +4,11 @@ importScripts('resilience.js');
 
 const QUEUE_KEY = 'bv.queue.v1';
 const DEV_BASE = 'http://vuos-hcar5000mi.tail6918b0.ts.net:8901';
+async function fetchText(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('http-' + r.status);
+  return await r.text();
+}
 async function tuningRefresh() {
   try {
     const on = (await chrome.storage.local.get('bv.devMode'))['bv.devMode'];
@@ -40,18 +45,65 @@ async function touchStatus(patch) {
   const s = await storeGet(STATUS_KEY, { sessionAdded: 0 });
   await storeSet(STATUS_KEY, { ...s, ...patch });
 }
+const PAGE_OK = ['bookmarks', 'likes', 'history', 'other'];
+function normPages(r) {
+  const s = new Set();
+  (Array.isArray(r.pages) ? r.pages : [r.page]).forEach((p) => {
+    if (PAGE_OK.includes(p)) s.add(p);
+  });
+  if (!s.size) s.add('bookmarks');
+  return [...s];
+}
 async function enqueue(records) {
   const q = await storeGet(QUEUE_KEY, []);
-  const seen = new Set(q.map((r) => r.id));
+  const byId = new Map(q.map((r, i) => [r.id, i]));
   let added = 0;
   for (const r of records) {
-    if (!r || !r.id || seen.has(r.id)) continue;
-    seen.add(r.id);
-    q.push({ ...r, queued_at: new Date().toISOString() });
+    if (!r || !r.id) continue;
+    const pages = normPages(r || {});
+    if (byId.has(r.id)) {
+      // Same tweet seen on another page (e.g. bookmarked AND liked):
+      // merge page tags + let XHR text win, instead of dropping it.
+      const cur = q[byId.get(r.id)];
+      const have = new Set(normPages(cur));
+      pages.forEach((p) => have.add(p));
+      cur.pages = [...have];
+      cur.page = cur.pages[0];
+      // XHR kind (article/poll/media/…) is authoritative; DOM kind fills gaps.
+      if (r.kind && (r.source === 'xhr' || cur.kind === 'tweet' || !cur.kind)) cur.kind = r.kind;
+      // Button states upgrade tags even on dupes: liked (+saved) seen anywhere
+      // counts without revisiting the other page.
+      if (r.liked === true && !have.has('likes')) { have.add('likes'); cur.pages = [...have]; cur.page = cur.pages[0]; }
+      if (r.saved === true && !have.has('bookmarks')) { have.add('bookmarks'); cur.pages = [...have]; cur.page = cur.pages[0]; }
+      if (r.liked === true || r.liked === false) cur.liked = r.liked;
+      if (r.saved === true || r.saved === false) cur.saved = r.saved;
+      if (r.context && (r.source === 'xhr' || !cur.context)) cur.context = r.context;
+      if (r.saveOrder && !cur.saveOrder) cur.saveOrder = r.saveOrder;
+      if (r.source === 'xhr' && cur.source !== 'xhr' && r.text) {
+        cur.text = r.text;
+        cur.author = r.author || cur.author;
+        cur.created_at = r.created_at || cur.created_at;
+        cur.source = 'xhr';
+      }
+      continue;
+    }
+    byId.set(r.id, q.length);
+    q.push({ ...r, page: pages[0], pages, queued_at: new Date().toISOString() });
     added++;
   }
   await storeSet(QUEUE_KEY, q.slice(-2000)); // cap
-  if (added) devTel('capture', { added, total: (await storeGet(QUEUE_KEY, [])).length });
+  if (added) {
+    // Owner asked to SEE how extraction behaves: ship a 3-record stripped
+    // sample (ids + shapes, text cut to 200) with every capture batch.
+    var sample = records.slice(0, 3).map(function (r) {
+      return { id: r.id, author: r.author, text: String(r.text || '').slice(0, 200),
+        kind: r.kind, pages: normPages(r), context: r.context || null,
+        liked: r.liked ?? null, saved: r.saved ?? null,
+        saveOrder: r.saveOrder ? String(r.saveOrder).slice(0, 12) : null,
+        source: r.source };
+    });
+    devTel('capture', { added, total: (await storeGet(QUEUE_KEY, [])).length, sample });
+  }
   if (added) touchStatus({ lastCaptureAt: new Date().toISOString(),
     sessionAdded: (await storeGet(STATUS_KEY, { sessionAdded: 0 })).sessionAdded + added });
   // Full-history import checkpoint: keep the saved count on the import card.
@@ -125,6 +177,42 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   }
   if (msg && msg.type === 'bv-sync-now') {
     trySync().then((r) => reply && reply(r));
+    return true;
+  }
+  if (msg && msg.type === 'bv-fetch-remote') {
+    // Hot lane: panel.js source for the content world (devMode ON).
+    fetchText(DEV_BASE + '/ext-dev/panel.js')
+      .then((code) => reply && reply({ ok: true, code }))
+      .catch(() => reply && reply({ ok: false }));
+    return true;
+  }
+  if (msg && msg.type === 'bv-fetch-local') {
+    // Bundled snapshot for frozen/offline runs (same file, release copy).
+    fetchText(chrome.runtime.getURL('panel.js'))
+      .then((code) => reply && reply({ ok: true, code }))
+      .catch(() => reply && reply({ ok: false }));
+    return true;
+  }
+  if (msg && msg.type === 'bv-api') {
+    // Generic backend proxy: content-world UI must not fetch http
+    // endpoints from https pages (mixed content) — the worker can.
+    (async () => {
+      const apiBase = ((await chrome.storage.local.get('bv.apiBase'))['bv.apiBase'] || '').replace(/\/$/, '');
+      const token = (await chrome.storage.local.get('bv.token'))['bv.token'] || '';
+      if (!apiBase || !token) return { ok: false, error: 'no-auth' };
+      try {
+        const headers = {};
+        if (msg.body !== undefined) headers['Content-Type'] = 'application/json';
+        headers['Authorization'] = 'Bearer ' + token;
+        const res = await fetch(apiBase + (msg.path || ''), {
+          method: msg.method || 'GET',
+          headers,
+          body: msg.body !== undefined ? JSON.stringify(msg.body) : undefined,
+        });
+        const data = await res.json().catch(() => ({}));
+        return { ok: res.ok, status: res.status, data };
+      } catch (e) { return { ok: false, error: 'network' }; }
+    })().then((r) => reply && reply(r));
     return true;
   }
   if (msg && msg.type === 'bv-import-challenge') {

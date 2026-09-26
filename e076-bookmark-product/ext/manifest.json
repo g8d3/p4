@@ -2,16 +2,16 @@
   "manifest_version": 3,
   "name": "BookmarkVault (local-first X-bookmark backup)",
   "short_name": "BookmarkVault",
-  "version": "0.1.0",
-  "description": "Back up your X bookmarks locally while you browse. Full-history import scrolls slowly only after you tap Start.",
+  "version": "0.3.5",
+  "description": "Back up your X bookmarks and likes locally while you browse. Full-history import scrolls slowly only after you tap Start.",
   "minimum_chrome_version": "114",
   "host_permissions": ["https://x.com/*", "https://twitter.com/*", "http://127.0.0.1/*", "http://localhost/*", "https://*/*", "http://*.ts.net/*"],
   "permissions": ["storage", "alarms", "sidePanel", "scripting"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
-      "matches": ["https://x.com/i/bookmarks*", "https://twitter.com/i/bookmarks*", "https://x.com/i/history*", "https://twitter.com/i/history*"],
-      "js": ["loader.js"],
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["loader.js", "panel.js"],
       "run_at": "document_idle"
     }
   ],

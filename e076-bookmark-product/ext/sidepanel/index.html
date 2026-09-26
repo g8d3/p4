@@ -17,7 +17,10 @@
   .searchrow input { flex: 1; min-width: 0; }
   #clearSearch { flex: 0 0 auto; padding: 10px 12px; font-size: 14px; white-space: nowrap; }
   #list li, #labList li, #whList li { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
-  #list .txt { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  #list .txt { overflow-wrap: anywhere; white-space: pre-wrap; }
+  #list .txt.collapsed { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  #list .morebtn { border: 0; background: none; color: #0b5fff; font-size: 12px; padding: 2px 0; cursor: pointer; }
+  .kind { font-size: 11px; border: 1px solid #bbb; background: #f2f2f2; color: #333; border-radius: 4px; padding: 0 4px; margin-left: 6px; white-space: nowrap; }
   #list .meta { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: center; }
   #list .open { font-size: 12px; white-space: nowrap; }
   #list { list-style: none; margin: 0; padding: 0 14px; }
@@ -38,6 +41,29 @@
   #planHint { margin-top: 6px; }
   .hint { font-size: 12px; color: #666; padding: 0 14px; }
   #labelFilter { display: block; width: calc(100% - 28px); margin: 0 14px 8px; padding: 9px; font-size: 14px; }
+  #typeFilter { display: block; width: calc(100% - 28px); margin: 0 14px 8px; padding: 9px; font-size: 14px; }
+  #locFilter { display: block; width: calc(100% - 28px); margin: 0 14px 8px; padding: 9px; font-size: 14px; }
+  .st { font-size: 11px; border-radius: 10px; padding: 0 7px; border: 1px solid; white-space: nowrap; margin-left: 6px; }
+  .st-both { color: #7a5b00; border-color: #c90; background: #fff3c4; font-weight: 700; }
+  .st-liked { color: #c2185b; border-color: #c2185b; background: #fdeef4; }
+  .st-saved { color: #0b5fff; border-color: #0b5fff; background: #eef4ff; }
+  .st-seen { color: #666; border-color: #bbb; }
+  .st-quoted { color: #6a1b9a; border-color: #6a1b9a; background: #f3e8fd; }
+  .ord { font-size: 11px; color: #333; background: #eee; border-radius: 4px; padding: 0 4px; margin-left: 6px; white-space: nowrap; }
+  .verifyrow { display: block; margin: 0 14px 8px; font-size: 13px; }
+  .verifyrow input { width: auto; }
+  #verifyLine { margin: 0 14px 8px; font-size: 12px; color: #333; background: #f2f2f2; border-radius: 8px; padding: 8px 10px; }
+  .impbarwrap { margin: 8px 14px 0; height: 8px; background: #e5e5e5; border-radius: 4px; overflow: hidden; }
+  #impBar { height: 100%; width: 0; background: #111; }
+  #impQueue { margin-top: 6px; }
+  #buildBox { margin: 0 14px; font-size: 12px; color: #333; background: #f2f2f2; border-radius: 8px; padding: 8px 10px; white-space: pre-wrap; }
+  .pg { font-size: 11px; border-radius: 10px; padding: 0 7px; border: 1px solid; white-space: nowrap; margin-left: 6px; }
+  .pg-bookmarks { color: #0b5fff; border-color: #0b5fff; background: #eef4ff; }
+  .pg-likes { color: #c2185b; border-color: #c2185b; background: #fdeef4; }
+  .pg-history { color: #5d6d7e; border-color: #5d6d7e; background: #f2f4f6; }
+  .pg-other { color: #666; border-color: #bbb; }
+  .syncok { font-size: 11px; border-radius: 4px; padding: 0 4px; margin-left: 6px; white-space: nowrap; color: #1a7f37; border: 1px solid #1a7f37; background: #eaf7ee; }
+  .syncpend { font-size: 11px; border-radius: 4px; padding: 0 4px; margin-left: 6px; white-space: nowrap; color: #7a5b00; border: 1px solid #c90; background: #fff8e1; }
   .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
   .chip { display: inline-block; font-size: 12px; background: #eef4ff; border: 1px solid #bcd; border-radius: 20px; padding: 1px 4px 1px 8px; }
   .chip button { border: 0; background: none; font-size: 12px; padding: 0 4px; cursor: pointer; }
@@ -89,6 +115,19 @@
     <button id="clearSearch" title="Clear search and label filter">Clear</button>
   </div>
   <select id="labelFilter" aria-label="Filter by label"><option value="">All labels</option></select>
+  <select id="typeFilter" aria-label="Filter by type">
+    <option value="">All types</option>
+    <option value="likes">Liked</option>
+    <option value="bookmarks">Saved</option>
+    <option value="both">Both (liked + saved)</option>
+  </select>
+  <label class="verifyrow"><input type="checkbox" id="verifyOrder"> Verify save order (newest/oldest)</label>
+  <select id="locFilter" aria-label="Filter by location">
+    <option value="">Everywhere (device + server)</option>
+    <option value="device">This device only</option>
+    <option value="server">On server only</option>
+  </select>
+  <div id="verifyLine" role="status" style="display:none"></div>
   <ul id="list"></ul>
 </section>
 <section class="pane" id="pane-labels" aria-label="Labels">
@@ -110,6 +149,10 @@
   </div>
   <button class="btn" id="save">Save settings</button>
   <button class="btn" id="sync">Sync now</button>
+  <a class="btn" id="viewServer" href="http://127.0.0.1:8899/view" target="_blank" rel="noopener" style="text-decoration:none;border:1px solid #111;border-radius:8px;">View on server</a>
+  <div class="row" style="padding-bottom:0"><strong>This build</strong></div>
+  <div id="buildBox" role="status">Checking…</div>
+  <div><button class="btn" id="verCheck" style="margin:8px 14px">Check for updates</button></div>
   <p class="hint">Uploads only with a token. Test mode: stays local until you add one.</p>
   <div class="row" id="devRow">
     <label><input type="checkbox" id="devMode" style="width:auto"> Developer mode (tuning loads from server, no reinstall)</label>
@@ -123,13 +166,16 @@
     <div class="hint" id="planHint" style="padding:0">Reads GET /v1/billing/me with your API base + token.</div>
   </div>
   <div class="row" style="padding-bottom:0"><strong>Full-history import</strong></div>
-  <p class="hint">Brings in old bookmarks below what is already saved. Start it on your X bookmarks page — it scrolls slowly like you would, keeps its place, and pauses by itself if X asks to slow down.</p>
+  <p class="hint">Brings in old bookmarks and likes below what is already saved. Start it on your X bookmarks or likes page — it scrolls slowly like you would, keeps its place, and pauses by itself if X asks to slow down.</p>
   <div class="impform">
     <button id="impStart">Start import</button>
     <button id="impPause">Pause</button>
     <a id="impOpen" href="https://x.com/i/bookmarks" target="_blank" rel="noopener">Open X bookmarks</a>
+    <a id="impOpenLikes" href="https://x.com/" target="_blank" rel="noopener">Open X (your profile → Likes)</a>
   </div>
   <div id="impStatus" role="status">Not started yet. Your place is kept on this device.</div>
+  <div class="impbarwrap"><div id="impBar"></div></div>
+  <div id="impQueue" class="hint" style="padding-top:6px">Queue status loads here.</div>
   <div class="row" style="padding-bottom:0"><strong>Proposed actions</strong></div>
   <p class="hint">Risky steps wait here until you approve them. Nothing runs until you tap Approve.</p>
   <div class="apform">
@@ -152,6 +198,8 @@
 <section class="pane" id="pane-export" aria-label="Export">
   <button class="btn" id="dl">Download JSON</button>
   <p class="hint">Exports everything stored locally on this device.</p>
+  <button class="btn" id="wipe">Erase everything (device + server)</button>
+  <p class="hint">Wipes the local queue and all tweets on the server. Labels you created stay. Use for a clean re-capture, then Start import.</p>
 </section>
 
 <nav class="tabs" role="tablist" aria-label="BookmarkVault">

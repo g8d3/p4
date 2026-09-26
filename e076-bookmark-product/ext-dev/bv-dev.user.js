@@ -4,6 +4,7 @@
 // @version      0.3
 // @description  DEV ONLY: mirrors ext capture, posts to ops server. Updates itself on reload.
 // @match        https://x.com/i/bookmarks*
+// @match        https://x.com/*/likes
 // @match        https://x.com/i/history*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
@@ -52,6 +53,7 @@
     } catch (e) {}
   }
   var histPage = /\/i\/history/.test(location.pathname);
+  var likesPage = /\/likes/.test(location.pathname);
   try {
     var of = window.fetch;
     window.fetch = function () {
@@ -59,7 +61,7 @@
       return of.apply(this, args).then(function (res) {
         var url = '';
         try { url = (typeof args[0] === 'string' ? args[0] : args[0].url) || ''; } catch (e) {}
-        if (/Bookmark|bookmark/i.test(url) || (histPage && /graphql/i.test(url))) {
+        if (/Bookmark|bookmark/i.test(url) || (likesPage && /Favorit|Favourit|Likes|likes|Favorite|graphql/i.test(url)) || (histPage && /graphql/i.test(url))) {
           try { res.clone().text().then(emit).catch(function () {}); } catch (e) {}
         }
         return res;

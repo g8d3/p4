@@ -29,7 +29,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
-VERSION = "v0.1.0"
+VERSION = "v0.2.0"
 HERE = os.path.dirname(os.path.abspath(__file__))
 WEBHOOK_LOG = os.path.join(HERE, "webhook-log.jsonl")
 
@@ -88,8 +88,36 @@ STORE = {
     "events": [],        # test-mode webhook receipts
 }
 
-OPEN_PATHS = ("/health", "/v1/referrals/attribute",
+OPEN_PATHS = ("/health", "/view", "/v1/referrals/attribute",
               "/v1/billing/fiat-webhook", "/v1/billing/crypto-webhook")
+
+PAGE_OK = ("bookmarks", "likes", "history", "other")
+KIND_OK = ("tweet", "article", "poll", "media", "quote", "repost", "card")
+CTX_OK = ("direct", "quoted", "seen")
+
+
+def norm_pages(t):
+    """Union of page tags for a tweet dict (legacy `page` -> `pages`).
+    Like/save button states upgrade tags: liked/saved observed anywhere
+    counts without revisiting the other page."""
+    raw = t.get("pages") if isinstance(t.get("pages"), list) else [t.get("page")]
+    out = [p for p in raw if p in PAGE_OK]
+    seen = set()
+    uniq = []
+    for p in out:
+        if p not in seen:
+            seen.add(p)
+            uniq.append(p)
+    if t.get("liked") is True and "likes" not in seen:
+        uniq.append("likes")
+    if t.get("saved") is True and "bookmarks" not in seen:
+        uniq.append("bookmarks")
+    return uniq or ["bookmarks"]
+
+
+def norm_field(t, key, ok, dflt):
+    v = t.get(key, dflt)
+    return v if v in ok else dflt
 
 
 def log_event(obj):
@@ -99,6 +127,120 @@ def log_event(obj):
             f.write(json.dumps(obj) + "\n")
     except Exception:
         pass
+
+
+def send_html(h, code, html):
+    body = html.encode("utf-8")
+    h.send_response(code)
+    h.send_header("Content-Type", "text/html; charset=utf-8")
+    h.send_header("Content-Length", str(len(body)))
+    h.end_headers()
+    h.wfile.write(body)
+
+
+VIEW_HTML = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BookmarkVault — server view</title>
+<style>
+  body { margin: 0; font: 15px/1.45 system-ui, sans-serif; padding-bottom: 40px; }
+  header { padding: 14px 16px 4px; }
+  header h1 { font-size: 18px; margin: 0; }
+  header p { margin: 4px 0 8px; color: #666; font-size: 13px; }
+  #counts { margin: 0 16px 8px; padding: 8px 10px; border-radius: 8px; background: #f2f2f2; font-size: 13px; }
+  .controls { display: flex; gap: 6px; margin: 0 16px 8px; }
+  .controls input { flex: 1; min-width: 0; padding: 9px; font-size: 14px; }
+  .controls select, .controls button { padding: 9px 10px; font-size: 14px; white-space: nowrap; }
+  #list { list-style: none; margin: 0; padding: 0 16px; }
+  #list li { border-bottom: 1px solid #ddd; padding: 8px 0; overflow-wrap: anywhere; }
+  #list .txt { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  #list .meta { font-size: 12px; color: #666; display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: center; margin-top: 2px; }
+  .pg { font-size: 11px; border-radius: 10px; padding: 0 7px; border: 1px solid; white-space: nowrap; }
+  .pg-bookmarks { color: #0b5fff; border-color: #0b5fff; background: #eef4ff; }
+  .pg-likes { color: #c2185b; border-color: #c2185b; background: #fdeef4; }
+  .pg-history { color: #5d6d7e; border-color: #5d6d7e; background: #f2f4f6; }
+  .pg-other { color: #666; border-color: #bbb; }
+  .lab { font-size: 11px; background: #eef4ff; border: 1px solid #bcd; border-radius: 10px; padding: 0 7px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>BookmarkVault — on this server</h1>
+  <p>Everything the extension has uploaded. Local stub: restarting the server wipes it.</p>
+</header>
+<div id="counts">Loading…</div>
+<div class="controls">
+  <input id="q" type="search" placeholder="Search text or @author…" autocomplete="off">
+  <select id="f" aria-label="Filter by type">
+    <option value="">All types</option>
+    <option value="bookmarks">Bookmarks</option>
+    <option value="likes">Likes</option>
+  </select>
+  <button id="r">Refresh</button>
+</div>
+<ul id="list"></ul>
+<script>
+(function () {
+  var items = [];
+  function esc(s) { return String(s || '').replace(/[&<>\"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function pagesOf(r) {
+    if (Array.isArray(r.pages) && r.pages.length) return r.pages;
+    return [r.page || 'bookmarks'];
+  }
+  function load() {
+    fetch('/v1/bookmarks', { headers: { 'Authorization': 'Bearer local-view' } })
+      .then(function (res) { return res.json(); })
+      .then(function (p) { items = p.tweets || []; render(); })
+      .catch(function () { document.getElementById('counts').textContent = 'Server unreachable.'; });
+  }
+  function render() {
+    var q = document.getElementById('q').value.toLowerCase();
+    var f = document.getElementById('f').value;
+    var nb = 0, nl = 0, nboth = 0;
+    items.forEach(function (r) {
+      var p = pagesOf(r);
+      if (p.indexOf('bookmarks') >= 0) nb++;
+      if (p.indexOf('likes') >= 0) nl++;
+      if (p.indexOf('bookmarks') >= 0 && p.indexOf('likes') >= 0) nboth++;
+    });
+    document.getElementById('counts').textContent =
+      items.length + ' on server · ' + nb + ' bookmarks · ' + nl + ' likes' +
+      (nboth ? ' · ' + nboth + ' both' : '');
+    var shown = items.filter(function (r) {
+      var p = pagesOf(r);
+      if (f && p.indexOf(f) < 0) return false;
+      if (!q) return true;
+      return ((r.text || '') + ' ' + (r.author || '')).toLowerCase().indexOf(q) >= 0;
+    }).slice(0, 200);
+    document.getElementById('list').innerHTML = shown.length ? shown.map(function (r) {
+      var badges = pagesOf(r).map(function (p) {
+        return '<span class="pg pg-' + esc(p) + '">' + esc(p) + '</span>';
+      }).join('');
+      var labs = (r.labels || []).map(function (l) {
+        return '<span class="lab">' + esc(l) + '</span>';
+      }).join('');
+      var kind = (r.kind && r.kind !== 'tweet') ? '<span class="lab">[' + esc(r.kind) + ']</span>' : '';
+      return '<li><div class="txt" title="' + esc((r.text || '').slice(0, 2000)) + '">' + esc((r.text || '').slice(0, 300)) + '</div>' +
+        '<div class="meta"><span>@' + esc(r.author || '?') + '</span>' + badges + kind + labs +
+        '<a href="https://x.com/i/status/' + esc(r.id) + '" target="_blank" rel="noopener">Open</a></div></li>';
+    }).join('') : '<li>No matches.</li>';
+  }
+  var t = null;
+  document.getElementById('q').addEventListener('input', function () {
+    if (t) clearTimeout(t);
+    t = setTimeout(render, 250);
+  });
+  document.getElementById('f').addEventListener('change', render);
+  document.getElementById('r').addEventListener('click', load);
+  load();
+  setInterval(load, 15000);
+})();
+</script>
+</body>
+</html>"""
 
 
 def send_json(h, code, obj, extra_headers=None):
@@ -156,15 +298,23 @@ class H(BaseHTTPRequestHandler):
         if path in ("/", "/health"):
             return send_json(self, 200, {"ok": True, "service": "bookmarkvault-stub",
                                          "version": VERSION, "mode": "test"})
+        if path == "/view":
+            return send_html(self, 200, VIEW_HTML)
         if not self._authed(path):
             return send_json(self, 401, {"ok": False, "error": "missing-bearer-token",
                                          "hint": "Set bv.token in extension sidepanel Settings."})
         if path == "/v1/bookmarks":
             q = (qs.get("q", [""])[0] or "").lower()
             label = qs.get("label", [""])[0]
+            page = qs.get("page", [""])[0]
             out = list(STORE["tweets"].values())
             if label:
                 out = [t for t in out if label in t.get("labels", [])]
+            if page == "both":
+                out = [t for t in out
+                       if "bookmarks" in norm_pages(t) and "likes" in norm_pages(t)]
+            elif page in PAGE_OK:
+                out = [t for t in out if page in norm_pages(t)]
             if q:
                 out = [t for t in out if q in (t.get("text", "") + " " + t.get("author", "")).lower()]
             out.sort(key=lambda t: t.get("created_at", ""), reverse=True)
@@ -216,17 +366,40 @@ class H(BaseHTTPRequestHandler):
                     continue
                 if tid in STORE["tweets"]:
                     dupes += 1
+                    cur = STORE["tweets"][tid]
+                    # Same tweet seen on another page (bookmark + like):
+                    # merge page tags instead of dropping it.
+                    merged = norm_pages(cur) + [p for p in norm_pages(t)
+                                                if p not in norm_pages(cur)]
+                    cur["pages"] = merged
+                    cur["page"] = merged[0]
                     # XHR wins on conflict (extension merge rule): refresh text if new source is xhr
                     if t.get("source") == "xhr":
-                        STORE["tweets"][tid].update({k: t[k] for k in
-                                                     ("text", "author", "created_at", "source")
-                                                     if k in t})
+                        cur.update({k: t[k] for k in
+                                  ("text", "author", "created_at", "source", "kind",
+                                   "context", "liked", "saved", "saveOrder")
+                                  if k in t and t[k] is not None})
+                    else:
+                        # DOM fills gaps the stored record lacks (button
+                        # states, order); never downgrades stored facts.
+                        for k in ("liked", "saved", "saveOrder", "context"):
+                            if cur.get(k) is None and t.get(k) is not None:
+                                cur[k] = t[k]
+                        if t.get("kind") and cur.get("kind") in (None, "tweet"):
+                            cur["kind"] = t["kind"]
                     continue
+                pages = norm_pages(t)
                 STORE["tweets"][tid] = {
-                    "id": tid, "text": t.get("text", "")[:2000],
+                    "id": tid, "text": t.get("text", "")[:4000],
                     "author": t.get("author", "")[:120],
                     "created_at": t.get("created_at", ""),
                     "source": t.get("source", "dom") if t.get("source") in ("xhr", "dom") else "dom",
+                    "page": pages[0], "pages": pages,
+                    "kind": norm_field(t, "kind", KIND_OK, "tweet"),
+                    "context": norm_field(t, "context", CTX_OK, "direct"),
+                    "liked": t.get("liked") if isinstance(t.get("liked"), bool) else None,
+                    "saved": t.get("saved") if isinstance(t.get("saved"), bool) else None,
+                    "saveOrder": str(t.get("saveOrder") or "")[:32] or None,
                     "labels": [], "imported_at": now}
                 accepted += 1
             # fire outbound webhooks (best-effort log; no network in stub)
@@ -375,6 +548,10 @@ class H(BaseHTTPRequestHandler):
         path = u.path
         if not self._authed(path):
             return send_json(self, 401, {"ok": False, "error": "missing-bearer-token"})
+        if path == "/v1/bookmarks/all":
+            n = len(STORE["tweets"])
+            STORE["tweets"] = {}
+            return send_json(self, 200, {"ok": True, "deleted": n})
         if path.startswith("/v1/bookmarks/") and path.endswith("/labels"):
             tid = path[len("/v1/bookmarks/"):-len("/labels")]
             tw = STORE["tweets"].get(tid)
