@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BookmarkVault</title>
+<style>
+  :root { color-scheme: light dark; --pad: 72px; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.45 system-ui, sans-serif; padding-bottom: var(--pad); }
+  header { padding: 12px 14px 4px; }
+  header h1 { font-size: 17px; margin: 0; }
+  header p { margin: 4px 0 8px; color: #666; font-size: 13px; }
+  #status { margin: 0 14px 8px; padding: 8px 10px; border-radius: 8px; background: #f2f2f2; font-size: 13px; }
+  #search { display: block; width: 100%; min-width: 0; padding: 10px; font-size: 15px; }
+  .searchrow { display: flex; gap: 6px; margin: 0 14px 8px; }
+  .searchrow input { flex: 1; min-width: 0; }
+  #clearSearch { flex: 0 0 auto; padding: 10px 12px; font-size: 14px; white-space: nowrap; }
+  #list li, #labList li, #whList li { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+  #list .txt { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  #list .meta { display: flex; flex-wrap: wrap; gap: 2px 6px; align-items: center; }
+  #list .open { font-size: 12px; white-space: nowrap; }
+  #list { list-style: none; margin: 0; padding: 0 14px; }
+  #list li { border-bottom: 1px solid #ddd; padding: 8px 0; }
+  #list .meta { font-size: 12px; color: #666; }
+  #list .src { font-size: 11px; border: 1px solid #bbb; border-radius: 4px; padding: 0 4px; margin-left: 6px; }
+  #list .dupe { font-size: 11px; border: 1px solid #c90; background: #fff8e1; color: #7a5b00; border-radius: 4px; padding: 0 4px; margin-left: 6px; white-space: nowrap; }
+  nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: #fff; border-top: 1px solid #ddd; }
+  nav.tabs button { flex: 1 1 0; min-width: 0; border: 0; background: none; padding: 10px 2px 12px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  nav.tabs button[aria-selected="true"] { font-weight: 700; }
+  .pane { display: none; padding: 0 0 8px; }
+  .pane.active { display: block; }
+  .row { padding: 8px 14px; }
+  .row label { display: block; font-size: 13px; margin: 8px 0 4px; }
+  .row input { width: 100%; padding: 9px; font-size: 14px; }
+  .btn { display: inline-block; margin: 8px 14px; padding: 10px 16px; font-size: 14px; }
+  #planRow #plan { font-size: 13px; background: #f2f2f2; border-radius: 8px; padding: 8px 10px; }
+  #planHint { margin-top: 6px; }
+  .hint { font-size: 12px; color: #666; padding: 0 14px; }
+  #labelFilter { display: block; width: calc(100% - 28px); margin: 0 14px 8px; padding: 9px; font-size: 14px; }
+  .chips { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { display: inline-block; font-size: 12px; background: #eef4ff; border: 1px solid #bcd; border-radius: 20px; padding: 1px 4px 1px 8px; }
+  .chip button { border: 0; background: none; font-size: 12px; padding: 0 4px; cursor: pointer; }
+  .attach { display: flex; gap: 6px; margin-top: 6px; }
+  .attach select { flex: 1; min-width: 0; padding: 7px; font-size: 13px; }
+  .attach button { padding: 7px 10px; font-size: 13px; white-space: nowrap; }
+  #labList { list-style: none; margin: 8px 0 0; padding: 0 14px; }
+  #labList li { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #ddd; padding: 8px 0; font-size: 14px; }
+  #labList .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #labList .ct { font-size: 12px; color: #666; white-space: nowrap; }
+  #labList button { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+  .labform { display: flex; gap: 6px; padding: 0 14px; }
+  .labform input { flex: 1; min-width: 0; padding: 9px; font-size: 14px; }
+  .labform button { padding: 9px 12px; font-size: 14px; white-space: nowrap; }
+  #labStatus { margin: 8px 14px 0; font-size: 12px; color: #666; }
+  .whform { display: flex; gap: 6px; padding: 0 14px; }
+  .whform input { flex: 1; min-width: 0; padding: 9px; font-size: 14px; }
+  .whform button { padding: 9px 12px; font-size: 14px; white-space: nowrap; }
+  #whList { list-style: none; margin: 8px 0 0; padding: 0 14px; word-break: break-all; }
+  #whList li { border-bottom: 1px solid #ddd; padding: 8px 0; font-size: 13px; }
+  #whList .when { font-size: 12px; color: #666; }
+  #whStatus { margin: 8px 14px 0; font-size: 12px; color: #666; }
+  .apform { display: flex; gap: 6px; padding: 0 14px; }
+  .apform input { flex: 1; min-width: 0; padding: 9px; font-size: 14px; }
+  .apform button { padding: 9px 12px; font-size: 14px; white-space: nowrap; }
+  #apList { list-style: none; margin: 8px 0 0; padding: 0 14px; }
+  #apList li { border-bottom: 1px solid #ddd; padding: 8px 0; font-size: 13px; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+  #apList .t { font-weight: 600; }
+  #apList .st { font-size: 11px; border: 1px solid #bbb; border-radius: 4px; padding: 0 4px; margin-left: 6px; white-space: nowrap; }
+  #apList .row2 { display: flex; gap: 6px; margin-top: 6px; }
+  #apList .row2 button { padding: 6px 12px; font-size: 13px; white-space: nowrap; }
+  #apStatus { margin: 8px 14px 0; font-size: 12px; color: #666; }
+  .impform { display: flex; gap: 6px; padding: 0 14px; align-items: center; flex-wrap: wrap; }
+  .impform button { padding: 9px 12px; font-size: 14px; white-space: nowrap; }
+  .impform a { font-size: 13px; white-space: nowrap; }
+  #impStatus { margin: 8px 14px 0; font-size: 12px; color: #333; background: #f2f2f2; border-radius: 8px; padding: 8px 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>BookmarkVault</h1>
+  <p>Local-first backup. Reads only while you browse bookmarks.</p>
+</header>
+<div id="status">Loading…</div>
+
+<section class="pane active" id="pane-saved" aria-label="Saved">
+  <div class="searchrow">
+    <input id="search" type="search" placeholder="Search saved bookmarks…" autocomplete="off" aria-label="Search saved bookmarks">
+    <button id="clearSearch" title="Clear search and label filter">Clear</button>
+  </div>
+  <select id="labelFilter" aria-label="Filter by label"><option value="">All labels</option></select>
+  <ul id="list"></ul>
+</section>
+<section class="pane" id="pane-labels" aria-label="Labels">
+  <div class="row" style="padding-bottom:0"><strong>Labels</strong></div>
+  <p class="hint">Group bookmarks with labels. Saved on this device; synced to the server when an API base + token is set.</p>
+  <div class="labform">
+    <input id="labName" placeholder="New label name" maxlength="40" autocomplete="off">
+    <button id="labCreate">Create</button>
+  </div>
+  <div id="labStatus" role="status">Loading…</div>
+  <ul id="labList"></ul>
+</section>
+<section class="pane" id="pane-sync" aria-label="Sync">
+  <div class="row">
+    <label for="apiBase">API base URL</label>
+    <input id="apiBase" placeholder="https://…">
+    <label for="token">Token</label>
+    <input id="token" placeholder="Paste token" autocomplete="off">
+  </div>
+  <button class="btn" id="save">Save settings</button>
+  <button class="btn" id="sync">Sync now</button>
+  <p class="hint">Uploads only with a token. Test mode: stays local until you add one.</p>
+  <div class="row" id="health"></div>
+  <div class="row" id="planRow">
+    <div id="plan" role="status">Plan: checking…</div>
+    <div><button class="btn" id="planBtn" style="margin:8px 0 0">Check plan</button></div>
+    <div class="hint" id="planHint" style="padding:0">Reads GET /v1/billing/me with your API base + token.</div>
+  </div>
+  <div class="row" style="padding-bottom:0"><strong>Full-history import</strong></div>
+  <p class="hint">Brings in old bookmarks below what is already saved. Start it on your X bookmarks page — it scrolls slowly like you would, keeps its place, and pauses by itself if X asks to slow down.</p>
+  <div class="impform">
+    <button id="impStart">Start import</button>
+    <button id="impPause">Pause</button>
+    <a id="impOpen" href="https://x.com/i/bookmarks" target="_blank" rel="noopener">Open X bookmarks</a>
+  </div>
+  <div id="impStatus" role="status">Not started yet. Your place is kept on this device.</div>
+  <div class="row" style="padding-bottom:0"><strong>Proposed actions</strong></div>
+  <p class="hint">Risky steps wait here until you approve them. Nothing runs until you tap Approve.</p>
+  <div class="apform">
+    <input id="apTitle" placeholder="Propose an action, e.g. Resume paused sync" maxlength="120" autocomplete="off">
+    <button id="apAdd">Propose</button>
+  </div>
+  <div id="apStatus" role="status">Loading…</div>
+  <ul id="apList"></ul>
+</section>
+<section class="pane" id="pane-hooks" aria-label="Hooks">
+  <div class="row" style="padding-bottom:0"><strong>Outbound webhooks</strong></div>
+  <p class="hint">Get a POST on every new import. Saved on this device; registered with POST /v1/webhooks/bookmarks when an API base + token is set.</p>
+  <div class="whform">
+    <input id="whUrl" placeholder="https://…" inputmode="url" autocomplete="off">
+    <button id="whAdd">Add</button>
+  </div>
+  <div id="whStatus" role="status">Loading…</div>
+  <ul id="whList"></ul>
+</section>
+<section class="pane" id="pane-export" aria-label="Export">
+  <button class="btn" id="dl">Download JSON</button>
+  <p class="hint">Exports everything stored locally on this device.</p>
+</section>
+
+<nav class="tabs" role="tablist" aria-label="BookmarkVault">
+  <button role="tab" aria-selected="true" data-pane="pane-saved">Saved</button>
+  <button role="tab" aria-selected="false" data-pane="pane-labels">Labels</button>
+  <button role="tab" aria-selected="false" data-pane="pane-sync">Sync</button>
+  <button role="tab" aria-selected="false" data-pane="pane-hooks">Hooks</button>
+  <button role="tab" aria-selected="false" data-pane="pane-export">Export</button>
+</nav>
+
+<script src="sidepanel.js"></script>
+</body>
+</html>

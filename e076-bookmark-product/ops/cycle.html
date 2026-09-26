@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cycle — BookmarkVault</title>
+<style>
+body{font-family:system-ui;margin:0;padding-bottom:60px}
+h1{font-size:20px;padding:12px 16px 0}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#111;display:flex;gap:2px;padding:6px 4px;overflow-x:auto}
+.tabs button{flex:1 1 0;min-width:0;background:#222;color:#fff;border:1px solid #444;border-radius:6px;padding:8px 2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs button.on{background:#fff;color:#111}
+.page{display:none;padding:12px 16px;max-width:800px}
+.page.on{display:block}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{border:1px solid #ccc;padding:8px;text-align:left;overflow-wrap:anywhere;word-break:break-word}
+#livelog{word-break:break-word}
+@media (max-width:480px){
+ table{font-size:12px;table-layout:fixed}
+ td,th{padding:5px 4px}
+ #legs th:nth-child(4),#legs td:nth-child(4),
+ #legs th:nth-child(6),#legs td:nth-child(6){display:none}
+ #legs th:nth-child(1),#legs td:nth-child(1){width:8%}
+ #legs th:nth-child(2),#legs td:nth-child(2){width:14%}
+ #legs th:nth-child(3),#legs td:nth-child(3){width:20%}
+ #legs th:nth-child(5),#legs td:nth-child(5){width:20%}
+}
+.pill{display:inline-block;padding:4px 12px;border-radius:12px;background:#eee;font-size:14px}
+.ok{background:#cfc}.bad{background:#fcc}
+.card{border:1px solid #ccc;border-radius:10px;padding:12px;margin:10px 0}
+.card b{font-size:16px}
+input,textarea{width:100%;padding:10px;margin:4px 0 10px;box-sizing:border-box;font-size:15px}
+textarea{min-height:90px;resize:vertical;line-height:1.4}
+.banner{border:1px solid #111;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:14px;line-height:1.45;background:#fafafa}
+button.act.ghost{background:#fff;color:#111;border:1px solid #111}
+.big{font-size:18px;line-height:1.4}
+button.act{background:#111;color:#fff;border-radius:8px;padding:12px 20px;font-size:16px;margin-top:8px}
+.muted{color:#666;font-size:13px}
+.msg{white-space:pre-wrap;word-break:break-word;line-height:1.55;margin:8px 0;font-size:15px}
+.msg.answer{color:#333;background:#f6f6f6;border-left:3px solid #111;padding:8px 10px;border-radius:0 8px 8px 0}
+</style>
+<div class="tabs" id="tabs"></div>
+<div class="page" id="p-status"><div id="s" class="big">loading…</div><details class="muted"><summary>How legs run</summary>You write, a leg auto-starts in ~1 min, ships one step, table + inbox update. Run forces one now.</details><div id="roadmap"></div><button class="act" id="runb" onclick="runLeg()">Run next leg</button> <span class="muted" id="runst"></span><div class="muted" id="livelogcap" style="display:none">What is happening now:</div><pre id="livelog" class="muted" style="white-space:pre-wrap;max-height:180px;overflow:auto"></pre></div>
+<div class="page" id="p-legs"><table id="legs"></table><p class="muted" id="legsmore"></p></div>
+<div class="page" id="p-blocked"><div id="b"></div></div>
+<div class="page" id="p-inbox"><div class="banner"><b>How this inbox works.</b> Nothing here is applied instantly. Your messages wait in the list below → press <b>Run next leg</b> (here or on Status) → the next leg reads everything new and ships one small step. One box only: write below, then run.<br><span class="muted" id="queuehint"></span></div><label for="askt"><b>New message for the next leg</b></label><textarea id="askt" rows="4" placeholder="Write here… (multiline: Enter = new line)"></textarea><button class="act" onclick="ask()">Queue message</button> <button class="act" onclick="runLeg(this)">Run next leg now</button><div id="ib" style="margin-top:12px"></div></div>
+<div class="page" id="p-ext"><div class="card"><b>Try the extension (free, owner build)</b><p>Desktop Chrome: download, unzip, chrome://extensions, Developer mode, Load unpacked.</p><p>Mobile Quetta: download, unzip, extensions page, load unpacked.</p><p><a href="../ext/bookmarkvault-ext.zip"><button class="act">Download ext</button></a></p><p class="muted">Test mode, no keys. Store listing later.</p></div></div>
+<div class="page" id="p-vers"><div id="vers">loading…</div></div>
+<div class="page" id="p-keys">
+<div class="banner"><b>Test mode is fine.</b> The backend runs without keys (billing grants only <code>plan:test</code>). Wire a key only when ready to go live. Keys stay in <b>this browser only</b> — never sent, never saved in the project.</div>
+
+<div id="ks">loading needs…</div>
+<pre id="ko" class="muted"></pre>
+</div>
+<script>
+const TABS=[["Status","status"],["Legs","legs"],["Todo","blocked"],["Inbox","inbox"],["Keys","keys"],["Ext","ext"],["Vers","vers"]];
+const tabs=document.getElementById('tabs');
+function showTab(id,push){
+ document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));
+ [...tabs.children].forEach((x,i)=>x.classList.toggle('on',TABS[i][1]===id));
+ if(push){try{history.replaceState(null,'','#'+id)}catch(e){}}
+}
+TABS.forEach(([t,id],i)=>{
+ const b=document.createElement('button');b.textContent=t;
+ b.onclick=()=>showTab(id,true);
+ tabs.appendChild(b);
+});
+showTab(TABS.some(t=>t[1]===(location.hash||'').replace('#',''))?(location.hash||'').replace('#',''):'status',false);
+async function j(f){return (await fetch(f)).json()}
+function fmt(ts){
+ if(!ts)return '\u2014';
+ let d=null;const m=String(ts).match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/);
+ if(m)d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]));
+ else{const t=Date.parse(ts);if(!isNaN(t))d=new Date(t);}
+ if(!d)return ts;
+ return d.toLocaleString(undefined,{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')} 
+async function loadInbox(){
+ const y=window.scrollY;
+ const ib=await j('/api/inbox').catch(()=>[]);
+ let lastHuman=-1;ib.forEach((m,i)=>{if(m.from==='human')lastHuman=i});
+ const unread=ib.slice(lastHuman+1).filter(m=>m.from!=='human').length;
+ TABS[3][0]=(unread?`Inbox ${unread}`:'Inbox');tabs.children[3].textContent=TABS[3][0];
+ const yours=ib.filter(m=>m.from==='human').length, shipped=ib.filter(m=>m.from!=='human').length;
+ const q=document.getElementById('queuehint');
+ if(q)q.textContent=`${yours} message(s) from you \u00b7 ${shipped} update(s) from the cycle. New messages ship on the next leg \u2014 press Run next leg.`;
+ document.getElementById('ib').innerHTML=ib.slice().reverse().map(m=>{
+  const mine=m.from==='human';
+  const state=mine?(m.answer?`\u2714 addressed: ${m.answer}`:(m.in_leg?`read in leg #${m.in_leg}`:'queued for next leg \u2014 press Run next leg')):'shipped update';
+  return `<div class="card"><b>${mine?'You':'Cycle'}</b> <span class="muted">${fmt(m.created)} \u00b7 ${esc(state)}</span><div class="msg">${esc(m.text)}</div>`+
+  (m.answer?`<div class="msg answer">\u2192 ${esc(m.answer)}</div>`:'')+`</div>`}).join('')||'Empty. Write the first message above.';
+ if(document.activeElement===document.getElementById('askt'))window.scrollTo(0,y);
+}
+const DKEY='e076_draft';
+try{const d=localStorage.getItem(DKEY);if(d)document.getElementById('askt').value=d;}catch(e){}
+document.getElementById('askt').addEventListener('input',e=>{try{localStorage.setItem(DKEY,e.target.value)}catch(_){}});
+async function ask(){const ta=document.getElementById('askt');const v=ta.value;if(!v.trim())return;await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:v})});ta.value='';try{localStorage.removeItem(DKEY)}catch(e){}
+ const y=window.scrollY;await loadInbox();window.scrollTo(0,y);
+ try{ta.focus({preventScroll:true});}catch(e){}}
+async function renderLegsFromState(s){try{
+ const all=(s.legs||[]).slice().reverse(),show=all.slice(0,10);
+ document.getElementById('legs').innerHTML='<tr><th>#</th><th>status</th><th>when</th><th>model</th><th>in/out</th><th>took</th><th>what</th></tr>'+
+  show.map(l=>{const dur=l.duration_s!=null?l.duration_s+'s':'\u2014';return `<tr><td>${l.n}</td><td>${l.status}</td><td><span class="muted">${fmt(l.ended||l.started)}</span></td><td>${(l.model||'\u2014').split('/').pop()}</td><td>${l.input_tokens??'\u2014'}/${l.output_tokens??'\u2014'}</td><td>${dur}</td><td>${l.summary}</td></tr>`}).join('');
+ document.getElementById('legsmore').textContent=all.length>10?`Showing 10 of ${all.length}. Older legs stay in loop/legs/ logs.`:'Token counts show \u2014 for old legs (runner did not record them).';
+}catch(e){}}
+async function runLeg(btn){const b=btn||document.getElementById('runb');const st=document.getElementById('runst');b.disabled=true;const r=await(await fetch('/api/run',{method:'POST'})).json();if(!r.ok){st.textContent='busy: '+(r.why||'');b.disabled=false;return}st.textContent='leg running — watching live below…';
+ try{const s=await j('../loop/state.json');const run=s.legs&&s.legs[s.legs.length-1];
+ if(run&&run.status==='running'){LAST_LEG=run.n;
+  document.getElementById('s').innerHTML=`<span class="pill bad">running</span> <b>Leg #${run.n}</b> \u00b7 ${fmt(run.started)} (your time)<br><br>Leg is running now — this table already lists it below.`;
+  await renderLegsFromState(s);}}catch(e){}
+ for(let i=0;i<36;i++){await new Promise(rr=>setTimeout(rr,10000));try{const s=await j('../loop/state.json').catch(()=>null);if(s)await renderLegsFromState(s);}catch(e){}const s2=await j('/api/status').catch(()=>null);if(s2&&(s2.last_status!=='running'||s2.last_leg>LAST_LEG)){location.reload();return}}st.textContent='still running — refresh later';b.disabled=false}
+async function loadVers(){try{const v=await j('../loop/versions.json');const vs=(v.versions||[]).slice().sort((x,y)=>x.rank-y.rank);document.getElementById('vers').innerHTML='<table><tr><th>v</th><th>rank</th><th>legs</th><th>show</th><th>notes</th></tr>'+vs.map(x=>`<tr onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'" style='cursor:pointer'><td>${x.v}</td><td>#${x.rank}</td><td>${x.legs}</td><td>${x.presentable?'\u2714 showable':'not yet'}</td><td>${x.notes}</td></tr><tr style='display:none'><td colspan='5' class='muted'>Tap a leg # in the Legs tab for its step.</td></tr>`).join('')+'</table>';}catch(e){document.getElementById('vers').textContent='No versions yet.';}}
+async function pollLog(){let running=false;try{const s=await j('/api/status');running=s&&s.last_status==='running';}catch(e){}const el=document.getElementById('livelog');const cap=document.getElementById('livelogcap');if(!running){if(el)el.style.display='none';if(cap)cap.style.display='none';return}if(el){el.style.display='';if(cap)cap.style.display='';try{const l=await j('/api/log');const lines=(l.log||[]);el.textContent=lines.length?lines.join('\n\u2022 '):'Working — first update lands in seconds…';}catch(e){}setTimeout(pollLog,3000)}}
+loadInbox();pollLog();loadVers();
+(async()=>{
+ const needs=await j('needs.json').catch(()=>[]);
+ const ks=document.getElementById('ks');
+ const get=f=>{try{return localStorage.getItem(f)||''}catch(e){return ''}};
+ ks.innerHTML=needs.map(n=>{
+  const has=!!get(n.field).trim();
+  const pill=has?'<span class="pill ok">saved here</span>':(n.status==='optional'?'<span class="pill">optional</span>':'<span class="pill bad">needs you</span>');
+  return `<div class="card">${pill} <b>${n.title}</b><br><span class="muted">Stored as <code>${n.field}</code> — browser only.</span><input id="k_${n.id}" type="${n.sensitive?'password':'text'}" autocomplete="off" spellcheck="false" placeholder="${n.field}" value="${get(n.field).replace(/"/g,'&quot;')}"></div>`;
+ }).join('')+`<p class="muted">Autosaves as you type. Steps per key live in the Todo tab.</p>`;
+ needs.forEach(n=>{
+  document.getElementById('k_'+n.id).addEventListener('input',e=>{try{localStorage.setItem(n.field,e.target.value.trim())}catch(_){}
+   document.getElementById('ko').textContent='Saved in this browser at '+new Date().toLocaleTimeString()+'.';});
+ });
+})();
+let LAST_LEG=0;
+(async()=>{
+ const st0=await j('/api/status').catch(()=>null);if(st0)LAST_LEG=st0.last_leg||0;
+ const st=st0;
+ const s=await j('../loop/state.json').catch(()=>null);
+ const needs=await j('needs.json').catch(()=>[]);
+ if(!st){document.getElementById('s').textContent='No leg has run yet.';return}
+ const pill=`<span class="pill ${st.last_status=='ok'?'ok':'bad'}">${st.last_status}</span>`;
+ document.getElementById('s').innerHTML=
+  `${pill} <b>Leg #${st.last_leg}</b> · ${fmt(st.updated)} (your time)<br><br>${st.last_summary}<br><br>Next: <b>${st.next}</b><br><span class="muted">Version ${st.version} · mode ${st.cycle}</span>`;
+ try{const q=s.next_queue||[];if(q.length)document.getElementById('roadmap').innerHTML='<b>Coming legs:</b><ol>'+q.slice(0,4).map(x=>'<li>'+x+'</li>').join('')+'</ol>';}catch(e){}
+ TABS[1][0]=`Legs ${s.legs.length}`;tabs.children[1].textContent=TABS[1][0];
+ if(s&&s.legs){
+  const all=s.legs.slice().reverse(),show=all.slice(0,10);
+  document.getElementById('legs').innerHTML='<tr><th>#</th><th>status</th><th>when</th><th>model</th><th>in/out</th><th>took</th><th>what</th></tr>'+
+  show.map(l=>{const dur=l.duration_s!=null?l.duration_s+'s':'\u2014';return `<tr><td>${l.n}</td><td>${l.status}</td><td><span class="muted">${fmt(l.ended||l.started)}</span></td><td>${(l.model||'\u2014').split('/').pop()}</td><td>${l.input_tokens??'\u2014'}/${l.output_tokens??'\u2014'}</td><td>${dur}</td><td>${l.summary}</td></tr>`}).join('');
+  document.getElementById('legsmore').textContent='Token counts show \u2014 for old legs (runner did not record them).';
+  if(all.length>10)document.getElementById('legsmore').textContent=`Showing 10 of ${all.length}. Older legs stay in loop/legs/ logs.`;
+ }
+ const blocked=new Set(st.blocked||[]);
+ TABS[2][0]=`Todo ${blocked.size}`;tabs.children[2].textContent=TABS[2][0];
+ document.getElementById('b').innerHTML=needs.filter(x=>blocked.has(x.id)).map(x=>
+  `<div class="card"><b>${x.title}</b><p>${x.why}</p><p>${x.steps.map((s,i)=>`${i+1}. ${s}`).join('<br>')}</p><p>${(x.links||[]).map(l=>`<a href="${l}" target=_blank>${l}</a>`).join(' ')}</p><p class="muted">Paste as <code>${x.field}</code></p><button class="act" onclick="tabs.children[4].click()">Go to Keys</button></div>`).join('')||'Nothing blocked. The cycle is building on its own.';
+})();
+</script>
+</html>

@@ -1,0 +1,88 @@
+{
+ "versions": [
+  {
+   "legs": "1-8",
+   "presentable": true,
+   "rank": 2,
+   "v": "v0.1",
+   "notes": "Hub + Cycle tabs + keys + inbox + legs table. Manual Run."
+  },
+  {
+   "legs": "9-10",
+   "presentable": false,
+   "rank": 1,
+   "v": "v0.2-live",
+   "notes": "Sidepanel plan card added (GET /v1/billing/me) but not verified in real Chrome; hub/tabs unchanged."
+  },
+  {
+   "legs": "11",
+   "presentable": false,
+   "rank": 0,
+   "v": "v0.3-labels",
+   "notes": "Labels tab + per-bookmark attach/detach added, backend round-trip verified via curl; not verified in real Chrome at 390px."
+  },
+  {
+   "legs": "12",
+   "presentable": false,
+   "rank": 0,
+   "v": "v0.4-hooks",
+   "notes": "Hooks tab (POST + GET /v1/webhooks/bookmarks, local-first) + backend GET list; backend round-trip verified via curl; not verified in real Chrome at 390px."
+  },
+  {
+   "legs": "13",
+   "presentable": false,
+   "rank": 0,
+   "v": "v0.5-search",
+   "notes": "Saved search reads GET /v1/bookmarks?q=&label= when online, merges local-only, debounced; backend q+label verified via curl; not verified in real Chrome at 390px."
+  },
+  {
+   "legs": "14",
+   "presentable": false,
+   "rank": 0,
+   "v": "v0.6-saved-polish",
+   "notes": "Saved polish: local-time dates, Clear button, empty states, Open link, wrap-safe CSS; static 200 + syntax OK, 390px by inspection only, not real Chrome."
+  },
+  {
+   "legs": "15",
+   "presentable": false,
+   "rank": 0,
+   "v": "v0.7-approvals",
+   "notes": "Proposed-actions card in Sync pane + backend POST/GET /v1/approvals with approve/reject; backend round-trip verified via curl; not verified in real Chrome at 390px."
+  },
+  {
+   "v": "v0.8-trial",
+   "legs": "16",
+   "rank": 0,
+   "presentable": false,
+   "notes": "T1 trial protocol live (loop/TRIAL.md + trial-check.py): 100/100 API+static on v0.8 run; not verified in real Chrome at 390px."
+  },
+  {
+   "v": "v0.9-verify",
+   "legs": "18",
+   "rank": 3,
+   "presentable": false,
+   "notes": "VERIFY.md rule live; first real-Chrome 390px pass fixed landing nav wrap + sidepanel http fallback (shots in proof/leg-18); trial 100/100; per-tab visual pass still pending."
+  },
+  {
+   "v": "v0.10-tabs",
+   "legs": "19",
+   "rank": 4,
+   "presentable": true,
+   "notes": "Full tab-by-tab real-Chrome 390px pass (16 shots, all eyeballed): hash deep links, Queue-0 fallback, narrow tables; trial 100/100; contact email still placeholder (human-gated)."
+  },
+  {
+   "v": "v0.11-store",
+   "legs": "20",
+   "rank": 5,
+   "presentable": true,
+   "notes": "Store-listing pack: redrawn icons, paste-ready listing.md, 3 real-Chrome 1280px shots; 9x200, no console errors, trial 100/100; domain/email still human-gated."
+  },
+  {
+   "v": "v0.12-relevance",
+   "legs": "21",
+   "rank": 6,
+   "presentable": true,
+   "notes": "Saved relevance: newest-first sort (local+merged) + Possible-duplicate badge; 390px shot clean, no console errors, trial 100/100."
+  }
+ ]
+}

@@ -1,0 +1,261 @@
+{
+ "blocked_on_human": [
+  "domain",
+  "fiat-merchant",
+  "crypto-merchant",
+  "crypto-wallet",
+  "social-accounts"
+ ],
+ "last_run": "2026-09-26T02:00:01Z",
+ "legs": [
+  {
+   "n": 1,
+   "started": "20260925T163039Z",
+   "ended": "20260925T163137Z",
+   "status": "ok",
+   "summary": "Shipped v0.1.0 version stamps across all pages plus a full referrals rules doc, queued extension stub next.",
+   "duration_s": 58,
+   "model": "",
+   "input_tokens": null,
+   "output_tokens": null
+  },
+  {
+   "n": 2,
+   "started": "20260925T165622Z",
+   "ended": "20260925T165723Z",
+   "status": "ok",
+   "summary": "Shipped the extension stub with dual capture, local queue, bottom-tab side panel, and load instructions, and replied to your hello in the inbox.",
+   "duration_s": 61,
+   "model": "",
+   "input_tokens": null,
+   "output_tokens": null
+  },
+  {
+   "n": 3,
+   "started": "20260925T200623Z",
+   "ended": "20260925T200803Z",
+   "status": "ok",
+   "summary": "Fixed the inbox page with a multiline box, one clear composer, run guidance, and model/token/duration columns, and replied to your messages.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": null,
+   "output_tokens": null,
+   "duration_s": 100
+  },
+  {
+   "n": 4,
+   "started": "20260925T210444Z",
+   "ended": "20260925T210618Z",
+   "status": "ok",
+   "summary": "Shipped the backend stub with all nine endpoints in memory plus test-mode webhooks, verified it end to end, and left the run instructions in backend/README.md.",
+   "model": "",
+   "input_tokens": null,
+   "output_tokens": null,
+   "duration_s": 94
+  },
+  {
+   "n": 5,
+   "started": "20260925T210705Z",
+   "ended": "20260925T210804Z",
+   "status": "ok",
+   "summary": "Shipped the key-wiring dashboard plus your three inbox fixes and left you a test note in the inbox.",
+   "model": "",
+   "input_tokens": null,
+   "output_tokens": null,
+   "duration_s": 59
+  },
+  {
+   "n": 6,
+   "started": "20260925T210812Z",
+   "ended": "20260925T210907Z",
+   "status": "ok",
+   "summary": "Fixed inbox formatting to preserve line breaks and confirmed the key-wiring dashboard status is live.",
+   "model": "",
+   "input_tokens": null,
+   "output_tokens": null,
+   "duration_s": 55
+  },
+  {
+   "n": 7,
+   "started": "2026-09-25T21:14:45Z",
+   "ended": "2026-09-25T21:15:29Z",
+   "status": "ok",
+   "summary": "Fixed live leg tracking plus inbox formatting and key dashboard links, and replied in English with next focus set.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 86054,
+   "output_tokens": 8304,
+   "duration_s": 44
+  },
+  {
+   "n": 8,
+   "started": "2026-09-25T21:21:29Z",
+   "ended": "2026-09-25T21:22:30Z",
+   "status": "ok",
+   "summary": "Made pricing and terms consistent across the landing: one price set everywhere, four distinct legal pages with shared nav, and an English inbox note.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 44100,
+   "output_tokens": 11924,
+   "duration_s": 61
+  },
+  {
+   "n": 9,
+   "started": "2026-09-25T21:27:22Z",
+   "ended": "2026-09-25T21:28:20Z",
+   "status": "ok",
+   "summary": "Matched backend entitlements to landing pricing with monthly/yearly/lifetime plans plus a billing status endpoint, and replied to your probe in the inbox.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 58256,
+   "output_tokens": 10560,
+   "duration_s": 58
+  },
+  {
+   "n": 10,
+   "started": "2026-09-25T21:50:01Z",
+   "ended": "2026-09-25T21:50:55Z",
+   "status": "ok",
+   "summary": "Added a plan card to the extension Sync tab that reads GET /v1/billing/me and shows Free local-only without a token.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 53874,
+   "output_tokens": 9886,
+   "duration_s": 54
+  },
+  {
+   "n": 11,
+   "started": "2026-09-25T22:00:01Z",
+   "ended": "2026-09-25T22:01:10Z",
+   "status": "ok",
+   "summary": "Added the Labels tab with create, filter, and per-bookmark attach and detach wired to the backend and local-first without a token.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 68206,
+   "output_tokens": 18816,
+   "duration_s": 69
+  },
+  {
+   "n": 12,
+   "started": "2026-09-25T22:25:02Z",
+   "ended": "2026-09-25T22:26:20Z",
+   "status": "ok",
+   "summary": "Added the Hooks tab to the extension for adding and listing outbound webhook URLs with local-first storage plus the backend list endpoint, verified the round trip, and queued server-backed Saved search as the next step.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 71072,
+   "output_tokens": 15460,
+   "duration_s": 78
+  },
+  {
+   "n": 13,
+   "started": "2026-09-25T22:50:01Z",
+   "ended": "2026-09-25T22:51:03Z",
+   "status": "ok",
+   "summary": "Saved search now uses the server when you are online and stays local when you are not.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 64250,
+   "output_tokens": 12020,
+   "duration_s": 62
+  },
+  {
+   "n": 14,
+   "started": "2026-09-25T23:00:01Z",
+   "ended": "2026-09-25T23:00:56Z",
+   "status": "ok",
+   "summary": "Polished the Saved list with local-time dates, a Clear button, friendly empty states, per-item Open links, and wrap-safe CSS verified static-only at 390px.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 62120,
+   "output_tokens": 10840,
+   "duration_s": 55
+  },
+  {
+   "n": 15,
+   "started": "2026-09-25T23:25:01Z",
+   "ended": "2026-09-25T23:26:47Z",
+   "status": "ok",
+   "summary": "Added the propose-approve flow with a Proposed actions card in the Sync tab and matching backend endpoints, verified end to end, and queued the trial protocol next.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 225714,
+   "output_tokens": 22964,
+   "duration_s": 106
+  },
+  {
+   "n": 16,
+   "started": "2026-09-25T23:50:01Z",
+   "ended": "2026-09-25T23:51:15Z",
+   "status": "ok",
+   "summary": "Shipped the trial protocol with a fixed 100-point task, a scorer script, and a first 100/100 run recorded as not presentable pending real Chrome verification.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 82030,
+   "output_tokens": 18464,
+   "duration_s": 74
+  },
+  {
+   "n": 17,
+   "started": "2026-09-26T00:00:01Z",
+   "ended": "2026-09-26T00:00:52Z",
+   "status": "ok",
+   "summary": "leg finished exit=0",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 78490,
+   "output_tokens": 1448,
+   "duration_s": 51
+  },
+  {
+   "n": 18,
+   "started": "2026-09-26T00:25:01Z",
+   "ended": "2026-09-26T00:33:17Z",
+   "status": "ok",
+   "summary": "Added the screenshot-proof rule and ran the first real-Chrome 390px pass, fixing the clipped landing nav and the stuck extension panel, but the build stays not presentable until the remaining tabs get the same visual pass.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 98204,
+   "output_tokens": 24092,
+   "duration_s": 496
+  },
+  {
+   "n": 19,
+   "started": "2026-09-26T00:50:01Z",
+   "ended": "2026-09-26T01:02:47Z",
+   "status": "ok",
+   "summary": "Finished the full real-Chrome 390px tab-by-tab pass with 16 reviewed screenshots, fixed the Queue undefined and table overflow defects plus deep-linkable tabs, and marked the build presentable with trial still at 100 out of 100.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 119956,
+   "output_tokens": 37538,
+   "duration_s": 766
+  },
+  {
+   "n": 20,
+   "started": "2026-09-26T01:25:02Z",
+   "ended": "2026-09-26T01:29:57Z",
+   "status": "ok",
+   "summary": "Store pack is ready with fresh icons, listing copy, and screenshots, still presentable, and publishing only waits on your domain.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 66444,
+   "output_tokens": 15342,
+   "duration_s": 295
+  },
+  {
+   "n": 21,
+   "started": "2026-09-26T01:50:01Z",
+   "ended": "2026-09-25T21:05:00Z",
+   "status": "ok",
+   "summary": "Saved search now sorts newest first with duplicate badges, verified presentable at 100 out of 100.",
+   "model": "muse-spark-1.3-contributor",
+   "input_tokens": 95152,
+   "output_tokens": 15070,
+   "duration_s": null,
+   "note": "closed late by watchdog: agent settled but runner ending never ran"
+  },
+  {
+   "n": 22,
+   "started": "2026-09-26T02:00:01Z",
+   "ended": "2026-09-26T02:10:00Z",
+   "status": "failed",
+   "summary": "Stopped by owner order: iterations paused, work continues in chat.",
+   "model": "muse-spark",
+   "input_tokens": null,
+   "output_tokens": null,
+   "duration_s": null
+  }
+ ],
+ "next": "extension: human-paced auto-scroll full-history import (checkpoint/resume, pause on challenge)",
+ "version": "v0.12-relevance",
+ "next_queue": [
+  "referral payout status page",
+  "owner publish dry-run once domain is live"
+ ]
+}

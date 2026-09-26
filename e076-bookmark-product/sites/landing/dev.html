@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BookmarkVault — Developer Portal</title>
+<style>body{font-family:system-ui;max-width:720px;margin:0 auto;padding:16px;padding-bottom:80px}pre{background:#f4f4f4;padding:12px;overflow:auto}nav{font-size:14px;margin:12px 0;display:flex;flex-wrap:wrap;gap:6px 12px}nav a{white-space:nowrap}</style>
+<nav><a href="index.html">Home</a><a href="pricing.html">Pricing</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="refunds.html">Refunds</a><a href="contact.html">Contact</a><a href="dev.html">Developers</a></nav>
+<p class="muted">
+<style>.muted{color:#666;font-size:13px}</style>
+<p>REST API + webhooks + MCP for your bookmarks. Token from extension sidepanel → Settings.</p>
+<h2>OpenAPI</h2>
+<p>Full spec ships with the backend stub. Placeholder:</p>
+<pre>openapi: 3.0.0
+info: {title: BookmarkVault API, version: 0.1.0}
+paths:
+  /v1/bookmarks: {get: {summary: Search bookmarks}}
+  /v1/bookmarks/import: {post: {summary: Batch upsert}}
+  /v1/labels: {get: {summary: List labels}, post: {summary: Create label}}
+  /v1/webhooks/bookmarks: {post: {summary: Register outbound webhook}}
+  /v1/referrals/me: {get: {summary: Referral stats}}</pre>
+<h2>MCP quickstart</h2>
+<pre># 1. Get token from extension sidepanel
+export BV_TOKEN=your-token
+# 2. Search bookmarks via API (MCP server wraps the same endpoints)
+curl -H "Authorization: Bearer $BV_TOKEN" "$API_BASE/v1/bookmarks?q=agent"
+# 3. MCP config (Claude Desktop / agents)
+{
+  "mcpServers": {
+    "bookmarkvault": { "command": "npx", "args": ["bookmarkvault-mcp"],
+      "env": { "BV_TOKEN": "your-token", "API_BASE": "https://api.example.com" } }
+  }
+}</pre>
+<p>Tools exposed: <code>search_bookmarks</code>, <code>list_labels</code>, <code>recent_digests</code>.</p>
+<footer><small>API support via email after signup. · BookmarkVault v0.1.0</small></footer>
+</html>

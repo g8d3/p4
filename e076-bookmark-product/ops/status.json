@@ -1,0 +1,16 @@
+{
+ "cycle": "on-demand",
+ "last_leg": 22,
+ "last_status": "failed",
+ "last_summary": "Stopped by owner order: iterations paused, work continues in chat.",
+ "next": "extension: human-paced auto-scroll full-history import (checkpoint/resume, pause on challenge)",
+ "blocked": [
+  "domain",
+  "fiat-merchant",
+  "crypto-merchant",
+  "crypto-wallet",
+  "social-accounts"
+ ],
+ "version": "v0.12-relevance",
+ "updated": "2026-09-26T02:10:00Z"
+}

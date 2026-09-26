@@ -1,0 +1,68 @@
+[
+  {
+    "id": "domain",
+    "area": "launch",
+    "status": "need-human",
+    "title": "Public URL for merchant review",
+    "why": "Fiat/crypto merchants require a live URL with pricing + terms before issuing a production API key.",
+    "steps": ["Deploy sites/landing to your domain", "Paste URL below"],
+    "links": [],
+    "field": "PUBLIC_URL",
+    "sensitive": false
+  },
+  {
+    "id": "fiat-merchant",
+    "area": "payments",
+    "status": "need-human",
+    "title": "Fiat merchant API key (KYC)",
+    "why": "Card payments need KYC. Agent cannot create this account.",
+    "steps": ["Create Stripe/LemonSqueezy/Paddle account", "Complete KYC", "Create test + production API keys", "Paste test key below, production after approval"],
+    "links": ["https://stripe.com", "https://www.lemonsqueezy.com", "https://paddle.com"],
+    "field": "FIAT_MERCHANT_KEY",
+    "sensitive": true
+  },
+  {
+    "id": "crypto-merchant",
+    "area": "payments",
+    "status": "need-human",
+    "title": "Crypto merchant API key (no KYC for test)",
+    "why": "Accept USDC/BTC/ETH via webhook without building raw wallet listeners first.",
+    "steps": ["Create NOWPayments or CoinGate account", "Get API key + webhook secret", "Paste below"],
+    "links": ["https://nowpayments.io", "https://coingate.com"],
+    "field": "CRYPTO_MERCHANT_KEY",
+    "sensitive": true
+  },
+  {
+    "id": "crypto-wallet",
+    "area": "payments",
+    "status": "need-human",
+    "title": "Crypto payout wallet",
+    "why": "Referral payouts + direct USDC later need a payout address. Private key never leaves you.",
+    "steps": ["Create Base/ETH wallet", "Paste public address below. Keep seed offline."],
+    "links": [],
+    "field": "PAYOUT_ADDRESS",
+    "sensitive": false
+  },
+  {
+    "id": "social-accounts",
+    "area": "growth",
+    "status": "need-human",
+    "title": "Social accounts + posting keys",
+    "why": "Growth agent posts via approved keys only. You own the accounts.",
+    "steps": ["Create X/LinkedIn/TikTok accounts for the product", "Create Buffer or Ayrshare account", "Connect the socials there", "Paste Buffer/Ayrshare API key below"],
+    "links": ["https://buffer.com", "https://ayrshare.com"],
+    "field": "POSTING_API_KEY",
+    "sensitive": true
+  },
+  {
+    "id": "x-oauth",
+    "area": "product",
+    "status": "optional",
+    "title": "X developer app (official sync, optional)",
+    "why": "Only needed if you want official-API sync instead of Tweetsmash-style import. Extension MVP works without it.",
+    "steps": ["Create X developer app", "Enable OAuth 2.0 user context", "Paste client ID/secret below"],
+    "links": ["https://developer.x.com"],
+    "field": "X_OAUTH_CLIENT",
+    "sensitive": true
+  }
+]

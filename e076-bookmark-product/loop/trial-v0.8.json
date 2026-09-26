@@ -1,0 +1,226 @@
+{
+ "task": "T1-core-backup-loop",
+ "score": 100,
+ "max": 100,
+ "pass": true,
+ "checks": [
+  {
+   "group": "import",
+   "name": "accepted==4",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "{'accepted': 4, 'dupes': 1, 'total': 4}"
+  },
+  {
+   "group": "import",
+   "name": "dupes==1",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "{'accepted': 4, 'dupes': 1, 'total': 4}"
+  },
+  {
+   "group": "import",
+   "name": "total==4",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "{'accepted': 4, 'dupes': 1, 'total': 4}"
+  },
+  {
+   "group": "import",
+   "name": "xhr-wins",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "{'id': 't1', 'text': 'hello world backup one', 'author': 'alice', 'created_at': '2026-01-01T00:00:00Z', 'source': 'xhr', 'labels': [], 'imported_at': '20260925T"
+  },
+  {
+   "group": "import",
+   "name": "sources-valid",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "group": "labels",
+   "name": "2-created",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "['invoice', 'read-later']"
+  },
+  {
+   "group": "labels",
+   "name": "attach-both",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "{'ok': True, 'id': 't1', 'labels': ['read-later', 'invoice']}"
+  },
+  {
+   "group": "labels",
+   "name": "list-both",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "['invoice', 'read-later']"
+  },
+  {
+   "group": "labels",
+   "name": "filter-t1",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "group": "search",
+   "name": "q-finds-t1",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "group": "search",
+   "name": "empty-q-all",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "4"
+  },
+  {
+   "group": "search",
+   "name": "unknown-q-zero",
+   "pts": 5,
+   "max": 5,
+   "ok": true,
+   "detail": "0"
+  },
+  {
+   "group": "webhooks",
+   "name": "add-ok",
+   "pts": 4,
+   "max": 4,
+   "ok": true,
+   "detail": "{'ok': True, 'webhooks': [{'url': 'https://example.com/hook', 'events': ['bookmarks.imported'], 'created_at': '20260925T235100Z'}]}"
+  },
+  {
+   "group": "webhooks",
+   "name": "dupe-ignored",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "group": "webhooks",
+   "name": "import-fires",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "{'accepted': 1, 'dupes': 0, 'total': 5}"
+  },
+  {
+   "group": "approvals",
+   "name": "propose-pending",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "{'ok': True, 'approval': {'id': 1, 'kind': 'sync', 'title': 'Resume paused sync', 'detail': '', 'status': 'pending', 'created_at': '20260925T235100Z', 'decided_"
+  },
+  {
+   "group": "approvals",
+   "name": "empty-400",
+   "pts": 2,
+   "max": 2,
+   "ok": true,
+   "detail": "{'ok': False, 'error': 'title-required'}"
+  },
+  {
+   "group": "approvals",
+   "name": "approve",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "{'ok': True, 'approval': {'id': 1, 'kind': 'sync', 'title': 'Resume paused sync', 'detail': '', 'status': 'approved', 'created_at': '20260925T235100Z', 'decided"
+  },
+  {
+   "group": "approvals",
+   "name": "re-approve-safe",
+   "pts": 2,
+   "max": 2,
+   "ok": true,
+   "detail": "{'ok': True, 'approval': {'id': 1, 'kind': 'sync', 'title': 'Resume paused sync', 'detail': '', 'status': 'approved', 'created_at': '20260925T235100Z', 'decided"
+  },
+  {
+   "group": "billing",
+   "name": "catalog-prices",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "{'free': 0, 'monthly': 7, 'yearly': 99, 'lifetime': 198}"
+  },
+  {
+   "group": "billing",
+   "name": "fiat-test",
+   "pts": 2,
+   "max": 2,
+   "ok": true,
+   "detail": "{'ok': True, 'plan': 'test', 'mode': 'test', 'note': 'unverified-test-event; wire FIAT_WEBHOOK_SECRET via ops/cycle.html (Keys tab)'}"
+  },
+  {
+   "group": "billing",
+   "name": "crypto-test",
+   "pts": 2,
+   "max": 2,
+   "ok": true,
+   "detail": "{'ok': True, 'plan': 'test', 'mode': 'test', 'note': 'unverified-test-event; wire CRYPTO_WEBHOOK_SECRET via ops/cycle.html (Keys tab)'}"
+  },
+  {
+   "group": "billing",
+   "name": "referral",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "bv_ref=FRIEND1; Max-Age=2592000; Path=/; SameSite=Lax"
+  },
+  {
+   "group": "static",
+   "name": "hub-pages-exist",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "10 present"
+  },
+  {
+   "group": "static",
+   "name": "sidepanel-5-tabs",
+   "pts": 2,
+   "max": 2,
+   "ok": true,
+   "detail": "['saved', 'labels', 'sync', 'hooks', 'export']"
+  },
+  {
+   "group": "static",
+   "name": "english-only",
+   "pts": 3,
+   "max": 3,
+   "ok": true,
+   "detail": "en ok"
+  },
+  {
+   "group": "static",
+   "name": "js-syntax",
+   "pts": 2,
+   "max": 2,
+   "ok": true,
+   "detail": "ok"
+  }
+ ],
+ "presentable_static": true,
+ "note": "static green is necessary, NOT sufficient: real Chrome @390px still required for PRESENTABLE."
+}
