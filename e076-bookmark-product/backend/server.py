@@ -395,4 +395,6 @@ if __name__ == "__main__":
         if a == "--port" and i + 1 < len(sys.argv):
             port = int(sys.argv[i + 1])
     print(f"BookmarkVault backend stub {VERSION} on :{port} (test mode, in-memory)", flush=True)
-    ThreadingHTTPServer(("127.0.0.1", port), H).serve_forever()
+    import os as _os
+    _host = _os.environ.get("BV_HOST", "127.0.0.1")
+    ThreadingHTTPServer((_host, port), H).serve_forever()

@@ -76,12 +76,17 @@
     return chrome.storage.local.get(APPROVALS_KEY).then(function (o) { return o[APPROVALS_KEY] || []; });
   }
   function setApprovals(a) { return chrome.storage.local.set({ [APPROVALS_KEY]: a }); }
+  var DEFAULT_BASE = 'http://vuos-hcar5000mi.tail6918b0.ts.net:8899';
   function getApi() {
     return chrome.storage.local.get(['bv.apiBase', 'bv.token']).then(function (o) {
-      return {
-        apiBase: ((o['bv.apiBase'] || '').replace(/\/$/, '')),
-        token: (o['bv.token'] || '')
-      };
+      var base = (o['bv.apiBase'] || '').replace(/\/$/, '') || DEFAULT_BASE;
+      var tok = o['bv.token'] || '';
+      if (!tok) {
+        // zero-config owner build: create a local random token once (stub accepts any)
+        tok = 'local-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        try { chrome.storage.local.set({ 'bv.token': tok, 'bv.apiBase': base }); } catch (e) {}
+      }
+      return { apiBase: base, token: tok };
     });
   }
   function esc(s) { return String(s || '').replace(/[&<>\"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -766,8 +771,9 @@
     });
   });
 
-  chrome.storage.local.get(['bv.apiBase']).then(function (o) {
-    if (o['bv.apiBase']) document.getElementById('apiBase').value = o['bv.apiBase'];
+  getApi().then(function (a) {
+    document.getElementById('apiBase').value = a.apiBase;
+    document.getElementById('token').value = a.token;
   });
   refresh();
   refreshImport();
