@@ -149,6 +149,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
     chrome.storage.local.set({ 'bv.devMode': !!msg.on }).then(() => reply && reply({ ok: true }));
     return true;
   }
+  if (msg && msg.type === 'bv-devnote') {
+    devTel('devnote', { note: (msg && msg.note) || '?' });
+    if (reply) reply({ ok: true });
+    return true;
+  }
   if (msg && msg.type === 'bv-stats') {
     Promise.all([storeGet(QUEUE_KEY, []), storeGet(META_KEY, {}), storeGet(STATUS_KEY, {})]).then(([q, meta, status]) =>
       reply && reply({ queued: q.length, meta, status })

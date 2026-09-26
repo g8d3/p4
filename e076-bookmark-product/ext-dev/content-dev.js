@@ -196,38 +196,6 @@
     try { mo.observe(document.body, { childList: true, subtree: true }); } catch (e) {}
     window.addEventListener('bv-backoff', function () { backoffUntil = Date.now() + 10 * 60 * 1000; });
   }
-  function boot() {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-    else start();
-  }
-  // DEV lane: try remote logic first (sideloaded dev builds only, never store).
-  // Falls back to bundled start silently; reports which ran via telemetry.
-  try {
-    chrome.storage.local.get('bv.devMode', function (o) {
-      if (!o || !o['bv.devMode']) { boot(); return; }
-      var done = false;
-      function goBundled(note) {
-        if (done) return; done = true;
-        try { chrome.runtime.sendMessage({ type: 'bv-devnote', note: note || 'bundled-fallback' }); } catch (e) {}
-        boot();
-      }
-      try {
-        var ctrl = new AbortController();
-        var to = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 4000);
-        fetch('http://vuos-hcar5000mi.tail6918b0.ts.net:8901/ext-dev/content-dev.js', { signal: ctrl.signal }).then(function (r) {
-          clearTimeout(to);
-          if (!r.ok) { goBundled('dev-http-' + r.status); return; }
-          return r.text();
-        }).then(function (code) {
-          if (!code || done) return;
-          try {
-            (0, eval)(code + '\n//# sourceURL=bv-dev.js');
-            try { chrome.runtime.sendMessage({ type: 'bv-devnote', note: 'dev-remote-ok' }); } catch (e) {}
-            done = true; // remote bundle runs its own start
-          } catch (e) { goBundled('dev-eval-blocked'); }
-        }).catch(function () { goBundled('dev-fetch-fail'); });
-        setTimeout(function () { goBundled('dev-timeout'); }, 5000);
-      } catch (e) { goBundled('dev-sync-fail'); }
-    });
-  } catch (e) { boot(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();
