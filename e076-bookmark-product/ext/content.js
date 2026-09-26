@@ -126,15 +126,53 @@
     importSet({ state: 'running' });
     impTimer = setInterval(importTick, 2800 + Math.floor(Math.random() * 900));
   }
+  var mo = new MutationObserver(function () { domScrape(); });
+  var hudEl = null;
+  function hud() {
+    try {
+      if (hudEl) return hudEl;
+      hudEl = document.createElement('div');
+      hudEl.id = 'bv-hud';
+      hudEl.setAttribute('style', 'position:fixed;left:8px;right:8px;bottom:12px;z-index:999999;background:#111;color:#fff;border-radius:10px;padding:8px 12px;font:13px/1.4 system-ui;display:flex;gap:8px;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,.4)');
+      hudEl.innerHTML = '<span id="bv-hud-t" style="flex:1">BookmarkVault: starting…</span><button id="bv-hud-b" style="background:#fff;color:#111;border:0;border-radius:6px;padding:8px 12px;font-size:13px">Pause</button>';
+      (document.body || document.documentElement).appendChild(hudEl);
+      hudEl.querySelector('#bv-hud-b').addEventListener('click', function () {
+        importGet().then(function (cur) {
+          var running = cur && cur.wish === 'run' && cur.state !== 'done' && cur.state !== 'challenge';
+          importSet(running ? { wish: 'pause', state: 'paused' } : { wish: 'run', state: 'running', reason: '', cooldownUntil: 0 });
+        });
+      });
+      return hudEl;
+    } catch (e) { return null; }
+  }
+  function hudPaint() {
+    var el = hud();
+    if (!el) return;
+    Promise.all([importGet(), new Promise(function (res) {
+      try { chrome.runtime.sendMessage({ type: 'bv-stats' }, function (s) { res(s || {}); }); }
+      catch (e) { res({}); }
+    })]).then(function (parts) {
+      var st = parts[0] || {}, s = parts[1] || {};
+      var running = st.wish === 'run' && st.state !== 'done' && st.state !== 'challenge';
+      var n = st.scrolls || 0, c = (typeof s.queued === 'number') ? s.queued : SEEN.size;
+      var t = el.querySelector('#bv-hud-t'), b = el.querySelector('#bv-hud-b');
+      if (t) t.textContent = st.state === 'done' ? 'BookmarkVault: done — ' + c + ' saved here.' :
+        st.state === 'challenge' ? 'BookmarkVault: paused — ' + (st.reason || 'X asked us to slow down') + '.' :
+        running ? 'BookmarkVault: importing… ' + n + ' scrolled · ' + c + ' saved.' :
+        'BookmarkVault: watching · ' + c + ' saved here.';
+      if (b) b.textContent = running ? 'Pause' : 'Import';
+    });
+  }
   try {
     if (chrome.storage && chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener(function (chg) {
         if (chg[IMPORT_KEY] && chg[IMPORT_KEY].newValue) importMaybeStart(chg[IMPORT_KEY].newValue);
+        hudPaint();
       });
     }
   } catch (e) {}
 
-  var mo = new MutationObserver(function () { domScrape(); });
+  // --- In-page HUD: status + pause/resume right on x.com, no tab-hopping ---
   function beat() {
     try { chrome.runtime.sendMessage({ type: 'bv-heartbeat', page: location.href }); } catch (e) {}
   }
@@ -142,6 +180,8 @@
     injectHook();
     domScrape();
     importGet().then(importMaybeStart);
+    hudPaint();
+    try { setInterval(hudPaint, 5000); } catch (e) {}
     beat();
     try { setInterval(beat, 20000); } catch (e) {}
     try { mo.observe(document.body, { childList: true, subtree: true }); } catch (e) {}
