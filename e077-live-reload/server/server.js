@@ -38,11 +38,11 @@ try {
 }
 
 const MIME = {
-  ".js": "text/javascript",
-  ".html": "text/html",
-  ".json": "application/json",
-  ".css": "text/css",
-  ".txt": "text/plain",
+  ".js": "text/javascript; charset=utf-8",
+  ".html": "text/html; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
 };
 
 const server = http.createServer((req, res) => {
