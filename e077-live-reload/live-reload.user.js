@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Live Reload Loader
 // @namespace    e077
-// @version      1.6
+// @version      1.7
 // @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
@@ -12,9 +12,9 @@
 
 /* THE ONE SETTING (single manual edit, then never again):
    your PC's dev server address. The URL LIST comes from the server itself
-   (GET <SERVER>/config), so adding files needs no reinstall. */
+   (GET <SERVER>/config.json), so adding files needs no reinstall. */
 const SERVER = "http://192.168.0.177:8080";
-const LOADER_VERSION = "1.6";
+const LOADER_VERSION = "1.7";
 const POLL_MS = 1000;
 
 (function () {
@@ -130,17 +130,23 @@ const POLL_MS = 1000;
       );
       el.innerHTML = "";
       const jsFiles = texts.filter((f) => f.type === "js");
+      // Page-context execution (see ext/content.js): isolated-world eval is
+      // sealed by the browser; a <script> tag obeys only the page's own CSP.
+      const runId = "r" + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36);
       let jsBlocked = false;
-      for (const f of jsFiles) {
-        try {
-          // eslint-disable-next-line no-eval
-          window.eval(f.t);
-        } catch (e) {
-          jsBlocked = true; // strict page CSP (x.com): no unsafe-eval
-          report("eval-blocked", { files: jsFiles.map((f) => f.path), error: String((e && e.message) || e).slice(0, 200) });
+      try {
+        for (const f of jsFiles) {
+          const s = document.createElement("script");
+          s.textContent = "window.__LIVE_RUNID=" + JSON.stringify(runId) + ";\n" + f.t;
+          (document.head || document.documentElement).appendChild(s);
+          s.remove();
         }
+        if (jsFiles.length && window.__LIVE_RUNID !== runId) jsBlocked = true;
+      } catch (e) {
+        jsBlocked = true;
+        report("eval-blocked", { files: jsFiles.map((f) => f.path), error: String((e && e.message) || e).slice(0, 200) });
       }
-      if (typeof window.__LIVE_RENDER === "function") window.__LIVE_RENDER(el);
+      if (typeof window.__LIVE_RENDER === "function" && !jsBlocked) window.__LIVE_RENDER(el);
       for (const f of texts.filter((f) => f.type === "html")) {
         const wrap = document.createElement("div");
         wrap.innerHTML = f.t;
@@ -150,7 +156,7 @@ const POLL_MS = 1000;
         const note = document.createElement("div");
         note.style.cssText =
           "margin-top:8px;padding:8px 12px;border-radius:10px;background:#422006;color:#fef3c7;font:500 13px system-ui;border:1px solid #f59e0b";
-        note.textContent = "⚠️ This page's CSP blocks JS eval (e.g. x.com) — HTML still updates live. Develop JS on a plain page.";
+        note.textContent = "⚠️ JS blocked here (page CSP or browser policy) — HTML still updates live. Develop JS on a plain page.";
         el.appendChild(note);
       }
     } catch (e) {
