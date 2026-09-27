@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Live Reload Loader",
-  "version": "1.4",
+  "version": "1.5",
   "description": "Install once. Takes a server address, receives its URL list, hot-injects them. No reinstall loop.",
   "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],

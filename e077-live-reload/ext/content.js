@@ -4,7 +4,7 @@
 // Add/remove files in server/public/ + one row in config.json — phone follows, no reinstall.
 
 const DEFAULT_SERVER = "http://192.168.0.177:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
-const LOADER_VERSION = "1.4";
+const LOADER_VERSION = "1.5";
 const POLL_MS = 1000;
 
 let SERVER = "";
@@ -153,6 +153,7 @@ async function refresh() {
         // Strict pages (x.com script-src: no unsafe-eval) refuse eval.
         // Not fatal: HTML fragments below still render live.
         jsBlocked = true;
+        report("eval-blocked", { files: jsFiles.map((f) => f.path), error: String((e && e.message) || e).slice(0, 200) });
       }
     }
     if (typeof window.__LIVE_RENDER === "function") window.__LIVE_RENDER(el);
@@ -167,7 +168,6 @@ async function refresh() {
         "margin-top:8px;padding:8px 12px;border-radius:10px;background:#422006;color:#fef3c7;font:500 13px system-ui;border:1px solid #f59e0b";
       note.textContent = "⚠️ This page's CSP blocks JS eval (e.g. x.com) — HTML still updates live. Develop JS on a plain page.";
       el.appendChild(note);
-      report("eval-blocked", { files: jsFiles.map((f) => f.path) });
     }
   } catch (e) {
     el.innerHTML = `<div style="padding:8px 12px;border-radius:10px;background:#7f1d1d;color:#fff;font:500 13px system-ui">⚠️ live server unreachable: ${SERVER}</div>`;
