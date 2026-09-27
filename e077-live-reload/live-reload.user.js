@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Live Reload Loader
 // @namespace    e077
-// @version      1.3
+// @version      1.4
 // @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
@@ -76,15 +76,28 @@ const POLL_MS = 1000;
         files.map((f) => netGet(`${SERVER}${f.path}?ts=${Date.now()}`).then((t) => ({ ...f, t })))
       );
       el.innerHTML = "";
-      for (const f of texts.filter((f) => f.type === "js")) {
-        // eslint-disable-next-line no-eval
-        window.eval(f.t);
+      const jsFiles = texts.filter((f) => f.type === "js");
+      let jsBlocked = false;
+      for (const f of jsFiles) {
+        try {
+          // eslint-disable-next-line no-eval
+          window.eval(f.t);
+        } catch (e) {
+          jsBlocked = true; // strict page CSP (x.com): no unsafe-eval
+        }
       }
       if (typeof window.__LIVE_RENDER === "function") window.__LIVE_RENDER(el);
       for (const f of texts.filter((f) => f.type === "html")) {
         const wrap = document.createElement("div");
         wrap.innerHTML = f.t;
         el.appendChild(wrap);
+      }
+      if (jsBlocked && jsFiles.length) {
+        const note = document.createElement("div");
+        note.style.cssText =
+          "margin-top:8px;padding:8px 12px;border-radius:10px;background:#422006;color:#fef3c7;font:500 13px system-ui;border:1px solid #f59e0b";
+        note.textContent = "⚠️ This page's CSP blocks JS eval (e.g. x.com) — HTML still updates live. Develop JS on a plain page.";
+        el.appendChild(note);
       }
     } catch (e) {
       el.innerHTML = `<div style="padding:8px 12px;border-radius:10px;background:#7f1d1d;color:#fff;font:500 13px system-ui">⚠️ live server unreachable: ${SERVER}</div>`;

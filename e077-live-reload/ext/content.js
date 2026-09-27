@@ -62,15 +62,30 @@ async function refresh() {
       files.map((f) => bgFetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
     );
     el.innerHTML = "";
-    for (const f of texts.filter((f) => f.type === "js")) {
-      // eslint-disable-next-line no-eval
-      window.eval(f.t);
+    const jsFiles = texts.filter((f) => f.type === "js");
+    let jsBlocked = false;
+    for (const f of jsFiles) {
+      try {
+        // eslint-disable-next-line no-eval
+        window.eval(f.t);
+      } catch (e) {
+        // Strict pages (x.com script-src: no unsafe-eval) refuse eval.
+        // Not fatal: HTML fragments below still render live.
+        jsBlocked = true;
+      }
     }
     if (typeof window.__LIVE_RENDER === "function") window.__LIVE_RENDER(el);
     for (const f of texts.filter((f) => f.type === "html")) {
       const wrap = document.createElement("div");
-      wrap.innerHTML = f.t;
+      wrap.innerHTML = f.t; // innerHTML + inline styles are CSP-safe (no script execution)
       el.appendChild(wrap);
+    }
+    if (jsBlocked && jsFiles.length) {
+      const note = document.createElement("div");
+      note.style.cssText =
+        "margin-top:8px;padding:8px 12px;border-radius:10px;background:#422006;color:#fef3c7;font:500 13px system-ui;border:1px solid #f59e0b";
+      note.textContent = "⚠️ This page's CSP blocks JS eval (e.g. x.com) — HTML still updates live. Develop JS on a plain page.";
+      el.appendChild(note);
     }
   } catch (e) {
     el.innerHTML = `<div style="padding:8px 12px;border-radius:10px;background:#7f1d1d;color:#fff;font:500 13px system-ui">⚠️ live server unreachable: ${SERVER}</div>`;
