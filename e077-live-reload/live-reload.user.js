@@ -7,6 +7,7 @@
 // @run-at       document-idle
 // @grant        GM_xmlhttpRequest
 // @connect      192.168.0.177
+// @connect      vuos-hcar5000mi.tail6918b0.ts.net
 // ==/UserScript==
 
 /* THE ONE SETTING (single manual edit, then never again):
@@ -19,6 +20,7 @@ const POLL_MS = 1000;
   "use strict";
   let lastV = null;
   let host = null;
+  let fails = 0; // consecutive network failures (CSP detection)
 
   // Strict pages (x.com, …) block fetch via CSP connect-src.
   // GM_xmlhttpRequest bypasses page CSP where the engine supports it; else fetch fallback.
@@ -93,6 +95,7 @@ const POLL_MS = 1000;
     try {
       const t = await netGet(`${SERVER}/version?ts=${Date.now()}`);
       const { v } = JSON.parse(t);
+      fails = 0;
       if (lastV === null) {
         lastV = v;
         await refresh();
@@ -104,6 +107,10 @@ const POLL_MS = 1000;
       }
     } catch {
       /* server off — retry silently */
+      fails++;
+      // Page CSP (x.com, …) blocks userscript network with no GM bridge to escape.
+      // Say so once, plainly, instead of failing silently forever.
+      if (fails === 5) toast("⛔ this page blocks userscripts (CSP) — install the .zip extension instead");
     }
   }
 
