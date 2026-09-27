@@ -8,3 +8,4 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - Server status, unasked, every turn that touches servers: each experiment server as full URLs, IPs resolved live (`hostname -I`, `tailscale ip -4`), never hardcoded. Report the experiment's server, not infra.
 - User-seat review before delivering: open the page yourself, list what the user can do there. A page with no user action is a bug.
 - Config, never hardcode: machine values (IPs, ports, paths) and URL lists come from settings or the server, documented in `needs.json` — not buried in code.
+- Kill servers by exact PID (read it from `ss -tlnp`), never broad `pkill -f` patterns — a pattern can match your own shell or the wrong server.
