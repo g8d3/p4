@@ -4,7 +4,7 @@
 // Add/remove files in server/public/ + one row in config.json — phone follows, no reinstall.
 
 const DEFAULT_SERVER = "http://vuos-hcar5000mi.tail6918b0.ts.net:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
-const LOADER_VERSION = "1.8";
+const LOADER_VERSION = "1.9";
 const POLL_MS = 1000;
 
 let SERVER = "";
@@ -205,7 +205,12 @@ async function poll() {
       lastV = v;
       await refresh();
       toast(`🔌 live connected (v${v})`);
-      report("boot", { serverVersion: v });
+      let lab = null;
+      try {
+        const r = await chrome.storage.local.get(["labOn", "labHosts"]);
+        lab = r.labOn ? r.labHosts : false;
+      } catch {}
+      report("boot", { serverVersion: v, lab });
     } else if (v !== lastV) {
       lastV = v;
       await refresh();

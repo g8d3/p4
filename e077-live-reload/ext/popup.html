@@ -1,11 +1,13 @@
 <!doctype html>
 <meta charset="utf-8">
 <style>
-  body { width: 260px; font: 14px system-ui; padding: 12px; }
+  body { width: 270px; font: 14px system-ui; padding: 12px; }
   input { width: 100%; box-sizing: border-box; margin-top: 4px; }
   button { margin-top: 8px; }
   #m { color: #15803d; min-height: 18px; }
   a { font-size: 13px; }
+  .warn { font-size: 12px; color: #92400e; margin-top: 4px; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
 </style>
 <label>Dev server URL
   <input id="s" placeholder="http://vuos-hcar5000mi.tail6918b0.ts.net:8080">
@@ -13,4 +15,10 @@
 <button id="b">Save</button>
 <p id="m"></p>
 <a id="o" href="#" target="_blank">Open server page</a>
+<hr>
+<label><input type="checkbox" id="lab" style="width:auto"> Lab mode: strip page CSP</label>
+<label>Only on these hosts (comma-separated)
+  <input id="hosts" placeholder="x.com">
+</label>
+<p class="warn">⚠️ Removes the site's XSS/clickjacking shield on those hosts only. Dev-only, your risk. Badge shows CSP while active.</p>
 <script src="popup.js"></script>

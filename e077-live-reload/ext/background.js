@@ -11,6 +11,38 @@ function serverUrl(cb) {
     cb(DEFAULT_SERVER);
   }
 }
+
+// Lab mode: strip the page's CSP header, ONLY on user-named hosts, ONLY while on.
+// The header carries per-load nonces, so it can't be surgically edited — removal
+// is all-or-nothing per host. Badge shows while active. Dev-only, user's risk.
+async function applyLabMode() {
+  try {
+    const { labOn, labHosts = [] } = await chrome.storage.local.get(["labOn", "labHosts"]);
+    const hosts = labOn ? labHosts.map((h) => String(h).trim().toLowerCase()).filter(Boolean) : [];
+    const rules = hosts.slice(0, 10).map((h, i) => ({
+      id: i + 1,
+      priority: 1,
+      action: {
+        type: "modifyHeaders",
+        responseHeaders: [{ header: "content-security-policy", operation: "remove" }],
+      },
+      condition: { urlFilter: "||" + h, resourceTypes: ["main_frame"] },
+    }));
+    const old = await chrome.declarativeNetRequest.getDynamicRules();
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: old.map((r) => r.id),
+      addRules: rules,
+    });
+    chrome.action.setBadgeText({ text: rules.length ? "CSP" : "" });
+    chrome.action.setBadgeBackgroundColor({ color: "#b45309" });
+  } catch {}
+}
+applyLabMode();
+if (chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener((chg) => {
+    if (chg.labOn || chg.labHosts) applyLabMode();
+  });
+}
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
   if (msg && msg.type === "live-fetch" && typeof msg.url === "string") {
     fetch(msg.url)
