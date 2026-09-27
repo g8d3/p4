@@ -57,11 +57,44 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify(version));
     return;
   }
-  if (url.pathname === "/") {
-    res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.end(`<h1>live-reload dev server v${version.v}</h1>
-<p>Edit <code>server/public/live.js</code> or <code>card.html</code> and your phone updates in ~1s.</p>
-<ul><li><a href="/live.js">/live.js</a></li><li><a href="/card.html">/card.html</a></li><li><a href="/version">/version</a></li></ul>`);
+  if (url.pathname === "/" || url.pathname === "/index.html") {
+    // The experiment page IS the entry point: install, status, run, scripts.
+    // Served from repo root so there is exactly one copy.
+    const page = path.join(__dirname, "..", "index.html");
+    fs.readFile(page, (err, data) => {
+      if (err) {
+        res.statusCode = 500;
+        res.end("index.html missing");
+        return;
+      }
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.end(data);
+    });
+    return;
+  }
+
+  // Install artifacts: single copy at repo root, always installable from the phone.
+  const ARTIFACTS = {
+    "/live-reload.user.js": {
+      file: path.join(__dirname, "..", "live-reload.user.js"),
+      type: "text/javascript; charset=utf-8",
+    },
+    "/live-reload-ext.zip": {
+      file: path.join(__dirname, "..", "dist", "live-reload-ext.zip"),
+      type: "application/zip",
+    },
+  };
+  if (ARTIFACTS[url.pathname]) {
+    const a = ARTIFACTS[url.pathname];
+    fs.readFile(a.file, (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.end("artifact missing — did you set SERVER IP and rebuild the zip?");
+        return;
+      }
+      res.setHeader("Content-Type", a.type);
+      res.end(data);
+    });
     return;
   }
 
