@@ -1,6 +1,6 @@
 // Live Reload Loader (content script) — config-driven, no hardcoded file list.
 // The ONLY address: read from storage (set in popup), fallback = first-install default.
-// The URL LIST comes from the server: GET <SERVER>/config -> {"files":[{path,type}]}.
+// The URL LIST comes from the server: GET <SERVER>/config.json -> {"files":[{path,type}]}.
 // Add/remove files in server/public/ + one row in config.json — phone follows, no reinstall.
 
 const DEFAULT_SERVER = "http://192.168.0.177:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
@@ -40,7 +40,7 @@ function setupBox() {
 async function refresh() {
   const el = ensureHost();
   try {
-    const cfg = await fetch(`${SERVER}/config?ts=${Date.now()}`).then((r) => r.json());
+    const cfg = await fetch(`${SERVER}/config.json?ts=${Date.now()}`).then((r) => r.json());
     const files = cfg.files || [];
     const texts = await Promise.all(
       files.map((f) => fetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))

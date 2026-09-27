@@ -43,7 +43,7 @@ const POLL_MS = 1000;
   async function refresh() {
     const el = ensureHost();
     try {
-      const cfg = await fetch(`${SERVER}/config?ts=${Date.now()}`).then((r) => r.json());
+      const cfg = await fetch(`${SERVER}/config.json?ts=${Date.now()}`).then((r) => r.json());
       const files = cfg.files || [];
       const texts = await Promise.all(
         files.map((f) => fetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
