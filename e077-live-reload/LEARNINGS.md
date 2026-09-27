@@ -67,6 +67,37 @@ works for all extension code with no fight. Phoneuso: HTML-live everywhere + JS 
 permissive pages. PC: the full loop. Nothing here was wasted — URL list, telemetry,
 diagnostics, page rule all transfer.
 
+## Future option: remote execution (phone as dumb terminal)
+
+Proposal: run the extension on the PC's desktop browser; the phone consumes
+RESULTS in a plain web page. Nothing executes on the phone, so the entire CSP /
+seal saga evaporates — no loader on Queta at all, any phone browser works.
+
+Why it dissolves the problem: every blocker in the matrix above is a *phone-engine*
+restriction on *executing fetched code*. Move execution to desktop (where the agent
+controls launch flags, Chromium builds, devtools) and the phone only renders
+server-provided pixels/text. Seals have nothing to grip.
+
+Variants, cheapest first:
+1. DOM/log mirror — desktop page POSTs `document.body.innerHTML` + console lines
+   to the server; phone page polls and displays. Text-level, tiny build, no fidelity loss.
+2. Screenshot view — CDP `Page.captureScreenshot` loop (~1fps plenty for dev);
+   phone shows live pixels. Pixels don't lie about rendering.
+3. Hybrid + remote control — mirror + screenshot + phone controls (URL bar, reload,
+   back) forwarded to desktop via CDP. Phone becomes a remote tab.
+
+Costs: desktop browser must run while developing (already true here); interaction
+is view-only until CDP input forwarding (`Input.dispatchTouchEvent`) is added;
+sessions/logins live on the desktop profile (arguably a plus: test accounts stay
+out of the personal phone).
+
+Reuse inventory (all proven this session): the e077 server (static + JSON APIs +
+CORS), the reports pipeline, CDP attach + screenshots via Playwright, Tailnet URLs
+for phone reachability, the index-page pattern for the viewer UI.
+
+Minimal first slice: `/preview` endpoint serving latest screenshot + a viewer page
+with 1s refresh and the existing diagnostics table beside it. Touch forwarding later.
+
 ## Process (extracted to root AGENTS.md as standing rules)
 
 - Report server status unasked, full URLs, IPs resolved live.
