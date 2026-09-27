@@ -5,7 +5,8 @@
 // @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      192.168.0.177
 // ==/UserScript==
 
 /* THE ONE SETTING (single manual edit, then never again):
@@ -18,6 +19,30 @@ const POLL_MS = 1000;
   "use strict";
   let lastV = null;
   let host = null;
+
+  // Strict pages (x.com, …) block fetch via CSP connect-src.
+  // GM_xmlhttpRequest bypasses page CSP where the engine supports it; else fetch fallback.
+  function netGet(url) {
+    return new Promise(function (resolve, reject) {
+      try {
+        if (typeof GM_xmlhttpRequest === "function") {
+          GM_xmlhttpRequest({
+            method: "GET", url: url,
+            onload: function (r) {
+              if (r.status >= 200 && r.status < 300) resolve(r.responseText);
+              else reject(new Error("http " + r.status));
+            },
+            onerror: reject,
+          });
+        } else {
+          fetch(url).then(function (r) {
+            if (!r.ok) throw new Error("http " + r.status);
+            return r.text();
+          }).then(resolve, reject);
+        }
+      } catch (e) { reject(e); }
+    });
+  }
 
   function ensureHost() {
     if (host && document.contains(host)) return host;
@@ -43,10 +68,10 @@ const POLL_MS = 1000;
   async function refresh() {
     const el = ensureHost();
     try {
-      const cfg = await fetch(`${SERVER}/config.json?ts=${Date.now()}`).then((r) => r.json());
+      const cfg = JSON.parse(await netGet(`${SERVER}/config.json?ts=${Date.now()}`));
       const files = cfg.files || [];
       const texts = await Promise.all(
-        files.map((f) => fetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
+        files.map((f) => netGet(`${SERVER}${f.path}?ts=${Date.now()}`).then((t) => ({ ...f, t })))
       );
       el.innerHTML = "";
       for (const f of texts.filter((f) => f.type === "js")) {
@@ -66,8 +91,8 @@ const POLL_MS = 1000;
 
   async function poll() {
     try {
-      const r = await fetch(`${SERVER}/version?ts=${Date.now()}`);
-      const { v } = await r.json();
+      const t = await netGet(`${SERVER}/version?ts=${Date.now()}`);
+      const { v } = JSON.parse(t);
       if (lastV === null) {
         lastV = v;
         await refresh();

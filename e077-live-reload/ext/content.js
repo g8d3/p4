@@ -10,6 +10,22 @@ let SERVER = "";
 let lastV = null;
 let host = null;
 
+// ALL network goes through the background worker: strict pages (x.com, …)
+// block content-script fetch via CSP connect-src, but extension-context
+// fetch is exempt. Same Response shape the code already uses.
+function bgFetch(url) {
+  return new Promise((resolve, reject) => {
+    try {
+      chrome.runtime.sendMessage({ type: "live-fetch", url }, (res) => {
+        if (chrome.runtime.lastError || !res || !res.ok) reject(new Error("bg fetch failed"));
+        else resolve({ text: async () => res.t, json: async () => JSON.parse(res.t) });
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 function ensureHost() {
   if (host && document.contains(host)) return host;
   host = document.createElement("div");
@@ -40,10 +56,10 @@ function setupBox() {
 async function refresh() {
   const el = ensureHost();
   try {
-    const cfg = await fetch(`${SERVER}/config.json?ts=${Date.now()}`).then((r) => r.json());
+    const cfg = await bgFetch(`${SERVER}/config.json?ts=${Date.now()}`).then((r) => r.json());
     const files = cfg.files || [];
     const texts = await Promise.all(
-      files.map((f) => fetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
+      files.map((f) => bgFetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
     );
     el.innerHTML = "";
     for (const f of texts.filter((f) => f.type === "js")) {
@@ -64,7 +80,7 @@ async function refresh() {
 async function poll() {
   if (!SERVER) return;
   try {
-    const r = await fetch(`${SERVER}/version?ts=${Date.now()}`);
+    const r = await bgFetch(`${SERVER}/version?ts=${Date.now()}`);
     const { v } = await r.json();
     if (lastV === null) {
       lastV = v;
