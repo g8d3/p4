@@ -1,1 +1,1 @@
-[{"id":"lan-ip","ask":"Tell the agent your PC's LAN IP (hostname -I) so it can bake it into ext/content.js and live-reload.user.js","why":"The phone must reach the dev server over WiFi; localhost on the phone is the phone itself."}]
+[{"id":"lan-ip","ask":"Open the extension popup on the phone and save the server address (shown on the index page). The loader ships with the current LAN default; this step is only needed if the IP changed.","why":"The phone must reach the dev server over WiFi; localhost on the phone is the phone itself."}]

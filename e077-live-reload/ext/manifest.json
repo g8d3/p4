@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Live Reload Loader",
-  "version": "1.0",
-  "description": "Install once. Polls your PC dev server and hot-injects live.js + card.html. No reinstall loop.",
-  "permissions": [],
+  "version": "1.1",
+  "description": "Install once. Takes a server address, receives its URL list, hot-injects them. No reinstall loop.",
+  "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],
+  "action": { "default_popup": "popup.html" },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

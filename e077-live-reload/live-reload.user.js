@@ -1,15 +1,17 @@
 // ==UserScript==
 // @name         Live Reload Loader
 // @namespace    e077
-// @version      1.0
-// @description  Install once in Queta (.user.js). Polls PC dev server, hot-injects live.js + card.html.
+// @version      1.1
+// @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
 
-/* ★ BEFORE INSTALLING: set your PC's LAN IP here (e.g. 192.168.1.50) */
-const SERVER = "http://192.168.1.50:8080";
+/* THE ONE SETTING (single manual edit, then never again):
+   your PC's dev server address. The URL LIST comes from the server itself
+   (GET <SERVER>/config), so adding files needs no reinstall. */
+const SERVER = "http://192.168.0.177:8080";
 const POLL_MS = 1000;
 
 (function () {
@@ -41,16 +43,20 @@ const POLL_MS = 1000;
   async function refresh() {
     const el = ensureHost();
     try {
-      const [js, html] = await Promise.all([
-        fetch(`${SERVER}/live.js?ts=${Date.now()}`).then((r) => r.text()),
-        fetch(`${SERVER}/card.html?ts=${Date.now()}`).then((r) => r.text()),
-      ]);
-      // eslint-disable-next-line no-eval
-      window.eval(js);
-      if (typeof window.__LIVE_RENDER === "function") {
-        window.__LIVE_RENDER(el);
+      const cfg = await fetch(`${SERVER}/config?ts=${Date.now()}`).then((r) => r.json());
+      const files = cfg.files || [];
+      const texts = await Promise.all(
+        files.map((f) => fetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
+      );
+      el.innerHTML = "";
+      for (const f of texts.filter((f) => f.type === "js")) {
+        // eslint-disable-next-line no-eval
+        window.eval(f.t);
+      }
+      if (typeof window.__LIVE_RENDER === "function") window.__LIVE_RENDER(el);
+      for (const f of texts.filter((f) => f.type === "html")) {
         const wrap = document.createElement("div");
-        wrap.innerHTML = html;
+        wrap.innerHTML = f.t;
         el.appendChild(wrap);
       }
     } catch (e) {

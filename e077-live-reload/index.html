@@ -31,16 +31,15 @@
   <li>Set <code>SERVER</code> to <code>http://&lt;PC-LAN-IP&gt;:8080</code> in <code>ext/content.js</code> and <code>live-reload.user.js</code></li>
   <li><code>node server/server.js 8080</code></li>
   <li>Install <b>once</b>, straight from this server on your phone: <a href="/live-reload-ext.zip">extension .zip</a> or <a href="/live-reload.user.js">userscript .user.js</a> (open in Queta)</li>
+  <li>Extension: open the popup, save this server's address (IP changes need no reinstall)</li>
   <li>Edit <code>server/public/live.js</code>, save, watch the phone</li>
 </ol>
 
 <h2 id="scripts">Scripts (CRUD → future marketplace)</h2>
-<table>
+<table id="tbl">
   <tr><th>Name</th><th>Type</th><th>Live view</th><th>Edit (update)</th></tr>
-  <tr><td><code>live.js</code></td><td>JS</td><td><a id="l1" href="#">view</a></td><td><code>server/public/live.js</code></td></tr>
-  <tr><td><code>card.html</code></td><td>HTML</td><td><a id="l2" href="#">view</a></td><td><code>server/public/card.html</code></td></tr>
 </table>
-<p style="font-size:14px">Create/delete = add/remove files in <code>server/public/</code> + one table row here. Every row is a future marketplace listing.</p>
+<p style="font-size:14px">This table IS the server's URL list (<code>config.json</code>) — the loader receives exactly these. Add a file + one row there, the phone follows. Every row is a future marketplace listing.</p>
 
 <h2 id="agent">Agent contract</h2>
 <ul style="font-size:14px">
@@ -67,8 +66,18 @@
   // Status = live read of the agent contract (status slot). Works when this page
   // is opened on the same network as the dev server (host = PC IP or localhost).
   var base = "http://" + location.hostname + ":8080";
-  document.getElementById("l1").href = base + "/live.js";
-  document.getElementById("l2").href = base + "/card.html";
+  // Scripts table mirrors the loader's URL list: GET config.json
+  fetch("config.json").then(function (r) { return r.json(); }).then(function (cfg) {
+    var tbl = document.getElementById("tbl");
+    (cfg.files || []).forEach(function (f) {
+      var tr = document.createElement("tr");
+      var name = f.path.replace(/^\//, "");
+      tr.innerHTML = "<td><code>" + name + "</code></td><td>" + f.type +
+        "</td><td><a href='" + base + f.path + "'>view</a></td>" +
+        "<td><code>server/public/" + name + "</code></td>";
+      tbl.appendChild(tr);
+    });
+  }).catch(function () { /* config unreachable — server offline */ });
   fetch(base + "/version").then(function (r) { return r.json(); }).then(function (j) {
     document.getElementById("dot").className = "dot on";
     document.getElementById("st").textContent = "dev server live — v" + j.v;

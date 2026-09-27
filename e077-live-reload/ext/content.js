@@ -1,11 +1,12 @@
-// Live Reload Loader (content script).
-// Install ONCE, then edit http://<PC-LAN-IP>:8080/live.js + card.html freely.
-//
-// ★ BEFORE INSTALLING: set your PC's LAN IP here (e.g. 192.168.1.50).
-// Find it with: hostname -I  (linux)  /  ipconfig  (windows)
-const SERVER = "http://192.168.1.50:8080";
+// Live Reload Loader (content script) — config-driven, no hardcoded file list.
+// The ONLY address: read from storage (set in popup), fallback = first-install default.
+// The URL LIST comes from the server: GET <SERVER>/config -> {"files":[{path,type}]}.
+// Add/remove files in server/public/ + one row in config.json — phone follows, no reinstall.
+
+const DEFAULT_SERVER = "http://192.168.0.177:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
 const POLL_MS = 1000;
 
+let SERVER = "";
 let lastV = null;
 let host = null;
 
@@ -30,21 +31,29 @@ function toast(msg) {
   setTimeout(() => t.remove(), 1500);
 }
 
+function setupBox() {
+  const el = ensureHost();
+  el.innerHTML = `<div style="padding:8px 12px;border-radius:10px;background:#7f1d1d;color:#fff;font:500 13px system-ui">⚠️ live loader: set the dev server URL in the extension popup</div>`;
+}
+
+// Load the server-declared URL list and inject each file by type.
 async function refresh() {
   const el = ensureHost();
   try {
-    // Fetch fresh copies (cache-busted). live.js defines window.__LIVE_RENDER.
-    const [js, html] = await Promise.all([
-      fetch(`${SERVER}/live.js?ts=${Date.now()}`).then((r) => r.text()),
-      fetch(`${SERVER}/card.html?ts=${Date.now()}`).then((r) => r.text()),
-    ]);
-    // eslint-disable-next-line no-eval
-    window.eval(js);
-    if (typeof window.__LIVE_RENDER === "function") {
-      window.__LIVE_RENDER(el);
-      // Append the HTML fragment below the JS-rendered box.
+    const cfg = await fetch(`${SERVER}/config?ts=${Date.now()}`).then((r) => r.json());
+    const files = cfg.files || [];
+    const texts = await Promise.all(
+      files.map((f) => fetch(`${SERVER}${f.path}?ts=${Date.now()}`).then((r) => r.text()).then((t) => ({ ...f, t })))
+    );
+    el.innerHTML = "";
+    for (const f of texts.filter((f) => f.type === "js")) {
+      // eslint-disable-next-line no-eval
+      window.eval(f.t);
+    }
+    if (typeof window.__LIVE_RENDER === "function") window.__LIVE_RENDER(el);
+    for (const f of texts.filter((f) => f.type === "html")) {
       const wrap = document.createElement("div");
-      wrap.innerHTML = html;
+      wrap.innerHTML = f.t;
       el.appendChild(wrap);
     }
   } catch (e) {
@@ -53,12 +62,13 @@ async function refresh() {
 }
 
 async function poll() {
+  if (!SERVER) return;
   try {
     const r = await fetch(`${SERVER}/version?ts=${Date.now()}`);
     const { v } = await r.json();
     if (lastV === null) {
       lastV = v;
-      await refresh(); // first paint
+      await refresh();
       toast(`🔌 live connected (v${v})`);
     } else if (v !== lastV) {
       lastV = v;
@@ -70,5 +80,30 @@ async function poll() {
   }
 }
 
-poll();
-setInterval(poll, POLL_MS);
+async function boot() {
+  try {
+    const { serverUrl } = await chrome.storage.local.get("serverUrl");
+    SERVER = (serverUrl || DEFAULT_SERVER).replace(/\/$/, "");
+  } catch {
+    SERVER = DEFAULT_SERVER;
+  }
+  if (!SERVER) {
+    setupBox();
+    return;
+  }
+  poll();
+  setInterval(poll, POLL_MS);
+  // Follow popup saves without page reload.
+  if (chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((chg) => {
+      if (chg.serverUrl) {
+        SERVER = (chg.serverUrl.newValue || "").replace(/\/$/, "");
+        lastV = null;
+        if (!SERVER) setupBox();
+        else poll();
+      }
+    });
+  }
+}
+
+boot();
