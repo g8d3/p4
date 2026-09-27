@@ -27,3 +27,4 @@ Install the loader once. After that you NEVER touch the extension. You only edit
 
 ## Standing rule
 End every turn that touches servers with one line: each running experiment server as full URLs. Resolve `hostname -I` (LAN) and `tailscale ip -4` (tailnet) at report time — never hardcode addresses. Report the experiment's server, not pi-web.
+Bump loader version strings (`manifest.json`, `live-reload.user.js`) on every loader change — the label must never lie about the content.
