@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Live Reload Loader
 // @namespace    e077
-// @version      1.2
+// @version      1.3
 // @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
