@@ -58,7 +58,7 @@ const server = http.createServer((req, res) => {
     return;
   }
   if (url.pathname === "/") {
-    res.setHeader("Content-Type", "text/html");
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.end(`<h1>live-reload dev server v${version.v}</h1>
 <p>Edit <code>server/public/live.js</code> or <code>card.html</code> and your phone updates in ~1s.</p>
 <ul><li><a href="/live.js">/live.js</a></li><li><a href="/card.html">/card.html</a></li><li><a href="/version">/version</a></li></ul>`);
