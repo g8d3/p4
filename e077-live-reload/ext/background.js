@@ -1,7 +1,7 @@
 // Network relay (service worker = extension context, exempt from page CSP).
 // x.com and other strict sites block content-script fetch via connect-src;
 // nothing in the content script touches the network anymore — it asks here.
-const DEFAULT_SERVER = "http://192.168.0.177:8080";
+const DEFAULT_SERVER = "http://vuos-hcar5000mi.tail6918b0.ts.net:8080";
 function serverUrl(cb) {
   try {
     chrome.storage.local.get("serverUrl", ({ serverUrl }) =>
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
     serverUrl((base) => {
       fetch(base + "/api/report", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain" },
         body: msg.body,
       })
         .then(() => reply({ ok: true }))

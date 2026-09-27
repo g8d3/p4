@@ -49,6 +49,8 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   // CORS + no-cache on everything (critical for phone dev)
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   res.setHeader("Pragma", "no-cache");
 

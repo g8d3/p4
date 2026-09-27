@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Live Reload Loader
 // @namespace    e077
-// @version      1.8
+// @version      1.9
 // @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
@@ -13,8 +13,8 @@
 /* THE ONE SETTING (single manual edit, then never again):
    your PC's dev server address. The URL LIST comes from the server itself
    (GET <SERVER>/config.json), so adding files needs no reinstall. */
-const SERVER = "http://192.168.0.177:8080";
-const LOADER_VERSION = "1.8";
+const SERVER = "http://vuos-hcar5000mi.tail6918b0.ts.net:8080";
+const LOADER_VERSION = "1.9";
 const POLL_MS = 1000;
 
 (function () {
@@ -34,7 +34,7 @@ const POLL_MS = 1000;
         if (typeof GM_xmlhttpRequest === "function") {
           GM_xmlhttpRequest({
             method: "POST", url: url, data: body,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain" },
             onload: function (r) {
               if (r.status >= 200 && r.status < 300) resolve();
               else reject(new Error("http " + r.status));
@@ -42,7 +42,7 @@ const POLL_MS = 1000;
             onerror: reject,
           });
         } else {
-          fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
+          fetch(url, { method: "POST", headers: { "Content-Type": "text/plain" }, body: body })
             .then(function (r) { if (!r.ok) throw new Error("http " + r.status); })
             .then(resolve, reject);
         }

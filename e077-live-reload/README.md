@@ -25,14 +25,14 @@ uses **1-second polling of `/version`** instead, because:
 | `live-reload.user.js` | same loader as userscript — simplest in Queta |
 | `dist/live-reload-ext.zip` | built, ready to install in Queta |
 
-## Use (phone + PC on the same WiFi)
+## Use (phone + PC)
 
-1. **PC — find your LAN IP:** `hostname -I` (Linux) or `ipconfig` (Windows).
-   Example: `192.168.1.50`.
-2. **PC — put that IP in two files** (one-time): `ext/content.js` and
-   `live-reload.user.js` (`const SERVER = "http://<IP>:8080"`). Rebuild zip:
-   `cd ext && zip -r ../dist/live-reload-ext.zip manifest.json content.js`.
-3. **PC — start server:** `node server/server.js 8080`.
+Default address (no setup): `http://vuos-hcar5000mi.tail6918b0.ts.net:8080`
+(phone needs Tailscale connected). On shared WiFi without Tailscale, use the PC LAN IP
+instead (`hostname -I`): set it once in the extension popup, or edit the `SERVER`
+const in `live-reload.user.js`.
+
+1. **PC — start server:** `node server/server.js 8080`.
 4. **Phone (Queta) — install ONCE, pick the easiest:**
    - `.user.js`: open `live-reload.user.js` URL / send via chat, Queta prompts to install, or
    - `.zip`: transfer `dist/live-reload-ext.zip`, install as extension.

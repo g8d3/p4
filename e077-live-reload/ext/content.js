@@ -3,8 +3,8 @@
 // The URL LIST comes from the server: GET <SERVER>/config.json -> {"files":[{path,type}]}.
 // Add/remove files in server/public/ + one row in config.json — phone follows, no reinstall.
 
-const DEFAULT_SERVER = "http://192.168.0.177:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
-const LOADER_VERSION = "1.7";
+const DEFAULT_SERVER = "http://vuos-hcar5000mi.tail6918b0.ts.net:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
+const LOADER_VERSION = "1.8";
 const POLL_MS = 1000;
 
 let SERVER = "";
@@ -39,9 +39,10 @@ async function report(kind, detail) {
     at: new Date().toISOString(),
   };
   const direct = async () => {
+    // text/plain = CORS-simple request: no preflight, works cross-origin on any browser.
     const r = await fetch(`${SERVER}/api/report`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify({ ...entry, via: "direct" }),
     });
     if (!r.ok) throw new Error("post failed");
@@ -53,7 +54,7 @@ async function report(kind, detail) {
       for (const p of pending) {
         await fetch(`${SERVER}/api/report`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "text/plain" },
           body: JSON.stringify(p),
         }).catch(() => {});
       }
