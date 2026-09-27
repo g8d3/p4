@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edge Terminal — Admin</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo">▲</span> EDGE <em>admin</em></div>
+  <div class="ticker"><span class="tk mode" id="a-mode">…</span></div>
+  <div class="topbar-right">
+    <a class="btn ghost sm" href="/">← app</a>
+    <button class="btn ghost sm" id="a-refresh">↻</button>
+  </div>
+</header>
+
+<main id="main">
+  <div class="killbanner" id="a-kill" hidden>⛔ Kill switch is ACTIVE — /api/board returns 503 until you lift it.</div>
+
+  <div class="tabhead"><h2>Operations</h2>
+    <div class="controls">
+      <button class="btn sm" id="a-reload">Reload config</button>
+      <button class="btn sm down" id="a-killbtn">Engage kill switch</button>
+    </div>
+  </div>
+
+  <div class="statrow" id="a-stats"></div>
+
+  <div class="lp-compare">
+    <div class="cmp"><h4>Upstreams</h4><div id="a-up"></div></div>
+    <div class="cmp"><h4>Human gates</h4><div id="a-gates"></div></div>
+  </div>
+
+  <h3 class="subhead">Cache</h3>
+  <div class="tablewrap">
+    <table class="grid"><thead><tr><th>Key</th><th class="num">Age (s)</th><th class="num">TTL (s)</th></tr></thead>
+      <tbody id="a-cache"></tbody></table>
+  </div>
+
+  <h3 class="subhead">Ledger <span class="muted" id="a-ledger-count"></span></h3>
+  <div class="tablewrap">
+    <table class="grid"><thead><tr>
+      <th>When</th><th>Event</th><th>Market</th><th>Side</th><th class="num">Entry</th>
+      <th class="num">Exit</th><th class="num">PnL</th><th class="num">R</th><th>Reason</th>
+    </tr></thead><tbody id="a-ledger"></tbody></table>
+  </div>
+
+  <h3 class="subhead">What the human must provide</h3>
+  <div class="tablewrap">
+    <table class="grid"><thead><tr><th>Item</th><th>Why</th><th>Status</th></tr></thead>
+      <tbody id="a-needs"></tbody></table>
+  </div>
+
+  <footer class="disclaimer">
+    This is the ADMIN/owner surface: cache, config, ledger, kill switch. Everything a human
+    needs to hand the agent stays in <code>needs.json</code>. Secrets live in env or browser
+    storage, never in this repo.
+  </footer>
+</main>
+
+<div id="toasts" class="toasts"></div>
+<script src="/admin.js"></script>
+</body>
+</html>

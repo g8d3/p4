@@ -1,0 +1,173 @@
+{
+  "product": {
+    "name": "Edge Terminal",
+    "tagline": "Decide, don't dabble.",
+    "mode": "paper"
+  },
+  "server": {
+    "port": 8778,
+    "bind": "0.0.0.0",
+    "envPortOverride": "EDGE_PORT"
+  },
+  "upstreams": {
+    "hyperliquid": "https://api.hyperliquid.xyz",
+    "binance": "https://api.binance.com",
+    "defillama": "https://yields.llama.fi",
+    "fng": "https://api.alternative.me"
+  },
+  "board": {
+    "universe": [
+      "BTC",
+      "ETH",
+      "SOL",
+      "XRP",
+      "DOGE",
+      "AVAX",
+      "LINK",
+      "ARB",
+      "OP",
+      "SUI",
+      "APT",
+      "LTC",
+      "BCH",
+      "ATOM",
+      "INJ",
+      "AAVE",
+      "CRV",
+      "LDO",
+      "NEAR"
+    ],
+    "interval": "1h",
+    "lookbackMs": 1209600000,
+    "cacheTtlSec": 60,
+    "concurrency": 6
+  },
+  "yields": {
+    "cacheTtlSec": 600,
+    "minTvlUsd": 5000000,
+    "maxApyPct": 120,
+    "limit": 14
+  },
+  "tiers": {
+    "conservative": {
+      "label": "Conservative",
+      "riskPct": 0.5,
+      "maxLeverage": 1,
+      "stopAtr": 2.0,
+      "targetAtr": 3.0,
+      "minScore": 0.45,
+      "prefer": "lp",
+      "blurb": "Small size, wide stop, only A-grade signals. Yield first, trades second."
+    },
+    "balanced": {
+      "label": "Balanced",
+      "riskPct": 1.0,
+      "maxLeverage": 2,
+      "stopAtr": 1.5,
+      "targetAtr": 3.0,
+      "minScore": 0.3,
+      "prefer": "either",
+      "blurb": "Standard risk per trade, 2x cap, acts on decent momentum."
+    },
+    "degen": {
+      "label": "Degen",
+      "riskPct": 3.0,
+      "maxLeverage": 5,
+      "stopAtr": 1.0,
+      "targetAtr": 4.0,
+      "minScore": 0.2,
+      "prefer": "trade",
+      "blurb": "Wide net, tight stops, high leverage. Size for survival, not glory."
+    }
+  },
+  "paper": {
+    "startingEquityUsd": 10000,
+    "feePctPerSide": 0.045,
+    "slippagePct": 0.05,
+    "liqCushion": 0.95,
+    "maxOpenPositions": 6,
+    "maxTotalNotionalPct": 150,
+    "maxPerCoinNotionalPct": 60
+  },
+  "backtest": {
+    "days": 180,
+    "warmupDays": 60,
+    "interval": "1d",
+    "forwardDays": 3,
+    "cacheTtlSec": 900,
+    "minSamples": 10
+  },
+  "track": {
+    "gapMs": 21600000,
+    "resolveHorizonMs": 14400000,
+    "file": "data/signals.jsonl"
+  },
+  "ledger": {
+    "file": "data/ledger.jsonl"
+  },
+  "killSwitchFile": "data/STOP",
+  "dev": {
+    "liveReload": true,
+    "pollMs": 1500
+  },
+  "signal": {
+    "weights": {
+      "trend": 0.4,
+      "rsi": 0.2,
+      "momentum": 0.25,
+      "funding": 0.15
+    },
+    "longThreshold": 0.25,
+    "shortThreshold": -0.25
+  },
+  "launch": {
+    "defaultTotalFeePct": 1.0,
+    "minFeePct": 0.05,
+    "maxFeePct": 5.0,
+    "monthlyVolumeUsd": 250000,
+    "destinations": [
+      {
+        "id": "lp1",
+        "label": "LP \u2014 token1 pair",
+        "kind": "lp",
+        "share": 30,
+        "note": "Deepens the main market; LPs earn the swap fee on top of token1."
+      },
+      {
+        "id": "lp2",
+        "label": "LP \u2014 token2 pair",
+        "kind": "lp",
+        "share": 15,
+        "note": "Second pool, usually the quote-token pair. Fewer LPs, more depth."
+      },
+      {
+        "id": "burn",
+        "label": "Buy & burn own token",
+        "kind": "sink",
+        "share": 15,
+        "note": "Permanent supply reduction \u2014 the classic scarcity narrative."
+      },
+      {
+        "id": "stake3",
+        "label": "Buy & stake token3",
+        "kind": "sink",
+        "share": 15,
+        "note": "Buys a third asset and stakes it; pays your stakers, not you."
+      },
+      {
+        "id": "vault",
+        "label": "Perpetuals vault deposit",
+        "kind": "yield",
+        "share": 15,
+        "note": "Parked as LP for perps \u2014 earns funding/pnl share, carries drawdown."
+      },
+      {
+        "id": "perps",
+        "label": "Long BTC 2x (Hyperliquid)",
+        "kind": "strategy",
+        "share": 10,
+        "note": "Directional leverage on BTC. Can lose; size this bucket first."
+      }
+    ]
+  }
+}

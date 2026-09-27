@@ -1,0 +1,46 @@
+{
+  "experiment": "e078-edge-terminal",
+  "description": "What the human must provide. Machine values (ports, URLs, symbol lists) live in server/config.json; secrets and accounts live here or in env, never in code.",
+  "server": {
+    "port_file": "server/config.json",
+    "port_key": "port",
+    "env_override": "EDGE_PORT",
+    "note": "Client-facing URL is built by bin/serve.sh and printed at startup."
+  },
+  "secrets": [
+    {
+      "id": "x_bearer",
+      "what": "X/Twitter API bearer token",
+      "why": "Social sentiment feed on the Markets tab",
+      "status": "not-needed-yet",
+      "env": "X_BEARER_TOKEN",
+      "where": "env only, never in repo"
+    },
+    {
+      "id": "newswire_key",
+      "what": "News/crypto wire API key (e.g. CryptoPanic, NewsAPI)",
+      "why": "Fundamental headlines next to the technical signal",
+      "status": "not-needed-yet",
+      "env": "NEWS_API_KEY"
+    }
+  ],
+  "free_upstreams_no_key": [
+    "https://api.hyperliquid.xyz/info",
+    "https://api.binance.com/api/v3",
+    "https://yields.llama.fi/pools",
+    "https://api.alternative.me/fng/"
+  ],
+  "human_gates": [
+    {
+      "id": "HUMAN_GO",
+      "file": "data/human_go.txt",
+      "what": "Write GO to allow a live (real-money) executor",
+      "why": "Paper-only until >=50 closed paper trades show positive expectancy"
+    }
+  ],
+  "not_our_job": [
+    "KYC / exchange account signup",
+    "Withdrawing or moving user funds",
+    "Publishing social posts without approved keys"
+  ]
+}

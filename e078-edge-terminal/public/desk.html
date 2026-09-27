@@ -1,0 +1,28 @@
+<!doctype html><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Edge Terminal — desk</title><link rel=stylesheet href="/style.css">
+<style>.desk{max-width:1100px;margin:0 auto;padding:16px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px}</style>
+<body style="background:var(--bg)">
+<header class="topbar"><div class="brand"><span class="logo">▲</span> EDGE <em>desk</em></div>
+<div class="ticker"><span class="tk">observer view — one row per agent cycle</span></div>
+<div class="topbar-right"><a class="btn ghost sm" href="/">app</a>
+<a class="btn ghost sm" href="/admin.html">admin</a></div></header>
+<main class="desk">
+
+<div class="cards">
+  <div class="panel"><h2>Pulse</h2><div class="kv"><div class="k">When</div><div class="v ">2026-09-26 22:25:10 -05</div><div class="k">Uptime</div><div class="v ">557s</div><div class="k">Requests</div><div class="v ">489</div><div class="k">Upstream errors</div><div class="v down">1</div><div class="k">Cache entries</div><div class="v ">7</div><div class="k">Last cycle</div><div class="v up">4</div></div></div>
+  <div class="panel"><h2>Gates</h2><div class="kv"><div class="k">Mode</div><div class="v ">paper</div><div class="k">Kill switch</div><div class="v up">clear</div><div class="k">HUMAN_GO (live money)</div><div class="v down">not granted</div><div class="k">Signals logged</div><div class="v ">13</div><div class="k">Ledger rows</div><div class="v ">2</div></div></div>
+  <div class="panel"><h2>Receipts</h2><div class="kv"><div class="k">Backtest (180d)</div><div class="v ">48.1% hit · 0.07R avg · 1766 calls</div><div class="k">Live calls resolved</div><div class="v ">0 · None% win</div><div class="k">Live calls pending</div><div class="v ">13</div><div class="k">Errors</div><div class="v up">none</div></div></div>
+</div>
+<h2>Closed paper trades (server ledger)</h2>
+<div class="tablewrap"><table class="grid"><thead><tr><th>When</th><th>Event</th><th>Market</th>
+<th>Side</th><th class=num>Entry</th><th class=num>Exit</th><th class=num>PnL</th><th>Reason</th>
+</tr></thead><tbody><tr><td>Sep 26, 22:05</td><td>test</td><td>—</td><td>—</td><td class='num'>—</td><td class='num'>—</td><td class='num '>—</td><td></td></tr><tr><td>Sep 26, 22:17</td><td>open</td><td>SOL</td><td>long</td><td class='num'>121.08</td><td class='num'>—</td><td class='num '>—</td><td></td></tr></tbody></table></div>
+<h2>What the human must provide (needs.json)</h2>
+<div class="tablewrap"><table class="grid"><thead><tr><th>Item</th><th>Why</th><th>Status</th>
+</tr></thead><tbody><tr><td>x_bearer</td><td>X/Twitter API bearer token — Social sentiment feed on the Markets tab</td><td>not-needed-yet</td></tr><tr><td>newswire_key</td><td>News/crypto wire API key (e.g. CryptoPanic, NewsAPI) — Fundamental headlines next to the technical signal</td><td>not-needed-yet</td></tr></tbody></table></div>
+<p class="footnote">Rendered 2026-09-26 22:25:10 -05 · loop writes data/loop_log.jsonl · kill with data/LOOP_STOP · served at /desk.html</p>
+</main></body>

@@ -1,0 +1,4 @@
+{"ts":1790478305250,"id":"emuj8jy76","event":"test","note":"smoke"}
+{"ts":1790479072758,"id":"emuj90eeu","event":"open","coin":"SOL","side":"long","entry":121.08,"notional":500,"lev":1,"tier":"balanced","fees":0.23,"equity":9991.69}
+{"ts":1790480212516,"id":"emuj9otus","event":"close","coin":"SOL","side":"long","entry":121.08,"exit":120.58,"pnl":-2.29,"r":-0.46,"reason":"manual","equity":9989.65}
+{"ts":1790480336592,"id":"emuj9rhlc","event":"open","coin":"SUI","side":"long","entry":1.17,"notional":200,"lev":5,"tier":"degen","fees":0.09,"equity":9989.46}
