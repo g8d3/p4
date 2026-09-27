@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Live Reload Loader
 // @namespace    e077
-// @version      1.4
+// @version      1.5
 // @description  Install once in Queta (.user.js). Takes a server address, receives its URL list, hot-injects them.
 // @match        *://*/*
 // @run-at       document-idle
@@ -14,6 +14,7 @@
    your PC's dev server address. The URL LIST comes from the server itself
    (GET <SERVER>/config), so adding files needs no reinstall. */
 const SERVER = "http://192.168.0.177:8080";
+const LOADER_VERSION = "1.5";
 const POLL_MS = 1000;
 
 (function () {
@@ -21,6 +22,58 @@ const POLL_MS = 1000;
   let lastV = null;
   let host = null;
   let fails = 0; // consecutive network failures (CSP detection)
+  let INSTALL = "unknown";
+  try {
+    INSTALL = localStorage.getItem("__live_id") || ("id-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+    localStorage.setItem("__live_id", INSTALL);
+  } catch {}
+
+  function netPost(url, body) {
+    return new Promise(function (resolve, reject) {
+      try {
+        if (typeof GM_xmlhttpRequest === "function") {
+          GM_xmlhttpRequest({
+            method: "POST", url: url, data: body,
+            headers: { "Content-Type": "application/json" },
+            onload: function (r) {
+              if (r.status >= 200 && r.status < 300) resolve();
+              else reject(new Error("http " + r.status));
+            },
+            onerror: reject,
+          });
+        } else {
+          fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: body })
+            .then(function (r) { if (!r.ok) throw new Error("http " + r.status); })
+            .then(resolve, reject);
+        }
+      } catch (e) { reject(e); }
+    });
+  }
+
+  function pendingQueue() {
+    try { return JSON.parse(localStorage.getItem("__live_pending") || "[]"); }
+    catch { return []; }
+  }
+
+  // Diagnostics: phone home so no human relays screenshots. Queues offline.
+  async function report(kind, detail) {
+    const entry = {
+      installId: INSTALL, loader: "user.js", loaderVersion: LOADER_VERSION,
+      kind: kind, detail: detail || {}, page: location.href, at: new Date().toISOString(),
+    };
+    try {
+      await netPost(`${SERVER}/api/report`, JSON.stringify({ ...entry, via: "direct" }));
+      const q = pendingQueue();
+      if (q.length) {
+        for (const p of q) await netPost(`${SERVER}/api/report`, JSON.stringify(p)).catch(() => {});
+        localStorage.setItem("__live_pending", "[]");
+      }
+    } catch {
+      const q = pendingQueue();
+      q.push({ ...entry, via: "queued" });
+      try { localStorage.setItem("__live_pending", JSON.stringify(q.slice(-20))); } catch {}
+    }
+  }
 
   // Strict pages (x.com, …) block fetch via CSP connect-src.
   // GM_xmlhttpRequest bypasses page CSP where the engine supports it; else fetch fallback.
@@ -98,9 +151,11 @@ const POLL_MS = 1000;
           "margin-top:8px;padding:8px 12px;border-radius:10px;background:#422006;color:#fef3c7;font:500 13px system-ui;border:1px solid #f59e0b";
         note.textContent = "⚠️ This page's CSP blocks JS eval (e.g. x.com) — HTML still updates live. Develop JS on a plain page.";
         el.appendChild(note);
+        report("eval-blocked", { files: jsFiles.map((f) => f.path) });
       }
     } catch (e) {
       el.innerHTML = `<div style="padding:8px 12px;border-radius:10px;background:#7f1d1d;color:#fff;font:500 13px system-ui">⚠️ live server unreachable: ${SERVER}</div>`;
+      report("unreachable", { server: SERVER });
     }
   }
 
@@ -113,10 +168,12 @@ const POLL_MS = 1000;
         lastV = v;
         await refresh();
         toast(`🔌 live connected (v${v})`);
+        report("boot", { serverVersion: v });
       } else if (v !== lastV) {
         lastV = v;
         await refresh();
         toast(`⚡ updated → v${v}`);
+        report("applied", { serverVersion: v });
       }
     } catch {
       /* server off — retry silently */

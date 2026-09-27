@@ -4,24 +4,105 @@
 // Add/remove files in server/public/ + one row in config.json — phone follows, no reinstall.
 
 const DEFAULT_SERVER = "http://192.168.0.177:8080"; // works out of the box today; override in popup (IP changes need no reinstall)
+const LOADER_VERSION = "1.4";
 const POLL_MS = 1000;
 
 let SERVER = "";
 let lastV = null;
 let host = null;
+let INSTALL = "unknown";
 
-// ALL network goes through the background worker: strict pages (x.com, …)
-// block content-script fetch via CSP connect-src, but extension-context
-// fetch is exempt. Same Response shape the code already uses.
+async function getInstallId() {
+  try {
+    let { installId } = await chrome.storage.local.get("installId");
+    if (!installId) {
+      installId =
+        (crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(16).slice(2));
+      await chrome.storage.local.set({ installId });
+    }
+    return installId;
+  } catch {
+    return "unknown";
+  }
+}
+
+// Diagnostics: phone home with every error so no human relays screenshots.
+// Via background relay; if the worker is dead, direct POST; else queue for later.
+async function report(kind, detail) {
+  const entry = {
+    installId: INSTALL,
+    loader: "ext",
+    loaderVersion: LOADER_VERSION,
+    kind,
+    detail: detail || {},
+    page: location.href,
+    at: new Date().toISOString(),
+  };
+  const direct = async () => {
+    const r = await fetch(`${SERVER}/api/report`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...entry, via: "direct" }),
+    });
+    if (!r.ok) throw new Error("post failed");
+  };
+  const flush = async () => {
+    try {
+      const { pending = [] } = await chrome.storage.local.get("pending");
+      if (!pending.length) return;
+      for (const p of pending) {
+        await fetch(`${SERVER}/api/report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(p),
+        }).catch(() => {});
+      }
+      await chrome.storage.local.set({ pending: [] });
+    } catch {}
+  };
+  const queue = async () => {
+    try {
+      const { pending = [] } = await chrome.storage.local.get("pending");
+      pending.push({ ...entry, via: "queued" });
+      await chrome.storage.local.set({ pending: pending.slice(-20) });
+    } catch {}
+  };
+  if (!SERVER) return;
+  try {
+    const res = await new Promise((resolve) => {
+      try {
+        chrome.runtime.sendMessage({ type: "live-report", body: JSON.stringify({ ...entry, via: "relay" }) }, (r) => {
+          if (chrome.runtime.lastError || !r || !r.ok) resolve(null);
+          else resolve(r);
+        });
+      } catch {
+        resolve(null);
+      }
+    });
+    if (res) flush();
+    else await direct().then(flush).catch(queue);
+  } catch {
+    queue();
+  }
+}
+
+// Prefer the background relay (immune to page CSP). If the worker is dead
+// (some mobile browsers), fall back to direct page-context fetch: works on
+// permissive pages, still blocked on strict ones — which then gets reported.
 function bgFetch(url) {
   return new Promise((resolve, reject) => {
+    const direct = () =>
+      fetch(url).then(
+        (r) => resolve({ text: async () => r.text(), json: async () => r.json() }),
+        reject
+      );
     try {
       chrome.runtime.sendMessage({ type: "live-fetch", url }, (res) => {
-        if (chrome.runtime.lastError || !res || !res.ok) reject(new Error("bg fetch failed"));
+        if (chrome.runtime.lastError || !res || !res.ok) direct();
         else resolve({ text: async () => res.t, json: async () => JSON.parse(res.t) });
       });
     } catch (e) {
-      reject(e);
+      direct();
     }
   });
 }
@@ -86,9 +167,11 @@ async function refresh() {
         "margin-top:8px;padding:8px 12px;border-radius:10px;background:#422006;color:#fef3c7;font:500 13px system-ui;border:1px solid #f59e0b";
       note.textContent = "⚠️ This page's CSP blocks JS eval (e.g. x.com) — HTML still updates live. Develop JS on a plain page.";
       el.appendChild(note);
+      report("eval-blocked", { files: jsFiles.map((f) => f.path) });
     }
   } catch (e) {
     el.innerHTML = `<div style="padding:8px 12px;border-radius:10px;background:#7f1d1d;color:#fff;font:500 13px system-ui">⚠️ live server unreachable: ${SERVER}</div>`;
+    report("unreachable", { server: SERVER });
   }
 }
 
@@ -101,10 +184,12 @@ async function poll() {
       lastV = v;
       await refresh();
       toast(`🔌 live connected (v${v})`);
+      report("boot", { serverVersion: v });
     } else if (v !== lastV) {
       lastV = v;
       await refresh();
       toast(`⚡ updated → v${v}`);
+      report("applied", { serverVersion: v });
     }
   } catch {
     /* server off — retry silently */
@@ -112,6 +197,7 @@ async function poll() {
 }
 
 async function boot() {
+  INSTALL = await getInstallId();
   try {
     const { serverUrl } = await chrome.storage.local.get("serverUrl");
     SERVER = (serverUrl || DEFAULT_SERVER).replace(/\/$/, "");

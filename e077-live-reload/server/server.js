@@ -57,6 +57,55 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify(version));
     return;
   }
+  // ---- diagnostics API: loaders phone home so no human relays screenshots ----
+  if (req.method === "OPTIONS") {
+    res.statusCode = 204; // preflight (page-context POSTs)
+    res.end();
+    return;
+  }
+  const REPORTS = path.join(__dirname, "reports.log"); // JSON lines, gitignored
+  if (url.pathname === "/api/report" && req.method === "POST") {
+    let chunks = [];
+    let n = 0;
+    req.on("data", (c) => {
+      n += c.length;
+      if (n > 65536) req.destroy();
+      else chunks.push(c);
+    });
+    req.on("end", () => {
+      try {
+        const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+        body.receivedAt = new Date().toISOString();
+        body.ip = req.socket.remoteAddress;
+        fs.appendFile(REPORTS, JSON.stringify(body) + "\n", () => {});
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end('{"ok":true}');
+      } catch {
+        res.statusCode = 400;
+        res.end('{"ok":false}');
+      }
+    });
+    return;
+  }
+  if (url.pathname === "/api/reports") {
+    fs.readFile(REPORTS, "utf8", (err, data) => {
+      const lines = err ? [] : data.trim().split("\n").filter(Boolean).slice(-50);
+      const items = lines
+        .map((l) => {
+          try {
+            return JSON.parse(l);
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean)
+        .reverse();
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify(items));
+    });
+    return;
+  }
+
   if (url.pathname === "/" || url.pathname === "/index.html") {
     // The experiment page IS the entry point: install, status, run, scripts.
     // Served from repo root so there is exactly one copy.

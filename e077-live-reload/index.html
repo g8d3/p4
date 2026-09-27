@@ -18,7 +18,7 @@
 </style>
 </head>
 <body>
-<nav><a href="#what">What</a><a href="#status">Status</a><a href="#run">Run</a><a href="#scripts">Scripts</a><a href="#agent">Agent</a><a href="#pricing">Pricing</a></nav>
+<nav><a href="#what">What</a><a href="#status">Status</a><a href="#run">Run</a><a href="#scripts">Scripts</a><a href="#agent">Agent</a><a href="#diag">Diagnostics</a><a href="#pricing">Pricing</a></nav>
 
 <h1 id="what">e077 — Live Reload Loader</h1>
 <p><b>What:</b> install-once loader (extension <code>.zip</code> or userscript <code>.user.js</code>) that hot-injects <code>live.js</code> + <code>card.html</code> from your PC. Edit on PC, phone updates in ~1s. No reinstall loop.</p>
@@ -47,6 +47,10 @@
   <li><b>needs:</b> <code>GET &lt;server&gt;/needs.json</code> → what the human must provide</li>
   <li><b>reply:</b> this experiment's reply channel is the chat — answer the <code>needs</code> item here</li>
 </ul>
+
+<h2 id="diag">Diagnostics</h2>
+<p style="font-size:14px">Error reports phoned home by installed loaders — no screenshots needed. Newest first.</p>
+<table id="rep"><tr><th>Time</th><th>Install</th><th>Kind</th><th>Detail</th></tr></table>
 
 <h2 id="pricing">Pricing &amp; access</h2>
 <p style="font-size:14px"><b>Price:</b> free — dev tool. <b>Access:</b> no login, LAN-only. Paid path: per-script marketplace listings (not built).</p>
@@ -78,6 +82,20 @@
       tbl.appendChild(tr);
     });
   }).catch(function () { /* config unreachable — server offline */ });
+  // Diagnostics table: loader error reports, newest first.
+  fetch("api/reports").then(function (r) { return r.json(); }).then(function (items) {
+    var rep = document.getElementById("rep");
+    (items || []).slice(0, 20).forEach(function (it) {
+      var tr = document.createElement("tr");
+      var short = String(it.installId || "?").slice(0, 8);
+      var det = (it.detail && it.detail.server) || (it.detail && it.detail.files) || it.page || "";
+      if (det && det.join) det = det.join(", ");
+      if (typeof det === "string" && det.length > 60) det = det.slice(0, 60) + "…";
+      tr.innerHTML = "<td>" + (it.receivedAt || "").slice(11, 19) + "</td><td><code>" + short +
+        "</code></td><td>" + it.kind + "</td><td><code>" + det + "</code></td>";
+      rep.appendChild(tr);
+    });
+  }).catch(function () {});
   fetch(base + "/version").then(function (r) { return r.json(); }).then(function (j) {
     document.getElementById("dot").className = "dot on";
     document.getElementById("st").textContent = "dev server live — v" + j.v;
