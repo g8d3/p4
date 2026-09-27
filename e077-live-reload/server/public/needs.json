@@ -1,0 +1,1 @@
+[{"id":"lan-ip","ask":"Tell the agent your PC's LAN IP (hostname -I) so it can bake it into ext/content.js and live-reload.user.js","why":"The phone must reach the dev server over WiFi; localhost on the phone is the phone itself."}]
