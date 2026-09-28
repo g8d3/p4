@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Selfloop — the app that develops itself</title>
+<style>
+:root{--bg:#0b0e14;--card:#151b26;--line:#232c3f;--txt:#e8edf5;--mut:#93a0b8;--ok:#3ddc84;--warn:#ffb020;--bad:#ff5d5d;--acc:#6aa8ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.5 system-ui,sans-serif}
+header{padding:20px 16px;border-bottom:1px solid var(--line)}header h1{margin:0;font-size:22px}
+header p{margin:4px 0 0;color:var(--mut)}.wrap{max-width:860px;margin:0 auto;padding:0 16px 60px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;border:1px solid var(--line)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
+.grid{display:grid;gap:12px;margin:14px 0}@media(min-width:640px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h3{margin:0 0 6px;font-size:15px}.card .big{font-size:22px;font-weight:700}
+.mut{color:var(--mut);font-size:13px}section{margin-top:22px}h2{font-size:18px;margin:0 0 8px}
+.qa{border-top:1px solid var(--line);padding:10px 0}.qa b{display:block}.qa span{color:var(--txt)}
+.qa .src{color:var(--mut);font-size:12px}button{background:var(--acc);border:0;color:#081020;font-weight:700;border-radius:9px;padding:10px 14px;margin:4px 6px 4px 0;cursor:pointer}
+button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+input,textarea{width:100%;background:#0e1420;color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:10px;margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{border-top:1px solid var(--line);padding:8px 6px;text-align:left}
+#banner{padding:10px 14px;border-radius:10px;margin:12px 0;display:none}
+</style>
+</head>
+<body>
+<header><div class="wrap" style="padding:0">
+<h1>Selfloop <span id="ver" class="pill">…</span> <span id="alive" class="pill">…</span></h1>
+<p id="tag">The app that develops itself. Ask nothing — it answers.</p>
+<div id="banner"></div>
+</div></header>
+<div class="wrap">
+
+<section><h2>Present — you never need to ask</h2>
+<div class="grid" id="present"></div>
+<div class="mut" id="healthline">…</div></section>
+
+<section><h2>Self-questions — asked continuously, answered here</h2>
+<div class="mut">Re-asked by the loop every pass + every 10s refresh. <span id="askat"></span></div>
+<div id="qa"></div>
+<button onclick="ask()">Ask again now</button></section>
+
+<section><h2>Past / Present / Future</h2>
+<div class="grid">
+<div class="card"><h3>Past — shipped</h3><div id="past"></div></div>
+<div class="card"><h3>Future — next</h3><div id="future"></div>
+<input id="goal" placeholder="Add a goal (future work)…">
+<button onclick="addGoal()">Add goal</button><br>
+<button onclick="startCycle()">Start next cycle</button>
+<button class="ghost" onclick="finishCycle()">Finish → ship version</button></div>
+</div>
+<div class="card" style="margin-top:12px"><h3>Fixes — when dev got stuck</h3><div id="fixes"></div>
+<button class="ghost" onclick="fix()">Detect + fix stuck now</button></div></section>
+
+<section><h2>Why / What / How</h2>
+<div class="grid" id="wwh"></div></section>
+
+<section><h2>Log usage (tokens → credits)</h2>
+<div class="grid"><div class="card">
+<input id="tin" type="number" placeholder="tokens in"><input id="tout" type="number" placeholder="tokens out">
+<input id="model" placeholder="model (default glm-4.6)"><input id="ep" placeholder="endpoint">
+<button onclick="addUsage()">Log usage</button></div>
+<div class="card"><h3>Loop</h3><div class="mut">The loop never stops: heartbeat → ask → unstuck → ship.<br><code>bash bin/loop.sh daemon</code><br><span id="loop"></span></div></div></div></section>
+
+</div>
+<script>
+const api=(m,p,b)=>fetch(p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined}).then(r=>r.json());
+let S={};
+async function load(){S=await api('GET','/api/state');render();}
+function render(){
+document.getElementById('ver').textContent=S.version.version+' — '+S.version.notes.slice(0,60);
+const h=S.health;
+const al=document.getElementById('alive');
+al.textContent=h.stuck?'STUCK':'ALIVE';al.className='pill '+(h.stuck?'bad':'ok');
+const bn=document.getElementById('banner');
+if(h.stuck){bn.style.display='block';bn.style.background='#3a1414';bn.textContent='STUCK: '+h.reasons.join('; ')+' — press “Detect + fix stuck now”. The loop fixes cause + fact automatically.';}
+else{bn.style.display='none';}
+const u=S.usage;
+document.getElementById('present').innerHTML=
+card('App working?',h.heartbeat_age_minutes!=null?`Yes — heartbeat ${h.heartbeat_age_minutes}m ago`:'Serves, loop never beat','health + heartbeat')+
+card('Tokens in use',u.tokens_total+` total (${u.entries} entries)`,'usage ledger')+
+card(`Credits used (${u.since_days}d)`,`$${u.since_cost} <span class="mut">/ $${u.cost_total} all-time</span>`,'ledger')+
+card('Credits left',`$${u.credits_left} <span class="mut">of $${u.credits_total}</span>`,'budget − used')+
+card('Endpoints / models',u.endpoints.join(', ')+'<br>'+u.models.join(', '),'ledger + config')+
+card('UI simplicity',S.answers.answers.find(x=>x.q.includes('simple'))?.a||'','html metrics');
+document.getElementById('healthline').textContent=`version age ${h.version_age_minutes}m · running: ${h.running_cycle?h.running_cycle.id+' '+h.running_cycle.goal+' ('+h.running_age_minutes+'m)':'none'} · heartbeat ${h.heartbeat_age_minutes??'never'}`;
+document.getElementById('askat').textContent='Last asked: '+S.answers.at;
+document.getElementById('qa').innerHTML=S.answers.answers.map(x=>`<div class="qa"><b>${x.q}</b><span>${x.a}</span><div class="src">src: ${x.src} · ${x.at}</div></div>`).join('');
+document.getElementById('past').innerHTML=S.cycles.slice().reverse().slice(0,8).map(c=>`${c.id} <b>${c.status}</b> ${c.goal||''} <span class="mut">${c.to_version||c.from_version||''}</span>`).join('<br>')||'No cycles yet — start one.';
+document.getElementById('future').innerHTML=S.goals.map(g=>`· ${g.text}`).join('<br>')||'No open goals.';
+document.getElementById('fixes').innerHTML=S.fixes.slice().reverse().map(f=>`${f.at}: ${f.reason} → ${f.fix}`).join('<br>')||'Never stuck. Yet.';
+document.getElementById('wwh').innerHTML=card('Why',S.why,'needs.json')+card('What',S.what,'needs.json')+card('How',S.how,'needs.json');
+document.getElementById('loop').textContent='heartbeat '+(h.heartbeat_age_minutes??'never');
+}
+const card=(t,v,s)=>`<div class="card"><h3>${t}</h3><div class="big" style="font-size:17px">${v}</div><div class="mut">src: ${s}</div></div>`;
+async function ask(){await api('POST','/api/ask');load();}
+async function fix(){await api('POST','/api/fix');load();}
+async function startCycle(){const r=await api('POST','/api/cycle/start',{});if(r.error)alert(r.error);load();}
+async function finishCycle(){const r=await api('POST','/api/cycle/finish',{});if(r.error)alert(r.error);load();}
+async function addGoal(){const t=document.getElementById('goal').value;if(!t)return;await api('POST','/api/goals/add',{text:t});document.getElementById('goal').value='';load();}
+async function addUsage(){await api('POST','/api/usage/add',{tokens_in:+document.getElementById('tin').value||0,tokens_out:+document.getElementById('tout').value||0,model:document.getElementById('model').value||undefined,endpoint:document.getElementById('ep').value||undefined});load();}
+load();setInterval(load,10000);
+</script>
+</body>
+</html>

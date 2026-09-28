@@ -1,0 +1,19 @@
+{
+  "port": 8340,
+  "bind": "0.0.0.0",
+  "site_name": "Selfloop",
+  "tagline": "The app that develops itself. Ask nothing — it answers.",
+  "why": "So software explains and improves itself without the user chasing status.",
+  "what": "A one-page board: Past/Present/Future, Why/What/How, and live self-answers (health, tokens, credits, models, simplicity). Each loop pass ships one version.",
+  "how": "Stdlib Python server + single-file UI + append-only logs. Loop: heartbeat → ask → unstuck → ship. One running cycle max; finish always bumps version.",
+  "credits_total": 50.0,
+  "currency": "USD",
+  "cost_per_1k_tokens": 0.002,
+  "default_model": "glm-4.6",
+  "default_endpoint": "zai-coding-plan",
+  "since_default_days": 30,
+  "loop_stale_minutes": 60,
+  "stuck_after_minutes": 120,
+  "heartbeat_stale_minutes": 10,
+  "loop_interval_seconds": 60
+}
