@@ -1,0 +1,10 @@
+{
+  "base_url_env": "OPENCODE_GO_BASE_URL",
+  "base_url_default": "https://opencode.ai/zen/go/v1/",
+  "key_envs": ["OPENCODE_API_KEY", "OPENCODE_GO_API_KEY"],
+  "endpoint_path": "usage",
+  "timeout_seconds": 20,
+  "why": "Manual quota lookup took a full research session; this makes it one command for any agent.",
+  "what": "GET {base}/usage with Bearer key, print rolling/weekly/monthly percent + resetsAt.",
+  "how": "Stdlib python3 only. Base URL and keys from env per this file, never hardcoded in code."
+}
