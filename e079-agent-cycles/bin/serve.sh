@@ -1,0 +1,18 @@
+#!/bin/bash
+# start/stop server, report URLs with live IPs
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+PORT=$(python3 -c "import json;print(json.load(open('$DIR/needs.json'))['port'])")
+PID=$(ss -tlnp 2>/dev/null | grep ":$PORT " | grep -oP 'pid=\K[0-9]+' | head -n1)
+case "${1:-start}" in
+  stop) [ -n "$PID" ] && kill "$PID" && echo "stopped $PID" || echo "not running"; exit 0;;
+  restart) "$0" stop; sleep 1; "$0" start; exit 0;;
+esac
+if [ -n "$PID" ]; then echo "already running pid=$PID"; else
+  nohup python3 "$DIR/server/app.py" > "$DIR/data/server.log" 2>&1 &
+  echo "started pid=$!"; sleep 1
+fi
+LAN=$(hostname -I | awk '{print $1}')
+TS=$(tailscale ip -4 2>/dev/null | head -n1)
+echo "local:   http://127.0.0.1:$PORT"
+echo "lan:     http://$LAN:$PORT"
+[ -n "$TS" ] && echo "tailnet: http://$TS:$PORT"

@@ -1,0 +1,1 @@
+{"cycle": "c016", "goal": "keeper auto-voids silent stuck legs", "why": "c010 proved stuck legs block the lane until a human voids them; the keeper must detect silence and void alone", "state": "done", "phase": "finish", "note": "shipped v15, check.sh PASS, stream verified served", "started_ts": 1790575281, "updated_ts": 1790575477}

@@ -1,0 +1,1 @@
+{"ts": 1790600588.2225459, "data": {"known": true, "window_days": 30, "cached": false, "granularity": "daily", "total_tokens": 187280844, "total_calls": 2017, "models": [{"model": "GLM-5.3-Flash", "tokens": 187280844}]}}

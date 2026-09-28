@@ -1,0 +1,139 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agent Cycles — ship one version per cycle</title>
+<meta name="description" content="Ship one version per cycle. Zero thinking required.">
+<meta name="theme-color" content="#0e1116">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="Agent Cycles — ship one version per cycle">
+<meta property="og:description" content="Each cycle ships exactly one visible improvement. Watch the versions land.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/share.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/share.png">
+<style>
+:root{--bg:#0e1116;--card:#171c24;--line:#2a3140;--txt:#eef1f6;--mut:#9aa3b2;--acc:#6ee7a8;--warn:#ffb454;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--txt)}
+.wrap{max-width:680px;margin:auto;padding:20px 16px 64px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+.top a{color:var(--mut);text-decoration:none;font-size:.95rem}
+.hero{background:linear-gradient(180deg,#1a2230,#12161d);border:1px solid var(--line);border-radius:20px;padding:28px 22px;margin:14px 0}
+.hero h1{margin:0 0 8px;font-size:1.9rem;letter-spacing:-.02em}
+.hero p{color:var(--mut);margin:0 0 16px;line-height:1.5}
+.hero .ver{display:inline-block;font-size:.8rem;color:var(--acc);border:1px solid var(--line);border-radius:99px;padding:4px 12px;margin-bottom:12px}
+.btn{background:var(--acc);color:#06130c;border:0;border-radius:12px;padding:12px 18px;font-size:1rem;font-weight:700;min-height:48px;cursor:pointer}
+.btn.sec{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.mut{color:var(--mut)}.row{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1;min-width:150px;background:#0e1319;border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:1rem}
+.strip{display:flex;gap:12px;flex-wrap:wrap}.strip div{flex:1;min-width:140px}
+.strip b{font-size:1.3rem}.ok{color:var(--acc)}.bad{color:var(--warn)}
+h2{margin:26px 0 4px;font-size:1.15rem}
+ul{padding-left:18px;color:var(--mut)}li{margin:6px 0;color:var(--txt)}
+.cyc{border-left:3px solid var(--acc);padding:8px 12px;margin:10px 0;background:#12171f;border-radius:0 12px 12px 0}
+.cyc.run{border-color:var(--warn)}
+footer{color:var(--mut);font-size:.85rem;margin-top:28px}
+</style>
+<div class="wrap">
+<div class="top"><b id="brand">Agent Cycles</b><a href="/admin.html">Admin →</a></div>
+<div class="card" id="wscard" style="display:none"><b id="wsname">Workspace</b> <span class="mut" id="wsdetail"></span> <a href="/" style="margin-left:8px">all →</a></div>
+<div class="hero">
+<span class="ver" id="ver">__BAKED_VERSION__</span><noscript><div class="mut" style="margin-top:8px">__BAKED_VERSION__ (JS off — versions list below is live on next load)</div></noscript>
+<h1 id="tagline">Ship one version per cycle.</h1>
+<p>AI integration for any business, with zero thinking required. Each cycle ships exactly one visible improvement — you watch the versions land, we carry the complexity: revenue, margin, and proof your clients can feel.</p>
+<div class="row"><button class="btn" onclick="document.getElementById('work').scrollIntoView({behavior:'smooth'})">Run the next cycle ↓</button></div>
+</div>
+<div class="card strip" id="margin">Loading margin…</div>
+<div class="card" id="loopcard"><b>What is happening</b><div id="loopstate" class="mut">checking…</div><div id="upnext" class="mut" style="margin-top:6px"></div><div id="credits" class="mut" style="margin-top:6px"></div><div class="row" style="margin-top:10px"><button class="btn sec" id="runnow" style="min-height:44px">Run a leg now</button></div><div id="thinkerline" class="mut" style="margin-top:6px"></div><div id="watchline" style="margin-top:6px"></div><div id="traj" style="margin-top:8px;font-size:1.1rem;letter-spacing:2px"></div><div id="alertline" style="margin-top:6px"></div><div id="turboline" class="mut" style="margin-top:6px"></div></div>
+<div class="card" id="work">
+<b>Run the next cycle</b>
+<p class="mut" style="margin:6px 0">One at a time. Finishing ships the next version.</p>
+<div class="row"><input id="goal" placeholder="Goal, e.g. add referral cards"><button class="btn" id="start">Start</button></div>
+<div class="row" style="margin-top:8px"><input id="why" placeholder="Why — what breaks if this never ships?"></div>
+<div class="row" style="margin-top:8px"><input id="notes" placeholder="Finish notes (optional)"><button class="btn sec" id="finish">Finish running</button></div>
+<p id="msg" class="mut"></p>
+</div>
+<h2>Live cycles</h2><div id="cycles"></div>
+<h2>Versions</h2><div id="versions"></div>
+<h2>Share it</h2>
+<div class="card"><b>Every version earns its next user.</b>
+<p class="mut" id="shareline" style="margin:6px 0"></p>
+<div class="row"><button class="btn" id="sharebtn">Share</button><button class="btn sec" id="copybtn">Copy link</button><button class="btn sec" id="pngbtn">Download PNG</button></div>
+<canvas id="sharecard" width="1200" height="630" style="width:100%;border-radius:12px;border:1px solid var(--line);margin-top:10px"></canvas>
+<div class="row" style="margin-top:8px"><input id="reftag" placeholder="your tag, e.g. maria"><button class="btn sec" id="refcopy">Copy my referral link</button></div>
+<div id="refboard" class="mut" style="margin-top:8px"></div></div>
+<h2>Why this exists</h2>
+<ul><li><b>Value first:</b> clients keep coming back because every version helps them earn.</li>
+<li><b>Margin is the scoreboard:</b> revenue above costs, AI included — tracked live in Admin.</li>
+<li><b>No thinking:</b> if it needs a manual, it is not done.</li></ul>
+<footer>Config lives on the server (<a href="/admin.html" style="color:inherit">Admin</a>), never in code. One cycle, one version.</footer>
+</div>
+<script>
+async function j(u,o){const r=await fetch(u,o);const t=await r.json().catch(()=>({}));if(!r.ok)throw new Error(t.error||r.status);return t}
+async function load(){
+ try{
+ const [cs,v,m,cfg,lp,g,cr]=await Promise.all([j('/api/cycles'),j('/api/version'),j('/api/metrics'),j('/api/config'),j('/api/loop'),j('/api/goals'),j('/api/credits')]);
+ let tn=null;try{tn=new URL(location.href).searchParams.get('t')}catch(e){}
+ let list=cs, tname=null;
+ if(tn){try{const ts=await j('/api/tenants');const hit=ts.find(x=>x.id===tn);tname=hit?hit.name:null}catch(e){}
+  list=cs.filter(c=>c.tenant===tn);
+  const card=document.getElementById('wscard');card.style.display='block';
+  document.getElementById('wsname').textContent=tname?('Workspace: '+tname+' ('+tn+')'):('Workspace: '+tn);
+  document.getElementById('wsdetail').textContent=tname?list.length+' cycle(s) here. Starts from this page stay in this workspace.':'unknown id — showing its cycles (none yet) or start its first below.';
+ }
+const words=e=>{if(!e)return 'nothing yet';const d=e.detail||'';const M={'heartbeat':'checked in — '+d,'auto-start':'started '+d,'auto-finish':'finished '+d,'healed':'restarted a dark server','skipped':'stood down (paused)','idle':'looked around, nothing queued','blocked':'hit a problem: '+d,'check':'self-test '+(d||'')};return M[e.event]||e.event;};
+ const ago=lp.last_leg_age_min!=null?(lp.last_leg_age_min<60?Math.round(lp.last_leg_age_min)+' min ago':(lp.last_leg_age_min/60).toFixed(1)+' h ago'):'never';
+ let hs;
+ if(lp.stopped)hs='<b style=color:#ffb454>Paused by you.</b> Nothing runs until you resume it in Admin.';
+ else if(lp.healthy)hs='Forever is <b style=color:#6ee7a8>ON</b>. A leg checks every '+lp.interval_min+' min — last: '+words(lp.last_leg)+' ('+ago+').';
+ else hs='<b style=color:#ffb454>Forever looks OFF</b> — no leg in '+ago+'. To switch it on, run this one line on the server:<br><code style="display:block;margin-top:8px;word-break:break-all">'+lp.install_line+'</code>';
+ document.getElementById('loopstate').innerHTML=hs;
+ let cl='AI fuel: ';
+ if(cr.known){const p=cr.tokens_pct||0;const cheap=p<50;cl+='Pro plan · '+p+'% of the 5-hour window used'+(cr.cached?' (cached)':'')+' — '+(cheap?'legs are cheap right now, good time to run.':'window is hot, prefer cheap loop legs.');}
+ else cl+='unknown ('+(cr.reason||'?')+') — free loop legs still run, thinking legs wait.';
+ document.getElementById('credits').textContent=cl;
+ const dot={done:'<span style=color:#6ee7a8>●</span>',void:'<span style=color:#ff6b6b>●</span>',running:'<span style=color:#ffb454>●</span>'};
+ document.getElementById('traj').innerHTML=(lp.trajectory||[]).map(t=>`<span title="${t.id} ${t.status} ${t.v||''}">${dot[t.status]||'○'}</span>`).join('')+' <span class=mut style=letter-spacing:normal;font-size:.8rem>last '+((lp.trajectory||[]).length)+'</span>';
+ document.getElementById('alertline').innerHTML=lp.alert?('<b style=color:#ffb454>⚠ '+lp.alert+'</b>'):'';
+ let th;
+ if(lp.thinker&&lp.thinker_cron)th='A thinking agent works the queue ('+lp.thinker_cron+').';
+ else if(lp.thinker)th='Thinker ARMED but no schedule — it will not run until cron is installed (see Admin).';
+ else th='No thinker scheduled — goals queue up; code gets written in live legs. The keeper loop never pretends otherwise.';
+ document.getElementById('thinkerline').textContent=th;
+ const _run=(tn?list.filter(c=>c.status==='running'):cs).find(c=>c.status==='running')||list.find(c=>c.status==='running'&&!tn)||null;
+ document.getElementById('watchline').innerHTML=_run?('<a href="/live.html?cycle='+_run.id+'" style="color:#6ee7a8">Watch '+_run.id+' live →</a>'):'';
+ if(_run){try{const st=await j('/legs/'+_run.id+'.status.json');const ageS=Math.max(0,Date.now()/1000-(st.updated_ts||st.started_ts||Date.now()/1000));const ageT=ageS<90?Math.round(ageS)+'s ago':Math.round(ageS/60)+' min ago';const beat=st.state==='done'?'SHIPPED':(ageS>300?'SILENT '+ageT+' - possibly stuck':'WORKING - '+(st.phase||'?')+' - '+ageT);document.getElementById('watchline').innerHTML='<span class=mut>'+beat+' - '+(st.note||st.goal||'')+'</span> <a href="/live.html?cycle='+_run.id+'" style="color:#6ee7a8">Watch '+_run.id+' live</a>'}catch(e){}}
+ document.getElementById('turboline').textContent=lp.turbo?('Turbo ON — cycles chain back-to-back ('+lp.queue_depth+' queued).'):(lp.queue_depth?lp.queue_depth+' goal(s) queued — one per leg, or Admin can switch on Turbo.':'Queue empty — add goals in Admin and they run themselves.');
+ document.getElementById('runnow').onclick=async()=>{try{await j('/api/loop/run',{method:'POST'});msg.textContent='Leg triggered — watch Live cycles.';setTimeout(load,3000)}catch(e){msg.textContent=e.message+' — retry in a minute.'}};
+ document.getElementById('upnext').textContent=g.length?('Up next: '+g[0].goal):'Queue empty — add goals in Admin.';
+ document.getElementById('brand').textContent=cfg.site_name||'Agent Cycles';
+ document.getElementById('tagline').textContent=cfg.tagline||'Ship one version per cycle.';
+ document.getElementById('ver').textContent=v.running.version+' — '+v.running.notes;
+ const cur=m.current, tgt=cfg.margin_target||0.4, avg=cfg.niche_avg||0.25;
+ let mh;
+ if(cur&&cur.margin!=null){const ok=cur.margin>=tgt,cls=ok?'ok':'bad';
+  mh=`<div><div class=mut>Margin</div><b class=${cls}>${(cur.margin*100).toFixed(1)}%</b></div><div><div class=mut>Target</div><b>${(tgt*100).toFixed(0)}%</b></div><div><div class=mut>Niche avg</div><b>${(avg*100).toFixed(0)}%</b></div>`;}
+ else mh=`<div><div class=mut>Margin</div><b class=mut>No data yet</b></div><div><div class=mut>Target</div><b>${(tgt*100).toFixed(0)}%</b></div><div><div class=mut>Niche avg</div><b>${(avg*100).toFixed(0)}%</b></div>`;
+ document.getElementById('margin').innerHTML=mh+`<div style='flex-basis:100%'><span class=mut>Manual entries from Admin · targets from Config</span></div>`;
+ window._run=_run;
+ document.getElementById('cycles').innerHTML=list.length?list.map(c=>`<div class="cyc${c.status==='running'?' run':''}"><b>${c.id}</b> <span class=mut>${c.status} → ${c.produced_version||'…'}</span><br>${c.goal}${c.why?'<br><span class=mut>Why: '+c.why+'</span>':''}</div>`).join(''):(tn?'<p class=mut>No cycles yet for this workspace — start its first below.</p>':'<p class=mut>No cycles yet.</p>');
+ try{
+ const rb=await j('/api/refs');
+ document.getElementById('refboard').innerHTML=rb.length?('Top referrers: '+rb.map(x=>x.code+' ('+x.hits+' visit'+(x.hits==1?'':'s')+' · '+(x.shipped||0)+' shipped)').join(' · ')):'No referrals yet — be the first link out.';
+ }catch(e){}
+ const vv=v.running.version;
+ document.getElementById('shareline').textContent='This board is '+vv+' — '+v.running.notes;
+ function drawShare(site,vv,notes){try{const c=document.getElementById('sharecard');if(!c||!c.getContext)return;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#1a2230');g.addColorStop(1,'#0e1116');x.fillStyle=g;x.fillRect(0,0,1200,630);x.strokeStyle='#6ee7a8';x.lineWidth=6;x.strokeRect(18,18,1164,594);x.fillStyle='#6ee7a8';x.font='bold 44px system-ui,sans-serif';x.fillText(site||'Agent Cycles',70,130);x.fillStyle='#eef1f6';x.font='bold 96px system-ui,sans-serif';x.fillText(vv||'',70,270);x.fillStyle='#9aa3b2';x.font='40px system-ui,sans-serif';const words=(notes||'').slice(0,90);let line='',y=350;for(const w of words.split(' ')){if((line+' '+w).length>42){x.fillText(line,70,y);y+=55;line=''}line=(line+' '+w).trim()}if(line)x.fillText(line,70,y);x.fillStyle='#6ee7a8';x.font='36px system-ui,sans-serif';x.fillText('Ship one version per cycle.',70,560)}catch(e){}}
+ drawShare(cfg.site_name,vv,v.running.notes);
+ document.getElementById('pngbtn').onclick=()=>{try{drawShare(cfg.site_name,vv,v.running.notes);const a=document.createElement('a');a.download='agent-cycles-'+vv+'.png';a.href=document.getElementById('sharecard').toDataURL('image/png');a.click();msg.textContent='PNG saved — post it anywhere.'}catch(e){msg.textContent='PNG export failed in this browser.'}};
+ document.getElementById('sharebtn').onclick=async()=>{const t='Agent Cycles '+vv+': '+v.running.notes+' '+location.origin+location.pathname;if(navigator.share){try{await navigator.share({title:'Agent Cycles',text:t,url:location.href})}catch(e){}}else{try{await navigator.clipboard.writeText(t);msg.textContent='Copied — paste it anywhere.'}catch(e){msg.textContent=t}}}  ;
+ document.getElementById('copybtn').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);msg.textContent='Link copied.'}catch(e){msg.textContent=location.href}};
+ document.getElementById('refcopy').onclick=async()=>{const tag=(reftag.value||'friend').replace(/[^a-z0-9_-]/gi,'')||'friend';const link=location.origin+location.pathname+'?r='+tag;try{await navigator.clipboard.writeText(link);msg.textContent='Your referral link copied: '+link}catch(e){msg.textContent=link}};
+ document.getElementById('versions').innerHTML=(v.history.length?v.history:[{version:v.running.version,notes:v.running.notes}]).map(h=>`<div class=cyc><b>${h.version}</b> — ${h.notes}</div>`).join('');
+ }catch(e){}
+}
+document.getElementById('start').onclick=async()=>{try{let tn2=null,rf=null;try{tn2=new URL(location.href).searchParams.get('t')}catch(e){}try{rf=localStorage.getItem('e079ref')}catch(e){}const c=await j('/api/cycle/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({goal:goal.value,tenant:tn2||undefined,ref:rf||undefined,why:why.value})});msg.textContent='Started '+c.id+'. Finish it to ship.';goal.value='';why.value='';load()}catch(e){msg.textContent=e.message}};
+document.getElementById('finish').onclick=async()=>{if(!window._run){msg.textContent='Nothing running.';return}try{const c=await j('/api/cycle/finish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:window._run.id,notes:notes.value})});msg.textContent='Shipped '+c.produced_version+'.';notes.value='';load()}catch(e){msg.textContent=e.message}};
+try{const u=new URL(location.href);const r=(u.searchParams.get('r')||'').replace(/[^a-z0-9_-]/gi,'').slice(0,40);if(r){try{localStorage.setItem('e079ref',r)}catch(e){}if(!sessionStorage.getItem('refd')){sessionStorage.setItem('refd','1');fetch('/api/ref',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:r})}).catch(()=>{})}}}catch(e){}
+load();setInterval(load,15000);
+</script>

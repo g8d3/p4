@@ -1,0 +1,1 @@
+{"cycle": "c011", "goal": "tenant view: ?t=<id> filters cycles, tenant sees own workspace", "note": "shipped v11, check.sh PASS", "phase": "finish", "started_ts": 1790574118, "state": "done", "updated_ts": 1790574225, "why": "tenant needs own view before paywall makes sense"}

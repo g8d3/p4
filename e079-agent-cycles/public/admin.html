@@ -1,0 +1,74 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — Agent Cycles</title>
+<style>
+:root{color-scheme:dark}:root{--bg:#0e1116;--card:#171c24;--line:#2a3140;--txt:#eef1f6;--mut:#9aa3b2;--acc:#6ee7a8}
+*{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui;background:var(--bg);color:var(--txt)}
+.wrap{max-width:680px;margin:auto;padding:20px 16px 64px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.mut{color:var(--mut)}label{display:block;font-size:.85rem;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;background:#0e1319;border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:1rem}
+button{background:var(--acc);color:#06130c;border:0;border-radius:12px;padding:12px 18px;font-weight:700;min-height:48px;margin-top:12px;cursor:pointer;width:100%}
+a{color:var(--mut)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+<div class="wrap">
+<p><a href="/">← Board</a></p>
+<h1>Admin</h1>
+<p class="mut">Everything configurable from the web. Roles: <b>super-admin</b> (server files, sets admin token) → <b>admin</b> (this page, token-gated) → <b>tenant</b> (own workspace, isolation is a future cycle).</p>
+<div class="card"><b>Step 1 — token</b><label>Admin token (from needs.json, change it on the server)</label><input id="tok" placeholder="change-me-please"><p class="mut" id="tmsg"></p></div>
+<div class="card"><b>Site + economics</b> <span class=mut>manual config, saved on server</span>
+<label>Site name</label><input id="site_name"><label>Tagline</label><input id="tagline">
+<div class="row2"><div><label>Domain budget $/yr (cap 20)</label><input id="domain_budget_yearly" inputmode="decimal"></div>
+<div><label>MoR provider (you bring the key after KYC)</label><select id="mor_provider"><option value="">none yet</option><option>Paddle</option><option>Lemon Squeezy</option><option>Polar</option><option>Stripe</option></select></div></div>
+<label>MoR API key (paste here, stored server-side 0600, never shown back)</label><input id="mor_api_key" placeholder="leave blank to keep">
+<div class="row2"><div><label>Margin target (0.4 = 40%)</label><input id="margin_target" inputmode="decimal"></div>
+<div><label>Niche avg</label><input id="niche_avg" inputmode="decimal"></div></div>
+<label>Niche stdev</label><input id="niche_stdev" inputmode="decimal">
+<button id="save">Save config</button><p class="mut" id="cmsg"></p></div>
+<div class="card"><b>AI fuel</b> <span class=mut>LIVE from plan API (auto, 5-min cache)</span><div id="fuel" class="mut">…</div><div id="metered" class="mut" style="margin-top:8px">…</div><p class="mut">Metered per-model tokens from the plan history API (30-day window) — self-report retired, metered is source of truth. Past self-reports below are history only.</p><div id="llist" style="margin-top:10px"></div><p class="mut">Roll metered totals into Metrics → AI cost each period. Hiding inference spend is lying about margin.</p></div>
+<div class="card"><b>Metrics</b> <span class=mut>manual entries — type honest numbers</span><br><span class=mut>revenue must beat AI + infra</span>
+<div class="row2"><div><label>Revenue $</label><input id="revenue" inputmode="decimal"></div><div><label>AI cost $</label><input id="ai_cost" inputmode="decimal"></div></div>
+<div class="row2"><div><label>Infra cost $</label><input id="infra_cost" inputmode="decimal"></div><div><label>Niche avg</label><input id="m_niche" inputmode="decimal"></div></div>
+<button id="madd">Add period</button><div id="mlist" style="margin-top:10px"></div></div>
+<div class="card"><b>Forever loop</b><div id="loopinfo" class="mut">…</div><div class="row2"><div><label>Leg every (min, server restart to apply)</label><input id="loop_interval_minutes" inputmode="numeric"></div><div><label>Stale auto-finish (min)</label><input id="loop_stale_minutes" inputmode="numeric"></div></div><button id="stopbtn">Pause / resume loop</button><button id="turbobtn" style="background:transparent;color:var(--txt);border:1px solid var(--line)">Turbo: …</button>
+<button id="thinkerbtn" style="background:transparent;color:var(--txt);border:1px solid var(--line)">Thinker: …</button>
+<div class="mut" id="thinkerinfo" style="margin-top:8px"></div></div>
+<div class="card"><b>Goals queue (loop picks oldest first)</b><label>New goal</label><input id="ggoal" placeholder="one version-sized improvement"><label>Why (required for trust — what breaks if this never ships?)</label><input id="gwhy" placeholder="because…"><button id="gadd">Queue goal</button><div id="glist" style="margin-top:10px"></div></div>
+<div class="card"><b>Referrals</b><div id="reflist" class="mut">…</div></div>
+<div class="card"><b>Tenants</b><label>New tenant name</label><input id="tname" placeholder="acme-co"><button id="tadd">Add tenant</button><div id="tlist" style="margin-top:10px"></div></div>
+</div>
+<script>
+const tok=()=>localStorage.getItem('e079tok')||'';
+if(localStorage.getItem('e079tok'))document.getElementById('tok').value=tok();
+document.getElementById('tok').onchange=e=>{localStorage.setItem('e079tok',e.target.value);tmsg.textContent='saved locally';load()};
+async function j(u,o){const r=await fetch(u,o);const t=await r.json().catch(()=>({}));if(!r.ok)throw new Error(t.error||r.status);return t}
+const H=()=>({'Content-Type':'application/json','X-Admin-Token':document.getElementById('tok').value||tok()});
+async function load(){try{
+ const c=await j('/api/config');for(const k of['site_name','tagline','domain_budget_yearly','mor_provider','margin_target','niche_avg','niche_stdev','loop_interval_minutes','loop_stale_minutes'])if(document.getElementById(k)&&c[k]!=null)document.getElementById(k).value=c[k];
+ cmsg.textContent=c.mor_key_set?'MoR key: SET (paste again to rotate)':'MoR key: not set yet';
+ const m=await j('/api/metrics');
+ mlist.innerHTML=(m.entries||[]).map(e=>{const mg=e.revenue>0?((e.revenue-e.ai_cost-e.infra_cost)/e.revenue*100).toFixed(1)+'%':'—';return `<p class=mut>$${e.revenue} rev · $${e.ai_cost} AI · $${e.infra_cost} infra → <b style="color:#fff">${mg}</b></p>`}).join('')||'<p class=mut>No periods yet.</p>';
+ const lp=await j('/api/loop');document.getElementById('turbobtn').textContent='Turbo: '+(lp.turbo?'ON — cycles chain':'off');document.getElementById('thinkerbtn').textContent='Thinker: '+(lp.thinker?'ARMED':'off');thinkerinfo.innerHTML='Thinker cron: '+(lp.thinker_cron||'NOT INSTALLED')+'<br>To install, run on the server:<br><code style=word-break:break-all>'+lp.thinker_install+'</code>';loopinfo.innerHTML=(lp.stopped?'<b>PAUSED</b>':'<b>LIVE</b>')+(lp.last_leg?(' · last leg: '+lp.last_leg.event+' '+(lp.last_leg.detail||'')):' · no legs yet')+'<br>cron installed: '+(lp.cron_have||'NOT INSTALLED — paste the install line from the board')+' · configured: every '+lp.interval_min+' min'+(lp.cron_have&&!lp.cron_have.includes('/'+lp.interval_min+' ')?' · MISMATCH (reinstall cron)':'')+' · turbo '+(lp.turbo?'ON':'off')+' · '+lp.queue_depth+' queued';
+ try{const cfg2=await j('/api/config');}catch(e){}
+ try{const g=await j('/api/goals');glist.innerHTML=g.map(x=>`<p><span class=mut>${x.status}${x.cycle?' · '+x.cycle:''}</span> ${x.goal}</p>`).join('')||'<p class=mut>Queue empty.</p>';}catch(e){}
+ try{const f=await j('/api/credits');fuel.innerHTML=f.known?('Plan <b>'+f.level+'</b> · window '+f.tokens_pct+'% used'+(f.cached?' (cached)':'')+' · MCP left '+(f.mcp_remaining??'?')):'Unknown ('+(f.reason||'?')+')';
+ try{const mt=await j('/api/legs/metered');metered.innerHTML=mt.known?('Metered <b>'+mt.total_tokens.toLocaleString()+' tokens</b> · '+mt.total_calls.toLocaleString()+' calls / '+mt.window_days+'d'+(mt.cached?' (cached)':'')+'<br>'+mt.models.map(m=>m.model+': <b>'+m.tokens.toLocaleString()+'</b>').join(' · ')):'Metered unknown ('+(mt.reason||'?')+')';}catch(e){metered.textContent='metered check failed';}
+ const lc=await j('/api/legs/costs');llist.innerHTML='<p class=mut>Total logged: <b>$'+lc.total_usd+'</b></p>'+lc.entries.map(x=>`<p class=mut>$${x.cost_usd} ${x.model} — ${x.notes}</p>`).join('');}catch(e){fuel.textContent='fuel check failed';}
+ const t=await j('/api/tenants');tlist.innerHTML=t.map(x=>`<p><b>${x.id}</b> ${x.name} <span class=mut>${x.plan} · ${x.status}</span> <a href="/?t=${x.id}">open →</a></p>`).join('')||'<p class=mut>No tenants.</p>';
+ try{const rf=await j('/api/refs');reflist.innerHTML=rf.map(x=>`<p><b>${x.code}</b> <span class=mut>${x.hits} visit(s) · ${x.shipped||0} shipped</span></p>`).join('')||'<p class=mut>No referrals yet.</p>'}catch(e){reflist.textContent='refs check failed'}
+}catch(e){}}
+document.getElementById('save').onclick=async()=>{const p={token:document.getElementById('tok').value};for(const k of['site_name','tagline','domain_budget_yearly','mor_provider','margin_target','niche_avg','niche_stdev','loop_interval_minutes','loop_stale_minutes'])if(document.getElementById(k))p[k]=document.getElementById(k).value;
+ if(document.getElementById('mor_api_key').value)p.mor_api_key=document.getElementById('mor_api_key').value;
+ const num=v=>{const f=parseFloat(v);return isNaN(f)?v:f};
+ for(const k of['domain_budget_yearly','margin_target','niche_avg','niche_stdev','loop_interval_minutes','loop_stale_minutes'])p[k]=num(p[k]);
+ try{await j('/api/admin/config',{method:'POST',headers:{...H,'X-Admin-Token':document.getElementById('tok').value},body:JSON.stringify(p)});cmsg.textContent='saved';document.getElementById('mor_api_key').value='';load()}catch(e){cmsg.textContent=e.message}};
+document.getElementById('madd').onclick=async()=>{if(!document.getElementById('tok').value){alert('Step 1 first: paste your admin token, then retry.');document.getElementById('tok').focus();return}try{await j('/api/metrics/add',{method:'POST',headers:H(),body:JSON.stringify({revenue:revenue.value||0,ai_cost:ai_cost.value||0,infra_cost:infra_cost.value||0,niche_avg:m_niche.value||undefined})});load()}catch(e){alert(e.message);if(/admin token|403/.test(e.message))document.getElementById('tok').focus()}};
+document.getElementById('tadd').onclick=async()=>{if(!document.getElementById('tok').value){alert('Step 1 first: paste your admin token, then retry.');document.getElementById('tok').focus();return}try{await j('/api/tenants/add',{method:'POST',headers:H(),body:JSON.stringify({name:tname.value})});tname.value='';load()}catch(e){alert(e.message);if(/admin token|403/.test(e.message))document.getElementById('tok').focus()}};
+document.getElementById('gadd').onclick=async()=>{if(!document.getElementById('tok').value){alert('Step 1 first: paste your admin token, then retry.');document.getElementById('tok').focus();return}try{await j('/api/goals/add',{method:'POST',headers:H(),body:JSON.stringify({goal:ggoal.value,why:gwhy.value})});ggoal.value='';gwhy.value='';load()}catch(e){alert(e.message);if(/admin token|403/.test(e.message))document.getElementById('tok').focus()}};
+document.getElementById('turbobtn').onclick=async()=>{if(!document.getElementById('tok').value){alert('Step 1 first: paste your admin token, then retry.');document.getElementById('tok').focus();return}try{const lp=await j('/api/loop');const r=await j('/api/admin/turbo',{method:'POST',headers:H(),body:JSON.stringify({turbo:!lp.turbo})});alert(r.turbo?'Turbo ON — legs chain back-to-back':'Turbo off');load()}catch(e){alert(e.message);if(/admin token|403/.test(e.message))document.getElementById('tok').focus()}};
+document.getElementById('thinkerbtn').onclick=async()=>{if(!document.getElementById('tok').value){alert('Step 1 first: paste your admin token, then retry.');document.getElementById('tok').focus();return}try{const lp=await j('/api/loop');const r=await j('/api/admin/thinker',{method:'POST',headers:H(),body:JSON.stringify({thinker:!lp.thinker})});alert(r.thinker?'Thinker ARMED — install its cron line to start work':'Thinker off');load()}catch(e){alert(e.message);if(/admin token|403/.test(e.message))document.getElementById('tok').focus()}};
+document.getElementById('stopbtn').onclick=async()=>{if(!document.getElementById('tok').value){alert('Step 1 first: paste your admin token, then retry.');document.getElementById('tok').focus();return}try{const lp=await j('/api/loop');const r=await j('/api/admin/stop',{method:'POST',headers:H(),body:JSON.stringify({token:document.getElementById('tok').value,stopped:!lp.stopped})});alert(r.stopped?'Loop PAUSED':'Loop LIVE');load()}catch(e){alert(e.message);if(/admin token|403/.test(e.message))document.getElementById('tok').focus()}};
+load();
+</script>

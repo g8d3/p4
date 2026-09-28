@@ -1,0 +1,17 @@
+{
+  "port": 8339,
+  "bind": "0.0.0.0",
+  "data_file": "data/cycles.jsonl",
+  "version_file": "version.json",
+  "site_name": "Agent Cycles",
+  "tagline": "Ship one version per cycle. Zero thinking required.",
+  "domain_budget_yearly": 20,
+  "mor_provider": "",
+  "margin_target": 0.4,
+  "niche_avg": 0.25,
+  "niche_stdev": 0.05,
+  "admin_token": "RuYXQVzyRfPQ8_FO_YFJJlS6",
+  "loop_interval_minutes": 30,
+  "loop_stale_minutes": 120,
+  "goals_file": "data/goals.jsonl"
+}

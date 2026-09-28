@@ -1,0 +1,10 @@
+{
+  "cycle": "c026",
+  "goal": "real browser e2e per version: snapshot asserts on rendered DOM, static greps let blank pages pass",
+  "why": "v18 shipped a board with dead JS and check.sh said PASS; static greps cannot catch a killed script, only a rendered DOM can",
+  "state": "working",
+  "phase": "plan",
+  "note": "probing headless chrome dump-dom for rendered-DOM asserts",
+  "started_ts": 1790600159,
+  "updated_ts": 1790600159
+}

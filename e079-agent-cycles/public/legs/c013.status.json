@@ -1,0 +1,1 @@
+{"cycle": "c013", "goal": "metered leg cost: pull real per-model token usage from plan history API, retire self-report", "why": "", "state": "done", "phase": "finish", "note": "metered endpoint live with real 30d tokens; running check.sh + browser review", "started_ts": 1790574334, "updated_ts": 1790574960}

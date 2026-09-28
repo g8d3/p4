@@ -1,0 +1,83 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Live leg — Agent Cycles</title>
+<style>
+:root{--bg:#0e1116;--card:#171c24;--line:#2a3140;--txt:#eef1f6;--mut:#9aa3b2;--acc:#6ee7a8;--warn:#ffb454;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;font-family:ui-sans-serif,system-ui;background:var(--bg);color:var(--txt)}
+.wrap{max-width:720px;margin:auto;padding:20px 16px 64px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.mut{color:var(--mut)}.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.badge{display:inline-block;border-radius:99px;padding:4px 14px;font-weight:700;font-size:.85rem}
+.work{background:#0d2b1c;color:var(--acc);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.55}}
+.silent{background:#2e230d;color:var(--warn)}.done{background:#222;color:var(--mut)}.none{background:#222;color:var(--mut)}
+h1{margin:0 0 4px;font-size:1.4rem}#cycle{font-size:2rem;font-weight:800;letter-spacing:.02em}
+.steps{display:flex;gap:6px;margin:12px 0;flex-wrap:wrap}
+.step{flex:1;min-width:70px;text-align:center;font-size:.75rem;color:var(--mut);border-top:3px solid var(--line);padding-top:6px}
+.step.on{color:var(--acc);border-color:var(--acc)}.step.cur{color:#fff;border-color:#fff}
+#log{background:#0a0d12;border:1px solid var(--line);border-radius:12px;padding:12px;height:46vh;overflow:auto;white-space:pre-wrap;font-size:.8rem;line-height:1.5}
+a{color:var(--mut)}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{background:transparent;color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer}
+</style>
+<div class="wrap">
+<p><a href="/">← Board</a></p>
+<h1>Live leg <span id="badge" class="badge none">…</span></h1>
+<div id="cycle" class="mono">—</div>
+<div class="mut" id="elapsed"></div>
+<div class="card"><b>Goal</b><div id="goal"></div><div class="mut" style="margin-top:8px"><b>Why</b></div><div id="why" class="mut"></div></div>
+<div class="card"><b>Phase</b><div class="steps" id="steps"></div><div id="note"></div></div>
+<div class="card"><div class="row"><b>Work stream</b><span class="mut" id="src"></span><span style="flex:1"></span><button id="follow">Follow: on</button></div>
+<div id="log" class="mono" style="margin-top:8px">connecting…</div></div>
+</div>
+<script>
+const q=new URL(location.href).searchParams.get('cycle');
+const PHASES=['starting','plan','implement','verify','finish'];
+let follow=true, timerStarted=0;
+document.getElementById('follow').onclick=e=>{follow=!follow;e.target.textContent='Follow: '+(follow?'on':'off')};
+async function j(u){const r=await fetch(u);if(!r.ok)throw new Error(r.status);const t=await r.text();try{return JSON.parse(t)}catch(e){return t}}
+function age(ts){const s=Math.max(0,Date.now()/1000-ts);if(s<90)return Math.round(s)+'s';if(s<5400)return Math.round(s/60)+' min';return (s/3600).toFixed(1)+' h'}
+async function load(){
+ try{
+  let cyc=q;
+  if(!cyc){const cs=await j('/api/cycles');const r=cs.find(c=>c.status==='running');if(!r){badge('none','NO LEG RUNNING');log.textContent='No cycle running. Finished legs keep their streams below.';return}cyc=r.id}
+  document.getElementById('cycle').textContent=cyc;
+  let vd=null;try{vd=await j('/api/leg?cycle='+cyc)}catch(e){}
+  if(vd&&vd.verdict==='SHIPPED'){badge('done','SHIPPED '+vd.detail);document.getElementById('cycle').textContent=cyc;document.getElementById('goal').textContent=vd.goal;document.getElementById('why').textContent='';document.getElementById('steps').innerHTML='';document.getElementById('log').textContent='Leg finished and shipped. Replay stays below.';try{const txt=await j('/legs/'+cyc+'.log');document.getElementById('log').textContent=txt.split('\n').slice(-400).join('\n')}catch(e){}return}
+  if(vd&&vd.verdict==='VOID'){badge('done','VOID — '+vd.detail);document.getElementById('cycle').textContent=cyc;document.getElementById('goal').textContent=vd.goal;document.getElementById('why').textContent='';document.getElementById('steps').innerHTML='';document.getElementById('log').textContent='Leg voided before shipping. Reason above.';return}
+  if(vd&&vd.verdict==='UNKNOWN'){badge('silent','STREAM NOT READY');document.getElementById('cycle').textContent=cyc;document.getElementById('goal').textContent=vd.goal;document.getElementById('log').textContent='No stream for this leg. The next legs stream here live.';return}
+  if(vd){
+   document.getElementById('cycle').textContent=cyc;
+   document.getElementById('goal').textContent=vd.goal||'—';
+   document.getElementById('why').textContent=vd.why||'no why recorded';
+   const vmap={WORKING:'work',QUIET:'work',STALLED:'silent',DEAD:'silent'};
+   badge(vmap[vd.verdict]||'none',vd.verdict+' — '+vd.detail);
+   const order=['starting','plan','implement','verify','finish'];
+   const ci=order.indexOf(vd.phase||'starting');
+   document.getElementById('steps').innerHTML=order.map((p,i)=>`<div class="step${i<ci?' on':i===ci?' cur':''}">${p}</div>`).join('');
+   document.getElementById('note').textContent=(vd.note?('Now: '+vd.note+' · '):'')+'quiet '+vd.silent_s+'s · worker '+(vd.alive?'alive':'gone');
+   if(!timerStarted&&vd.started_ts){timerStarted=vd.started_ts}
+   const el=document.getElementById('elapsed');
+   try{
+    const txt=await j('/legs/'+cyc+'.log');
+    const lines=txt.split('\n');const tail=lines.slice(-400).join('\n');
+    const box=document.getElementById('log');
+    if(box.textContent!==tail){box.textContent=tail||'(no output yet)';if(follow)box.scrollTop=box.scrollHeight}
+    document.getElementById('src').textContent='· '+lines.length+' lines';
+   }catch(e){document.getElementById('log').textContent='log not written yet — the leg narrates as it goes.'}
+   return;
+  }
+  if(false){  }else{document.getElementById('goal').textContent='This leg started before streaming existed — its output lives in the thinker log, not here. Next legs stream live.';document.getElementById('why').textContent='';document.getElementById('steps').innerHTML='';document.getElementById('log').textContent='No stream for this leg. The next legs stream here live.';return}
+  try{
+   const txt=await j('/legs/'+cyc+'.log');
+   const lines=txt.split('\n');const tail=lines.slice(-400).join('\n');
+   const box=document.getElementById('log');
+   if(box.textContent!==tail){box.textContent=tail||'(no output yet)';if(follow)box.scrollTop=box.scrollHeight}
+   document.getElementById('src').textContent='· '+lines.length+' lines';
+  }catch(e){document.getElementById('log').textContent='log not written yet — the leg narrates as it goes.'}
+ }catch(e){badge('none','CONNECTION FAILED');document.getElementById('log').textContent='Could not reach the board — check the server, then reload.'}
+}
+function badge(cls,t){const b=document.getElementById('badge');b.className='badge '+cls;b.textContent=t}
+const log=document.getElementById('log');
+load();setInterval(load,3000);
+</script>
