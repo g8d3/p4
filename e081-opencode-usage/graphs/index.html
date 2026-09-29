@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>opencode-go load graphs — 2026-09-29</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:1080px;margin:24px auto;padding:0 16px;color:#111}
+img{width:100%;border:1px solid #ddd;border-radius:8px;margin:8px 0 20px}
+h2{margin-top:32px} .k{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.k div{background:#f6f6f6;border-radius:8px;padding:10px}.k b{font-size:1.2em}
+table{border-collapse:collapse;margin:12px 0}td,th{border:1px solid #ccc;padding:4px 10px;font-size:.9em}
+</style></head><body>
+<h1>opencode-go load graphs — 2026-09-29 request logs</h1>
+<p>1000 rows (971 succeeded, 16 rejected 400, 13 failed 429/503/504) · 19 sessions · ~16.4 h window (04:10–20:40 UTC).</p>
+<div class="k">
+<div><b>6</b><br>exact peak concurrent requests</div>
+<div><b>1,619</b><br>peak input tok/s (5-min bin)</div>
+<div><b>248</b><br>peak output tok/s</div>
+<div><b>29,791</b><br>peak cache-read tok/s</div>
+<div><b>~99%</b><br>cache share while active</div>
+<div><b>2.9%</b><br>requests failed/rejected</div>
+</div>
+<h2>Output speed distribution (per request)</h2>
+<p>Streaming speed = outputTokens / (lastToken − firstToken). Overall speed includes queue + TTFT. Median streams at <b>~203 tok/s</b>; including wait time the median request yields <b>~61 tok/s</b>. The tail past ~2k tok/s is single-chunk replies (whole answer in one flush), not real streaming.</p>
+<table><tr><th></th><th>p50</th><th>p90</th><th>p95</th><th>p99</th></tr>
+<tr><td>streaming tok/s</td><td>203</td><td>415</td><td>532</td><td>1794</td></tr>
+<tr><td>overall tok/s</td><td>61</td><td>118</td><td>—</td><td>196</td></tr></table>
+<img src="07_out_dist.png" alt="output speed histogram">
+<img src="08_out_cdf.png" alt="output speed CDFs">
+<h2>Median output speed per session</h2><img src="09_by_session.png" alt="median speed per session">
+<h2>Over-time graphs (reference)</h2>
+<h2>1 · Input / output tokens per second</h2><img src="01_tps.png" alt="input output tokens per second">
+<h2>2 · Cached tokens over time</h2><img src="02_cache.png" alt="cached tokens">
+<h2>3 · Active sessions / concurrency</h2><img src="03_conc.png" alt="concurrency">
+<h2>4 · Latency (duration mean/p95, TTFT)</h2><img src="04_lat.png" alt="latency">
+<h2>5 · Throughput + errors</h2><img src="05_err.png" alt="throughput errors">
+<table><tr><th>window (UTC)</th><th>what</th></tr>
+<tr><td>16:59–17:06</td><td>429, 429, 503, 503, 504 — rate-limit + backend errors, concurrency at start was only 1</td></tr>
+<tr><td>20:02–20:08</td><td>504, 503, 503, 503, 504, 503 — backend timeouts, concurrency at start 1–2</td></tr>
+<tr><td>scattered</td><td>16× 400 rejected (client-side), instant (~30 ms), no session id</td></tr></table>
+<h2>6 · Limit probe: does concurrency hurt?</h2><img src="06_limits.png" alt="limit probe">
+<h2>Reading the limits</h2>
+<ul>
+<li><b>Local parallelism was never the bottleneck:</b> peak was 6 concurrent requests; all 429/503/504 errors hit at concurrency 1–2.</li>
+<li><b>The binding limit is server-side:</b> 429s cluster with 503/504s — classic overload/rate-limit window, plus p95 duration spikes to 60–110 s in those windows.</li>
+<li><b>400s are a different animal:</b> instant rejects with no session, spread across the day — client/payload issue, not load.</li>
+<li><b>Cache does the heavy lifting:</b> ~63.9M cache-read vs 4.3M input tokens; active windows run at 75–99% cache share (~30k cache tok/s peak).</li>
+<li><b>Headroom for many agents:</b> this log never tests &gt;6 concurrent. Expect the backend (not your box) to set the ceiling; add retry with backoff on 429/503/504, stagger agent starts, and re-run this report at 10/20/50 agents to find the real knee.</li>
+</ul>
+<p><a href="01_tps.png">01</a> · <a href="02_cache.png">02</a> · <a href="03_conc.png">03</a> · <a href="04_lat.png">04</a> · <a href="05_err.png">05</a> · <a href="06_limits.png">06</a></p>
+</body></html>
