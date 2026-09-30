@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "ScrapeNet Collector",
+  "version": "0.2.0",
+  "description": "Opt-in scraping node: adapters extract page data on hosts you enable, transform with recipes (client or server), send to your collector.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": [
+        "adapters/registry.js",
+        "adapters/x.js",
+        "adapters/google.js",
+        "adapters/product.js",
+        "adapters/article.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "popup.html", "default_title": "ScrapeNet" },
+  "options_page": "options.html"
+}

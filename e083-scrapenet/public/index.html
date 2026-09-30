@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScrapeNet — turn any website into a paid API</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--line:#30363d;--fg:#e6edf3;--mut:#8b949e;--acc:#58a6ff;--grn:#3fb950;--amb:#d29922;--red:#f85149}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;font-size:15px}
+main{max-width:940px;margin:0 auto;padding:12px}
+.hero{background:linear-gradient(180deg,#12233a,#161b22);border:1px solid var(--acc);border-radius:12px;padding:22px 18px;margin:10px 0;text-align:center}
+.bignum{font-size:44px;font-weight:800;margin:2px 0}
+.bignum small{font-size:18px;font-weight:400;color:var(--mut)}
+.herosub{color:var(--mut);font-size:14px;margin:2px 0 12px}
+.away{font-size:15px;margin:12px 0 4px}
+.health{color:var(--mut);font-size:12px;margin:6px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
+details.card summary{cursor:pointer;font-weight:700;font-size:16px;list-style:none}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary:before{content:"▸ ";color:var(--acc)}
+details.card[open] summary:before{content:"▾ ";color:var(--acc)}
+.verdict{display:inline-block;background:#0d1117;border:1px solid var(--grn);color:var(--grn);border-radius:14px;padding:1px 10px;font-size:12px;font-weight:600;margin-right:8px}
+.verdict.warn{border-color:var(--amb);color:var(--amb)}
+.verdict.bad{border-color:var(--red);color:var(--red)}
+.verdict.lock{border-color:var(--mut);color:var(--mut)}
+.mut{color:var(--mut);font-size:13px}
+table.t{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+table.t th,table.t td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top;word-break:break-word}
+table.t th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.04em;border-top:none}
+input,select,textarea,button{font-size:14px;border-radius:8px;border:1px solid var(--line);background:#0d1117;color:var(--fg);padding:8px}
+input,select,textarea{width:100%;margin:4px 0}textarea{font-family:monospace;min-height:90px}
+input[type=checkbox]{width:auto}
+button{background:var(--acc);border-color:var(--acc);color:#001;font-weight:600;margin:4px 4px 4px 0;cursor:pointer}
+button.ghost{background:transparent;color:var(--acc)}button.big{font-size:16px;padding:12px 20px}
+button.grn{background:var(--grn);border-color:var(--grn)}
+button.red{background:transparent;border-color:var(--red);color:var(--red)}
+button:disabled{opacity:.45;cursor:not-allowed}
+a.btn{display:inline-block;background:var(--grn);border:1px solid var(--grn);color:#001;font-weight:600;border-radius:8px;padding:12px 20px;margin:4px 4px 4px 0;text-decoration:none;font-size:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}
+pre{white-space:pre-wrap;font-size:12px;background:#0d1117;border:1px solid var(--line);border-radius:8px;padding:8px;max-height:240px;overflow:auto}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:12px;margin:2px;white-space:nowrap}
+.pill.ok{border-color:var(--grn);color:var(--grn)}
+.pill.warn{border-color:var(--amb);color:var(--amb)}
+.pill.info{border-color:var(--acc);color:var(--acc)}
+.pill.bad{border-color:var(--red);color:var(--red)}
+.tok{font-family:monospace;background:#0d1117;border:1px dashed var(--grn);border-radius:8px;padding:8px;word-break:break-all;margin:6px 0}
+.cols{display:flex;gap:8px;flex-wrap:wrap}.cols>div{flex:1;min-width:220px}
+.cols h3{font-size:13px;color:var(--mut);margin:4px 0}
+.eq{font-size:17px;background:#0d1117;border:1px solid var(--grn);border-radius:8px;padding:10px;margin:6px 0}
+.lock{color:var(--amb);font-size:13px}
+.where{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px}
+.where label{border:1px solid var(--line);border-radius:16px;padding:3px 10px;cursor:pointer}
+.where input{width:auto;margin:0}
+details.mini{margin:0}details.mini summary{font-size:12px;color:var(--acc);font-weight:400;cursor:pointer}
+details.mini summary:before{content:""}
+h2{font-size:16px;margin:14px 0 4px}h3{font-size:14px;margin:12px 0 4px}
+a{color:var(--acc)}
+footer{color:var(--mut);font-size:12px;margin:18px 0;text-align:center}
+</style></head>
+<body><main>
+
+<div class="hero">
+<p>Websites you visit contain data worth money. Install the extension, browse normally, get paid when your data sells.</p>
+<p><a class="btn" href="/download/extension.zip">Install extension</a></p>
+<p class="mut">Need live data? <a href="#secMoney">APIs from $9/mo →</a></p>
+<div class="bignum" id="heroNum" style="display:none"></div>
+<div class="herosub" id="heroSub" style="display:none"></div>
+<button class="big grn" id="heroAct" style="display:none"></button>
+<p class="away" id="awayLine" style="display:none"></p>
+<p class="health" id="health" style="display:none"></p>
+</div>
+
+<details class="card" id="secStart"><summary><span class="verdict lock" id="vStart">…</span>Start — key + app</summary>
+<p class="mut">One field, 30 seconds. Your key lets you send in rows and publish. Reads are free, no key needed.</p>
+<div class="row"><input id="sName" placeholder="your name, e.g. ana" aria-label="name">
+<input id="sRef" placeholder="friend's code (optional)" aria-label="referral code"></div>
+<button id="bSignup" class="big grn">Get token</button> <span class="mut" id="refNote"></span>
+<div id="signupOut"></div>
+<h2>Get the app (2 min)</h2>
+<p><a class="btn" id="dlExt" href="/download/extension.zip">Install extension</a></p>
+<p class="mut">1) Download + unzip. 2) Open <code>chrome://extensions</code>, turn on Developer mode. 3) Load unpacked → pick the folder → Options: paste the address below + your name + key.</p>
+<p class="mut">Hub address (auto-filled):</p> <input id="collectorUrl" readonly onclick="this.select()">
+<p class="mut">The hub = this server. It holds everyone's rows and pays per row.</p>
+</details>
+
+<details class="card" id="secSpawn"><summary><span class="verdict" id="vSpawn">…</span>Spawn — one button, one business</summary>
+<p class="mut">Top niches from <b>live</b> data gaps — thin datasets, unserved ideas, referral demand. One button per card spawns the full business: dataset + recipe + public API + quota + 7 growth posts.</p>
+<div id="spawnCards"><span class="mut">loading live gaps…</span></div>
+<div class="mut" id="spawnMsg"></div>
+<h2>Live businesses</h2>
+<div id="bizList"><span class="mut">loading businesses…</span></div>
+<script>(function(){
+function $s(id){return document.getElementById(id);}
+function hasTok(){return !!((localStorage.getItem("sn_token")||"")&&(localStorage.getItem("sn_node")||""));}
+async function loadSuggest(){
+  const host=$s("spawnCards"),v=$s("vSpawn");
+  if(!host)return;
+  let s;
+  try{s=await api("/api/businesses/suggest");}catch(e){v.textContent="offline";v.className="verdict bad";host.innerHTML='<span class="mut">suggest not ready.</span>';return;}
+  const cards=s.suggest||[];
+  v.textContent=cards.length+" live gaps";v.className="verdict";
+  host.innerHTML=cards.map((c,i)=>`<div class="card"><p><b>${esc(i+1)}. ${esc(c.niche)}</b></p><p><span class="verdict warn">gap</span> <span class="mut">${esc(c.why)}</span><br><span class="verdict">1st customer</span> <span class="mut">${esc(c.first_customer)}</span></p><button class="big grn" data-spawn="${esc(c.niche)}" ${hasTok()?"":"disabled title='Locked \u2014 get a token (Start above) to unlock.'"}>Spawn this business</button></div>`).join("")+
+  (hasTok()?"":'<p class="lock">\uD83D\uDD12 Locked \u2014 get a token (Start above) to unlock spawning.</p>');
+  host.querySelectorAll("[data-spawn]").forEach(b=>b.onclick=()=>spawnBiz(b.getAttribute("data-spawn"),b));
+}
+async function spawnBiz(niche,btn){
+  const msg=$s("spawnMsg");btn.disabled=true;btn.textContent="Spawning\u2026";
+  msg.textContent="spawning: dataset \u2192 recipe \u2192 API \u2192 quota \u2192 7 growth posts\u2026";
+  const r=await post("/api/businesses/spawn",{node_id:$s("tNode").value.trim(),token:$s("tToken").value.trim(),niche});
+  if(r.st===200&&r.j.business_id){
+    msg.innerHTML=`<p><span class="verdict">live</span> <b>${esc(r.j.name)}</b> \u2014 API: <code>${esc(r.j.api_url)}</code> \u00B7 page: <code>${esc(r.j.public_url)}</code> \u00B7 ${esc(r.j.growth_posts_queued)} posts queued \u00B7 tier ${esc(r.j.quota_tier)}</p>`;
+    ev("click:spawn",r.j.business_id);
+    loadBiz();loadSuggest();
+  }else{msg.innerHTML=`<span class="mut">spawn failed: ${esc(JSON.stringify(r.j))}</span>`;btn.disabled=false;btn.textContent="Spawn this business";}
+}
+async function loadBiz(){
+  const host=$s("bizList");if(!host)return;
+  let d;
+  try{d=await api("/api/businesses");}catch(e){host.innerHTML='<span class="mut">business list not ready.</span>';return;}
+  const bs=(d&&d.businesses)||[];
+  if(!bs.length){host.innerHTML='<span class="mut">no businesses yet \u2014 spawn the first one above.</span>';return;}
+  host.innerHTML=`<table class="t"><tr><th>Status</th><th>Name</th><th>Result</th><th></th></tr>${bs.map(b=>`<tr><td>${pill("LIVE","ok")}</td><td><b>${esc(b.name||b.business_id)}</b><br><span class="mut">${esc(b.niche||"")} \u00B7 tier ${esc(b.quota_tier||b.tier||"")}</span></td><td><a href="${esc(b.api_url)}">API</a> \u00B7 <a href="${esc(b.public_url)}">page</a><br><span class="mut">${esc(b.records??"")} rows \u00B7 ${esc(b.calls??"")} calls</span></td><td>${hasTok()?`<button class="red" data-biz-del="${esc(b.business_id)}">Delete</button>`:'<span class="mut">\uD83D\uDD12 key needed</span>'}</td></tr>`).join("")}</table>`;
+  host.querySelectorAll("[data-biz-del]").forEach(x=>x.onclick=()=>delBiz(x.getAttribute("data-biz-del"),x));
+}
+async function delBiz(id,btn){
+  btn.disabled=true;btn.textContent="Deleting\u2026";
+  const q=`/api/businesses/${encodeURIComponent(id)}?node_id=${encodeURIComponent($s("tNode").value.trim())}&token=${encodeURIComponent($s("tToken").value.trim())}`;
+  const r=await fetch(q,{method:"DELETE"}).then(x=>x.json()).catch(()=>null);
+  if(r&&r.ok){$s("spawnMsg").innerHTML=`<span class="verdict">deleted</span> <span class="mut">${esc(id)} cleaned up.</span>`;ev("click:spawn-delete",id);}
+  else{$s("spawnMsg").innerHTML=`<span class="mut">delete failed: ${esc(JSON.stringify(r))}</span>`;}
+  loadBiz();loadSuggest();
+}
+window.__reloadSpawn=()=>{loadSuggest();loadBiz();};
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>{loadSuggest();loadBiz();});else{loadSuggest();loadBiz();}
+setInterval(()=>{const h=$s("spawnCards");if(h&&hasTok()&&h.querySelector("[disabled]"))loadSuggest();},3000);
+})();</script>
+</details>
+
+<details class="card" id="secMoney"><summary><span class="verdict lock" id="vMoney">…</span>Money — plan + earnings</summary>
+<div id="quotaBar"><span class="mut">loading quota…</span></div>
+<div id="priceCard" class="mut"></div>
+<button id="bPro" class="big grn">Go Pro $9/mo</button> <span class="mut" id="checkoutMsg"></span>
+<h2>What everyone earned</h2>
+<div id="earn"></div>
+</details>
+
+<details class="card" id="secData"><summary><span class="verdict lock" id="vData">…</span>Data — rows, test, publish</summary>
+<div class="row">
+<select id="fDataset"><option value="">all datasets</option></select>
+<input id="fNode" placeholder="filter name (optional)">
+<button id="bRefresh">Refresh</button>
+</div>
+<div id="records"></div>
+<h2>Send a test row</h2>
+<p class="mut">Send in = add your rows to the hub. Exact copies are skipped automatically.</p>
+<div id="lockIngest" class="lock"></div>
+<div class="row">
+<input id="tNode" value="node-demo-1" aria-label="node id">
+<input id="tToken" placeholder="paste key (saved from Start)" aria-label="token">
+<select id="tDataset"><option>product-prices</option><option>job-listings</option><option>crypto-prices</option></select>
+</div>
+<textarea id="tRecord">{"name":"Test Widget","price":9.99,"currency":"USD","url":"https://shop.example/p/9"}</textarea>
+<button id="bIngest">Send test row</button> <span class="mut" id="ingestMsg"></span>
+<h2>Publish your dataset as a public page + free API</h2>
+<div id="lockPublish" class="lock"></div>
+<div class="row"><input id="pDataset" value="product-prices"><button id="bPublish">Publish</button></div>
+<p class="mut">Publishing gives the dataset a <b>shareable page</b> — post it anywhere, anyone can read the data, and signups via your friend-link earn you a cut.</p>
+<div id="pubList" class="mut"></div>
+<h2>Proof — don't take it on faith</h2>
+<button id="bProofCapture">Show last capture</button>
+<button id="bProofPayout" class="ghost">Show last payout math</button>
+<div id="proofOut"><span class="mut">One click shows the newest row: page capture → saved row, and the exact payout math for its saver.</span></div>
+</details>
+
+<details class="card" id="secFriends"><summary><span class="verdict lock" id="vFriends">…</span>Friends — invite, you both earn</summary>
+<p class="mut">Share any dataset page with <code>?ref=YOURCODE</code>. New people who join with it earn normally; you get <span id="refRule">a cut of the commission</span> on their rows. Your code appears after you get your key.</p>
+<div id="leader"></div>
+</details>
+
+<details class="card" id="secAuto"><summary><span class="verdict lock" id="vAuto">…</span>Auto-posts — the app markets itself</summary>
+<div id="secGrowth"><div id="growth"><span class="mut">loading…</span></div></div>
+<p class="mut">The queue rebuilds daily from live numbers. Posts carry <code>?ref=growth</code> so visits → joins show up here. Posting tray = posts waiting to go out. Backend: <code id="growthBackend">dryrun</code> (a dry run only logs what WOULD post; the owner pastes an X key to go live).</p>
+</details>
+
+<details class="card" id="secGaps"><summary><span class="verdict" id="vGaps">…</span>Loop backlog — gaps the keep-going loop filed</summary>
+<p class="mut">The e082 loop watches publishes every tick and files a gap when they stall (priority <b>high</b> when the funnel says FAILING). Rows carry a <code>LOOP</code> source badge — the loop's hands, attributed.</p>
+<div id="gaps"><span class="mut">loading…</span></div>
+</details>
+
+<details class="card" id="secOwner"><summary><span class="verdict lock" id="vOwner">Owner — locked</span>Owner — keys, prices, payouts</summary>
+<p class="mut">For the owner only. The master key lives in <code>needs.json</code> on the server. Keys you paste are stored locked (<code>0600</code>) and are never shown back — fields are write-only.</p>
+<div class="row"><input id="oToken" type="password" placeholder="master key" aria-label="master key" autocomplete="off"><button id="bUnlock">Unlock</button></div>
+<div class="mut" id="oLockMsg"></div>
+<div id="ownerBody" style="display:none">
+<p><b>Status:</b> <span id="oStatus">…</span></p>
+<h2>Keys + auto-posting switch</h2>
+<p class="mut">Paste the X key once, flip the switch to go live. Test post is always a dry run — it never touches X.</p>
+<div class="row"><input id="oXKey" type="password" placeholder="X key (paste to set, never shown)" aria-label="X key" autocomplete="off">
+<select id="oChannel"><option value="dryrun">dryrun (log only)</option><option value="x_api">x_api (post live)</option></select></div>
+<div class="row"><label class="mut"><input id="oAuto" type="checkbox" checked> auto-approve posts (uncheck = approve each by hand)</label></div>
+<button id="bSaveX">Save key + switch</button>
+<button id="bSelfTest" class="ghost">Send a dry-run test post</button>
+<div class="mut" id="oXMsg"></div><div class="mut" id="oTestOut"></div>
+<h2>Prices (live the second you save)</h2>
+<p class="mut">Stripe keys turn on real payments the second you save. Paste to set, never shown.</p>
+<div class="row"><input id="oStripeKey" type="password" placeholder="Stripe key sk_... (paste to set)" aria-label="stripe key" autocomplete="off"><input id="oStripeWh" type="password" placeholder="Stripe webhook key whsec_... (paste to set)" aria-label="stripe webhook key" autocomplete="off"></div>
+<div class="row"><input id="oFreeCalls" type="number" aria-label="free calls per day"><input id="oFreeDs" type="number" aria-label="free datasets"></div>
+<div class="row"><input id="oProPrice" type="number" step="0.01" aria-label="pro price usd"><input id="oProCalls" type="number" aria-label="pro calls per day"><input id="oProDs" type="number" aria-label="pro datasets"></div>
+<button id="bSaveDeal">Save prices</button> <span class="mut" id="oDealMsg"></span>
+<h2>Posts waiting for your OK</h2>
+<div id="oQueue"><span class="mut">…</span></div>
+<h2>Posting tray (last 10)</h2>
+<div id="oOutbox"><span class="mut">…</span></div>
+<h2>Payments waiting (plan upgrades)</h2>
+<div id="oIntents"><span class="mut">…</span></div>
+<h2>Friend-bonus payouts waiting</h2>
+<div id="oPayouts"><span class="mut">…</span></div>
+</div>
+</details>
+
+<details class="card" id="secWorkshop"><summary><span class="verdict lock">tinkerers only</span>Workshop — recipes, ideas, stuck users</summary>
+<p class="mut">Nothing here needs you. Word guide: hub = this server · send in = add rows · skip copies = exact copies ignored · posting tray = posts waiting to go out.</p>
+<h2>Recipes — how rows are shaped</h2>
+<p class="mut">No blank boxes: paste page HTML (or a URL) and the server proposes a recipe.</p>
+<textarea id="gHtml"><div class="product-card"><h3 class="title">Acme Phone</h3><span class="price">$299.00</span><a href="https://shop.example/p/5">view</a></div></textarea>
+<div class="row"><input id="gUrl" placeholder="https://shop.example/category (optional)"><input id="gName" placeholder="recipe name (optional)"></div>
+<button id="bGenerate">Generate from sample</button> <span class="mut" id="genMsg"></span>
+<hr style="border-color:var(--line)">
+<div class="row"><select id="rPick"></select></div>
+<div id="recipeTable"></div>
+<div> Runs where? <span id="rWhereBadge"></span>
+<span class="where" role="radiogroup" aria-label="transform location">
+<label><input type="radio" name="where" value="client" checked> Client</label>
+<label><input type="radio" name="where" value="server"> Server</label>
+<label><input type="radio" name="where" value="both"> Both</label>
+</span></div>
+<p class="mut">CLIENT = the page never leaves your browser (private, fastest). SERVER = the page is sent to the hub for shaping help (smarter, less private). Both = try client first.</p>
+<div class="row"><input id="rId" placeholder="recipe id (new or existing)"><input id="rName" placeholder="recipe name"><input id="rDataset" placeholder="dataset"></div>
+<textarea id="rFn" rows="8"></textarea>
+<textarea id="rSample">{"cards":[{"name":"Acme Phone","price":"$299.00","url":"https://shop.example/p/5"}]}</textarea>
+<div id="lockSave" class="lock"></div>
+<button id="bTest">Test shape</button>
+<button id="bSandbox" class="ghost">Sandbox-check</button>
+<button id="bRefine" class="ghost">Refine: quality + fixes</button>
+<button id="bSave" class="ghost">Save recipe</button>
+<pre id="rOut">test output appears here</pre>
+<h2>Business ideas — one click starts one</h2>
+<div class="row"><input id="iDataset" value="product-prices"><button id="bIdeas">Suggest ideas</button></div>
+<div id="ideas"><span class="mut">loading ideas…</span></div>
+<h2>Stuck users — visits funnel</h2>
+<div id="funnel"><span class="mut">loading funnel…</span></div>
+<p class="mut">Visits are counted with random session ids only — no IPs, no cookies.</p>
+</details>
+
+<footer>This page counts visits, button clicks and signups with a random session id — no IPs, no cookies. <a href="#secWorkshop">Why am I stuck? see the funnel</a>.</footer>
+
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const api=p=>fetch(p).then(async r=>{const j=await r.json().catch(()=>null);if(!r.ok){const e=new Error("HTTP "+r.status);e.status=r.status;e.body=j;throw e;}return j;});
+function quotaMsg(e){if(e&&e.status===429&&e.body&&/quota exhausted/.test(String(e.body.error||"")))return "sign in for live records -- free quota is full ("+esc(e.body.quota_used)+"/"+esc(e.body.quota_limit)+" today, resets "+esc(String(e.body.resets_at||"").slice(5,16).replace("T"," "))+"). Your key gets its own quota; the rest of this page still works.";return null;}
+async function step(fn){try{await fn();}catch(e){try{console.warn("refresh step failed:",(e&&e.message)||e);}catch(x){}}}
+const post=(p,b)=>fetch(p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}).then(async r=>({st:r.status,j:await r.json()}));
+let CFG={};
+/* ---- telemetry (same schema as e082 so funnels match) ---- */
+let SESS=sessionStorage.getItem("sn_sess")||"";
+if(!SESS){SESS="s"+Math.random().toString(16).slice(2,10)+Date.now().toString(16).slice(-4);sessionStorage.setItem("sn_sess",SESS);}
+function ev(event,detail,ms){
+  try{fetch("/api/events",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({v:1,session:SESS,ts:Date.now(),page:location.pathname,event,detail:detail||"",ms:ms??null})}).catch(()=>{});}catch(e){}
+}
+let acted=false, proofSeen=false;
+ev("page_view");
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button[id],a[id]");
+  if(b){acted=true;ev("click:"+b.id);}
+});
+setTimeout(()=>{if(!acted)ev("idle_45s","no action in 45s");},45000);
+window.addEventListener("error",e=>{try{ev("js_error",String(e.message||e).slice(0,300));}catch(x){}});
+function markProof(){if(!proofSeen){proofSeen=true;ev("first_proof_seen");}}
+/* ---- auth/token ---- */
+function tok(){return (localStorage.getItem("sn_token")||"");}
+function nid(){return (localStorage.getItem("sn_node")||"");}
+function otok(){return (sessionStorage.getItem("sn_owner")||"");}
+let LAST_TOKEN="", OWNER=null, HERO_FN=null;
+function verdict(id,text,cls){const el=$(id);if(el){el.textContent=text;el.className="verdict "+(cls||"");}}
+function refreshLocks(){
+  const has=!!tok();
+  const why="Locked — get a key (Start above) to unlock.";
+  [["bIngest","lockIngest","sending test rows"],["bPublish","lockPublish","publishing datasets"],["bSave","lockSave","saving recipes"]].forEach(([b,l,what])=>{
+    $(b).disabled=!has;$(b).title=has?"":why;
+    $(l).textContent=has?"":("🔒 "+why+" "+what+" need it.");
+  });
+}
+function copyText(t,btn){
+  const done=()=>{const o=btn.textContent;btn.textContent="Copied!";setTimeout(()=>btn.textContent=o,1500);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(()=>{prompt("Copy:",t);});}
+  else prompt("Copy:",t);
+}
+function openSec(id){$(id).open=true;$(id).scrollIntoView({behavior:"smooth"});}
+/* ---- hero: ONE number, ONE button, ONE away-line ---- */
+async function hero(){
+  const b=await api("/api/brief").catch(()=>null);
+  if(!b)return;
+  const h=b.headline||{value:"?",unit:"",label:""};
+  $("heroNum").innerHTML=esc(h.value)+` <small>${esc(h.unit||"")} ${esc(h.label||"")}</small>`;
+  $("heroSub").textContent="turn sites you visit into paid data";
+  $("awayLine").textContent=b.away_line||"";
+  // the single next action depends on state
+  let label="Get your key — 30 seconds", fn=()=>{openSec("secStart");$("sName").focus();};
+  const has=!!tok(), own=!!otok()&&OWNER;
+  if(own&&!OWNER.bearer_set){label="Paste the X key";fn=()=>{openSec("secOwner");$("oXKey").focus();};}
+  else if(own&&OWNER.queue.pending.length){const n=OWNER.queue.pending.length;label=`Approve next post (${n} wait)`;fn=approveNext;}
+  else if(has){
+    const m=await api(`/api/me?node_id=${encodeURIComponent(nid())}&token=${encodeURIComponent(tok())}`).catch(()=>null);
+    if(m&&!m.error&&m.tier==="free"&&(m.quota_left<=10||m.datasets_used>=m.datasets_limit)){label="Go Pro — $9/mo";fn=()=>openSec("secMoney");}
+    else{label="Invite a friend — both earn";fn=()=>openSec("secFriends");}
+  }
+  else if(own){label="Review auto-posts";fn=()=>openSec("secAuto");}
+  $("heroAct").textContent=label;HERO_FN=fn;
+  verdict("vStart",has?("Key ready · "+nid()):"No key yet — 30 seconds",has?"":"warn");
+}
+$("heroAct").onclick=()=>{if(HERO_FN)HERO_FN();};
+async function approveNext(){
+  if(!OWNER||!OWNER.queue.pending.length)return;
+  const p=OWNER.queue.pending[0];
+  const r=await post("/api/growth/approve",{id:p.id,owner_token:otok()});
+  if(r.j.ok){await loadOwner(true);await hero();await loadGrowth();}
+  else alert("approve failed: "+JSON.stringify(r.j));
+}
+/* ---- health/config ---- */
+async function health(){
+  try{
+  const h=await api("/api/health");CFG=await api("/api/config").catch(()=>({}));
+  $("health").textContent=`alive · ${h.records} rows · ${h.nodes} people`;
+  $("refRule").textContent=`${CFG.referral_pct??""}% of the commission on their rows`;
+  $("collectorUrl").value=location.origin;
+  const q=new URLSearchParams(location.search).get("ref");
+  if(q){$("sRef").value=q.toUpperCase();$("refNote").textContent=`friend code ${q.toUpperCase()} will be applied.`;ev("click:ref-"+q.toUpperCase().slice(0,16),q.toUpperCase().slice(0,16));}
+  if(nid())$("tNode").value=nid();
+  if(tok())$("tToken").value=tok();
+  refreshLocks();
+  }catch(err){$("health").textContent="offline -- retrying...";}
+}
+$("bSignup").onclick=async()=>{
+  const name=$("sName").value.trim();
+  const r=await post("/api/signup",{name,referral_code:$("sRef").value.trim()});
+  if(r.st===200){
+    LAST_TOKEN=r.j.token;
+    localStorage.setItem("sn_token",r.j.token);localStorage.setItem("sn_node",r.j.node_id);localStorage.setItem("sn_myref",r.j.referral_code);
+    $("tNode").value=r.j.node_id;$("tToken").value=r.j.token;
+    ev("signup",r.j.node_id);
+    $("signupOut").innerHTML=`<p>Welcome, <b>${esc(name)}</b>! your name on the hub: <code>${esc(r.j.node_id)}</code> · your friend code: <code>${esc(r.j.referral_code)}</code>${r.j.referred_by?` · joined via <code>${esc(r.j.referred_by)}</code>`:""}</p><div class="tok" id="tokOnce">${esc(r.j.token)}</div><p><button class="grn" id="bCopyToken">Copy key</button> <span class="mut">shown once — copy now, then it lives in this browser for locked buttons.</span></p><p class="mut">App address for the extension: <code>${esc(location.origin)}</code> · share datasets with <code>?ref=${esc(r.j.referral_code)}</code></p>`;
+    $("bCopyToken").onclick=e=>copyText(LAST_TOKEN,e.target);
+    refreshLocks();loadLeader();hero();
+  }else{$("signupOut").innerHTML=`<span class="mut">error: ${esc(JSON.stringify(r.j))}</span>`;}
+};
+$("dlExt").addEventListener("click",()=>ev("download","extension.zip"));
+/* ---- tables: STATUS pill | name | result | expandable details ---- */
+function pill(t,c){return `<span class="pill ${c||""}">${esc(t)}</span>`;}
+function det(inner){return `<details class="mini"><summary>details ▸</summary>${inner}</details>`;}
+let REC_ROWS=[];
+async function loadRecords(){
+  try{
+  const ds=$("fDataset").value,node=$("fNode").value.trim();
+  let q="/api/records?limit=30"+(ds?`&dataset=${encodeURIComponent(ds)}`:"")+(node?`&node_id=${encodeURIComponent(node)}`:"");
+  const rows=await api(q);REC_ROWS=rows;
+  const dsSet=[...new Set(rows.map(r=>r.dataset))];
+  const cur=$("fDataset").value;
+  $("fDataset").innerHTML='<option value="">all datasets</option>'+[...new Set([...dsSet,"product-prices","job-listings","crypto-prices"])].map(d=>`<option ${d===cur?"selected":""}>${esc(d)}</option>`).join("");
+  if(!rows.length){$("records").innerHTML='<span class="mut">no rows yet — send a test row below.</span>';verdict("vData","No rows yet","warn");return;}
+  verdict("vData",rows.length+" rows live","");
+  $("records").innerHTML=`<table class="t"><tr><th>Status</th><th>Name</th><th>Result</th><th></th></tr>${rows.map((r,i)=>{
+    const rec=r.record||{};const keys=Object.keys(rec);
+    const res=(rec.name||rec.title||rec.symbol||keys.map(k=>rec[k]).join(" ")+"").toString().slice(0,60);
+    return `<tr><td>${pill("SAVED","ok")}</td><td><b>${esc(r.dataset)}</b><br><span class="mut">${esc(r.node_id)} · ${esc((r.at||"").slice(5,19).replace("T"," "))}</span></td><td>${esc(res)}</td><td>${det(`<pre>${esc(JSON.stringify(rec,null,1)).slice(0,1200)}</pre><button data-act="retest" data-i="${i}">Try in recipe</button> <button data-act="republish" data-ds="${esc(r.dataset)}">Republish</button> <button data-act="copylink" data-ds="${esc(r.dataset)}">Copy link</button>`)}</td></tr>`;
+  }).join("")}</table>`;
+  }catch(err){const qm=quotaMsg(err);verdict("vData",qm?"Quota full -- sign in":"Records unavailable",qm?"warn":"bad");$("records").innerHTML="<span class=\"mut\">"+(qm||"records not ready ("+esc(err.message||err)+") -- the rest of this page still works.")+"</span>";}
+}
+/* ---- recipes + WHERE (workshop) ---- */
+let RECIPES=[],GEN_SCHEMA=[];
+function whereBadge(w){w=(w||"client").toLowerCase();return w==="client"?pill("CLIENT · browser","ok"):w==="server"?pill("SERVER · hub help","warn"):pill("BOTH","info");}
+async function loadRecipes(){
+  try{
+  RECIPES=await api("/api/recipes");
+  $("rPick").innerHTML=RECIPES.map(r=>`<option value="${esc(r.id)}">${esc(r.id)} → ${esc(r.dataset)} ${esc((r.where||"client").toUpperCase())}</option>`).join("");
+  pickRecipe();renderRecipeTable();
+  }catch(err){RECIPES=[];}
+}
+function renderRecipeTable(){
+  const host=$("recipeTable");if(host&&RECIPES.length){
+    host.innerHTML=`<table class="t"><tr><th>Status</th><th>Name</th><th>Result</th><th></th></tr>${RECIPES.map(r=>
+    `<tr><td>${whereBadge(r.where)}</td><td><b>${esc(r.id)}</b><br><span class="mut">${esc(r.name||"")}</span></td><td>${esc(r.dataset)} · ${(r.schema||[]).length} fields</td><td>${det(`<span class="mut">${esc(r.description||"")}</span><pre>${esc((r.fn||"").slice(0,600))}</pre><button data-act="userecipe" data-id="${esc(r.id)}">Load in editor</button> <button data-act="copy" data-text="${esc(r.id)}">Copy id</button>`)}</td></tr>`).join("")}</table>`;
+  }
+}
+function curWhere(){const el=document.querySelector('input[name="where"]:checked');return el?el.value:"client";}
+function pickRecipe(){
+  const r=RECIPES.find(x=>x.id===$("rPick").value)||RECIPES[0];
+  if(!r)return;
+  $("rFn").value=r.fn||"";$("rId").value=r.id;$("rName").value=r.name||"";$("rDataset").value=r.dataset||"";
+  $("rWhereBadge").innerHTML=whereBadge(r.where);
+  const w=(r.where||"client").toLowerCase();
+  document.querySelectorAll('input[name="where"]').forEach(x=>x.checked=(x.value===w));
+  renderRecipeTable();
+}
+function runTransform(){
+  const raw=JSON.parse($("rSample").value);
+  const fn=new Function("raw","ctx",`"use strict";const transform=(${$("rFn").value});return transform(raw,{url:"test",at:new Date().toISOString()});`);
+  return fn(raw,{});
+}
+$("bGenerate").onclick=async()=>{
+  $("genMsg").textContent="proposing…";
+  const r=await post("/api/generate",{html:$("gHtml").value,url:$("gUrl").value.trim(),name:$("gName").value.trim()||$("rName").value.trim(),dataset:$("rDataset").value.trim()});
+  if(r.j.ok){
+    const p=r.j.recipe;GEN_SCHEMA=p.schema||[];
+    $("rId").value=p.id;$("rName").value=p.name;$("rDataset").value=p.dataset;$("rFn").value=p.fn;
+    $("rWhereBadge").innerHTML=whereBadge("client");
+    document.querySelectorAll('input[name="where"]').forEach(x=>x.checked=(x.value==="client"));
+    $("rOut").textContent=`PROPOSED (${r.j.kind}): ${r.j.explanation}\nReview → Test → Save (needs key).`;
+    $("genMsg").textContent="proposal ready — review, test, save.";
+    ev("generate",r.j.kind);
+  }else{$("genMsg").textContent="error: "+JSON.stringify(r.j);$("rOut").textContent="generate error: "+JSON.stringify(r.j);}
+};
+$("bTest").onclick=()=>{try{$("rOut").textContent=JSON.stringify(runTransform(),null,1).slice(0,3000);}catch(e){$("rOut").textContent="ERROR: "+e;}};
+$("bSandbox").onclick=async()=>{
+  try{
+    const r=await post("/api/recipes/test",{fn:$("rFn").value});
+    $("rOut").textContent=(r.j.ok?"CHECK OK — ":"CHECK REJECTED — ")+r.j.note+"\nerrors: "+JSON.stringify(r.j.errors)+"\nwarnings: "+JSON.stringify(r.j.warnings);
+  }catch(e){$("rOut").textContent="ERROR: "+e;}
+};
+$("bRefine").onclick=async()=>{
+  try{
+    const sample=runTransform();
+    const r=await post("/api/refine",{sample,fn:$("rFn").value});
+    $("rOut").textContent=`quality ${r.j.quality_score} · copies ${r.j.dupes_removed}\n- ${r.j.suggestions.join("\n- ")}`;
+  }catch(e){$("rOut").textContent="ERROR: "+e;}
+};
+$("bSave").onclick=async()=>{
+  const id=$("rId").value.trim(),body={fn:$("rFn").value,where:curWhere(),node_id:$("tNode").value.trim(),token:$("tToken").value.trim()};
+  const exists=RECIPES.some(x=>x.id===id);
+  let r;
+  if(exists){
+    r=await fetch("/api/recipes?id="+encodeURIComponent(id),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(x=>x.json());
+  }else{
+    r=(await post("/api/recipes",{id,name:$("rName").value.trim()||id,dataset:$("rDataset").value.trim()||"default",schema:GEN_SCHEMA,fn:body.fn,where:body.where,node_id:body.node_id,token:body.token})).j;
+  }
+  $("rOut").textContent="saved "+JSON.stringify(r).slice(0,500);
+  loadRecipes();
+};
+/* ---- proof ---- */
+$("bProofCapture").onclick=async()=>{
+  const c=await api("/api/last-capture").catch(()=>null);
+  if(!c){$("proofOut").innerHTML='<span class="mut">no captures yet.</span>';return;}
+  markProof();ev("proof","last-capture");
+  $("proofOut").innerHTML=`<p>${pill(c.has_raw?"PAGE+ROW":"ROW","ok")} <b>${esc(c.dataset)}</b> <span class="mut">by ${esc(c.node_id)} · ${esc((c.at||"").slice(0,19))}</span></p><div class="cols"><div><h3>PAGE (what was seen)</h3><pre>${esc(JSON.stringify(c.raw??"(no page stored for this row)",null,1)).slice(0,2000)}</pre></div><div><h3>SAVED (the row)</h3><pre>${esc(JSON.stringify(c.record,null,1)).slice(0,2000)}</pre></div></div>`;
+};
+$("bProofPayout").onclick=async()=>{
+  const p=await api("/api/last-payout").catch(()=>null);
+  if(!p){$("proofOut").innerHTML='<span class="mut">no payouts yet.</span>';return;}
+  markProof();ev("proof","last-payout");
+  $("proofOut").innerHTML=`<p>${pill("PAYOUT","ok")} <b>${esc(p.node_id)}</b></p><div class="eq">${esc(p.equation)}</div><div class="mut">gross ${esc(p.gross)} · commission ${esc(p.commission)} · net ${esc(p.net)} ${esc(p.token)}</div>`;
+};
+/* ---- money / data / friends ---- */
+async function loadEarnings(){
+  try{
+  const e=await api("/api/earnings");
+  $("earn").innerHTML=`<div class="mut">payout ${esc(e.payout_per_record)} ${esc(e.token)}/row · commission ${esc(e.commission_pct)}% · ${esc(e.referral_pct)}% of commission goes to inviters</div>`+
+  (e.nodes.length?`<table class="t"><tr><th>Status</th><th>Name</th><th>Result</th><th></th></tr>${e.nodes.map(n=>`<tr><td>${n.net>0?pill("EARNING","ok"):pill("NEW","warn")}</td><td><b>${esc(n.node_id)}</b>${n.capped?" ⚠capped":""}<br><span class="mut">${esc(n.records)} rows</span></td><td><b>${esc(n.net)}</b> ${esc(e.token)}</td><td>${det(`${esc(n.billable_records)} × ${esc(e.payout_per_record)} − ${esc(e.commission_pct)}% = <b>${esc(n.net)}</b> ${esc(e.token)}<br><button data-act="copy" data-text="${esc(n.node_id)}">Copy name</button> <button data-act="filternode" data-node="${esc(n.node_id)}">View rows</button>`)}</td></tr>`).join("")}</table>
+  <div class="mut">totals: ${esc(e.totals.records)} rows → net ${esc(e.totals.net)} ${esc(e.token)} · friend-bonus paid ${esc(e.totals.referral_paid)}</div>`:'<span class="mut">no earnings yet</span>');
+  }catch(err){$("earn").innerHTML='<span class="mut">earnings not ready -- the rest of this page still works.</span>';}
+}
+async function loadPublished(){
+  try{
+  const p=await api("/api/published");
+  const ids=Object.keys(p);
+  const myref=localStorage.getItem("sn_myref")||"";
+  $("pubList").innerHTML=ids.length?ids.map(d=>`<span class="pill">${esc(d)}: <a href="/api/public/${encodeURIComponent(d)}">${esc(p[d].url_path)}</a> (${esc(p[d].count)}) · <a href="/dataset/${encodeURIComponent(d)}${myref?`?ref=${esc(myref)}`:""}">share page</a></span>`).join(""):"nothing published yet";
+  if(ids.length)verdict("vData",$("vData").textContent+" · "+ids.length+" live","");
+  }catch(err){$("pubList").innerHTML='<span class="mut">published list not ready -- the rest of this page still works.</span>';}
+}
+async function loadPlan(){
+  const T=(CFG.tiers||{}),free=T.free||{api_calls_per_day:100,datasets:1},pro=T.pro||{price_usd:9,api_calls_per_day:10000,datasets:50,note:""};
+  $("priceCard").innerHTML=`<b>Free:</b> ${esc(free.api_calls_per_day)}/day + ${esc(free.datasets)} dataset — $0<br><b>Pro $${esc(pro.price_usd)}/mo:</b> ${esc(pro.api_calls_per_day)}/day + ${esc(pro.datasets)} datasets<br><span class="mut">${esc(pro.note||"")}</span>`;
+  const n=nid(),t=tok();
+  if(!(n&&t)){$("quotaBar").innerHTML='<span class="mut">Get a key above — your live quota bar appears here.</span>';verdict("vMoney","Free · key needed","warn");return;}
+  const m=await api(`/api/me?node_id=${encodeURIComponent(n)}&token=${encodeURIComponent(t)}`).catch(()=>null);
+  if(!m||m.error){$("quotaBar").innerHTML='<span class="mut">quota unavailable.</span>';return;}
+  const pct=Math.min(100,Math.round(100*m.quota_used/Math.max(1,m.quota_limit)));
+  $("quotaBar").innerHTML=`<div><b>${esc(m.quota_used)}/${esc(m.quota_limit)} reads used — ${esc(m.quota_left)} left today</b> <span class="pill ${m.tier==="pro"?"ok":"info"}">${esc(m.tier.toUpperCase())}</span> <span class="mut">resets ${esc(m.resets_at)}</span></div><div style="background:#0d1117;border:1px solid var(--line);border-radius:8px;height:12px;margin-top:6px"><div style="width:${pct}%;height:100%;border-radius:8px;background:${pct>85?"var(--amb)":"var(--grn)"}"></div></div>${m.referral_credit?`<div class="mut">friend-bonus credit: ${esc(m.referral_credit)}</div>`:""}`;
+  verdict("vMoney",`${m.tier==="pro"?"Pro":"Free"} · ${m.quota_left} reads left today`,m.quota_left<=10?"warn":"");
+}
+$("bPro").onclick=async()=>{
+  if(!tok()){$("checkoutMsg").textContent="Get a key first — checkout needs it.";openSec("secStart");return;}
+  const r=await post("/api/checkout",{node_id:nid(),token:tok(),tier:"pro"});
+  if(r.j.checkout_url){$("checkoutMsg").innerHTML="";const a=document.createElement("a");a.href=r.j.checkout_url;a.target="_blank";a.rel="noopener";a.className="btn";a.textContent=r.j.status==="stripe"?"Pay with Stripe":"Activate ("+r.j.status+")";$("checkoutMsg").appendChild(a);$("checkoutMsg").appendChild(document.createTextNode(" "+(r.j.message||r.j.note||"")));}
+  else $("checkoutMsg").textContent="error: "+JSON.stringify(r.j);
+};
+async function loadLeader(){
+  try{
+  const l=await api("/api/leaderboard").catch(()=>null);
+  if(!l||!l.leaders||!l.leaders.length){$("leader").innerHTML='<span class="mut">no inviters yet — be the first: get a key, share a dataset page with ?ref=YOURCODE.</span>';verdict("vFriends","No inviters yet","warn");return;}
+  const tot=l.totals||{};
+  verdict("vFriends",`${tot.referrers??l.leaders.length} inviters · ${tot.referred_records??""} rows`,"");
+  $("leader").innerHTML=`<table class="t"><tr><th>Status</th><th>Name</th><th>Result</th><th></th></tr>${l.leaders.map((x,i)=>`<tr><td>${i===0?pill("#1 TOP","ok"):pill("INVITER","info")}</td><td><b>${esc(x.name||x.node_id)}</b><br><span class="mut">code <code>${esc(x.referral_code)}</code> · ${esc(x.referred_signups)} invited</span></td><td>${esc(x.referred_records)} rows · <b>${esc(x.referral_earnings)}</b> ${esc(CFG.payout_token_symbol||"")}</td><td>${det(`<button data-act="copyref" data-code="${esc(x.referral_code)}">Copy friend link</button>`)}</td></tr>`).join("")}</table>`;
+  }catch(err){$("leader").innerHTML='<span class="mut">leaderboard not ready -- the rest of this page still works.</span>';verdict("vFriends","Friends unavailable","warn");}
+}
+let IDEA_LIST=[];
+$("bIdeas").onclick=async()=>{
+  const r=await post("/api/ideas",{dataset:$("iDataset").value.trim()});
+  IDEA_LIST=r.j.ideas||[];
+  $("ideas").innerHTML=IDEA_LIST.map((x,i)=>`<div class="card"><b>${esc(i+1)}. ${esc(x.title)}</b><br>${esc(x.how)}<br><span class="mut">needs: ${esc(x.needs)}</span><br><button data-act="useidea" data-i="${i}">Use this idea</button></div>`).join("");
+};
+const GENFN_GENERIC="function transform(raw, ctx) {\n  const out = [];\n  const cards = raw.cards || (raw.items || []);\n  for (const c of cards) {\n    const title = (c.title || c.name || '').toString().trim();\n    if (!title) continue;\n    out.push({ title, url: c.url || ctx.url || '' });\n  }\n  return out;\n}";
+async function useIdea(i){
+  const idea=IDEA_LIST[i];if(!idea)return;
+  const ds=($("iDataset").value.trim()||"my-dataset").toLowerCase().replace(/[^a-z0-9._-]+/g,"-");
+  const scaf={id:ds+"-starter",name:idea.title,dataset:ds,schema:["title","url"],fn:GENFN_GENERIC,where:"client"};
+  if(tok()){
+    const r=await post("/api/recipes",{...scaf,node_id:$("tNode").value.trim(),token:$("tToken").value.trim()});
+    $("pDataset").value=ds;openSec("secData");
+    loadRecipes();
+  }else{
+    $("rId").value=scaf.id;$("rName").value=scaf.name;$("rDataset").value=scaf.dataset;$("rFn").value=scaf.fn;
+    document.querySelectorAll('input[name="where"]').forEach(x=>x.checked=(x.value==="client"));
+    $("rWhereBadge").innerHTML=whereBadge("client");
+    $("pDataset").value=ds;openSec("secStart");
+  }
+}
+/* ---- auto-posts ---- */
+function creds(){
+  if(otok())return {owner_token:otok()};
+  return {node_id:$("tNode").value.trim(),token:$("tToken").value.trim()};
+}
+async function loadGrowth(){
+  const host=$("growth");
+  const q=await api("/api/growth/queue").catch(()=>null);
+  const s=await api("/api/growth/stats").catch(()=>null);
+  if(!q||!s){host.innerHTML='<span class="mut">auto-posts not ready.</span>';return;}
+  $("growthBackend").textContent=s.channel+(s.auto_approve?" · auto-ok on":" · hand-approve");
+  const pend=(q.posts||[]).filter(p=>!p.approved&&!p.rejected&&!p.posted).length;
+  verdict("vAuto",`${s.posts_posted}/${s.posts_total} posted${pend?` · ${pend} wait`:""}`,pend?"warn":"");
+  const rows=(q.posts||[]).map(p=>`<tr><td>${p.posted?pill("POSTED","ok"):p.rejected?pill("PARKED","bad"):p.approved?pill("QUEUED","info"):pill("NEEDS OK","warn")}${p.source==="loop"?" "+pill("LOOP","warn"):""}</td><td><b>${esc(p.scheduled_for)}</b><br><span class="mut">${esc(p.template)} · ${esc(p.fact||"")}</span></td><td>${esc((p.text||"").slice(0,120))}…</td><td>${(!p.approved&&!p.posted)?`<button data-act="approve" data-id="${esc(p.id)}">OK</button>`:""}${(!p.rejected&&!p.posted)?` <button class="red" data-act="reject" data-id="${esc(p.id)}">Park</button>`:""}</td></tr>`).join("");
+  const last=s.last_post?`<p>${pill(s.last_post.backend==="x_api"?"POSTED":"WOULD POST",s.last_post.backend==="x_api"?"ok":"info")} <b>${esc(s.last_post.id||"")}</b> <span class="mut">via ${esc(s.last_post.backend||"")} · ${esc((s.last_post.at||"").slice(0,19))} · ${esc(s.last_post.status||"")}</span><br><span class="mut">${esc((s.last_post.text||"").slice(0,200))}</span></p>`:'<p class="mut">nothing posted yet.</p>';
+  host.innerHTML=`<p><b>${esc(s.posts_posted)}/${esc(s.posts_total)} posted</b> · next run: <b>${esc(s.next_run||"—")}</b> <span class="mut">(${esc(s.next_post_id||"none due")})</span></p>`+
+  `<p>${pill(s.growth_visits+" visits","info")} ${pill(s.growth_signups+" joins","ok")} ${pill(s.paid_net+" "+(s.paid_token||""),"ok")} <span class="mut">posts → visits → joins → paid${s.paywall_live?"":" · test-coins until real payments land"}</span></p>`+
+  last+
+  `<table class="t"><tr><th>Status</th><th>Day</th><th>Post</th><th></th></tr>${rows}</table>`;
+}
+async function loadGaps(){
+  const host=$("gaps");
+  const g=await api("/api/gaps").catch(()=>null);
+  if(!g){host.innerHTML='<span class="mut">gap list not ready.</span>';return;}
+  const rows=g.gaps||[];
+  verdict("vGaps",rows.length?rows.length+" open gap"+(rows.length>1?"s":""):"no gaps — publishes moving",rows.some(r=>r.priority==="high")?"warn":"");
+  host.innerHTML=rows.length?`<table class="t"><tr><th>When</th><th>Gap</th><th>Evidence</th></tr>${rows.slice().reverse().map(r=>`<tr><td><span class="mut">${esc((r.at||"").slice(5,16).replace("T"," "))}</span><br>${r.priority==="high"?pill("HIGH","bad"):pill("normal","info")} ${r.source==="e082-loop"?pill("LOOP","warn"):pill(esc(r.source||"?"),"")}</td><td><b>${esc(r.id||"")}</b><br>${esc(r.item||"")}</td><td><span class="mut">${esc((r.evidence||"").slice(0,160))}</span></td></tr>`).join("")}</table>`:'<span class="mut">No gaps filed — publishes are moving.</span>';
+}
+async function loadFunnel(){
+  const showBots=window._snShowBots===true;
+  const f=await api("/api/funnel"+(showBots?"?bots=1":"")).catch(()=>null);
+  if(!f){$("funnel").innerHTML='<span class="mut">no funnel data yet.</span>';return;}
+  const v=f.verdict||{level:"QUIET",line:"no verdict"};
+  const rows=f.stuck_sessions||[];
+  $("funnel").innerHTML=`<p><b>${esc(v.line)}</b></p><p>${pill(f.views+" views","info")} ${pill(f.downloads+" downloads","info")} ${pill(f.signups+" joins","ok")} ${pill(f.publishes+" publishes","ok")} ${rows.length?pill(rows.length+" stuck","warn"):pill("0 stuck","ok")}</p>`+
+  `<label class="mut"><input type="checkbox" id="fBots" ${showBots?"checked":""}> ${showBots?`bots shown (${esc(f.bots_total)})`:`show bots (${esc(f.bots_hidden)} hidden)`}</label>`+
+  (rows.length?`<div class="mut">Stuck (looked, clicked nothing for 45 s):<br>${rows.slice(0,20).map(r=>`<code>${esc(r.short||r.session)}${r.synthetic?" 🤖":""}</code>`).join(" ")}</div>`:'<div class="mut">Nobody stuck right now.</div>');
+  const cb=$("fBots");if(cb)cb.onchange=()=>{window._snShowBots=cb.checked;loadFunnel();};
+}
+/* ---- owner drawer ---- */
+$("bUnlock").onclick=()=>loadOwner(false);
+$("oToken").addEventListener("keydown",e=>{if(e.key==="Enter")loadOwner(false);});
+async function loadOwner(silent){
+  const t=$("oToken").value.trim()||otok();
+  if(!t){if(!silent)$("oLockMsg").textContent="Paste the master key from needs.json.";return;}
+  const r=await fetch("/api/owner/status?owner_token="+encodeURIComponent(t)).then(x=>x.json()).catch(()=>null);
+  if(!r||!r.ok){sessionStorage.removeItem("sn_owner");OWNER=null;$("ownerBody").style.display="none";verdict("vOwner","Owner — locked","lock");$("vOwner").textContent="Owner — locked";if(!silent)$("oLockMsg").textContent="Wrong key.";hero();return;}
+  sessionStorage.setItem("sn_owner",t);OWNER=r;
+  $("oToken").value="";$("oLockMsg").textContent="";$("ownerBody").style.display="";
+  const need=r.queue.pending.length+r.intents_pending.length+r.payouts_pending.filter(p=>p.status==="awaiting_manual_review").length;
+  const vo=$("vOwner");vo.textContent=need?need+" need you":"all clear";vo.className="verdict "+(need?"warn":"");
+  $("oStatus").textContent=`${r.channel} · X key ${r.bearer_set?"set":"missing"} · ${r.queue.posted}/${r.queue.total} posted · ${r.queue.pending.length} posts wait · ${r.intents_pending.length} payments wait · ${r.payouts_pending.length} bonuses tracked · Stripe ${r.stripe_set?"live":"off"}`;
+  $("oChannel").value=r.channel;$("oAuto").checked=r.auto_approve;
+  $("oFreeCalls").value=r.tiers.free.api_calls_per_day;$("oFreeDs").value=r.tiers.free.datasets;
+  $("oProPrice").value=r.tiers.pro.price_usd;$("oProCalls").value=r.tiers.pro.api_calls_per_day;$("oProDs").value=r.tiers.pro.datasets;
+  $("oQueue").innerHTML=r.queue.pending.length?`<table class="t"><tr><th>Day</th><th>Post</th><th></th></tr>${r.queue.pending.map(p=>`<tr><td><b>${esc(p.scheduled_for)}</b><br><span class="mut">${esc(p.template)}</span></td><td>${esc(p.text.slice(0,160))}…</td><td><button data-act="approve" data-id="${esc(p.id)}">OK</button> <button class="red" data-act="reject" data-id="${esc(p.id)}">Park</button></td></tr>`).join("")}</table>`:'<span class="mut">nothing waiting — queue is clear.</span>';
+  $("oOutbox").innerHTML=r.outbox.length?`<table class="t"><tr><th>When</th><th>What</th><th>Result</th></tr>${r.outbox.slice().reverse().map(o=>`<tr><td><span class="mut">${esc((o.at||"").slice(5,16).replace("T"," "))}</span></td><td>${esc((o.text||"").slice(0,140))}…</td><td>${pill(o.backend==="x_api"?"POSTED":o.status==="selftest"?"TEST":"LOGGED",o.backend==="x_api"?"ok":"info")}<br><span class="mut">${esc(o.status)}</span></td></tr>`).join("")}</table>`:'<span class="mut">tray empty.</span>';
+  $("oIntents").innerHTML=r.intents_pending.length?`<table class="t"><tr><th>Who</th><th>Wants</th><th></th></tr>${r.intents_pending.map(x=>`<tr><td><b>${esc(x.node_id)}</b><br><span class="mut">${esc(x.at||"")} · ${esc(x.provider||"")}</span></td><td>${esc(x.tier)} ($${esc(x.price_usd??"")})</td><td><button data-act="intent-ok" data-i="${x.index}">Approve</button> <button class="red" data-act="intent-no" data-i="${x.index}">Reject</button></td></tr>`).join("")}</table>`:'<span class="mut">no payments waiting.</span>';
+  $("oPayouts").innerHTML=r.payouts_pending.length?`<table class="t"><tr><th>Who</th><th>Credit</th><th></th></tr>${r.payouts_pending.map(x=>`<tr><td><b>${esc(x.name||x.node_id)}</b><br><span class="mut"><code>${esc(x.code)}</code> · ${esc(x.status)}</span></td><td><b>${esc(x.credit)}</b> ${esc(x.token||"")}</td><td>${x.status==="awaiting_manual_review"?`<button data-act="payout-ok" data-r="${esc(x.node_id)}">Approve</button> <button class="red" data-act="payout-no" data-r="${esc(x.node_id)}">Reject</button>`:'<span class="mut">decided</span>'}</td></tr>`).join("")}</table><p class="mut">Approve = you pay the wallet on file by hand, then it shows paid. Threshold: ${esc(r.payout_threshold)}.</p>`:'<span class="mut">no bonus credit yet.</span>';
+  hero();
+}
+$("bSaveX").onclick=async()=>{
+  const body={owner_token:otok(),growth_channel:$("oChannel").value,growth_auto_approve:$("oAuto").checked};
+  const xk=$("oXKey").value.trim();
+  if(xk){
+    const k=await post("/api/owner/keys",{owner_token:otok(),x_bearer_token:xk});
+    if(!k.j.ok){$("oXMsg").textContent="key save failed: "+JSON.stringify(k.j);return;}
+    $("oXKey").value="";
+  }
+  const r=await post("/api/owner/config",body);
+  $("oXMsg").textContent=r.j.ok?("saved — channel "+r.j.growth_channel+(r.j.warning?" · ⚠ "+r.j.warning:"")):("error: "+JSON.stringify(r.j));
+  loadOwner(true);loadGrowth();
+};
+$("bSelfTest").onclick=async()=>{
+  const r=await post("/api/owner/growth/test",{owner_token:otok()});
+  $("oTestOut").textContent=r.j.ok?("WOULD POST ("+r.j.backend+"): "+(r.j.text||"").slice(0,200)):("error: "+JSON.stringify(r.j));
+  loadOwner(true);
+};
+$("bSaveDeal").onclick=async()=>{
+  const tiers={free:{api_calls_per_day:+$("oFreeCalls").value,datasets:+$("oFreeDs").value},
+    pro:{price_usd:+$("oProPrice").value,api_calls_per_day:+$("oProCalls").value,datasets:+$("oProDs").value}};
+  const keys={owner_token:otok()};
+  const sk=$("oStripeKey")?$("oStripeKey").value.trim():"", wh=$("oStripeWh")?$("oStripeWh").value.trim():"";
+  const r=await post("/api/owner/config",{...keys,tiers});
+  if(sk||wh){
+    const kk={owner_token:otok()};
+    if(sk)kk.stripe_secret=sk; if(wh)kk.stripe_webhook_secret=wh;
+    const k2=await post("/api/owner/keys",kk);
+    if(!k2.j.ok){$("oDealMsg").textContent="stripe save failed: "+JSON.stringify(k2.j);return;}
+    if($("oStripeKey"))$("oStripeKey").value=""; if($("oStripeWh"))$("oStripeWh").value="";
+  }
+  $("oDealMsg").textContent=r.j.ok?("live now — Free "+r.j.tiers.free.api_calls_per_day+"/day, Pro $"+r.j.tiers.pro.price_usd):("error: "+JSON.stringify(r.j));
+  loadOwner(true);loadPlan();
+};
+/* ---- row actions ---- */
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.dataset.act;
+  if(act==="approve"||act==="reject"){
+    const ep=act==="approve"?"/api/growth/approve":"/api/growth/reject";
+    const r=await post(ep,{id:b.dataset.id,...creds()});
+    if(r.j.ok){loadGrowth();if(OWNER)loadOwner(true);}
+    else alert(act+" failed: "+JSON.stringify(r.j));return;
+  }
+  if(act==="intent-ok"||act==="intent-no"){
+    const r=await post("/api/owner/intents/decide",{owner_token:otok(),index:+b.dataset.i,approve:act==="intent-ok"});
+    if(r.j.ok)loadOwner(true);else alert("decision failed: "+JSON.stringify(r.j));return;
+  }
+  if(act==="payout-ok"||act==="payout-no"){
+    const r=await post("/api/owner/payouts/decide",{owner_token:otok(),referrer:b.dataset.r,approve:act==="payout-ok"});
+    if(r.j.ok)loadOwner(true);else alert("decision failed: "+JSON.stringify(r.j));return;
+  }
+  if(act==="copy")copyText(b.dataset.text||"",b);
+  else if(act==="copylink")copyText(location.origin+"/dataset/"+b.dataset.ds,b);
+  else if(act==="copyref")copyText(location.origin+"/?ref="+b.dataset.code,b);
+  else if(act==="republish"){$("pDataset").value=b.dataset.ds||"";openSec("secData");}
+  else if(act==="retest"){const r=REC_ROWS[+b.dataset.i];if(r){$("rSample").value=JSON.stringify(r.record);openSec("secWorkshop");$("rOut").textContent="Row loaded as sample — hit Test shape.";}}
+  else if(act==="filternode"){$("fNode").value=b.dataset.node||"";openSec("secData");loadRecords();}
+  else if(act==="userecipe"){const r=RECIPES.find(x=>x.id===b.dataset.id);if(r){$("rPick").value=r.id;pickRecipe();}}
+  else if(act==="useidea")useIdea(+b.dataset.i);
+});
+$("bRefresh").onclick=loadRecords;
+$("rPick").onchange=pickRecipe;
+$("bIngest").onclick=async()=>{
+  try{
+    const rec=JSON.parse($("tRecord").value);
+    const r=await post("/api/ingest",{node_id:$("tNode").value.trim()||"node-demo-1",token:$("tToken").value.trim(),dataset:$("tDataset").value,records:[rec]});
+    $("ingestMsg").textContent=r.j.ok?`saved ${r.j.accepted}`:("error: "+JSON.stringify(r.j));
+    loadRecords();loadEarnings();
+  }catch(e){$("ingestMsg").textContent="ERROR: "+e;}
+};
+$("bPublish").onclick=async()=>{
+  const r=await post("/api/publish",{dataset:$("pDataset").value.trim(),node_id:$("tNode").value.trim(),token:$("tToken").value.trim()});
+  if(r.j.ok)ev("publish",$("pDataset").value.trim());
+  loadPublished();loadFunnel();
+  $("pubList").innerHTML=(r.j.ok?`published → <a href="${esc(r.j.url_path)}">${esc(r.j.url_path)}</a> (${esc(r.j.count)} rows) · <a href="/dataset/${encodeURIComponent($("pDataset").value.trim())}">share page</a>`:"error: "+esc(JSON.stringify(r.j)))+"<br>"+$("pubList").innerHTML;
+};
+$("fDataset").onchange=loadRecords;
+async function refresh(){await step(health);await step(hero);await step(loadPlan);await step(loadRecords);await step(loadEarnings);await step(loadPublished);await step(loadLeader);await step(loadGrowth);await step(loadGaps);await step(loadFunnel);if(otok())await step(()=>loadOwner(true));}
+$("bIdeas").click();
+loadRecipes();refresh();setInterval(refresh,15000);
+</script>
+</body></html>

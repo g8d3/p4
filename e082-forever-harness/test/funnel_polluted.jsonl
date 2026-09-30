@@ -1,0 +1,12 @@
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "check-1790700111", "ts": 1, "v": 1}
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "growth-probe", "ts": 0, "v": 1}
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "check-1790700460", "ts": 1, "v": 1}
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "check-1790700520", "ts": 1, "v": 1}
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "check-1790707110", "ts": 1, "v": 1}
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "check-1790707172", "ts": 1, "v": 1}
+{"detail": "", "event": "page_view", "ms": null, "page": "/", "session": "check-1790707213", "ts": 1, "v": 1}
+{"detail": "none", "event": "idle_45s", "ms": null, "page": "/", "session": "20b42ab878d015edd4866e7c39e6190c", "ts": 1790700362000, "v": 1}
+{"detail": "first paint", "event": "page_view", "ms": 45, "page": "/", "session": "1d642bebffd224d7a3903836568a6f27", "ts": 1790700258740, "v": 1}
+{"detail": "first paint", "event": "page_view", "ms": 63, "page": "/", "session": "41c4f1d749428467cffdfb7004ee65a2", "ts": 1790700138450, "v": 1}
+{"detail": "", "event": "click:btn-proof-last", "ms": null, "page": "/", "session": "41c4f1d749428467cffdfb7004ee65a2", "ts": 1790700153602, "v": 1}
+{"detail": "proof expanded", "event": "first_proof_seen", "ms": null, "page": "/", "session": "41c4f1d749428467cffdfb7004ee65a2", "ts": 1790700153603, "v": 1}

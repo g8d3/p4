@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forever Harness — a keep-going loop for agents</title>
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,sans-serif;margin:0;background:#0f1115;color:#e8eaf0}
+main{max-width:640px;margin:0 auto;padding:12px}
+h1{font-size:1.4rem;margin:.4em 0}h2{font-size:1rem;margin:.2em 0;color:#9fb4ff;display:inline}
+.card{background:#171b24;border:1px solid #2a3142;border-radius:10px;padding:12px;margin:8px 0}
+.hero{border-color:#3b6fe0;text-align:center}
+.hero p.tag{font-size:1rem;margin:.3em 0}
+#calm-status{font-size:1.05rem;margin:.4em 0}
+#calm-critic{font-size:.9rem;margin:.3em 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-weight:700;font-size:.85rem}
+.on{background:#1d5c34}.off{background:#5c2a1d}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button{flex:1;min-width:100px;padding:12px;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+.start{background:#2ea86a;color:#fff}.stop{background:#c0492f;color:#fff}.tick{background:#3b6fe0;color:#fff}.ghost{background:#2a3142;color:#fff;flex:1}
+button.sm{padding:8px;font-size:.85rem;min-width:80px}
+bar{display:block;height:10px;background:#2a3142;border-radius:6px;overflow:hidden;margin-top:6px}
+bar>i{display:block;height:100%;background:#2ea86a}
+input,select,textarea{width:100%;padding:8px;margin:3px 0;border-radius:6px;border:1px solid #2a3142;background:#0f1115;color:#e8eaf0;font:inherit}
+textarea{min-height:3.2em;resize:vertical}
+label{font-size:.8rem;color:#9fb4ff}
+.mut{color:#8a93a8;font-size:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{color:#9fb4ff;text-align:left;font-size:.75rem;padding:4px 6px;border-bottom:1px solid #2a3142}
+td{padding:5px 6px;border-bottom:1px solid #1e2330;vertical-align:top}
+.pill{display:inline-block;padding:1px 9px;border-radius:12px;font-weight:700;font-size:.75rem;white-space:nowrap}
+.pill.pass{background:#1d5c34;color:#bdf0cd}.pill.fail{background:#5c2a1d;color:#ffc9b5}
+.one{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details{font-size:.85rem}details summary{cursor:pointer;color:#9fb4ff;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary:before{content:"▸ ";color:#9fb4ff}
+details[open] summary:before{content:"▾ "}
+.v{display:block;color:#c6cede;font-size:.85rem;margin-top:2px}
+pre{background:#0f1115;border:1px solid #2a3142;border-radius:6px;padding:8px;font-size:.75rem;overflow-x:auto;white-space:pre-wrap}
+a{color:#9fb4ff}
+.sugg{display:block;width:100%;text-align:left;margin:4px 0;background:#232a3d;color:#e8eaf0;font-weight:400;font-size:.85rem}
+.tokshow{background:#0f1115;border:1px dashed #3b6fe0;border-radius:6px;padding:8px;font-size:.8rem;word-break:break-all;margin-top:8px}
+.probe{display:flex;gap:8px;align-items:baseline;padding:3px 0;font-size:.85rem}
+.verdict{font-weight:800;font-size:.95rem;padding:8px;border-radius:8px;margin:6px 0}
+.verdict.NOISE{background:#4a3a12;color:#ffd97a}
+.verdict.FAILING{background:#5c2a1d;color:#ffc9b5}
+.verdict.HEALTHY{background:#1d5c34;color:#bdf0cd}
+.verdict.QUIET,.verdict.WATCH,.verdict.UNKNOWN{background:#2a3142;color:#c6cede}
+.nowrap{white-space:nowrap}
+.stuckrow{display:flex;gap:8px;align-items:baseline;padding:4px 0;font-size:.85rem;border-bottom:1px solid #1e2330}
+.stuckrow .id{font-weight:700;overflow-wrap:anywhere}
+.stuckrow .meta{color:#8a93a8;font-size:.78rem}
+.stuckrow .spacer{flex:1}
+button.dismiss{flex:0 0 auto;min-width:0;padding:4px 10px;font-size:.75rem;background:#2a3142;color:#c6cede}
+label.toggle{display:flex;gap:6px;align-items:center;font-size:.85rem;color:#c6cede}
+label.toggle input{width:auto}
+.gloss{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.82rem;margin-top:6px}
+.gloss b{color:#9fb4ff;white-space:nowrap}
+</style>
+</head>
+<body>
+<main>
+<!-- CALM HERO: one status line, one button, one critic line. Everything else lives below, collapsed. -->
+<section class="card hero">
+<h1>♾️ Forever Harness</h1>
+<p>This page is the engine room: an AI worker that runs forever without breaking. Here is its live pulse:</p>
+<p id="calm-status">Live pulse: cycle and quality load here in seconds — no key needed to look.</p>
+<div class="row"><button class="tick" id="btn-hero" onclick="hero()">🔍 Show what it did</button></div>
+<p class="mut" id="calm-critic">Critic verdict appears here.</p>
+<p class="mut" id="calm-hint">Nothing to operate here — operators: <a href="#d-install">plugin install below</a>.</p>
+</section>
+
+<!-- DEMO LOOP -->
+<details class="card" id="d-demo">
+<summary><h2>▶ Demo loop — yours to drive</h2><span class="v" id="demo-verdict">loading…</span></summary>
+<div>
+<p class="mut">This board's own loop ticks every 60s — already running below. Stop it, tick it, verify it.</p>
+<div class="row">
+<button class="stop" id="btn-stop" onclick="ctl('stop')">■ Stop</button>
+<button class="tick" id="btn-tick" onclick="tick()">⏭ Tick</button>
+<button class="ghost" id="btn-verify" onclick="verify()">Verify now</button>
+<button class="ghost" id="btn-refresh" onclick="load()">Refresh</button>
+</div>
+<div class="row"><button class="start" id="btn-start" onclick="ctl('start')">▶ Start</button></div>
+<label>Stop reason (optional) <textarea id="stop_reason" placeholder="e.g. pausing for the night"></textarea></label>
+<p class="mut" id="ctlmsg"></p>
+<p class="mut" id="lockmsg"></p>
+</div>
+</details>
+
+<!-- PROOF -->
+<details class="card" id="d-proof">
+<summary><h2>🔍 Proof — what it actually did</h2><span class="v" id="proof-verdict">loading…</span></summary>
+<div id="proofcard">
+<p class="mut">Every tick leaves a receipt. Tick costs are <b>simulated</b> — no real money moves.</p>
+<div class="row">
+<button class="tick" id="btn-proof-last" onclick="toggleLast()">Show last tick's work</button>
+<button class="ghost" id="btn-proof-5" onclick="toggleFive()">Show last 5 ticks</button>
+</div>
+<div id="proofdetail" class="mut">collapsed — expand to see the receipts.</div>
+</div>
+</details>
+
+<!-- TOKEN -->
+<details class="card" id="d-token">
+<summary><h2>🔑 Token — your key</h2><span class="v" id="token-verdict">loading…</span></summary>
+<div>
+<p class="mut">One tap makes a key for this browser. It unlocks Start / Stop / Tick / Save / Stress.</p>
+<div class="row">
+<button class="tick" id="btn-token" onclick="mintToken()">Get token</button>
+<button class="ghost" id="btn-token-copy" onclick="copyToken()">Copy</button>
+<button class="ghost" id="btn-token-check" onclick="checkAuth()">Check token</button>
+</div>
+<div id="tokshow"></div>
+<label>Token <input id="tok" type="password" placeholder="paste token here — Get token fills this for you" oninput="saveTok()"></label>
+<p class="mut" id="tokmsg"></p>
+</div>
+</details>
+
+<!-- BACKLOG -->
+<details class="card" id="d-backlog">
+<summary><h2>🎯 To-do list — real open items</h2><span class="v" id="backlog-verdict">loading…</span></summary>
+<div id="backlogcard">
+<p class="mut">Each tick works the top item and attaches proof. A tick with no proof fails.</p>
+<div id="backlog">loading…</div>
+</div>
+</details>
+
+<!-- POLICY: presets first, raw numbers under Advanced -->
+<details class="card" id="d-policy">
+<summary><h2>🎯 Instructions — pick a style</h2><span class="v" id="policy-verdict">loading…</span></summary>
+<div>
+<p class="mut">Pick a style, or take a suggestion. The numbers underneath are optional.</p>
+<label>Goal <textarea id="p_goal" placeholder="press Suggest — the server drafts 3 goals from live history"></textarea></label>
+<div class="row">
+<button class="ghost sm" id="btn-suggest" onclick="suggest()">✨ Suggest</button>
+<button class="ghost sm" id="btn-preset-cautious" onclick="preset('cautious')">Cautious</button>
+<button class="ghost sm" id="btn-preset-normal" onclick="preset('normal')">Normal</button>
+<button class="ghost sm" id="btn-preset-forever" onclick="preset('forever')">♾️ Forever</button>
+</div>
+<div id="suggestions"></div>
+<details id="d-advanced">
+<summary>Advanced — raw numbers</summary>
+<div>
+<div class="row"><button class="ghost sm" id="btn-preset-aggressive" onclick="preset('aggressive')">Aggressive numbers</button></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 8px">
+<label>Max cycles (0 or blank = ∞, never stops) <input id="p_max_cycles" type="number" min="0"></label>
+<label>Health floor (quality under this stops the loop) <input id="p_quality_floor" type="number" min="0" max="100"></label>
+<label>Budget (USD, simulated) <input id="p_budget_credits" type="number" step="0.1" min="0.1"></label>
+<label>Biggest change per tick (lines) <input id="p_diff_cap_lines" type="number" min="1"></label>
+<label>Save a moment every N ticks <input id="p_checkpoint_every" type="number" min="1"></label>
+<label>Stop on health breach? <select id="p_stop_on_quality_breach"><option value="true">yes</option><option value="false">no</option></select></label>
+</div>
+<label>Stop when money runs out? <select id="p_stop_on_budget"><option value="true">yes</option><option value="false">no</option></select></label>
+</div>
+</details>
+<div class="row"><button class="tick" id="btn-save" onclick="savePolicy()">Save instructions</button></div>
+<p class="mut" id="pmsg"></p>
+</div>
+</details>
+
+<!-- GATES -->
+<details class="card" id="d-gates">
+<summary><h2>🚦 Safety checks — did it pass?</h2><span class="v" id="gate-verdict">loading…</span></summary>
+<div>
+<p class="mut">8 checks per tick. Health = 100 − 15 × failed checks.</p>
+<table><thead><tr><th>STATUS</th><th>CHECK</th><th>RESULT</th><th></th></tr></thead>
+<tbody id="gates"><tr><td colspan="4">—</td></tr></tbody></table>
+</div>
+</details>
+
+<!-- CHECKPOINTS -->
+<details class="card" id="d-cps">
+<summary><h2>📦 Saved moments — rewind points</h2><span class="v" id="cp-verdict">loading…</span></summary>
+<div>
+<p class="mut">Saved moments can be rewound to. Tidied ones are summaries only.</p>
+<table><thead><tr><th>SAVED</th><th>SUMMARY</th><th></th></tr></thead>
+<tbody id="cps"><tr><td colspan="3">—</td></tr></tbody></table>
+</div>
+</details>
+
+<!-- STRESS -->
+<details class="card" id="d-stress">
+<summary><h2>🧨 Attack test — we break in so strangers can't</h2><span class="v" id="stress-verdict">not run yet — press the button inside.</span></summary>
+<div>
+<p class="mut">Bad inputs, starvation, floods + real aggressive ticks. Watch it hold.</p>
+<div class="row"><button class="stop" id="btn-stress" onclick="stress()">🧨 Stress test</button></div>
+<div id="score">not run yet — press the button.</div>
+</div>
+</details>
+
+<!-- VISITORS -->
+<details class="card" id="d-visitors">
+<summary><h2>🐾 Visitors — is this fine?</h2><span class="v" id="visitors-verdict">loading…</span></summary>
+<div>
+<div id="fverdict" class="verdict QUIET">loading verdict…</div>
+<p class="mut" id="fcounts">loading…</p>
+<label class="toggle"><input type="checkbox" id="showbots" onchange="load()"> <span id="botlabel">show bots</span></label>
+<div id="stuck">loading…</div>
+<div id="dismissed" class="mut"></div>
+</div>
+</details>
+
+<!-- OWNER (master key only) -->
+<details class="card" id="d-owner">
+<summary><h2>🔐 Owner — master key only</h2><span class="v" id="owner-verdict">loading…</span></summary>
+<div id="ownercard">
+<p class="mut">Dangerous flips live here: how long it runs, who may mint keys, when alarms trip. Needs the master key from needs.json — browser keys can't open this.</p>
+<div class="row">
+<button class="ghost sm" id="btn-forever-on" onclick="forever(true)">♾️ Run forever</button>
+<button class="ghost sm" id="btn-forever-cap" onclick="forever(false)">Cap at 1,000</button>
+</div>
+<div class="row">
+<button class="ghost sm" id="btn-mint-on" onclick="mintFlip(true)">Guest keys: on</button>
+<button class="ghost sm" id="btn-mint-off" onclick="mintFlip(false)">Guest keys: off</button>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 8px">
+<label>Visits before judging <input id="o_funnel_min_visits" type="number" min="1" max="1000"></label>
+<label>Download alarm level (0–1) <input id="o_funnel_download_alarm_ratio" type="number" step="0.01" min="0" max="1"></label>
+<label>Robot-noise level (0–1) <input id="o_funnel_bot_noise_ratio" type="number" step="0.01" min="0" max="1"></label>
+<label>Proof-healthy level (0–1) <input id="o_funnel_proof_healthy_ratio" type="number" step="0.01" min="0" max="1"></label>
+<label>Failing ticks before critic rejects <input id="o_funnel_critic_fail_streak" type="number" min="1" max="100"></label>
+<label>Human visits needed to judge <input id="o_min_human_sessions" type="number" min="1" max="100"></label>
+<label>Live ticks per attack test <input id="o_stress_max_ticks" type="number" min="0" max="5"></label>
+</div>
+<div class="row"><button class="tick" id="btn-owner-save" onclick="ownerSave()">Save owner settings</button></div>
+<p class="mut" id="omsg"></p>
+</div>
+</details>
+
+<!-- PLAIN WORDS -->
+<details class="card" id="d-words">
+<summary><h2>📖 Plain words — what the jargon means</h2><span class="v">one line each, no manual.</span></summary>
+<div class="gloss">
+<b>checkpoint</b><span>saved moment you can rewind to.</span>
+<b>compaction</b><span>tidying memory: old ticks folded into one summary.</span>
+<b>critic</b><span>second checker that tries to reject every tick.</span>
+<b>evidence</b><span>proof of real work attached to each tick.</span>
+<b>gates</b><span>safety checks each tick must pass.</span>
+<b>ledger</b><span>spend log: every tick's simulated cost.</span>
+<b>heartbeat</b><span>the loop's pulse; a stale pulse means stuck.</span>
+<b>policy</b><span>your instructions to the loop.</span>
+<b>quality</b><span>health score: 100 minus 15 per failed check.</span>
+<b>restore</b><span>rewind to a saved moment (adds, never rewrites).</span>
+<b>stress test</b><span>attack test we run against ourselves.</span>
+<b>visitors</b><span>visit counts: who came, who got stuck.</span>
+<b>backlog</b><span>to-do list the loop works through.</span>
+<b>mint</b><span>make a key (token).</span>
+<b>threshold</b><span>trip point where a verdict flips.</span>
+<b>bot</b><span>robot visit (our own tests), hidden by default.</span>
+<b>forever</b><span>never stops on tick count (money can still stop it).</span>
+</div>
+</details>
+
+<!-- PLUGIN -->
+<details class="card" id="d-install">
+<summary><h2 id="install">🔌 Done with the demo? Connect YOUR setup</h2><span class="v">same loop as a plugin for pi / opencode — the demo above needed none of this.</span></summary>
+<div>
+<div class="row"><a href="/download/plugin.zip" id="btn-dl" style="flex:1;text-decoration:none"><button class="tick" id="btn-dl-b" style="width:100%">⬇ Download plugin.zip</button></a></div>
+<p><b>pi</b>:</p>
+<pre id="pi_snip">export FOREVER_HARNESS_URL="YOUR-HARNESS-URL" FOREVER_HARNESS_TOKEN="PASTE_TOKEN"
+curl -s "$FOREVER_HARNESS_URL/api/policy" | head -c 300; echo
+bash plugin/hooks/keep-going.sh tick pi</pre>
+<div class="row"><button class="ghost sm" id="btn-copy-pi" onclick="copySnip('pi_snip')">Copy pi snippet</button></div>
+<p><b>opencode</b>:</p>
+<pre id="oc_snip">export FOREVER_HARNESS_URL="YOUR-HARNESS-URL" FOREVER_HARNESS_TOKEN="PASTE_TOKEN"
+curl -s -o /tmp/kh-plugin.zip "$FOREVER_HARNESS_URL/download/plugin.zip" &amp;&amp; unzip -o /tmp/kh-plugin.zip -d ~/.config/opencode/keep-going
+bash ~/.config/opencode/keep-going/plugin/hooks/keep-going.sh tick opencode</pre>
+<div class="row"><button class="ghost sm" id="btn-copy-oc" onclick="copySnip('oc_snip')">Copy opencode snippet</button></div>
+<p class="mut">Agent instructions: <a href="/skill">SKILL doc</a> · <a href="/share">share page</a> · <a href="/api/proof">proof JSON</a></p>
+</div>
+</details>
+
+<p class="mut">This page counts visits, taps and stalls under a random id — no IPs stored, no cookies. Live counts: <a href="/api/funnel">/api/funnel</a>.<br>
+API: /api/health /api/policy /api/status /api/control/* /api/verify /api/proof /api/funnel /api/suggest-goals /api/last-tick /api/ticks /api/stress /api/restore /api/review /api/backlog /api/owner/settings.</p>
+</main>
+<script>
+/* telemetry: tiny inline snippet, stdlib-friendly endpoint.
+   AGENT CONVENTION 2026-09-29: driven browsers MUST self-identify via
+   ?agent=<name> (saved to localStorage, sent as agent:<name> on every
+   event). Server tags synthetic:true — hidden from human counts, auditable
+   under ?bots=1. See BROWSER-CAPABILITY.md. */
+var sid=localStorage.getItem('fh_sid');if(!sid){try{sid=Array.from(crypto.getRandomValues(new Uint8Array(16))).map(function(b){return b.toString(16).padStart(2,'0')}).join('')}catch(e){sid='s'+Math.random().toString(16).slice(2)+Date.now().toString(16)}localStorage.setItem('fh_sid',sid)}
+var agentM=/[?&]agent=([A-Za-z0-9_.-]{1,64})/.exec(location.search);var AGENT=agentM?agentM[1]:(localStorage.getItem('fh_agent')||'');if(agentM){try{localStorage.setItem('fh_agent',AGENT)}catch(e){}}
+var t0=performance.now(),proofSeen=false,idleFired=false,idleT=null;
+function ev(event,detail,ms){try{var b=JSON.stringify({v:1,session:sid,ts:Date.now(),page:location.pathname,event:event,detail:detail||'',ms:(ms==null?null:ms),agent:(AGENT||undefined)});if(navigator.sendBeacon)navigator.sendBeacon('/api/events',b);else fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:b,keepalive:true})}catch(e){}}
+function armIdle(){clearTimeout(idleT);if(idleFired)return;idleT=setTimeout(function(){idleFired=true;ev('idle_45s',lastAct||'')},45000)}
+var lastAct='';['pointerdown','keydown'].forEach(function(t){document.addEventListener(t,function(){lastAct=t;armIdle()},{passive:true})});
+window.onerror=function(m){ev('js_error',String(m).slice(0,200))};
+window.onunhandledrejection=function(e){ev('js_error',String((e&&e.reason)||e).slice(0,200))};
+document.addEventListener('click',function(e){var b=e.target.closest('button');if(b&&(b.id||b.dataset.ev))ev('click:'+(b.id||b.dataset.ev),'');var a=e.target.closest('a#btn-dl');if(a)ev('download','plugin.zip');var s=e.target.closest('details.card>summary');if(s)ev('click:drawer','')});
+/* board */
+function tok(){return localStorage.getItem('fh_token')||''}
+function authH(){var t=tok();return t?{'Authorization':'Bearer '+t}:{}}
+async function j(u,o){o=o||{};o.headers=Object.assign({'Content-Type':'application/json'},authH(),o.headers||{});
+ const r=await fetch(u,o);var t;try{t=await r.json()}catch(e){t={error:'bad response '+r.status}}if(!r.ok)throw new Error(t.error||r.status);return t}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function escA(s){return esc(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function plain(msg){msg=String(msg||'');
+ if(/unauthorized/i.test(msg))return '🔒 Needs a key — press Get token, paste it in the Token field, then try again.';
+ if(/owner-only/i.test(msg))return '🔒 Master key needed — paste the master TOKEN from needs.json into the Token field. Browser keys cannot do this.';
+ return msg}
+function gate(){var ok=!!tok();['btn-start','btn-stop','btn-tick','btn-save','btn-stress','btn-hero'].forEach(function(id){var el=document.getElementById(id);if(el){if(id==='btn-hero'){el.disabled=false;el.title=ok?'':'works — key needed only to start, not to look'}else{el.disabled=!ok;el.title=ok?'':'needs token — Get token'}}});
+ document.querySelectorAll('[data-restore]').forEach(function(el){el.disabled=!ok;el.title=ok?'':'needs token — Get token'});
+ document.getElementById('lockmsg').textContent=ok?'':'🔒 Start / Stop / Tick / Save need a key — press Get token (one tap, free)';
+ document.getElementById('token-verdict').textContent=ok?'key saved ✓ — locked buttons are open':'no key yet — Get token makes one for this browser'}
+function saveTok(){localStorage.setItem('fh_token',document.getElementById('tok').value.trim());gate();document.getElementById('tokmsg').textContent=tok()?'key saved ✓ — locked buttons are open':'key cleared — locked buttons need Get token'}
+async function checkAuth(){try{var a=await j('/api/auth');document.getElementById('tokmsg').textContent=a.ok?'key valid ✓':'key invalid ✗ — Get token makes a fresh one'}catch(e){document.getElementById('tokmsg').textContent='error: '+plain(e.message)}}
+async function mintToken(){try{var r=await fetch('/api/token/mint',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session:sid})});var d=await r.json();if(!r.ok)throw new Error(d.error||r.status);
+ document.getElementById('tokshow').innerHTML='<div class="tokshow"><b>your key (shown once):</b> '+esc(d.token)+'<br><span class="mut">'+esc(d.where)+'</span></div>';
+ document.getElementById('tok').value=d.token;saveTok();ev('get_token','minted')}catch(e){document.getElementById('tokmsg').textContent=plain(e.message)||('error: '+e.message)}}
+function copyToken(){var t=document.getElementById('tok').value;if(!t){document.getElementById('tokmsg').textContent='nothing to copy — Get token first';return}copyText(t,function(){document.getElementById('tokmsg').textContent='copied ✓ — paste it anywhere this board asks'})}
+function copyText(t,ok){var done=function(){ok()};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fallbackCopy(t,done)})}else fallbackCopy(t,done)}
+function fallbackCopy(t,done){try{var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done()}catch(e){alert(t)}}
+function copySnip(id){copyText(document.getElementById(id).innerText,function(){alert('copied ✓')})}
+function openDrawer(id){var d=document.getElementById(id);if(d){d.open=true;d.scrollIntoView({behavior:'smooth'})}}
+function goInstall(){openDrawer('d-install')}
+function showProof(){openDrawer('d-proof');toggleLast(true)}
+async function hero(){var s=window._S;
+ if(s&&s.running){showProof();return}
+ if(!tok()){openDrawer('d-token');document.getElementById('tokmsg').textContent='paste a key here first (Get token makes one), then press Start';try{document.getElementById('tok').focus()}catch(e){}return}
+ ctl('start')}
+function cleanCritic(reasons){var r=String((reasons||[])[0]||'').replace(/^R\d+( note)?:\s*/,'').replace(/^(data-truth|discounting)\s*[—–-]\s*/,'');
+ return r.slice(0,140)}
+async function load(){
+ document.getElementById('tok').value=tok();gate();
+ var s=await j('/api/status'),p=await j('/api/policy'),cps=await j('/api/checkpoints?limit=10');
+ window._S=s;
+ var pct=Math.min(100,Math.round(100*s.budget_used/Math.max(s.budget_total,0.001)));
+ var ofText=s.unbounded?('cycle '+s.cycle+' of ∞'):('cycle '+s.cycle+' of '+s.max_cycles);
+ var stateWord=s.running?'Working':'Stopped';
+ document.getElementById('calm-status').textContent=stateWord+' · '+ofText+' · quality '+(s.quality==null?'—':s.quality)+' · earned nothing, spent $'+s.budget_used+' simulated';
+ var hb=document.getElementById('btn-hero');hb.textContent=s.running?'🔍 Show what it did':'▶ Start working';hb.className=s.running?'tick':'start';
+ var crit=s.critic;
+ document.getElementById('calm-critic').textContent=(!crit||crit.verdict==='accept')?'Critic: satisfied':('Critic: '+cleanCritic(crit.reasons));
+ var hint=document.getElementById('calm-hint');
+ hint.textContent=(!s.running&&!tok())?'🔒 One tap: Get token below, then Start.':'';
+ document.getElementById('demo-verdict').textContent=(s.running?'RUNNING':'STOPPED')+' · cycle '+s.cycle+(s.unbounded?' of ∞':' of '+s.max_cycles)+' · health '+(s.quality==null?'—':s.quality);
+ document.getElementById('policy-verdict').textContent='goal: '+String(p.goal||'—').slice(0,80)+(s.unbounded?' · runs forever (∞)':' · stops at '+s.max_cycles);
+ ['goal','max_cycles','quality_floor','budget_credits','diff_cap_lines','checkpoint_every'].forEach(function(k){var el=document.getElementById('p_'+k);if(document.activeElement!==el)el.value=p[k]==null?'':p[k]});
+ document.getElementById('p_stop_on_quality_breach').value=String(p.stop_on_quality_breach);
+ document.getElementById('p_stop_on_budget').value=String(p.stop_on_budget);
+ var v=s.last_verify;
+ var gates=(v&&v.gates)||[];
+ var held=gates.filter(function(g){return g.pass}).length;
+ document.getElementById('gate-verdict').textContent=gates.length?(held+'/'+gates.length+' safety checks passing · health '+v.quality):'press Verify now';
+ document.getElementById('gates').innerHTML=gates.length?gates.map(function(g){var d=String(g.detail||'');return '<tr><td><span class="pill '+(g.pass?'pass':'fail')+'">'+(g.pass?'PASS':'FAIL')+'</span></td><td>'+esc(g.name)+'</td><td><div class="one" title="'+esc(d)+'">'+esc(d.slice(0,60))+'</div></td><td><details><summary>▸</summary>'+esc(d)+'</details></td></tr>'}).join(''):'<tr><td colspan="4">press Verify now</td></tr>';
+ document.getElementById('cp-verdict').textContent=cps.length?(cps.length+' saved moments · newest: '+cps[cps.length-1].id+' ('+cps[cps.length-1].kind+')'):'no saved moments yet — Start then Tick';
+ document.getElementById('cps').innerHTML=cps.length?cps.slice().reverse().map(function(c){
+  var kind=c.kind||'?';var id=esc(c.id||'?');
+  var act=(kind==='periodic'&&tok())?'<button class="ghost sm" data-ev="restore" data-restore="'+id+'" onclick="restore(\''+id+'\')">rewind</button>':(kind==='periodic'?'<span class="mut" title="needs token — Get token">🔒 rewind</span>':'<span class="mut">summary only</span>');
+  var summ=esc(c.summary||'');return '<tr><td><b>'+id+'</b> c'+c.cycle+' <span class="pill '+(kind==='periodic'?'pass':'fail')+'">'+esc(kind)+'</span><br><span class="mut">'+esc(c.at||'')+'</span></td><td><div class="one" title="'+summ+'">'+summ+'</div><details><summary>▸</summary>'+summ+'</details></td><td>'+act+'</td></tr>'}).join(''):'<tr><td colspan="3">no saved moments yet — Start then Tick</td></tr>';
+ gate();
+ try{var lt=await j('/api/last-tick');
+  document.getElementById('proof-verdict').textContent=lt.empty?'nothing done yet — press Tick':('latest: cycle '+lt.cycle+' · '+lt.verdict+' · health '+(lt.quality==null?'—':lt.quality));}catch(e){document.getElementById('proof-verdict').textContent='proof unavailable'}
+ try{var bl=await j('/api/backlog');
+  document.getElementById('backlog-verdict').textContent='working on '+bl.current.id+' now · '+(bl.last_evidence?('last proof: cycle '+bl.last_evidence.cycle):'no proof yet');
+  document.getElementById('backlog').innerHTML='<p>now: <b>'+esc(bl.current.id)+'</b> — '+esc(bl.current.title)+'<br><span class="mut">'+esc(bl.current.slice)+'</span></p>'+(bl.last_evidence?'<p>📎 last proof, cycle '+bl.last_evidence.cycle+' ['+esc(bl.last_evidence.item||'?')+']: '+esc(bl.last_evidence.detail||'')+' (rows='+bl.last_evidence.rows+')</p>':'<p class="mut">no proof logged yet</p>')+bl.items.map(function(i){return '<div class="probe"><span class="pill '+(i.id===bl.current.id?'pass':'fail')+'">'+(i.id===bl.current.id?'NOW':'QUEUED')+'</span><span><b>'+esc(i.id)+'</b> <span class="mut">'+esc(i.title)+'</span></span></div>'}).join('')}catch(e){document.getElementById('backlog').innerHTML='to-do list unavailable: '+esc(e.message)}
+ try{var bots=document.getElementById('showbots').checked;var f=await j('/api/funnel'+(bots?'?bots=1':''));
+  var fv=f.verdict||{level:'QUIET',line:'no verdict'};
+  var vd=document.getElementById('fverdict');vd.className='verdict '+fv.level;vd.textContent=fv.line;
+  document.getElementById('visitors-verdict').textContent=fv.line;
+  document.getElementById('fcounts').textContent=f.views+' visits · '+f.proofs+' saw proof · '+f.tokens+' made keys · '+f.installs+' downloads';
+  document.getElementById('botlabel').textContent=bots?('bots+agents shown ('+f.bots_total+' synthetic)') : ('show bots+agents ('+f.bots_hidden+' hidden)');
+  var rows=f.stuck_sessions||[];
+  document.getElementById('stuck').innerHTML=rows.length?rows.slice(0,10).map(function(x){
+   var det=x.last_detail?(' · <span class="meta">'+esc(x.last_detail)+'</span>'):'';
+   var bot=x.synthetic?' <span class="pill fail">BOT</span>':'';
+   var ag=x.agent?(' <span class="pill" title="driven browser self-id">AGENT:'+esc(x.agent)+'</span>'):'';
+   var full=(x.session&&x.session!==x.short)?('<details><summary>full id</summary><span class="meta">'+esc(x.session)+'</span></details>'):'';
+   var dis=tok()?('<button class="dismiss" data-ev="dismiss" data-sess="'+escA(x.session)+'" onclick="dismissRow(this)" title="mark not-a-human (owner, persisted)">not a human</button>'):'';
+   return '<div class="stuckrow"><span class="pill fail">STUCK?</span><span class="id">'+esc(x.short)+'</span>'+bot+ag+'<span>last: '+esc(x.last_event||'?')+det+' · <span class="nowrap">'+esc(x.last_at||'')+'</span></span><span class="spacer"></span>'+dis+'</div>'+full}).join(''):'<p style="color:#5fe08f">nobody stuck right now ✓</p>';
+  var dm=f.dismissed_sessions||[];
+  document.getElementById('dismissed').innerHTML=(f.dismissed_count||dm.length)?('<span>'+f.dismissed_count+' dismissed as not-human.</span> '+dm.map(function(d){return '<span class="nowrap">'+esc(d.short)+'</span> <a href="#" data-sess="'+escA(d.session)+'" onclick="restoreRow(this);return false">restore</a>'}).join(' · ')):'';}catch(e){document.getElementById('stuck').innerHTML='visitor counts unavailable: '+esc(e.message)}
+ ownerLoad();
+}
+async function ctl(a){try{var b='{}';if(a==='stop'){var r=document.getElementById('stop_reason').value.trim();if(r)b=JSON.stringify({reason:r})}await j('/api/control/'+a,{method:'POST',body:b});document.getElementById('ctlmsg').textContent=a+' ✓'}catch(e){document.getElementById('ctlmsg').textContent='error: '+plain(e.message)}load()}
+async function tick(){try{var r=await j('/api/control/tick',{method:'POST',body:'{"by":"ui"}'});document.getElementById('ctlmsg').textContent='tick → cycle '+r.cycle+' ✓';if(r.stopped)alert('Loop stopped: '+(r.stopped_reason||r.reason))}catch(e){document.getElementById('ctlmsg').textContent='error: '+plain(e.message)}load()}
+async function verify(){await j('/api/verify',{method:'POST'});load()}
+function tickHTML(t){if(!t)return 'no data';if(t.empty)return esc(t.hint);
+ var g=(t.gates||[]).map(function(x){return (x.pass?'✓':'✗')+' '+x.name}).join(' · ');
+ var cp=(t.checkpoints||[]).map(function(c){return c.id+' ['+c.kind+'] '+c.summary}).join('<br>')||'no saved moment this cycle';
+ var cr=t.critic?('<br>🧐 second checker: <b>'+esc(t.critic.verdict)+'</b> · '+esc(cleanCritic(t.critic.reasons))):'';
+ var ha=t.hands?('<br>🤝 hands: '+esc(t.hands.summary||'no hands info')+((t.hands.links||[]).map(function(l){return ' · <a href="'+esc(l.url)+'">'+esc(l.label)+'</a>'}).join(''))):'';
+ return '<b>cycle '+t.cycle+'</b> · '+esc(t.at||'')+' · verdict <b>'+esc(t.verdict||'?')+'</b> · health <b>'+(t.quality==null?'—':t.quality)+'</b><br>💓 pulse: '+esc((t.heartbeat&&t.heartbeat.at)||'?')+' by '+esc((t.heartbeat&&t.heartbeat.by)||'?')+'<br>🚦 safety checks: '+esc(g)+'<br>📦 saved moment: '+cp+'<br>🎯 micro-goal: '+esc(t.notes||'—')+cr+ha+'<br>💰 simulated cost (no real money moves): '+(t.ledger?('$'+t.ledger.cost+' ('+t.ledger.tokens_in+'+'+t.ledger.tokens_out+' tokens)'):'—')}
+var lastOpen=false,fiveOpen=false;
+function markProof(){if(!proofSeen){proofSeen=true;ev('first_proof_seen','proof expanded')}}
+async function toggleLast(force){try{var t=await j('/api/last-tick');document.getElementById('proofdetail').innerHTML=tickHTML(t);lastOpen=true;markProof()}catch(e){document.getElementById('proofdetail').textContent='error: '+e.message}}
+async function toggleFive(){try{var ts=await j('/api/ticks?limit=5');document.getElementById('proofdetail').innerHTML=ts.map(tickHTML).join('<hr>');fiveOpen=true;markProof()}catch(e){document.getElementById('proofdetail').textContent='error: '+e.message}}
+async function suggest(){try{var r=await j('/api/suggest-goals');var d=document.getElementById('suggestions');d.innerHTML='<p class="mut">based on '+esc(r.based_on)+':</p>'+r.goals.map(function(g,i){return '<button class="ghost sugg" id="btn-sugg-'+i+'">✨ '+esc(g)+'</button>'}).join('');
+ d.querySelectorAll('button').forEach(function(b){b.onclick=function(){document.getElementById('p_goal').value=b.innerText.replace(/^✨ /,'');document.getElementById('pmsg').textContent='draft pasted — tweak it, then Save';b.style.border='1px solid #2ea86a'}})}catch(e){document.getElementById('pmsg').textContent='error: '+plain(e.message)}}
+var PRESETS={cautious:{max_cycles:500,quality_floor:85,budget_credits:5,diff_cap_lines:100,checkpoint_every:3,stop_on_quality_breach:'true',stop_on_budget:'true'},normal:{max_cycles:1000,quality_floor:70,budget_credits:10,diff_cap_lines:200,checkpoint_every:5,stop_on_quality_breach:'true',stop_on_budget:'true'},aggressive:{max_cycles:5000,quality_floor:50,budget_credits:25,diff_cap_lines:500,checkpoint_every:10,stop_on_quality_breach:'true',stop_on_budget:'true'},forever:{max_cycles:0,quality_floor:70,budget_credits:10,diff_cap_lines:200,checkpoint_every:5,stop_on_quality_breach:'true',stop_on_budget:'true'}};
+function preset(name){var p=PRESETS[name];if(!p)return;document.getElementById('p_max_cycles').value=p.max_cycles;document.getElementById('p_quality_floor').value=p.quality_floor;document.getElementById('p_budget_credits').value=p.budget_credits;document.getElementById('p_diff_cap_lines').value=p.diff_cap_lines;document.getElementById('p_checkpoint_every').value=p.checkpoint_every;document.getElementById('p_stop_on_quality_breach').value=p.stop_on_quality_breach;document.getElementById('p_stop_on_budget').value=p.stop_on_budget;document.getElementById('pmsg').textContent=name+' style filled — press Save to apply'}
+async function savePolicy(){var num=function(id){return parseFloat(document.getElementById(id).value)};
+ var mcRaw=document.getElementById('p_max_cycles').value;
+ var mc=(mcRaw===''||mcRaw==null)?null:parseInt(mcRaw,10);
+ var body={goal:document.getElementById('p_goal').value,max_cycles:mc,quality_floor:num('p_quality_floor'),budget_credits:num('p_budget_credits'),diff_cap_lines:num('p_diff_cap_lines'),checkpoint_every:num('p_checkpoint_every'),stop_on_quality_breach:document.getElementById('p_stop_on_quality_breach').value==='true',stop_on_budget:document.getElementById('p_stop_on_budget').value==='true'};
+ try{await j('/api/policy',{method:'POST',body:JSON.stringify(body)});document.getElementById('pmsg').textContent='saved ✓'}catch(e){document.getElementById('pmsg').textContent='error: '+plain(e.message)}
+ load()}
+async function stress(){var el=document.getElementById('score');el.textContent='attacking… (bad inputs, starvation, floods, live ticks)';try{var r=await j('/api/stress',{method:'POST',body:JSON.stringify({ticks:2})});
+ document.getElementById('stress-verdict').textContent=r.verdict+' · '+r.score+' · '+r.ticks_absorbed+' live ticks absorbed';
+ el.innerHTML='<p><span class="pill '+(r.verdict==='HOLDING'?'pass':'fail')+'">'+esc(r.verdict)+'</span> <b>'+esc(r.score)+'</b> · '+r.ticks_absorbed+' live ticks absorbed</p>'+r.probes.map(function(p){return '<div class="probe"><span class="pill '+(p.pass?'pass':'fail')+'">'+(p.pass?'HELD':'BROKE')+'</span><span><b>'+esc(p.name)+'</b> <span class="mut">'+esc(p.detail)+'</span></span></div>'}).join('')+(r.ticks||[]).map(function(t){return '<div class="probe"><span class="mut">tick:</span><span>'+esc(t.detail)+'</span></div>'}).join('')}catch(e){el.textContent='error: '+plain(e.message)}load()}
+async function restore(id){try{var r=await j('/api/restore',{method:'POST',body:JSON.stringify({checkpoint_id:id})});alert('rewound → cycle '+r.cycle+' ✓')}catch(e){alert('rewind failed: '+plain(e.message))}load()}
+async function dismissRow(btn){var sess=btn.getAttribute('data-sess');try{await j('/api/funnel/dismiss',{method:'POST',body:JSON.stringify({session:sess})})}catch(e){alert('dismiss failed: '+plain(e.message))}load()}
+async function restoreRow(a){var sess=a.getAttribute('data-sess');try{await j('/api/funnel/undismiss',{method:'POST',body:JSON.stringify({session:sess})})}catch(e){alert('restore failed: '+plain(e.message))}load()}
+/* Owner drawer: master key only. Server enforces it (403 for browser keys). */
+var OWNER_KEYS=['demo_mint_enabled','funnel_min_visits','funnel_download_alarm_ratio','funnel_bot_noise_ratio','funnel_proof_healthy_ratio','funnel_critic_fail_streak','min_human_sessions','stress_max_ticks'];
+async function ownerLoad(){var vd=document.getElementById('owner-verdict');
+ try{var o=await j('/api/owner/settings');
+  OWNER_KEYS.forEach(function(k){var el=document.getElementById('o_'+k);if(el&&document.activeElement!==el)el.value=o[k]});
+  var s=window._S;
+  vd.textContent=(s&&s.unbounded?'runs forever (∞)':'capped at '+(s?s.max_cycles:'?'))+' · guest keys '+(o.demo_mint_enabled?'on':'off')+' · judging after '+o.funnel_min_visits+' visits';
+  document.getElementById('omsg').textContent='master key accepted ✓ — flips below apply live, no restart';
+ }catch(e){vd.textContent='🔒 Master key needed — paste it in the Token drawer. Browser keys cannot open this.';
+  if(/owner-only|unauthorized/i.test(String(e.message)))document.getElementById('omsg').textContent='';
+  else document.getElementById('omsg').textContent='error: '+e.message}}
+async function ownerSave(){var body={};var bad=null;
+ OWNER_KEYS.forEach(function(k){var el=document.getElementById('o_'+k);if(!el)return;var raw=el.value;
+  if(k==='demo_mint_enabled')return;
+  var v=parseFloat(raw);if(!isFinite(v)){bad=k;return}body[k]=v});
+ if(bad){document.getElementById('omsg').textContent='error: '+bad+' must be a number';return}
+ try{await j('/api/owner/settings',{method:'POST',body:JSON.stringify(body)});document.getElementById('omsg').textContent='saved ✓ — live now, no restart'}catch(e){document.getElementById('omsg').textContent='error: '+plain(e.message)}
+ ownerLoad();load()}
+async function forever(on){try{await j('/api/policy',{method:'POST',body:JSON.stringify({max_cycles:on?0:1000})});document.getElementById('omsg').textContent=on?'runs forever now (∞) ✓':'capped at 1,000 ✓'}catch(e){document.getElementById('omsg').textContent='error: '+plain(e.message)}ownerLoad();load()}
+async function mintFlip(on){try{await j('/api/owner/settings',{method:'POST',body:JSON.stringify({demo_mint_enabled:on})});document.getElementById('omsg').textContent='guest keys '+(on?'on ✓ — Get token mints again':'off ✓ — board is owner-only again')}catch(e){document.getElementById('omsg').textContent='error: '+plain(e.message)}ownerLoad();load()}
+for(var _i=0,_ids=['pi_snip','oc_snip'];_i<_ids.length;_i++){var _el=document.getElementById(_ids[_i]);_el.innerText=_el.innerText.replaceAll('YOUR-HARNESS-URL',location.origin)}
+ev('page_view','first paint',Math.round(performance.now()));armIdle();
+load();setInterval(load,5000);
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!-- SPAWNER suggest→spawn card snippet (self-contained).
+     Paste inside <main> in public/index.html (e.g. right after secStart).
+     Conventions matched: details.card + summary with verdict-first
+     <span class="verdict">, one primary button per card (button.big.grn),
+     api()/post()/esc()/pill()/ev()/tok()/nid() helpers, token from
+     localStorage via the tNode/tToken inputs. Needs no new CSS/JS. -->
+<details class="card" id="secSpawn"><summary><span class="verdict" id="vSpawn">…</span>Spawn — one button, one business</summary>
+<p class="mut">Top niches from <b>live</b> data gaps — thin datasets, unserved ideas, referral demand. One button per card spawns the full business: dataset + recipe + public API + quota + 7 growth posts.</p>
+<div id="spawnCards"><span class="mut">loading live gaps…</span></div>
+<div class="mut" id="spawnMsg"></div>
+<script>(function(){
+function $(id){return document.getElementById(id);}
+function hasTok(){return !!((localStorage.getItem("sn_token")||"")&&(localStorage.getItem("sn_node")||""));}
+async function loadSuggest(){
+  const host=$("spawnCards"),v=$("vSpawn");
+  let s;
+  try{s=await api("/api/businesses/suggest");}catch(e){v.textContent="offline";v.className="verdict bad";host.innerHTML='<span class="mut">suggest not ready.</span>';return;}
+  const cards=s.suggest||[];
+  v.textContent=cards.length+" live gaps";v.className="verdict";
+  host.innerHTML=cards.map((c,i)=>`<div class="card"><p><b>${esc(i+1)}. ${esc(c.niche)}</b></p><p><span class="verdict warn">gap</span> <span class="mut">${esc(c.why)}</span><br><span class="verdict">1st customer</span> <span class="mut">${esc(c.first_customer)}</span></p><button class="big grn" data-spawn="${esc(c.niche)}" ${hasTok()?"":"disabled title='Locked — get a token (Start above) to unlock.'"}>Spawn this business</button></div>`).join("")+
+  (hasTok()?"":'<p class="lock">🔒 Locked — get a token (Start above) to unlock spawning.</p>');
+  host.querySelectorAll("[data-spawn]").forEach(b=>b.onclick=()=>spawnBiz(b.dataset.spawn,b));
+}
+async function spawnBiz(niche,btn){
+  const msg=$("spawnMsg");btn.disabled=true;btn.textContent="Spawning…";
+  msg.textContent="spawning: dataset → recipe → API → quota → 7 growth posts…";
+  const r=await post("/api/businesses/spawn",{node_id:$("tNode").value.trim(),token:$("tToken").value.trim(),niche});
+  if(r.st===200&&r.j.business_id){
+    msg.innerHTML=`<p><span class="verdict">live</span> <b>${esc(r.j.name)}</b> — API: <code>${esc(r.j.api_url)}</code> · page: <code>${esc(r.j.public_url)}</code> · ${esc(r.j.growth_posts_queued)} posts queued · tier ${esc(r.j.quota_tier)}</p>`;
+    ev("click:spawn",r.j.business_id);
+  }else{msg.innerHTML=`<span class="mut">spawn failed: ${esc(JSON.stringify(r.j))}</span>`;btn.disabled=false;btn.textContent="Spawn this business";}
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",loadSuggest);else loadSuggest();
+})();</script>
+</details>

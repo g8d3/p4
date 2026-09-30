@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScrapeNet</title>
+<style>body{font-family:system-ui,sans-serif;margin:12px;min-width:290px;font-size:14px}input,select,button{font-size:14px;margin:4px 0}input,select{width:100%;box-sizing:border-box}.row{display:flex;gap:6px}.row>*{flex:1}.muted{color:#666;font-size:12px}.adapter{border:2px solid #3fb950;border-radius:8px;padding:8px;margin:6px 0;background:#f4fff4}.adapter button{width:100%;font-weight:700}.prop{border:1px solid #ccc;border-radius:8px;padding:8px;margin:6px 0;font-size:13px}.prop code{background:#eee;padding:0 4px;border-radius:4px}</style>
+</head><body>
+<h3>ScrapeNet node</h3>
+<div class="muted" id="host"></div>
+<div id="adapterBox"></div>
+<label><input type="checkbox" id="en"> Enable scraping on this host</label><br>
+<label>Recipe <select id="recipe"></select></label><br>
+<label>Runs where <select id="where"><option value="client">client (private, in browser)</option><option value="server">server (shared ops, raw travels)</option><option value="both">both (merge, dedupe)</option></select></label> <span class="muted" id="whereBadge"></span><br>
+<label>Collector URL <input id="base" placeholder="http://<collector>:8383"></label><br>
+<div class="row">
+<button id="scrape">Scrape now</button>
+<button id="save">Save</button>
+</div>
+<p class="muted" id="status"></p>
+<script src="popup.js"></script>
+</body></html>

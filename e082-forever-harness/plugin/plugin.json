@@ -1,0 +1,11 @@
+{
+  "name": "keep-going",
+  "version": "1.0.0",
+  "description": "Forever-harness keep-going plugin: policy loader, tick wrapper, verify gate, compact helper. Works with pi and opencode.",
+  "skills": ["skills/keep-going/SKILL.md"],
+  "hooks": ["hooks/keep-going.sh"],
+  "config": {
+    "server_env": "FOREVER_HARNESS_URL",
+    "default_url": "http://127.0.0.1:8342"
+  }
+}

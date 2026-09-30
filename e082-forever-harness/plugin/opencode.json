@@ -1,0 +1,24 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": {
+    "name": "keep-going",
+    "description": "Forever-harness keep-going policy for opencode: tick wrapper, verify gate, compact helper.",
+    "install": "Copy plugin/skills/keep-going/SKILL.md into your opencode skills dir, chmod +x plugin/hooks/keep-going.sh, set FOREVER_HARNESS_URL to the live server URL from bin/serve.sh output.",
+    "env": "FOREVER_HARNESS_URL",
+    "tools": [
+      { "name": "keep-going.policy", "run": "bash plugin/hooks/keep-going.sh load-policy" },
+      { "name": "keep-going.tick", "run": "bash plugin/hooks/keep-going.sh tick opencode" },
+      { "name": "keep-going.verify", "run": "bash plugin/hooks/keep-going.sh verify" },
+      { "name": "keep-going.compact", "run": "bash plugin/hooks/keep-going.sh compact" }
+    ],
+    "endpoints": {
+      "policy": "GET+POST /api/policy",
+      "status": "GET /api/status",
+      "start": "POST /api/control/start",
+      "stop": "POST /api/control/stop",
+      "tick": "POST /api/control/tick",
+      "checkpoints": "GET /api/checkpoints",
+      "verify": "POST /api/verify"
+    }
+  }
+}

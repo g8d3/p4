@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ScrapeNet options</title>
+<style>body{font-family:system-ui,sans-serif;margin:16px;max-width:520px;font-size:14px}input{display:block;width:100%;margin:4px 0 12px;font-size:14px}.muted{color:#666}</style>
+</head><body>
+<h2>ScrapeNet node settings</h2>
+<label>Collector base URL <input id="base" placeholder="http://<collector>:8383"></label>
+<label>Node id <input id="node" placeholder="node-1"></label>
+<label>API token (from dashboard signup, Step ①) <input id="tok" placeholder="paste once, stays in your browser"></label>
+<label>Payout wallet address <input id="wallet" placeholder="SCRAPE1..."></label>
+<label><input type="checkbox" id="pub"> Allow my datasets to be published as public API</label>
+<p><button id="save">Save</button> <span id="st" class="muted"></span></p>
+<p class="muted">No data leaves your browser except to the collector URL above, and only on hosts you enable in the popup. Earnings accrue per accepted record minus network commission (see dashboard /api/earnings).</p>
+<script>
+async function get(d){return new Promise(r=>chrome.storage.sync.get(d,r));}
+(async()=>{
+  const s=await get({collectorBase:"",nodeId:"node-1",wallet:"",publishOk:true,apiToken:""});
+  base.value=s.collectorBase||"";node.value=s.nodeId;wallet.value=s.wallet||"";
+  tok.value=s.apiToken||"";
+  pub.checked=!!s.publishOk;
+  save.onclick=async()=>{
+    await chrome.storage.sync.set({collectorBase:base.value.trim(),nodeId:node.value.trim()||"node-1",wallet:wallet.value.trim(),publishOk:pub.checked,apiToken:tok.value.trim()});
+    st.textContent="saved.";
+  };
+})();
+</script>
+</body></html>
