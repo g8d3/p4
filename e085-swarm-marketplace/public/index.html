@@ -138,13 +138,17 @@ const r=await fetch('/api/swarms',{method:'POST',headers:{'Content-Type':'applic
 const o=await r.json();if(o.error){alert(o.error);return;}
 document.getElementById('pub').close();load();init();refreshMine();});}
 function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30);}
+const IDEAS=[['beanbadge','Coffee subscriptions for cyclists, roasted weekly, delivered to your door.'],['pawcut','Dog grooming at home — book in one tap, groomer comes to you.'],['fitplan','Personal workout plans over chat — $9 first plan, results in 30 days.'],['invoicekit','Invoice templates for freelancers — look pro, get paid faster.'],['tutorgo','Math tutoring for teens, online, first class free.'],['plantbox','Monthly succulent box for apartments with zero light.'],['cvboost','Resumes rewritten in 48 hours — pay only if you get interviews.'],['dulcehogar','Postres caseros por encargo para eventos y fines de semana.']];
 async function launchHelp(){const box=document.getElementById('lhelp');
 const seed=((document.getElementById('lsite').value||'')+' '+(document.getElementById('lbrief').value||'')).toLowerCase();
 const words=seed.split(/[^a-z0-9]+/).filter(w=>w.length>2&&!['the','and','for','with','site','sell','buy','app','web','new','our','your','shop','store'].includes(w));
-if(words.length<1){box.innerHTML='Tell me in a few words first — e.g. <a href="#" id=lh-ex1>coffee for cyclists</a>, <a href="#" id=lh-ex2>dog training videos</a>, <a href="#" id=lh-ex3>invoice templates</a> — then hit ✨ again.';
-const ex1=document.getElementById('lh-ex1'),ex2=document.getElementById('lh-ex2'),ex3=document.getElementById('lh-ex3');
-const pick=t=>e=>{e.preventDefault();document.getElementById('lbrief').value=t;launchHelp();};
-ex1.onclick=pick('coffee for cyclists');ex2.onclick=pick('dog training videos');ex3.onclick=pick('invoice templates');return;}
+if(words.length<1){box.innerHTML='';
+const head=document.createElement('b');head.textContent='No typing needed — tap one to start:';box.appendChild(head);
+IDEAS.forEach(p=>{const row=document.createElement('div');row.className='row';
+const label=document.createElement('span');label.textContent=p[0]+' — '+p[1];row.appendChild(label);
+const b=document.createElement('button');b.textContent='Use';
+b.onclick=()=>{document.getElementById('lsite').value=p[0];document.getElementById('lbrief').value=p[1];launchHelp();};
+row.appendChild(b);box.appendChild(row);});return;}
 const kws=words.slice(0,2);
 const pats=kws.concat(kws.map(k=>k+'ly'),kws.map(k=>k+'hub'),kws.map(k=>'get'+k),kws.map(k=>'try'+k)).flat();
 const cands=[];
@@ -238,7 +242,10 @@ async function dnsSet(){const t=localStorage.getItem('sm_admin')||document.getEl
 const r=await fetch('/api/dns/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t,domain:document.getElementById('dnsdom').value,ip:document.getElementById('dnsip').value})});
 const o=await r.json();document.getElementById('dnsout').textContent=o.error||o.msg;}
 async function domainSuggest(){const box=document.getElementById('dsug');const q=document.getElementById('dsq').value.trim();
-if(q.length<3){box.textContent='Type 2-3 words first (what is the business about?).';return;}
+if(q.length<3){box.innerHTML='';
+const head=document.createElement('b');head.textContent='Tap a starting point:';box.appendChild(head);
+['coffee bikes','dog training','invoice templates'].forEach(t=>{const b=document.createElement('button');b.textContent=t;
+b.onclick=()=>{document.getElementById('dsq').value=t;domainSuggest();};box.appendChild(b);});return;}
 box.textContent='checking ~20 domains…';
 try{const r=await(await fetch('/api/domain-suggest?q='+encodeURIComponent(q))).json();
 if(r.error){box.textContent=r.error;return;}
