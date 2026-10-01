@@ -37,7 +37,8 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <p class=muted>Some services need <b>you</b> to create the account (we're not allowed to). For each one: follow the 3 steps, paste the key, hit Save — the swarm <b>verifies it instantly, wires it in and activates everything itself</b>. No config files, no restarts, no fiddling. Admin token: paste once, we remember it.</p>
 <div class=row><input id=adm placeholder="admin token (in server.log at boot)" style="flex:1;min-width:200px"><button onclick="localStorage.setItem('sm_admin',document.getElementById('adm').value);keysStatus();">Unlock</button><button onclick=verifyAll()>🤖 Swarm: verify + activate all</button></div>
 <div id=keysout class=muted>Loading key slots…</div>
-<div id=dnsbox class=row style="margin-top:8px"><input id=dnsdom placeholder="yourdomain.com" style="flex:1"><input id=dnsip placeholder="box IP (needs Porkbun live)" style="flex:1"><button onclick=dnsSet()>Point domain at box</button></div><div id=dnsout class=muted></div></section>
+<div id=dnsbox class=row style="margin-top:8px"><input id=dnsdom placeholder="yourdomain.com" style="flex:1"><input id=dnsip placeholder="box IP (needs Porkbun live)" style="flex:1"><button onclick=dnsSet()>Point domain at box</button></div><div id=dnsout class=muted></div>
+<div class=row style="margin-top:8px"><input id=pdom placeholder="domain you own (for email)" style="flex:1"><button onclick=provisionEmail()>Provision email for me</button></div><div id=pout class=muted>One button: the agent registers the domain in Resend, sets the DNS itself (if Porkbun is live), and verifies sending. You only ever buy the domain.</div></section>
 <section id=domain><h2>🔍 Domain check</h2>
 <div class=row><input id=dom placeholder="swarmly.cc" style="flex:1"><button onclick=checkDom()>Check</button></div>
 <div id=domout class=muted>RDAP read-only. 404 = likely free (confirm at checkout). Scout's top pick: <b>swarmly.cc</b>.</div>
@@ -50,9 +51,10 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <dialog id=launch><h3>🚀 Launch my site — 1 click</h3>
 <input id=lsite placeholder="Site name (e.g. beanbadge)" style="width:100%;margin:4px 0">
 <textarea id=lbrief placeholder="What should it sell? (a few words is enough — hit ✨ below)" style="width:100%;margin:4px 0"></textarea>
+<div class=row><input id=lprice type=number value=25 min=1 style="width:110px" title="Price you will charge per order"><input id=lnotify placeholder="Phone alerts topic (optional, ntfy.sh/…)" style="flex:1;min-width:160px"></div>
 <div class=row><button onclick=launchHelp()>✨ Help me write it</button><button onclick=launch()>$190 — Launch it</button><button onclick="document.getElementById('launch').close()">Cancel</button></div>
 <div id=lhelp class=muted></div>
-<div id=lout class=muted>Launches on a free subdomain first (custom domain = upgrade). One payment authorizes the whole pipeline.</div>
+<div id=lout class=muted>One click = live site on our server instantly — no accounts, no keys. Cards, custom domain and email are upgrades, not requirements.</div>
 <div id=lprov class=muted></div></dialog>
 <dialog id=pub><h3>Sell your business</h3>
 <input id=pname placeholder="Business name (the launched site)" style="width:100%;margin:4px 0">
@@ -168,20 +170,33 @@ const steps=[['Card payment + payouts',k.STRIPE_SECRET_KEY],['Google login on yo
 steps.forEach(s=>{const d=document.createElement('div');d.textContent=dot(s[1])+' '+s[0];box.appendChild(d);});
 const note=document.createElement('div');note.textContent='Domain itself: you buy it once at the registrar (~$10, 2 min) — no registrar API can sell it for you with our keys; the swarm wires DNS + email the second it exists.';box.appendChild(note);}catch(e){box.textContent='provisioning check failed';}}
 async function launch(){needMe(async()=>{const site=document.getElementById('lsite').value.trim().toLowerCase();
-const r=await fetch('/api/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site,brief:document.getElementById('lbrief').value,buyer:ME,setup:190})});
-const o=await r.json();if(o.error){document.getElementById('lout').textContent=o.error;return;}
-if(o.pay_url){location.href=o.pay_url;}else{document.getElementById('lout').textContent=o.note||'Job saved.';refreshMine();}});}
+const lout=document.getElementById('lout');lout.textContent='building your site…';
+const r=await fetch('/api/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site,brief:document.getElementById('lbrief').value,buyer:ME,setup:190,price:+document.getElementById('lprice').value||25,notify:document.getElementById('lnotify').value})});
+const o=await r.json();if(o.error){lout.textContent=o.error;return;}
+if(o.site_url){lout.innerHTML='';const a=document.createElement('a');a.href=o.site_url_abs||o.site_url;a.target='_blank';a.rel='noopener';a.textContent='Your site is live — open it';lout.appendChild(a);
+const s=document.createElement('div');s.textContent=(o.note||'');lout.appendChild(s);}
+else{lout.textContent=o.note||'Job saved.';}
+if(o.pay_url){const b=document.createElement('button');b.textContent='Pay $190 build fee by card';b.onclick=()=>{location.href=o.pay_url;};lout.appendChild(b);}
+refreshMine();init();});}
 async function refreshMine(){if(!ME){document.getElementById('orders').innerHTML='<div class=muted>Sign in at the top to see your orders.</div>';
 document.getElementById('desk').innerHTML='<div class=muted>Sign in at the top — your swarms, incoming orders and earnings show here.</div>';return;}
 const os=await(await fetch('/api/orders?buyer='+encodeURIComponent(ME))).json();
 const jobs=await(await fetch('/api/jobs?buyer='+encodeURIComponent(ME))).json();
-const jobHtml=jobs.length?'<h3>🚀 Launches</h3><table><tr><th>Site</th><th>Status</th><th>Paid</th></tr>'+jobs.map(j=>`<tr><td>${esc(j.subdomain)}</td><td class=st>${esc(j.status)}</td><td>${j.funded?'✅':'—'}</td></tr>`).join('')+'</table>':'';
+const jobHtml=jobs.length?'<h3>Launches</h3><table><tr><th>Site</th><th>Status</th><th>Paid</th></tr>'+jobs.map(j=>`<tr><td>${j.site_url?`<a href="${safeUrl(j.site_url_abs||j.site_url)}" target=_blank rel=noopener>${esc(j.site)}</a>`:esc(j.subdomain)}</td><td class=st>${esc(j.status)}</td><td>${j.funded?'✅':'—'}</td></tr>`).join('')+'</table>':'';
 document.getElementById('orders').innerHTML=(jobHtml)+(os.length?'<table><tr><th>Order</th><th>Swarm</th><th>Total</th><th>Paid</th><th>Status</th><th>Action</th></tr>'+os.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.swarm_id)}</td><td>$${o.gross}</td><td>${o.funded?'✅':'—'}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'&&!o.funded?'<button onclick="pay(this)">Pay card</button> ':''}${o.status==='delivered'?`<button onclick="accept(this)">Accept</button> <button onclick="dispute(this)">Dispute</button><br><span class=muted>got: ${esc((o.delivery||{}).text||'').slice(0,80)} ${o.delivery&&safeUrl(o.delivery.url)?`<a href="${safeUrl(o.delivery.url)}" target=_blank rel=noopener>link</a>`:''}</span>`:o.status==='accepted'?`<button onclick="review(this)">★ Review</button>`:''}</td></tr>`).join('')+'</table>':'<div class=muted>No orders yet. Open a swarm and place one.</div>');
 const d=await(await fetch('/api/seller?by='+encodeURIComponent(ME))).json();
 const inbox=await(await fetch('/api/inbox?by='+encodeURIComponent(ME))).json();
 const todo=inbox.filter(o=>o.status==='open');
 document.getElementById('desk').innerHTML=`<b>${d.swarms.length}</b> swarms · <b>$${d.owed}</b> owed to you · $${d.open} in open orders · ${todo.length} need delivery<br><span class=muted>${esc(d.payouts)}</span>`+
-(inbox.length?'<table><tr><th>Order</th><th>Buyer</th><th>Model</th><th>Net</th><th>Status</th><th>Action</th></tr>'+inbox.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.buyer)}</td><td>${o.model}</td><td>$${o.net}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'?`<button onclick="startDeliver(this)">Deliver</button>`:`<span class=muted>${esc((o.delivery||{}).text||'').slice(0,60)}</span>`}</td></tr>`).join('')+'</table>':'<div class=muted>No incoming orders yet — share the market link so buyers find your swarm.</div>');}
+(inbox.length?'<table><tr><th>Order</th><th>Buyer</th><th>Model</th><th>Net</th><th>Status</th><th>Action</th></tr>'+inbox.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.buyer)}</td><td>${o.model}</td><td>$${o.net}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'?`<button onclick="startDeliver(this)">Deliver</button>`:`<span class=muted>${esc((o.delivery||{}).text||'').slice(0,60)}</span>`}</td></tr>`).join('')+'</table>':'<div class=muted>No incoming orders yet — share the market link so buyers find your swarm.</div>');
+refreshSites();}
+async function refreshSites(){let el=document.getElementById('sods');
+if(!el){el=document.createElement('div');el.id='sods';document.getElementById('desk').appendChild(el);}
+const rows=await(await fetch('/api/site-orders?by='+encodeURIComponent(ME))).json();
+if(!rows.length){el.innerHTML='<div class=muted>No site orders yet — they land here the second someone buys on your launched site.</div>';return;}
+let h='<h3>Site orders (your launched sites)</h3><table><tr><th>Site</th><th>Customer</th><th>Contact</th><th>Total</th></tr>';
+rows.forEach(o=>{h+='<tr><td>'+esc(o.site)+'</td><td>'+esc(o.customer)+'</td><td>'+esc(o.contact)+'</td><td>$'+o.total+'</td></tr>';});
+el.innerHTML=h+'</table>';}
 async function pay(btn){const oid=btn.parentElement.dataset.oid;
 const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:oid})});
 const o=await r.json();if(o.url){location.href=o.url;}else{alert(o.error||'Payment failed');}}
@@ -211,6 +226,14 @@ async function verifyAll(){const t=localStorage.getItem('sm_admin')||document.ge
 const r=await fetch('/api/keys/verify-all',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t})});
 const o=await r.json();if(o.error){alert(o.error);return;}
 const live=o.filter(k=>k.state==='live').length;alert(`Swarm checked everything: ${live}/${o.length} live. Missing ones show 3 steps above.`);localStorage.setItem('sm_admin',t);keysStatus();init();}
+async function provisionEmail(){const t=localStorage.getItem('sm_admin')||document.getElementById('adm').value;
+const box=document.getElementById('pout');box.textContent='working — registering, setting DNS, verifying…';
+const r=await fetch('/api/provision/email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t,domain:document.getElementById('pdom').value})});
+const o=await r.json();localStorage.setItem('sm_admin',t);
+if(o.error&&(o.steps||[]).length===0){box.textContent=o.error;return;}
+box.innerHTML='';
+(o.steps||[]).forEach(s=>{const d=document.createElement('div');d.textContent='• '+s;box.appendChild(d);});
+const end=document.createElement('b');end.textContent=o.error||(o.live?'Email live.':'Check back in a few minutes — re-press to re-verify.');box.appendChild(end);keysStatus();init();}
 async function dnsSet(){const t=localStorage.getItem('sm_admin')||document.getElementById('adm').value;
 const r=await fetch('/api/dns/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t,domain:document.getElementById('dnsdom').value,ip:document.getElementById('dnsip').value})});
 const o=await r.json();document.getElementById('dnsout').textContent=o.error||o.msg;}

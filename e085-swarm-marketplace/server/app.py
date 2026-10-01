@@ -11,7 +11,7 @@ open -> delivered -> accepted | disputed -> released/refunded
 - Auth: handle sign-in (localStorage) today; Clerk Google activates with
   CLERK_PUBLISHABLE_KEY (/api/auth tells the frontend).
 TLS via box tailnet cert unless E085_TLS=0. See AGENTS.md + needs.json."""
-import hashlib, json, os, re, secrets, ssl, sys, time, urllib.request, urllib.parse
+import hashlib, html as htmlmod, json, os, re, secrets, ssl, sys, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -27,6 +27,32 @@ NEEDS_F = DATA / "needs.json"
 REVIEWS_F = DATA / "reviews.jsonl"
 TRIALS_F = DATA / "trials.jsonl"
 JOBS_F = DATA / "jobs.jsonl"
+SITES_D = DATA / "sites"
+SITE_ORDERS_F = DATA / "site-orders.jsonl"
+SITES_D.mkdir(exist_ok=True)
+def site_price(name):
+    for j in read_lines(JOBS_F):
+        if j.get("site") == name: return float(j.get("price", 25) or 25)
+    return 25.0
+def build_site(name, brief, price):
+    safe = re.sub(r"[^a-z0-9_-]", "", name.lower())[:30]
+    d = SITES_D / safe
+    d.mkdir(exist_ok=True)
+    title = htmlmod.escape(name)
+    desc = htmlmod.escape(brief or "Something worth buying.")
+    page = "<!doctype html><meta charset=utf-8><meta name=viewport content=\"width=device-width,initial-scale=1\">"
+    page += f"<title>{title}</title><style>body{{font-family:system-ui;max-width:640px;margin:0 auto;padding:24px;line-height:1.5}}input,textarea,button{{font:inherit;padding:10px;border-radius:8px;border:1px solid #8885;width:100%;margin:6px 0;box-sizing:border-box}}button{{cursor:pointer;font-weight:700}}.ok{{color:#16a34a;font-weight:700}}</style>"
+    page += f"<h1>{title}</h1><p>{desc}</p><p><b>Price: ${price:g}</b> — pay on delivery or bank transfer until card payments activate.</p>"
+    page += "<h2>Order</h2><input id=n placeholder='Your name'><input id=c placeholder='Phone or email'><input id=q type=number value=1 min=1>"
+    page += "<button onclick=send()>Order now</button><div id=o></div><script>async function send(){const r=await fetch('/api/site-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site:'" + safe + "',name:document.getElementById('n').value,contact:document.getElementById('c').value,qty:+document.getElementById('q').value||1})});const o=await r.json();document.getElementById('o').innerHTML=o.error?o.error:'<span class=ok>Order received! The seller contacts you to arrange payment + delivery.</span>';}</script>"
+    (d / "index.html").write_text(page)
+    return safe
+def ping_ntfy(topic, msg):
+    try:
+        req = urllib.request.Request("https://ntfy.sh/" + urllib.parse.quote(topic, safe=""), data=msg.encode()[:500], headers={"User-Agent": "e085/1.0"})
+        with urllib.request.urlopen(req, timeout=10): pass
+    except Exception:
+        pass
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from keys import store
@@ -165,6 +191,24 @@ def suggest_names(words):
         for tld in ("cc", "com"):
             if len(cands) < 20 and f"{j}.{tld}" not in cands: cands.append(f"{j}.{tld}")
     return cands[:20]
+def resend_api(method, path, key, payload=None):
+    data = json.dumps(payload or {}).encode() if payload is not None else None
+    req = urllib.request.Request("https://api.resend.com" + path, data=data,
+        headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"},
+        method=method)
+    with urllib.request.urlopen(req, timeout=20) as r:
+        return json.loads(r.read().decode())
+def porkbun_dns(domain, rtype, host, content, pair):
+    from keys import _post_json as pb_post
+    base = {"apikey": pair["apikey"], "secretapikey": pair["secretapikey"]}
+    cur = pb_post(f"https://api.porkbun.com/api/json/v3/dns/retrieve/{domain}", base)
+    for r in cur.get("records", []):
+        if r.get("type") == rtype and (r.get("name") or "") == (host if host != "@" else domain):
+            pb_post(f"https://api.porkbun.com/api/json/v3/dns/delete/{domain}/{r['id']}", base)
+    d = pb_post(f"https://api.porkbun.com/api/json/v3/dns/create/{domain}",
+        {**base, "name": host, "type": rtype, "content": content, "ttl": 300})
+    if d.get("status") != "SUCCESS": raise ValueError(str(d)[:160])
+    return True
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _json(self, obj, code=200, extra=None):
@@ -252,6 +296,18 @@ class H(BaseHTTPRequestHandler):
             buyer = (q.get("buyer") or [""])[0]
             if buyer: jobs = [j for j in jobs if j.get("buyer") == buyer]
             return self._json(jobs)
+        if u.path == "/api/site-orders":
+            by = (q.get("by") or [""])[0]
+            mine = {j["site"] for j in read_lines(JOBS_F) if not by or j.get("buyer") == by}
+            return self._json([o for o in read_lines(SITE_ORDERS_F) if o.get("site") in mine])
+        if u.path.startswith("/sites/"):
+            rel = (SITES_D / u.path[len("/sites/"):].strip("/")).resolve()
+            if SITES_D.resolve() not in rel.parents and rel != SITES_D.resolve():
+                return self.send_error(404)
+            target = rel / "index.html" if rel.is_dir() else rel
+            if not target.is_file() or target.suffix not in (".html",):
+                return self.send_error(404)
+            return self._file(str(target.relative_to(ROOT)), "text/html; charset=utf-8")
         if u.path == "/api/needs":
             try:
                 n = json.loads(NEEDS_F.read_text())
@@ -393,6 +449,60 @@ class H(BaseHTTPRequestHandler):
         if u.path == "/api/keys/verify-all":
             if not store.check_token(body.get("token", "")): return self._json({"error": "wrong admin token"}, 403)
             return self._json(store.status())
+        if u.path == "/api/provision/email":
+            # Delegated setup: the human pressed the button (= authorized it).
+            # The agent does every API-possible step; only human-only checkpoints
+            # (buying the domain, card/KYC screens) stay with the human.
+            if not store.check_token(body.get("token", "")): return self._json({"error": "wrong admin token"}, 403)
+            domain = re.sub(r"[^a-z0-9.-]", "", str(body.get("domain", "") or "").lower().strip("."))[:80]
+            if "." not in domain: return self._json({"error": "give a domain you own"}, 400)
+            rkey = store.get("RESEND_API_KEY")
+            if not rkey: return self._json({"error": "paste RESEND_API_KEY first (one paste), then press the button"}, 400)
+            steps = []
+            try:
+                try:
+                    dom = resend_api("POST", "/v1/domains", rkey, {"name": domain})
+                    steps.append("domain registered in Resend")
+                except Exception as e:
+                    if "422" in str(e) or "exists" in str(e).lower():
+                        steps.append("domain already in Resend — continuing")
+                    else: raise
+                found = resend_api("GET", "/v1/domains", rkey)
+                rec = None
+                items = found.get("data", found) if isinstance(found, dict) else found
+                for d in (items if isinstance(items, list) else []):
+                    if str(d.get("name", "")).lower() == domain:
+                        rec = d; break
+                if not rec:
+                    return self._json({"error": "domain not listed after create", "steps": steps}, 502)
+                did = rec.get("id")
+                records = rec.get("records", []) or []
+                pair = store.porkbun_pair()
+                if pair:
+                    for rc in records:
+                        rtype = (rc.get("type") or rc.get("record") or "TXT").upper()
+                        if rtype not in ("TXT", "MX", "CNAME"): continue
+                        fqdn = str(rc.get("name", "") or "")
+                        host = fqdn[:-len(domain)].rstrip(".") if fqdn.endswith(domain) else fqdn
+                        if not host: host = "@"
+                        content = str(rc.get("value", "") or "").strip('"')
+                        if content: porkbun_dns(domain, rtype, host, content, pair)
+                    steps.append(f"{len(records)} DNS records set via Porkbun automatically")
+                else:
+                    steps.append("Porkbun not connected — add these DNS records yourself (2 min):")
+                    for rc in records:
+                        steps.append(f"{rc.get('type', 'TXT')} {rc.get('name', '')} = {(str(rc.get('value', ''))[:60])}")
+                try:
+                    resend_api("POST", f"/v1/domains/{did}/verify", rkey)
+                except Exception:
+                    pass
+                st = resend_api("GET", f"/v1/domains/{did}", rkey)
+                status = str(st.get("status", "")).lower() if isinstance(st, dict) else ""
+                live = status in ("verified", "active")
+                steps.append("email SENDING LIVE" if live else f"Resend says: {status or 'pending'} (DNS propagates in minutes — this page re-checks automatically)")
+                return self._json({"ok": True, "live": live, "steps": steps})
+            except Exception as e:
+                return self._json({"error": f"provision failed: {e}".strip()[:200], "steps": steps}, 502)
         if u.path == "/api/dns/set":
             if not store.check_token(body.get("token", "")): return self._json({"error": "wrong admin token"}, 403)
             try:
@@ -426,25 +536,32 @@ class H(BaseHTTPRequestHandler):
                     return self._json({"error": f"verify failed: {e}"}, 502)
             return self._json({"ok": True, "funded": None})
         if u.path == "/api/launch":
-            # ONE CLICK: buyer approves a launch (site idea + setup price).
-            # Payment IS the click. On webhook-paid, a job is funded and the
-            # swarm fulfills it: subdomain site live, Clerk org, Resend sender,
-            # Connect account, delivery through the normal accept/dispute flow.
-            # Custom domain = upgrade later (needs a registrar purchase).
-            name = (body.get("site") or "").strip().lower().replace(" ", "-")[:30]
-            if not name or not all(c.isalnum() or c in "-_" for c in name):
+            # ONE CLICK: the site goes LIVE on this server immediately — no keys needed.
+            # Keys are upgrades, not requirements: Stripe (cards), Clerk (Google login),
+            # Resend (email), Porkbun pair (custom-domain DNS). Orders work from minute
+            # one via the on-site form (pay on delivery/transfer); seller gets an ntfy ping.
+            raw = (body.get("site") or "").strip().lower().replace(" ", "-")[:30]
+            name = re.sub(r"[^a-z0-9_-]", "", raw)
+            if not name:
                 return self._json({"error": "give your site a name (letters/numbers)"}, 400)
             buyer = self._who(body, "buyer")
-            job = {"id": f"job-{int(time.time()*1000)}", "site": name,
-                   "subdomain": f"{name}.{NEEDS.get('sites_domain', 'sites.local')}",
-                   "brief": body.get("brief", "")[:500], "buyer": buyer,
-                   "setup": float(body.get("setup", 190) or 190),
-                   "status": "awaiting-payment", "funded": False, "ts": int(time.time())}
-            jobs = read_lines(JOBS_F) + [job]
+            try: price = max(1.0, float(body.get("price", 25) or 25))
+            except (TypeError, ValueError): price = 25.0
+            notify = re.sub(r"[^a-zA-Z0-9_-]", "", str(body.get("notify", "") or ""))[:64]
+            safe = build_site(name, str(body.get("brief", "") or "")[:500], price)
+            job = {"id": f"job-{int(time.time()*1000)}", "site": safe,
+                   "subdomain": f"{safe}.{NEEDS.get('sites_domain', 'sites.local')}",
+                   "brief": str(body.get("brief", "") or "")[:500], "buyer": buyer,
+                   "setup": float(body.get("setup", 190) or 190), "price": price,
+                   "notify": notify, "site_url": f"/sites/{safe}/",
+                   "status": "live-demo", "funded": False, "ts": int(time.time())}
+            jobs = [j for j in read_lines(JOBS_F) if j.get("site") != safe] + [job]
             write_lines(JOBS_F, jobs)
+            base = PUBLIC_URL or f"https://{self.headers.get('Host', '')}"
+            job["site_url_abs"] = base.rstrip("/") + f"/sites/{safe}/"
             if not stripe_key():
                 return self._json({**job, "pay_url": None, "provisioning": provision_steps(),
-                    "note": "payments unconnected: paste the Stripe key on the Keys panel, then launch again. Job saved."})
+                    "note": "demo live now — no keys needed. Add Stripe to collect the $190 build fee by card; custom domain + email are upgrades."})
             base = PUBLIC_URL or f"https://{self.headers.get('Host', '')}"
             try:
                 s = stripe_api("/v1/checkout/sessions", {
@@ -460,6 +577,24 @@ class H(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._json({"error": f"stripe: {e}"}, 502)
 
+        if u.path == "/api/site-order":
+            site = re.sub(r"[^a-z0-9_-]", "", str(body.get("site", "") or "").lower())[:30]
+            if not site or not (SITES_D / site / "index.html").is_file():
+                return self._json({"error": "unknown site"}, 400)
+            try: qty = max(1, int(float(body.get("qty", 1) or 1)))
+            except (TypeError, ValueError): return self._json({"error": "qty must be a number"}, 400)
+            price = site_price(site)
+            o = {"id": f"sord-{int(time.time()*1000)}", "site": site,
+                 "customer": str(body.get("name", "") or "")[:80],
+                 "contact": str(body.get("contact", "") or "")[:120],
+                 "qty": qty, "unit": price, "total": round(price * qty, 2),
+                 "status": "new", "ts": int(time.time())}
+            with open(SITE_ORDERS_F, "a") as f: f.write(json.dumps(o) + "\n")
+            for j in read_lines(JOBS_F):
+                if j.get("site") == site and j.get("notify"):
+                    ping_ntfy(j["notify"], f"new order {o['id']}: {o['customer']} ({o['contact']}) x{qty} = ${o['total']:g} on {site}")
+                    break
+            return self._json(o)
         if u.path == "/api/deliver":
             oid = body.get("order_id", "")
             orders = read_lines(ORDERS_F)
@@ -545,6 +680,14 @@ class H(BaseHTTPRequestHandler):
     def do_DELETE(self):
         u = urllib.parse.urlparse(self.path)
         q = urllib.parse.parse_qs(u.query)
+        if u.path == "/api/sites":
+            site = re.sub(r"[^a-z0-9_-]", "", (q.get("id") or [""])[0].lower())[:30]
+            import shutil
+            d = SITES_D / site
+            if d.is_dir(): shutil.rmtree(d)
+            write_lines(JOBS_F, [j for j in read_lines(JOBS_F) if j.get("site") != site])
+            write_lines(SITE_ORDERS_F, [o for o in read_lines(SITE_ORDERS_F) if o.get("site") != site])
+            return self._json({"ok": True, "deleted": site})
         if u.path == "/api/auth":
             h = clean_handle((q.get("handle") or [""])[0])
             pw = (q.get("password") or [""])[0]

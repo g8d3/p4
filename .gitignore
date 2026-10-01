@@ -132,6 +132,8 @@ e085-swarm-marketplace/data/keys.json
 e085-swarm-marketplace/data/users.json
 e085-swarm-marketplace/data/sessions.json
 e085-swarm-marketplace/data/rdap_bootstrap.json
+e085-swarm-marketplace/data/sites/
+e085-swarm-marketplace/data/site-orders.jsonl
 e085-swarm-marketplace/deliveries/**/server.log
 e085-swarm-marketplace/deliveries/**/server.pid
 e085-swarm-marketplace/server/__pycache__/

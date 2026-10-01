@@ -109,6 +109,23 @@ $CURL -s "$BASE/api/auth?handle=$AU&password=$AP" -X DELETE | grep -q '"ok": tru
 $CURL -s -b "$JAR" "$BASE/api/me" | grep -q null && ok "session dead after delete" || bad "session lingers"
 rm -f "$JAR"
 
+LSITE="qa-site-$TS"
+L=$($CURL -s -X POST "$BASE/api/launch" -H 'Content-Type: application/json' -d "{\"site\":\"$LSITE\",\"brief\":\"qa coffee for cyclists\",\"buyer\":\"$BUYER\",\"price\":25}")
+echo "$L" | grep -q "live-demo" && ok "launch builds live demo (no keys)" || bad "launch demo: $(echo "$L" | head -c 200)"
+SURL=$(echo "$L" | j "['site_url']" 2>/dev/null || true)
+[ "$SURL" = "/sites/$LSITE/" ] && ok "site url returned" || bad "site url: $SURL"
+$CURL -sf "$BASE$SURL" | grep -q "qa coffee for cyclists" && ok "launched site serves brief" || bad "site content"
+SO=$($CURL -s -X POST "$BASE/api/site-order" -H 'Content-Type: application/json' -d "{\"site\":\"$LSITE\",\"name\":\"qa-cust\",\"contact\":\"qa-phone\",\"qty\":2}")
+echo "$SO" | grep -q '"total": 50' && ok "site order total 2x25" || bad "site order: $(echo "$SO" | head -c 200)"
+$CURL -sf "$BASE/api/site-orders?by=$BUYER" | grep -q "qa-cust" && ok "seller sees site order" || bad "site inbox"
+BXSS=$($CURL -s -X POST "$BASE/api/site-order" -H 'Content-Type: application/json' -d "{\"site\":\"nosuchsite\",\"name\":\"x\",\"contact\":\"x\",\"qty\":1}")
+echo "$BXSS" | grep -q "unknown site" && ok "site order validates site" || bad "site validation: $(echo "$BXSS" | head -c 120)"
+$CURL -sf "$BASE$SURL" | grep -q "<script>alert" && bad "stored xss in order form" || ok "no stored xss probe"
+TRAV=$($CURL -s -o /dev/null -w "%{http_code}" "$BASE/sites/../needs.json")
+[ "$TRAV" = "404" ] && ok "site path traversal blocked" || bad "traversal: $TRAV"
+$CURL -s -X DELETE "$BASE/api/sites?id=$LSITE" | grep -q '"ok": true' && ok "delete demo site" || bad "delete demo site"
+$CURL -s -o /dev/null -w "%{http_code}" "$BASE$SURL" | grep -q "404" && ok "site gone after delete" || bad "site lingers"
+
 python3 - <<'EOF' >/dev/null 2>&1 || JS_MISSING=1
 import re
 html = open('public/index.html').read()
