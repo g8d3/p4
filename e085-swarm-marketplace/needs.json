@@ -1,0 +1,90 @@
+{
+  "port": 8335,
+  "port_env": "E085_PORT",
+  "host": "0.0.0.0",
+  "tls": {
+    "crt": "~/.config/e062/tail.crt",
+    "key": "~/.config/e062/tail.key",
+    "crt_env": "E085_TLS_CRT",
+    "key_env": "E085_TLS_KEY",
+    "disable_env": "E085_TLS",
+    "note": "HTTPS via box tailnet cert when present, plain HTTP otherwise (E085_TLS=0 forces plain)."
+  },
+  "public_url_env": "E085_PUBLIC_URL",
+  "fee_bps": 500,
+  "fee_note": "5% platform fee on every order. Mock math until STRIPE_SECRET_KEY is set; then Stripe Connect splits fee automatically.",
+  "currency": "USD",
+  "checkout": {
+    "mode_env": "STRIPE_SECRET_KEY",
+    "mock": "no key set: orders recorded with escrow math, no money moves",
+    "live": "STRIPE_SECRET_KEY set: Connect split fee_bps to platform, net to seller",
+    "payouts": "Connect Express onboarding + dashboard (needs-herald item: payouts)"
+  },
+  "pricing_models": [
+    "per_result",
+    "per_token",
+    "per_run",
+    "per_seat_month",
+    "one_time",
+    "revenue_share",
+    "success_tip",
+    "credits",
+    "stake_slash",
+    "auction"
+  ],
+  "model_blurbs": {
+    "per_result": "Pay only on accepted result \u2014 $/result",
+    "per_token": "Metered usage \u2014 $/1k tokens",
+    "per_run": "Flat price per execution",
+    "per_seat_month": "Rent seats, billed monthly",
+    "one_time": "Buy outright, run forever",
+    "revenue_share": "% of downstream earnings",
+    "success_tip": "Tiny base + tip when it wows",
+    "credits": "Prepaid bundles (e.g. 100 runs)",
+    "stake_slash": "Both sides stake, slash on miss",
+    "auction": "Bid for scarce/urgent capacity"
+  },
+  "order_lifecycle": [
+    "escrow",
+    "accepted",
+    "disputed",
+    "released",
+    "refunded"
+  ],
+  "order_note": "Buyer pays into escrow -> accepts result (seller paid net) or disputes (platform resolves: release|refund). Trial runs are free, capped, no payout.",
+  "inference": {
+    "default": "opencode_zen",
+    "base_url_env": "OPENCODE_GO_BASE_URL",
+    "base_url_default": "https://opencode.ai/zen/go/v1/",
+    "key_envs": [
+      "OPENCODE_API_KEY",
+      "OPENCODE_GO_API_KEY"
+    ],
+    "second": "claude_code_anthropic_pending_confirm",
+    "second_key_env": "ANTHROPIC_API_KEY",
+    "lanes": "Zen default, Gemini Flash budget, Groq/Together-oss bulk, OpenRouter fallback. See data/inference.md."
+  },
+  "auth": {
+    "provider": "clerk",
+    "why": "Shared Google OAuth dev keys = Google login with zero Google Cloud console work.",
+    "publishable_key_env": "CLERK_PUBLISHABLE_KEY"
+  },
+  "provisioning": {
+    "email": "Resend (RESEND_API_KEY)",
+    "domain_registrar": "Porkbun (in-app RDAP check, manual buy; top pick data/domains.md: swarmly.cc)",
+    "keys_note": "All API keys from env, listed here, never in code."
+  },
+  "store": {
+    "swarms": "data/swarms.json",
+    "orders": "data/orders.jsonl",
+    "reviews": "data/reviews.jsonl",
+    "trials": "data/trials.jsonl",
+    "needs": "data/needs.json"
+  },
+  "sell_pitch": "Sell the marketplace itself: point a buyer at / (hero + live orders + seller earnings), show fee math on any order, show data/pricing.md margins. Self-hostable: one Python file, stdlib only, SQLite-free JSONL store.",
+  "sites_domain": "sites.local",
+  "launch": {
+    "setup_default": 190,
+    "how": "1 click = Stripe payment authorizing setup. Webhook funds the job, swarm fulfills: subdomain site, Clerk org, Resend sender, Connect account, delivery via accept/dispute. Custom domain = upgrade (registrar purchase). Owner step: buy sites domain (e.g. swarmly.cc) + wildcard DNS."
+  }
+}

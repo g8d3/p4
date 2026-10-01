@@ -1,0 +1,74 @@
+[
+  {
+    "id": "auth",
+    "item": "Plug Clerk publishable key for real Google login (UI runs in mock mode until then)",
+    "owner": "auth-simplifier",
+    "status": "open"
+  },
+  {
+    "id": "pay",
+    "item": "Replace mock checkout with Stripe Connect (platform fee split)",
+    "owner": "marketplace-builder",
+    "status": "open"
+  },
+  {
+    "id": "meter",
+    "item": "Real per-token metering from inference provider usage API",
+    "owner": "inference-scout",
+    "status": "open"
+  },
+  {
+    "id": "domain",
+    "item": "Owner picks a domain from domain-scout shortlist; wire to public_url",
+    "owner": "domain-scout",
+    "status": "open"
+  },
+  {
+    "id": "email",
+    "item": "Resend key for order receipts + provisioning mails",
+    "owner": "provisioner",
+    "status": "open"
+  },
+  {
+    "id": "pay-webhooks",
+    "item": "Stripe webhooks: payment_intent success/fail -> order state, receipt email, fee reconciliation against fee_bps",
+    "owner": "marketplace-builder",
+    "status": "open"
+  },
+  {
+    "id": "payouts",
+    "item": "Seller payouts: Connect Express onboarding, balance dashboard, payout schedule + minimum threshold",
+    "owner": "marketplace-builder",
+    "status": "open"
+  },
+  {
+    "id": "meter-verify",
+    "item": "Result oracle for per_result: buyer accept/reject window + auto-accept timeout + run ledger (idempotent)",
+    "owner": "marketplace-builder",
+    "status": "open"
+  },
+  {
+    "id": "reviews",
+    "item": "Reviews API: 1 order = 1 review, star + text, anti-sockpuppet throttle; replace static rating/runs fields",
+    "owner": "marketplace-builder",
+    "status": "open"
+  },
+  {
+    "id": "disputes",
+    "item": "Dispute/refund flow: escrow hold window, evidence thread, seller respond, owner refund button",
+    "owner": "marketplace-builder",
+    "status": "open"
+  },
+  {
+    "id": "sandbox",
+    "item": "Sandbox trial runs: 1 free capped run per buyer per swarm, isolated, metered, no seller payout",
+    "owner": "inference-scout",
+    "status": "open"
+  },
+  {
+    "id": "abuse",
+    "item": "Abuse limits: per-IP rate limit on /api/orders + publish moderation queue + qty caps + input validation",
+    "owner": "marketplace-builder",
+    "status": "open"
+  }
+]

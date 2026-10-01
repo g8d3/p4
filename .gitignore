@@ -124,6 +124,14 @@ e082-forever-harness/data/
 e083-scrapenet/data/
 e082-forever-harness/log/
 e083-scrapenet/log/
+
+# e085 runtime (secrets, jsonl ledgers, logs, pids, bytecode)
+e085-swarm-marketplace/data/*.jsonl
+e085-swarm-marketplace/data/admin.token
+e085-swarm-marketplace/data/keys.json
+e085-swarm-marketplace/deliveries/**/server.log
+e085-swarm-marketplace/deliveries/**/server.pid
+e085-swarm-marketplace/server/__pycache__/
 log/
 .pi-web/
 .growth-shots/

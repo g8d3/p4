@@ -1,0 +1,36 @@
+[
+  {
+    "id": "zero-fiddle-provisioning-swarm",
+    "name": "Zero-Fiddle Provisioning Swarm",
+    "by": "swarm-market",
+    "desc": "Never fiddle across websites for API keys again. You create the accounts (we legally cannot); our swarm does everything after: guided 3-step key capture in plain English, instant verification, auto-wiring with zero restarts, domain auto-pointed via DNS, card payments + Google login + email flipped live. Delivered as a working Keys panel with all-green status plus a provisioning report.",
+    "models": [
+      "per_run",
+      "per_seat_month"
+    ],
+    "price": {
+      "per_run": 190.0,
+      "per_seat_month": 39.0
+    },
+    "rating": 5.0,
+    "runs": 0
+  },
+  {
+    "id": "profit-ready-site-swarm",
+    "name": "Profit-Ready Site Swarm",
+    "by": "swarm-market",
+    "desc": "ONE CLICK launches your profit-ready site ($190 setup): you pay once, the swarm provisions everything \u2014 subdomain site live, Google login, email sender, payout account \u2014 and delivers your public URL through accept/dispute protection. Custom domain upgrade later. No accounts to create, no keys to fiddle, no websites to visit.",
+    "models": [
+      "per_run",
+      "revenue_share",
+      "success_tip"
+    ],
+    "price": {
+      "per_run": 490.0,
+      "revenue_share": 8.0,
+      "success_tip": 290.0
+    },
+    "rating": 5.0,
+    "runs": 3
+  }
+]

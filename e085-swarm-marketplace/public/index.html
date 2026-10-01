@@ -1,0 +1,173 @@
+<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Swarm Market — sell & rent agent swarms</title>
+<style>
+:root{color-scheme:dark light}*{box-sizing:border-box}body{font-family:system-ui,sans-serif;margin:0 auto;max-width:980px;padding:16px;line-height:1.45}
+header.top{position:sticky;top:0;background:inherit;padding:8px 0;border-bottom:1px solid #8883;display:flex;gap:10px;align-items:center;flex-wrap:wrap;z-index:5}
+input,select,button,textarea{font:inherit;padding:8px;border-radius:8px;border:1px solid #8885}
+button{cursor:pointer;font-weight:600}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin:12px 0}
+.card{border:1px solid #8885;border-radius:12px;padding:12px}.card h3{margin:.2em 0}.muted{opacity:.75;font-size:.9em}
+.tag{display:inline-block;border:1px solid #8885;border-radius:99px;padding:1px 8px;font-size:.78em;margin:1px}dialog{border-radius:12px;max-width:540px;width:93vw}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center}section{margin-top:22px;border-top:1px solid #8883;padding-top:12px}
+.hero{border:1px solid #8885;border-radius:16px;padding:20px;background:linear-gradient(135deg,#f0b42922,#7c3aed22)}
+.hero h1{margin:.1em 0;font-size:1.7em}.pill{font-size:.8em;border:1px solid #8885;border-radius:99px;padding:2px 10px}
+table{border-collapse:collapse;width:100%;font-size:.9em}td,th{border:1px solid #8884;padding:5px 8px;text-align:left}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
+.st{font-weight:700}.st-open{color:#b7791f}.st-delivered{color:#2563eb}.st-accepted,.st-released{color:#16a34a}.st-disputed{color:#dc2626}.st-refunded{color:#6b7280}
+</style>
+<header class=top><b>🐝 Swarm Market</b><span style="flex:1"></span><span id=me class=muted></span></header>
+<div class=hero>
+<h1>Rent an army. Or sell yours.</h1>
+<p>Publish a swarm once — buyers pay per result, per run, per token, or 7 more ways. 5% platform fee. Sellers deliver before buyers pay out. Disputes resolve in-app.</p>
+<div class=row><span class=pill id=statS>…</span><span class=pill id=statO>…</span><span class=pill id=statC>…</span></div>
+<div class=row><button onclick="needMe(()=>document.getElementById('launch').showModal())" style="font-size:1.1em">🚀 Launch my site — 1 click</button><button onclick="needMe(()=>document.getElementById('pub').showModal())">+ Sell your swarm</button></div>
+<div class=muted>One click = one payment. The swarm provisions everything (subdomain site, login, email, payouts) and delivers your public URL. Custom domain later.</div>
+</div>
+<nav><a href="#market">Market</a> · <a href="#my">My orders</a> · <a href="#sell">Seller desk</a> · <a href="#keys">Keys</a> · <a href="#domain">Domain</a></nav>
+<section id=market><h2>Market</h2>
+<div class=row><input id=q placeholder="Search swarms…" style="flex:1;min-width:160px"><select id=f><option value="">all pricing</option></select><button onclick=load()>Search</button></div>
+<div id=list class=grid></div></section>
+<section id=my><h2>🧾 My orders</h2><div id=orders class=muted></div></section>
+<section id=sell><h2>💰 Seller desk <span class=muted>(your swarms, your money)</span></h2><div id=desk class=muted></div></section>
+<section id=how><h2>How it works</h2>
+<ol><li><b>Order</b> at the agreed price. Pay now by card when Stripe is connected, or settle with the seller — the order records the amount either way.</li>
+<li><b>Seller delivers</b> the result (file, link, text). Accept unlocks <b>only after delivery</b>.</li>
+<li><b>Accept</b> → seller is owed net (minus 5%). <b>Dispute</b> → frozen until resolved release/refund.</li>
+<li>1 accepted order = 1 <b>review</b>. Ratings are earned, never typed. Unsure? Claim <b>1 free trial</b> per swarm.</li></ol></section>
+<section id=keys><h2>🔑 Keys — help the swarm provision (no tech skills needed)</h2>
+<p class=muted>Some services need <b>you</b> to create the account (we're not allowed to). For each one: follow the 3 steps, paste the key, hit Save — the swarm <b>verifies it instantly, wires it in and activates everything itself</b>. No config files, no restarts, no fiddling. Admin token: paste once, we remember it.</p>
+<div class=row><input id=adm placeholder="admin token (in server.log at boot)" style="flex:1;min-width:200px"><button onclick="localStorage.setItem('sm_admin',document.getElementById('adm').value);keysStatus();">Unlock</button><button onclick=verifyAll()>🤖 Swarm: verify + activate all</button></div>
+<div id=keysout class=muted>Loading key slots…</div>
+<div id=dnsbox class=row style="margin-top:8px"><input id=dnsdom placeholder="yourdomain.com" style="flex:1"><input id=dnsip placeholder="box IP (needs Porkbun live)" style="flex:1"><button onclick=dnsSet()>Point domain at box</button></div><div id=dnsout class=muted></div></section>
+<section id=domain><h2>🔍 Domain check</h2>
+<div class=row><input id=dom placeholder="swarmly.cc" style="flex:1"><button onclick=checkDom()>Check</button></div>
+<div id=domout class=muted>RDAP read-only. 404 = likely free (confirm at checkout). Scout's top pick: <b>swarmly.cc</b>.</div>
+<div id=needs class=muted style="margin-top:10px"></div></section>
+<dialog id=detail><h3 id=dname></h3><p id=ddesc class=muted></p><div id=dmodels></div><div id=drevs></div>
+<div class=row><select id=dmodel></select><input id=dqty type=number value=1 min=1 style="width:76px"><input id=dbrief placeholder="brief for the seller (optional)" style="flex:1;min-width:140px"></div>
+<div class=row><button onclick=order()>Place order</button><button onclick=trial()>Free trial</button><button onclick="document.getElementById('detail').close()">Close</button></div><div id=dout></div></dialog>
+<dialog id=launch><h3>🚀 Launch my site — 1 click</h3>
+<input id=lsite placeholder="Site name (e.g. beanbadge)" style="width:100%;margin:4px 0">
+<textarea id=lbrief placeholder="What should it sell?" style="width:100%;margin:4px 0"></textarea>
+<div class=row><button onclick=launch()>$190 — Launch it</button><button onclick="document.getElementById('launch').close()">Cancel</button></div>
+<div id=lout class=muted>Launches on a free subdomain first (custom domain = upgrade). One payment authorizes the whole pipeline.</div></dialog>
+<dialog id=pub><h3>Sell your swarm</h3>
+<input id=pname placeholder="Swarm name" style="width:100%;margin:4px 0">
+<textarea id=pdesc placeholder="What does it do? Who pays for it?" style="width:100%;margin:4px 0"></textarea>
+<div class=row><select id=pmodel></select><input id=pprice placeholder="Price" type=number style="width:110px"></div>
+<div class=row><button onclick=publish()>Publish — earn 95%</button><button onclick="document.getElementById('pub').close()">Cancel</button></div>
+<div class=muted>Published under your signed-in name. Buyers pay into the flow; you're owed net on accept, minus 5%.</div></dialog>
+<dialog id=deliver><h3>Deliver order <span id=vOid></span></h3>
+<textarea id=vText placeholder="What was done + result summary" style="width:100%;margin:4px 0"></textarea>
+<input id=vUrl placeholder="Result link (optional)" style="width:100%;margin:4px 0">
+<div class=row><button onclick=sendDelivery()>Mark delivered</button><button onclick="document.getElementById('deliver').close()">Cancel</button></div></dialog>
+<script>
+let S=[],cur=null,MODELS=[],ME=localStorage.getItem('sm_handle')||'',CLERK=null;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const safeUrl=u=>{try{const p=new URL(u);return (p.protocol==='http:'||p.protocol==='https:')?p.href:'';}catch(e){return '';}};
+function needMe(fn){if(!ME){alert('Pick your handle at the top first.');return;}return fn();}
+async function init(){const h=await(await fetch('/api/health')).json();
+document.getElementById('statS').textContent=h.swarms+' swarms';document.getElementById('statO').textContent=h.orders+' orders';
+document.getElementById('statC').textContent=h.checkout==='live'?'card payments live':'payments: order-first, card at connect';
+MODELS=await(await fetch('/api/models')).json();
+document.getElementById('f').innerHTML='<option value="">all pricing</option>'+MODELS.map(m=>`<option>${m}</option>`).join('');
+document.getElementById('pmodel').innerHTML=MODELS.map(m=>`<option>${m}</option>`).join('');
+try{CLERK=await(await fetch('/api/auth')).json();}catch(e){}
+renderMe();load();refreshMine();
+try{const n=await(await fetch('/api/needs')).json();const open=(Array.isArray(n)?n:[]).filter(x=>x.status==='open');
+document.getElementById('needs').innerHTML=open.length?'<b>Still building:</b><ul>'+open.map(x=>`<li>[${esc(x.owner)}] ${esc(x.item)}</li>`).join('')+'</ul>':'';}catch(e){}
+keysStatus();
+const paid=new URLSearchParams(location.search).get('paid');
+if(paid){document.getElementById('orders').innerHTML='<b>Payment received.</b> Loading your orders…';history.replaceState({},'',location.pathname);}}
+function renderMe(){const el=document.getElementById('me');
+if(ME){el.innerHTML=`signed in as <b>${esc(ME)}</b> <button onclick="ME='';localStorage.removeItem('sm_handle');renderMe();refreshMine();">switch</button>`;}
+else if(CLERK&&CLERK.clerk){el.innerHTML=`<button onclick="clerkLogin()">Continue with Google</button> <input id=hin placeholder="or pick a handle" style="width:150px"> <button onclick="setHandle()">Use handle</button>`;}
+else{el.innerHTML=`<input id=hin placeholder="pick your handle"> <button onclick="setHandle()">Sign in</button>`;}}
+function setHandle(){const v=(document.getElementById('hin').value||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,30);
+if(!v){alert('Handle: letters, numbers, _ or -, e.g. maya');return;}ME=v;localStorage.setItem('sm_handle',ME);renderMe();refreshMine();}
+function clerkLogin(){alert('Clerk key is set — wire your frontend key in the next step. Using handle mode meanwhile.');}
+async function load(){const r=await fetch('/api/swarms');S=await r.json();
+const q=document.getElementById('q').value.toLowerCase(),f=document.getElementById('f').value;
+const el=document.getElementById('list');el.innerHTML='';
+if(!S.length){el.innerHTML='<div class=card><h3>No swarms yet</h3><p>Be the first to sell. Publish below — every listing here is real.</p><div class=row><button onclick="needMe(()=>document.getElementById(\'pub\').showModal())">+ Sell the first swarm</button></div></div>';return;}
+S.filter(s=>{const ms=s.models||[];return (!f||ms.includes(f))&&(!q||((s.name||'')+' '+(s.desc||'')).toLowerCase().includes(q));}).forEach(s=>{
+const mine=ME&&s.by===ME;
+const ms=s.models||[],pr=s.price||{};
+const d=document.createElement('div');d.className='card';
+d.innerHTML=`<h3>${esc(s.name)}</h3><div class=muted>by ${esc(s.by)}${mine?' (yours)':''} · ${s.n_reviews?`<span class=stars>★${s.rating}</span> · ${s.n_reviews} review${s.n_reviews>1?'s':''}`:'<b>New</b> · no reviews yet'} · ${s.runs||0} runs</div><p>${esc(s.desc)}</p><div>${ms.map(m=>`<span class=tag>${m} $${pr[m]??'?'}</span>`).join('')}</div><div class=row><button>Open</button></div>`;
+d.querySelector('button').onclick=()=>openD(s.id);el.appendChild(d);});}
+async function openD(id){cur=S.find(s=>s.id===id);
+if(!cur){alert('That swarm is gone — reloading.');load();return;}
+document.getElementById('dname').textContent=cur.name+(ME===cur.by?' (yours)':'');
+document.getElementById('ddesc').textContent=`by ${cur.by} — ${cur.desc}`;
+document.getElementById('dmodels').innerHTML=cur.models.map(m=>`<span class=tag>${m} $${cur.price[m]??'?'}</span>`).join('');
+document.getElementById('dmodel').innerHTML=cur.models.map(m=>`<option>${m}</option>`).join('');
+document.getElementById('dout').textContent='';
+const revs=await(await fetch('/api/reviews?swarm_id='+encodeURIComponent(id))).json();
+document.getElementById('drevs').innerHTML=revs.length?'<b>Reviews:</b><ul>'+revs.map(r=>`<li><span class=stars>${'★'.repeat(r.stars)}</span> ${esc(r.text)}</li>`).join('')+'</ul>':'<div class=muted>No reviews yet — be the first.</div>';
+document.getElementById('detail').showModal();}
+async function order(){needMe(async()=>{const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({swarm_id:cur.id,model:document.getElementById('dmodel').value,qty:Math.max(1,+document.getElementById('dqty').value||1),buyer:ME,brief:document.getElementById('dbrief').value})});
+const o=await r.json();
+document.getElementById('dout').innerHTML=o.error?esc(o.error):
+`✅ Order <b>${esc(o.id)}</b> placed: $${o.gross} (fee $${o.fee}). Status: <b>open</b>${o.funded?' · funded':''}. Pay by card below in My orders, or settle with the seller — then wait for delivery.`;refreshMine();init();});}
+async function trial(){needMe(async()=>{const r=await fetch('/api/trials',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({swarm_id:cur.id,buyer:ME})});const o=await r.json();
+document.getElementById('dout').textContent=o.error||`🎁 Trial order ${o.order.id} placed (free). The seller delivers, you accept.`;refreshMine();});}
+async function publish(){needMe(async()=>{const m=document.getElementById('pmodel').value;
+const r=await fetch('/api/swarms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(
+{name:document.getElementById('pname').value,by:ME,desc:document.getElementById('pdesc').value,models:[m],price:{[m]:+document.getElementById('pprice').value||5}})});
+const o=await r.json();if(o.error){alert(o.error);return;}
+document.getElementById('pub').close();load();init();refreshMine();});}
+async function launch(){needMe(async()=>{const site=document.getElementById('lsite').value.trim().toLowerCase();
+const r=await fetch('/api/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site,brief:document.getElementById('lbrief').value,buyer:ME,setup:190})});
+const o=await r.json();if(o.error){document.getElementById('lout').textContent=o.error;return;}
+if(o.pay_url){location.href=o.pay_url;}else{document.getElementById('lout').textContent=o.note||'Job saved.';refreshMine();}});}
+async function refreshMine(){if(!ME){document.getElementById('orders').innerHTML='<div class=muted>Sign in at the top to see your orders.</div>';
+document.getElementById('desk').innerHTML='<div class=muted>Sign in at the top — your swarms, incoming orders and earnings show here.</div>';return;}
+const os=await(await fetch('/api/orders?buyer='+encodeURIComponent(ME))).json();
+const jobs=await(await fetch('/api/jobs?buyer='+encodeURIComponent(ME))).json();
+const jobHtml=jobs.length?'<h3>🚀 Launches</h3><table><tr><th>Site</th><th>Status</th><th>Paid</th></tr>'+jobs.map(j=>`<tr><td>${esc(j.subdomain)}</td><td class=st>${esc(j.status)}</td><td>${j.funded?'✅':'—'}</td></tr>`).join('')+'</table>':'';
+document.getElementById('orders').innerHTML=(jobHtml)+(os.length?'<table><tr><th>Order</th><th>Swarm</th><th>Total</th><th>Paid</th><th>Status</th><th>Action</th></tr>'+os.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.swarm_id)}</td><td>$${o.gross}</td><td>${o.funded?'✅':'—'}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'&&!o.funded?'<button onclick="pay(this)">Pay card</button> ':''}${o.status==='delivered'?`<button onclick="accept(this)">Accept</button> <button onclick="dispute(this)">Dispute</button><br><span class=muted>got: ${esc((o.delivery||{}).text||'').slice(0,80)} ${o.delivery&&safeUrl(o.delivery.url)?`<a href="${safeUrl(o.delivery.url)}" target=_blank rel=noopener>link</a>`:''}</span>`:o.status==='accepted'?`<button onclick="review(this)">★ Review</button>`:''}</td></tr>`).join('')+'</table>':'<div class=muted>No orders yet. Open a swarm and place one.</div>';
+const d=await(await fetch('/api/seller?by='+encodeURIComponent(ME))).json();
+const inbox=await(await fetch('/api/inbox?by='+encodeURIComponent(ME))).json();
+const todo=inbox.filter(o=>o.status==='open');
+document.getElementById('desk').innerHTML=`<b>${d.swarms.length}</b> swarms · <b>$${d.owed}</b> owed to you · $${d.open} in open orders · ${todo.length} need delivery<br><span class=muted>${esc(d.payouts)}</span>`+
+(inbox.length?'<table><tr><th>Order</th><th>Buyer</th><th>Model</th><th>Net</th><th>Status</th><th>Action</th></tr>'+inbox.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.buyer)}</td><td>${o.model}</td><td>$${o.net}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'?`<button onclick="startDeliver(this)">Deliver</button>`:`<span class=muted>${esc((o.delivery||{}).text||'').slice(0,60)}</span>`}</td></tr>`).join('')+'</table>':'<div class=muted>No incoming orders yet — share the market link so buyers find your swarm.</div>');}
+async function pay(btn){const oid=btn.parentElement.dataset.oid;
+const r=await fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:oid})});
+const o=await r.json();if(o.url){location.href=o.url;}else{alert(o.error||'Payment failed');}}
+async function accept(btn){const oid=btn.parentElement.dataset.oid;
+const r=await fetch('/api/accept',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:oid,buyer:ME})});
+const o=await r.json();if(o.error){alert(o.error);return;}refreshMine();}
+async function dispute(btn){const why=prompt('What went wrong?');if(why==null)return;
+const oid=btn.parentElement.dataset.oid;
+await fetch('/api/disputes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:oid,buyer:ME,reason:why})});refreshMine();}
+async function review(btn){const oid=btn.parentElement.dataset.oid;const s=prompt('Stars 1-5?',5);if(!s)return;const t=prompt('One line?')||'';
+const r=await fetch('/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:oid,stars:+s,text:t})});
+const o=await r.json();alert(o.error||'Review saved — rating updated.');}
+let deliverOid='';
+function startDeliver(btn){const oid=btn.parentElement.dataset.oid;needMe(()=>{deliverOid=oid;document.getElementById('vOid').textContent=oid.slice(-6);document.getElementById('deliver').showModal();});}
+async function sendDelivery(){const r=await fetch('/api/deliver',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({order_id:deliverOid,by:ME,text:document.getElementById('vText').value,url:document.getElementById('vUrl').value})});
+const o=await r.json();if(o.error){alert(o.error);return;}
+document.getElementById('deliver').close();refreshMine();}
+async function keysStatus(){const r=await fetch('/api/keys/status');const ks=await r.json();
+const dot={live:'🟢',missing:'⚪',invalid:'🔴'};
+document.getElementById('keysout').innerHTML=ks.map(k=>`<div class=card style="margin:8px 0"><b>${dot[k.state]} ${esc(k.title)}</b><br><span class=muted>${esc(k.why)}</span><ol>${k.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol><div class=row><input id="k-${k.name}" placeholder="paste ${esc(k.name)}" style="flex:1;min-width:180px"><button onclick="saveKey('${k.name}')">Save</button></div><div class=muted id="ks-${k.name}">${esc(k.detail)}</div></div>`).join('');
+const t=localStorage.getItem('sm_admin')||'';if(t)document.getElementById('adm').value=t;}
+async function saveKey(name){const v=document.getElementById('k-'+name).value;const t=localStorage.getItem('sm_admin')||document.getElementById('adm').value;
+const r=await fetch('/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t,name,value:v})});
+const o=await r.json();document.getElementById('ks-'+name).textContent=o.error||`${o.state}: ${o.detail}`;localStorage.setItem('sm_admin',t);init();}
+async function verifyAll(){const t=localStorage.getItem('sm_admin')||document.getElementById('adm').value;
+const r=await fetch('/api/keys/verify-all',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t})});
+const o=await r.json();if(o.error){alert(o.error);return;}
+const live=o.filter(k=>k.state==='live').length;alert(`Swarm checked everything: ${live}/${o.length} live. Missing ones show 3 steps above.`);localStorage.setItem('sm_admin',t);keysStatus();init();}
+async function dnsSet(){const t=localStorage.getItem('sm_admin')||document.getElementById('adm').value;
+const r=await fetch('/api/dns/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t,domain:document.getElementById('dnsdom').value,ip:document.getElementById('dnsip').value})});
+const o=await r.json();document.getElementById('dnsout').textContent=o.error||o.msg;}
+async function checkDom(){const n=document.getElementById('dom').value.trim();if(!n)return;
+document.getElementById('domout').textContent='checking…';
+const r=await fetch('/api/domain-check?name='+encodeURIComponent(n));const o=await r.json();
+document.getElementById('domout').textContent=o.error||`${o.name}: ${o.available?'LIKELY FREE ✅':'TAKEN ❌'} — ${o.note}`;}
+init();
+</script>

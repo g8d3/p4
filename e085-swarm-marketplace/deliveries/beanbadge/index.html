@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeanBadge — Fresh coffee, on subscription</title>
+<style>
+:root { --bg: #1a120b; --card: #2a1e12; --cream: #f5ead9; --amber: #e8a33d; --green: #7fb069; --red: #d1604d; --muted: #b9a68d; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--cream); }
+.wrap { max-width: 860px; margin: 0 auto; padding: 32px 20px 64px; }
+.hero { text-align: center; padding: 48px 0 24px; }
+.hero h1 { font-size: 44px; margin: 0 0 8px; }
+.hero h1 span { color: var(--amber); }
+.hero p { color: var(--muted); font-size: 18px; max-width: 560px; margin: 0 auto; }
+.badge { display: inline-block; background: var(--amber); color: #1a120b; font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 999px; margin-bottom: 12px; }
+.card { background: var(--card); border: 1px solid #4a3520; border-radius: 12px; padding: 20px; margin: 16px 0; }
+.card h2 { margin-top: 0; }
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.plan { border: 1px solid #4a3520; border-radius: 10px; padding: 16px; background: #241810; }
+.plan.featured { border-color: var(--amber); }
+.plan h3 { margin: 0 0 4px; }
+.plan .price { font-size: 26px; font-weight: 800; color: var(--amber); }
+.plan button, .actions button { background: var(--amber); color: #1a120b; border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
+.plan button:disabled, .actions button:disabled { background: #5a4a33; color: #cbb894; cursor: not-allowed; }
+.why { color: #8d7a63; font-size: 13px; margin-top: 8px; }
+.pill { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin: 2px 4px 2px 0; }
+.on { background: #234d2c; color: #9fe0ab; }
+.off { background: #54241d; color: #f2a79b; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.step { background: #241810; border: 1px solid #4a3520; border-radius: 10px; padding: 14px; }
+.step b { color: var(--amber); }
+input[type=email] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #4a3520; background: #17100a; color: var(--cream); }
+.row { display: flex; gap: 10px; margin-top: 10px; }
+.row button { width: auto; flex: 1; }
+footer { color: #8d7a63; font-size: 13px; text-align: center; margin-top: 32px; }
+code { background: #17100a; padding: 2px 6px; border-radius: 6px; }
+#clerk-mount { margin-top: 10px; }
+.faq dt { font-weight: 700; margin-top: 10px; }
+.faq dd { margin: 4px 0 0; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+<div class="badge">FICTIONAL DEMO — BeanBadge coffee subscription</div>
+<h1>Fresh coffee, <span>on autopilot.</span></h1>
+<p>Small-lot beans roasted every Tuesday, shipped the same day. Pause or cancel anytime. Your mornings deserve a badge of honor.</p>
+</div>
+
+<div class="card" id="status-card">
+<h2>Live integration status</h2>
+<p class="why">Wired strictly by environment keys on the server. Nothing is mocked — a service shows <b>ready</b> only when its key is set.</p>
+<div id="status">Checking…</div>
+</div>
+
+<div class="card">
+<h2>Pick your roast rhythm</h2>
+<div class="plans">
+<div class="plan"><h3>Taster</h3><div class="price">$12/mo</div>
+<p class="why">1 × 250g bag / month. Single origin, rotating.</p>
+<button data-plan="taster" disabled>Subscribe — checking…</button><div class="why" data-why="taster"></div></div>
+<div class="plan featured"><h3>Daily Drinker ⭐</h3><div class="price">$19/mo</div>
+<p class="why">2 × 250g bags / month. Free shipping. Most popular.</p>
+<button data-plan="daily" disabled>Subscribe — checking…</button><div class="why" data-why="daily"></div></div>
+<div class="plan"><h3>Office Fuel</h3><div class="price">$49/mo</div>
+<p class="why">6 × 250g bags / month. Priority roast + decaf swap.</p>
+<button data-plan="office" disabled>Subscribe — checking…</button><div class="why" data-why="office"></div></div>
+</div>
+<p class="why" id="checkout-note"></p>
+</div>
+
+<div class="card">
+<h2>How it works</h2>
+<div class="steps">
+<div class="step"><b>1. Pick a plan.</b><br>Checkout is powered by Stripe — real payments only when the owner sets <code>STRIPE_SECRET_KEY</code>.</div>
+<div class="step"><b>2. We roast Tuesday.</b><br>Order cutoff Monday midnight. Beans ship same-day, tracking by email.</div>
+<div class="step"><b>3. Brew &amp; badge.</b><br>Scan the bag QR to log your brew streak. 12-week streak = free merch.</div>
+</div>
+</div>
+
+<div class="card actions">
+<h2>Get roast-day emails</h2>
+<p class="why">One email per roast Tuesday. Receipts + tracking via Resend — real sends only when <code>RESEND_API_KEY</code> is set.</p>
+<input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+<div class="row"><button id="sub-btn" disabled>Checking…</button></div>
+<p class="why" id="sub-note"></p>
+</div>
+
+<div class="card actions">
+<h2>Account login</h2>
+<p class="why">Google login with zero Cloud-console fiddling via Clerk shared OAuth — active only when <code>CLERK_PUBLISHABLE_KEY</code> is set.</p>
+<div id="clerk-mount"></div>
+<p class="why" id="auth-note">Checking…</p>
+</div>
+
+<div class="card">
+<h2>Why BeanBadge</h2>
+<ul>
+<li><b>Roasted weekly,</b> never warehoused. Roast date printed on every bag.</li>
+<li><b>Traceable lots</b> — farm, altitude, and process on the label.</li>
+<li><b>Flexible:</b> pause a month, swap decaf, cancel in two clicks.</li>
+<li><b>Streak rewards</b> keep the habit fun without a mobile app.</li>
+</ul>
+<dl class="faq">
+<dt>Is this a real store?</dt><dd>No — BeanBadge is a fictional demo built to show a profit-ready site pattern. Payments, login, and email activate only with real keys.</dd>
+<dt>What domain will it use?</dt><dd>Top pick <code id="domain-pick">beanbadge.coffee</code> — RDAP check-only, not purchased (see launch checklist).</dd>
+<dt>How do I launch it for real?</dt><dd>Follow <code>LAUNCH_CHECKLIST.md</code> in the delivery folder: buy the domain, set three env keys, deploy this folder.</dd>
+</dl>
+</div>
+
+<footer>BeanBadge demo · built by the swarm-market fulfillment crew · order ord-1790838086664 · fictional brand, no real coffee (yet)</footer>
+</div>
+
+<script>
+async function boot() {
+  let cfg = {};
+  try { cfg = await (await fetch('/api/config')).json(); }
+  catch (e) { document.getElementById('status').textContent = 'Server unreachable: ' + e; return; }
+  document.getElementById('domain-pick').textContent = cfg.domain || 'beanbadge.coffee';
+  const pill = (on, label) => `<span class="pill ${on ? 'on' : 'off'}">${on ? '●' : '○'} ${label}: ${on ? 'ready' : 'disabled — key not set'}</span>`;
+  document.getElementById('status').innerHTML =
+    pill(cfg.stripe_ready, 'Stripe') + pill(cfg.clerk_ready, 'Clerk') + pill(cfg.resend_ready, 'Resend') +
+    `<div class="why">Domain pick: <code>${cfg.domain}</code> — ${cfg.domain_note}</div>`;
+
+  // Stripe buttons: honest disabled state, no fake checkout.
+  document.querySelectorAll('[data-plan]').forEach(b => {
+    const why = document.querySelector(`[data-why="${b.dataset.plan}"]`);
+    if (cfg.stripe_ready) {
+      b.disabled = false; b.textContent = 'Subscribe with Stripe';
+      b.onclick = () => checkout(b.dataset.plan, b);
+      why.textContent = '';
+    } else {
+      b.disabled = true; b.textContent = 'Checkout disabled';
+      why.textContent = 'Set STRIPE_SECRET_KEY on the server to accept payments. No demo or mock charge is offered.';
+    }
+  });
+  document.getElementById('checkout-note').textContent = cfg.stripe_ready
+    ? 'Live mode: clicking Subscribe creates a real Stripe Checkout session.'
+    : 'Payments unconnected: STRIPE_SECRET_KEY is not set, so no money can move. Orders stay as inquiries.';
+
+  // Resend subscribe: honest disabled state, no fake signup.
+  const subBtn = document.getElementById('sub-btn'), subNote = document.getElementById('sub-note');
+  if (cfg.resend_ready) {
+    subBtn.disabled = false; subBtn.textContent = 'Notify me';
+    subBtn.onclick = subscribe;
+    subNote.textContent = 'Live: your address is emailed through Resend.';
+  } else {
+    subBtn.disabled = true; subBtn.textContent = 'Email signup disabled';
+    subNote.textContent = 'RESEND_API_KEY is not set, so signups are disabled (nothing is stored, no fake confirmation).';
+  }
+
+  // Clerk: only mounted when a real publishable key is served. No mock login button.
+  const note = document.getElementById('auth-note'), mount = document.getElementById('clerk-mount');
+  if (cfg.clerk_ready && cfg.clerk_publishable_key) {
+    note.textContent = 'Login live via Clerk.';
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+    s.onload = async () => {
+      try {
+        await window.Clerk.load({ publishableKey: cfg.clerk_publishable_key });
+        mount.innerHTML = '<button id="login-btn">Sign in with Google</button>';
+        document.getElementById('login-btn').onclick = () => window.Clerk.openSignIn();
+      } catch (e) { note.textContent = 'Clerk failed to load: ' + e; }
+    };
+    s.onerror = () => { note.textContent = 'Clerk CDN unreachable — login unavailable.'; };
+    document.head.appendChild(s);
+  } else {
+    mount.innerHTML = '';
+    note.textContent = 'Login disabled — CLERK_PUBLISHABLE_KEY is not set. No demo account, no mock session.';
+  }
+}
+async function checkout(plan, btn) {
+  btn.disabled = true; btn.textContent = 'Redirecting…';
+  try {
+    const r = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
+    const j = await r.json();
+    if (j.url) location.href = j.url; else { btn.textContent = 'Checkout failed'; alert(j.error || 'Checkout failed'); btn.disabled = false; }
+  } catch (e) { btn.textContent = 'Subscribe with Stripe'; btn.disabled = false; alert('Network error: ' + e); }
+}
+async function subscribe() {
+  const email = document.getElementById('email').value.trim(), note = document.getElementById('sub-note');
+  if (!email || !email.includes('@')) { note.textContent = 'Enter a valid email address.'; return; }
+  note.textContent = 'Sending…';
+  try {
+    const r = await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    const j = await r.json();
+    note.textContent = j.ok ? 'You are on the list — confirmation sent via Resend.' : ('Signup failed: ' + (j.error || r.status));
+  } catch (e) { note.textContent = 'Network error: ' + e; }
+}
+boot();
+</script>
+</body>
+</html>
