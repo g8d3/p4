@@ -19,7 +19,7 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <h1>Rent an army. Or sell yours.</h1>
 <p>Publish a swarm once — buyers pay per result, per run, per token, or 7 more ways. 5% platform fee. Sellers deliver before buyers pay out. Disputes resolve in-app.</p>
 <div class=row><span class=pill id=statS>…</span><span class=pill id=statO>…</span><span class=pill id=statC>…</span></div>
-<div class=row><button onclick="needMe(()=>document.getElementById('launch').showModal())" style="font-size:1.1em">🚀 Launch my site — 1 click</button><button onclick="needMe(()=>document.getElementById('pub').showModal())">+ Sell your swarm</button></div>
+<div class=row><button onclick="needMe(()=>document.getElementById('launch').showModal())" style="font-size:1.1em">🚀 Launch my site — 1 click</button><button onclick="needMe(()=>document.getElementById('pub').showModal())">+ Sell your business</button></div>
 <div class=muted>One click = one payment. The swarm provisions everything (subdomain site, login, email, payouts) and delivers your public URL. Custom domain later.</div>
 </div>
 <nav><a href="#market">Market</a> · <a href="#my">My orders</a> · <a href="#sell">Seller desk</a> · <a href="#keys">Keys</a> · <a href="#domain">Domain</a></nav>
@@ -47,16 +47,17 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <div class=row><button onclick=order()>Place order</button><button onclick=trial()>Free trial</button><button onclick="document.getElementById('detail').close()">Close</button></div><div id=dout></div></dialog>
 <dialog id=launch><h3>🚀 Launch my site — 1 click</h3>
 <input id=lsite placeholder="Site name (e.g. beanbadge)" style="width:100%;margin:4px 0">
-<textarea id=lbrief placeholder="What should it sell?" style="width:100%;margin:4px 0"></textarea>
-<div class=row><button onclick=launch()>$190 — Launch it</button><button onclick="document.getElementById('launch').close()">Cancel</button></div>
+<textarea id=lbrief placeholder="What should it sell? (a few words is enough — hit ✨ below)" style="width:100%;margin:4px 0"></textarea>
+<div class=row><button onclick=launchHelp()>✨ Help me write it</button><button onclick=launch()>$190 — Launch it</button><button onclick="document.getElementById('launch').close()">Cancel</button></div>
+<div id=lhelp class=muted></div>
 <div id=lout class=muted>Launches on a free subdomain first (custom domain = upgrade). One payment authorizes the whole pipeline.</div></dialog>
-<dialog id=pub><h3>Sell your swarm</h3>
-<input id=pname placeholder="Swarm name" style="width:100%;margin:4px 0">
+<dialog id=pub><h3>Sell your business</h3>
+<input id=pname placeholder="Business name (the launched site)" style="width:100%;margin:4px 0">
 <textarea id=pdesc placeholder="What does it do? Who pays for it?" style="width:100%;margin:4px 0"></textarea>
-<input id=purl placeholder="Live site URL (https://… — your delivered website)" style="width:100%;margin:4px 0">
-<div class=row><select id=pmodel></select><input id=pprice placeholder="Price" type=number style="width:110px"></div>
-<div class=row><button onclick=publish()>Publish — earn 95%</button><button onclick="document.getElementById('pub').close()">Cancel</button></div>
-<div class=muted>Published under your signed-in name. Buyers pay into the flow; you're owed net on accept, minus 5%.</div></dialog>
+<input id=purl placeholder="Live site URL (https://…)" style="width:100%;margin:4px 0">
+<div class=row><select id=pdeal><option value="template">Template only</option><option value="clients">With clients</option><option value="revenue">With revenue</option></select><input id=pprice placeholder="Sale price" type=number style="width:110px"></div>
+<div class=row><button onclick=publish()>List it — earn 95%</button><button onclick="document.getElementById('pub').close()">Cancel</button></div>
+<div class=muted>Launched it here? List the business itself: template, client list, or full revenue handover. Buyer pays once; you're owed 95% on accept.</div></dialog>
 <dialog id=deliver><h3>Deliver order <span id=vOid></span></h3>
 <textarea id=vText placeholder="What was done + result summary" style="width:100%;margin:4px 0"></textarea>
 <input id=vUrl placeholder="Result link (optional)" style="width:100%;margin:4px 0">
@@ -71,7 +72,6 @@ document.getElementById('statS').textContent=h.swarms+' swarms';document.getElem
 document.getElementById('statC').textContent=h.checkout==='live'?'card payments live':'payments: order-first, card at connect';
 MODELS=await(await fetch('/api/models')).json();
 document.getElementById('f').innerHTML='<option value="">all pricing</option>'+MODELS.map(m=>`<option>${m}</option>`).join('');
-document.getElementById('pmodel').innerHTML=MODELS.map(m=>`<option>${m}</option>`).join('');
 try{CLERK=await(await fetch('/api/auth')).json();}catch(e){}
 renderMe();load();refreshMine();
 try{const n=await(await fetch('/api/needs')).json();const open=(Array.isArray(n)?n:[]).filter(x=>x.status==='open');
@@ -95,8 +95,10 @@ const mine=ME&&s.by===ME;
 const ms=s.models||[],pr=s.price||{};
 const su=safeUrl(s.url||'');
 const siteRow=su?'<div><a href="'+su+'" target=_blank rel=noopener>live site</a></div>':'';
+const dealMap={template:'Template',clients:'+ Clients',revenue:'+ Revenue'};
+const dealRow=s.deal?'<div><span class=tag>'+(dealMap[s.deal]||esc(s.deal))+'</span></div>':'';
 const d=document.createElement('div');d.className='card';
-d.innerHTML=`<h3>${esc(s.name)}</h3><div class=muted>by ${esc(s.by)}${mine?' (yours)':''} · ${s.n_reviews?`<span class=stars>★${s.rating}</span> · ${s.n_reviews} review${s.n_reviews>1?'s':''}`:'<b>New</b> · no reviews yet'} · ${s.runs||0} runs</div><p>${esc(s.desc)}</p>${siteRow}<div>${ms.map(m=>`<span class=tag>${m} $${pr[m]??'?'}</span>`).join('')}</div><div class=row><button>Open</button></div>`;
+d.innerHTML=`<h3>${esc(s.name)}</h3><div class=muted>by ${esc(s.by)}${mine?' (yours)':''} · ${s.n_reviews?`<span class=stars>★${s.rating}</span> · ${s.n_reviews} review${s.n_reviews>1?'s':''}`:'<b>New</b> · no reviews yet'} · ${s.runs||0} runs</div><p>${esc(s.desc)}</p>${siteRow}${dealRow}<div>${ms.map(m=>`<span class=tag>${m} $${pr[m]??'?'}</span>`).join('')}</div><div class=row><button>Open</button></div>`;
 d.querySelector('button').onclick=()=>openD(s.id);el.appendChild(d);});}
 async function openD(id){cur=S.find(s=>s.id===id);
 if(!cur){alert('That swarm is gone — reloading.');load();return;}
@@ -117,11 +119,35 @@ document.getElementById('dout').innerHTML=o.error?esc(o.error):
 async function trial(){needMe(async()=>{const r=await fetch('/api/trials',{method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({swarm_id:cur.id,buyer:ME})});const o=await r.json();
 document.getElementById('dout').textContent=o.error||`🎁 Trial order ${o.order.id} placed (free). The seller delivers, you accept.`;refreshMine();});}
-async function publish(){needMe(async()=>{const m=document.getElementById('pmodel').value;
+async function publish(){needMe(async()=>{
 const r=await fetch('/api/swarms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(
-{name:document.getElementById('pname').value,by:ME,desc:document.getElementById('pdesc').value,url:document.getElementById('purl').value,models:[m],price:{[m]:+document.getElementById('pprice').value||5}})});
+{name:document.getElementById('pname').value,by:ME,desc:document.getElementById('pdesc').value,url:document.getElementById('purl').value,deal:document.getElementById('pdeal').value,models:['one_time'],price:{one_time:+document.getElementById('pprice').value||190}})});
 const o=await r.json();if(o.error){alert(o.error);return;}
 document.getElementById('pub').close();load();init();refreshMine();});}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30);}
+async function launchHelp(){const box=document.getElementById('lhelp');
+const seed=((document.getElementById('lsite').value||'')+' '+(document.getElementById('lbrief').value||'')).toLowerCase();
+const words=seed.split(/[^a-z0-9]+/).filter(w=>w.length>2&&!['the','and','for','with','site','sell','buy','app','web','new','our','your','shop','store'].includes(w));
+if(words.length<1){box.innerHTML='Tell me in a few words first — e.g. <a href="#" id=lh-ex1>coffee for cyclists</a>, <a href="#" id=lh-ex2>dog training videos</a>, <a href="#" id=lh-ex3>invoice templates</a> — then hit ✨ again.';
+const ex1=document.getElementById('lh-ex1'),ex2=document.getElementById('lh-ex2'),ex3=document.getElementById('lh-ex3');
+const pick=t=>e=>{e.preventDefault();document.getElementById('lbrief').value=t;launchHelp();};
+ex1.onclick=pick('coffee for cyclists');ex2.onclick=pick('dog training videos');ex3.onclick=pick('invoice templates');return;}
+const kws=words.slice(0,2);
+const pats=kws.concat(kws.map(k=>k+'ly'),kws.map(k=>k+'hub'),kws.map(k=>'get'+k),kws.map(k=>'try'+k)).flat();
+const cands=[];
+pats.forEach(p=>{const s=slug(p);if(s.length>=3&&s.length<=30&&!cands.includes(s))cands.push(s);});
+const top=cands.slice(0,4);
+box.innerHTML='<b>Pick a name</b> (click to use — dot checks the .cc domain live):<div class=row id=lh-names></div><div id=lh-avail class=muted>checking domains…</div>';
+const holder=document.getElementById('lh-names');
+top.forEach(n=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{document.getElementById('lsite').value=n;};holder.appendChild(b);});
+const kw=kws.join(' and ');
+const draft='A site about '+seed.trim()+'. In one line it explains '+kw+'; visitors immediately see what they get and who it is for; one clear button to buy or sign up. First version: one page, one offer, payments on.';
+document.getElementById('lbrief').value=draft;
+for(const n of top){try{const r=await(await fetch('/api/domain-check?name='+encodeURIComponent(n+'.cc'))).json();
+const mark=r.available?'✅':'❌';
+const d=document.createElement('div');d.textContent=mark+' '+n+'.cc'+(r.available?' — likely free':' — taken');
+document.getElementById('lh-avail').appendChild(d);}catch(e){}}
+const done=document.createElement('div');done.innerHTML='Brief drafted above — edit it freely, then hit <b>$190 — Launch it</b>.';document.getElementById('lh-avail').appendChild(done);}
 async function launch(){needMe(async()=>{const site=document.getElementById('lsite').value.trim().toLowerCase();
 const r=await fetch('/api/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site,brief:document.getElementById('lbrief').value,buyer:ME,setup:190})});
 const o=await r.json();if(o.error){document.getElementById('lout').textContent=o.error;return;}
