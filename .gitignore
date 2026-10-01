@@ -10,6 +10,7 @@ __pycache__/
 .remotion/
 
 # embedded standalone repos (own remotes), never tracked by p4
+e084-lp-terminal/
 e042-bk2/
 e008-asistente-ht/
 e041-web-access-agents/
