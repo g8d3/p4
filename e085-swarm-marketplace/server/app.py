@@ -209,6 +209,134 @@ def porkbun_dns(domain, rtype, host, content, pair):
         {**base, "name": host, "type": rtype, "content": content, "ttl": 300})
     if d.get("status") != "SUCCESS": raise ValueError(str(d)[:160])
     return True
+_TRENDS_CACHE = {}
+_IDEAS_CACHE = {}
+def fetch_url(url, timeout=15):
+    req = urllib.request.Request(url, headers={"User-Agent": "e085/1.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read().decode("utf-8", "replace")
+def fetch_trends():
+    hit = _TRENDS_CACHE.get("t")
+    if hit and int(time.time()) - hit[0] < 3600:
+        return {**hit[1], "cached": True}
+    topics_es, topics_tech = [], []
+    try:
+        y = time.strftime("%Y/%m/%d", time.gmtime(int(time.time()) - 86400))
+        doc = json.loads(fetch_url(f"https://wikimedia.org/api/rest_v1/metrics/pageviews/top/es.wikipedia/all-access/{y}"))
+        bad = ("Wikipedia:", "Especial:", "Archivo:", "Categoría:", "Plantilla:", "Portal:", "Usuario:", "Ayuda:", "Anexo:")
+        for a in doc["items"][0]["articles"]:
+            t = a.get("article", "").replace("_", " ")
+            if t and not t.startswith(bad) and len(topics_es) < 10:
+                topics_es.append(t)
+    except Exception:
+        pass
+    try:
+        doc = json.loads(fetch_url("https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=20"))
+        for h in doc.get("hits", []):
+            t = (h.get("title") or "")[:70]
+            if t and len(topics_tech) < 10:
+                topics_tech.append(t)
+    except Exception:
+        pass
+    out = {"topics_es": topics_es, "topics_tech": topics_tech, "ts": int(time.time())}
+    _TRENDS_CACHE["t"] = (int(time.time()), out)
+    return {**out, "cached": False}
+_LLM_MODEL = None
+def anthropic_ideas(topics):
+    global _LLM_MODEL
+    key = store.get("ANTHROPIC_API_KEY")
+    if not key: raise ValueError("no anthropic key")
+    if not _LLM_MODEL:
+        req = urllib.request.Request("https://api.anthropic.com/v1/models",
+            headers={"x-api-key": key, "anthropic-version": "2023-06-01", "User-Agent": "e085/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            doc = json.loads(r.read().decode())
+        names = [m.get("id", "") for m in doc.get("data", []) if isinstance(m, dict)]
+        pref = [n for n in names if "haiku" in n.lower()] or names
+        if not pref: raise ValueError("no models")
+        _LLM_MODEL = pref[0]
+    ask = ("Inventá 6 negocios online mínimos y vendibles inspirados en estos temas del día: "
+           + "; ".join((topics.get("topics_es", [])[:8] + topics.get("topics_tech", [])[:4]))
+           + ". Respondé SOLO con 6 líneas, cada una: nombre-corto-en-minusculas | pitch de una frase en español (máx 90 caracteres).")
+    payload = json.dumps({"model": _LLM_MODEL, "max_tokens": 500,
+                           "messages": [{"role": "user", "content": ask}]}).encode()
+    req = urllib.request.Request("https://api.anthropic.com/v1/messages", data=payload,
+        headers={"x-api-key": key, "anthropic-version": "2023-06-01",
+                 "Content-Type": "application/json", "User-Agent": "e085/1.0"})
+    with urllib.request.urlopen(req, timeout=45) as r:
+        doc = json.loads(r.read().decode())
+    text = "".join(b.get("text", "") for b in doc.get("content", []) if isinstance(b, dict))
+    ideas = []
+    for line in text.splitlines():
+        if "|" not in line or len(ideas) >= 6: continue
+        nm, br = line.split("|", 1)
+        nm = re.sub(r"[^a-z0-9-]", "", nm.strip().lower().replace(" ", "-"))[:24]
+        br = br.strip()[:140]
+        if len(nm) >= 3 and br: ideas.append([nm, br])
+    if len(ideas) < 3: raise ValueError("too few ideas")
+    return ideas
+STOPWORDS = {"the", "a", "an", "de", "la", "el", "los", "las", "del", "una", "uno", "en", "con", "por", "para", "brief", "history", "nuevo", "nueva", "gran", "gran", "como", "como", "why", "how", "what", "now", "new", "is", "are", "was", "public", "beta"}
+def topic_kw(t):
+    import unicodedata
+    t = re.sub(r"\s*\([^)]*\)", "", t).strip()
+    words = t.split()
+    if 2 <= len(words) <= 3 and all(re.match(r"^[A-ZÁÉÍÓÚÑ][a-záéíóúñ'-]*$", w) for w in words):
+        return ""  # person name: no tasteful product name from it
+    cands = []
+    for orig in words:
+        cap = bool(orig[:1].isupper())
+        w = re.sub(r"[^a-záéíóúñ0-9]", "", orig.lower())
+        if len(w) >= 4 and w not in STOPWORDS:
+            ascii_w = unicodedata.normalize("NFKD", w).encode("ascii", "ignore").decode()
+            if ascii_w: cands.append((cap, len(w), ascii_w))
+    if not cands: return ""
+    cands.sort(key=lambda c: (not c[0], -c[1]))
+    return cands[0][2][:12]
+def template_ideas(topics):
+    pool = topics.get("topics_es", []) + topics.get("topics_tech", [])
+    usable = [(t, topic_kw(t)) for t in pool]
+    usable = [(t, k) for t, k in usable if k]
+    if not usable:
+        return [["cafego", "Café de especialidad a domicilio, tostado semanal."],
+                ["pawcut", "Peluquería canina a domicilio, reserva en un tap."],
+                ["fitplan", "Planes de ejercicio por chat, primer plan $9."],
+                ["invoicekit", "Plantillas de factura para freelancers."],
+                ["tutorgo", "Tutorías de matemáticas online, primera gratis."],
+                ["plantbox", "Caja mensual de suculentas con guía."]]
+    angles = [
+        lambda t, k: (k + "club", f"Club de {t}: comunidad, contenido y ofertas cada mes."),
+        lambda t, k: (k + "kit", f"Todo para empezar con {t} en un kit: guía + materiales."),
+        lambda t, k: ("carta" + k, f"Lo de {t}, resumido cada domingo en 5 minutos."),
+        lambda t, k: (k + "lab", f"Aprendé {t} de cero en 7 días, a tu ritmo."),
+        lambda t, k: (k + "box", f"Suscripción mensual de {t} para fans, con sorpresas."),
+        lambda t, k: (k + "go", f"{t} a domicilio: pedido en un tap, pago contra entrega."),
+        lambda t, k: ("compara" + k, f"Comparador honesto de {t}: precios y opiniones reales."),
+        lambda t, k: ("alquila" + k, f"Alquiler de {t} por días, sin letra pequeña."),
+    ]
+    ideas, seen = [], set()
+    for i in range(len(usable) * len(angles)):
+        if len(ideas) >= 6: break
+        t, k = usable[i % len(usable)]
+        nm, br = angles[i % len(angles)](t[:60], k)
+        if nm not in seen:
+            seen.add(nm); ideas.append([nm, br[:140]])
+    return ideas
+def gen_ideas():
+    topics = fetch_trends()
+    sig = "+".join(sorted(topics.get("topics_es", [])[:6]))
+    hit = _IDEAS_CACHE.get(sig)
+    if hit and int(time.time()) - hit[0] < 6 * 3600:
+        return {"ideas": hit[1], "source": hit[2], "cached": True}
+    try:
+        ideas = anthropic_ideas(topics)
+        _IDEAS_CACHE[sig] = (int(time.time()), ideas, "ai")
+        return {"ideas": ideas, "source": "ai", "cached": False}
+    except Exception:
+        pass
+    ideas = template_ideas(topics)
+    src = "trends" if (topics.get("topics_es") or topics.get("topics_tech")) else "fallback"
+    _IDEAS_CACHE[sig] = (int(time.time()), ideas, src)
+    return {"ideas": ideas, "source": src, "cached": False}
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _json(self, obj, code=200, extra=None):
@@ -332,6 +460,12 @@ class H(BaseHTTPRequestHandler):
             out.sort(key=lambda r: (r["available"] is not True, r["available"] is None, r["name"]))
             _SUG_CACHE[key] = (int(time.time()), out)
             return self._json({"q": key, "cached": False, "domains": out})
+        if u.path == "/api/trends":
+            try: return self._json(fetch_trends())
+            except Exception as e: return self._json({"topics_es": [], "topics_tech": [], "error": str(e)[:120]})
+        if u.path == "/api/ideas":
+            try: return self._json(gen_ideas())
+            except Exception as e: return self._json({"ideas": template_ideas({}), "source": "fallback"})
         if u.path == "/api/domain-check":
             name = (q.get("name") or [""])[0].strip().lower()
             if not name or "." not in name: return self._json({"error": "give ?name=foo.com"}, 400)

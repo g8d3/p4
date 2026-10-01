@@ -138,17 +138,21 @@ const r=await fetch('/api/swarms',{method:'POST',headers:{'Content-Type':'applic
 const o=await r.json();if(o.error){alert(o.error);return;}
 document.getElementById('pub').close();load();init();refreshMine();});}
 function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30);}
-const IDEAS=[['beanbadge','Coffee subscriptions for cyclists, roasted weekly, delivered to your door.'],['pawcut','Dog grooming at home — book in one tap, groomer comes to you.'],['fitplan','Personal workout plans over chat — $9 first plan, results in 30 days.'],['invoicekit','Invoice templates for freelancers — look pro, get paid faster.'],['tutorgo','Math tutoring for teens, online, first class free.'],['plantbox','Monthly succulent box for apartments with zero light.'],['cvboost','Resumes rewritten in 48 hours — pay only if you get interviews.'],['dulcehogar','Postres caseros por encargo para eventos y fines de semana.']];
 async function launchHelp(){const box=document.getElementById('lhelp');
 const seed=((document.getElementById('lsite').value||'')+' '+(document.getElementById('lbrief').value||'')).toLowerCase();
 const words=seed.split(/[^a-z0-9]+/).filter(w=>w.length>2&&!['the','and','for','with','site','sell','buy','app','web','new','our','your','shop','store'].includes(w));
-if(words.length<1){box.innerHTML='';
-const head=document.createElement('b');head.textContent='No typing needed — tap one to start:';box.appendChild(head);
-IDEAS.forEach(p=>{const row=document.createElement('div');row.className='row';
+if(words.length<1){box.textContent='consultando tendencias + IA…';
+try{const r=await(await fetch('/api/ideas')).json();
+box.innerHTML='';
+const head=document.createElement('b');
+head.textContent=r.source==='ai'?'La IA propone, según lo que está en tendencia hoy — tocá una:':(r.source==='trends'?'Ideas frescas de las tendencias de hoy — tocá una:':'Ideas para empezar ya — tocá una:');
+box.appendChild(head);
+(r.ideas||[]).forEach(p=>{const row=document.createElement('div');row.className='row';
 const label=document.createElement('span');label.textContent=p[0]+' — '+p[1];row.appendChild(label);
 const b=document.createElement('button');b.textContent='Use';
 b.onclick=()=>{document.getElementById('lsite').value=p[0];document.getElementById('lbrief').value=p[1];launchHelp();};
-row.appendChild(b);box.appendChild(row);});return;}
+row.appendChild(b);box.appendChild(row);});}catch(e){box.textContent='no hay ideas ahora — escribí 2-3 palabras y tocá ✨ de nuevo.';}
+return;}
 const kws=words.slice(0,2);
 const pats=kws.concat(kws.map(k=>k+'ly'),kws.map(k=>k+'hub'),kws.map(k=>'get'+k),kws.map(k=>'try'+k)).flat();
 const cands=[];

@@ -125,6 +125,10 @@ TRAV=$($CURL -s -o /dev/null -w "%{http_code}" "$BASE/sites/../needs.json")
 [ "$TRAV" = "404" ] && ok "site path traversal blocked" || bad "traversal: $TRAV"
 $CURL -s -X DELETE "$BASE/api/sites?id=$LSITE" | grep -q '"ok": true' && ok "delete demo site" || bad "delete demo site"
 $CURL -s -o /dev/null -w "%{http_code}" "$BASE$SURL" | grep -q "404" && ok "site gone after delete" || bad "site lingers"
+TR=$($CURL -s --max-time 60 "$BASE/api/trends")
+echo "$TR" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if 'topics_es' in d and 'topics_tech' in d else 1)" 2>/dev/null && ok "trends shape" || bad "trends: $(echo "$TR" | head -c 150)"
+ID=$($CURL -s --max-time 90 "$BASE/api/ideas")
+echo "$ID" | python3 -c "import json,sys; d=json.load(sys.stdin); ideas=d.get('ideas',[]); sys.exit(0 if len(ideas)>=3 and all(len(x)==2 and len(x[0])>=3 for x in ideas) and d.get('source') in ('ai','trends','fallback') else 1)" 2>/dev/null && ok "ideas generated ($(echo "$ID" | python3 -c "import json,sys; print(json.load(sys.stdin).get('source'))" 2>/dev/null))" || bad "ideas: $(echo "$ID" | head -c 150)"
 
 python3 - <<'EOF' >/dev/null 2>&1 || JS_MISSING=1
 import re
