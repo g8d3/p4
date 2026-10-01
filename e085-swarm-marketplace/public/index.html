@@ -19,7 +19,7 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <h1>Rent an army. Or sell yours.</h1>
 <p>Publish a swarm once — buyers pay per result, per run, per token, or 7 more ways. 5% platform fee. Sellers deliver before buyers pay out. Disputes resolve in-app.</p>
 <div class=row><span class=pill id=statS>…</span><span class=pill id=statO>…</span><span class=pill id=statC>…</span></div>
-<div class=row><button onclick="needMe(()=>document.getElementById('launch').showModal())" style="font-size:1.1em">🚀 Launch my site — 1 click</button><button onclick="needMe(()=>document.getElementById('pub').showModal())">+ Sell your business</button></div>
+<div class=row><button onclick="needMe(()=>{document.getElementById('launch').showModal();launchProv();})" style="font-size:1.1em">🚀 Launch my site — 1 click</button><button onclick="needMe(()=>document.getElementById('pub').showModal())">+ Sell your business</button></div>
 <div class=muted>One click = one payment. The swarm provisions everything (subdomain site, login, email, payouts) and delivers your public URL. Custom domain later.</div>
 </div>
 <nav><a href="#market">Market</a> · <a href="#my">My orders</a> · <a href="#sell">Seller desk</a> · <a href="#keys">Keys</a> · <a href="#domain">Domain</a></nav>
@@ -41,6 +41,8 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <section id=domain><h2>🔍 Domain check</h2>
 <div class=row><input id=dom placeholder="swarmly.cc" style="flex:1"><button onclick=checkDom()>Check</button></div>
 <div id=domout class=muted>RDAP read-only. 404 = likely free (confirm at checkout). Scout's top pick: <b>swarmly.cc</b>.</div>
+<div class=row><input id=dsq placeholder="words, e.g. coffee bikes" style="flex:1"><button onclick=domainSuggest()>Suggest many</button></div>
+<div id=dsug class=muted></div>
 <div id=needs class=muted style="margin-top:10px"></div></section>
 <dialog id=detail><h3 id=dname></h3><p id=ddesc class=muted></p><div id=dmodels></div><div id=drevs></div>
 <div class=row><select id=dmodel></select><input id=dqty type=number value=1 min=1 style="width:76px"><input id=dbrief placeholder="brief for the seller (optional)" style="flex:1;min-width:140px"></div>
@@ -50,7 +52,8 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <textarea id=lbrief placeholder="What should it sell? (a few words is enough — hit ✨ below)" style="width:100%;margin:4px 0"></textarea>
 <div class=row><button onclick=launchHelp()>✨ Help me write it</button><button onclick=launch()>$190 — Launch it</button><button onclick="document.getElementById('launch').close()">Cancel</button></div>
 <div id=lhelp class=muted></div>
-<div id=lout class=muted>Launches on a free subdomain first (custom domain = upgrade). One payment authorizes the whole pipeline.</div></dialog>
+<div id=lout class=muted>Launches on a free subdomain first (custom domain = upgrade). One payment authorizes the whole pipeline.</div>
+<div id=lprov class=muted></div></dialog>
 <dialog id=pub><h3>Sell your business</h3>
 <input id=pname placeholder="Business name (the launched site)" style="width:100%;margin:4px 0">
 <textarea id=pdesc placeholder="What does it do? Who pays for it?" style="width:100%;margin:4px 0"></textarea>
@@ -66,13 +69,14 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 let S=[],cur=null,MODELS=[],ME=localStorage.getItem('sm_handle')||'',CLERK=null;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const safeUrl=u=>{try{const p=new URL(u);return (p.protocol==='http:'||p.protocol==='https:')?p.href:'';}catch(e){return '';}};
-function needMe(fn){if(!ME){alert('Pick your handle at the top first.');return;}return fn();}
+function needMe(fn){if(!ME){alert('Sign in at the top first.');return;}return fn();}
 async function init(){const h=await(await fetch('/api/health')).json();
 document.getElementById('statS').textContent=h.swarms+' swarms';document.getElementById('statO').textContent=h.orders+' orders';
 document.getElementById('statC').textContent=h.checkout==='live'?'card payments live':'payments: order-first, card at connect';
 MODELS=await(await fetch('/api/models')).json();
 document.getElementById('f').innerHTML='<option value="">all pricing</option>'+MODELS.map(m=>`<option>${m}</option>`).join('');
 try{CLERK=await(await fetch('/api/auth')).json();}catch(e){}
+try{const me=await(await fetch('/api/me')).json();if(me.handle){ME=me.handle;localStorage.setItem('sm_handle',ME);}}catch(e){}
 renderMe();load();refreshMine();
 try{const n=await(await fetch('/api/needs')).json();const open=(Array.isArray(n)?n:[]).filter(x=>x.status==='open');
 document.getElementById('needs').innerHTML=open.length?'<b>Still building:</b><ul>'+open.map(x=>`<li>[${esc(x.owner)}] ${esc(x.item)}</li>`).join('')+'</ul>':'';}catch(e){}
@@ -80,11 +84,18 @@ keysStatus();
 const paid=new URLSearchParams(location.search).get('paid');
 if(paid){document.getElementById('orders').innerHTML='<b>Payment received.</b> Loading your orders…';history.replaceState({},'',location.pathname);}}
 function renderMe(){const el=document.getElementById('me');
-if(ME){el.innerHTML=`signed in as <b>${esc(ME)}</b> <button onclick="ME='';localStorage.removeItem('sm_handle');renderMe();refreshMine();">switch</button>`;}
-else if(CLERK&&CLERK.clerk){el.innerHTML=`<button onclick="clerkLogin()">Continue with Google</button> <input id=hin placeholder="or pick a handle" style="width:150px"> <button onclick="setHandle()">Use handle</button>`;}
-else{el.innerHTML=`<input id=hin placeholder="pick your handle"> <button onclick="setHandle()">Sign in</button>`;}}
-function setHandle(){const v=(document.getElementById('hin').value||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,30);
-if(!v){alert('Handle: letters, numbers, _ or -, e.g. maya');return;}ME=v;localStorage.setItem('sm_handle',ME);renderMe();refreshMine();}
+if(ME){el.innerHTML='signed in as <b>'+esc(ME)+'</b> <button onclick="logout()">Sign out</button>';}
+else{let g='';if(CLERK&&CLERK.clerk){g='<button onclick="clerkLogin()">Continue with Google</button> ';}
+el.innerHTML=g+'<input id=hin placeholder="handle"> <input id=hpw type=password placeholder="password (8+)" style="width:130px"> <button onclick="login()">Sign in</button> <button onclick="signup()">Create account</button><div id=amsg class=muted></div>';}}
+async function login(){const h=document.getElementById('hin').value,pw=document.getElementById('hpw').value;
+const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({handle:h,password:pw})});
+const o=await r.json();if(o.error){document.getElementById('amsg').textContent=o.error;return;}
+ME=o.handle;localStorage.setItem('sm_handle',ME);renderMe();refreshMine();}
+async function signup(){const h=document.getElementById('hin').value,pw=document.getElementById('hpw').value;
+const r=await fetch('/api/auth/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({handle:h,password:pw})});
+const o=await r.json();if(o.error){document.getElementById('amsg').textContent=o.error;return;}
+ME=o.handle;localStorage.setItem('sm_handle',ME);renderMe();refreshMine();}
+async function logout(){await fetch('/api/auth/logout',{method:'POST'});ME='';localStorage.removeItem('sm_handle');renderMe();refreshMine();}
 function clerkLogin(){alert('Clerk key is set — wire your frontend key in the next step. Using handle mode meanwhile.');}
 async function load(){const r=await fetch('/api/swarms');S=await r.json();
 const q=document.getElementById('q').value.toLowerCase(),f=document.getElementById('f').value;
@@ -148,6 +159,14 @@ const mark=r.available?'✅':'❌';
 const d=document.createElement('div');d.textContent=mark+' '+n+'.cc'+(r.available?' — likely free':' — taken');
 document.getElementById('lh-avail').appendChild(d);}catch(e){}}
 const done=document.createElement('div');done.innerHTML='Brief drafted above — edit it freely, then hit <b>$190 — Launch it</b>.';document.getElementById('lh-avail').appendChild(done);}
+async function launchProv(){const box=document.getElementById('lprov');box.textContent='checking what the swarm can auto-provision…';
+try{const h=await(await fetch('/api/health')).json();const k=h.keys||{};
+const dot=v=>v?'✅':'⚪';
+box.innerHTML='';
+const head=document.createElement('b');head.textContent='After you pay, the swarm provisions:';box.appendChild(head);
+const steps=[['Card payment + payouts',k.STRIPE_SECRET_KEY],['Google login on your site',k.CLERK_PUBLISHABLE_KEY],['Receipt emails',k.RESEND_API_KEY],['Domain DNS auto-point',k.PORKBUN_PAIR]];
+steps.forEach(s=>{const d=document.createElement('div');d.textContent=dot(s[1])+' '+s[0];box.appendChild(d);});
+const note=document.createElement('div');note.textContent='Domain itself: you buy it once at the registrar (~$10, 2 min) — no registrar API can sell it for you with our keys; the swarm wires DNS + email the second it exists.';box.appendChild(note);}catch(e){box.textContent='provisioning check failed';}}
 async function launch(){needMe(async()=>{const site=document.getElementById('lsite').value.trim().toLowerCase();
 const r=await fetch('/api/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({site,brief:document.getElementById('lbrief').value,buyer:ME,setup:190})});
 const o=await r.json();if(o.error){document.getElementById('lout').textContent=o.error;return;}
@@ -195,6 +214,20 @@ const live=o.filter(k=>k.state==='live').length;alert(`Swarm checked everything:
 async function dnsSet(){const t=localStorage.getItem('sm_admin')||document.getElementById('adm').value;
 const r=await fetch('/api/dns/set',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t,domain:document.getElementById('dnsdom').value,ip:document.getElementById('dnsip').value})});
 const o=await r.json();document.getElementById('dnsout').textContent=o.error||o.msg;}
+async function domainSuggest(){const box=document.getElementById('dsug');const q=document.getElementById('dsq').value.trim();
+if(q.length<3){box.textContent='Type 2-3 words first (what is the business about?).';return;}
+box.textContent='checking ~20 domains…';
+try{const r=await(await fetch('/api/domain-suggest?q='+encodeURIComponent(q))).json();
+if(r.error){box.textContent=r.error;return;}
+box.innerHTML='';
+const head=document.createElement('div');head.innerHTML='<b>'+r.domains.filter(d=>d.available).length+' likely free out of '+r.domains.length+'</b> — click Use to check + wire one:';box.appendChild(head);
+r.domains.forEach(d=>{const row=document.createElement('div');row.className='row';
+const mark=d.available===true?'✅':(d.available===false?'❌':'❓');
+const label=document.createElement('span');label.textContent=mark+' '+d.name+(d.available===true?' — likely free':(d.available===false?' — taken':' — unknown'));
+row.appendChild(label);
+if(d.available===true){const b=document.createElement('button');b.textContent='Use';
+b.onclick=()=>{document.getElementById('dom').value=d.name;checkDom();};row.appendChild(b);}
+box.appendChild(row);});}catch(e){box.textContent='suggest failed: '+e;}}
 async function checkDom(){const n=document.getElementById('dom').value.trim();if(!n)return;
 document.getElementById('domout').textContent='checking…';
 const r=await fetch('/api/domain-check?name='+encodeURIComponent(n));const o=await r.json();

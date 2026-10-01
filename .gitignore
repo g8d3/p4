@@ -129,6 +129,9 @@ e083-scrapenet/log/
 e085-swarm-marketplace/data/*.jsonl
 e085-swarm-marketplace/data/admin.token
 e085-swarm-marketplace/data/keys.json
+e085-swarm-marketplace/data/users.json
+e085-swarm-marketplace/data/sessions.json
+e085-swarm-marketplace/data/rdap_bootstrap.json
 e085-swarm-marketplace/deliveries/**/server.log
 e085-swarm-marketplace/deliveries/**/server.pid
 e085-swarm-marketplace/server/__pycache__/

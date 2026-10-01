@@ -11,7 +11,8 @@ open -> delivered -> accepted | disputed -> released/refunded
 - Auth: handle sign-in (localStorage) today; Clerk Google activates with
   CLERK_PUBLISHABLE_KEY (/api/auth tells the frontend).
 TLS via box tailnet cert unless E085_TLS=0. See AGENTS.md + needs.json."""
-import json, os, ssl, sys, time, urllib.request, urllib.parse
+import hashlib, json, os, re, secrets, ssl, sys, time, urllib.request, urllib.parse
+from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -80,18 +81,120 @@ def stripe_api(path, params):
     with urllib.request.urlopen(req, timeout=20) as r:
         return json.loads(r.read().decode())
 
+USERS_F = DATA / "users.json"
+SESS_F = DATA / "sessions.json"
+def load_users():
+    try:
+        d = json.loads(USERS_F.read_text())
+        return d if isinstance(d, dict) else {}
+    except Exception: return {}
+def save_users(d): _atomic_write(USERS_F, json.dumps(d))
+def load_sessions():
+    try:
+        d = json.loads(SESS_F.read_text())
+        return d if isinstance(d, dict) else {}
+    except Exception: return {}
+def save_sessions(d): _atomic_write(SESS_F, json.dumps(d))
+def clean_handle(h):
+    return re.sub(r"[^a-z0-9_-]", "", (h or "").strip().lower())[:30]
+def hash_pw(pw, salt=None):
+    salt = salt or secrets.token_hex(16)
+    h = hashlib.pbkdf2_hmac("sha256", pw.encode(), bytes.fromhex(salt), 200000).hex()
+    return salt, h
+def provision_steps():
+    pres = store.presence()
+    live = lambda k: pres.get(k) == "live"
+    return [
+        {"step": "Card payment + payouts (Stripe)", "live": live("STRIPE_SECRET_KEY")},
+        {"step": "Google login on your site (Clerk)", "live": live("CLERK_PUBLISHABLE_KEY")},
+        {"step": "Receipt emails (Resend)", "live": live("RESEND_API_KEY")},
+        {"step": "Domain DNS auto-point (Porkbun; you buy the domain once, the swarm wires it)", "live": live("PORKBUN_PAIR")},
+    ]
+RDAP_BOOT_F = DATA / "rdap_bootstrap.json"
+_RDAP_BASES = {}
+def rdap_bases():
+    global _RDAP_BASES
+    if _RDAP_BASES: return _RDAP_BASES
+    try:
+        if RDAP_BOOT_F.exists() and int(time.time()) - int(RDAP_BOOT_F.stat().st_mtime) < 7 * 86400:
+            doc = json.loads(RDAP_BOOT_F.read_text())
+        else:
+            req = urllib.request.Request("https://data.iana.org/rdap/dns.json", headers={"User-Agent": "e085/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                doc = json.loads(r.read().decode())
+            RDAP_BOOT_F.write_text(json.dumps(doc))
+        for tlds, urls in doc.get("services", []):
+            for t in tlds:
+                _RDAP_BASES[t.lower()] = urls
+    except Exception:
+        pass
+    return _RDAP_BASES
+def rdap_one(name):
+    tld = name.rsplit(".", 1)[-1].lower() if "." in name else ""
+    bases = [b if b.endswith("/") else b + "/" for b in rdap_bases().get(tld, [])] or ["https://rdap.org/domain/"]
+    last = None
+    for base in bases[:2]:
+        url = base + ("" if base.endswith("domain/") else "domain/") + urllib.parse.quote(name)
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "e085/1.0"})
+            with urllib.request.urlopen(req, timeout=10):
+                return {"name": name, "available": False}
+        except Exception as e:
+            last = e
+            if "404" in str(e): return {"name": name, "available": True}
+    return {"name": name, "available": None}
+_SUG_CACHE = {}
+def suggest_names(words):
+    bases = []
+    for w in words[:3]:
+        w = re.sub(r"[^a-z0-9]", "", w.lower())[:20]
+        if len(w) >= 3: bases.append(w)
+    if not bases: return []
+    per = max(6, 20 // len(bases))
+    cands = []
+    for b in bases:
+        got = 0
+        for tld in ("cc", "co", "com", "io"):
+            for v in (b, b + "ly", "get" + b, b + "hub", "try" + b, b + "loop", b + "bay"):
+                if got >= per: break
+                n = f"{v}.{tld}"
+                if n not in cands: cands.append(n); got += 1
+            if got >= per: break
+    if len(bases) >= 2:
+        j = bases[0] + bases[1]
+        for tld in ("cc", "com"):
+            if len(cands) < 20 and f"{j}.{tld}" not in cands: cands.append(f"{j}.{tld}")
+    return cands[:20]
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
-    def _json(self, obj, code=200):
+    def _json(self, obj, code=200, extra=None):
         b = json.dumps(obj).encode()
         self.send_response(code); self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
+        self.send_header("Content-Length", str(len(b)))
+        for k, v in (extra or []): self.send_header(k, v)
+        self.end_headers(); self.wfile.write(b)
     def _file(self, rel, ctype):
         p = ROOT / rel
         if not p.exists(): self.send_error(404); return
         b = p.read_bytes()
         self.send_response(200); self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
+    def _me(self):
+        c = self.headers.get("Cookie", "") or ""
+        tok = ""
+        for part in c.split(";"):
+            if part.strip().startswith("sm_session="):
+                tok = part.strip().split("=", 1)[1].strip(); break
+        if not tok: return ""
+        s = load_sessions().get(tok)
+        if not s or int(time.time()) - s.get("ts", 0) > 30 * 86400: return ""
+        return s.get("handle", "")
+    def _who(self, body, key, default="guest"):
+        me = self._me()
+        if me: return me
+        return str(body.get(key, default) or default)[:40]
+    def _sess_cookie(self, tok, age=30 * 86400):
+        return [("Set-Cookie", f"sm_session={tok}; HttpOnly; Path=/; SameSite=Lax; Max-Age={age}")]
     def _body(self):
         n = int(self.headers.get("Content-Length", 0) or 0)
         try: return json.loads(self.rfile.read(n or 0) or b"{}")
@@ -102,7 +205,11 @@ class H(BaseHTTPRequestHandler):
         if u.path in ("/", "/index.html"): return self._file("public/index.html", "text/html; charset=utf-8")
         if u.path == "/api/health":
             return self._json({"ok": True, "swarms": len(load_swarms()), "orders": len(read_lines(ORDERS_F)),
-                "fee_bps": NEEDS.get("fee_bps"), "checkout": checkout_mode(), "keys_live": sum(1 for s in store.presence().values() if s == "live"), "build": "e085-v2"})
+                "fee_bps": NEEDS.get("fee_bps"), "checkout": checkout_mode(), "keys_live": sum(1 for s in store.presence().values() if s == "live"), "build": "e085-v2",
+                "keys": {k: (v == "live") for k, v in store.presence().items()}})
+        if u.path == "/api/me":
+            me = self._me()
+            return self._json({"handle": me or None, "auth": "builtin"})
         if u.path == "/api/auth":
             ck = clerk_key()
             return self._json({"clerk": bool(ck), "clerk_key": ck or None})
@@ -150,6 +257,25 @@ class H(BaseHTTPRequestHandler):
                 n = json.loads(NEEDS_F.read_text())
                 return self._json(n if isinstance(n, list) else [])
             except Exception: return self._json([])
+        if u.path == "/api/domain-suggest":
+            words = [w for w in re.split(r"[^a-z0-9]+", (q.get("q") or [""])[0].lower()) if len(w) > 2][:3]
+            if not words: return self._json({"error": "give ?q=coffee+bikes"}, 400)
+            key = "+".join(sorted(words))
+            hit = _SUG_CACHE.get(key)
+            if hit and int(time.time()) - hit[0] < 600:
+                return self._json({"q": key, "cached": True, "domains": hit[1]})
+            names = suggest_names(words)
+            with ThreadPoolExecutor(max_workers=2) as ex:
+                out = list(ex.map(rdap_one, names))
+            unknown = [r["name"] for r in out if r["available"] is None]
+            if unknown:
+                time.sleep(2)
+                with ThreadPoolExecutor(max_workers=2) as ex:
+                    retry = {r["name"]: r for r in ex.map(rdap_one, unknown)}
+                out = [retry.get(r["name"], r) if r["available"] is None else r for r in out]
+            out.sort(key=lambda r: (r["available"] is not True, r["available"] is None, r["name"]))
+            _SUG_CACHE[key] = (int(time.time()), out)
+            return self._json({"q": key, "cached": False, "domains": out})
         if u.path == "/api/domain-check":
             name = (q.get("name") or [""])[0].strip().lower()
             if not name or "." not in name: return self._json({"error": "give ?name=foo.com"}, 400)
@@ -163,6 +289,39 @@ class H(BaseHTTPRequestHandler):
     def do_POST(self):
         u = urllib.parse.urlparse(self.path)
         body = self._body()
+        if u.path == "/api/auth/signup":
+            h = clean_handle(body.get("handle", ""))
+            pw = str(body.get("password", "") or "")
+            if len(h) < 2: return self._json({"error": "handle: 2+ letters/numbers"}, 400)
+            if len(pw) < 8: return self._json({"error": "password: 8+ characters"}, 400)
+            users = load_users()
+            if h in users: return self._json({"error": "handle taken — sign in instead"}, 409)
+            salt, ph = hash_pw(pw)
+            users[h] = {"salt": salt, "pw": ph, "ts": int(time.time())}
+            save_users(users)
+            tok = secrets.token_urlsafe(32)
+            ss = load_sessions(); ss[tok] = {"handle": h, "ts": int(time.time())}; save_sessions(ss)
+            return self._json({"ok": True, "handle": h}, extra=self._sess_cookie(tok))
+        if u.path == "/api/auth/login":
+            h = clean_handle(body.get("handle", ""))
+            pw = str(body.get("password", "") or "")
+            acc = load_users().get(h)
+            if not acc: return self._json({"error": "no such account — create one"}, 404)
+            _, ph = hash_pw(pw, acc["salt"])
+            if not secrets.compare_digest(ph, acc["pw"]):
+                return self._json({"error": "wrong password"}, 401)
+            tok = secrets.token_urlsafe(32)
+            ss = load_sessions(); ss[tok] = {"handle": h, "ts": int(time.time())}; save_sessions(ss)
+            return self._json({"ok": True, "handle": h}, extra=self._sess_cookie(tok))
+        if u.path == "/api/auth/logout":
+            c = self.headers.get("Cookie", "") or ""
+            tok = ""
+            for part in c.split(";"):
+                if part.strip().startswith("sm_session="):
+                    tok = part.strip().split("=", 1)[1].strip(); break
+            if tok:
+                ss = load_sessions(); ss.pop(tok, None); save_sessions(ss)
+            return self._json({"ok": True}, extra=self._sess_cookie("", age=0))
         if u.path == "/api/swarms":
             rows = load_swarms()
             valid = set(NEEDS.get("pricing_models", ["per_run"]))
@@ -176,7 +335,7 @@ class H(BaseHTTPRequestHandler):
                 try: price[m] = float(pmap.get(m, 5.0))
                 except (TypeError, ValueError): price[m] = 5.0
             old = next((r for r in rows if r["id"] == sid), {})
-            row = {"id": sid, "name": str(body.get("name", sid))[:80], "by": str(body.get("by", "you"))[:40],
+            row = {"id": sid, "name": str(body.get("name", sid))[:80], "by": self._who(body, "by", "you"),
                    "desc": str(body.get("desc", ""))[:500], "models": models,
                    "price": price, "url": str(body.get("url", old.get("url", "")) or "")[:500], "deal": str(body.get("deal", old.get("deal", "")) or "")[:20],
                    "rating": old.get("rating", 5.0), "runs": old.get("runs", 0)}
@@ -190,7 +349,7 @@ class H(BaseHTTPRequestHandler):
             except (TypeError, ValueError): return self._json({"error": "qty must be a number"}, 400)
             if sid not in rows: return self._json({"error": "unknown swarm_id"}, 400)
             if model not in NEEDS.get("pricing_models", []): return self._json({"error": "unknown model"}, 400)
-            buyer = str(body.get("buyer", "guest") or "guest")[:40]
+            buyer = self._who(body, "buyer")
             if rows[sid].get("by") == buyer: return self._json({"error": "you cannot order your own swarm"}, 400)
             pmap = rows[sid].get("price") or {}
             try: unit = float(pmap.get(model, 0) or 0)
@@ -275,7 +434,7 @@ class H(BaseHTTPRequestHandler):
             name = (body.get("site") or "").strip().lower().replace(" ", "-")[:30]
             if not name or not all(c.isalnum() or c in "-_" for c in name):
                 return self._json({"error": "give your site a name (letters/numbers)"}, 400)
-            buyer = (body.get("buyer") or "guest")[:40] or "guest"
+            buyer = self._who(body, "buyer")
             job = {"id": f"job-{int(time.time()*1000)}", "site": name,
                    "subdomain": f"{name}.{NEEDS.get('sites_domain', 'sites.local')}",
                    "brief": body.get("brief", "")[:500], "buyer": buyer,
@@ -284,7 +443,7 @@ class H(BaseHTTPRequestHandler):
             jobs = read_lines(JOBS_F) + [job]
             write_lines(JOBS_F, jobs)
             if not stripe_key():
-                return self._json({**job, "pay_url": None,
+                return self._json({**job, "pay_url": None, "provisioning": provision_steps(),
                     "note": "payments unconnected: paste the Stripe key on the Keys panel, then launch again. Job saved."})
             base = PUBLIC_URL or f"https://{self.headers.get('Host', '')}"
             try:
@@ -297,7 +456,7 @@ class H(BaseHTTPRequestHandler):
                     "line_items[0][price_data][unit_amount]": int(round(job["setup"] * 100)),
                     "line_items[0][quantity]": 1,
                     "metadata[job_id]": job["id"], "metadata[site]": name})
-                return self._json({"id": job["id"], "pay_url": s["url"], "status": job["status"]})
+                return self._json({"id": job["id"], "pay_url": s["url"], "status": job["status"], "provisioning": provision_steps()})
             except Exception as e:
                 return self._json({"error": f"stripe: {e}"}, 502)
 
@@ -307,7 +466,7 @@ class H(BaseHTTPRequestHandler):
             swarms = {r["id"]: r for r in load_swarms()}
             o = next((x for x in orders if x["id"] == oid), None)
             if not o: return self._json({"error": "unknown order"}, 400)
-            if swarms.get(o["swarm_id"], {}).get("by") != body.get("by", ""):
+            if swarms.get(o["swarm_id"], {}).get("by") != self._who(body, "by", ""):
                 return self._json({"error": "only the seller delivers"}, 403)
             if o.get("status") != "open": return self._json({"error": f"order is {o.get('status')}, cannot deliver"}, 400)
             text, url = str(body.get("text", ""))[:2000], str(body.get("url", ""))[:500]
@@ -322,7 +481,7 @@ class H(BaseHTTPRequestHandler):
             orders = read_lines(ORDERS_F)
             o = next((x for x in orders if x["id"] == oid), None)
             if not o: return self._json({"error": "unknown order"}, 400)
-            if o.get("buyer") != body.get("buyer", ""): return self._json({"error": "only the buyer accepts"}, 403)
+            if o.get("buyer") != self._who(body, "buyer", ""): return self._json({"error": "only the buyer accepts"}, 403)
             if o.get("status") == "open": return self._json({"error": "nothing delivered yet — accept is locked until the seller delivers"}, 400)
             if o.get("status") != "delivered": return self._json({"error": f"order is {o.get('status')}"}, 400)
             o["status"] = "accepted"
@@ -333,7 +492,7 @@ class H(BaseHTTPRequestHandler):
             orders = read_lines(ORDERS_F)
             o = next((x for x in orders if x["id"] == oid), None)
             if not o: return self._json({"error": "unknown order"}, 400)
-            if o.get("buyer") != body.get("buyer", ""): return self._json({"error": "only the buyer disputes"}, 403)
+            if o.get("buyer") != self._who(body, "buyer", ""): return self._json({"error": "only the buyer disputes"}, 403)
             if o.get("status") not in ("delivered", "open"): return self._json({"error": f"order is {o.get('status')}"}, 400)
             o["status"] = "disputed"; o["dispute_reason"] = str(body.get("reason", "") or "")[:500]
             write_lines(ORDERS_F, orders)
@@ -364,7 +523,7 @@ class H(BaseHTTPRequestHandler):
             recompute_rating(rev["swarm_id"])
             return self._json(rev)
         if u.path == "/api/trials":
-            sid, buyer = body.get("swarm_id", ""), str(body.get("buyer", "guest") or "guest")[:40]
+            sid, buyer = body.get("swarm_id", ""), self._who(body, "buyer")
             swarms = {r["id"]: r for r in load_swarms()}
             if sid not in swarms: return self._json({"error": "unknown swarm"}, 400)
             if swarms[sid].get("by") == buyer: return self._json({"error": "you cannot trial your own swarm"}, 400)
@@ -386,6 +545,20 @@ class H(BaseHTTPRequestHandler):
     def do_DELETE(self):
         u = urllib.parse.urlparse(self.path)
         q = urllib.parse.parse_qs(u.query)
+        if u.path == "/api/auth":
+            h = clean_handle((q.get("handle") or [""])[0])
+            pw = (q.get("password") or [""])[0]
+            users = load_users()
+            acc = users.get(h)
+            if not acc: return self._json({"error": "no such account"}, 404)
+            _, ph = hash_pw(pw, acc["salt"])
+            if not secrets.compare_digest(ph, acc["pw"]):
+                return self._json({"error": "wrong password"}, 401)
+            users.pop(h, None); save_users(users)
+            ss = load_sessions()
+            for t in [t for t, s in ss.items() if s.get("handle") == h]: ss.pop(t, None)
+            save_sessions(ss)
+            return self._json({"ok": True, "deleted": h})
         if u.path == "/api/swarms":
             sid = (q.get("id") or [""])[0]
             if not sid: return self._json({"error": "give ?id="}, 400)

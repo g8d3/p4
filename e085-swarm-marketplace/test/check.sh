@@ -9,14 +9,18 @@ CURL="curl -sk --max-time 10"
 BASE="https://127.0.0.1:$PORT"
 $CURL -sf "$BASE/api/health" >/dev/null 2>&1 || BASE="http://127.0.0.1:$PORT"
 TS=$(date +%s); SELLER="qa-seller-$TS"; BUYER="qa-buyer-$TS"; TRIER="qa-trier-$TS"; SWARM="qa-swarm-$TS"
+AU="qa-auth-$TS"; AP="testpass123"; JAR="/tmp/e085-gate-jar-$TS"; AUID=""
 PASS=0; FAIL=0; OID=""; TRIAL_OID=""
 j() { python3 -c "import json,sys; print(json.load(sys.stdin)$1)"; }
 ok() { PASS=$((PASS+1)); echo "ok: $1"; }
 bad() { FAIL=$((FAIL+1)); echo "FAIL: $1"; }
 cleanup_rows() {
+  [ -n "$AUID" ] && $CURL -s -X DELETE "$BASE/api/orders?id=$AUID" >/dev/null 2>&1 || true
   [ -n "$TRIAL_OID" ] && $CURL -s -X DELETE "$BASE/api/orders?id=$TRIAL_OID" >/dev/null 2>&1 || true
   [ -n "$OID" ] && $CURL -s -X DELETE "$BASE/api/orders?id=$OID" >/dev/null 2>&1 || true
   $CURL -s -X DELETE "$BASE/api/swarms?id=$SWARM" >/dev/null 2>&1 || true
+  [ -n "$AU" ] && $CURL -s "$BASE/api/auth?handle=$AU&password=$AP" -X DELETE >/dev/null 2>&1 || true
+  rm -f "$JAR" || true
 }
 trap cleanup_rows EXIT
 
@@ -84,6 +88,26 @@ OID=""; TRIAL_OID=""; trap - EXIT
 $CURL -sf "$BASE/api/swarms" | grep -q "$SWARM" && bad "temp swarm lingers" || ok "market clean (swarm gone)"
 $CURL -sf "$BASE/api/orders" | grep -q "$TS" && bad "temp orders linger" || ok "market clean (orders gone)"
 $CURL -sf "$BASE/api/reviews?swarm_id=$SWARM" | grep -q "qa great" && bad "temp review lingers" || ok "market clean (reviews gone)"
+
+SU=$($CURL -s -c "$JAR" -X POST "$BASE/api/auth/signup" -H 'Content-Type: application/json' -d "{\"handle\":\"$AU\",\"password\":\"$AP\"}")
+echo "$SU" | grep -q "$AU" && ok "auth signup" || bad "auth signup: $SU"
+$CURL -s -X POST "$BASE/api/swarms" -H 'Content-Type: application/json' -d "{\"id\":\"$SWARM\",\"name\":\"$SWARM\",\"by\":\"qa-other-$TS\",\"models\":[\"per_run\"],\"price\":{\"per_run\":3}}" >/dev/null 2>&1 || true
+$CURL -s -b "$JAR" "$BASE/api/me" | grep -q "$AU" && ok "auth session (/api/me)" || bad "auth session"
+DUP=$($CURL -s -X POST "$BASE/api/auth/signup" -H 'Content-Type: application/json' -d "{\"handle\":\"$AU\",\"password\":\"$AP\"}")
+echo "$DUP" | grep -q "taken" && ok "duplicate signup rejected" || bad "duplicate signup: $DUP"
+WRONG=$($CURL -s -X POST "$BASE/api/auth/login" -H 'Content-Type: application/json' -d "{\"handle\":\"$AU\",\"password\":\"wrongpass\"}")
+echo "$WRONG" | grep -q "wrong password" && ok "wrong password rejected" || bad "wrong password: $WRONG"
+SHORT=$($CURL -s -X POST "$BASE/api/auth/signup" -H 'Content-Type: application/json' -d "{\"handle\":\"qa-short-$TS\",\"password\":\"123\"}")
+echo "$SHORT" | grep -q "8+" && ok "short password rejected" || bad "short password: $SHORT"
+SPOOF=$($CURL -s -b "$JAR" -X POST "$BASE/api/orders" -H 'Content-Type: application/json' -d "{\"swarm_id\":\"$SWARM\",\"model\":\"per_run\",\"qty\":1,\"buyer\":\"intruder\"}")
+AUID=$(echo "$SPOOF" | j "['id']" 2>/dev/null || true)
+echo "$SPOOF" | grep -q "\"buyer\": \"$AU\"" && ok "session buyer enforced (spoof blocked)" || bad "spoof guard: $SPOOF"
+$CURL -s -X DELETE "$BASE/api/orders?id=$AUID" | grep -q '"ok": true' && ok "delete spoof order" || bad "delete spoof order"
+AUID=""
+$CURL -s -X DELETE "$BASE/api/swarms?id=$SWARM" | grep -q '"ok": true' && ok "delete re-published swarm" || bad "delete re-published swarm"
+$CURL -s "$BASE/api/auth?handle=$AU&password=$AP" -X DELETE | grep -q '"ok": true' && ok "delete temp user" || bad "delete temp user"
+$CURL -s -b "$JAR" "$BASE/api/me" | grep -q null && ok "session dead after delete" || bad "session lingers"
+rm -f "$JAR"
 
 python3 - <<'EOF' >/dev/null 2>&1 || JS_MISSING=1
 import re
