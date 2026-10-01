@@ -178,7 +178,7 @@ class H(BaseHTTPRequestHandler):
             old = next((r for r in rows if r["id"] == sid), {})
             row = {"id": sid, "name": str(body.get("name", sid))[:80], "by": str(body.get("by", "you"))[:40],
                    "desc": str(body.get("desc", ""))[:500], "models": models,
-                   "price": price,
+                   "price": price, "url": str(body.get("url", old.get("url", "")) or "")[:500],
                    "rating": old.get("rating", 5.0), "runs": old.get("runs", 0)}
             rows = [r for r in rows if r["id"] != sid] + [row]
             save_swarms(rows)

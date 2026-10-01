@@ -53,6 +53,7 @@ nav{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}.stars{color:#f0b429}
 <dialog id=pub><h3>Sell your swarm</h3>
 <input id=pname placeholder="Swarm name" style="width:100%;margin:4px 0">
 <textarea id=pdesc placeholder="What does it do? Who pays for it?" style="width:100%;margin:4px 0"></textarea>
+<input id=purl placeholder="Live site URL (https://… — your delivered website)" style="width:100%;margin:4px 0">
 <div class=row><select id=pmodel></select><input id=pprice placeholder="Price" type=number style="width:110px"></div>
 <div class=row><button onclick=publish()>Publish — earn 95%</button><button onclick="document.getElementById('pub').close()">Cancel</button></div>
 <div class=muted>Published under your signed-in name. Buyers pay into the flow; you're owed net on accept, minus 5%.</div></dialog>
@@ -92,14 +93,17 @@ if(!S.length){el.innerHTML='<div class=card><h3>No swarms yet</h3><p>Be the firs
 S.filter(s=>{const ms=s.models||[];return (!f||ms.includes(f))&&(!q||((s.name||'')+' '+(s.desc||'')).toLowerCase().includes(q));}).forEach(s=>{
 const mine=ME&&s.by===ME;
 const ms=s.models||[],pr=s.price||{};
+const su=safeUrl(s.url||'');
+const siteRow=su?'<div><a href="'+su+'" target=_blank rel=noopener>live site</a></div>':'';
 const d=document.createElement('div');d.className='card';
-d.innerHTML=`<h3>${esc(s.name)}</h3><div class=muted>by ${esc(s.by)}${mine?' (yours)':''} · ${s.n_reviews?`<span class=stars>★${s.rating}</span> · ${s.n_reviews} review${s.n_reviews>1?'s':''}`:'<b>New</b> · no reviews yet'} · ${s.runs||0} runs</div><p>${esc(s.desc)}</p><div>${ms.map(m=>`<span class=tag>${m} $${pr[m]??'?'}</span>`).join('')}</div><div class=row><button>Open</button></div>`;
+d.innerHTML=`<h3>${esc(s.name)}</h3><div class=muted>by ${esc(s.by)}${mine?' (yours)':''} · ${s.n_reviews?`<span class=stars>★${s.rating}</span> · ${s.n_reviews} review${s.n_reviews>1?'s':''}`:'<b>New</b> · no reviews yet'} · ${s.runs||0} runs</div><p>${esc(s.desc)}</p>${siteRow}<div>${ms.map(m=>`<span class=tag>${m} $${pr[m]??'?'}</span>`).join('')}</div><div class=row><button>Open</button></div>`;
 d.querySelector('button').onclick=()=>openD(s.id);el.appendChild(d);});}
 async function openD(id){cur=S.find(s=>s.id===id);
 if(!cur){alert('That swarm is gone — reloading.');load();return;}
 document.getElementById('dname').textContent=cur.name+(ME===cur.by?' (yours)':'');
 document.getElementById('ddesc').textContent=`by ${cur.by} — ${cur.desc}`;
-document.getElementById('dmodels').innerHTML=cur.models.map(m=>`<span class=tag>${m} $${cur.price[m]??'?'}</span>`).join('');
+const cu=safeUrl(cur.url||'');
+document.getElementById('dmodels').innerHTML=(cu?'<div><a href="'+cu+'" target=_blank rel=noopener>live site</a></div>':'')+cur.models.map(m=>`<span class=tag>${m} $${cur.price[m]??'?'}</span>`).join('');
 document.getElementById('dmodel').innerHTML=cur.models.map(m=>`<option>${m}</option>`).join('');
 document.getElementById('dout').textContent='';
 const revs=await(await fetch('/api/reviews?swarm_id='+encodeURIComponent(id))).json();
@@ -115,7 +119,7 @@ body:JSON.stringify({swarm_id:cur.id,buyer:ME})});const o=await r.json();
 document.getElementById('dout').textContent=o.error||`🎁 Trial order ${o.order.id} placed (free). The seller delivers, you accept.`;refreshMine();});}
 async function publish(){needMe(async()=>{const m=document.getElementById('pmodel').value;
 const r=await fetch('/api/swarms',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(
-{name:document.getElementById('pname').value,by:ME,desc:document.getElementById('pdesc').value,models:[m],price:{[m]:+document.getElementById('pprice').value||5}})});
+{name:document.getElementById('pname').value,by:ME,desc:document.getElementById('pdesc').value,url:document.getElementById('purl').value,models:[m],price:{[m]:+document.getElementById('pprice').value||5}})});
 const o=await r.json();if(o.error){alert(o.error);return;}
 document.getElementById('pub').close();load();init();refreshMine();});}
 async function launch(){needMe(async()=>{const site=document.getElementById('lsite').value.trim().toLowerCase();
@@ -127,7 +131,7 @@ document.getElementById('desk').innerHTML='<div class=muted>Sign in at the top �
 const os=await(await fetch('/api/orders?buyer='+encodeURIComponent(ME))).json();
 const jobs=await(await fetch('/api/jobs?buyer='+encodeURIComponent(ME))).json();
 const jobHtml=jobs.length?'<h3>🚀 Launches</h3><table><tr><th>Site</th><th>Status</th><th>Paid</th></tr>'+jobs.map(j=>`<tr><td>${esc(j.subdomain)}</td><td class=st>${esc(j.status)}</td><td>${j.funded?'✅':'—'}</td></tr>`).join('')+'</table>':'';
-document.getElementById('orders').innerHTML=(jobHtml)+(os.length?'<table><tr><th>Order</th><th>Swarm</th><th>Total</th><th>Paid</th><th>Status</th><th>Action</th></tr>'+os.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.swarm_id)}</td><td>$${o.gross}</td><td>${o.funded?'✅':'—'}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'&&!o.funded?'<button onclick="pay(this)">Pay card</button> ':''}${o.status==='delivered'?`<button onclick="accept(this)">Accept</button> <button onclick="dispute(this)">Dispute</button><br><span class=muted>got: ${esc((o.delivery||{}).text||'').slice(0,80)} ${o.delivery&&safeUrl(o.delivery.url)?`<a href="${safeUrl(o.delivery.url)}" target=_blank rel=noopener>link</a>`:''}</span>`:o.status==='accepted'?`<button onclick="review(this)">★ Review</button>`:''}</td></tr>`).join('')+'</table>':'<div class=muted>No orders yet. Open a swarm and place one.</div>';
+document.getElementById('orders').innerHTML=(jobHtml)+(os.length?'<table><tr><th>Order</th><th>Swarm</th><th>Total</th><th>Paid</th><th>Status</th><th>Action</th></tr>'+os.map(o=>`<tr><td>${o.id.slice(-6)}</td><td>${esc(o.swarm_id)}</td><td>$${o.gross}</td><td>${o.funded?'✅':'—'}</td><td class="st st-${o.status}">${o.status}</td><td data-oid="${esc(o.id)}">${o.status==='open'&&!o.funded?'<button onclick="pay(this)">Pay card</button> ':''}${o.status==='delivered'?`<button onclick="accept(this)">Accept</button> <button onclick="dispute(this)">Dispute</button><br><span class=muted>got: ${esc((o.delivery||{}).text||'').slice(0,80)} ${o.delivery&&safeUrl(o.delivery.url)?`<a href="${safeUrl(o.delivery.url)}" target=_blank rel=noopener>link</a>`:''}</span>`:o.status==='accepted'?`<button onclick="review(this)">★ Review</button>`:''}</td></tr>`).join('')+'</table>':'<div class=muted>No orders yet. Open a swarm and place one.</div>');
 const d=await(await fetch('/api/seller?by='+encodeURIComponent(ME))).json();
 const inbox=await(await fetch('/api/inbox?by='+encodeURIComponent(ME))).json();
 const todo=inbox.filter(o=>o.status==='open');
