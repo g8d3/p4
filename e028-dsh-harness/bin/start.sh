@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 # so the browser origin is loopback:
 #   ssh -L 3080:127.0.0.1:3080 <user>@<LAN>  then open http://127.0.0.1:3080
 
-LAN_HOST="${1:-192.168.0.93}"
+LAN_HOST="${1:-$(hostname -I | awk '{print $1}')}"
 HTTP_PORT=8080
 TLS_PORT=8443
 DSH_PORT=3080
@@ -32,7 +32,7 @@ if [[ ! -d app/node_modules ]]; then
   exit 1
 fi
 (cd app && nohup npx dsh web --trusted-host "$LAN_HOST:$TLS_PORT" >"../$LOG_DIR/dsh.log" 2>&1) &
-echo "dsh  -> 127.0.0.1:$DSH_PORT (log: $LOG_DIR/dsh.log)"
+echo "dsh  -> 127.0.0.1:$DSH_PORT (token URL in $LOG_DIR/dsh.log — that URL is a credential, do not paste it into chats/logs)"
 
 sleep 8
 nohup socat -4 TCP-LISTEN:$HTTP_PORT,fork,reuseaddr TCP:127.0.0.1:$DSH_PORT >"$LOG_DIR/socat-http.log" 2>&1 &
@@ -40,6 +40,14 @@ echo "socat http -> 0.0.0.0:$HTTP_PORT (log: $LOG_DIR/socat-http.log)"
 
 nohup socat -4 openssl-listen:$TLS_PORT,fork,reuseaddr,cert="$PEM",verify=0 TCP:127.0.0.1:$DSH_PORT >"$LOG_DIR/socat-tls.log" 2>&1 &
 echo "socat tls  -> 0.0.0.0:$TLS_PORT (log: $LOG_DIR/socat-tls.log)"
+
+PORTAL_PORT=8090
+if [[ -f portal/.pass.json ]]; then
+  (cd portal && PORTAL_PORT=$PORTAL_PORT nohup node server.mjs >"../$LOG_DIR/portal.log" 2>&1 &) 
+  echo "portal   -> https://$LAN_HOST:$PORTAL_PORT (password-gated launcher, no terminal needed)"
+else
+  echo "portal skipped: portal/.pass.json missing" >&2
+fi
 echo
 echo "Open:"
 echo "  http://$LAN_HOST:$HTTP_PORT   (plain HTTP; privileged APIs 403 by design)"

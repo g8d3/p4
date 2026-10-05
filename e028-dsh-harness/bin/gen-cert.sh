@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-HOST="${1:-192.168.0.93}"
+HOST="${1:-$(hostname -I | awk '{print $1}')}"
 CERT_DIR=cert
 KEY="$CERT_DIR/dsh-key.pem"
 CERT_FILE="$CERT_DIR/dsh-cert.pem"

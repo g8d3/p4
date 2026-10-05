@@ -1,0 +1,43 @@
+{
+  "experiment": "e028-dsh-harness",
+  "description": "DeepSeek Harness web UI + LAN proxies + password portal. Machine values live here; secrets live in gitignored files or env, never in code.",
+  "ports": {
+    "dsh": 3080,
+    "dsh_bind": "127.0.0.1 (loopback only — upstream rejects anything else)",
+    "lan_http": 8080,
+    "lan_http_note": "trusted LAN only: bearer cookie has no Secure flag",
+    "lan_tls": 8443,
+    "portal": 8090,
+    "portal_bind": "0.0.0.0 (password-gated launcher, no terminal needed)"
+  },
+  "lan_host": {
+    "value": "auto",
+    "how": "bin/start.sh and portal auto-detect via hostname -I; override with DSH_LAN_HOST env",
+    "last_seen": "192.168.0.177"
+  },
+  "public_host": "vuos-hcar5000mi.tail6918b0.ts.net",
+  "public_host_note": "tailnet MagicDNS name with tailscale-serve trusted cert. WebAuthn rpId MUST be this hostname — passkeys fail on bare IPs. Passkey login/registration only work via the public URL.",
+  "ts_portal_port": 9443,
+  "ts_dsh_port": 9444,
+  "ts_serve_note": "tailscale serve mappings (persistent in tailscaled): :9443 -> 127.0.0.1:8090 (portal), :9444 -> 127.0.0.1:8443 (dsh). Re-apply with: tailscale serve --bg --https=9443 https+insecure://127.0.0.1:8090 ; tailscale serve --bg --https=9444 https+insecure://127.0.0.1:8443",
+  "portal_password": {
+    "file": "portal/.pass.json",
+    "format": "0600 gitignored scrypt hash, never in repo",
+    "change": "via the portal web UI itself (logged-in sessions can set a new one)",
+    "initial_delivery": "shown once in chat, never logged"
+  },
+  "portal_users": {
+    "file": "portal/users.json",
+    "format": "0600 gitignored: accounts, passkey credential IDs + public keys + counters, single-use invites",
+    "bootstrap": "empty file = open registration creates the admin; afterwards invites only",
+    "recovery": "shared password login still works as break-glass admin"
+  },
+  "dsh_launch_token": {
+    "where": "log/dsh.log (?token=... per-boot process credential)",
+    "handling": "portal reads it live on each /open redirect; never commit, never paste into chats/logs"
+  },
+  "cert": {
+    "file": "cert/dsh.pem (gitignored, self-signed)",
+    "note": "browsers warn on self-signed either way; delete to regenerate"
+  }
+}
