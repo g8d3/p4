@@ -1,0 +1,11 @@
+{
+  "port": 8361,
+  "bind": "0.0.0.0",
+  "loop_interval_sec": 3,
+  "heartbeat_timeout_sec": 90,
+  "min_workers": 1,
+  "ceo_every_ticks": 30,
+  "hold_rotate_ticks": 10,
+  "company_name": "Agent Company OS",
+  "note": "ALL machine values live here + editable at /api/settings from the web UI. No env vars required. Port/loop/heartbeat editable in-app."
+}

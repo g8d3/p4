@@ -1,0 +1,160 @@
+<!doctype html><html><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">
+<title>Agent Company OS</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;background:#0b0e14;color:#e8ecf3}
+header{padding:14px 18px;background:#131928;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0}
+#loopBanner{padding:8px 18px;font-size:14px}
+#statusbar{display:flex;gap:10px;align-items:center;padding:10px 18px;font-size:15px;background:#0f1522;border-bottom:1px solid #223}
+#dot{width:16px;height:16px;border-radius:50%;background:gray;flex:none}
+#dot.green{background:#22c55e;box-shadow:0 0 8px #22c55e}#dot.orange{background:#f59e0b;box-shadow:0 0 8px #f59e0b}#dot.red{background:#ef4444;box-shadow:0 0 8px #ef4444}#dot.gray{background:#6b7280}
+#verifyBar{padding:6px 18px;font-size:13px}
+.vok{color:#4ade80}.vbad{color:#f87171;font-weight:bold}
+.stale{color:#f87171}
+nav{display:flex;gap:6px;padding:10px 18px;flex-wrap:wrap}
+nav button{background:#1d2637;color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+nav button.on{background:#3b82f6}
+main{padding:0 18px 60px;max-width:1100px}
+section{display:none}section.on{display:block}
+.card{background:#131928;border-radius:10px;padding:12px;margin:10px 0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;background:#243}
+.pill.working{background:#14532d}.pill.idle{background:#713f12}.pill.done{background:#1e3a8a}
+input,select,textarea{background:#0f1522;color:#fff;border:1px solid #2a3548;padding:7px;border-radius:6px;margin:2px}
+button.a{background:#2563eb;color:#fff;border:0;padding:7px 11px;border-radius:7px;cursor:pointer;margin:2px}
+button.d{background:#7f1d1d;color:#fff;border:0;padding:7px 11px;border-radius:7px;cursor:pointer;margin:2px}
+small{color:#9aa7bd}
+</style></head><body>
+<header><h1>🏢 <span id=co>Agent Company OS</span></h1>
+<span id=health></span>
+<button class=a onclick="api('/api/loop/tick',{}).then(r=>{toast('tick #'+r.tick+' working '+r.working_after);refresh()})">⏱ Tick now</button>
+<button class=a onclick="api('/api/control/start',{}).then(refresh)">▶ Start loop</button>
+<button class=d onclick="api('/api/control/stop',{}).then(refresh)">⏸ Stop loop</button>
+<button class=a onclick="verifyNow()">✅ Verify now</button>
+</header>
+<div id=statusbar><span id=dot></span><b id=statusWord>connecting…</b><span id=loopBanner></span><span id=nextTick></span></div>
+<div id=verifyBar></div>
+<div id=taskDetail class=card style="margin:10px 18px;display:none"></div>
+<nav>
+<button data-t=board class=on>Board</button>
+<button data-t=team>Team</button>
+<button data-t=versions>Versions</button>
+<button data-t=system>System</button>
+</nav>
+<main>
+<section id=t-board class=on>
+<div class=card><b>⏭ Future → ⏺ Present → ⏮ Past.</b> <small>New work is born on the right and walks left by itself — live work auto-finishes, orphans drift back. Hurry it along with <b>Start</b> → <b>Finish</b> → <b>Release</b>. <b>Reopen</b> sends anything back for another pass. Every bold word is a button below.</small></div>
+<div class=cols>
+<div class=card><h3>✅ Past — finished</h3><small>History. Wrong call? Reopen it back into Present.</small><div id=past></div></div>
+<div class=card><h3>🔨 Present — happening now</h3><small>Only live work lives here: heartbeat-backed tasks finish themselves (✔ Finish just hurries it). Anything with no agent drifts back to Future.</small><div id=present></div></div>
+<div class=card><h3>📋 Future — not started</h3><small>Backlog + planned versions. Press Start to pull work into Present.</small><div id=future></div></div>
+</div>
+<div class=card><h3>Activity log</h3><small>Every tick, rescue, start, finish and release lands here, newest first.</small><div id=events></div></div>
+</section>
+<section id=t-team>
+<div class=card><h3>Agents — supervisor keeps ≥1 working (auto-starts if idle)</h3><div id=agents></div>
+<div id=sessDetail></div><div id=sessPast></div>
+<h4>Spawn agent (everything from here, no env)</h4>
+<input id=an placeholder="name e.g. Bob"><select id=ar></select><input id=at placeholder="task id (optional)">
+<button class=a onclick="spawnAgent()">+ Spawn working agent</button></div>
+<div class=card><h3>Tasks</h3><div id=tasks></div>
+<h4>New task</h4><input id=tt placeholder="title"><select id=tr></select>
+<button class=a onclick="newTask()">+ Add to backlog</button></div>
+<div class=card><h3>Org chart — roles the CEO / Board redefine here</h3>
+<small>Seeded: leadership, design, implement, review/QA (e2e+UI), content, provisioning, growth. Agents and tasks point at these — content and provisioning queues live on the Board, filtered by role.</small><div id=roles></div>
+<h4>New / edit role</h4><input id=ri placeholder="id"><input id=rti placeholder="title"><input id=ra placeholder="area"><input id=rp placeholder="prompt / job" size=40>
+<button class=a onclick="saveRole()">Save role</button></div>
+</section>
+<section id=t-versions>
+<div class=card><h3>Versions — releases carry the code</h3><div id=iters></div>
+<h4>New iteration</h4><input id=it placeholder="title"><input id=ino placeholder="notes" size=40>
+<button class=a onclick="newIter()">+ Plan version</button></div>
+<div class=card><h3>Code snapshots — restorable versions of the app itself</h3><input id=snapId placeholder="v0.4.0"> <button class=a onclick="opsSnap()">📸 Snapshot current code</button><div id=snaps></div><small>Captures server/ + public/ + needs.json + AGENTS.md. Restore replaces code and restarts. Tip: use the version id as snapshot id to tie them together.</small></div>
+</section>
+<section id=t-system>
+<div class=card><h3>Settings — no env vars, all editable here</h3><div id=settings></div>
+<label>Company <input id=s_co></label><label>Min workers <input id=s_mw type=number min=1 max=10></label>
+<label>Heartbeat timeout s <input id=s_hb type=number></label><label>Loop interval s <input id=s_li type=number></label><label>CEO review every N ticks <input id=s_ceo type=number></label>
+<button class=a onclick="saveSettings()">Save settings</button></div>
+<div class=card><h3>Server — same powers as the operator terminal</h3><div id=opsSrv></div>
+<button class=a onclick="opsRestart()">↻ Restart server</button>
+<button class=a onclick="opsDaemon('start')">▶ Daemon on</button>
+<button class=d onclick="opsDaemon('stop')">⏸ Daemon off</button>
+<button class=a onclick="opsGate()">Run self-test</button>
+<br><small>Restart = kill PID + boot (needed after code edits). Self-test = test/check.sh — deletes ALL agents to prove the supervisor rebuilds. No login here, same trust as the rest of this console: keep it on tailnet.</small></div>
+<div class=card><h3>Logs</h3><select id=logName><option>server</option><option>daemon</option><option>events</option></select> <button class=a onclick="opsLogs()">Read logs</button><pre id=logOut style="white-space:pre-wrap;max-height:300px;overflow:auto"></pre></div>
+<div class=card><h3>Code — edit what the operator edits</h3><select id=codeName></select> <button class=a onclick="opsLoad()">Open</button> <button class=a onclick="opsSave()">Save</button><br><textarea id=codeBody rows=22 style="width:100%"></textarea><br><small>server/app.py is syntax-checked before save; needs.json must be valid JSON. Snapshot first if brave. Press ↻ Restart after saving code.</small></div>
+</section>
+</main>
+<script>
+async function api(p,m){let o={};if(m!==undefined)o={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(m)};
+const r=await fetch(p,o);if(!r.ok)throw await r.text();return r.json()}
+function toast(m){document.getElementById('loopBanner').textContent=m}
+function taskRow(t,fn,label,extra){return (t.state==='done'?'✅':t.state==='doing'?'🔨':'📋')+' '+t.title+' <small>'+t.id+' '+t.role_id+(t.version?' · '+t.version:'')+(t.result?' → '+t.result:'')+(t.needs_human?' 🆘':'')+(t.action?' ⚙️':'')+(extra?' • '+extra:'')+'</small> '+'<button class=a onclick="'+fn+'(\''+t.id+'\')">'+label+'</button> '+'<button class=a onclick="taskHist(\''+t.id+'\')">History</button>'}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelectorAll('main section').forEach(s=>s.classList.remove('on'));document.getElementById('t-'+b.dataset.t).classList.add('on')});
+async function refresh(){
+const keep={};['ft','fi'].forEach(id=>{const el=document.getElementById(id);if(el)keep[id]=el.value});
+try{
+const [s,roles,agents,tasks,iters,tl,loop,ev,v,o,sess]=await Promise.all([api('/api/settings'),api('/api/roles'),api('/api/agents'),api('/api/tasks'),api('/api/iterations'),api('/api/timeline'),api('/api/loop'),api('/api/events'),api('/api/verify'),api('/api/ops'),api('/api/sessions')]);
+document.getElementById('co').textContent=s.company_name||'Agent Company OS';
+document.getElementById('health').textContent=`👷 ${tl.present.working_agents.length}/${s.min_workers} agents working`;
+const nowMs=Date.now(),tickAge=loop.last_tick?Math.round(nowMs/1000-loop.last_tick):null,nW=tl.present.working_agents.length;
+let word='RUNNING · OK',cls='green';
+if(!loop.running){word='STOPPED — no auto-start until you press Start';cls='gray'}
+else if(tickAge!==null&&tickAge>2*s.loop_interval_sec){word='STALLED — no fresh tick for '+tickAge+'s';cls='orange'}
+else if(nW<s.min_workers){word='DEGRADED — '+nW+' working, need '+s.min_workers;cls='orange'}
+else if(!v.pass){word='RUNNING · VERIFY FAILING — see checks below';cls='orange'}
+document.getElementById('dot').className=cls;document.getElementById('statusWord').textContent=word;
+document.getElementById('loopBanner').textContent=`🛟 supervisor auto-started ${loop.auto_starts||0}`;
+window._tick={last:loop.last_tick,int:s.loop_interval_sec,running:!!loop.running};
+renderOps(o);
+renderVerify(v);
+{const byV={};tl.past.done_tasks.forEach(t=>{const k=t.version||'';(byV[k]=byV[k]||[]).push(t)});const rel=tl.past.released.map(i=>`📦 <b>${i.id}</b> ${i.title}`+((byV[i.id]||[]).map(t=>'<br>↳ '+taskRow(t,'reopen','Reopen')).join(''))).join('<br>');const un=(byV['']||[]).map(t=>taskRow(t,'reopen','Reopen')).join('<br>');document.getElementById('past').innerHTML=(rel+(un?'<br>🏷 Unreleased work:<br>'+un:''))||'<small>Nothing finished yet — press Finish in Present.</small>';}
+document.getElementById('present').innerHTML=tl.present.working_agents.map(a=>`<span class="pill working">WORKING</span> ${a.name} <small>${a.role_id} ${a.current_task_id||''}</small> <button class=a onclick="hb('${a.id}')">Ping</button> <button class=d onclick="stopA('${a.id}')">Stop</button>`).join('<br>')+'<hr>'+tl.present.doing_tasks.map(t=>{const w=agents.find(a=>a.current_task_id===t.id&&a.status==='working');return taskRow(t,'adv','✔ Finish',w?'👷 '+w.name:'⚠ no agent — drifts back to backlog')}).join('<br>');
+{const ft=tl.future.todo_tasks.map((t,i)=>taskRow(t,'adv','▶ Start',i===0?'⏭ next up':'')),fp=tl.future.planned.map(i=>`🗓 <b>${i.id}</b> ${i.title} <button class=a onclick="relIter('${i.id}')">🚀 Release</button>`);document.getElementById('future').innerHTML=((ft.join('<br>'))||'<small>Backlog empty — nothing for the team to pull next.</small>')+'<hr>'+(fp.join('<br>')||'<small>No planned versions.</small>')+'<hr><small>Feed the future from here:</small><br><input id=ft placeholder="new task"><select id=fr></select> <button class=a onclick="addFuture()">＋ Backlog it</button><br><input id=fi placeholder="version goal"> <button class=a onclick="planFuture()">＋ Plan version</button>';}
+document.getElementById('events').innerHTML=ev.slice(-12).reverse().map(e=>`<small>${new Date(e.ts*1000).toLocaleTimeString()} ${e.type}: ${e.detail}</small>`).join('<br>');
+document.getElementById('agents').innerHTML=agents.map(a=>{const age=Math.round(Date.now()/1000-a.last_heartbeat),staleT=age>s.heartbeat_timeout_sec;return `<span class="pill ${a.status}">${a.status.toUpperCase()}</span> <b>${a.name}</b> <small>${a.id} ${a.role_id} beat <span class="${staleT?'stale':''}">${age}s ago${staleT?' STALE':''}</span></small> <button class=a onclick="hb('${a.id}')">Ping</button> <button class=a onclick="sess('${a.id}')">History</button> <button class=d onclick="delA('${a.id}')">Remove</button>`}).join('<br>');
+{const past=sess.filter(x=>!x.live);document.getElementById('sessPast').innerHTML='<b>Past sessions</b> — full history per agent survives the agent itself.<br>'+(past.slice(0,12).map(x=>`${x.name||x.id} <small>${x.role_id} • ${(x.tasks||[]).length} tasks • ${x.beats||0} beats • ended ${x.ended_why||'?'}</small> <button class=a onclick="sess('${x.id}')">History</button>`).join('<br>')||'<br><small>none yet — history starts with this build</small>');}
+document.getElementById('tasks').innerHTML=tasks.map(t=>taskRow(t,'adv',t.state==='doing'?'✔ Finish':t.state==='todo'?'▶ Start':'✓')+' <button class=d onclick="delT(\''+t.id+'\')">Remove</button>').join('<br>');
+document.getElementById('roles').innerHTML=roles.map(r=>`<b>${r.title}</b> <small>${r.id} ${r.area}</small> — ${r.prompt} <button class=d onclick="delR('${r.id}')">Remove</button>`).join('<br>');
+document.getElementById('iters').innerHTML=iters.map(i=>`📦 <b>${i.id}</b> ${i.title} <small>${i.state}</small> ${i.notes||''} <button class=a onclick="relIter('${i.id}')">🚀 Release</button> <button class=a onclick="opsSnapAs('${i.id}')">Snapshot</button> <button class=d onclick="delI('${i.id}')">Remove</button>`).join('<br>');
+let opts=roles.map(r=>`<option value="${r.id}">${r.title}</option>`).join('');
+document.getElementById('ar').innerHTML=opts;document.getElementById('tr').innerHTML=opts;var fr=document.getElementById('fr');if(fr)fr.innerHTML=opts;
+document.getElementById('settings').innerHTML=`<small>${JSON.stringify(s)}</small>`;
+s_co.value=s.company_name;s_mw.value=s.min_workers;s_hb.value=s.heartbeat_timeout_sec;s_li.value=s.loop_interval_sec;s_ceo.value=s.ceo_every_ticks||30;Object.entries(keep).forEach(([k2,val])=>{const el=document.getElementById(k2);if(el&&document.activeElement!==el)el.value=val});
+}catch(e){document.getElementById('dot').className='red';document.getElementById('statusWord').textContent='OFFLINE — server unreachable';document.getElementById('loopBanner').textContent='Showing stale data. Restart: bash bin/serve.sh';}
+}
+function renderOps(o){if(!o||!document.getElementById('opsSrv'))return;const d=o.daemon;document.getElementById('opsSrv').innerHTML=`pid <b>${o.pid}</b> • up ${Math.floor(o.uptime_s/60)}m ${o.uptime_s%60}s • port <b>${o.settings.port}</b> • daemon <b>${d.running?'RUNNING '+d.pid:'STOPPED'}</b> • snapshots ${o.snapshots.length} • gate ${o.gate.pass===undefined?'never run':(o.gate.pass?'PASS':'FAIL')}`;document.getElementById('snaps').innerHTML=o.snapshots.map(x=>`${x} <button class=a onclick="opsRestore('${x}')">Restore + restart</button>`).join('<br>')||'<small>no snapshots yet</small>';const cn=document.getElementById('codeName');if(cn&&!cn.options.length)api('/api/ops/files').then(f=>cn.innerHTML=f.map(x=>`<option>${x}</option>`).join(''))}
+async function opsRestart(){if(!confirm('Restart server now?'))return;await api('/api/ops/restart',{});toast('restarting — page reloads in ~6s');setTimeout(()=>location.reload(),7000)}
+async function opsDaemon(a){await api('/api/ops/daemon',{action:a});refresh()}
+async function opsGate(){if(!confirm('Self-test deletes ALL agents to prove recovery. Run?'))return;toast('gate running…');const r=await api('/api/ops/gate',{});toast(r.pass?'GATE GREEN':'GATE FAIL — see Ops logs');refresh()}
+async function opsLogs(){const r=await api('/api/ops/logs?name='+document.getElementById('logName').value);document.getElementById('logOut').textContent=r.tail}
+async function opsLoad(){const r=await api('/api/ops/file?name='+encodeURIComponent(document.getElementById('codeName').value));document.getElementById('codeBody').value=r.content}
+async function opsSave(){try{await api('/api/ops/file',{name:document.getElementById('codeName').value,content:document.getElementById('codeBody').value});toast('saved — press Restart to apply')}catch(e){toast(e)}}
+async function opsSnap(){const r=await api('/api/ops/snapshot',{id:document.getElementById('snapId').value});toast('snapshot '+r.snapshot);refresh()}
+async function opsSnapAs(id){try{const r=await api('/api/ops/snapshot',{id});toast('snapshot '+r.snapshot)}catch(e){toast('snapshot exists — restore or pick another id')}refresh()}
+async function opsRestore(id){if(!confirm('Replace code with '+id+' and restart?'))return;await api('/api/ops/restore',{id});toast('restoring — reload in ~7s');setTimeout(()=>location.reload(),8000)}
+async function verifyNow(){try{const v=await api('/api/verify');renderVerify(v);toast('verify '+v.score)}catch(e){toast('verify failed: '+e)}}
+function renderVerify(v){document.getElementById('verifyBar').innerHTML='E2E self-review '+v.score+': '+Object.entries(v.checks).map(([k,ok])=>`<span class="${ok?'vok':'vbad'}">${ok?'✓':'✗'} ${k}</span>`).join(' ')}
+async function spawnAgent(){const v=id=>document.getElementById(id).value;await api('/api/agents',{name:v('an')||'New agent',role_id:v('ar'),current_task_id:v('at')||undefined,status:'working'});refresh()}
+async function newTask(){const v=id=>document.getElementById(id).value;await api('/api/tasks',{title:v('tt'),role_id:v('tr')});refresh()}
+async function saveRole(){const v=id=>document.getElementById(id).value;await api('/api/roles',{id:v('ri'),title:v('rti'),area:v('ra'),prompt:v('rp')});refresh()}
+async function newIter(){const v=id=>document.getElementById(id).value;await api('/api/iterations',{title:v('it'),notes:v('ino'),state:'planned'});refresh()}
+async function saveSettings(){const v=id=>document.getElementById(id).value;await api('/api/settings',{company_name:v('s_co'),min_workers:+v('s_mw'),heartbeat_timeout_sec:+v('s_hb'),loop_interval_sec:+v('s_li'),ceo_every_ticks:+v('s_ceo')});refresh()}
+async function taskHist(id){const r=await api('/api/tasklog?id='+encodeURIComponent(id));const d=document.getElementById('taskDetail');const f=t=>t?new Date(t*1000).toLocaleTimeString():'—';d.style.display='block';let h='<b>Task history: '+r.task.title+'</b> <small>'+r.task.id+' '+r.task.role_id+' • '+r.task.state+((r.task.version)?' · '+r.task.version:'')+'</small> <button class=d onclick="taskClose()">Close</button><br>';h+=(r.holders||[]).map(x=>'• held by '+x.agent+' <small>'+x.outcome+' '+f(x.started)+' → '+f(x.ended)+'</small>').join('<br>');if((r.holders||[]).length)h+='<br>';h+=(r.events||[]).map(e=>'• <small>'+f(e.ts)+' '+e.type+': '+e.detail+'</small>').join('<br>')||'<small>no interactions recorded yet</small>';d.innerHTML=h;d.scrollIntoView()}
+function taskClose(){const d=document.getElementById('taskDetail');d.style.display='none';d.innerHTML=''}
+async function sess(id){const all=await api('/api/sessions');const x=all.find(y=>y.id===id);if(!x)return toast('no session yet');const f=t=>t?new Date(t*1000).toLocaleTimeString():'—';document.getElementById('sessDetail').innerHTML=`<b>Session: ${x.name||x.id}</b> <small>${x.role_id} • spawned ${f(x.spawned)} by ${x.spawned_by||'?'} • beats ${x.beats||0} (first ${f(x.first_beat)}, last ${f(x.last_beat)}) • ${x.live?'LIVE ('+x.status+')':'ended: '+(x.ended_why||'')}</small><br>`+((x.tasks||[]).map(t=>`• ${t.task} <small>${t.outcome} ${f(t.started)} → ${f(t.ended)}</small>`).join('<br>')||'<small>no tasks held yet</small>')}
+async function hb(id){await api('/api/agents',{heartbeat:id,status:'working'});refresh()}
+async function stopA(id){await api('/api/agents',{id,heartbeat:undefined,status:'idle',name:'?',role_id:'implementer'}).catch(()=>{});const a=(await api('/api/agents')).find(x=>x.id===id);a.status='idle';await api('/api/agents',a);refresh()}
+async function delA(id){if(!confirm('Remove agent '+id+'? Its session stays in history.'))return;await api('/api/agents',{delete:id});refresh()}
+async function delT(id){if(!confirm('Remove task '+id+'?'))return;await api('/api/tasks',{delete:id});refresh()}
+async function delR(id){if(!confirm('Remove role '+id+'? Tasks pointing at it keep the id.'))return;await api('/api/roles',{delete:id});refresh()}
+async function delI(id){if(!confirm('Remove version '+id+'? Snapshots stay.'))return;await api('/api/iterations',{delete:id});refresh()}
+async function adv(id){await api('/api/tasks',{advance:id});refresh()}
+async function reopen(id){await api('/api/tasks',{reopen:id});refresh()}
+async function addFuture(){const v=id=>document.getElementById(id).value;if(!v('ft'))return toast('name the task first');await api('/api/tasks',{title:v('ft'),role_id:v('fr')});refresh()}
+async function planFuture(){const v=id=>document.getElementById(id).value;if(!v('fi'))return toast('name the version goal first');await api('/api/iterations',{title:v('fi'),state:'planned'});refresh()}
+async function relIter(id){const all=await api('/api/iterations');const it=all.find(x=>x.id===id);it.state='released';await api('/api/iterations',it);refresh()}
+refresh();setInterval(refresh,2000);
+setInterval(()=>{const t=window._tick,n=document.getElementById('nextTick');if(!t||!t.last||!t.running){n.textContent='';return}const left=Math.max(0,Math.round(t.last+t.int-Date.now()/1000));n.textContent='⏳ next tick in '+left+'s'},1000);
+</script></body></html>
