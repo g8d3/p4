@@ -14,12 +14,12 @@ redefine live.
 |---|---|
 | Board | Past / Present / Future + activity log. Work walks itself left; Start/Finish/Release/Reopen hurry it. The core view. |
 | Team | Agents (spawn/beat/stop), tasks, and the org chart — CEO/Board redefines roles here. Supervisor auto-starts if working < min. |
-| Versions | Plan → release versions with notes; 📸 ties a version to restorable code. Releasing stamps all finished unclaimed tasks with the version — a version IS its tasks. Released = Past, planned = Future. |
+| Versions | Plan → release versions with notes; 📸 ties a version to restorable code. Releasing stamps all finished unclaimed tasks with the version — a version IS its tasks. Row carries {claimed, snapshot, by}; tasks.version is the foreign key. Released = Past, planned = Future. |
 | System | Settings (no env vars) + operator powers: restart, daemon, logs, code editor, gate. |
 | `POST /api/loop/tick` | Supervisor: ≥ `min_workers` fresh workers (auto-start + reap dead), idle hands pull backlog, orphans drift back. No theater: only `action` tasks self-complete (by executing); the rest hold for a real builder, human Finish certifies; holders rotate after `hold_rotate_ticks`. |
 | Task `action`s | `add_task`, `add_role`, `update_settings`, `snapshot`, `release` (cuts a released version + code snapshot). Unknown actions → `needs_human`, never fake-done. |
 | CEO review (every `ceo_every_ticks`) | Failing verify checks → repair proposals; code newer than last release → a `release` task that cuts a real version itself. |
-| Builder bridge | External agents drive work via API: heartbeat to stay fresh, `POST /api/tasks {advance, result}` to certify done with notes. Human Finish = same certification. |
+| Builder bridge | External agents drive work via API: heartbeat to stay fresh, `POST /api/tasks {advance, result}` to certify done with notes. Human Finish = same certification. Full machine-readable contract: `GET /api/docs`. |
 | Sessions (`GET /api/sessions`, Team 🕘) | Full per-agent history: spawned by whom/when, heartbeat count + first/last, every task held with outcome, ended when/why. Survives reaping and deletion. |
 | UI constitution (gate-enforced) | nav == sections, no duplicate ids, every `onclick` resolves to a defined function, every item actionable or coaching empty-state. Redundancy is a bug. |
 | `GET /api/verify` | E2E self-review: settings, roles, min-workers, UI first-paint, iterations. |

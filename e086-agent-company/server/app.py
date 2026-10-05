@@ -73,6 +73,15 @@ LOCK = threading.RLock()  # reentrant: do_POST holds it while do_tick() re-acqui
 START = int(time.time())
 ALLOW_FILES = {"server/app.py", "public/index.html", "needs.json", "AGENTS.md"}
 SNAP = os.path.join(DATA, "snapshots")
+LISTS = {"roles": "roles.json", "agents": "agents.json", "tasks": "tasks.json", "iterations": "iterations.json"}
+def list_delete(coll, rid):
+    rows = [r for r in load(LISTS[coll], []) if r.get("id") != rid]
+    save(LISTS[coll], rows); return rows
+def list_upsert(coll, obj, prefix):
+    rows = load(LISTS[coll], [])
+    obj.setdefault("id", prefix + uuid.uuid4().hex[:6])
+    rows = [r for r in rows if r.get("id") != obj["id"]] + [obj]
+    save(LISTS[coll], rows); return rows
 MIME = {".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json"}
 
 def settings():
@@ -137,10 +146,12 @@ def exec_action(action, params, agent_id, tasks, iters):
     if action == "release":
         n = len(iters) + 1; vid = f"v0.{n}.0"
         while any(i["id"] == vid for i in iters): n += 1; vid = f"v0.{n}.0"
-        iters.append({"id": vid, "title": params.get("title", "Autonomous release"), "state": "released",
-                      "notes": params.get("note", f"cut by {agent_id}"), "ts": int(time.time())})
         claimed = stamp_release(tasks, vid)
-        snapshot_code(vid)
+        try: snap = snapshot_code(vid)
+        except ValueError: snap = vid
+        iters.append({"id": vid, "title": params.get("title", "Autonomous release"), "state": "released",
+                      "notes": params.get("note", f"cut by {agent_id}"), "ts": int(time.time()),
+                      "claimed": claimed, "snapshot": snap, "by": agent_id})
         return f"released {vid} + snapshot, claimed {claimed} tasks"
     raise ValueError(f"unknown action {action}")
 
@@ -322,10 +333,8 @@ class H(BaseHTTPRequestHandler):
                 return self.send_json({"ok": True, "company": s.get("company_name"),
                     "working": len([a for a in agents if fresh(a, to)]), "ts": int(time.time())})
             if u.path == "/api/settings": return self.send_json(load("settings.json", {}))
-            if u.path == "/api/roles": return self.send_json(load("roles.json", []))
-            if u.path == "/api/agents": return self.send_json(load("agents.json", []))
-            if u.path == "/api/tasks": return self.send_json(load("tasks.json", []))
-            if u.path == "/api/iterations": return self.send_json(load("iterations.json", []))
+            for _c, _f in LISTS.items():
+                if u.path == "/api/" + _c: return self.send_json(load(_f, []))
             if u.path == "/api/loop": return self.send_json({**load("loop_state.json", {}),
                 "heartbeat": load("heartbeat.json", {}), "timeout_sec": to})
             if u.path == "/api/timeline":
@@ -334,7 +343,7 @@ class H(BaseHTTPRequestHandler):
                 present = [a for a in agents if fresh(a, to)]
                 return self.send_json({
                     "past": {"done_tasks": [t for t in tasks if t["state"] == "done"],
-                             "released": [i for i in iters if i["state"] == "released"]},
+                             "released": [dict(i, claimed=sum(1 for t in tasks if t.get("version") == i["id"]), agents=sorted({s.get("name") or sid for sid, s in load("sessions.json", {}).items() for h in s.get("tasks", []) if h.get("task") in {t["id"] for t in tasks if t.get("version") == i["id"]}})) for i in iters if i["state"] == "released"]},
                     "present": {"working_agents": present,
                                 "doing_tasks": [t for t in tasks if t["state"] == "doing"],
                                 "loop": load("loop_state.json", {})},
@@ -400,7 +409,30 @@ class H(BaseHTTPRequestHandler):
                     out.append(d)
                 out.sort(key=lambda x: x.get("spawned", 0), reverse=True)
                 return self.send_json(out)
-            if u.path == "/api/ops/files": return self.send_json(sorted(ALLOW_FILES))
+            if u.path == "/api/docs":
+                return self.send_json({
+                    "contract": "Task CRUD operated by agents. No auth. Errors are {error}. Times are unix seconds.",
+                    "model": "Many-to-many over time: agents hold many tasks, tasks pass through many agents (join rows: sessions[].tasks[] with span+outcome). Tasks carry one version FK (cleared on reopen, reclaimable). Agents-versions is derived (contributors per release).",
+                    "agent_loop": "1) POST /api/agents {name,role_id} to exist. 2) POST {heartbeat:id} often (stale > heartbeat_timeout_sec = reaped). 3) Do work: engine pulls backlog for you, or POST /api/tasks {advance:id,result:notes} to certify done. 4) POST /api/loop/tick never needed (daemon ticks).",
+                    "endpoints": [
+                        {"m": "GET", "p": "/api/health", "out": "{ok, company, working, ts}"},
+                        {"m": "GET/POST", "p": "/api/settings", "body": "{company_name, min_workers, heartbeat_timeout_sec, loop_interval_sec, ceo_every_ticks, hold_rotate_ticks}"},
+                        {"m": "GET/POST", "p": "/api/roles", "body": "{id?,title,area,prompt} or {delete:id}"},
+                        {"m": "GET/POST", "p": "/api/agents", "body": "create {name,role_id,current_task_id?} | beat {heartbeat:id,status?} | remove {delete:id} | full upsert {id,...}"},
+                        {"m": "GET/POST", "p": "/api/tasks", "body": "create {title,role_id,action?,params?} | certify {advance:id,result?} | reopen {reopen:id} | remove {delete:id} | full upsert {id,...}"},
+                        {"m": "GET/POST", "p": "/api/iterations", "body": "create {title,notes?} | upsert {id,...} (planned->released claims finished tasks + snapshots code; row gains {claimed,snapshot,by}) | remove {delete:id}"},
+                        {"m": "GET", "p": "/api/timeline", "out": "{past:{done_tasks,released},present:{working_agents,doing_tasks,loop},future:{todo_tasks,planned}}"},
+                        {"m": "GET", "p": "/api/loop", "out": "{running,ticks,last_tick,auto_starts,timeout_sec}"},
+                        {"m": "POST", "p": "/api/control/start|stop + /api/loop/tick", "out": "supervisor controls"},
+                        {"m": "GET", "p": "/api/verify", "out": "{checks,score,pass}: settings_ok, roles_seeded, min_workers_met, ui_first_paint, iterations_exist"},
+                        {"m": "GET", "p": "/api/sessions", "out": "[{id,name,role_id,spawned,spawned_by,beats,first_beat,last_beat,tasks[{task,started,ended,outcome}],ended,ended_why,live}]"},
+                        {"m": "GET", "p": "/api/tasklog?id=", "out": "{task, holders[], events[]}: full case file of one task"},
+                        {"m": "GET", "p": "/api/ops", "out": "{pid,uptime_s,settings,daemon,snapshots,gate}"},
+                        {"m": "GET", "p": "/api/ops/logs?name=server|daemon|events + /api/ops/files + /api/ops/file?name="},
+                        {"m": "POST", "p": "/api/ops/restart + /api/ops/daemon{action} + /api/ops/file{name,content} + /api/ops/snapshot{id} + /api/ops/restore{id} + /api/ops/gate"},
+                    ],
+                    "task_actions": "tasks with {action,params} EXECUTE on pull: add_task{title,role_id}, add_role{id,title,area,prompt}, update_settings{...}, snapshot{id}, release{title?,note?}. Unknown action parks the task as needs_human after 3 fails. Actionless tasks hold for a real builder.",
+                    "rules": "Never fake-done: only executed/certified work closes. Stale heartbeats are reaped. Orphaned doing-tasks drift back. Holders rotate. Auto-pull skips needs_human."})
             if u.path == "/api/ops/file":
                 name = (q.get("name") or [""])[0]
                 if name not in ALLOW_FILES: return self.send_json({"error": "not editable"}, 403)
@@ -427,13 +459,9 @@ class H(BaseHTTPRequestHandler):
                 cur = load("settings.json", {}); cur.update(b); save("settings.json", cur)
                 log_event("settings", json.dumps(b)[:200]); return self.send_json(cur)
             if u.path == "/api/roles":
-                roles = load("roles.json", [])
-                if b.get("delete"):
-                    roles = [r for r in roles if r["id"] != b["delete"]]
-                else:
-                    b.setdefault("id", "role-" + uuid.uuid4().hex[:6])
-                    roles = [r for r in roles if r["id"] != b["id"]] + [b]
-                save("roles.json", roles); log_event("role", b.get("id", "?")); return self.send_json(roles)
+                if b.get("delete"): rows = list_delete("roles", b["delete"])
+                else: rows = list_upsert("roles", b, "role-")
+                log_event("role", b.get("id", "?")); return self.send_json(rows)
             if u.path == "/api/agents":
                 agents = load("agents.json", [])
                 if b.get("delete"):
@@ -456,7 +484,7 @@ class H(BaseHTTPRequestHandler):
                             if b.get("status"): a["status"] = b["status"]
                             touch_session(a, event="beat")
                 elif b.get("id"):
-                    agents = [a for a in agents if a["id"] != b["id"]] + [b]
+                    agents = list_upsert("agents", b, "agent-")
                 else:
                     b["id"] = "agent-" + uuid.uuid4().hex[:6]
                     b.setdefault("status", "working"); b["last_heartbeat"] = int(time.time())
@@ -464,23 +492,23 @@ class H(BaseHTTPRequestHandler):
                 save("agents.json", agents); return self.send_json(agents)
             if u.path == "/api/tasks":
                 tasks = load("tasks.json", [])
-                if b.get("delete"): tasks = [t for t in tasks if t["id"] != b["delete"]]
+                if b.get("delete"): tasks = list_delete("tasks", b["delete"])
                 elif b.get("reopen"):
                     for t in tasks:
                         if t["id"] == b["reopen"]:
                             t["state"] = "doing"
+                            t.pop("version", None)
                             t["updated"] = int(time.time())
-                            log_event("task_reopen", f"{t['id']} -> doing")
+                            log_event("task_reopen", f"{t['id']} -> doing (version cleared, shippable again)")
                 elif b.get("advance"):
                     for t in tasks:
                         if t["id"] == b["advance"]:
                             t["state"] = {"todo": "doing", "doing": "done", "done": "done"}[t["state"]]
-                            if t["state"] == "doing": t["work_ticks"] = 0
-                            else: t.pop("needs_human", None)
+                            if t["state"] != "doing": t.pop("needs_human", None)
                             if b.get("result"): t["result"] = str(b["result"])[:500]
                             t["updated"] = int(time.time())
                             log_event("task_advance", f"{t['id']} -> {t['state']}")
-                elif b.get("id"): tasks = [t for t in tasks if t["id"] != b["id"]] + [b]
+                elif b.get("id"): tasks = list_upsert("tasks", b, "t-")
                 else:
                     b["id"] = "t-" + uuid.uuid4().hex[:4]; b.setdefault("state", "todo")
                     b["updated"] = int(time.time()); tasks.append(b)
@@ -488,15 +516,18 @@ class H(BaseHTTPRequestHandler):
                 save("tasks.json", tasks); return self.send_json(tasks)
             if u.path == "/api/iterations":
                 iters = load("iterations.json", [])
-                if b.get("delete"): iters = [i for i in iters if i["id"] != b["delete"]]
+                if b.get("delete"): iters = list_delete("iterations", b["delete"])
                 elif b.get("id"):
                     old = next((i for i in iters if i["id"] == b["id"]), {})
-                    iters = [i for i in iters if i["id"] != b["id"]] + [b]
+                    iters = list_upsert("iterations", b, "v0.")
                     if b.get("state") == "released" and old.get("state") != "released":
                         _t = load("tasks.json", [])
                         n = stamp_release(_t, b["id"])
                         save("tasks.json", _t)
-                        log_event("release", f"{b['id']} claimed {n} tasks")
+                        try: snap = snapshot_code(b["id"])
+                        except ValueError: snap = b["id"]
+                        b["claimed"] = n; b["snapshot"] = snap
+                        log_event("release", f"{b['id']} claimed {n} tasks + snapshot")
                 else:
                     b["id"] = "v0.%d.0" % (len(iters) + 1); b.setdefault("state", "planned")
                     b["ts"] = int(time.time()); iters.append(b)
