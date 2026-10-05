@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game — guess the mint</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:860px;margin:2em auto;padding:0 1em;line-height:1.5;text-align:center}
+nav{display:flex;gap:.4em;flex-wrap:wrap;margin:1em 0;padding:.6em;background:#f4f4f4;border-radius:8px;text-align:left}
+nav a{padding:.4em .8em;text-decoration:none;background:#fff;border:1px solid #ddd;border-radius:6px;color:#111}
+nav a[aria-current="page"]{background:#111;color:#fff;border-color:#111}
+#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5em;max-width:420px;margin:1em auto}
+#grid button{font-size:1.6em;padding:.6em;cursor:pointer;border-radius:8px;border:1px solid #ccc;background:#fff}
+#grid button.hit{background:#d4edda;border-color:#28a745}
+#grid button.miss{background:#f8d7da}
+#msg{min-height:2em;font-weight:bold}
+footer{margin-top:3em;color:#666;font-size:.9em}
+</style></head><body>
+<nav aria-label="Canvas">
+<a href="../">Home</a>
+<a href="../tokens/">Tokens</a>
+<a href="../funding/">Funding</a>
+<a href="./" aria-current="page">Game</a>
+<a href="../checkout/">Checkout</a>
+<a href="../launchpad/">App</a>
+<a href="../beta-game.html">Dodge</a>
+</nav>
+<h1>Guess the mint</h1>
+<p>Minimal fallback game (beta was empty when gamma arrived). Find the
+hidden mint 🌱 behind the tiles — 60 seconds, 3 rounds.</p>
+<p>Score: <b id="score">0</b> · Round <b id="round">1</b>/3 · Time <b id="time">60</b>s</p>
+<p id="msg">Click a tile — find the 🌱!</p>
+<div id="grid"></div>
+<p><button onclick="start()">Restart game</button></p>
+<p>Want more? <a href="../beta-game.html"><strong>Play Nebula Dodge</strong> (beta) →</a> · <a href="../checkout/">Cash out (stub) →</a> · <a href="../">← Home</a></p>
+<footer>Samples only — just a game.</footer>
+<script>
+var score=0,round=1,left=60,timer=null,lock=false;
+function start(){score=0;round=1;left=60;upd();deal();clearInterval(timer);timer=setInterval(tick,1000);}
+function upd(){document.getElementById("score").textContent=score;document.getElementById("round").textContent=round;document.getElementById("time").textContent=left;}
+function deal(){lock=false;var g=document.getElementById("grid");g.innerHTML="";var win=Math.floor(Math.random()*16);
+ for(var i=0;i<16;i++){var b=document.createElement("button");b.textContent="❓";b.onclick=pick(i===win,b);g.appendChild(b);}
+ document.getElementById("msg").textContent="Round "+round+": click a tile — find the 🌱!";}
+function pick(win,b){return function(){if(lock)return;if(win){b.textContent="🌱";b.className="hit";score+=100+left;document.getElementById("msg").textContent="Mint found! +"+(100+left)+" pts.";lock=true;setTimeout(next,900);}else{b.textContent="🪨";b.className="miss";score=Math.max(0,score-5);document.getElementById("msg").textContent="Rock. −5. Keep digging!";}upd();};}
+function next(){if(round>=3){document.getElementById("msg").textContent="Game over! Final score "+score+". Hit Restart to play again.";clearInterval(timer);return;}round++;deal();upd();}
+function tick(){left--;if(left<=0){left=0;clearInterval(timer);document.getElementById("msg").textContent="Time! Final score "+score+". Hit Restart.";}upd();}
+start();
+</script>
+</body></html>

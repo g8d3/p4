@@ -1,0 +1,111 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blank-Canvas Agents</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{font-family:system-ui,sans-serif;padding:.6em;max-width:720px;margin:0 auto}
+nav{position:sticky;top:0;background:#fff;padding:.4em 0;z-index:10;display:flex;gap:.3em;flex-wrap:wrap}
+nav button{flex:1;padding:.6em .3em;font-size:.95em}
+.tab{display:none}.tab.on{display:block}
+.tab>h2{position:sticky;top:52px;background:#fff;padding:.3em 0;margin:.4em 0;z-index:5;border-bottom:2px solid #333}
+.card{border:1px solid #999;border-radius:.6em;margin:.5em 0;overflow:hidden}
+.chead{position:sticky;top:104px;background:#222;color:#fff;padding:.45em .6em;font-weight:bold;z-index:4;display:flex;justify-content:space-between;gap:.5em}
+.shorts{display:flex;gap:.5em;padding:.45em .6em;flex-wrap:wrap}
+.shorts>div{flex:1;min-width:0}
+.shorts .k{font-size:.72em;color:#666;text-transform:uppercase}
+.shorts .v{font-weight:bold;word-break:break-word}
+.long{margin:0 .6em .6em;padding:.5em;background:#f4f4f4;border-radius:.4em;white-space:pre-wrap;word-break:break-word;font-size:.85em;max-height:40vh;overflow-y:auto}
+.row{display:flex;gap:.4em;margin:.5em 0}
+input[type=text]{flex:1;min-width:0;padding:.6em;font-size:1em}
+button{padding:.6em .9em;font-size:1em}
+.live{color:green;font-weight:bold}.dead{color:red;font-weight:bold}
+.st-pending{color:#a60}.st-doing{color:#06c;font-weight:bold}.st-done{color:green}
+.clickable{cursor:pointer}
+.badge{background:#eee;border-radius:1em;padding:.1em .6em;font-size:.8em;white-space:nowrap}
+</style></head><body>
+<h1>Blank-Canvas Agents</h1>
+<p>Agents build from a blank canvas. No questions asked. Tap any card for detail.</p>
+<nav><button onclick="show('workers')">Workers</button><button onclick="show('sys')">System</button><button onclick="show('canvas')">Canvas</button><button onclick="show('activity')">Activity</button><button onclick="show('iterations')">Iterations</button></nav>
+
+<div class="tab on" id="tab-workers"><h2>Workers — live</h2>
+<button onclick="tick()">Reload</button><p id="sup">…</p><p id="runner">…</p>
+<div id="agents"></div>
+<h3>Talk to an agent</h3>
+<div class="row"><input type="text" id="t-to" value="epsilon" placeholder="agent"><input type="text" id="t-text" placeholder="tell the agent what to do…"><button onclick="sendTask()">Send</button></div>
+<p id="t-msg"></p>
+<h3>Queue</h3><div id="queue"></div>
+<div id="detail" style="display:none">
+<div class="card"><div class="chead"><span id="d-name"></span><span class="badge" id="d-status"></span></div>
+<div class="shorts"><div><div class="k">Mission</div><div class="v" id="d-mission" style="font-weight:normal"></div></div></div>
+<div class="k" style="padding:0 .6em;font-size:.72em;color:#666">MESSAGE</div>
+<div class="row" style="padding:0 .6em"><input type="text" id="d-text" placeholder="message…"><button onclick="sendToSel()">Send</button></div>
+<p id="d-msg" style="padding:0 .6em"></p>
+<div class="k" style="padding:0 .6em;font-size:.72em;color:#666">ABOUT</div><div class="long" id="d-brief"></div>
+<div class="k" style="padding:0 .6em;font-size:.72em;color:#666">TASKS</div><div class="long" id="d-tasks"></div>
+<div class="k" style="padding:0 .6em;font-size:.72em;color:#666">FILES</div><div class="long" id="d-files"></div>
+<div class="k" style="padding:0 .6em;font-size:.72em;color:#666">VERSIONS</div><div class="long" id="d-iters"></div>
+<div class="k" style="padding:0 .6em;font-size:.72em;color:#666">FULL LOG</div><div class="long" id="d-actions"></div>
+</div></div></div>
+
+<div class="tab" id="tab-sys"><h2>System</h2><button onclick="loadSys()">Reload</button><p id="host">…</p><div id="procs"></div><p>cpu% measured between samples (3s refresh).</p></div>
+
+<div class="tab" id="tab-canvas"><h2>Canvas</h2><button onclick="loadCanvas()">Reload</button><div id="tree"></div></div>
+
+<div class="tab" id="tab-activity"><h2>Activity</h2><button onclick="loadActivity()">Reload</button><div id="log"></div></div>
+
+<div class="tab" id="tab-iterations"><h2>Iterations</h2><button onclick="loadIter()">Reload</button><div id="iter"></div></div>
+
+<script>
+let sel=null;
+function show(n){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));document.getElementById('tab-'+n).classList.add('on');}
+function esc(s){return String(s==null?'':s);}
+// one card: head(label left, badge right) + short fields on ONE line + long text box below
+function card(head,badge,shorts,longText){
+  const s=shorts.map(f=>'<div><div class="k">'+f[0]+'</div><div class="v">'+f[1]+'</div></div>').join('');
+  const l=(longText!=null&&longText!=='')?'<div class="long">'+longText+'</div>':'';
+  return '<div class="card"><div class="chead"><span>'+head+'</span><span class="badge">'+badge+'</span></div><div class="shorts">'+s+'</div>'+l+'</div>';
+}
+async function loadWorkers(){const r=await fetch('/api/workers');const j=await r.json();
+const s=j.supervisor||{};document.getElementById('sup').innerHTML='Supervisor: '+(s.live?'<span class="live">ALIVE</span>':'<span class="dead">DOWN</span>')+' (beat '+(s.age_sec!=null?s.age_sec+'s':'never')+' ago) · server up '+j.server_uptime_sec+'s';
+const rs=j.runners||{};const live=Object.keys(rs).filter(n=>rs[n].live);
+document.getElementById('runner').innerHTML='AI runner: '+(live.length?live.map(n=>'<span class="live">'+n+'</span> ('+esc(rs[n].doing||'')+')').join(', '):'<span class="dead">NONE</span> — messages wait in queue until a runner starts');
+const names=Object.keys(j.agents||{});
+document.getElementById('agents').innerHTML=names.length?names.map(n=>{const a=j.agents[n];
+return '<div class="clickable" onclick="openAgent(\''+n+'\')">'+card('Agent '+n,a.live?'<span class="live">WORKING</span>':'<span class="dead">IDLE</span>',[['last beat',a.last_beat_sec+'s ago'],['state',a.live?'working':'idle '+a.last_beat_sec+'s']],esc(a.doing||''))+'</div>';}).join(''):'<p>no agents — nobody is working</p>';
+if(sel)openAgent(sel,true);}
+async function openAgent(n,quiet){sel=n;const r=await fetch('/api/agent/'+encodeURIComponent(n));if(!r.ok)return;const d=await r.json();
+document.getElementById('detail').style.display='block';
+document.getElementById('d-name').textContent='Agent '+n;
+document.getElementById('d-status').textContent=d.status.live?'WORKING':'IDLE '+d.status.last_beat_sec+'s';
+document.getElementById('d-mission').textContent=(d.mission||'(none)')+' · '+d.status.doing;
+document.getElementById('d-text').placeholder='tell '+n+' what to do…';
+document.getElementById('d-msg').textContent='';
+document.getElementById('t-to').value=n;
+document.getElementById('d-brief').textContent=d.brief||'(no summary)';
+document.getElementById('d-tasks').textContent=(d.tasks||[]).map(t=>t.id+' ['+t.status+'] '+t.text+(t.result?' → '+t.result:'')).join('\n')||'(no tasks)';
+document.getElementById('d-files').textContent=(d.files||[]).join('\n')||'(no files)';
+document.getElementById('d-iters').textContent=(d.iterations||[]).map(v=>(v.id||'?')+' — '+(v.note||'')).join('\n')||'(none)';
+document.getElementById('d-actions').textContent=(d.actions||[]).map(e=>e.ts+' '+e.what).join('\n')||'(no actions)';
+if(!quiet)document.getElementById('detail').scrollIntoView();}
+async function sendToSel(){const el=document.getElementById('d-text');const text=el.value.trim();if(!sel||!text)return;
+const r=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:sel,text})});
+const j=await r.json();document.getElementById('d-msg').textContent=j.ok?('sent to '+sel+' (picks up in seconds)'):(j.error||'failed');
+if(j.ok){el.value='';loadQueue();openAgent(sel,true);}}
+async function sendTask(){const to=document.getElementById('t-to').value.trim();const text=document.getElementById('t-text').value.trim();if(!to||!text)return;
+const r=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to,text})});
+const j=await r.json();document.getElementById('t-msg').textContent=j.ok?('sent '+j.task.id+' → '+to):(j.error||'failed');
+if(j.ok)document.getElementById('t-text').value='';loadQueue();}
+async function loadQueue(){const r=await fetch('/api/tasks');const j=await r.json();const ts=(j.tasks||[]).slice().reverse();
+document.getElementById('queue').innerHTML=ts.length?ts.map(t=>card(t.id+' → '+t.to,'<span class="st-'+t.status+'">'+t.status+'</span>',[['by',t.adopted_by||'—'],['sent',new Date(t.created*1000).toLocaleTimeString()]],t.text+(t.result?'\n→ '+t.result:''))).join(''):'(queue empty)';}
+async function loadSys(){const r=await fetch('/api/sys');const j=await r.json();const h=j.host;
+document.getElementById('host').textContent='time '+new Date(h.now*1000).toLocaleString()+' · host up '+Math.floor(h.uptime_sec/3600)+'h · load '+h.load_1_5_15.join('/')+' · mem '+h.mem_avail_mb+'/'+h.mem_total_mb+' MB free · disk '+h.disk_free_gb+'/'+h.disk_total_gb+' GB free';
+document.getElementById('procs').innerHTML=(j.procs||[]).map(p=>card('PID '+p.pid,p.cpu_pct+'%',[['mem',p.mem_mb+' MB'],['up',Math.floor(p.uptime_sec/60)+'m · '+p.state]],p.cmd)).join('')||'<p>no experiment programs running</p>';}
+async function loadCanvas(){const r=await fetch('/api/canvas');const j=await r.json();
+document.getElementById('tree').innerHTML=j.tree.map(e=>card(e.path,e.type,[['size',e.size!=null?e.size+'b':'—'],['where','canvas']],null)).join('')||'(empty)';}
+async function loadActivity(){const r=await fetch('/api/activity');const j=await r.json();
+document.getElementById('log').innerHTML=j.log.map(e=>card(e.who,e.ts,[['agent',e.who],['time',String(e.ts).slice(11,19)||e.ts]],e.what)).join('')||'(no actions yet)';}
+async function loadIter(){const r=await fetch('/api/iterations');const j=await r.json();
+document.getElementById('iter').innerHTML=j.iterations.map(v=>card(v.id||'?',v.by||v.who||'', [['by',v.by||v.who||'—'],['at',String(v.ts||'').slice(0,16)]],v.note||'')).join('')||'(no versions yet)';}
+function tick(){loadWorkers();loadQueue();loadSys();loadCanvas();loadActivity();loadIter();}
+tick();setInterval(tick,3000);
+document.getElementById('t-text').addEventListener('keydown',e=>{if(e.key==='Enter')sendTask();});
+document.getElementById('d-text').addEventListener('keydown',e=>{if(e.key==='Enter')sendToSel();});</script></body></html>

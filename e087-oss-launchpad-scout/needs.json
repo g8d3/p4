@@ -1,0 +1,15 @@
+{
+  "bind": "0.0.0.0",
+  "port": 8769,
+  "public_dir": "public",
+  "evidence_dir": "evidence",
+  "trends_dir": "trends",
+  "x_topics": [
+    "solana launchpad",
+    "funding rate arbitrage",
+    "web3 games skill gambling",
+    "AI agents crypto",
+    "open source monetization token"
+  ],
+  "note": "all machine values live here; code reads this file"
+}

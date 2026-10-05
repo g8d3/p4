@@ -1,0 +1,7 @@
+server.log
+data/*.json
+data/*.jsonl
+data/*.pid
+data/*.png
+nohup.out
+/tmp/

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Funding — sample spreads (read-only)</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;line-height:1.5}
+nav{display:flex;gap:.4em;flex-wrap:wrap;margin:1em 0;padding:.6em;background:#f4f4f4;border-radius:8px}
+nav a{padding:.4em .8em;text-decoration:none;background:#fff;border:1px solid #ddd;border-radius:6px;color:#111}
+nav a[aria-current="page"]{background:#111;color:#fff;border-color:#111}
+table{border-collapse:collapse;width:100%;margin:1em 0}
+td,th{border:1px solid #ccc;padding:.4em .6em;text-align:right;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{background:#f4f4f4}
+.note{border-left:4px solid #b58900;background:#fff8e1;padding:.8em 1em;margin:1em 0}
+.badge{display:inline-block;font-size:.75em;background:#eee;border-radius:4px;padding:.1em .5em;margin-left:.5em}
+.pos{color:#0a7d2c}.neg{color:#b00020}
+pre{background:#111;color:#0f0;padding:.8em;overflow:auto;border-radius:8px;font-size:.85em}
+button{padding:.4em .8em;cursor:pointer;margin:.1em}
+select,input{padding:.4em}
+footer{margin-top:3em;color:#666;font-size:.9em}
+</style></head><body>
+<nav aria-label="Canvas">
+<a href="../">Home</a>
+<a href="../tokens/">Tokens</a>
+<a href="./" aria-current="page">Funding</a>
+<a href="../game/">Game</a>
+<a href="../checkout/">Checkout</a>
+<a href="../launchpad/">App</a>
+<a href="../beta-game.html">Dodge</a>
+</nav>
+<h1>Funding rates <span class="badge">READ-ONLY SAMPLE</span></h1>
+<p>Compare per-symbol funding across venues. Nothing here trades — pick a
+row, <strong>copy the curl, run it</strong>, trust the venue's answer.</p>
+<div class="note"><strong>Venue note:</strong> all rates below are static
+samples for UI development, timestamped at page build. Real funding
+changes every funding interval and differs by venue, market, and time.
+Before acting: run the venue command in the row and verify on the venue's
+own docs/app. Not trading advice.</div>
+<p><label>Filter symbol: <select id="sym"><option value="">All</option></select></label>
+<label>Highlight spread above (bp): <input id="bp" type="number" value="5" min="0" style="width:5em"></label>
+<button onclick="render()">Apply</button></p>
+<table id="t"><thead><tr>
+<th>Symbol</th><th>Venue A</th><th>Venue B</th><th>Venue C</th><th>Spread (bp)</th><th>Verify: run this</th>
+</tr></thead><tbody></tbody></table>
+<h2>Run it yourself</h2>
+<p>Click <em>Copy curl</em> in any row, then run it in your terminal:</p>
+<pre id="out"># pick a row below → Copy curl → paste here
+# example:
+# curl -s "https://api.venue-a.example/funding?symbol=SOL-PERP" | head -c 500</pre>
+<p><button onclick="copyExample()">Copy generic example</button></p>
+<footer>Samples only — verify on the venue before acting.</footer>
+<script>
+// Static SAMPLE data (8h funding rate, decimal). Do not treat as live.
+var DATA=[
+ {s:"SOL-PERP",a:0.00042,b:0.00051,c:0.00039},
+ {s:"JUP-PERP",a:0.00018,b:0.00012,c:0.00021},
+ {s:"JTO-PERP",a:-0.00005,b:0.00002,c:-0.00008},
+ {s:"PYTH-PERP",a:0.00031,b:0.00028,c:0.00035}
+];
+var VENUES={a:"venue-a",b:"venue-b",c:"venue-c"};
+function curlFor(v,s){return 'curl -s "https://api.'+v+'.example/funding?symbol='+s+'" | head -c 500';}
+function bp(row){var m=Math.max(row.a,row.b,row.c),n=Math.min(row.a,row.b,row.c);return Math.round((m-n)*10000);}
+function pc(x){var c=x>=0?"pos":"neg";return '<span class="'+c+'">'+(x*100).toFixed(3)+'%</span>';}
+function init(){var s=document.getElementById("sym");DATA.forEach(function(r){var o=document.createElement("option");o.value=r.s;o.textContent=r.s;s.appendChild(o);});render();}
+function render(){
+ var f=document.getElementById("sym").value,thr=+document.getElementById("bp").value||0;
+ var tb=document.querySelector("#t tbody");tb.innerHTML="";
+ DATA.filter(function(r){return !f||r.s===f;}).forEach(function(r){
+  var spread=bp(r),hot=spread>=thr?" 🔶":"";
+  var tr=document.createElement("tr");
+  tr.innerHTML="<td><b>"+r.s+'</b><span class="badge">sample</span></td><td>'+pc(r.a)+"</td><td>"+pc(r.b)+"</td><td>"+pc(r.c)+"</td><td><b>"+spread+"</b>"+hot+"</td>";
+  var td=document.createElement("td");
+  ["a","b","c"].forEach(function(k){
+   var btn=document.createElement("button");btn.textContent="Copy "+VENUES[k];
+   btn.onclick=(function(cmd){return function(){navigator.clipboard.writeText(cmd);document.getElementById("out").textContent="$ "+cmd+"\n# paste in terminal, compare with sample column";};})(curlFor(VENUES[k],r.s));
+   td.appendChild(btn);
+  });
+  tr.appendChild(td);tb.appendChild(tr);
+ });
+}
+function copyExample(){var c=curlFor("venue-a","SOL-PERP");navigator.clipboard.writeText(c);document.getElementById("out").textContent="$ "+c;}
+init();
+</script>
+</body></html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Launchpad app — alpha build</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+nav.canvas{display:flex;gap:.4em;flex-wrap:wrap;margin:0 0 1em;padding:.6em;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+nav.canvas a{padding:.4em .8em;text-decoration:none;background:var(--bg);border:1px solid var(--line);border-radius:6px;color:var(--txt)}
+nav.canvas a[aria-current="page"]{background:var(--acc);color:#04222f;border-color:var(--acc)}
+</style></head><body>
+<nav class="canvas" aria-label="Canvas">
+<a href="../">Home</a>
+<a href="../tokens/">Tokens</a>
+<a href="../funding/">Funding</a>
+<a href="../game/">Game</a>
+<a href="../checkout/">Checkout</a>
+<a href="./" aria-current="page">App</a>
+<a href="../beta-game.html">Dodge</a>
+</nav>
+<div class="top"><div><h1>OSS Token Launchpad</h1>
+<p class="muted">Launch a token bound to OSS repos. Pay it. Refund it. Demo store in your browser (file:// works) or <code>/api/*</code> when a backend exists.</p></div>
+<span class="badge" id="mode-badge">…</span></div>
+<div class="tabs" role="tablist">
+<button data-tab="tab-launch" class="active" aria-selected="true">Launch</button>
+<button data-tab="tab-projects" aria-selected="false">Projects</button>
+<button data-tab="tab-pay" aria-selected="false">Pay</button>
+</div>
+<section class="tab active" id="tab-launch">
+<h2>Launch a token</h2>
+<form id="launch-form">
+<label>Token name <input id="token-name" placeholder="e.g. OSS" maxlength="24"></label>
+<label>Repo 1 <input class="repo" placeholder="owner/repo"></label>
+<label>Repo 2 <input class="repo" placeholder="owner/repo (optional)"></label>
+<button type="submit">Launch token</button> <span id="launch-hint" class="muted"></span>
+</form>
+<h3>Tokens <span id="token-count" class="muted"></span></h3>
+<ul class="cards" id="token-list"></ul>
+</section>
+<section class="tab" id="tab-projects">
+<h2>Projects</h2>
+<div class="row"><label>Filter <input id="project-filter" placeholder="repo substring"></label></div>
+<p><button id="reload-projects" class="ghost">Reload</button></p>
+<div class="table-wrap"><table>
+<thead><tr><th>Repo</th><th>Earned</th><th>Due</th><th>Refunded</th><th>Tokens</th></tr></thead>
+<tbody id="projects-body"></tbody>
+<tfoot><tr><th>Total</th><th id="tot-earned">0.00</th><th id="tot-due">0.00</th><th id="tot-ref">0.00</th><th></th></tr></tfoot>
+</table></div>
+</section>
+<section class="tab" id="tab-pay">
+<h2>Pay a token</h2>
+<div class="row">
+<label>Token <select id="pay-token"></select></label>
+<label>Amount USD <input id="pay-amount" type="number" min="0.01" step="0.01" value="5"></label>
+<label><input id="pay-live" type="checkbox"> live (real) — unchecked = test, settles as $0</label>
+</div>
+<p id="split-preview" class="muted">Pick a token to preview the split.</p>
+<p><button id="pay-fiat">Pay fiat (stub)</button><button id="pay-crypto">Pay crypto (stub)</button>
+<button id="reload-payments" class="ghost">Reload</button></p>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Method</th><th>Amount</th><th>Token</th><th>Status</th><th></th></tr></thead>
+<tbody id="payments-body"></tbody>
+</table></div>
+<pre id="pay-out">(no payments yet)</pre>
+<pre id="ledger-out" class="muted">ledger: no BetaPay entries yet (revenue $0.00 — test payments settle as $0).</pre>
+</section>
+<footer><a href="../">← Home</a> · sample data, stubs only · ledger truth: <code>beta-payments.js</code> (test = $0, live settled non-refunded only)</footer>
+<script src="../beta-payments.js"></script>
+<script src="../app.js"></script>
+</body></html>

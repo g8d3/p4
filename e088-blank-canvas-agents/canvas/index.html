@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Launchpad — OSS-backed tokens on Solana</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:860px;margin:2em auto;padding:0 1em;line-height:1.5}
+nav{display:flex;gap:.4em;flex-wrap:wrap;margin:1em 0;padding:.6em;background:#f4f4f4;border-radius:8px}
+nav a{padding:.4em .8em;text-decoration:none;background:#fff;border:1px solid #ddd;border-radius:6px;color:#111}
+nav a[aria-current="page"]{background:#111;color:#fff;border-color:#111}
+.card{border:1px solid #ddd;border-radius:8px;padding:1em;margin:1em 0}
+.btn{display:inline-block;padding:.5em 1em;background:#111;color:#fff;border-radius:6px;text-decoration:none;margin:.2em .2em .2em 0}
+.btn.ghost{background:#fff;color:#111;border:1px solid #111}
+code{background:#f4f4f4;padding:.1em .4em;border-radius:4px}
+footer{margin-top:3em;color:#666;font-size:.9em}
+</style></head><body>
+<nav aria-label="Canvas">
+<a href="./" aria-current="page">Home</a>
+<a href="tokens/">Tokens</a>
+<a href="funding/">Funding</a>
+<a href="game/">Game</a>
+<a href="checkout/">Checkout</a>
+<a href="launchpad/">App</a>
+<a href="beta-game.html">Dodge</a>
+</nav>
+<h1>Launchpad</h1>
+<p>Tokens bound to OSS repos. Payouts only from real payments. Everything
+below is a <strong>labeled sample</strong> — run the venue command before
+you believe any number.</p>
+<div class="card"><h2>Start here (pick one)</h2>
+<p><a class="btn" href="tokens/">1 · Browse sample tokens</a>
+<a class="btn" href="funding/">2 · Check funding spreads</a></p>
+<p><a class="btn ghost" href="game/">3 · Play the game (60s)</a>
+<a class="btn ghost" href="checkout/">4 · Try checkout stubs</a></p>
+</div>
+<div class="card"><h2>Rules of this canvas</h2>
+<ul>
+<li>Every token links to its repo. No repo, no token.</li>
+<li>Revenue-share pays out only from recorded payments.</li>
+<li>Refunds work on both rails (fiat MoR stub + crypto stub).</li>
+<li>Funding numbers are samples — copy the curl, run it, compare.</li>
+</ul></div>
+<div class="card"><h2>Run it locally</h2>
+<p>Copy, paste, run:</p>
+<code id="serve">cd canvas && python3 -m http.server 8000</code>
+<button onclick="navigator.clipboard.writeText('cd canvas && python3 -m http.server 8000');this.textContent='Copied — paste in terminal';">Copy serve command</button>
+<p>Then open <code>http://127.0.0.1:8000/</code>. Full script: <a href="DEMO.md">DEMO.md</a> (also readable as a file).</p>
+</div>
+<footer>Samples only — not trading, listing, or investment advice. Verify on the venue.</footer>
+</body></html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Checkout — fiat + crypto stubs (one ledger rule)</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:860px;margin:2em auto;padding:0 1em;line-height:1.5}
+nav{display:flex;gap:.4em;flex-wrap:wrap;margin:1em 0;padding:.6em;background:#f4f4f4;border-radius:8px}
+nav a{padding:.4em .8em;text-decoration:none;background:#fff;border:1px solid #ddd;border-radius:6px;color:#111}
+nav a[aria-current="page"]{background:#111;color:#fff;border-color:#111}
+.card{border:1px solid #ddd;border-radius:8px;padding:1em;margin:1em 0}
+.badge{display:inline-block;font-size:.75em;background:#eee;border-radius:4px;padding:.1em .5em;margin-left:.5em}
+button{padding:.5em 1em;cursor:pointer;margin:.2em}
+#log{background:#f4f4f4;padding:1em;border-radius:8px;white-space:pre-wrap;min-height:4em}
+#ledger{background:#eef6ee;padding:1em;border-radius:8px;white-space:pre-wrap;min-height:3em}
+code{background:#eee;padding:.1em .4em;border-radius:4px}
+footer{margin-top:3em;color:#666;font-size:.9em}
+</style></head><body>
+<nav aria-label="Canvas">
+<a href="../">Home</a>
+<a href="../tokens/">Tokens</a>
+<a href="../funding/">Funding</a>
+<a href="../game/">Game</a>
+<a href="./" aria-current="page">Checkout</a>
+<a href="../launchpad/">App</a>
+<a href="../beta-game.html">Dodge</a>
+</nav>
+<h1>Checkout <span class="badge">STUB · SAMPLE</span></h1>
+<p>Two stub rails on <strong>one ledger rule</strong> (<code>beta-payments.js</code>):
+only <strong>live + settled + non-refunded</strong> payments count toward
+revenue-share. Test settles as <code>settled-test</code> worth $0.
+Refunds: 14-day guarantee, approved refunds zero the shareable revenue.</p>
+<div class="card"><h2>Settings</h2>
+<label>Amount USD <input id="amount" type="number" min="0.01" step="0.01" value="5"></label>
+<label><input id="live" type="checkbox"> live (real) — unchecked = test, settles as $0</label>
+<p class="muted">Ledger state is per-page (in-memory). The App tab keeps its own
+instance — same file, same rule.</p></div>
+<div class="card"><h2>1 · Fiat MoR stub</h2>
+<p>Charge via fake merchant-of-record, then refund it.</p>
+<button id="b-fiat">Charge (stub)</button>
+<button id="b-fiat-ref">Refund last fiat (stub)</button></div>
+<div class="card"><h2>2 · Crypto stub</h2>
+<p>Pay SOL to a sample address on devnet thinking, then refund.</p>
+<button id="b-sol">Pay (stub)</button>
+<button id="b-sol-ref">Refund last SOL (stub)</button>
+<p>Verify mindset: <code>solana confirm -v &lt;SIGNATURE&gt;</code></p></div>
+<h2>Receipts</h2>
+<div id="log">(no receipts yet — click a button)</div>
+<h2>Ledger truth</h2>
+<div id="ledger">(ledger empty — revenue $0.00)</div>
+<p><a href="../">← Home</a></p>
+<footer>Stubs only — no real charges. Rule: live+settled+non-refunded only, test = $0.</footer>
+<script src="../beta-payments.js"></script>
+<script>
+var lastFiat = null, lastSol = null;
+function $(id){ return document.getElementById(id); }
+function cents(){
+  var v = parseFloat($("amount").value);
+  if (!(v > 0)) return null;
+  return Math.round(v * 100);
+}
+function live(){ return $("live").checked; }
+function say(line){
+  var l = $("log");
+  if (l.textContent.indexOf("no receipts") === 0) l.textContent = "";
+  l.textContent += line + "\n";
+}
+function drawLedger(){
+  var s = BetaPay.snapshot();
+  var lines = s.payouts.payouts.map(function(x){
+    return x.repo + " \u2190 $" + (x.cents / 100).toFixed(2);
+  }).join(" \u00b7 ") || "(no repos)";
+  $("ledger").textContent = "revenue $" + (s.revenueCents / 100).toFixed(2) +
+    " from " + s.payments + " payment(s), " + s.refunds + " refund(s)" +
+    " \u00b7 payouts: " + lines +
+    " \u00b7 rule: live+settled+non-refunded only, test = $0.";
+}
+$("b-fiat").onclick = function(){
+  var c = cents(); if (c == null) return say("$ charge fiat — amount must be > 0.");
+  var p = BetaPay.fiatCheckout(c, { live: live() });
+  BetaPay.fiatConfirm(p.id); lastFiat = p.id;
+  say("$ charge fiat " + p.id + " — " + p.status + (live() ? " (LIVE, counts)" : " (TEST, $0)") + ".");
+  drawLedger();
+};
+$("b-fiat-ref").onclick = function(){
+  if (!lastFiat) return say("$ refund fiat — nothing to refund. Charge first.");
+  var r = BetaPay.requestRefund(lastFiat, "guarantee");
+  var d = BetaPay.decideRefund(r.id, true);
+  say("$ refund fiat " + lastFiat + " — " + d.status + " (revenue now $" + (BetaPay.revenueCents() / 100).toFixed(2) + ").");
+  drawLedger();
+};
+$("b-sol").onclick = function(){
+  var c = cents(); if (c == null) return say("$ pay sol — amount must be > 0.");
+  var p = BetaPay.cryptoInvoice(c);
+  p.live = live(); // honor test toggle (stub defaults live)
+  BetaPay.cryptoSubmitTx(p.id, "TX-PLACEHOLDER");
+  BetaPay.cryptoConfirm(p.id);
+  if (!live()) p.status = "settled-test";
+  lastSol = p.id;
+  say("$ pay sol " + p.id + " — " + p.status + (live() ? " (LIVE, counts)" : " (TEST, $0)") + ".");
+  drawLedger();
+};
+$("b-sol-ref").onclick = function(){
+  if (!lastSol) return say("$ refund sol — nothing to refund. Pay first.");
+  var r = BetaPay.requestRefund(lastSol, "guarantee");
+  var d = BetaPay.decideRefund(r.id, true);
+  say("$ refund sol " + lastSol + " — " + d.status + " (revenue now $" + (BetaPay.revenueCents() / 100).toFixed(2) + ").");
+  drawLedger();
+};
+drawLedger();
+</script>
+</body></html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSS Launchpad Scout — Phase 3</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:860px;margin:24px auto;padding:0 16px}
+nav button{margin:2px;padding:8px 12px;cursor:pointer}
+section.tab{display:none;border:1px solid #ccc;padding:16px;margin-top:12px}
+section.tab.active{display:block}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:4px 8px;text-align:left}
+input{margin:4px 0;padding:6px;width:100%;box-sizing:border-box}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.muted{color:#666;font-size:.9em}
+</style>
+</head>
+<body>
+<h1>OSS Launchpad Scout <span class="muted">— Phase 3 prototype</span></h1>
+<nav>
+<button data-tab="tab-launch">Launch</button>
+<button data-tab="tab-projects">Projects</button>
+<button data-tab="tab-game">Game</button>
+<button data-tab="tab-funding">Funding</button>
+<button data-tab="tab-pay">Pay</button>
+</nav>
+
+<section class="tab active" id="tab-launch">
+<h2>Launch a token</h2>
+<p class="muted">Token backed by 1–4 OSS repos. Stored locally, no chain tx. Revenue-share only: repos earn only from real payments.</p>
+<label>Token name<input id="token-name" placeholder="my-oss-token"></label>
+<label>Repo 1<input class="repo" placeholder="https://github.com/org/repo1"></label>
+<label>Repo 2<input class="repo" placeholder="https://github.com/org/repo2 (optional)"></label>
+<label>Repo 3<input class="repo" placeholder="(optional)"></label>
+<label>Repo 4<input class="repo" placeholder="(optional)"></label>
+<button id="launch-btn">Create token</button>
+<pre id="launch-out"></pre>
+</section>
+
+<section class="tab" id="tab-projects">
+<h2>Projects</h2>
+<p class="muted">Earnings accrue only when a payment references the repo. No payment = zero.</p>
+<button id="reload-projects">Reload</button>
+<table><thead><tr><th>Repo</th><th>Earned</th><th>Due</th><th>Refunded</th></tr></thead>
+<tbody id="projects-body"></tbody></table>
+</section>
+
+<section class="tab" id="tab-game">
+<h2>Game</h2>
+<p class="muted">OSS placeholder (swap for reused OSS game). Zero new game code — minimal number-guess below.</p>
+<div id="game-box">
+<p>Guess a number 1–10. <span id="tries"></span></p>
+<input id="guess" type="number" min="1" max="10">
+<div class="row"><button id="guess-btn">Guess</button>
+<button id="paid-session-btn">Log paid session ($1)</button></div>
+<p id="game-out"></p>
+</div>
+</section>
+
+<section class="tab" id="tab-funding">
+<h2>Funding</h2>
+<p class="muted">Scanner widget first; treasury use experimental.</p>
+<button id="reload-funding">Reload</button>
+<pre id="funding-out"></pre>
+</section>
+
+<section class="tab" id="tab-pay">
+<h2>Pay</h2>
+<label>Token<select id="pay-token"></select></label>
+<label>Amount (USD)<input id="pay-amount" type="number" min="0.01" step="0.01" value="5"></label>
+<div class="row">
+<button id="pay-fiat">Pay fiat (MoR stub)</button>
+<button id="pay-crypto">Pay crypto (stub)</button>
+</div>
+<pre id="pay-out"></pre>
+<h3>Payments</h3>
+<button id="reload-payments">Reload</button>
+<table><thead><tr><th>ID</th><th>Method</th><th>Amount</th><th>Token</th><th>Status</th><th></th></tr></thead>
+<tbody id="payments-body"></tbody></table>
+<p class="muted"><a href="/refunds-note.md">Refund/escrow survey</a></p>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+document.querySelectorAll(".tab").forEach(s=>s.classList.remove("active"));
+$(b.dataset.tab).classList.add("active");});
+async function api(m,u,b){const r=await fetch(u,{method:m,headers:{"Content-Type":"application/json"},body:b?JSON.stringify(b):undefined});return r.json();}
+$("launch-btn").onclick=async()=>{
+const repos=[...document.querySelectorAll(".repo")].map(i=>i.value.trim()).filter(Boolean).slice(0,4);
+const out=await api("POST","/api/tokens",{name:$("token-name").value.trim(),repos});
+$("launch-out").textContent=JSON.stringify(out,null,2);loadTokens();loadProjects();};
+async function loadProjects(){const d=await api("GET","/api/projects");
+$("projects-body").innerHTML=d.projects.map(p=>`<tr><td>${p.repo}</td><td>${p.earned}</td><td>${p.due}</td><td>${p.refunded}</td></tr>`).join("")||"<tr><td colspan=4>No repos yet — launch a token.</td></tr>";}
+$("reload-projects").onclick=loadProjects;
+$("reload-funding").onclick=async()=>{$("funding-out").textContent=JSON.stringify(await api("GET","/api/funding"),null,2);};
+async function loadTokens(){const d=await api("GET","/api/tokens");
+$("pay-token").innerHTML=d.tokens.map(t=>`<option value="${t.name}" data-repos='${JSON.stringify(t.repos)}'>${t.name}</option>`).join("")||"<option value=''>— launch first —</option>";}
+async function loadPayments(){const d=await api("GET","/api/payments");
+$("payments-body").innerHTML=d.payments.map(p=>`<tr><td>${p.id}</td><td>${p.method}</td><td>${p.amount}</td><td>${p.token}</td><td>${p.refunded?"refunded":"active"}</td><td>${p.refunded?"":`<button onclick="refund('${p.id}')">Refund</button>`}</td></tr>`).join("")||"<tr><td colspan=6>No payments yet.</td></tr>";}
+$("reload-payments").onclick=loadPayments;
+async function refund(id){$("pay-out").textContent=JSON.stringify(await api("POST","/api/refund",{payment_id:id}),null,2);loadPayments();loadProjects();}
+window.refund=refund;
+async function pay(method){const sel=$("pay-token");const opt=sel.selectedOptions[0];
+const repos=opt?JSON.parse(opt.dataset.repos||"[]"):[];
+$("pay-out").textContent=JSON.stringify(await api("POST","/api/pay",{method,amount:parseFloat($("pay-amount").value),token:sel.value,repos}),null,2);loadPayments();loadProjects();}
+$("pay-fiat").onclick=()=>pay("fiat");
+$("pay-crypto").onclick=()=>pay("crypto");
+// Game: number-guess (<80 lines total for game block)
+let target=Math.floor(Math.random()*10)+1,n=0;
+$("guess-btn").onclick=()=>{n++;const g=parseInt($("guess").value,10);
+$("tries").textContent=`try ${n}`;
+$("game-out").textContent=g===target?`Correct in ${n}! New number picked.`:g<target?"Too low.":"Too high.";
+if(g===target){target=Math.floor(Math.random()*10)+1;n=0;}};
+$("paid-session-btn").onclick=async()=>{const sel=$("pay-token");
+const repos=sel.selectedOptions[0]?JSON.parse(sel.selectedOptions[0].dataset.repos||"[]"):[];
+if(!repos.length){$("game-out").textContent="Launch a token first — session needs repos to split to.";return;}
+const r=await api("POST","/api/pay",{method:"crypto",amount:1,token:sel.value,repos});
+$("game-out").textContent="Paid session logged: "+JSON.stringify(r.payment.id);loadPayments();loadProjects();};
+loadTokens();loadProjects();loadPayments();
+</script>
+</body>
+</html>

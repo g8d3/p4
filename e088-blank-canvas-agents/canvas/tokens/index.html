@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tokens — sample listings</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:860px;margin:2em auto;padding:0 1em;line-height:1.5}
+nav{display:flex;gap:.4em;flex-wrap:wrap;margin:1em 0;padding:.6em;background:#f4f4f4;border-radius:8px}
+nav a{padding:.4em .8em;text-decoration:none;background:#fff;border:1px solid #ddd;border-radius:6px;color:#111}
+nav a[aria-current="page"]{background:#111;color:#fff;border-color:#111}
+.card{border:1px solid #ddd;border-radius:8px;padding:1em;margin:1em 0}
+.badge{display:inline-block;font-size:.75em;background:#eee;border-radius:4px;padding:.1em .5em;margin-left:.5em}
+code{background:#f4f4f4;padding:.1em .4em;border-radius:4px}
+footer{margin-top:3em;color:#666;font-size:.9em}
+</style></head><body>
+<nav aria-label="Canvas">
+<a href="../">Home</a>
+<a href="./" aria-current="page">Tokens</a>
+<a href="../funding/">Funding</a>
+<a href="../game/">Game</a>
+<a href="../checkout/">Checkout</a>
+<a href="../launchpad/">App</a>
+<a href="../beta-game.html">Dodge</a>
+</nav>
+<h1>Tokens <span class="badge">SAMPLE</span></h1>
+<p>Minimal fallback (alpha was empty when gamma arrived). Each token is
+bound to an OSS repo; payouts come only from recorded payments.</p>
+<p><label>Filter tokens: <input id="q" placeholder="type to filter…" oninput="filt()" style="padding:.4em"></label></p>
+<div id="list"><div class="card"><h2>$HELLO — hello-world-sol <span class="badge">sample</span></h2>
+<p>Repo: <code>github.com/example/hello-world-sol</code> · Supply: 1,000,000 ·
+Dev 20% / Holders 80% of recorded revenue.</p>
+<p>Run: <code>solana balance --url devnet &lt;MINT&gt;</code> (replace MINT after launch).</p></div>
+<div class="card"><h2>$GRID — tip-grid <span class="badge">sample</span></h2>
+<p>Repo: <code>github.com/example/tip-grid</code> · Supply: 500,000 ·
+Dev 10% / Holders 90% of recorded revenue.</p>
+<p>Run: <code>solana confirm -v &lt;SIGNATURE&gt;</code> to verify any payout.</p></div>
+</div>
+<div class="card"><h2>Launch checklist (do this)</h2>
+<ol><li>Fork the repo. Push one commit.</li>
+<li>Record one real payment in <a href="../checkout/">Checkout</a>.</li>
+<li>Split it by the ratio above — print the receipt.</li></ol></div>
+<p><a href="../funding/">Check funding spreads →</a> · <a href="../">← Home</a></p>
+<script>function filt(){var q=document.getElementById('q').value.toLowerCase();document.querySelectorAll('#list .card').forEach(function(c){c.style.display=c.textContent.toLowerCase().indexOf(q)>=0?'':'none';});}</script>
+<footer>Samples only — verify on-chain before acting.</footer>
+</body></html>
