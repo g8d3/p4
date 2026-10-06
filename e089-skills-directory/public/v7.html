@@ -1,0 +1,414 @@
+<!--
+  v8 — interaction-pattern showcase redesign of the skills directory.
+
+  Source skill read in full (HTTP 200, 15969 bytes, 214 lines):
+    primary: https://raw.githubusercontent.com/nextlevelbuilder/ui-ux-pro-max-skill/main/.claude/skills/ui-ux-pro-max/SKILL.md
+      (frontmatter name "ui-ux-pro-max"; found via Contents API walk:
+       repo root has NO SKILL.md -> src/ui-ux-pro-max/ holds data/scripts/templates only ->
+       .claude/skills/ui-ux-pro-max/SKILL.md exists)
+    discovery chain (exact URLs read):
+      https://api.github.com/repos/nextlevelbuilder/ui-ux-pro-max-skill/contents/ (200, root listing, no SKILL.md)
+      https://api.github.com/repos/nextlevelbuilder/ui-ux-pro-max-skill/contents/.claude/skills (7 skill dirs)
+      https://api.github.com/repos/nextlevelbuilder/ui-ux-pro-max-skill/contents/.claude/skills/ui-ux-pro-max (SKILL.md found)
+    no rejections / no fallback search needed — first repo resolved directly.
+
+  Principles applied (from the skill's Rule Categories priority table):
+    1. P1 Accessibility (CRITICAL) — skip link, native controls only, visible :focus-visible
+       rings, aria-live result/copy announcements, 4.5:1+ text contrast, no emoji icons (inline SVG only).
+    2. P2 Touch & Interaction (CRITICAL) — every target >= 44px, 8px+ gaps, nothing hover-only,
+       instant text feedback on copy (no silent 0ms state change).
+    3. P5 Layout & Responsive (HIGH) — mobile-first single column, viewport meta, zero horizontal
+       scroll (overflow-wrap + minmax(0,1fr) everywhere), sticky control deck.
+    4. P8 Forms & Feedback (MEDIUM) — real <label>s, inline status line, progressive disclosure of
+       mentions/install via native <details> (no custom accordion JS).
+    5. P4 Style Selection (HIGH) — one restrained system (switchboard/spec-sheet), SVG icons only.
+  Identity: light "pattern switchboard" spec-sheet — differs from v1 dark cards, v2 paper ledger,
+  v3 slips, v4 lab bench, v5 vercel minimal, v6 indigo grid. Fast: zero external requests,
+  system fonts only, transitions <=150ms and fully disabled under prefers-reduced-motion.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Directory v7 — Pattern Switchboard</title>
+<style>
+  :root{
+    --paper:#f4f2ec; --card:#fbfaf7; --ink:#1c1a16; --muted:#5d584e;
+    --line:#d9d4c7; --accent:#0f5fd0; --accent-ink:#0a3f8f;
+    --good:#0e6b3a; --warn:#8a5a00; --chip:#ece8dc;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --r:10px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.5;
+  }
+  .skip{
+    position:absolute; left:0.5rem; top:-4rem; z-index:50;
+    background:var(--ink); color:#fff; padding:0.75rem 1rem; border-radius:8px;
+    transition:top 150ms ease;
+  }
+  .skip:focus{top:0.5rem; color:#fff}
+  :focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+  .wrap{max-width:56rem; margin:0 auto; padding:0 1rem 4rem}
+  header.mast{padding:2rem 0 0.5rem; border-bottom:2px solid var(--ink)}
+  .kicker{
+    font-family:var(--mono); font-size:0.75rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--muted); margin:0 0 0.5rem;
+  }
+  h1{font-size:1.75rem; line-height:1.15; margin:0 0 0.5rem; letter-spacing:-0.01em}
+  .lede{color:var(--muted); margin:0 0 0.75rem; max-width:44rem}
+  .lede strong{color:var(--ink)}
+  .method{
+    font-family:var(--mono); font-size:0.8rem; color:var(--muted);
+    border:1px dashed var(--line); border-radius:var(--r);
+    padding:0.6rem 0.8rem; margin:0 0 1rem; background:var(--card);
+  }
+  /* Sticky control deck */
+  .deck{
+    position:sticky; top:0; z-index:20; background:var(--paper);
+    padding:0.75rem 0; border-bottom:1px solid var(--line);
+  }
+  .deck-grid{display:grid; gap:0.6rem}
+  .field label{display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.3rem}
+  .field input[type="search"], .field select{
+    width:100%; min-height:44px; font:inherit; color:var(--ink);
+    background:var(--card); border:1.5px solid var(--ink); border-radius:var(--r);
+    padding:0.55rem 0.75rem;
+  }
+  .seg{border:0; margin:0; padding:0}
+  .seg legend{font-size:0.8rem; font-weight:700; padding:0; margin-bottom:0.3rem}
+  .seg-row{display:flex; flex-wrap:wrap; gap:0.5rem}
+  .seg input{position:absolute; opacity:0; width:1px; height:1px}
+  .seg label{
+    display:inline-flex; align-items:center; min-height:44px;
+    padding:0.45rem 0.9rem; border:1.5px solid var(--ink); border-radius:999px;
+    background:var(--card); font-size:0.9rem; cursor:pointer;
+  }
+  .seg input:checked + label{background:var(--ink); color:#fff}
+  .seg input:focus-visible + label{outline:3px solid var(--accent); outline-offset:2px}
+  .status{
+    display:flex; flex-wrap:wrap; gap:0.5rem 1rem; align-items:baseline;
+    font-family:var(--mono); font-size:0.82rem; color:var(--muted); margin-top:0.35rem;
+  }
+  #copyToast{color:var(--good); font-weight:700}
+  /* Entries */
+  ol.entries{list-style:none; margin:1.25rem 0 0; padding:0; display:grid; gap:0.9rem}
+  article.entry{
+    background:var(--card); border:1.5px solid var(--ink); border-radius:var(--r);
+    overflow:hidden;
+  }
+  .entry-top{
+    display:flex; gap:0.7rem; align-items:flex-start;
+    padding:0.9rem 1rem 0.7rem; border-bottom:1px solid var(--line);
+  }
+  .idx{
+    font-family:var(--mono); font-weight:700; font-size:0.85rem;
+    border:1.5px solid var(--ink); border-radius:6px;
+    min-width:2.5rem; height:2.5rem; display:inline-flex;
+    align-items:center; justify-content:center; flex:none;
+  }
+  .entry-top h2{font-size:1.12rem; margin:0; line-height:1.3; overflow-wrap:anywhere}
+  .repo{font-family:var(--mono); font-size:0.78rem; color:var(--muted); margin:0.15rem 0 0; overflow-wrap:anywhere}
+  .tags{display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:0.45rem}
+  .tag{
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em;
+    border:1px solid var(--line); background:var(--chip); border-radius:999px;
+    padding:0.2rem 0.6rem; min-height:28px; display:inline-flex; align-items:center;
+  }
+  .tag.verified{background:#dcefe2; border-color:var(--good); color:var(--good); font-weight:700}
+  .tag.trend-rising{background:#dde8fb; border-color:var(--accent); color:var(--accent-ink); font-weight:700}
+  .entry-body{padding:0.8rem 1rem 1rem; display:grid; gap:0.7rem}
+  .blurb{margin:0; max-width:46rem}
+  .meter{display:grid; grid-template-columns:4.5rem 1fr 2.6rem; gap:0.6rem; align-items:center}
+  .meter span{font-family:var(--mono); font-size:0.78rem; color:var(--muted)}
+  .meter output{font-family:var(--mono); font-size:0.85rem; font-weight:700; text-align:right}
+  .bar{height:0.6rem; background:var(--chip); border:1px solid var(--line); border-radius:999px; overflow:hidden}
+  .bar i{display:block; height:100%; background:var(--ink)}
+  dl.meta{
+    display:grid; grid-template-columns:minmax(7rem,auto) minmax(0,1fr);
+    gap:0.25rem 0.75rem; margin:0; font-size:0.9rem;
+  }
+  dl.meta dt{font-family:var(--mono); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); padding-top:0.15rem}
+  dl.meta dd{margin:0; overflow-wrap:anywhere}
+  .stars-note{display:block; font-size:0.8rem; color:var(--muted)}
+  details.more{border:1px solid var(--line); border-radius:8px; background:var(--paper)}
+  details.more summary{
+    min-height:44px; display:flex; align-items:center; cursor:pointer;
+    padding:0.5rem 0.8rem; font-weight:700; font-size:0.9rem;
+  }
+  details.more ul{margin:0; padding:0.2rem 0.8rem 0.8rem 1.6rem; font-size:0.9rem; color:var(--muted)}
+  .install{
+    display:grid; gap:0.5rem; border-top:1px dashed var(--line); padding-top:0.7rem;
+  }
+  .install code{
+    font-family:var(--mono); font-size:0.8rem; background:var(--ink); color:#f2efe6;
+    border-radius:8px; padding:0.65rem 0.8rem; overflow-x:auto; white-space:pre;
+  }
+  .install-row{display:flex; flex-wrap:wrap; gap:0.5rem}
+  .btn{
+    display:inline-flex; align-items:center; gap:0.45rem;
+    min-height:44px; padding:0.5rem 1rem; border-radius:8px;
+    border:1.5px solid var(--ink); background:var(--ink); color:#fff;
+    font:inherit; font-size:0.9rem; font-weight:700; cursor:pointer; text-decoration:none;
+  }
+  .btn.secondary{background:var(--card); color:var(--ink)}
+  .btn svg{width:1rem; height:1rem; flex:none}
+  .empty,.state{
+    border:1.5px dashed var(--line); border-radius:var(--r); background:var(--card);
+    padding:1.5rem 1rem; text-align:center; color:var(--muted); margin-top:1.25rem;
+  }
+  footer{margin-top:2rem; border-top:2px solid var(--ink); padding-top:1rem; color:var(--muted); font-size:0.85rem}
+  footer code{font-family:var(--mono); font-size:0.8rem}
+  @media (min-width:44rem){
+    h1{font-size:2.25rem}
+    .deck-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); align-items:end}
+    .install{grid-template-columns:minmax(0,1fr) auto; align-items:center}
+    .install code{grid-column:1 / -1}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none !important; animation:none !important; scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#results">Skip to results</a>
+<div class="wrap">
+  <header class="mast">
+    <p class="kicker">v8 &middot; pattern switchboard &middot; 12 listings</p>
+    <h1>Agent skills, ranked by evidence</h1>
+    <p class="lede">Every listing earns its place with <strong>install velocity, repo freshness,
+      and independent mentions</strong> — never raw GitHub stars alone. Search, filter, sort,
+      copy the install command, open the source.</p>
+    <p class="method">score = installs velocity + freshness + independent mentions &middot; stars shown only with context</p>
+  </header>
+
+  
+
+  <div class="deck" role="search">
+    <div class="deck-grid">
+      <div class="field">
+        <label for="q">Search skills</label>
+        <input type="search" id="q" name="q" autocomplete="off"
+               placeholder="Try frontend, testing, playwright&hellip;" aria-describedby="countLine">
+      </div>
+      <div class="field">
+        <label for="sort">Sort by</label>
+        <select id="sort" name="sort">
+          <option value="score" selected>Score (highest first)</option>
+          <option value="installs">Installs (highest first)</option>
+          <option value="name">Name (A to Z)</option>
+        </select>
+      </div>
+    </div>
+    <fieldset class="seg" style="margin-top:0.6rem">
+      <legend>Category</legend>
+      <div class="seg-row" id="catRow">
+        <span><input type="radio" name="cat" id="cat-all" value="all" checked><label for="cat-all">All</label></span>
+        <span><input type="radio" name="cat" id="cat-frontend" value="frontend"><label for="cat-frontend">Frontend</label></span>
+        <span><input type="radio" name="cat" id="cat-backend" value="backend"><label for="cat-backend">Backend</label></span>
+        <span><input type="radio" name="cat" id="cat-testing" value="testing"><label for="cat-testing">Testing</label></span>
+        <span><input type="radio" name="cat" id="cat-workflow" value="workflow"><label for="cat-workflow">Workflow</label></span>
+      </div>
+    </fieldset>
+    <div class="status">
+      <span id="countLine" role="status" aria-live="polite">Loading skills&hellip;</span>
+      <span id="copyToast" role="status" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <main id="results">
+    <div class="state" id="loading">Loading skills from <code>/api/skills</code>&hellip;</div>
+    <ol class="entries" id="list" hidden></ol>
+    <div class="empty" id="empty" hidden>
+      <p><strong>No skills match.</strong></p>
+      <p>Clear the search or pick another category.</p>
+    </div>
+    <div class="empty" id="error" hidden>
+      <p><strong>Could not load skills.</strong></p>
+      <p>Check that the server is running, then reload this page.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Numbers beat stars. <code>stars_repo</code> is always shown with its <code>stars_note</code>
+    so repo-level fame never masquerades as skill-level quality. Data: <code>GET /api/skills</code>.</p>
+  </footer>
+</div>
+
+<noscript><p style="padding:1rem">This directory needs JavaScript to search, filter, and sort the listings.</p></noscript>
+
+<script>
+(function(){
+  "use strict";
+  var list = document.getElementById("list");
+  var loading = document.getElementById("loading");
+  var empty = document.getElementById("empty");
+  var errorBox = document.getElementById("error");
+  var q = document.getElementById("q");
+  var sortSel = document.getElementById("sort");
+  var countLine = document.getElementById("countLine");
+  var copyToast = document.getElementById("copyToast");
+  var all = [];
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function fmtInstalls(n){
+    if (n == null) return "n/a";
+    return Number(n).toLocaleString("en-US");
+  }
+  function numOrNull(v){
+    return (typeof v === "number" && isFinite(v)) ? v : null;
+  }
+  function cmpNullsLast(a, b, desc){
+    // nulls always sort last, whichever direction the values go
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+    return desc ? (b - a) : (a - b);
+  }
+  function haystack(s){
+    return [s.name, s.repo, s.blurb, s.category].filter(Boolean).join(" ").toLowerCase();
+  }
+  function current(){
+    var term = q.value.trim().toLowerCase();
+    var catEl = document.querySelector('input[name="cat"]:checked');
+    var cat = catEl ? catEl.value : "all";
+    var mode = sortSel.value;
+    var out = all.filter(function(s){
+      if (cat !== "all" && (s.category || "") !== cat) return false;
+      if (term && haystack(s).indexOf(term) === -1) return false;
+      return true;
+    });
+    out.sort(function(a, b){
+      if (mode === "installs"){
+        var d = cmpNullsLast(numOrNull(a.installs), numOrNull(b.installs), true);
+        return d !== 0 ? d : String(a.name||"").localeCompare(String(b.name||""));
+      }
+      if (mode === "name"){
+        return String(a.name||"").localeCompare(String(b.name||""));
+      }
+      var d2 = cmpNullsLast(numOrNull(a.score), numOrNull(b.score), true);
+      return d2 !== 0 ? d2 : String(a.name||"").localeCompare(String(b.name||""));
+    });
+    return out;
+  }
+  function entryHTML(s, i){
+    var score = numOrNull(s.score);
+    var pct = score == null ? 0 : Math.max(0, Math.min(100, score));
+    var trend = String(s.trend8w || "").toLowerCase();
+    var trendCls = trend === "rising" ? " trend-rising" : (trend === "top" ? " trend-rising" : "");
+    var mentions = Array.isArray(s.mentions) ? s.mentions : [];
+    var mentionsHTML = mentions.length
+      ? "<ul>" + mentions.map(function(m){ return "<li>" + esc(m) + "</li>"; }).join("") + "</ul>"
+      : "<p style='margin:0;padding:0 0.8rem 0.8rem;font-size:0.9rem'>No independent mentions recorded yet.</p>";
+    var cmd = s.install_cmd || ("npx skills add " + (s.repo || s.name || ""));
+    var skillUrl = s.skill_url || ("https://www.skills.sh");
+    return "" +
+    '<article class="entry" aria-labelledby="t-' + i + '">' +
+      '<div class="entry-top"><span class="idx" aria-hidden="true">' + String(i + 1).padStart(2, "0") + '</span>' +
+      '<div><h2 id="t-' + i + '">' + esc(s.name || "unnamed") + '</h2>' +
+      '<p class="repo">' + esc(s.repo || "") + '</p>' +
+      '<div class="tags">' +
+        '<span class="tag">' + esc(s.category || "uncategorized") + '</span>' +
+        (s.verified ? '<span class="tag verified">verified</span>' : '<span class="tag">unverified</span>') +
+        (s.trend8w ? '<span class="tag' + trendCls + '">trend: ' + esc(s.trend8w) + '</span>' : '') +
+      '</div></div></div>' +
+      '<div class="entry-body">' +
+        '<p class="blurb">' + esc(s.blurb || "") + '</p>' +
+        '<div class="meter" aria-label="Score ' + (score == null ? "not rated" : score + " of 100") + '">' +
+          '<span>score</span><div class="bar" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+          '<output>' + (score == null ? "n/a" : score) + '</output>' +
+        '</div>' +
+        '<dl class="meta">' +
+          '<dt>Installs</dt><dd>' + esc(fmtInstalls(s.installs)) + '</dd>' +
+          '<dt>Updated</dt><dd>' + esc(s.last_commit || "unknown") + '</dd>' +
+          '<dt>Stars</dt><dd>' + (s.stars_repo == null ? "n/a" : esc(Number(s.stars_repo).toLocaleString("en-US"))) +
+            (s.stars_note ? '<span class="stars-note">' + esc(s.stars_note) + '</span>' : '') + '</dd>' +
+        '</dl>' +
+        '<details class="more"><summary>Mentions (' + mentions.length + ') &amp; install</summary>' +
+          mentionsHTML +
+        '</details>' +
+        '<div class="install">' +
+          '<code>' + esc(cmd) + '</code>' +
+          '<div class="install-row">' +
+            '<button type="button" class="btn" data-copy="' + esc(cmd) + '">' +
+              '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5v-2a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3.5v5A1.5 1.5 0 0 0 4 10h1.5"/></svg>' +
+              'Copy install</button>' +
+            '<a class="btn secondary" href="' + esc(skillUrl) + '" target="_blank" rel="noopener">Source</a>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+  function render(){
+    var rows = current();
+    list.innerHTML = rows.map(entryHTML).join("");
+    list.hidden = rows.length === 0;
+    empty.hidden = rows.length !== 0;
+    var catEl = document.querySelector('input[name="cat"]:checked');
+    var lbl = catEl ? catEl.value : "all";
+    countLine.textContent = rows.length + " of " + all.length + " skills" +
+      (lbl !== "all" ? " in " + lbl : "") +
+      (q.value.trim() ? ' matching "' + q.value.trim() + '"' : "");
+  }
+  function announceCopy(name){
+    copyToast.textContent = "";
+    window.setTimeout(function(){ copyToast.textContent = "Copied: " + name; }, 30);
+    window.setTimeout(function(){ copyToast.textContent = ""; }, 3000);
+  }
+  function copyText(text, label){
+    function done(ok){
+      announceCopy(ok ? label : "copy failed — select the command manually");
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ done(label); }, function(){ fallback(); });
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { done(document.execCommand("copy") ? label : ""); }
+      catch(e){ done(""); }
+      document.body.removeChild(ta);
+    }
+  }
+  list.addEventListener("click", function(ev){
+    var btn = ev.target.closest("[data-copy]");
+    if (!btn) return;
+    copyText(btn.getAttribute("data-copy") || "", btn.getAttribute("data-copy") || "install command");
+  });
+  q.addEventListener("input", render);
+  sortSel.addEventListener("change", render);
+  document.getElementById("catRow").addEventListener("change", render);
+
+  fetch("/api/skills", {headers: {"Accept": "application/json"}})
+    .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function(data){
+      var arr = Array.isArray(data) ? data : (data && Array.isArray(data.skills) ? data.skills : null);
+      if (!arr) throw new Error("bad shape");
+      all = arr;
+      loading.hidden = true;
+      render();
+    })
+    .catch(function(){
+      loading.hidden = true;
+      errorBox.hidden = false;
+      countLine.textContent = "Could not load skills.";
+    });
+})();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><span class="on" aria-current="page" title="v7 · ui-ux-pro-max · score 80">v7</span><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}.deck{position:static!important}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

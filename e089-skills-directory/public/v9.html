@@ -1,0 +1,389 @@
+<!--
+  v10 — composition-workbench redesign of the skills directory.
+  Driven SPECIFICALLY by vercel-composition-patterns (skill score 78),
+  not by react-best-practices (v6 already covered that family as a companion).
+
+  Source actually read in full:
+    primary: https://raw.githubusercontent.com/vercel-labs/agent-skills/main/skills/composition-patterns/SKILL.md
+      (frontmatter name "vercel-composition-patterns"; 4 rule categories,
+       priorities architecture > state > patterns > react19)
+    rule files read in full:
+      rules/architecture-compound-components.md
+      rules/architecture-avoid-boolean-props.md
+      rules/patterns-explicit-variants.md
+      rules/state-context-interface.md
+
+  Principles applied to this page (composition-patterns thinking):
+    1. architecture-compound-components — each listing is Skill.Row composed of
+       Skill.Header + Skill.Signals + Skill.Actions sharing one skill object;
+       no monolithic card template with render props.
+    2. architecture-avoid-boolean-props — zero mode/flag props on the row;
+       layout differences come from composing different subparts, never from
+       isX conditionals inside one mega-component.
+    3. patterns-explicit-variants — categories render as explicit named variants
+       (FrontendEntry / BackendEntry / TestingEntry / WorkflowEntry) with their
+       own marker, instead of one tag with boolean styling switches.
+    4. state-context-interface — one store shaped as {state, actions, meta};
+       render functions are pure views of store.state, dependency-injected.
+    5. patterns-children-over-render-props — controls are three explicit Slot
+       sections (Slot.Search / Slot.Filter / Slot.Sort) with identical
+       label+control anatomy, composed as children of one composer bar.
+
+  Visual break from siblings: v1 dark cards, v2 paper ledger, v3 slips,
+  v4 lab bench, v5 black/white minimal, v6 indigo card grid. v10 is a warm
+  cream workbench with full-width assembly rows (score rail + header +
+  signals strip + install strip) and a rust/teal palette — no card grid.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Directory v9 — composition workbench</title>
+<style>
+:root{
+  --paper:#FAF6EC;
+  --paper-deep:#F1EAD8;
+  --ink:#23201A;
+  --muted:#6B6353;
+  --faint:#948C78;
+  --line:#DED4BC;
+  --teal:#0E7C6B;
+  --teal-deep:#0A5C50;
+  --teal-wash:#E2F0EC;
+  --rust:#B4431F;
+  --rust-wash:#F9E8DE;
+  --good:#1E6B3A;
+  --good-bg:#E4F2E6;
+  --card:#FFFDF7;
+  --code-bg:#23201A;
+  --code-ink:#F3EDDD;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+.mono,code,.cmd,kbd,.slot-tag,.diagram{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+a{color:var(--teal-deep)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:3px solid var(--teal);outline-offset:2px;border-radius:4px;
+}
+/* ---- masthead ---- */
+.mast{border-bottom:2px solid var(--ink)}
+.mast-inner{max-width:1020px;margin:0 auto;padding:28px 18px 20px}
+.kicker{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rust)}
+.mast h1{margin:0 0 8px;font-size:clamp(26px,5vw,40px);line-height:1.08;letter-spacing:-.015em}
+.mast .lede{margin:0;max-width:44em;color:var(--muted)}
+.rule{margin:12px 0 0;max-width:62em;font-size:13.5px;color:var(--muted)}
+.rule strong{color:var(--ink)}
+.diagram{
+  margin:16px 0 0;padding:10px 12px;font-size:12.5px;line-height:2;
+  background:var(--paper-deep);border:1px dashed var(--faint);border-radius:var(--radius);
+}
+.diagram b{background:var(--ink);color:var(--paper);border-radius:5px;padding:2px 8px;font-weight:600}
+.diagram span{background:var(--card);border:1px solid var(--line);border-radius:5px;padding:2px 8px;white-space:nowrap}
+.countline{margin:14px 0 0;font-size:13.5px;color:var(--muted)}
+.countline strong{color:var(--ink)}
+/* ---- composer bar: three explicit slots, one anatomy ---- */
+.composer{border-bottom:2px solid var(--ink);background:var(--card)}
+.composer-inner{max-width:1020px;margin:0 auto;padding:14px 18px;display:grid;gap:12px;grid-template-columns:1fr}
+.slot{border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;background:var(--paper)}
+.slot-tag{display:block;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rust);margin-bottom:8px}
+.slot input[type="search"]{
+  width:100%;font-size:15px;padding:9px 12px;color:var(--ink);
+  border:1px solid var(--line);border-radius:7px;background:#fff;
+}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{
+  border:1px solid var(--line);background:#fff;color:var(--muted);
+  border-radius:7px;padding:6px 12px;font-size:13.5px;cursor:pointer;
+}
+.seg button:hover{border-color:var(--teal);color:var(--teal-deep)}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper);font-weight:650}
+.slot select{
+  width:100%;font-size:14.5px;padding:9px 10px;color:var(--ink);
+  border:1px solid var(--line);border-radius:7px;background:#fff;
+}
+/* ---- assembly rows ---- */
+.bench{max-width:1020px;margin:0 auto;padding:18px 18px 56px}
+.rows{margin:0;padding:0;list-style:none;display:grid;gap:14px}
+.row{
+  background:var(--card);border:1.5px solid var(--ink);border-radius:var(--radius);
+  overflow:hidden;display:grid;grid-template-columns:1fr;
+}
+/* Skill.Header */
+.rail{
+  display:flex;align-items:center;gap:12px;
+  background:var(--ink);color:var(--paper);padding:10px 14px;
+}
+.rail .score{font-size:26px;font-weight:750;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.rail .rail-meta{font-size:12px;line-height:1.4;color:#CFC6B0}
+.rail .bar{flex:1;height:6px;border-radius:99px;background:#4a4436;overflow:hidden;min-width:60px}
+.rail .bar i{display:block;height:100%;background:var(--teal);background:linear-gradient(90deg,var(--teal),#3AA58F)}
+.entry-head{padding:14px 16px 0}
+.entry-head h2{margin:0;font-size:18px;letter-spacing:-.01em;line-height:1.3;overflow-wrap:anywhere}
+.repo{margin:4px 0 0;font-size:13px;color:var(--faint);overflow-wrap:anywhere}
+.blurb{margin:8px 0 0;font-size:14.5px;max-width:60em}
+/* explicit category variants: named markers, no boolean switches */
+.variant{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:2px 10px;margin-right:8px;border:1.5px solid}
+.variant-frontend{color:var(--teal-deep);border-color:var(--teal);background:var(--teal-wash)}
+.variant-backend{color:var(--rust);border-color:var(--rust);background:var(--rust-wash)}
+.variant-testing{color:#6D28D9;border-color:#6D28D9;background:#EFE9FB}
+.variant-workflow{color:#92400E;border-color:#92400E;background:#FBF0DA}
+.variant-unknown{color:var(--muted);border-color:var(--faint);background:var(--paper-deep)}
+.verified{display:inline-block;font-size:12px;font-weight:700;color:var(--good);background:var(--good-bg);border-radius:99px;padding:2px 10px;margin-left:8px}
+/* Skill.Signals */
+.signals{margin:12px 16px 0;border-top:1.5px solid var(--ink);display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+.signal{padding:8px 0;border-bottom:1px dotted var(--line);font-size:13px;min-width:0}
+.signal dt{margin:0;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.signal dd{margin:2px 0 0;color:var(--ink);overflow-wrap:anywhere}
+.signal dd.dim{color:var(--muted)}
+.stars-flag{display:inline-block;background:var(--rust-wash);color:var(--rust);border-radius:6px;padding:1px 8px;font-size:12.5px}
+/* Skill.Actions */
+.install{margin:12px 0 0;background:var(--paper-deep);border-top:1px solid var(--line);padding:12px 16px 14px}
+.cmdrow{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
+.cmd{flex:1;min-width:0;background:var(--code-bg);color:var(--code-ink);font-size:12.5px;padding:9px 12px;border-radius:7px;overflow-x:auto;white-space:nowrap}
+.actionrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{border-radius:7px;font-size:13.5px;padding:8px 16px;cursor:pointer;text-decoration:none;display:inline-block;line-height:1.3;border:1.5px solid var(--ink)}
+.btn-copy{background:var(--teal);border-color:var(--teal-deep);color:#fff;font-weight:650}
+.btn-copy:hover{background:var(--teal-deep)}
+.btn-src{background:var(--card);color:var(--ink)}
+.btn-src:hover{background:var(--ink);color:var(--paper)}
+.copy-status{font-size:12.5px;color:var(--good);min-height:1.3em;margin-top:8px}
+.empty{border:1.5px dashed var(--faint);border-radius:var(--radius);padding:28px 20px;text-align:center;color:var(--muted);background:var(--card)}
+.colophon{border-top:2px solid var(--ink);color:var(--muted);font-size:12.5px;text-align:center;padding:20px;background:var(--card)}
+@media (min-width:720px){
+  .composer-inner{grid-template-columns:1.3fr 1.5fr 1fr}
+  .row{grid-template-columns:120px 1fr}
+  .rail{flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:16px 14px;gap:6px}
+  .rail .bar{width:100%;flex:none}
+  .entry{padding-bottom:4px}
+  .signals{grid-template-columns:repeat(3,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-inner">
+    <p class="kicker">v10 / composition patterns</p>
+    <h1>Compose the catalogue. Don't configure it.</h1>
+    <p class="lede">Every listing below is assembled from the same three parts: a header, a signals strip, and an install strip. Same pieces, composed per skill — no mega-card with hidden modes.</p>
+    <p class="diagram" aria-label="Row composition"><b>Skill.Row</b> = <span>Skill.Header</span> + <span>Skill.Signals</span> + <span>Skill.Actions</span></p>
+    <p class="rule"><strong>Ranking rule:</strong> score blends install velocity, freshness, and independent mentions. Raw repository stars never rank; they appear only as flagged context.</p>
+    <p class="countline" id="count" aria-live="polite">Loading skills…</p>
+  </div>
+</header>
+
+<section class="composer" aria-label="Catalogue composer">
+  <div class="composer-inner">
+    <div class="slot">
+      <label class="slot-tag" for="q">Slot / Search</label>
+      <input type="search" id="q" name="q" placeholder="Search name, repo, blurb, mentions…" autocomplete="off">
+    </div>
+    <div class="slot">
+      <span class="slot-tag" id="cat-label">Slot / Category</span>
+      <div class="seg" role="group" aria-labelledby="cat-label" id="catseg">
+        <button type="button" data-cat="" aria-pressed="true">All</button>
+        <button type="button" data-cat="frontend" aria-pressed="false">frontend</button>
+        <button type="button" data-cat="backend" aria-pressed="false">backend</button>
+        <button type="button" data-cat="testing" aria-pressed="false">testing</button>
+        <button type="button" data-cat="workflow" aria-pressed="false">workflow</button>
+      </div>
+    </div>
+    <div class="slot">
+      <label class="slot-tag" for="sort">Slot / Sort</label>
+      <select id="sort" name="sort">
+        <option value="score">Score (high first)</option>
+        <option value="installs">Installs (high first)</option>
+        <option value="name">Name (A to Z)</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<main class="bench">
+  <ol class="rows" id="list"></ol>
+  <div class="empty" id="empty" hidden>No skills match this combination. Clear the search or pick another category.</div>
+</main>
+
+<footer class="colophon">
+  v10 workbench · data: <a href="/api/skills">GET /api/skills</a> · evidence snapshot 2026-10-05 · stars shown only with shared-repo warning
+</footer>
+
+<script>
+"use strict";
+/* Store in the state-context-interface shape: {state, actions, meta}.
+   Render functions below are pure views of store.state. */
+var store = {
+  state: { skills: [], q: "", cat: "", sort: "score" },
+  actions: {
+    setQuery: function(v){ store.state.q = v; render(); },
+    setCat: function(v){ store.state.cat = v; syncSeg(); render(); },
+    setSort: function(v){ store.state.sort = v; render(); }
+  },
+  meta: { listId: "list" }
+};
+
+/* Explicit category variants: named entries, no boolean styling flags. */
+var VARIANTS = {
+  frontend: { cls: "variant-frontend", label: "FrontendEntry" },
+  backend:  { cls: "variant-backend",  label: "BackendEntry" },
+  testing:  { cls: "variant-testing",  label: "TestingEntry" },
+  workflow: { cls: "variant-workflow", label: "WorkflowEntry" }
+};
+
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function fmtNum(n){ return (n == null) ? "n/a" : Number(n).toLocaleString("en-US"); }
+
+/* Skill.Header: title + variant marker + repo + blurb. */
+function SkillHeader(skill){
+  var v = VARIANTS[skill.category] || { cls: "variant-unknown", label: "UncategorisedEntry" };
+  var verified = skill.verified ? '<span class="verified">verified</span>' : '';
+  return '<div class="entry-head">' +
+    '<h2>' + esc(skill.name) + '</h2>' +
+    '<p class="repo">' + esc(skill.repo || "unknown repo") + '</p>' +
+    '<p><span class="variant ' + v.cls + '">' + esc(v.label) + '</span>' + verified + '</p>' +
+    '<p class="blurb">' + esc(skill.blurb || "") + '</p>' +
+  '</div>';
+}
+
+/* Skill.Signals: uniform evidence strip, one definition list per skill. */
+function SkillSignals(skill){
+  var mentions = (skill.mentions && skill.mentions.length) ? esc(skill.mentions.join(" · ")) : "none recorded";
+  var stars = skill.stars_repo
+    ? '<span class="stars-flag">' + esc(fmtNum(skill.stars_repo)) + ' repo stars — ' + esc(skill.stars_note || "shared context, not skill-specific") + '</span>'
+    : '<span class="dim">' + esc(skill.stars_note || "mentions are the signal") + '</span>';
+  function sig(k, v){
+    return '<div class="signal"><dt>' + k + '</dt><dd>' + v + '</dd></div>';
+  }
+  return '<dl class="signals" aria-label="Evidence signals">' +
+    sig("Installs", esc(fmtNum(skill.installs))) +
+    sig("Trend 8w", esc(skill.trend8w || "unknown")) +
+    sig("Updated", esc(skill.last_commit || "unknown")) +
+    sig("Mentions", mentions) +
+    sig("Stars", stars) +
+  '</dl>';
+}
+
+/* Skill.Actions: install command + copy + source. */
+function SkillActions(skill, idx){
+  var cmd = skill.install_cmd || "no install command listed";
+  return '<div class="install"><div class="cmdrow"><code class="cmd" id="cmd-' + idx + '">' + esc(cmd) + '</code></div>' +
+    '<div class="actionrow">' +
+    '<button type="button" class="btn btn-copy" data-copy="' + idx + '">Copy install</button>' +
+    '<a class="btn btn-src" href="' + esc(skill.skill_url || "#") + '" target="_blank" rel="noopener">Source</a>' +
+    '</div><div class="copy-status" id="copied-' + idx + '" role="status" aria-live="polite"></div></div>';
+}
+
+/* Skill.Row = Skill.Header + Skill.Signals + Skill.Actions. */
+function SkillRow(skill, idx){
+  var pct = Math.max(0, Math.min(100, Number(skill.score) || 0));
+  return '<li><article class="row" aria-label="' + esc(skill.name) + '">' +
+    '<div class="rail"><span class="score">' + esc(skill.score) + '</span>' +
+    '<span class="rail-meta">evidence<br>score / 100</span>' +
+    '<span class="bar" aria-hidden="true"><i style="width:' + pct + '%"></i></span></div>' +
+    '<div class="entry">' + SkillHeader(skill) + SkillSignals(skill) + SkillActions(skill, idx) + '</div>' +
+  '</article></li>';
+}
+
+function filtered(){
+  var q = store.state.q.trim().toLowerCase();
+  var out = store.state.skills.filter(function(s){
+    if(store.state.cat && s.category !== store.state.cat) return false;
+    if(!q) return true;
+    var hay = [s.name, s.repo, s.blurb, s.category, (s.mentions || []).join(" ")].join(" ").toLowerCase();
+    return hay.indexOf(q) !== -1;
+  });
+  var sort = store.state.sort;
+  out.sort(function(a, b){
+    if(sort === "name") return String(a.name).localeCompare(String(b.name));
+    if(sort === "installs" || sort === "score"){
+      var av = a[sort], bv = b[sort];
+      var an = (av == null ? -Infinity : av), bn = (bv == null ? -Infinity : bv);
+      return bn - an;
+    }
+    return 0;
+  });
+  return out;
+}
+
+function render(){
+  var list = document.getElementById(store.meta.listId);
+  var empty = document.getElementById("empty");
+  var rows = filtered();
+  list.innerHTML = rows.map(function(s, i){ return SkillRow(s, i); }).join("");
+  empty.hidden = rows.length > 0;
+  var total = store.state.skills.length;
+  document.getElementById("count").innerHTML =
+    "Showing <strong>" + rows.length + "</strong> of <strong>" + total + "</strong> skills";
+  bindCopy(rows);
+}
+
+function bindCopy(rows){
+  var btns = document.querySelectorAll("[data-copy]");
+  for(var i = 0; i < btns.length; i++){
+    (function(btn){
+      btn.addEventListener("click", function(){
+        var idx = Number(btn.getAttribute("data-copy"));
+        var cmd = (rows[idx] && rows[idx].install_cmd) || "";
+        var note = document.getElementById("copied-" + idx);
+        function done(ok){
+          if(note) note.textContent = ok ? "Install command copied." : "Copy failed — select the command manually.";
+          btn.textContent = ok ? "Copied" : "Copy install";
+          setTimeout(function(){ btn.textContent = "Copy install"; }, 1400);
+        }
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(cmd).then(function(){ done(true); }, function(){ fallback(); });
+        } else { fallback(); }
+        function fallback(){
+          var ta = document.createElement("textarea");
+          ta.value = cmd; document.body.appendChild(ta); ta.select();
+          try { done(document.execCommand("copy")); } catch(e){ done(false); }
+          document.body.removeChild(ta);
+        }
+      });
+    })(btns[i]);
+  }
+}
+
+function syncSeg(){
+  var btns = document.querySelectorAll("#catseg button");
+  for(var i = 0; i < btns.length; i++){
+    btns[i].setAttribute("aria-pressed", btns[i].getAttribute("data-cat") === store.state.cat ? "true" : "false");
+  }
+}
+
+document.getElementById("q").addEventListener("input", function(e){ store.actions.setQuery(e.target.value); });
+document.getElementById("sort").addEventListener("change", function(e){ store.actions.setSort(e.target.value); });
+(function(){
+  var btns = document.querySelectorAll("#catseg button");
+  for(var i = 0; i < btns.length; i++){
+    btns[i].addEventListener("click", function(e){ store.actions.setCat(e.currentTarget.getAttribute("data-cat")); });
+  }
+})();
+
+fetch("/api/skills").then(function(r){ return r.json(); }).then(function(j){
+  store.state.skills = j.skills || [];
+  render();
+}).catch(function(){
+  document.getElementById("count").textContent = "Could not load /api/skills.";
+});
+</script>
+
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><span class="on" aria-current="page" title="v9 · vercel-composition-patterns · score 78">v9</span><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}/* page fix: grid min-width blowout on narrow screens */.rows>*,.row,.row>*{min-width:0}.blurb,.rail-meta{overflow-wrap:anywhere}.diagram{overflow-x:auto;max-width:100%}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

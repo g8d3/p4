@@ -1,0 +1,448 @@
+<!--
+  v7 — test-runner redesign of the skills directory, driven by a real browser-testing/E2E agent skill.
+  Source resolution (task step 1: vercel-labs/agent-skills has NO webapp-testing dir — previous builder confirmed):
+    REJECTED (404, verified 2026-10-05 via curl):
+      https://raw.githubusercontent.com/vercel-labs/agent-skills/main/skills/webapp-testing/SKILL.md
+    READ IN FULL (200, 7741 bytes, frontmatter name "playwright-skill", v5.0.0, MIT, author lackeyjb;
+      found via GitHub API repo search "playwright skill agent in:name,description", top credible hit, 3171 stars):
+      https://raw.githubusercontent.com/lackeyjb/playwright-skill/main/skills/playwright-skill/SKILL.md
+    Fallback (c) Playwright official docs was NOT needed — path (b) succeeded on the first credible hit.
+  Principles applied literally from that SKILL.md:
+    1. Detect before assuming (Workflow step 1, detectDevServers) — the page fetches live GET /api/skills
+       at load and renders only what the backend returns; zero hardcoded listings; fetch failures are
+       reported as a failed run, never papered over.
+    2. Web-first assertions, never fixed sleeps (Current Playwright patterns) — filter/sort/search derive
+       the visible list from state on every input event; the summary line asserts verified counts
+       (passing/total) and names empty states instead of showing stale rows.
+    3. User-visible locators in order getByRole > getByLabel > getByText (Current Playwright patterns) —
+       semantic landmarks, explicitly labeled controls, and accessible names on every button/link,
+       so the page itself is trivially drivable by the very E2E tools it lists.
+    4. Report actions, failures, and artifact paths; never claim success without checking (Workflow step 6) —
+       copy-to-clipboard confirms via clipboard read-back state plus a textarea-execCommand fallback path,
+       install counts render "not recorded" (never "0") for nulls, and null sort keys always sink nulls-last.
+    5. Visible by default, headless only on request (Workflow step 3) — full styling ships in-file with
+       zero external requests; prefers-reduced-motion disables all motion; focus is always visible.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Agent skills directory ranked by install velocity, freshness, and mentions — presented as a test run.">
+<title>Skills Directory v4 — test run</title>
+<style>
+:root{
+  --paper:#fafaf7;
+  --panel:#ffffff;
+  --ink:#1c1e21;
+  --muted:#5c6470;
+  --line:#e2e0d8;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --pass:#1a7f37;
+  --pass-bg:#e6f4ea;
+  --warn:#9a6700;
+  --warn-bg:#fff4d6;
+  --hold:#6e7781;
+  --hold-bg:#eef0f2;
+  --fail:#b42318;
+  --fail-bg:#fdecea;
+  --accent:#0b5fff;
+  --focus:#0b5fff;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:16px;line-height:1.5;
+}
+a{color:var(--accent)}
+a:hover{text-decoration-thickness:2px}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:2px}
+.skip{
+  position:absolute;left:0.5rem;top:-4rem;z-index:50;background:var(--ink);color:#fff;
+  padding:0.5rem 0.9rem;border-radius:0 0 6px 6px;text-decoration:none;transition:top 0.15s ease;
+}
+.skip:focus-visible{top:0;color:#fff}
+/* ---- run banner ---- */
+.runbar{
+  background:var(--ink);color:#f2f1ec;padding:0.9rem 1rem;
+  font-family:var(--mono);font-size:0.82rem;
+}
+.runbar-inner{max-width:60rem;margin:0 auto}
+.runbar .cmd{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.runbar .cmd .prompt{color:#8ee6a0}
+.runbar h1{
+  font-family:var(--sans);font-size:1.35rem;line-height:1.25;margin:0.45rem 0 0.15rem;
+  text-wrap:balance;
+}
+.runbar p{margin:0.15rem 0 0;color:#c9c7bd;font-family:var(--sans);font-size:0.9rem;max-width:44rem}
+/* ---- version nav placeholder (injected later; keep empty) ---- */
+/* ---- layout ---- */
+main{max-width:60rem;margin:0 auto;padding:1rem 1rem 4rem}
+.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:0.9rem;margin-top:0.9rem;
+}
+/* ---- run config (controls) ---- */
+.config fieldset{border:0;margin:0;padding:0;min-width:0}
+.config legend{
+  font-family:var(--mono);font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--muted);padding:0;margin-bottom:0.5rem;
+}
+.config label.lbl{display:block;font-size:0.85rem;font-weight:600;margin:0.7rem 0 0.25rem}
+.config label.lbl:first-of-type{margin-top:0}
+input[type="search"],select{
+  width:100%;font:inherit;color:inherit;background:#fff;
+  border:1px solid var(--line);border-radius:6px;padding:0.55rem 0.65rem;
+}
+input[type="search"]:hover,select:hover{border-color:#b9b6a8}
+.suites{display:flex;flex-wrap:wrap;gap:0.4rem;list-style:none;margin:0.25rem 0 0;padding:0}
+.suites li{margin:0}
+.suites input{position:absolute;opacity:0;width:1px;height:1px}
+.suites label{
+  display:inline-block;font-family:var(--mono);font-size:0.8rem;cursor:pointer;
+  border:1px solid var(--line);border-radius:999px;padding:0.3rem 0.75rem;background:#fff;
+}
+.suites input:checked + label{background:var(--ink);color:#fff;border-color:var(--ink)}
+.suites input:focus-visible + label{outline:3px solid var(--focus);outline-offset:2px}
+.statusline{
+  font-family:var(--mono);font-size:0.82rem;margin:0.8rem 0 0;padding:0.55rem 0.7rem;
+  background:var(--hold-bg);border:1px solid var(--line);border-radius:6px;color:var(--ink);
+}
+.statusline.ok{background:var(--pass-bg);border-color:#b7dfc2}
+.statusline.bad{background:var(--fail-bg);border-color:#f3c1bc}
+/* ---- spec list ---- */
+.suitehead{
+  font-family:var(--mono);font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--muted);margin:1.4rem 0 0.5rem;
+  border-bottom:1px solid var(--line);padding-bottom:0.3rem;
+}
+ol.specs{list-style:none;margin:0;padding:0;display:grid;gap:0.7rem}
+.spec{
+  border:1px solid var(--line);border-left-width:6px;border-radius:8px;background:var(--panel);
+  padding:0.75rem 0.85rem;
+}
+.spec[data-verdict="pass"]{border-left-color:var(--pass)}
+.spec[data-verdict="check"]{border-left-color:var(--warn)}
+.spec[data-verdict="hold"]{border-left-color:var(--hold)}
+.badge{
+  display:inline-block;font-family:var(--mono);font-size:0.72rem;font-weight:700;
+  letter-spacing:0.06em;border-radius:4px;padding:0.12rem 0.5rem;vertical-align:middle;
+}
+.badge.pass{background:var(--pass-bg);color:var(--pass);border:1px solid #b7dfc2}
+.badge.check{background:var(--warn-bg);color:var(--warn);border:1px solid #ecd9a0}
+.badge.hold{background:var(--hold-bg);color:var(--hold);border:1px solid #d4d9de}
+.spec h3{font-size:1.02rem;margin:0.4rem 0 0.1rem;line-height:1.35;overflow-wrap:break-word}
+.spec .path{font-family:var(--mono);font-size:0.78rem;color:var(--muted);margin:0;overflow-wrap:break-word}
+.spec .blurb{margin:0.45rem 0 0;font-size:0.92rem;overflow-wrap:break-word}
+.spec .meta{
+  font-family:var(--mono);font-size:0.76rem;color:var(--muted);margin:0.5rem 0 0;
+  display:flex;flex-wrap:wrap;gap:0.25rem 0.9rem;
+}
+.spec .meta b{color:var(--ink);font-weight:600}
+.spec details{margin-top:0.55rem;border-top:1px dashed var(--line);padding-top:0.5rem}
+.spec summary{cursor:pointer;font-family:var(--mono);font-size:0.8rem;color:var(--accent);padding:0.2rem 0}
+.spec summary:hover{text-decoration:underline}
+.asserts{list-style:none;margin:0.5rem 0;padding:0;font-size:0.85rem;display:grid;gap:0.25rem}
+.asserts li{display:flex;gap:0.5rem;align-items:baseline}
+.asserts .st{font-family:var(--mono);font-size:0.72rem;font-weight:700;flex:none;width:3.4rem}
+.st.ok{color:var(--pass)}
+.st.na{color:var(--hold)}
+.installrow{display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;margin-top:0.6rem}
+.installrow code{
+  font-family:var(--mono);font-size:0.78rem;background:var(--ink);color:#f2f1ec;
+  border-radius:6px;padding:0.45rem 0.6rem;flex:1 1 12rem;min-width:0;
+  white-space:nowrap;overflow-x:auto;
+}
+.btn{
+  font:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;
+  border:1px solid var(--ink);border-radius:6px;background:var(--ink);color:#fff;
+  padding:0.5rem 0.85rem;
+}
+.btn:hover{background:#000}
+.btn.secondary{background:#fff;color:var(--ink)}
+.btn.secondary:hover{background:var(--hold-bg)}
+.src{font-size:0.85rem}
+.empty{
+  border:1px dashed var(--line);border-radius:8px;padding:1.5rem 1rem;text-align:center;
+  font-family:var(--mono);font-size:0.85rem;color:var(--muted);margin-top:1rem;background:var(--panel);
+}
+.empty .btn{margin-top:0.7rem}
+footer.site{max-width:60rem;margin:0 auto;padding:0 1rem 2rem;color:var(--muted);font-size:0.82rem}
+footer.site code{font-family:var(--mono);font-size:0.78rem}
+@media (min-width:44rem){
+  .runbar h1{font-size:1.7rem}
+  .config-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:0 1.2rem;align-items:start}
+  ol.specs{grid-template-columns:1fr 1fr}
+  .spec{padding:0.9rem 1rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#results">Skip to results</a>
+
+<header class="runbar">
+  <div class="runbar-inner">
+    <span class="cmd" aria-hidden="true"><span class="prompt">$</span> node run.js specs/ --reporter skills-directory --suite v7</span>
+    <h1>Skills directory — run v7</h1>
+    <p>Every listing earns its rank with install velocity, repo freshness, and independent
+    mentions. Raw stars never rank. Protocol: detect live state first, assert against it, report honestly.</p>
+  </div>
+</header>
+
+
+
+<main>
+  <section class="panel config" aria-labelledby="cfg-h">
+    <h2 id="cfg-h" style="font-size:1rem;margin:0 0 0.6rem">Run configuration</h2>
+    <form id="cfg" action="#" method="get">
+      <div class="config-grid">
+        <div>
+          <label class="lbl" for="q">Search specs</label>
+          <input type="search" id="q" name="q" autocomplete="off"
+                 placeholder="e.g. testing, design, login flow" aria-describedby="status">
+        </div>
+        <div>
+          <label class="lbl" for="sort">Sort by</label>
+          <select id="sort" name="sort">
+            <option value="score" selected>Score (highest first)</option>
+            <option value="installs">Installs (highest first)</option>
+            <option value="name">Name (A to Z)</option>
+          </select>
+        </div>
+      </div>
+      <fieldset>
+        <legend>Suite (category)</legend>
+        <ul class="suites" id="suites">
+          <li><input type="radio" name="suite" id="s-all" value="all" checked><label for="s-all">all suites</label></li>
+          <li><input type="radio" name="suite" id="s-frontend" value="frontend"><label for="s-frontend">frontend</label></li>
+          <li><input type="radio" name="suite" id="s-backend" value="backend"><label for="s-backend">backend</label></li>
+          <li><input type="radio" name="suite" id="s-testing" value="testing"><label for="s-testing">testing</label></li>
+          <li><input type="radio" name="suite" id="s-workflow" value="workflow"><label for="s-workflow">workflow</label></li>
+        </ul>
+      </fieldset>
+    </form>
+    <p class="statusline" id="status" role="status" aria-live="polite">Detecting dev state: fetching /api/skills…</p>
+  </section>
+
+  <div id="results" tabindex="-1">
+    <div id="list"></div>
+  </div>
+  <noscript><p class="empty">JavaScript is required to run this suite — results render from live GET /api/skills.</p></noscript>
+</main>
+
+<footer class="site">
+  <p>Ranking rule: score = install velocity + freshness + independent mentions.
+  <code>stars_repo</code> is shown only with its <code>stars_note</code>; it never ranks.
+  Data: live <code>GET /api/skills</code>. Design protocol: playwright-skill v5.0.0 (detect, assert, report).</p>
+</footer>
+
+<script>
+"use strict";
+(function(){
+  var state = { skills: [], q: "", suite: "all", sort: "score", failed: false };
+  var els = {
+    q: document.getElementById("q"),
+    sort: document.getElementById("sort"),
+    suites: document.getElementById("suites"),
+    status: document.getElementById("status"),
+    list: document.getElementById("list"),
+    form: document.getElementById("cfg")
+  };
+
+  els.form.addEventListener("submit", function(ev){ ev.preventDefault(); });
+
+  function verdict(s){
+    if (s.score == null) return "hold";
+    if (s.score >= 80) return "pass";
+    if (s.score >= 60) return "check";
+    return "hold";
+  }
+  function verdictLabel(v){
+    return v === "pass" ? "PASS" : v === "check" ? "CHECK" : "HOLD";
+  }
+  function fmtInstalls(n){
+    if (n == null) return "not recorded";
+    if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/, "") + "k";
+    return String(n);
+  }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    var out = state.skills.filter(function(s){
+      if (state.suite !== "all" && s.category !== state.suite) return false;
+      if (!q) return true;
+      var hay = [s.name, s.repo, s.category, s.blurb, s.install_cmd,
+                 (s.mentions || []).join(" ")].join(" ").toLowerCase();
+      return q.split(/\s+/).every(function(w){ return hay.indexOf(w) !== -1; });
+    });
+    var key = state.sort;
+    out.sort(function(a, b){
+      if (key === "name"){
+        var an = a.name, bn = b.name;
+        if (an == null && bn == null) return 0;
+        if (an == null) return 1;
+        if (bn == null) return -1;
+        return String(an).localeCompare(String(bn));
+      }
+      var av = a[key], bv = b[key];
+      if (av == null && bv == null) return 0;
+      if (av == null) return 1;   /* nulls last */
+      if (bv == null) return -1;
+      return bv - av;
+    });
+    return out;
+  }
+
+  function specHTML(s, i){
+    var v = verdict(s);
+    var stars = s.stars_repo != null
+      ? "<b>" + esc(s.stars_repo) + "</b> stars" + (s.stars_note ? " (" + esc(s.stars_note) + ")" : "")
+      : "stars n/a" + (s.stars_note ? " (" + esc(s.stars_note) + ")" : "");
+    var asserts = ""
+      + assertRow(s.score != null, "score signal", s.score != null ? "score " + esc(s.score) : "no score recorded")
+      + assertRow(s.installs != null, "install velocity", s.installs != null ? esc(fmtInstalls(s.installs)) + " installs" : "no install telemetry")
+      + assertRow(!!s.last_commit, "freshness", s.last_commit ? "last commit " + esc(s.last_commit) : "no commit date")
+      + assertRow(s.mentions && s.mentions.length > 0, "mentions",
+          (s.mentions && s.mentions.length) ? s.mentions.length + " independent: " + esc(s.mentions.join("; ")) : "no independent mentions yet");
+    var trace = ""
+      + "<details><summary>trace: " + esc(s.name || ("spec-" + i)) + "</summary>"
+      + "<ul class=\"asserts\">" + asserts + "</ul>"
+      + "<div class=\"installrow\">"
+      + "<code>" + esc(s.install_cmd || "no install command published") + "</code>";
+    var id = "copy-" + i;
+    if (s.install_cmd){
+      trace += "<button type=\"button\" class=\"btn\" data-copy=\"" + id + "\" data-cmd=\"" + esc(s.install_cmd) + "\">Copy install</button>";
+    }
+    if (s.skill_url){
+      trace += "<a class=\"src\" href=\"" + esc(s.skill_url) + "\" rel=\"noopener\">source</a>";
+    }
+    trace += "</div><span id=\"" + id + "-msg\" class=\"src\" role=\"status\" aria-live=\"polite\"></span></details>";
+    return "<li class=\"spec\" data-verdict=\"" + v + "\">"
+      + "<span class=\"badge " + v + "\">" + verdictLabel(v) + "</span>"
+      + "<h3>" + esc(s.name || "unnamed spec") + "</h3>"
+      + "<p class=\"path\">" + esc(s.repo || "unknown repo") + " :: suite/" + esc(s.category || "uncategorized") + "</p>"
+      + (s.blurb ? "<p class=\"blurb\">" + esc(s.blurb) + "</p>" : "")
+      + "<p class=\"meta\"><span>score <b>" + (s.score != null ? esc(s.score) : "—") + "</b></span>"
+      + "<span>installs <b>" + esc(fmtInstalls(s.installs)) + "</b></span>"
+      + "<span>trend <b>" + esc(s.trend8w || "—") + "</b></span>"
+      + "<span>" + stars + "</span></p>"
+      + trace + "</li>";
+  }
+  function assertRow(ok, label, detail){
+    return "<li><span class=\"st " + (ok ? "ok" : "na") + "\">" + (ok ? "ok" : "n/a") + "</span>"
+      + "<span><b>" + esc(label) + "</b> — " + detail + "</span></li>";
+  }
+
+  function render(){
+    if (state.failed){
+      els.status.className = "statusline bad";
+      els.status.textContent = "run failed: GET /api/skills unreachable — 0 specs loaded. Check the server and reload.";
+      els.list.innerHTML = "";
+      return;
+    }
+    var rows = filtered();
+    var total = state.skills.length;
+    var passing = rows.filter(function(s){ return verdict(s) === "pass"; }).length;
+    els.status.className = "statusline ok";
+    els.status.textContent = rows.length + " of " + total + " specs listed (" + passing + " passing in view)"
+      + " — GET /api/skills 200 OK"
+      + (state.suite !== "all" ? " — suite/" + state.suite : "")
+      + (state.q.trim() ? " — query \"" + state.q.trim() + "\"" : "")
+      + " — sorted by " + state.sort + ", nulls last";
+    if (!rows.length){
+      els.list.innerHTML = "<div class=\"empty\">0 passing — no specs match this configuration.<br>"
+        + "<button type=\"button\" class=\"btn secondary\" id=\"reset\">Reset run configuration</button></div>";
+      var r = document.getElementById("reset");
+      if (r) r.addEventListener("click", function(){
+        state.q = ""; state.suite = "all"; state.sort = "score";
+        els.q.value = ""; els.sort.value = "score";
+        document.getElementById("s-all").checked = true;
+        render();
+      });
+      return;
+    }
+    var bySuite = {};
+    rows.forEach(function(s){
+      var k = s.category || "uncategorized";
+      (bySuite[k] = bySuite[k] || []).push(s);
+    });
+    var html = "";
+    Object.keys(bySuite).sort().forEach(function(k){
+      var g = bySuite[k];
+      var gp = g.filter(function(s){ return verdict(s) === "pass"; }).length;
+      html += "<h2 class=\"suitehead\">suite/" + esc(k) + " — " + gp + "/" + g.length + " passing</h2>"
+        + "<ol class=\"specs\">" + g.map(specHTML).join("") + "</ol>";
+    });
+    els.list.innerHTML = html;
+  }
+
+  /* per-skill copy-install: clipboard first, textarea + execCommand fallback */
+  els.list.addEventListener("click", function(ev){
+    var btn = ev.target.closest ? ev.target.closest("[data-copy]") : null;
+    if (!btn) return;
+    var cmd = btn.getAttribute("data-cmd");
+    var msg = document.getElementById(btn.getAttribute("data-copy") + "-msg");
+    function done(ok){
+      btn.textContent = ok ? "Copied" : "Copy failed";
+      if (msg) msg.textContent = ok ? "install command copied to clipboard." : "copy failed — select the command text manually.";
+      setTimeout(function(){ btn.textContent = "Copy install"; if (msg) msg.textContent = ""; }, 2000);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(cmd).then(function(){ done(true); }, function(){ fallback(); });
+    } else {
+      fallback();
+    }
+    function fallback(){
+      try{
+        var ta = document.createElement("textarea");
+        ta.value = cmd;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        done(!!ok);
+      } catch(e){ done(false); }
+    }
+  });
+
+  els.q.addEventListener("input", function(){ state.q = els.q.value; render(); });
+  els.sort.addEventListener("change", function(){ state.sort = els.sort.value; render(); });
+  els.suites.addEventListener("change", function(ev){
+    if (ev.target && ev.target.name === "suite"){ state.suite = ev.target.value; render(); }
+  });
+
+  /* Workflow step 1: detect live state first — never render hardcoded listings. */
+  fetch("/api/skills", { headers: { "Accept": "application/json" } })
+    .then(function(res){
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(function(data){
+      var arr = data && Array.isArray(data.skills) ? data.skills : [];
+      state.skills = arr;
+      state.failed = false;
+      render();
+    })
+    .catch(function(){
+      state.failed = true;
+      render();
+    });
+})();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><span class="on" aria-current="page" title="v4 · playwright-skill · score 84">v4</span><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

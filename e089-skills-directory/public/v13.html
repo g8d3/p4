@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- ponytail read full. Applied: YAGNI (no chrome/cards), native inputs over JS widgets, one render fn, deletion over addition, boring CSS. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Directory</title>
+<style>
+body{margin:0 auto;max-width:44rem;padding:1rem;font:16px/1.4 system-ui,sans-serif;color:#111;background:#fff}
+h1{font-size:1.2rem;margin:0 0 .25rem}p{margin:.25rem 0 .75rem;font-size:.85rem;color:#444}
+input,select,button{font:inherit;padding:.4rem;border:1px solid #767676;border-radius:4px;background:#fff}
+input{width:100%;margin-bottom:.5rem}select{margin:0 .5rem .5rem 0}
+ul{list-style:none;margin:1rem 0 0;padding:0}li{border-top:1px solid #ccc;padding:.6rem 0}
+b{font-size:1rem}.m{font-size:.8rem;color:#444}.c{font:12px ui-monospace,monospace;background:#eee;padding:.3rem;overflow-x:auto;white-space:nowrap}
+:focus-visible{outline:3px solid #005fcc;outline-offset:1px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<h1>Skills Directory</h1>
+<p>Ranked by installs + freshness + mentions. Stars never rank. <span id="n"></span></p>
+<p>Design driven by the ponytail skill — the laziest solution that actually works.</p>
+<input id="q" type="search" placeholder="Search name, repo, blurb" aria-label="Search skills">
+<select id="c" aria-label="Category"><option value="">all</option><option>frontend</option><option>backend</option><option>testing</option><option>workflow</option></select>
+<select id="s" aria-label="Sort"><option value="score">score</option><option value="installs">installs</option><option value="name">name</option></select>
+<ul id="l"></ul>
+<script>
+let A=[],C=[];
+fetch("/api/skills").then(r=>r.json()).then(j=>{A=j.skills;f()});
+function e(s){return String(s==null?"":s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function f(){
+let q=document.getElementById("q").value.toLowerCase(),c=document.getElementById("c").value,s=document.getElementById("s").value;
+C=A.filter(x=>(!c||x.category===c)&&(x.name+" "+x.repo+" "+x.blurb+" "+(x.mentions||[]).join(" ")).toLowerCase().includes(q));
+C.sort((a,b)=>{let u=a[s],v=b[s];if(u==null&&v==null)return 0;if(u==null)return 1;if(v==null)return -1;return s==="name"?String(u).localeCompare(String(v)):v-u});
+document.getElementById("n").textContent=C.length+" skills";
+document.getElementById("l").innerHTML=C.map((x,i)=>"<li><b>"+e(x.name)+"</b> "+e(x.score)+", "+e(x.category)+", "+(x.installs==null?"no installs":Number(x.installs).toLocaleString())+", upd "+e(x.last_commit||"?")+(x.verified?" v":"")+"<div class=m>"+e(x.blurb||"")+" Mentions: "+e((x.mentions||[]).join("; ")||"-")+(x.stars_repo?" Stars "+Number(x.stars_repo).toLocaleString()+" ("+e(x.stars_note||"repo-level")+")":"")+"</div><div class=c>"+e(x.install_cmd||"")+"</div><button data-i="+i+">copy install</button> <a href=\""+e(x.skill_url||"#")+"\" rel=noopener>source</a>").join("")||"<li>No matches.</li>";
+document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>cp(C[b.dataset.i].install_cmd||"",b));
+}
+function cp(t,b){if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(()=>b.textContent="copied",()=>fb(t,b));else fb(t,b)}
+function fb(t,b){let a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");b.textContent="copied"}catch(_){b.textContent=t} a.remove()}
+document.getElementById("q").oninput=f;document.getElementById("c").onchange=f;document.getElementById("s").onchange=f;
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><span class="on" aria-current="page" title="v13 · ponytail · score 70">v13</span><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

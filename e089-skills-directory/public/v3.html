@@ -1,0 +1,241 @@
+<!--
+  v3 redesign driven by the `superpowers` agent skill (directory rank #2, score 90).
+  SKILL.md actually read (full text, fresh fetch 2026-10-05):
+    https://raw.githubusercontent.com/obra/superpowers/main/skills/using-superpowers/SKILL.md
+    (repo root has no SKILL.md -- `curl -s https://api.github.com/repos/obra/superpowers/contents/`
+    lists a `skills/` family; using-superpowers is its flagship entry rule. Also read in full:
+    skills/verification-before-completion/SKILL.md and skills/test-driven-development/SKILL.md.
+    Fallback repo 101-skills/superpowers was not needed -- obra/superpowers answered 200.)
+  Principles applied (announced per the skill's own rule: "Using superpowers to run the verification gate"):
+    1. Verification before completion -- every rank on this page must show its evidence
+       (installs, freshness, independent mentions); stars are quarantined with their warning
+       note, never ranked. Page itself verified with real commands before done (see report).
+    2. Red-green minimalism / YAGNI (from test-driven-development) -- only the five required
+       user actions exist; simplest code that passes the acceptance checklist, nothing extra.
+    3. Process first, announce it (from using-superpowers) -- the page is structured as an
+       explicit gate pipeline (SEARCH > FILTER > RANK > VERIFY > INSTALL) stated up front.
+    4. No rationalizing, red flags as UI (from using-superpowers + verification-before-completion)
+       -- empty results, fetch failures, and clipboard failures are visible states, never silent.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Verification Gate — v3</title>
+<style>
+:root{
+  --paper:#ffffff;
+  --ink:#14171a;
+  --muted:#5b6470;
+  --wash:#f4f5f6;
+  --rule:#14171a;
+  --hair:#d7dade;
+  --gate:#b45309;
+  --gate-wash:#fef3c7;
+  --pass:#15803d;
+  --pass-wash:#dcfce7;
+  --flag:#b91c1c;
+  --flag-wash:#fee2e2;
+  --sans:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+/* ---- version switcher ---- */
+.versions{border-bottom:3px solid var(--rule);background:var(--ink);color:#fff}
+.versions .wrap{display:flex;gap:4px;align-items:center;overflow-x:auto;padding:0 16px}
+.versions span.lbl{font:11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#9aa3ad;padding:12px 8px 12px 0;white-space:nowrap}
+.versions nav{display:flex;gap:2px}
+.versions a{color:#fff;text-decoration:none;font:13px/1 var(--mono);padding:12px 12px;white-space:nowrap;border-bottom:3px solid transparent}
+.versions a:hover{background:#2a2f35}
+.versions a[aria-current="page"]{background:var(--gate);color:#fff;border-bottom-color:#fff;font-weight:700}
+/* ---- masthead ---- */
+.masthead{border-bottom:3px solid var(--rule);padding:28px 0 20px}
+.eyebrow{font:12px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gate);margin:0 0 10px}
+.masthead h1{margin:0 0 8px;font-size:clamp(30px,6vw,46px);line-height:1.05;letter-spacing:-.02em;font-weight:800}
+.masthead h1 .stamp{background:var(--ink);color:#fff;padding:0 10px;white-space:nowrap}
+.lede{margin:0 0 14px;max-width:40em;color:var(--ink)}
+.pipeline{list-style:none;margin:0 0 6px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px 0;background:var(--ink);color:#fff;font:12px/1.6 var(--mono);letter-spacing:.06em}
+.pipeline li{white-space:nowrap}
+.pipeline li+li::before{content:" > ";color:var(--gate);font-weight:700}
+.protocol{border:2px solid var(--rule);background:var(--gate-wash);padding:10px 14px;margin:14px 0 0;font-size:13.5px}
+.protocol strong{display:block;font:11px/1.6 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gate);margin-bottom:4px}
+.protocol ol{margin:0;padding-left:20px}
+/* ---- controls ---- */
+.controls{border-bottom:3px solid var(--rule);padding:16px 0;display:grid;gap:14px}
+.field label{display:block;font:11px/1.6 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.field input[type="search"]{width:100%;font:16px/1.4 var(--sans);color:var(--ink);background:#fff;border:2px solid var(--rule);border-radius:0;padding:10px 12px}
+.seg{display:flex;flex-wrap:wrap;gap:0;border:2px solid var(--rule);width:fit-content;max-width:100%}
+.seg label{flex:1 1 auto;white-space:nowrap;font:13px/1 var(--mono);padding:10px 14px;cursor:pointer;border-right:2px solid var(--rule);background:#fff}
+.seg label:last-child{border-right:none}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label:has(input:checked){background:var(--ink);color:#fff;font-weight:700}
+.seg label:has(input:focus-visible){outline:3px solid var(--gate);outline-offset:-3px}
+.field select{font:15px/1.4 var(--sans);color:var(--ink);background:#fff;border:2px solid var(--rule);border-radius:0;padding:10px 12px;max-width:100%}
+.status{font:13px/1.6 var(--mono);color:var(--muted);margin:0}
+.status strong{color:var(--pass)}
+/* ---- slips ---- */
+.slip{border:3px solid var(--rule);margin:18px 0 0;background:#fff}
+.slip-head{display:flex;gap:12px;align-items:stretch;border-bottom:3px solid var(--rule)}
+.gatebox{background:var(--ink);color:#fff;min-width:86px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;text-align:center}
+.gatebox .n{font:700 26px/1 var(--mono);font-variant-numeric:tabular-nums}
+.gatebox .s{font:10px/1.5 var(--mono);letter-spacing:.12em;color:#9aa3ad}
+.titleblock{padding:10px 12px;flex:1;min-width:0}
+.titleblock h2{margin:0;font-size:19px;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere}
+.titleblock .repo{font:13px/1.5 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pill{font:700 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;border:2px solid var(--rule)}
+.pill.pass{background:var(--pass-wash);color:var(--pass);border-color:var(--pass)}
+.pill.check{background:var(--gate-wash);color:var(--gate);border-color:var(--gate)}
+.pill.cat{background:#fff;color:var(--ink)}
+.evidence{width:100%;border-collapse:collapse;font-size:14px}
+.evidence th,.evidence td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--hair);vertical-align:top}
+.evidence th{font:11px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);width:130px}
+.evidence td.mono{font-family:var(--mono);font-size:13px}
+.stars-flag{margin:0;border-top:2px dashed var(--flag);background:var(--flag-wash);padding:8px 12px;font-size:13px}
+.stars-flag strong{font:700 11px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--flag);display:block}
+.installrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:var(--wash);border-top:3px solid var(--rule)}
+code.cmd{flex:1;min-width:200px;font:13px/1.5 var(--mono);background:var(--ink);color:#fff;padding:9px 12px;overflow-x:auto;white-space:nowrap}
+.btn{font:700 13px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;background:#fff;color:var(--ink);border:2px solid var(--rule);padding:10px 14px;cursor:pointer;border-radius:0}
+.btn:hover{background:var(--gate-wash)}
+.btn:active{background:var(--gate);color:#fff}
+a.src{font:700 13px/1.6 var(--mono);color:var(--gate);text-underline-offset:3px;padding:10px 4px}
+.notice{border:3px solid var(--rule);padding:16px;margin:18px 0 0;font-size:15px}
+.notice.error{border-color:var(--flag);background:var(--flag-wash)}
+footer{border-top:3px solid var(--rule);margin-top:26px;padding:16px 0 40px;font:12.5px/1.6 var(--mono);color:var(--muted)}
+footer a{color:var(--gate)}
+/* ---- focus + motion ---- */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gate);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media (min-width:720px){
+  .controls{grid-template-columns:1.2fr 1fr;align-items:end}
+  .controls .field:first-child{grid-column:1/-1}
+  .evidence th{width:170px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="masthead">
+<p class="eyebrow">Redesign driven by the superpowers skill · rank #2 · score 90</p>
+<h1>Skills Verification <span class="stamp">GATE</span></h1>
+<p class="lede">No skill passes on reputation. Each listing below cleared the same gate: installs velocity, repo freshness, and independent mentions. Raw stars never rank — they are flagged, quarantined, and shown only with their warning.</p>
+<ol class="pipeline" aria-label="How this page works">
+<li>SEARCH</li><li>FILTER</li><li>RANK</li><li>VERIFY</li><li>INSTALL</li>
+</ol>
+<div class="protocol">
+<strong>Gate protocol — borrowed from the skill itself</strong>
+<ol>
+<li>Evidence before claims: every rank carries its proof.</li>
+<li>Minimal path: search, filter, rank, copy — nothing else.</li>
+<li>Red flags stay visible: empty results and failures are stated, never silent.</li>
+</ol>
+</div>
+</header>
+<form class="controls" id="controls" role="search" aria-label="Filter skills" action="#">
+<div class="field">
+<label for="q">Live search</label>
+<input type="search" id="q" name="q" placeholder="Search name, repo, blurb, mentions…" autocomplete="off">
+</div>
+<div class="field">
+<span class="lbl" id="cat-label" style="display:block;font:11px/1.6 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Category filter</span>
+<div class="seg" role="radiogroup" aria-labelledby="cat-label" id="cat">
+<label><input type="radio" name="cat" value="" checked> all</label><label><input type="radio" name="cat" value="frontend"> frontend</label><label><input type="radio" name="cat" value="backend"> backend</label><label><input type="radio" name="cat" value="testing"> testing</label><label><input type="radio" name="cat" value="workflow"> workflow</label>
+</div>
+</div>
+<div class="field">
+<label for="sort">Sort by</label>
+<select id="sort" name="sort">
+<option value="score">score (highest first)</option>
+<option value="installs">installs (highest first)</option>
+<option value="name">name (A to Z)</option>
+</select>
+</div>
+</form>
+<p class="status" id="status" role="status" aria-live="polite">Loading skills…</p>
+<main id="list" aria-label="Ranked skills"></main>
+<noscript><div class="notice">This gate needs JavaScript: filtering and ranking run in your browser against GET /api/skills.</div></noscript>
+<footer>e089 · v3 verification gate · data: GET /api/skills (object, array under “skills”) · stars never rank · design: white gate slip, black rules, amber checkpoint — not v1 dark cards, not v2 paper ledger</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var S=[], els={q:document.getElementById('q'),cat:document.getElementById('cat'),sort:document.getElementById('sort'),status:document.getElementById('status'),list:document.getElementById('list')};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function fmt(n){return (n==null||n==='')?'no data':Number(n).toLocaleString('en-US');}
+function cat(){var r=els.cat.querySelector('input:checked');return r?r.value:'';}
+function render(){
+  var q=els.q.value.trim().toLowerCase(), c=cat(), s=els.sort.value, i, x, hay;
+  var L=[];
+  for(i=0;i<S.length;i++){x=S[i];
+    if(c&&x.category!==c)continue;
+    hay=((x.name||'')+' '+(x.repo||'')+' '+(x.category||'')+' '+(x.blurb||'')+' '+((x.mentions||[]).join(' '))).toLowerCase();
+    if(q&&hay.indexOf(q)===-1)continue;
+    L.push(x);
+  }
+  L.sort(function(a,b){
+    if(s==='name')return String(a.name||'').localeCompare(String(b.name||''));
+    var av=(s==='installs')?(a.installs==null?-1:a.installs):(a.score==null?-1:a.score);
+    var bv=(s==='installs')?(b.installs==null?-1:b.installs):(b.score==null?-1:b.score);
+    return bv-av;
+  });
+  els.status.innerHTML='<strong>'+L.length+'</strong> of '+S.length+' skills cleared the gate'+(q?' for “'+esc(els.q.value.trim())+'”':'')+(c?' in '+esc(c):'')+' · ranked by '+esc(s);
+  if(!L.length){els.list.innerHTML='<div class="notice">No skills cleared the gate for this query. Loosen the search or pick another category.</div>';return;}
+  els.list.innerHTML=L.map(function(x,k){
+    var verified=x.verified===true;
+    return '<article class="slip" aria-label="'+esc(x.name)+'">'
+    +'<div class="slip-head"><div class="gatebox" aria-label="score '+esc(x.score)+'"><span class="n">'+esc(x.score)+'</span><span class="s">SCORE</span></div>'
+    +'<div class="titleblock"><h2>'+(k+1)+'. '+esc(x.name)+'</h2>'
+    +'<div class="repo">'+esc(x.repo||'unknown repo')+'</div>'
+    +'<div class="pills"><span class="pill cat">'+esc(x.category||'uncategorized')+'</span>'
+    +(verified?'<span class="pill pass">Verified</span>':'<span class="pill check">Unverified</span>')
+    +'<span class="pill cat">trend: '+esc(x.trend8w||'unknown')+'</span></div></div></div>'
+    +'<table class="evidence"><tbody>'
+    +'<tr><th scope="row">Installs</th><td class="mono">'+esc(fmt(x.installs))+'</td></tr>'
+    +'<tr><th scope="row">Freshness</th><td>last commit <span class="mono">'+esc(x.last_commit||'unknown')+'</span></td></tr>'
+    +'<tr><th scope="row">Mentions</th><td>'+esc((x.mentions||[]).join(' · ')||'none recorded')+'</td></tr>'
+    +'<tr><th scope="row">Blurb</th><td>'+esc(x.blurb||'—')+'</td></tr>'
+    +'</tbody></table>'
+    +(x.stars_repo?'<p class="stars-flag"><strong>Stars quarantined — not ranked</strong>'+esc(Number(x.stars_repo).toLocaleString('en-US'))+' repo stars — '+esc(x.stars_note||'repo-level signal, not skill-level')+'</p>':'')
+    +'<div class="installrow"><code class="cmd">'+esc(x.install_cmd||'no install command')+'</code>'
+    +'<button type="button" class="btn" data-cmd="'+esc(x.install_cmd||'')+'">copy install</button>'
+    +'<a class="src" href="'+esc(x.skill_url||'#')+'" target="_blank" rel="noopener">source</a></div>'
+    +'</article>';
+  }).join('');
+  var btns=els.list.querySelectorAll('[data-cmd]');
+  for(i=0;i<btns.length;i++)(function(b){
+    b.addEventListener('click',function(){
+      var cmd=b.getAttribute('data-cmd'); if(!cmd)return;
+      function done(){b.textContent='copied';setTimeout(function(){b.textContent='copy install';},1500);}
+      function fallback(){
+        var t=document.createElement('textarea');t.value=cmd;document.body.appendChild(t);t.select();
+        try{document.execCommand('copy');done();}catch(e){b.textContent='copy failed';}
+        document.body.removeChild(t);
+      }
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(cmd).then(done,fallback);}
+      else fallback();
+    });
+  })(btns[i]);
+}
+document.getElementById('controls').addEventListener('submit',function(e){e.preventDefault();});
+els.q.addEventListener('input',render);
+els.cat.addEventListener('change',render);
+els.sort.addEventListener('change',render);
+fetch('/api/skills').then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(j){
+  S=(j&&j.skills)||[];render();
+}).catch(function(err){
+  els.status.textContent='Gate failed: could not load skills.';
+  els.list.innerHTML='<div class="notice error" role="alert">Could not load GET /api/skills ('+esc(err.message)+'). Check the server and reload.</div>';
+});
+})();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><span class="on" aria-current="page" title="v3 · superpowers · score 90">v3</span><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

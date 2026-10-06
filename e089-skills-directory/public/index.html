@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Directory — web-dev first, signals over stars</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#0b0e14;color:#e6edf3;font:15px/1.5 system-ui,sans-serif}
+header{padding:20px 16px;border-bottom:1px solid #21262d}
+header h1{margin:0;font-size:20px}
+header p{margin:4px 0 0;color:#8b949e;font-size:13px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid #21262d}
+input,select,button{background:#161b22;color:#e6edf3;border:1px solid #30363d;border-radius:8px;padding:8px 10px;font-size:14px}
+input{flex:1;min-width:180px}
+main{padding:12px 16px 60px;max-width:1100px;margin:0 auto}
+.card{border:1px solid #21262d;border-radius:12px;padding:14px;margin:10px 0;background:#0d1117}
+.card h2{margin:0 0 4px;font-size:16px}
+.card h2 .score{background:#1f6feb;border-radius:20px;font-size:12px;padding:2px 10px;margin-left:8px;vertical-align:2px}
+.meta{color:#8b949e;font-size:12.5px;margin:6px 0}
+.blurb{margin:6px 0}
+.sig{font-size:12.5px;color:#a5d6ff}
+.cmd{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:6px 8px;font:12.5px ui-monospace,monospace;overflow-x:auto;white-space:nowrap}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+a{color:#58a6ff}
+.warn{color:#d29922;font-size:12px}
+footer{color:#8b949e;font-size:12px;padding:20px 16px;text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Agent Skills Directory <span style="color:#8b949e">— web-dev first</span></h1>
+<p>Ranked by installs velocity + freshness + independent mentions. Raw stars never rank. <span id="count"></span></p>
+</header>
+<div class="bar">
+<input id="q" placeholder="Search skills, repos, stacks… (e.g. react, testing, auth)">
+<select id="cat"><option value="">all categories</option><option>frontend</option><option>backend</option><option>testing</option><option>workflow</option></select>
+<select id="sort"><option value="score">sort: score</option><option value="installs">sort: installs</option><option value="name">sort: name</option></select>
+<button id="copy">Copy page link</button>
+</div>
+<main id="list"></main>
+<footer>e089 · data from live web research 2026-10-05 · stars shown only with shared-repo warning</footer>
+<script>
+let S=[];
+async function load(){const r=await fetch('/api/skills');const j=await r.json();S=j.skills;render();}
+function render(){
+ const q=document.getElementById('q').value.toLowerCase(),c=document.getElementById('cat').value,s=document.getElementById('sort').value;
+ let L=S.filter(x=>!c||x.category===c).filter(x=>(x.name+' '+(x.repo||'')+' '+(x.blurb||'')+' '+(x.mentions||[]).join(' ')).toLowerCase().includes(q));
+ L.sort((a,b)=>s==='name'?a.name.localeCompare(b.name):(b[s]||0)-(a[s]||0));
+ document.getElementById('count').textContent='· '+L.length+' skills';
+ document.getElementById('list').innerHTML=L.map(x=>`<div class="card"><h2>${x.name}<span class="score">${x.score}</span></h2>
+ <div class="meta">${x.category} · ${(x.repo||'')} · ${x.installs?x.installs.toLocaleString()+' installs · ':''}${x.trend8w||''} · updated ${x.last_commit||'unknown'} ${x.verified?'· ✅ verified':''}</div>
+ <div class="blurb">${x.blurb||''}</div>
+ <div class="sig">Social proof: ${(x.mentions||[]).join(' · ')||'—'}</div>
+ ${x.stars_repo?`<div class="warn">⚠ ${x.stars_repo.toLocaleString()} repo stars — ${x.stars_note||''}</div>`:''}
+ <div class="row"><div class="cmd">${x.install_cmd||''}</div><button data-cmd="${(x.install_cmd||'').replace(/"/g,'&quot;')}">copy install</button><a href="${x.skill_url||'#'}" target="_blank" rel="noopener">source ↗</a></div></div>`).join('')||'<p>No matches.</p>';
+ document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.dataset.cmd);b.textContent='copied!';setTimeout(()=>b.textContent='copy install',1200);});
+}
+document.getElementById('q').oninput=render;document.getElementById('cat').onchange=render;document.getElementById('sort').onchange=render;
+document.getElementById('copy').onclick=()=>{navigator.clipboard.writeText(location.href);};
+load();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><span class="on" aria-current="page" title="v1 · baseline · score no skill">v1</span><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

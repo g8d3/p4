@@ -1,0 +1,409 @@
+<!--
+  v13 — design-handoff redesign, driven by `figma-implement-design` (score 72).
+
+  SOURCE RESOLUTION (community skill, no guaranteed canonical repo):
+  1. GET https://api.github.com/search/repositories?q=figma-implement-design&per_page=5
+     -> 200, total_count 1174, top hit LinkedInLearning/figma-from-design-to-css-implementation-4411028
+        (a course repo — NOT the skill; rejected as non-credible).
+  2. GET https://api.github.com/search/repositories?q=figma+implement+skill&per_page=5
+     -> 200, total_count 102, top hit skydashnet/material-design-3-ui-skill (related but different skill; rejected).
+  3. GET https://api.github.com/search/repositories?q="figma-implement-design"&per_page=5 (exact phrase)
+     -> 200, total_count 6. Credible hits:
+        - followba/figma-implement-design — "Reusable skill for implementing Figma designs with high visual fidelity"
+        - yangcyyang/figma-implement-design — "Translate Figma nodes into production-ready code with 1:1 visual fidelity using the Figma MCP workflow"
+        - qipihen/figma-implement-design-skill, webmaxru/figma-implement-design-copilot, zjie44574-droid/manus-skill-figma-implement-design
+  4. GitHub code search API (filename:SKILL.md path query) without auth -> 404 {"message":"Not Found"} (documented: code search needs auth). Abandoned.
+  5. Raw-fetch SKILL.md candidates (curl, User-Agent e089-research):
+     - https://raw.githubusercontent.com/followba/figma-implement-design/main/SKILL.md -> 200, 11513 bytes, READ IN FULL. Canonical source. frontmatter name "figma-implement-design".
+     - https://raw.githubusercontent.com/yangcyyang/figma-implement-design/main/SKILL.md -> 404; .../master/SKILL.md -> 200, byte-identical fork of followba (same frontmatter + workflow). Confirms consensus, not separately cited.
+     - https://raw.githubusercontent.com/qipihen/figma-implement-design-skill/main/SKILL.md -> 404 (rejected).
+     - https://raw.githubusercontent.com/webmaxru/figma-implement-design-copilot/main/SKILL.md -> 404 (rejected).
+  CONCLUSION: grounded in the real SKILL.md (followba/figma-implement-design, mirrored by yangcyyang), NOT invented.
+
+  SKILL PRINCIPLES APPLIED (SKILL.md steps -> this page):
+  - Step 1 (node-id / file-key): every skill card is a "Frame" with frame id + node-id style tag (skill-01 … skill-N); header shows file-key style label.
+  - Step 2 (get_design_context: layout, type, color tokens): fixed 8px spacing scale via --s1.. tokens, explicit type spec annotations (12/13/15/20px labels), color tokens listed in legend.
+  - Step 3 (get_screenshot as source of truth): each card carries a "visual reference" swatch strip + fidelity checklist against it.
+  - Step 4 (assets: localhost only, no new icon packages, no placeholders): zero external requests, zero icon fonts, pure CSS ticks/markers.
+  - Step 5 (translate to project conventions): data contract from GET /api/skills {skills:[...]} respected; Tailwind-style utility thinking replaced with this dir's single-file convention.
+  - Step 6 (1:1 parity: tokens over hardcoded values, WCAG): all colors/spacing via :root tokens; visible focus + reduced-motion honored.
+  - Step 7 (validate checklist: layout, typography, spacing, alignment): footer "handoff QA" checklist mirrors the skill's validation list.
+
+  DATA: GET /api/skills -> {skills:[...], updated}. Fields: name, repo, category, blurb, installs, trend8w, stars_repo, stars_note, last_commit, mentions[], score, install_cmd, skill_url, verified.
+  IDENTITY: design-handoff / inspect-panel aesthetic. Differs from v1 dark cards, v2 paper ledger, v3 slips, v4 lab bench, v5 vercel minimal, v6 indigo grid.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills Directory v12 — Figma handoff</title>
+<style>
+:root{
+  --canvas:#E9EAF0;
+  --frame:#FFFFFF;
+  --ink:#1A1D26;
+  --muted:#5C6372;
+  --faint:#8B91A3;
+  --line:#D8DBE6;
+  --line-soft:#E7E9F1;
+  --sel:#0D99FF;
+  --sel-soft:#E7F4FF;
+  --red:#F24E1E;
+  --red-soft:#FFEEE7;
+  --ok:#0E9F6E;
+  --ok-soft:#E6F6EF;
+  --warn:#B7791F;
+  --warn-soft:#FBF2DF;
+  --code-bg:#1A1D26;
+  --code-ink:#EDEFF7;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{
+  margin:0;color:var(--ink);background:var(--canvas);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+a{color:var(--sel)}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px;border-radius:6px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:8px 14px;z-index:99;border-radius:0 0 8px 0}
+.skip:focus{left:0}
+/* rulers */
+.ruler-x,.ruler-y{position:sticky;z-index:20;background:var(--canvas)}
+.ruler-x{top:0;height:22px;border-bottom:1px solid var(--line);
+  background-image:repeating-linear-gradient(to right,var(--faint) 0 1px,transparent 1px 8px),repeating-linear-gradient(to right,var(--faint) 0 1px,transparent 1px 40px);
+  background-size:100% 7px,100% 13px;background-repeat:repeat-x;background-position:bottom left}
+.ruler-x span{position:absolute;top:1px;left:10px;font-size:10px;color:var(--faint);letter-spacing:.08em}
+.ruler-y{display:none}
+/* spec sheet header */
+.sheet{max-width:1060px;margin:0 auto;padding:var(--s2) var(--s2) var(--s4)}
+.filebar{background:var(--frame);border:1px solid var(--line);border-radius:var(--r) var(--r) 0 0;border-bottom:none;
+  padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.filebar .dot{width:10px;height:10px;border-radius:50%;background:var(--red);flex:none}
+.filebar strong{color:var(--ink);font-size:12.5px}
+.filebar .tag{border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11.5px;background:var(--canvas)}
+.hero{background:var(--frame);border:1px solid var(--line);padding:var(--s3) var(--s2) var(--s2);position:relative}
+.hero h1{margin:0;font-size:22px;line-height:1.2;letter-spacing:-.02em}
+.hero h1 .handoff{color:var(--red)}
+.hero p{margin:8px 0 0;color:var(--muted);font-size:13.5px;max-width:62ch}
+.spec-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--muted)}
+.spec-row b{color:var(--ink)}
+.dim{display:inline-block;border:1px dashed var(--red);color:var(--red);border-radius:6px;padding:0 7px;font-size:11px;background:var(--red-soft);white-space:nowrap}
+/* inspect panel (controls) */
+.inspect{background:var(--frame);border:1px solid var(--line);border-top:none;border-radius:0 0 var(--r) var(--r);
+  padding:var(--s2);display:grid;gap:12px}
+.inspect h2{margin:0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input[type="search"],.field select{width:100%;padding:10px 12px;font-size:14px;color:var(--ink);
+  background:#fff;border:1.5px solid var(--sel);border-radius:8px}
+.field .hint{font-size:11.5px;color:var(--faint);margin-top:4px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;
+  padding:7px 13px;font-size:13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#fff;font-weight:650}
+.seg button:hover{border-color:var(--sel)}
+.meta-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.meta-line output{font-weight:650;color:var(--ink)}
+.status{font-size:12.5px;min-height:1.4em}
+/* frames */
+.frames{display:grid;gap:var(--s3);margin-top:var(--s3)}
+.frame{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);position:relative;
+  padding:0;box-shadow:6px 6px 0 rgba(26,29,38,.08)}
+.frame::before,.frame::after{content:"";position:absolute;border:1px solid var(--line);border-radius:var(--r);
+  background:#F4F5F9;z-index:-1}
+.frame::before{top:5px;left:5px;right:-5px;bottom:-5px}
+.frame::after{top:10px;left:10px;right:-10px;bottom:-10px;background:#EFF0F6}
+.frame-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:11.5px}
+.frame-top .fid{font-weight:700}
+.frame-top .node{color:var(--sel);background:var(--sel-soft);border:1px solid #BFE2FF;border-radius:6px;padding:0 7px}
+.frame-top .push{margin-left:auto}
+.cat{border-radius:6px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid}
+.cat-frontend{color:var(--sel);border-color:#BFE2FF;background:var(--sel-soft)}
+.cat-backend{color:#7C3AED;border-color:#D9CCFB;background:#F2ECFE}
+.cat-testing{color:var(--ok);border-color:#B9E5D2;background:var(--ok-soft)}
+.cat-workflow{color:var(--warn);border-color:#EAD9A8;background:var(--warn-soft)}
+.frame-body{padding:14px;position:relative}
+.frame-body h3{margin:0;font-size:17px;letter-spacing:-.01em}
+.frame-body h3 .tick{color:var(--red);font-weight:400;margin-right:6px}
+.repo{font-size:12.5px;color:var(--muted);margin:3px 0 0}
+.blurb{margin:9px 0;font-size:14px}
+.anno{border-left:3px solid var(--red);background:var(--red-soft);border-radius:0 8px 8px 0;
+  padding:8px 10px;font-size:12.5px;margin:10px 0}
+.anno b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:2px}
+.swatches{display:flex;gap:0;margin:10px 0 2px;align-items:flex-end}
+.swatches i{display:block;flex:1;height:26px;border:1px solid var(--line)}
+.swatches i:first-child{border-radius:7px 0 0 7px;background:var(--sel)}
+.swatches i:nth-child(2){background:var(--red)}
+.swatches i:nth-child(3){background:var(--ok)}
+.swatches i:nth-child(4){background:#FFCD29}
+.swatches i:last-child{border-radius:0 7px 7px 0;background:var(--ink)}
+.swlabel{font-size:11px;color:var(--faint);margin:0 0 4px}
+.specgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.spec{border:1px solid var(--line-soft);border-radius:8px;padding:7px 10px;font-size:12.5px}
+.spec small{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.spec b{font-size:14px}
+.spec.score b{color:var(--sel)}
+.mentions{margin:10px 0 0;padding:0;list-style:none;font-size:12.5px;color:var(--muted)}
+.mentions li{padding:5px 0 5px 22px;position:relative;border-top:1px dashed var(--line-soft)}
+.mentions li::before{content:"";position:absolute;left:2px;top:11px;width:9px;height:9px;border-radius:50%;
+  background:#fff;border:2.5px solid var(--sel)}
+.cmd{background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:9px 11px;font-size:12.5px;
+  overflow-x:auto;white-space:nowrap;margin:12px 0 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px}
+.actions button,.actions a{font-size:13px;border-radius:8px;padding:8px 14px;cursor:pointer;text-decoration:none;
+  border:1.5px solid var(--sel)}
+.actions .copy{background:var(--sel);color:#fff;font-weight:650;border-color:var(--sel)}
+.actions .copy:hover{background:#0B86E0}
+.actions .src{background:#fff;color:var(--sel)}
+.actions .src:hover{background:var(--sel-soft)}
+.copied{font-size:12px;color:var(--ok);min-height:1.3em;padding:0 14px 12px}
+.empty{background:var(--frame);border:1.5px dashed var(--line);border-radius:var(--r);padding:28px 18px;text-align:center;color:var(--muted)}
+.qa{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);margin-top:var(--s3);padding:16px}
+.qa h2{margin:0 0 6px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.qa ul{margin:6px 0 0;padding-left:20px;font-size:13px;color:var(--muted)}
+.qa li{margin:3px 0}
+footer{max-width:1060px;margin:0 auto;padding:0 var(--s2) var(--s4);font-size:12px;color:var(--muted)}
+footer code{background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+@media(min-width:760px){
+  .hero{padding:var(--s4) var(--s3) var(--s3)}
+  .hero h1{font-size:30px}
+  .inspect{grid-template-columns:1.4fr 1fr 1fr;align-items:end}
+  .frames{grid-template-columns:1fr 1fr}
+  .specgrid{grid-template-columns:repeat(4,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;box-shadow:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#results">Skip to skill frames</a>
+<div class="ruler-x" aria-hidden="true"><span>0&emsp;40&emsp;80&emsp;120&emsp;160&emsp;200&emsp;240&emsp;280&emsp;320&emsp;360px</span></div>
+
+<div class="sheet">
+  <div class="filebar" aria-label="File context">
+    <span class="dot" aria-hidden="true"></span>
+    <strong>skills-directory.fig</strong>
+    <span class="tag">file-key: e089-skills</span>
+    <span class="tag">page: v12-handoff</span>
+    <span class="tag">spec: 8px grid</span>
+  </div>
+  <header class="hero">
+    <h1>Skills directory <span class="handoff">— design handoff</span></h1>
+    <p>Every listing ships with its spec: score redlines, install export, and fidelity notes.
+       Ranked by installs velocity + freshness + independent mentions. Raw stars never rank.</p>
+    <div class="spec-row" aria-label="Design specs">
+      <span>Type <b>22 / 14 / 12px</b></span>
+      <span class="dim">gap 24px</span>
+      <span class="dim">frame radius 10px</span>
+      <span>Grid <b>8pt</b></span>
+      <span>Source <b class="mono">followba/figma-implement-design</b></span>
+    </div>
+  </header>
+
+  <section class="inspect" aria-label="Inspect panel: search, filter, sort">
+    <div class="field">
+      <h2>Inspect panel</h2>
+      <label for="q">Search layers</label>
+      <input type="search" id="q" placeholder="Search name, repo, blurb, command…" autocomplete="off">
+      <div class="hint">Live filter across name, repo, blurb, category, install command.</div>
+    </div>
+    <div class="field">
+      <label id="catlabel">Category layer</label>
+      <div class="seg" role="group" aria-labelledby="catlabel" id="catseg">
+        <button type="button" data-cat="" aria-pressed="true">All</button>
+        <button type="button" data-cat="frontend" aria-pressed="false">frontend</button>
+        <button type="button" data-cat="backend" aria-pressed="false">backend</button>
+        <button type="button" data-cat="testing" aria-pressed="false">testing</button>
+        <button type="button" data-cat="workflow" aria-pressed="false">workflow</button>
+      </div>
+      <div class="hint">Single-select, like toggling a Figma layer.</div>
+    </div>
+    <div class="field">
+      <label for="sort">Sort by</label>
+      <select id="sort">
+        <option value="score">Score (high first)</option>
+        <option value="installs">Installs (high first)</option>
+        <option value="name">Name (A to Z)</option>
+      </select>
+      <div class="hint">Empty values sort last.</div>
+    </div>
+    <div class="meta-line">
+      <output id="count" aria-live="polite">Loading frames…</output>
+      <span class="status" id="status" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <main class="frames" id="results" aria-live="polite"></main>
+
+  <section class="qa" aria-label="Handoff QA checklist">
+    <h2>Handoff QA — validate before marking complete</h2>
+    <ul>
+      <li>Layout matches: spacing, alignment, sizing on the 8px grid.</li>
+      <li>Typography matches: scale, weight, line height per spec row.</li>
+      <li>Install export is exact: copy button carries the full command.</li>
+      <li>Stars shown only with their note — never as rank.</li>
+    </ul>
+  </section>
+</div>
+<footer>
+  <p>Data: <code>GET /api/skills</code> returning <code>{"skills": [...]}</code>. Counts: installs, trend (8w), repo stars with note, last commit, mentions. Design source: <code>figma-implement-design</code> SKILL.md (followba mirror yangcyyang).</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var data = [];
+  var state = { q:"", cat:"", sort:"score" };
+  var $q = document.getElementById("q");
+  var $sort = document.getElementById("sort");
+  var $seg = document.getElementById("catseg");
+  var $results = document.getElementById("results");
+  var $count = document.getElementById("count");
+  var $status = document.getElementById("status");
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function fmtNum(n){
+    if (n == null) return "n/a";
+    return Number(n).toLocaleString("en-US");
+  }
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    var out = data.filter(function(s){
+      if (state.cat && (s.category || "") !== state.cat) return false;
+      if (!q) return true;
+      var hay = [s.name, s.repo, s.blurb, s.category, s.install_cmd, s.trend8w].join(" ").toLowerCase();
+      return q.split(/\s+/).every(function(w){ return hay.indexOf(w) !== -1; });
+    });
+    out.sort(function(a,b){
+      if (state.sort === "name"){
+        var an = a.name || "", bn = b.name || "";
+        if (!an && bn) return 1;
+        if (an && !bn) return -1;
+        return an.localeCompare(bn);
+      }
+      if (state.sort === "installs"){
+        var ai = a.installs, bi = b.installs;
+        if (ai == null && bi == null) return (b.score||0) - (a.score||0);
+        if (ai == null) return 1;
+        if (bi == null) return -1;
+        return bi - ai;
+      }
+      var as = a.score, bs = b.score;
+      if (as == null && bs == null) return 0;
+      if (as == null) return 1;
+      if (bs == null) return -1;
+      return bs - as;
+    });
+    return out;
+  }
+  function card(s, i){
+    var n = String(i+1).padStart(2,"0");
+    var mentions = Array.isArray(s.mentions) ? s.mentions : [];
+    var mhtml = mentions.length
+      ? "<ul class=\"mentions\">" + mentions.map(function(m){ return "<li>" + esc(m) + "</li>"; }).join("") + "</ul>"
+      : "<p class=\"swlabel\">No independent mentions recorded.</p>";
+    var stars = (s.stars_repo == null ? "n/a" : fmtNum(s.stars_repo));
+    return '<article class="frame" aria-label="Skill frame ' + esc(s.name) + '">' +
+      '<div class="frame-top"><span class="fid">Frame / skill-' + n + '</span>' +
+      '<span class="node">node-id: ' + esc((s.name||"unnamed").slice(0,24)) + '</span>' +
+      '<span class="push cat cat-' + esc(s.category||"frontend") + '">' + esc(s.category||"n/a") + '</span></div>' +
+      '<div class="frame-body">' +
+      '<h3><span class="tick" aria-hidden="true">|</span>' + esc(s.name) +
+      (s.verified ? ' <span class="dim">approved</span>' : ' <span class="dim">needs review</span>') + '</h3>' +
+      '<p class="repo">' + esc(s.repo||"community") + ' &middot; updated ' + esc(s.last_commit||"n/a") + ' &middot; trend: ' + esc(s.trend8w||"n/a") + '</p>' +
+      '<p class="blurb">' + esc(s.blurb||"") + '</p>' +
+      '<div class="anno"><b>Dev note / fidelity</b>' + esc(s.stars_note||"No stars note.") + '</div>' +
+      '<p class="swlabel">Visual reference — token strip (decorative)</p>' +
+      '<div class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
+      '<div class="specgrid">' +
+      '<div class="spec score"><small>Score</small><b>' + (s.score==null?"n/a":esc(s.score)) + '</b></div>' +
+      '<div class="spec"><small>Installs</small><b>' + fmtNum(s.installs) + '</b></div>' +
+      '<div class="spec"><small>Repo stars</small><b>' + stars + '</b></div>' +
+      '<div class="spec"><small>Mentions</small><b>' + mentions.length + '</b></div>' +
+      '</div>' +
+      '<p class="swlabel">Independent mentions (comment pins)</p>' + mhtml +
+      '<pre class="cmd"><code>' + esc(s.install_cmd||"n/a") + '</code></pre>' +
+      '</div>' +
+      '<div class="actions">' +
+      '<button type="button" class="copy" data-cmd="' + esc(s.install_cmd||"") + '" data-name="' + esc(s.name||"skill") + '">Copy install</button>' +
+      '<a class="src" href="' + esc(s.skill_url||"#") + '" target="_blank" rel="noopener">Open source</a>' +
+      '</div>' +
+      '<div class="copied" aria-live="polite"></div>' +
+      '</article>';
+  }
+  function render(){
+    var list = filtered();
+    $count.textContent = list.length + " of " + data.length + " frames on canvas";
+    if (!list.length){
+      $results.innerHTML = '<div class="empty"><strong>No frames match.</strong><br>Clear search or pick another category layer.</div>';
+      return;
+    }
+    $results.innerHTML = list.map(card).join("");
+  }
+  function copyText(text, noteEl, name){
+    function done(msg){ noteEl.textContent = msg; $status.textContent = msg; }
+    if (!text){ done("Nothing to copy for " + name + "."); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        done("Copied install for " + name + ".");
+      }, function(){ fallback(); });
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly","");
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        var ok = document.execCommand("copy");
+        done(ok ? "Copied install for " + name + "." : "Copy failed — select the command manually.");
+      } catch(e){ done("Copy failed — select the command manually."); }
+      document.body.removeChild(ta);
+    }
+  }
+  $q.addEventListener("input", function(){ state.q = $q.value; render(); });
+  $sort.addEventListener("change", function(){ state.sort = $sort.value; render(); });
+  $seg.addEventListener("click", function(e){
+    var b = e.target.closest("button");
+    if (!b) return;
+    state.cat = b.getAttribute("data-cat");
+    Array.prototype.forEach.call($seg.querySelectorAll("button"), function(x){
+      x.setAttribute("aria-pressed", x === b ? "true" : "false");
+    });
+    render();
+  });
+  $results.addEventListener("click", function(e){
+    var b = e.target.closest(".copy");
+    if (!b) return;
+    var box = b.closest(".frame").querySelector(".copied");
+    copyText(b.getAttribute("data-cmd"), box, b.getAttribute("data-name"));
+  });
+  fetch("/api/skills").then(function(r){
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  }).then(function(j){
+    data = (j && Array.isArray(j.skills)) ? j.skills : [];
+    $status.textContent = "";
+    render();
+  }).catch(function(){
+    data = [];
+    $count.textContent = "0 frames — API unreachable";
+    $results.innerHTML = '<div class="empty"><strong>Could not load /api/skills.</strong><br>Check the server, then reload.</div>';
+  });
+})();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><span class="on" aria-current="page" title="v12 · figma-implement-design · score 72">v12</span><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}/* page fix: grid min-width blowout on narrow screens */.frames>*,.frame,.frame>*{min-width:0}.frame-body h3,.repo,.blurb,.anno{overflow-wrap:anywhere}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Versions — which page was driven by which skill</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fff;color:#14171a;font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:120px}
+.wrap{max-width:760px;margin:0 auto;padding:28px 18px 40px}
+h1{font-size:26px;margin:0 0 4px}p.sub{color:#5b6470;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #e2e5ef;vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#5b6470}
+td.score{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+a{color:#1F5C40}
+@media(max-width:560px){.hideable{display:none}}
+:focus-visible{outline:2px solid #1F5C40;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Versions</h1>
+<p class="sub">v1 is the baseline with no skill applied. Every other version redesigns the same directory driven by one ranked skill, best score first.</p>
+<table>
+<tr><th>Page</th><th>Driving skill</th><th>Score</th><th class="hideable">Note</th></tr>
+<tr><td><a href="/">v1</a></td><td>none (baseline)</td><td class="score">—</td><td class="hideable">plain cards, everything visible</td></tr>
+<tr><td><a href="/v2">v2</a></td><td>frontend-design</td><td class="score">98</td><td class="hideable">paper ledger, serif rank numerals</td></tr>
+<tr><td><a href="/v3">v3</a></td><td>superpowers</td><td class="score">90</td><td class="hideable">verification slips, quarantined stars</td></tr>
+<tr><td><a href="/v4">v4</a></td><td>playwright-skill (testing stand-in)</td><td class="score">84</td><td class="hideable">CI run console, verdict badges</td></tr>
+<tr><td><a href="/v5">v5</a></td><td>web-design-guidelines</td><td class="score">82</td><td class="hideable">Vercel geometric minimalism</td></tr>
+<tr><td><a href="/v6">v6</a></td><td>vercel-react-best-practices</td><td class="score">81</td><td class="hideable">component showcase grid</td></tr>
+<tr><td><a href="/v7">v7</a></td><td>ui-ux-pro-max</td><td class="score">80</td><td class="hideable">pattern switchboard</td></tr>
+<tr><td><a href="/v8">v8</a></td><td>impeccable (pbakaus)</td><td class="score">79</td><td class="hideable">obsessive polish, ruled index</td></tr>
+<tr><td><a href="/v9">v9</a></td><td>vercel-composition-patterns</td><td class="score">78</td><td class="hideable">composition workbench</td></tr>
+<tr><td><a href="/v10">v10</a></td><td>jeffallan collection (67)</td><td class="score">76</td><td class="hideable">curated bookshop stacks</td></tr>
+<tr><td><a href="/v11">v11</a></td><td>alirezarezvani collection (380+)</td><td class="score">74</td><td class="hideable">keyboard-first warehouse</td></tr>
+<tr><td><a href="/v12">v12</a></td><td>figma-implement-design</td><td class="score">72</td><td class="hideable">design-handoff redlines</td></tr>
+<tr><td><a href="/v13">v13</a></td><td>ponytail</td><td class="score">70</td><td class="hideable">radical minimalism, 4.6KB</td></tr>
+</table>
+<p class="sub">Substitution caveats (exact sources, rejections) are documented atop each page's HTML.</p>
+</div>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

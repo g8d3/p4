@@ -1,0 +1,325 @@
+<!--
+  v9 — Skills Directory redesign driven by the `impeccable` skill (score 79, practitioner favorite).
+
+  SOURCE RESOLUTION (no single canonical "impeccable" repo — community folklore, confirmed):
+  1. tinyfish search query "impeccable claude code skill github" → top hit:
+     pbakaus/impeccable — "The design language that makes your AI harness better at design."
+     https://github.com/pbakaus/impeccable (tried + read via tinyfish fetch, full README, 2026-10-05)
+  2. GitHub repo search API GET https://api.github.com/search/repositories?q=impeccable+skill
+     → 134 hits, no exact-name single canonical repo; top results are derivatives
+     (e.g. peterhadorn/webdesign-agency-skills "built on Impeccable"); pbakaus/impeccable
+     is the credible origin (76.4k stars / 4.6k forks at fetch time).
+  3. Practitioner grounding also holds: welcomedeveloper top-10 daily-use list and the
+     r/claudeskills full-stack thread cite `impeccable` for polished frontend output —
+     consistent with pbakaus/impeccable's positioning as successor to Anthropic frontend-design.
+  Conclusion: design grounded in the REAL pbakaus/impeccable README (not folklore fallback).
+
+  PRINCIPLES APPLIED (quoted/paraphrased from that README + its anti-patterns list):
+  1. "No cards nested in cards" — this page uses NO cards at all: a ruled editorial index
+     (numbered rows, hairline separators). Identity differs from v1 dark cards, v2 paper
+     ledger, v3 slips, v4 lab bench, v5 vercel minimal, v6 indigo grid.
+  2. "Never pure black/gray, always tint" — ink is warm-tinted #1c1917 on #faf9f7 paper;
+     hairlines #e7e2d9; accent deep oxblood #7c2d12. No gradients (esp. no purple-to-blue).
+  3. "Typography discipline over decoration" — system stacks only: Charter/Georgia serif
+     display + system-ui body + ui-monospace install lines; tabular-nums scores; small-caps
+     eyebrow labels; one type scale, generous whitespace, no icon tiles above headings.
+  4. "Refined restraint in motion" — only opacity transitions on row hover; full
+     prefers-reduced-motion reset; visible :focus-visible rings everywhere.
+  5. "Polish pass before shipping" — verified/freshness/install signals set as quiet
+     meta type (never badge soup); empty states, null-safe sort (nulls last), live region
+     count, keyboard-native controls, mobile-first single column.
+
+  Data: GET /api/skills → { skills: [...] }; fields consumed: name, repo, category, blurb,
+  installs, trend8w, stars_repo, stars_note, last_commit, mentions[], score, install_cmd,
+  skill_url, verified. Zero external requests. System fonts only.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Agent skills directory, impeccable edition — ranked by installs velocity, freshness, and independent mentions.">
+<title>Skills Directory — impeccable edition</title>
+<style>
+  :root{
+    --paper:#faf9f7; --paper-2:#f4f1ea; --ink:#1c1917; --ink-soft:#57534e;
+    --ink-faint:#8a8580; --hair:#e7e2d9; --hair-dark:#d6cfc0;
+    --accent:#7c2d12; --accent-ink:#9a3412; --focus:#1d4ed8;
+    --serif:"Iowan Old Style",Charter,Georgia,"Times New Roman",serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:15px/1.6 var(--sans);letter-spacing:.002em}
+  ::selection{background:#f5e6d3}
+  :focus{outline:none}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  /* masthead */
+  .eyebrow{margin:26px 0 0;font:600 11px/1.4 var(--sans);letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ink-faint)}
+  h1{font:400 clamp(30px,6vw,44px)/1.08 var(--serif);letter-spacing:-.01em;margin:10px 0 0}
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede{margin:10px 0 0;color:var(--ink-soft);font-size:14.5px;max-width:56ch}
+  .lede strong{color:var(--ink);font-weight:600}
+  .rule{border:0;border-top:1px solid var(--hair-dark);margin:22px 0 0}
+  .rule.thick{border-top:2px solid var(--ink)}
+  /* controls */
+  .controls{padding:16px 0 6px}
+  .controls label{display:block;font:600 11px/1.4 var(--sans);letter-spacing:.16em;
+    text-transform:uppercase;color:var(--ink-faint);margin:14px 0 6px}
+  .search{width:100%;appearance:none;background:#fff;border:1px solid var(--hair-dark);
+    border-radius:2px;color:var(--ink);font:15px/1.4 var(--sans);padding:11px 12px}
+  .search::placeholder{color:var(--ink-faint)}
+  .seg{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--hair-dark);border-radius:2px;
+    background:#fff;overflow:hidden}
+  .seg button{flex:1 1 auto;appearance:none;border:0;background:transparent;color:var(--ink-soft);
+    font:600 13px/1.4 var(--sans);padding:9px 10px;cursor:pointer;border-left:1px solid var(--hair)}
+  .seg button:first-child{border-left:0}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+  .sortrow{display:flex;gap:10px}
+  .sortrow select{flex:1;appearance:none;background:#fff;border:1px solid var(--hair-dark);
+    border-radius:2px;color:var(--ink);font:14px/1.4 var(--sans);padding:10px 12px;min-width:0}
+  .status{margin:12px 0 0;font-size:13px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+  /* index rows */
+  .index{list-style:none;margin:6px 0 0;padding:0;border-top:2px solid var(--ink)}
+  .entry{border-bottom:1px solid var(--hair);padding:20px 0 18px;transition:opacity .16s ease}
+  .entry-top{display:flex;gap:14px;align-items:baseline}
+  .num{flex:0 0 2.2em;font:400 13px/1.4 var(--sans);color:var(--ink-faint);
+    font-variant-numeric:tabular-nums}
+  .entry h2{margin:0;font:400 21px/1.25 var(--serif);letter-spacing:-.005em;min-width:0;
+    overflow-wrap:break-word}
+  .score{margin-left:auto;flex:0 0 auto;text-align:right;font:600 15px/1.2 var(--sans);
+    font-variant-numeric:tabular-nums;color:var(--ink)}
+  .score small{display:block;font:600 10px/1.4 var(--sans);letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-faint);font-variant-numeric:normal}
+  .kicker{margin:8px 0 0 0;padding-left:calc(2.2em + 14px);font:600 11px/1.5 var(--sans);
+    letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+  .kicker .dot{color:var(--ink-faint);letter-spacing:0;padding:0 .5em;text-transform:none}
+  .kicker .plain{color:var(--ink-faint);letter-spacing:.14em}
+  .blurb{margin:8px 0 0;padding-left:calc(2.2em + 14px);color:var(--ink-soft);
+    font-size:14.5px;max-width:62ch;overflow-wrap:break-word}
+  .proof{margin:10px 0 0;padding:10px 0 0 calc(2.2em + 14px);border-top:1px dotted var(--hair);
+    font-size:13px;color:var(--ink-soft)}
+  .proof dt{display:inline;font:600 11px/1.5 var(--sans);letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-faint)}
+  .proof dd{display:inline;margin:0}
+  .starsnote{margin:6px 0 0;padding-left:calc(2.2em + 14px);font-size:12.5px;color:var(--ink-faint)}
+  .install{margin:12px 0 0;padding-left:calc(2.2em + 14px);display:flex;gap:8px;flex-wrap:wrap;
+    align-items:stretch}
+  .cmd{flex:1 1 220px;min-width:0;background:var(--paper-2);border:1px solid var(--hair);
+    border-radius:2px;padding:8px 10px;font:12.5px/1.5 var(--mono);color:var(--ink);
+    overflow-x:auto;white-space:nowrap}
+  .btnrow{display:flex;gap:8px;flex:0 0 auto}
+  .btn{appearance:none;border:1px solid var(--ink);background:var(--ink);color:var(--paper);
+    font:600 13px/1.4 var(--sans);padding:8px 14px;border-radius:2px;cursor:pointer;white-space:nowrap}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper)}
+  .src{font-size:13px;align-self:center;color:var(--accent-ink);text-underline-offset:3px}
+  .src:hover{color:var(--accent)}
+  .empty{padding:40px 0;text-align:center;color:var(--ink-faint);font-family:var(--serif);
+    font-style:italic;font-size:18px}
+  footer{margin:0;padding:26px 0 60px;color:var(--ink-faint);font-size:12.5px}
+  footer p{margin:6px 0;max-width:64ch}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);
+    white-space:nowrap}
+  @media (min-width:640px){
+    .wrap{padding:0 24px}
+    .entry h2{font-size:23px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none!important;animation:none!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="eyebrow">Agent skills directory &middot; Ninth edition</p>
+  <h1>Every listing earns its rank, <em>impeccably.</em></h1>
+  <p class="lede">Ranked by <strong>installs velocity</strong>, <strong>freshness</strong>, and
+    <strong>independent mentions</strong>. Raw stars never rank; where shown they carry a warning.
+    <span id="count" role="status" aria-live="polite"></span></p>
+  <hr class="rule thick">
+
+  <div class="controls">
+    <label for="q">Search</label>
+    <input class="search" id="q" type="search" autocomplete="off"
+      placeholder="Search name, repo, blurb, or mention — e.g. react, testing, audit">
+    <label id="catlabel">Category</label>
+    <div class="seg" role="group" aria-labelledby="catlabel" id="cats">
+      <button type="button" data-cat="" aria-pressed="true">All</button>
+      <button type="button" data-cat="frontend" aria-pressed="false">Frontend</button>
+      <button type="button" data-cat="backend" aria-pressed="false">Backend</button>
+      <button type="button" data-cat="testing" aria-pressed="false">Testing</button>
+      <button type="button" data-cat="workflow" aria-pressed="false">Workflow</button>
+    </div>
+    <label for="sort">Sort</label>
+    <div class="sortrow">
+      <select id="sort">
+        <option value="score">Score, highest first</option>
+        <option value="installs">Installs, most first</option>
+        <option value="name">Name, A to Z</option>
+      </select>
+    </div>
+    <p class="status" id="statline"></p>
+  </div>
+
+  <ol class="index" id="list"></ol>
+
+  <hr class="rule">
+  <footer>
+    <p>e089 &middot; data from live web research 2026-10-05 via GET /api/skills.
+      Stars are shown only beside their shared-repo warning.</p>
+    <p>Set in the impeccable manner: no cards, no gradients, tinted ink, quiet type.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var S = [];
+  var state = { q:"", cat:"", sort:"score" };
+  var list = document.getElementById("list");
+  var count = document.getElementById("count");
+  var statline = document.getElementById("statline");
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function fmtInstalls(n){
+    if (n == null) return "installs n/a";
+    return Number(n).toLocaleString("en-US") + " installs";
+  }
+  function hay(x){
+    return ((x.name||"")+" "+(x.repo||"")+" "+(x.blurb||"")+" "+
+      (x.mentions||[]).join(" ")).toLowerCase();
+  }
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    var out = S.filter(function(x){
+      if (state.cat && x.category !== state.cat) return false;
+      if (q && hay(x).indexOf(q) === -1) return false;
+      return true;
+    });
+    var k = state.sort;
+    out.sort(function(a,b){
+      if (k === "name") return String(a.name||"").localeCompare(String(b.name||""));
+      var av = a[k], bv = b[k];            /* nulls last */
+      var an = (av == null), bn = (bv == null);
+      if (an && bn) return String(a.name||"").localeCompare(String(b.name||""));
+      if (an) return 1;
+      if (bn) return -1;
+      if (bv !== av) return bv - av;
+      return String(a.name||"").localeCompare(String(b.name||""));
+    });
+    return out;
+  }
+  function metaLine(x){
+    var bits = [];
+    bits.push(esc(x.repo || "independent"));
+    bits.push(fmtInstalls(x.installs));
+    if (x.trend8w) bits.push("trend: " + esc(x.trend8w));
+    bits.push("updated " + esc(x.last_commit || "unknown"));
+    if (x.verified) bits.push("verified");
+    return bits.join("  ·  ");
+  }
+  function render(){
+    var L = filtered();
+    count.textContent = "Showing " + L.length + " of " + S.length + " skills.";
+    statline.textContent = L.length + " of " + S.length + " · sorted by " + state.sort +
+      (state.cat ? " · " + state.cat : " · all categories");
+    if (!L.length){
+      list.innerHTML = '<li class="empty">Nothing matches — loosen a word or clear the category.</li>';
+      return;
+    }
+    list.innerHTML = L.map(function(x, i){
+      var n = String(i+1).padStart(2,"0");
+      var mentions = (x.mentions||[]).map(esc).join("  ·  ") || "—";
+      var stars = x.stars_repo
+        ? '<p class="starsnote">' + esc(Number(x.stars_repo).toLocaleString("en-US")) +
+          ' repo stars — ' + esc(x.stars_note || "repo-level, not skill-level") + '.</p>' : '';
+      return '<li class="entry">' +
+        '<div class="entry-top"><span class="num" aria-hidden="true">' + n + '</span>' +
+        '<h2>' + esc(x.name) + '</h2>' +
+        '<div class="score">' + esc(x.score == null ? "—" : x.score) + '<small>score</small></div></div>' +
+        '<p class="kicker">' + esc(x.category || "uncategorised") +
+          '<span class="dot" aria-hidden="true">·</span>' +
+          '<span class="plain">' + esc(metaLine(x)) + '</span></p>' +
+        '<p class="blurb">' + esc(x.blurb || "") + '</p>' +
+        '<dl class="proof"><dt>Social proof&nbsp; </dt><dd>' + mentions + '</dd></dl>' +
+        stars +
+        '<div class="install"><code class="cmd">' + esc(x.install_cmd || "see source") + '</code>' +
+        '<span class="btnrow"><button type="button" class="btn" data-copy="' +
+          esc(x.install_cmd || "").replace(/"/g,"&quot;") +
+          '">Copy install</button>' +
+        '<a class="src" href="' + esc(x.skill_url || "#") +
+          '" target="_blank" rel="noopener">Source&nbsp;&rarr;</a></span></div>' +
+      '</li>';
+    }).join("");
+    list.querySelectorAll("[data-copy]").forEach(function(b){
+      b.addEventListener("click", function(){ copyInstall(b); });
+    });
+  }
+  function copyInstall(btn){
+    var text = btn.getAttribute("data-copy") || "";
+    if (!text) return;
+    function done(ok){
+      var orig = "Copy install";
+      btn.textContent = ok ? "Copied" : "Copy failed";
+      setTimeout(function(){ btn.textContent = orig; }, 1400);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){
+        fallback();
+      });
+    } else { fallback(); }
+    function fallback(){
+      try{
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly","");
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        done(!!ok);
+      } catch(e){ done(false); }
+    }
+  }
+
+  document.getElementById("q").addEventListener("input", function(e){
+    state.q = e.target.value; render();
+  });
+  document.getElementById("cats").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-cat]");
+    if (!b) return;
+    state.cat = b.getAttribute("data-cat");
+    this.querySelectorAll("button").forEach(function(x){
+      x.setAttribute("aria-pressed", x === b ? "true" : "false");
+    });
+    render();
+  });
+  document.getElementById("sort").addEventListener("change", function(e){
+    state.sort = e.target.value; render();
+  });
+
+  fetch("/api/skills").then(function(r){ return r.json(); }).then(function(j){
+    S = Array.isArray(j.skills) ? j.skills : (Array.isArray(j) ? j : []);
+    render();
+  }).catch(function(){
+    list.innerHTML = '<li class="empty">Could not load /api/skills — is the server running?</li>';
+  });
+})();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><span class="on" aria-current="page" title="v8 · impeccable · score 79">v8</span><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><a href="/v10" title="v10 · jeffallan collection · score 76">v10</a><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>

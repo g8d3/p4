@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<!--
+  v11 — "The Curated Stacks": a bookshop / library-catalog redesign of the skills directory,
+  grounded in the `jeffallan/claude-skills` COLLECTION (score 76 in this directory:
+  "claude-skills (jeffallan, 67 skills)", category backend).
+
+  PLAIN STATEMENT OF GROUNDING: this page is grounded in the collection's ORGANIZATION,
+  not in any SKILL.md. No SKILL.md was read for this version. The collection is a curated
+  catalog, not a design skill, so the honest borrowing is its curatorial shape:
+  curated-over-massive, quality-over-quantity, categories as first-class shelves.
+
+  Sources actually read (2026-10-05, via GitHub REST API + raw file fetch):
+    1. GET https://api.github.com/repos/jeffallan/claude-skills/contents/
+       -> 33 top-level entries; README.md (6384 bytes), SKILLS_GUIDE.md (19820 bytes),
+          CHANGELOG.md, QUICKSTART.md, ROADMAP.md, CONTRIBUTING.md, version.json,
+          dirs: skills/, commands/, docs/, references/, research/, site/, specs/, assets/.
+    2. GET https://api.github.com/repos/jeffallan/claude-skills/contents/skills
+       -> 67 skill directories confirmed (angular-architect … wordpress-pro).
+    3. README.md (decoded from the /readme endpoint): header badge line reads
+       "67 Skills • 9 Workflows • Built for Full-Stack Devs", version 0.4.18, MIT license,
+       install via `/plugin marketplace add jeffallan/claude-skills`.
+    4. SKILLS_GUIDE.md (raw): the real 12 category shelves, used verbatim in the
+       "collection shelves" panel below: Language Specialists; Backend Frameworks;
+       Frontend & Mobile; Infrastructure & Cloud; API & Architecture; Quality & Testing;
+       DevOps & Operations; Security; Data & Machine Learning; Platform Specialists;
+       Specialized; Workflow. Plus its workflow chains (Feature Forge -> Architecture
+       Designer -> Fullstack Guardian -> Test Master -> DevOps Engineer, etc.) and its
+       decision-tree framing ("When to Use Each Skill"), which is what the per-card
+       "reach for this when" signal line imitates.
+
+  Design principles taken from the collection (not from a SKILL.md):
+    1. Curated over massive — one featured "curator's choice" plate up top, not an
+       endless trending wall. The jeffallan collection itself is the featured holding.
+    2. Categories are first-class — the filter is a physical shelf: skill "spines"
+       standing on a wooden rail, one per directory category, instead of a dropdown.
+    3. Quality over quantity — rank ribbon shows the signals-based score and the
+       human-readable proof (installs velocity, freshness, independent mentions);
+       raw repo stars are shown only with the shared-repo caution, never as rank.
+    4. Decision-tree honesty — each card names what the skill is for and what it is
+       not (stars_note rendered as a plain cataloguer's note).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Curated Stacks — a curated catalog of agent skills, ranked by install velocity, freshness, and independent mentions.">
+<title>The Curated Stacks — Agent Skills Directory v10</title>
+<style>
+  :root{
+    --evergreen:#1d3125;
+    --evergreen-deep:#12211a;
+    --brass:#b9862f;
+    --brass-soft:#e4c87f;
+    --cream:#f7f2e4;
+    --parchment:#fffdf4;
+    --ink:#232a21;
+    --muted:#5d6656;
+    --line:#ddd2b8;
+    --wood:#7a5230;
+    --wood-dark:#4e3319;
+    --focus:#0f6cbd;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  /* Skip link */
+  .skip{position:absolute;left:-9999px;top:0;background:var(--evergreen-deep);color:#fff;padding:.6rem 1rem;z-index:100;border-radius:0 0 8px 0}
+  .skip:focus{left:0;color:#fff}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:4px}
+  /* Masthead — bookplate */
+  .masthead{background:var(--evergreen-deep);color:#f2ecda;padding:1.75rem 1rem 1.5rem;border-bottom:6px solid var(--brass)}
+  .masthead-inner{max-width:62rem;margin:0 auto}
+  .imprint{font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;color:var(--brass-soft);margin:0 0 .4rem}
+  .masthead h1{
+    font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+    font-size:clamp(1.7rem,5.5vw,2.6rem);line-height:1.12;margin:0;max-width:20ch;text-wrap:balance;
+  }
+  .masthead h1 em{color:var(--brass-soft);font-style:italic}
+  .masthead .rule{border:none;border-top:1px solid #3c5546;margin:.9rem 0}
+  .masthead p{margin:.4rem 0;color:#cfc8ae;font-size:.95rem;max-width:60ch}
+  .masthead .facts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;list-style:none;padding:0}
+  .masthead .facts li{border:1px solid #4c6656;border-radius:999px;padding:.2rem .8rem;font-size:.82rem;color:#e9e2c9}
+  /* Layout */
+  .wrap{max-width:62rem;margin:0 auto;padding:0 1rem 4rem}
+  /* Curator's plate */
+  .plate{
+    background:var(--parchment);border:1px solid var(--line);border-left:8px solid var(--brass);
+    border-radius:6px;margin:1.25rem 0 0;padding:1rem 1.1rem;box-shadow:0 1px 0 rgba(78,51,25,.15);
+  }
+  .plate h2{font-family:Georgia,"Times New Roman",serif;font-size:1.15rem;margin:0 0 .3rem}
+  .plate .kicker{font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--wood);margin:0 0 .25rem}
+  .plate p{margin:.35rem 0;font-size:.93rem}
+  .plate .shelves{margin:.6rem 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:.35rem}
+  .plate .shelves li{font-size:.8rem;background:#efe7cf;border:1px solid var(--line);border-radius:4px;padding:.15rem .55rem}
+  .plate .shelves li span{color:var(--muted)}
+  /* Controls */
+  .controls{margin:1.25rem 0 0}
+  .controls label{display:block;font-size:.82rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 .3rem}
+  .search-row{display:flex;flex-direction:column;gap:.6rem}
+  .search-row input[type="search"],.search-row select{
+    font:inherit;padding:.6rem .75rem;border:2px solid var(--wood);border-radius:6px;background:#fff;color:var(--ink);width:100%;
+  }
+  .status{font-size:.9rem;color:var(--muted);margin:.55rem 0 0;min-height:1.4em}
+  /* The shelf — category filter as book spines on a wooden rail */
+  .shelf-block{margin:1.1rem 0 0}
+  .shelf{
+    display:flex;gap:.55rem;overflow-x:auto;align-items:flex-end;
+    background:linear-gradient(#2c4636,#22382b);
+    border:1px solid var(--evergreen-deep);border-radius:8px 8px 0 0;
+    padding:.9rem .9rem 0;
+  }
+  .spine{
+    flex:1 0 auto;min-width:7.5rem;cursor:pointer;text-align:left;
+    background:var(--parchment);color:var(--ink);
+    border:1px solid var(--line);border-bottom:none;border-radius:6px 6px 0 0;
+    padding:.6rem .7rem .55rem;font:inherit;
+  }
+  .spine .t{display:block;font-family:Georgia,serif;font-weight:700;font-size:.98rem}
+  .spine .n{display:block;font-size:.78rem;color:var(--muted);margin-top:.1rem}
+  .spine[aria-pressed="true"]{background:var(--brass-soft);border-color:var(--wood);box-shadow:inset 0 4px 0 var(--brass)}
+  .spine:hover{background:#f3e9c8}
+  .spine[aria-pressed="true"]:hover{background:var(--brass-soft)}
+  .rail{
+    height:.9rem;background:linear-gradient(var(--wood),var(--wood-dark));
+    border:1px solid var(--wood-dark);border-radius:0 0 6px 6px;
+    box-shadow:0 3px 6px rgba(20,15,5,.35);
+  }
+  .shelf-hint{font-size:.82rem;color:var(--muted);margin:.4rem 0 0}
+  /* Catalog cards */
+  .stack{margin:1.25rem 0 0;padding:0;list-style:none;display:grid;gap:1rem;grid-template-columns:1fr}
+  .card{
+    background:var(--parchment);border:1px solid var(--line);border-radius:6px;
+    padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.5rem;
+    box-shadow:0 1px 0 rgba(78,51,25,.15);
+  }
+  .callno{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase}
+  .callno .cat{background:var(--evergreen);color:#f2ecda;border-radius:4px;padding:.15rem .55rem;font-weight:700}
+  .callno .score{border:1px solid var(--brass);color:#6b4d15;border-radius:4px;padding:.15rem .55rem;font-weight:700}
+  .callno .trend{color:var(--muted);letter-spacing:.02em;text-transform:none;font-size:.82rem}
+  .card h3{font-family:Georgia,"Times New Roman",serif;font-size:1.25rem;line-height:1.25;margin:0;text-wrap:balance;overflow-wrap:break-word}
+  .repo{font-size:.86rem;color:var(--muted);margin:0;overflow-wrap:break-word}
+  .blurb{margin:0;font-size:.95rem}
+  .proof{margin:0;font-size:.87rem;color:#3d4636}
+  .proof strong{color:var(--ink)}
+  .note{margin:0;font-size:.84rem;color:#6b4d15;background:#faf3dd;border:1px dashed var(--brass);border-radius:4px;padding:.4rem .6rem}
+  .install{
+    display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem;
+    border-top:1px solid var(--line);padding-top:.6rem;
+  }
+  .install code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    font-size:.82rem;background:var(--evergreen-deep);color:#ecf3e4;border-radius:4px;
+    padding:.5rem .6rem;overflow-x:auto;white-space:pre;max-width:100%;
+  }
+  .install .actions{display:flex;flex-wrap:wrap;gap:.5rem}
+  .btn{
+    font:inherit;font-size:.88rem;font-weight:700;cursor:pointer;border-radius:6px;
+    padding:.5rem .9rem;border:2px solid var(--evergreen);background:var(--evergreen);color:#fff;
+  }
+  .btn:hover{background:var(--evergreen-deep)}
+  .btn.secondary{background:transparent;color:var(--evergreen)}
+  .btn.secondary:hover{background:#e9e2c9}
+  .copied{min-height:1.4em;font-size:.84rem;color:var(--evergreen);margin:0}
+  .empty{background:var(--parchment);border:1px solid var(--line);border-radius:6px;padding:1.5rem;text-align:center;color:var(--muted)}
+  footer.site{border-top:1px solid var(--line);margin-top:2rem;padding:1rem 0 0;font-size:.84rem;color:var(--muted)}
+  footer.site p{margin:.3rem 0}
+  @media (min-width:42rem){
+    .search-row{flex-direction:row}
+    .search-row .grow{flex:1}
+    .search-row select{width:12rem}
+    .stack{grid-template-columns:1fr 1fr}
+  }
+  @media (min-width:60rem){
+    .install code{font-size:.78rem}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#catalog">Skip to catalog</a>
+
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="imprint">Est. from live research · 2026-10-05</p>
+    <h1>The Curated Stacks <em>— skills worth shelving</em></h1>
+    <hr class="rule">
+    <p>An agent-skills directory shelved like a bookshop: every holding earns its place
+    with install velocity, freshness, and independent mentions. Raw stars never rank.</p>
+    <ul class="facts" aria-label="Directory facts" id="facts">
+      <li>Loading holdings…</li>
+    </ul>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="plate" aria-labelledby="plate-h">
+    <p class="kicker">Curator's choice · score 76</p>
+    <h2 id="plate-h">jeffallan/claude-skills — the collection this room is arranged around</h2>
+    <p>67 skills across 12 shelves covering languages, frameworks, infrastructure, APIs,
+    testing, DevOps, security, data/ML, and platform specialists — plus 9 project-workflow
+    commands. Installed as one marketplace shelf
+    (<code>/plugin marketplace add jeffallan/claude-skills</code>), version 0.4.18, MIT.
+    Curated over massive: one maintained catalog instead of hundreds of loose leaves.</p>
+    <p>Its twelve shelves, transcribed from its Skills Guide:</p>
+    <ul class="shelves" aria-label="The collection's twelve shelves">
+      <li><span>01</span> Language Specialists</li>
+      <li><span>02</span> Backend Frameworks</li>
+      <li><span>03</span> Frontend &amp; Mobile</li>
+      <li><span>04</span> Infrastructure &amp; Cloud</li>
+      <li><span>05</span> API &amp; Architecture</li>
+      <li><span>06</span> Quality &amp; Testing</li>
+      <li><span>07</span> DevOps &amp; Operations</li>
+      <li><span>08</span> Security</li>
+      <li><span>09</span> Data &amp; Machine Learning</li>
+      <li><span>10</span> Platform Specialists</li>
+      <li><span>11</span> Specialized</li>
+      <li><span>12</span> Workflow</li>
+    </ul>
+  </section>
+
+  <div class="controls">
+    <div class="search-row" role="search">
+      <div class="grow">
+        <label for="q">Search the stacks</label>
+        <input type="search" id="q" autocomplete="off"
+               placeholder="Try react, testing, auth, deployment…">
+      </div>
+      <div>
+        <label for="sort">Order by</label>
+        <select id="sort">
+          <option value="score">Score, highest first</option>
+          <option value="installs">Installs, most first</option>
+          <option value="name">Title, A to Z</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <section class="shelf-block" aria-labelledby="shelf-h">
+    <h2 id="shelf-h" style="font-family:Georgia,serif;font-size:1.05rem;margin:0 0 .4rem">Browse by aisle</h2>
+    <div class="shelf" id="shelf" role="group" aria-label="Filter by category"></div>
+    <div class="rail" aria-hidden="true"></div>
+    <p class="shelf-hint">Pull a spine off the shelf to filter the catalog. Pull it again, or choose All aisles, to reshelve.</p>
+  </section>
+
+  <p class="status" id="status" role="status" aria-live="polite">Loading the catalog…</p>
+  <main id="catalog">
+    <ul class="stack" id="stack"></ul>
+  </main>
+
+  <footer class="site">
+    <p>e089 · v10 “The Curated Stacks” · data: GET /api/skills, refreshed from live web research 2026-10-05.</p>
+    <p>Repo stars are shown only with the cataloguer's caution — a star count shared across a whole repo says nothing about one skill.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var AISLES = ["all","frontend","backend","testing","workflow"];
+  var state = { q:"", cat:"all", sort:"score", skills:[] };
+  var $q = document.getElementById("q"),
+      $sort = document.getElementById("sort"),
+      $shelf = document.getElementById("shelf"),
+      $stack = document.getElementById("stack"),
+      $status = document.getElementById("status");
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+  function fmtNum(n){
+    return (typeof n === "number") ? n.toLocaleString("en-US") : "unreported";
+  }
+  function hay(x){
+    return [x.name, x.repo, x.blurb, x.category, (x.mentions||[]).join(" ")]
+      .join(" ").toLowerCase();
+  }
+  function cmpScore(a,b){
+    var as = (typeof a.score === "number") ? a.score : null,
+        bs = (typeof b.score === "number") ? b.score : null;
+    if(as === null && bs === null) return 0;
+    if(as === null) return 1;   /* nulls last */
+    if(bs === null) return -1;
+    return bs - as;
+  }
+  function cmpInstalls(a,b){
+    var ai = (typeof a.installs === "number") ? a.installs : null,
+        bi = (typeof b.installs === "number") ? b.installs : null;
+    if(ai === null && bi === null) return 0;
+    if(ai === null) return 1;   /* nulls last */
+    if(bi === null) return -1;
+    return bi - ai;
+  }
+  function cmpName(a,b){
+    return String(a.name||"").localeCompare(String(b.name||""), "en");
+  }
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    var list = state.skills.filter(function(x){
+      if(state.cat !== "all" && x.category !== state.cat) return false;
+      if(q && hay(x).indexOf(q) === -1) return false;
+      return true;
+    });
+    var cmp = state.sort === "installs" ? cmpInstalls
+            : state.sort === "name" ? cmpName : cmpScore;
+    return list.slice().sort(cmp);
+  }
+  function counts(){
+    var c = {all: state.skills.length, frontend:0, backend:0, testing:0, workflow:0};
+    state.skills.forEach(function(x){ if(c[x.category] !== undefined) c[x.category]++; });
+    return c;
+  }
+  function renderFacts(){
+    var c = counts(), aisles = AISLES.length - 1;
+    document.getElementById("facts").innerHTML =
+      "<li>"+state.skills.length+" listings on our shelves</li>" +
+      "<li>"+aisles+" local aisles</li>" +
+      "<li>Grounded in a 67-skill, 12-shelf collection</li>";
+  }
+  function renderShelf(){
+    var c = counts();
+    var labels = {all:"All aisles", frontend:"Frontend", backend:"Backend", testing:"Testing", workflow:"Workflow"};
+    $shelf.innerHTML = AISLES.map(function(a){
+      var on = (state.cat === a) ? "true" : "false";
+      return '<button type="button" class="spine" data-aisle="'+a+'" aria-pressed="'+on+'">' +
+        '<span class="t">'+esc(labels[a])+'</span>' +
+        '<span class="n">'+c[a]+(c[a]===1?" holding":" holdings")+'</span></button>';
+    }).join("");
+    Array.prototype.forEach.call($shelf.querySelectorAll(".spine"), function(b){
+      b.addEventListener("click", function(){
+        var a = b.getAttribute("data-aisle");
+        state.cat = (state.cat === a) ? "all" : a;  /* toggle: re-pulling reshelves */
+        render();
+      });
+    });
+  }
+  function card(x, i){
+    var mentions = (x.mentions && x.mentions.length) ? x.mentions.map(esc).join(" · ") : "no independent mentions recorded yet";
+    var stars = (typeof x.stars_repo === "number")
+      ? '<p class="note">Cataloguer\'s caution: ' + fmtNum(x.stars_repo) + ' stars belong to the whole repo — ' + esc(x.stars_note || "not skill-specific") + '.</p>'
+      : "";
+    return '<li class="card"><article aria-labelledby="t'+i+'">' +
+      '<div class="callno"><span class="cat">'+esc(x.category||"unshelved")+'</span>' +
+      '<span class="score">score '+(typeof x.score==="number"?x.score:"unscored")+'</span>' +
+      (x.trend8w ? '<span class="trend">trend: '+esc(x.trend8w)+'</span>' : "") + "</div>" +
+      '<h3 id="t'+i+'">'+esc(x.name)+'</h3>' +
+      '<p class="repo">'+esc(x.repo||"repo unlisted")+' · updated '+esc(x.last_commit||"unknown")+(x.verified?" · verified":" · unverified")+'</p>' +
+      '<p class="blurb">'+esc(x.blurb||"No description filed yet.")+'</p>' +
+      '<p class="proof"><strong>Why it is shelved here:</strong> '+fmtNum(x.installs)+' installs · '+mentions+'.</p>' +
+      stars +
+      '<div class="install"><code>'+esc(x.install_cmd||"no install command filed")+'</code>' +
+      '<div class="actions"><button type="button" class="btn" data-copy="'+i+'">Copy install</button>' +
+      '<a class="btn secondary" href="'+esc(x.skill_url||"#")+'" target="_blank" rel="noopener">Source</a></div>' +
+      '<p class="copied" id="copied'+i+'" role="status" aria-live="polite"></p></div>' +
+      "</article></li>";
+  }
+  function render(){
+    renderFacts();
+    renderShelf();
+    var list = filtered();
+    $status.textContent = list.length === state.skills.length
+      ? "Showing all " + list.length + " holdings."
+      : "Showing " + list.length + " of " + state.skills.length + " holdings.";
+    $stack.innerHTML = list.length
+      ? list.map(function(x){ return card(x, state.skills.indexOf(x)); }).join("")
+      : '<li class="empty">Nothing on this shelf matches. Try a shorter search, or reshelve to All aisles.</li>';
+    Array.prototype.forEach.call($stack.querySelectorAll("[data-copy]"), function(b){
+      b.addEventListener("click", function(){ copyInstall(b); });
+    });
+  }
+  function copyInstall(btn){
+    var i = parseInt(btn.getAttribute("data-copy"), 10);
+    var cmd = state.skills[i] ? (state.skills[i].install_cmd || "") : "";
+    var msg = document.getElementById("copied"+i);
+    function done(ok){
+      if(msg) msg.textContent = ok ? "Install command copied to clipboard." : "Copy failed — select the command above manually.";
+      btn.textContent = ok ? "Copied" : "Copy install";
+      setTimeout(function(){ btn.textContent = "Copy install"; if(msg) msg.textContent=""; }, 1600);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(cmd).then(function(){ done(true); }, function(){ fallback(); });
+    } else { fallback(); }
+    function fallback(){
+      try{
+        var ta = document.createElement("textarea");
+        ta.value = cmd;
+        ta.setAttribute("readonly","");
+        ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        done(!!ok);
+      }catch(e){ done(false); }
+    }
+  }
+  $q.addEventListener("input", function(){ state.q = $q.value; render(); });
+  $sort.addEventListener("change", function(){ state.sort = $sort.value; render(); });
+  fetch("/api/skills").then(function(r){
+    if(!r.ok) throw new Error("bad status "+r.status);
+    return r.json();
+  }).then(function(j){
+    state.skills = (j && j.skills) ? j.skills : [];
+    render();
+  }).catch(function(){
+    $status.textContent = "The catalog could not be loaded. Check the server and reload.";
+    $stack.innerHTML = '<li class="empty">Catalog unavailable — GET /api/skills failed.</li>';
+  });
+})();
+</script>
+<nav class="vxbar" aria-label="Directory versions"><button type="button" class="vxinfo" aria-expanded="false" aria-controls="vxmap" title="Show which skill drives each version">v&#8596;skill</button><a class="vxlab" href="/versions" title="Version to skill index">Versions</a><a href="/" title="v1 · baseline · score no skill">v1</a><a href="/v2" title="v2 · frontend-design · score 98">v2</a><a href="/v3" title="v3 · superpowers · score 90">v3</a><a href="/v4" title="v4 · playwright-skill · score 84">v4</a><a href="/v5" title="v5 · web-design-guidelines · score 82">v5</a><a href="/v6" title="v6 · vercel-react-best-practices · score 81">v6</a><a href="/v7" title="v7 · ui-ux-pro-max · score 80">v7</a><a href="/v8" title="v8 · impeccable · score 79">v8</a><a href="/v9" title="v9 · vercel-composition-patterns · score 78">v9</a><span class="on" aria-current="page" title="v10 · jeffallan collection · score 76">v10</span><a href="/v11" title="v11 · alirezarezvani collection · score 74">v11</a><a href="/v12" title="v12 · figma-implement-design · score 72">v12</a><a href="/v13" title="v13 · ponytail · score 70">v13</a><div class="vxmap" id="vxmap" hidden><a href="/">v1 · baseline</a><a href="/v2">v2 · frontend-design</a><a href="/v3">v3 · superpowers</a><a href="/v4">v4 · playwright-skill</a><a href="/v5">v5 · web-design-guidelines</a><a href="/v6">v6 · vercel-react-best-practices</a><a href="/v7">v7 · ui-ux-pro-max</a><a href="/v8">v8 · impeccable</a><a href="/v9">v9 · vercel-composition-patterns</a><a href="/v10">v10 · jeffallan-67</a><a href="/v11">v11 · alirezarezvani-380+</a><a href="/v12">v12 · figma-implement-design</a><a href="/v13">v13 · ponytail</a></div></nav>
+<style>.vxbar{position:sticky;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;flex-wrap:wrap;row-gap:6px;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;border-top:1px solid #000}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar a:hover{color:#fff;border-color:#8b949e}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}.vxbar .vxlab{margin-right:2px}@media(max-width:700px){.vxbar .vxlab{display:none}}/* page fix: grid/flex min-width blowout on narrow screens */.stack>*,.card,.card>*{min-width:0}.card h3,.repo,.blurb,.proof,.note{overflow-wrap:anywhere}.vxbar .vxinfo{background:transparent;color:#fff;border:1px dashed #8b949e;border-radius:20px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}.vxbar .vxmap{flex:1 1 100%;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;padding:6px 2px 2px}.vxbar .vxmap[hidden]{display:none}.vxbar .vxmap a{border:none;padding:3px 4px;font-size:12.5px;line-height:1.35}</style><script>(function(){var b=document.querySelector(".vxinfo"),m=document.querySelector(".vxmap");if(!b||!m)return;b.addEventListener("click",function(){var open=m.hasAttribute("hidden");if(open){m.removeAttribute("hidden");b.setAttribute("aria-expanded","true");}else{m.setAttribute("hidden","");b.setAttribute("aria-expanded","false");}});})();</script>
+</body>
+</html>
