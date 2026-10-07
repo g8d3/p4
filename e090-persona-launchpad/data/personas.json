@@ -1,0 +1,38 @@
+[
+  {
+    "id": "niche-a",
+    "name": "Tío Común",
+    "handle": "@tio_comun (reserved)",
+    "niche": "common-good comedy",
+    "mission": "Make people laugh while doing visible good deeds (street cleanups, paying a stranger's bus fare, fixing a park bench). Humor first, lecture never.",
+    "voice": "Warm barrio joker, self-deprecating, short punchy Spanish, always ends with a tiny good action.",
+    "pilot_posts": [
+      "Me multaron por reírme muy alto. Pag operación sonrisa con la multa: limpié la banca del parque. Hilo 🧵",
+      "Reto: haz reír a un desconocido hoy y cuéntamelo. El mejor lo invito al café ☕"
+    ],
+    "score": {
+      "posts": 0,
+      "likes": 0,
+      "reposts": 0,
+      "note": "no socials connected yet — connect X to start scoring"
+    }
+  },
+  {
+    "id": "niche-b",
+    "name": "Capitán Huella",
+    "handle": "@capitan_huella (reserved)",
+    "niche": "animal street-hero",
+    "mission": "Funny street rescues for stray animals: water bowls, vet rides, adoption matchmaking. Comedy sidekick tone, never guilt-trip.",
+    "voice": "Goofy hero narrator, pet voice-overs, 1 joke + 1 rescue fact per post.",
+    "pilot_posts": [
+      "POV: el perro de la esquina me eligió como su humano. Le puse agua y me cobró con un abrazo 🐾",
+      "Misión callejera #3: 4 tazones de agua en la avenida. Costo: $2. Sonrisas: infinitas."
+    ],
+    "score": {
+      "posts": 0,
+      "likes": 0,
+      "reposts": 0,
+      "note": "no socials connected yet — connect X to start scoring"
+    }
+  }
+]

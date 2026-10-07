@@ -1,0 +1,331 @@
+<!--
+  e090 — persona-launchpad.fig, redesign driven by `figma-implement-design`
+  (followba/figma-implement-design, as resolved in e089 v12).
+
+  SKILL PRINCIPLES APPLIED:
+  - Step 1 (node-id / file-key): every card is a "Frame" (persona-01…,
+    log entries grouped per frame, hook-01…, fund-01, chain frames);
+    header shows file-key label.
+  - Step 2 (design context: layout, type, color tokens): 8px grid via
+    --s1.. tokens; type spec row (22/14/12px); color tokens in :root.
+  - Step 3 (screenshot as source of truth): each frame carries a token
+    swatch strip + fidelity/dev note.
+  - Step 4 (assets: localhost only, no new packages, no placeholders):
+    zero external requests, zero icon fonts, pure CSS markers.
+  - Step 5 (project conventions): data contracts respected —
+    GET /api/personas (array), GET /api/logs (array),
+    GET /api/funds (object), GET /api/hooks (array),
+    GET /api/chains (object), POST /api/personas, POST /api/log.
+  - Step 6 (1:1 parity, WCAG): tokens over hardcoded values;
+    visible focus; reduced-motion honored; skip link.
+  - Step 7 (validate): footer handoff-QA checklist.
+
+  DATA: all six pages read live from the e090 stdlib server. No invented
+  content — pilot posts and scores come from data/personas.json.
+  IDENTITY: Figma handoff / inspect-panel. Light canvas, layered frames,
+  red selection accents. Same family as e089 v12, new file.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona Launchpad — Figma handoff</title>
+<style>
+:root{
+  --canvas:#E9EAF0; --frame:#FFFFFF; --ink:#1A1D26; --muted:#5C6372;
+  --faint:#8B91A3; --line:#D8DBE6; --line-soft:#E7E9F1;
+  --sel:#0D99FF; --sel-soft:#E7F4FF;
+  --red:#F24E1E; --red-soft:#FFEEE7;
+  --ok:#0E9F6E; --ok-soft:#E6F6EF;
+  --warn:#B7791F; --warn-soft:#FBF2DF;
+  --code-bg:#1A1D26; --code-ink:#EDEFF7;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --r:10px;
+}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{margin:0;color:var(--ink);background:var(--canvas);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+a{color:var(--sel)}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px;border-radius:6px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:8px 14px;z-index:99;border-radius:0 0 8px 0}
+.skip:focus{left:0}
+.ruler-x{position:sticky;top:0;z-index:20;height:22px;border-bottom:1px solid var(--line);background:var(--canvas);
+  background-image:repeating-linear-gradient(to right,var(--faint) 0 1px,transparent 1px 8px),repeating-linear-gradient(to right,var(--faint) 0 1px,transparent 1px 40px);
+  background-size:100% 7px,100% 13px;background-repeat:repeat-x;background-position:bottom left}
+.ruler-x span{position:absolute;top:1px;left:10px;font-size:10px;color:var(--faint);letter-spacing:.08em}
+.sheet{max-width:1060px;margin:0 auto;padding:var(--s2) var(--s2) var(--s4)}
+.filebar{background:var(--frame);border:1px solid var(--line);border-radius:var(--r) var(--r) 0 0;border-bottom:none;
+  padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.filebar .dot{width:10px;height:10px;border-radius:50%;background:var(--red);flex:none}
+.filebar strong{color:var(--ink);font-size:12.5px}
+.filebar .tag{border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11.5px;background:var(--canvas)}
+.hero{background:var(--frame);border:1px solid var(--line);padding:var(--s3) var(--s2) var(--s2)}
+.hero h1{margin:0;font-size:22px;line-height:1.2;letter-spacing:-.02em}
+.hero h1 .handoff{color:var(--red)}
+.hero p{margin:8px 0 0;color:var(--muted);font-size:13.5px;max-width:62ch}
+.spec-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--muted)}
+.spec-row b{color:var(--ink)}
+.dim{display:inline-block;border:1px dashed var(--red);color:var(--red);border-radius:6px;padding:0 7px;font-size:11px;background:var(--red-soft);white-space:nowrap}
+.inspect{background:var(--frame);border:1px solid var(--line);border-top:none;border-radius:0 0 var(--r) var(--r);padding:var(--s2)}
+.inspect h2{margin:0 0 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;padding:7px 13px;font-size:13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sel);border-color:var(--sel);color:#fff;font-weight:650}
+.seg button:hover{border-color:var(--sel)}
+.meta-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:10px}
+.meta-line output{font-weight:650;color:var(--ink)}
+.page{display:none}
+.page.on{display:block}
+.frames{display:grid;gap:var(--s3);margin-top:var(--s3)}
+.frame{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);position:relative;box-shadow:6px 6px 0 rgba(26,29,38,.08)}
+.frame::before,.frame::after{content:"";position:absolute;border:1px solid var(--line);border-radius:var(--r);background:#F4F5F9;z-index:-1}
+.frame::before{top:5px;left:5px;right:-5px;bottom:-5px}
+.frame::after{top:10px;left:10px;right:-10px;bottom:-10px;background:#EFF0F6}
+.frame-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:11.5px}
+.frame-top .fid{font-weight:700}
+.frame-top .node{color:var(--sel);background:var(--sel-soft);border:1px solid #BFE2FF;border-radius:6px;padding:0 7px}
+.frame-top .push{margin-left:auto}
+.cat{border-radius:6px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid}
+.cat-a{color:var(--sel);border-color:#BFE2FF;background:var(--sel-soft)}
+.cat-b{color:var(--ok);border-color:#B9E5D2;background:var(--ok-soft)}
+.cat-c{color:var(--warn);border-color:#EAD9A8;background:var(--warn-soft)}
+.frame-body{padding:14px}
+.frame-body h3{margin:0;font-size:17px;letter-spacing:-.01em}
+.frame-body h3 .tick{color:var(--red);font-weight:400;margin-right:6px}
+.sub{font-size:12.5px;color:var(--muted);margin:3px 0 0}
+.blurb{margin:9px 0;font-size:14px}
+.anno{border-left:3px solid var(--red);background:var(--red-soft);border-radius:0 8px 8px 0;padding:8px 10px;font-size:12.5px;margin:10px 0}
+.anno b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:2px}
+.swatches{display:flex;gap:0;margin:10px 0 2px}
+.swatches i{display:block;flex:1;height:22px;border:1px solid var(--line)}
+.swatches i:first-child{border-radius:7px 0 0 7px;background:var(--sel)}
+.swatches i:nth-child(2){background:var(--red)}
+.swatches i:nth-child(3){background:var(--ok)}
+.swatches i:nth-child(4){background:#FFCD29}
+.swatches i:last-child{border-radius:0 7px 7px 0;background:var(--ink)}
+.swlabel{font-size:11px;color:var(--faint);margin:0 0 4px}
+.specgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.spec{border:1px solid var(--line-soft);border-radius:8px;padding:7px 10px;font-size:12.5px}
+.spec small{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.spec b{font-size:14px}
+.kv{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0}
+.kv td{border-top:1px dashed var(--line-soft);padding:6px 4px;vertical-align:top}
+.kv td:first-child{color:var(--faint);font-size:11px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;width:128px}
+.log{font-size:13px;border-top:1px dashed var(--line-soft);padding:7px 0}
+.log .when{font-size:11.5px;color:var(--faint)}
+.field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 5px}
+.field input,.field textarea{width:100%;padding:10px 12px;font-size:14px;color:var(--ink);background:#fff;border:1.5px solid var(--sel);border-radius:8px;font:inherit}
+.field .hint{font-size:11.5px;color:var(--faint);margin-top:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px}
+.actions button{font-size:13px;border-radius:8px;padding:8px 14px;cursor:pointer;background:var(--sel);color:#fff;font-weight:650;border:1.5px solid var(--sel)}
+.actions button:hover{background:#0B86E0}
+.note{font-size:12px;color:var(--ok);min-height:1.3em;padding:0 14px 12px}
+.empty{background:var(--frame);border:1.5px dashed var(--line);border-radius:var(--r);padding:28px 18px;text-align:center;color:var(--muted)}
+.qa{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);margin-top:var(--s3);padding:16px}
+.qa h2{margin:0 0 6px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.qa ul{margin:6px 0 0;padding-left:20px;font-size:13px;color:var(--muted)}
+footer{max-width:1060px;margin:0 auto;padding:0 var(--s2) var(--s4);font-size:12px;color:var(--muted)}
+footer code{background:#fff;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+@media(min-width:760px){
+  .hero h1{font-size:30px}
+  .frames.two{grid-template-columns:1fr 1fr}
+  .specgrid{grid-template-columns:repeat(4,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;box-shadow:none!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#canvas">Skip to frames</a>
+<div class="ruler-x" aria-hidden="true"><span>0&emsp;40&emsp;80&emsp;120&emsp;160&emsp;200&emsp;240&emsp;280&emsp;320&emsp;360px</span></div>
+
+<div class="sheet">
+  <div class="filebar" aria-label="File context">
+    <span class="dot" aria-hidden="true"></span>
+    <strong>persona-launchpad.fig</strong>
+    <span class="tag">file-key: e090-persona</span>
+    <span class="tag">spec: 8px grid</span>
+    <span class="tag">skill: figma-implement-design</span>
+  </div>
+  <header class="hero">
+    <h1>Persona launchpad <span class="handoff">— design handoff</span></h1>
+    <p>Create AI persons, test what sticks on socials, launch winners onchain.
+       Every persona ships with its spec; every action lands in the public log.</p>
+    <div class="spec-row" aria-label="Design specs">
+      <span>Type <b>22 / 14 / 12px</b></span>
+      <span class="dim">gap 24px</span>
+      <span class="dim">frame radius 10px</span>
+      <span>Grid <b>8pt</b></span>
+      <span>Source <b class="mono">figma-implement-design</b></span>
+    </div>
+  </header>
+
+  <section class="inspect" aria-label="Inspect panel: pages">
+    <h2>Inspect panel — pages</h2>
+    <div class="seg" role="group" aria-label="Pages" id="pageseg">
+      <button type="button" data-page="personas" aria-pressed="true">Personas</button>
+      <button type="button" data-page="logs" aria-pressed="false">Public logs</button>
+      <button type="button" data-page="funds" aria-pressed="false">Funds</button>
+      <button type="button" data-page="hooks" aria-pressed="false">Hook directory</button>
+      <button type="button" data-page="chains" aria-pressed="false">Chains</button>
+      <button type="button" data-page="need" aria-pressed="false">Needed from you</button>
+    </div>
+    <div class="meta-line">
+      <output id="count" aria-live="polite">Loading canvas…</output>
+      <span id="status" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <main id="canvas">
+    <div class="page on" id="pg-personas"><div class="frames two" id="plist"></div>
+      <div class="frames" style="margin-top:var(--s3)"><article class="frame" aria-label="New persona frame">
+        <div class="frame-top"><span class="fid">Frame / persona-new</span><span class="node">node-id: composer</span><span class="push cat cat-c">draft</span></div>
+        <div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>New persona frame</h3>
+          <p class="sub">This composer is the future self-serve wizard, working today as a form.</p>
+          <div class="field"><label for="nm">Name</label><input id="nm" placeholder="e.g. Abuela Sniper" autocomplete="off"></div>
+          <div class="field"><label for="ni">Niche</label><input id="ni" placeholder="e.g. common-good comedy" autocomplete="off"></div>
+          <div class="field"><label for="mi">Mission, one line</label><textarea id="mi" rows="2" placeholder="What it does on the timeline"></textarea></div>
+          <div class="field"><label for="vo">Voice</label><input id="vo" placeholder="e.g. dry humor, 1 joke + 1 good deed" autocomplete="off"></div>
+        </div>
+        <div class="actions"><button type="button" onclick="createP()">Create frame</button></div>
+        <div class="note" id="pnote" aria-live="polite"></div>
+      </article></div>
+    </div>
+    <div class="page" id="pg-logs"><div class="frames"><article class="frame" aria-label="Transparency feed">
+      <div class="frame-top"><span class="fid">Frame / logs-feed</span><span class="node">node-id: transparency</span><span class="push cat cat-a">public</span></div>
+      <div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Transparency feed</h3>
+        <p class="sub">Claus-style public log: drafts, decisions, deployments. Nothing hidden.</p>
+        <div id="ll"></div>
+        <div class="field"><label for="lt">Append public note</label><input id="lt" placeholder="e.g. drafted 2 posts for Tío Común" autocomplete="off"></div>
+      </div>
+      <div class="actions"><button type="button" onclick="addLog()">Append to log</button></div>
+      <div class="note" id="lnote" aria-live="polite"></div>
+    </article></div></div>
+    <div class="page" id="pg-funds"><div class="frames" id="fundsbox"></div></div>
+    <div class="page" id="pg-hooks"><div class="frames two" id="hk"></div></div>
+    <div class="page" id="pg-chains"><div class="frames" id="ch"></div></div>
+    <div class="page" id="pg-need"><div class="frames"><article class="frame" aria-label="Checklist">
+      <div class="frame-top"><span class="fid">Frame / need-checklist</span><span class="node">node-id: unblock</span><span class="push cat cat-c">3 items</span></div>
+      <div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Needed from you — nothing else</h3>
+        <div class="anno"><b>1 · Two X handles</b>One per niche (Tío Común, Capitán Huella). Phone verification is the one thing only you can do. ~10 min.</div>
+        <div class="anno"><b>2 · Four API keys per account</b>X Developer Portal → API key, secret, access token, secret. Auto-posting needs Basic tier; until then free copy-paste mode (worker drafts, you tap post). $0 to start.</div>
+        <div class="anno"><b>3 · Solana wallet, only at first launch</b>Fresh burner (e.g. Phantom), you keep the seed, send only the address + cents of SOL. v0/v1 need no wallet at all.</div>
+        <p class="swlabel">Why two niches</p>
+        <p class="blurb">Humor is the distribution engine; cause is the retention engine. Run A (common-good comedy) vs B (animal street-hero) for 2 weeks, score per post, double down on the winner, open the self-serve wizard.</p>
+      </div>
+    </article></div></div>
+  </main>
+
+  <section class="qa" aria-label="Handoff QA checklist">
+    <h2>Handoff QA — validate before marking complete</h2>
+    <ul>
+      <li>Layout matches: spacing, alignment, sizing on the 8px grid.</li>
+      <li>Typography matches: 22 / 17 / 14 / 12px scale, weights per spec row.</li>
+      <li>Data contracts exact: personas, logs, funds, hooks, chains from live API.</li>
+      <li>Zero external requests; focus visible; reduced-motion honored.</li>
+    </ul>
+  </section>
+</div>
+<footer>
+  <p>Data: <code>GET /api/personas</code>, <code>/api/logs</code>, <code>/api/funds</code>, <code>/api/hooks</code>, <code>/api/chains</code>. Design source: <code>figma-implement-design</code> (same skill as e089 v12).</p>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var $count=document.getElementById("count"), $status=document.getElementById("status");
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function swatches(){return '<p class="swlabel">Visual reference — token strip (decorative)</p><div class="swatches" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>';}
+function get(p){return fetch(p).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json();});}
+
+function personaCard(p,i){
+  var n=String(i+1).padStart(2,"0");
+  var s=p.score||{};
+  return '<article class="frame" aria-label="Persona frame '+esc(p.name)+'">'+
+  '<div class="frame-top"><span class="fid">Frame / persona-'+n+'</span>'+
+  '<span class="node">node-id: '+esc((p.id||p.name||"p").slice(0,24))+'</span>'+
+  '<span class="push cat '+(n==="01"?"cat-a":"cat-b")+'">'+esc(p.niche||"n/a")+'</span></div>'+
+  '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+esc(p.name)+'</h3>'+
+  '<p class="sub">'+esc(p.handle||"no handle yet")+'</p>'+
+  '<p class="blurb">'+esc(p.mission||"")+'</p>'+
+  '<div class="anno"><b>Voice</b>'+esc(p.voice||"n/a")+'</div>'+
+  '<div class="anno"><b>Pilot post</b>&ldquo;'+esc((p.pilot_posts||["n/a"])[0])+'&rdquo;</div>'+
+  swatches()+
+  '<div class="specgrid"><div class="spec"><small>Posts</small><b>'+(s.posts==null?"0":s.posts)+'</b></div>'+
+  '<div class="spec"><small>Likes</small><b>'+(s.likes==null?"0":s.likes)+'</b></div>'+
+  '<div class="spec"><small>Reposts</small><b>'+(s.reposts==null?"0":s.reposts)+'</b></div>'+
+  '<div class="spec score"><small>Status</small><b>'+esc(s.note||"scoring soon")+'</b></div></div>'+
+  '</div></article>';
+}
+function loadPersonas(){return get("/api/personas").then(function(r){
+  $count.textContent=r.length+" persona frames on canvas";
+  document.getElementById("plist").innerHTML=r.length?r.map(personaCard).join(""):'<div class="empty"><strong>No frames.</strong><br>Create the first persona below.</div>';
+});}
+function createP(){
+  var b={name:document.getElementById("nm").value,niche:document.getElementById("ni").value,mission:document.getElementById("mi").value,voice:document.getElementById("vo").value};
+  fetch("/api/personas",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)})
+  .then(function(){document.getElementById("nm").value=document.getElementById("ni").value=document.getElementById("mi").value=document.getElementById("vo").value="";
+    document.getElementById("pnote").textContent="Frame created and logged.";loadPersonas();})
+  .catch(function(){document.getElementById("pnote").textContent="Create failed — check server.";});
+}
+function loadLogs(){return get("/api/logs").then(function(r){
+  var box=document.getElementById("ll");
+  box.innerHTML=r.length?r.slice().reverse().map(function(l){
+    var d=l.ts?new Date(l.ts*1000).toLocaleString():"—";
+    return '<div class="log"><span class="when">'+esc(d)+" · "+esc(l.kind||"note")+"</span><br>"+esc(l.text||"")+"</div>";
+  }).join(""):'<p class="sub">Empty feed.</p>';
+});}
+function addLog(){
+  var v=document.getElementById("lt").value;
+  fetch("/api/log",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"note",text:v})})
+  .then(function(){document.getElementById("lt").value="";document.getElementById("lnote").textContent="Appended to public log.";loadLogs();})
+  .catch(function(){document.getElementById("lnote").textContent="Append failed.";});
+}
+function loadFunds(){return get("/api/funds").then(function(f){
+  var rows=[["Launcher",f.launcher],["Liquidity",f.liquidity],["Fees",f.fees],["Goal",f.goal],["Interface play",f.interface_play],["Extras",f.extras],["Custody",f.custody]];
+  document.getElementById("fundsbox").innerHTML='<article class="frame"><div class="frame-top"><span class="fid">Frame / fund-01</span><span class="node">node-id: clanker-v4</span><span class="push cat cat-a">base · phase 2</span></div>'+
+  '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>How Klaus money works</h3>'+swatches()+
+  '<table class="kv">'+rows.map(function(r){return "<tr><td>"+esc(r[0])+"</td><td>"+esc(r[1]||"n/a")+"</td></tr>";}).join("")+"</table></div></article>";
+});}
+function loadHooks(){return get("/api/hooks").then(function(r){
+  $count.textContent=r.length+" hook frames on canvas";
+  var keep=["by","chain","category","fee_model","adoption","audit","upgradeability_owner","permissions","gas_overhead","lp_returns","risk_flags","social_momentum","verdict"];
+  document.getElementById("hk").innerHTML=r.map(function(h,i){
+    var n=String(i+1).padStart(2,"0");
+    return '<article class="frame"><div class="frame-top"><span class="fid">Frame / hook-'+n+'</span><span class="node">node-id: '+esc(h.name.slice(0,24))+'</span><span class="push cat cat-c">hook</span></div>'+
+    '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+esc(h.name)+'</h3>'+swatches()+
+    '<table class="kv">'+keep.map(function(k){return "<tr><td>"+esc(k.replace(/_/g," "))+"</td><td>"+esc(h[k]||"n/a")+"</td></tr>";}).join("")+"</table></div></article>";
+  }).join("");
+});}
+function loadChains(){return get("/api/chains").then(function(c){
+  function fr(n,id,t,b){return '<article class="frame"><div class="frame-top"><span class="fid">Frame / '+id+'</span><span class="node">node-id: '+id+'</span></div><div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+t+'</h3><p class="blurb">'+esc(b)+'</p></div></article>';}
+  document.getElementById("ch").innerHTML=
+    '<article class="frame"><div class="frame-top"><span class="fid">Frame / chain-decision</span><span class="node">node-id: strategy</span><span class="push cat cat-a">one app</span></div><div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Decision</h3><p class="blurb"><b>'+esc(c.decision)+'</b></p></div></article>'+
+    fr("01","chain-sol","Solana — phase 1",c.solana)+fr("02","chain-bse","Base — phase 2",c.base)+
+    fr("03","chain-arc","Why not two apps",c.why_not_two_apps)+fr("04","chain-pln","Phase plan",c.phase_plan);
+});}
+var loaders={personas:loadPersonas,logs:loadLogs,funds:loadFunds,hooks:loadHooks,chains:loadChains,need:function(){return Promise.resolve();}};
+var counts={personas:null,logs:null,funds:null,hooks:null,chains:null,need:"3-item checklist frame on canvas"};
+document.getElementById("pageseg").addEventListener("click",function(e){
+  var b=e.target.closest("button");if(!b)return;
+  var pg=b.getAttribute("data-page");
+  Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
+  ["personas","logs","funds","hooks","chains","need"].forEach(function(p){document.getElementById("pg-"+p).classList.toggle("on",p===pg);});
+  $status.textContent="Loading "+pg+"…";
+  loaders[pg]().then(function(){
+    if(counts[pg])$count.textContent=counts[pg];
+    if(pg==="personas"||pg==="hooks")counts[pg]=$count.textContent;
+    $status.textContent="";
+  }).catch(function(){$status.textContent="API unreachable — check server.";});
+});
+window.createP=createP;window.addLog=addLog;
+loadPersonas().then(function(){counts.personas=$count.textContent;});
+})();
+</script>
+</body>
+</html>

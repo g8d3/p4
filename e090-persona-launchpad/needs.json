@@ -1,0 +1,12 @@
+{
+  "bind": "0.0.0.0",
+  "port": 8780,
+  "note": "all machine values live here; code reads this file. Copy needs.example keys: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, X_ACCESS_SECRET, WALLET_ADDRESS, BASE_RPC",
+  "x_api_configured": false,
+  "wallet_configured": false,
+  "primary_chain": "solana",
+  "chain_role": {"solana": "token launches phase-1 (viral, cheap)", "base": "hooks moat + clanker-interface fees phase-2 (research now)"},
+  "launcher": "pump-adapter-first, clanker-v4-as-interface-second",
+  "treasury": "unset — fee-recipient address goes here at first deploy",
+  "strategy": "phase1-earn-as-clanker-interface, phase2-own-contracts-only-after-volume"
+}

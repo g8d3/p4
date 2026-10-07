@@ -142,3 +142,7 @@ e085-swarm-marketplace/server/__pycache__/
 log/
 .pi-web/
 .growth-shots/
+
+# e090 runtime (server log, future secrets) — data/*.json seeds ARE committed
+e090-persona-launchpad/server.log
+e090-persona-launchpad/data/secrets.env
