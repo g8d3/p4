@@ -123,6 +123,8 @@ a{color:var(--sel)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 14px 14px}
 .actions button{font-size:13px;border-radius:8px;padding:8px 14px;cursor:pointer;background:var(--sel);color:#fff;font-weight:650;border:1.5px solid var(--sel)}
 .actions button:hover{background:#0B86E0}
+.actions a{font-size:13px;border-radius:8px;padding:8px 14px;cursor:pointer;text-decoration:none;border:1.5px solid var(--sel);background:#fff;color:var(--sel)}
+.actions a:hover{background:var(--sel-soft)}
 .note{font-size:12px;color:var(--ok);min-height:1.3em;padding:0 14px 12px}
 .empty{background:var(--frame);border:1.5px dashed var(--line);border-radius:var(--r);padding:28px 18px;text-align:center;color:var(--muted)}
 .qa{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);margin-top:var(--s3);padding:16px}
@@ -307,7 +309,7 @@ function fmtUSD(v){if(v==null)return "n/a";if(v>=1e6)return "$"+(v/1e6).toFixed(
 function loadHooks(){return get("/api/hooks").then(function(j){
   var r=(j&&j.hooks)?j.hooks.slice():[];
   r.sort(function(a,b){return (b.tvl_usd||-1)-(a.tvl_usd||-1);});
-  $count.textContent=r.length+" hook frames, sorted by TVL";
+  $count.textContent=r.length+" hook frames, sorted by TVL · data updated "+esc(j.updated||"n/a");
   var keep=["by","chain","category","fee_model","adoption","audit","upgradeability_owner","permissions","gas_overhead","risk_flags","social_momentum","verdict"];
   var html=r.map(function(h,i){
     var n=String(i+1).padStart(2,"0");
@@ -318,7 +320,8 @@ function loadHooks(){return get("/api/hooks").then(function(j){
     '<div class="spec"><small>Volume</small><b>'+esc((h.volume_note||"n/a").slice(0,42))+'</b></div></div>'+
     '<p class="swlabel">Pools — TVL / volume / APR each</p><table class="kv"><tr><td>Pool</td><td>TVL</td><td>Volume</td><td>APR</td></tr>'+pools+'</table>'+
     '<table class="kv">'+keep.map(function(k){return "<tr><td>"+esc(k.replace(/_/g," "))+"</td><td>"+esc(h[k]||"n/a")+"</td></tr>";}).join("")+"</table>"+
-    '<p class="swlabel">TVL source: '+esc(h.tvl_source||"n/a")+' · Volume source: '+esc(h.volume_source||"n/a")+'</p></div></article>';
+    '<p class="swlabel">TVL source: '+esc(h.tvl_source||"n/a")+' · Volume source: '+esc(h.volume_source||"n/a")+'</p></div>'+
+    '<div class="actions">'+(h.verify||[]).map(function(v){return '<a class="src" href="'+esc(v.url)+'" target="_blank" rel="noopener">Verify: '+esc(v.label)+'</a>';}).join("")+"</div>";
   }).join("");
   if(j&&(j.watchlist||[]).length){html+='<article class="frame"><div class="frame-top"><span class="fid">Frame / hook-watch</span><span class="node">node-id: watchlist</span></div><div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Watchlist — more teams, no TVL yet</h3><p class="blurb">'+j.watchlist.map(esc).join(" · ")+"</p><p class='swlabel'>"+esc(j.solana_note||"")+"</p></div></article>";}
   document.getElementById("hk").innerHTML=html;

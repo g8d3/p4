@@ -56,7 +56,7 @@ class H(BaseHTTPRequestHandler):
     def _json(self, obj, code=200):
         b = json.dumps(obj, ensure_ascii=False).encode()
         self.send_response(code); self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(b))); self.end_headers()
+        self.send_header("Cache-Control", "no-store"); self.send_header("Content-Length", str(len(b))); self.end_headers()
         self.wfile.write(b)
     def do_GET(self):
         p = urllib.parse.urlparse(self.path).path
@@ -80,6 +80,7 @@ class H(BaseHTTPRequestHandler):
         with open(fp, "rb") as f: b = f.read()
         self.send_response(200)
         self.send_header("Content-Type", ctype or ("text/html" if name.endswith(".html") else "application/octet-stream"))
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
     def do_POST(self):
         p = urllib.parse.urlparse(self.path).path
