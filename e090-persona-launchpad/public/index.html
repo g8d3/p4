@@ -369,6 +369,7 @@ document.getElementById("pageseg").addEventListener("click",function(e){
   var pg=b.getAttribute("data-page");
   Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
   ["personas","logs","funds","hooks","chains","dirs","pads","need"].forEach(function(p){document.getElementById("pg-"+p).classList.toggle("on",p===pg);});
+  try{if((location.hash||"").slice(1)!==pg)location.hash=pg;}catch(_){}
   $status.textContent="Loading "+pg+"…";
   loaders[pg]().then(function(){
     if(counts[pg])$count.textContent=counts[pg];
@@ -377,7 +378,16 @@ document.getElementById("pageseg").addEventListener("click",function(e){
   }).catch(function(){$status.textContent="API unreachable — check server.";});
 });
 window.createP=createP;window.addLog=addLog;
-loadPersonas().then(function(){counts.personas=$count.textContent;});
+window.addEventListener("hashchange",function(){
+  var h=(location.hash||"").slice(1);
+  var b=h&&document.querySelector('button[data-page="'+h+'"]');
+  if(b&&b.getAttribute("aria-pressed")!=="true")b.click();
+});
+(function init(){
+  var h=(location.hash||"").slice(1);
+  var b=h&&document.querySelector('button[data-page="'+h+'"]');
+  if(b){b.click();}else{loadPersonas().then(function(){counts.personas=$count.textContent;});}
+})();
 })();
 </script>
 </body>
