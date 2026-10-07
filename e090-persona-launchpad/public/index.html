@@ -292,15 +292,25 @@ function loadFunds(){return get("/api/funds").then(function(f){
   '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>How Klaus money works</h3>'+swatches()+
   '<table class="kv">'+rows.map(function(r){return "<tr><td>"+esc(r[0])+"</td><td>"+esc(r[1]||"n/a")+"</td></tr>";}).join("")+"</table></div></article>";
 });}
-function loadHooks(){return get("/api/hooks").then(function(r){
-  $count.textContent=r.length+" hook frames on canvas";
-  var keep=["by","chain","category","fee_model","adoption","audit","upgradeability_owner","permissions","gas_overhead","lp_returns","risk_flags","social_momentum","verdict"];
-  document.getElementById("hk").innerHTML=r.map(function(h,i){
+function fmtUSD(v){if(v==null)return "n/a";if(v>=1e6)return "$"+(v/1e6).toFixed(2)+"M";if(v>=1e3)return "$"+(v/1e3).toFixed(1)+"k";return "$"+v;}
+function loadHooks(){return get("/api/hooks").then(function(j){
+  var r=(j&&j.hooks)?j.hooks.slice():[];
+  r.sort(function(a,b){return (b.tvl_usd||-1)-(a.tvl_usd||-1);});
+  $count.textContent=r.length+" hook frames, sorted by TVL";
+  var keep=["by","chain","category","fee_model","adoption","audit","upgradeability_owner","permissions","gas_overhead","risk_flags","social_momentum","verdict"];
+  var html=r.map(function(h,i){
     var n=String(i+1).padStart(2,"0");
-    return '<article class="frame"><div class="frame-top"><span class="fid">Frame / hook-'+n+'</span><span class="node">node-id: '+esc(h.name.slice(0,24))+'</span><span class="push cat cat-c">hook</span></div>'+
+    var pools=(h.pools||[]).map(function(p){return "<tr><td>"+esc(p.pair)+"<br><span class='when'>"+esc(p.chain)+"</span></td><td>"+fmtUSD(p.tvl_usd)+"<br><span class='when'>"+esc(p.tvl_source||"")+"</span></td><td>"+esc(p.volume_note||"n/a")+"</td><td>"+(p.apr==null?"pending feed":""+p.apr+"%")+"<br><span class='when'>"+esc(p.apr_source||"")+"</span></td></tr>";}).join("");
+    return '<article class="frame"><div class="frame-top"><span class="fid">Frame / hook-'+n+'</span><span class="node">node-id: '+esc(h.name.slice(0,24))+'</span><span class="push cat cat-c">'+fmtUSD(h.tvl_usd)+'</span></div>'+
     '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+esc(h.name)+'</h3>'+swatches()+
-    '<table class="kv">'+keep.map(function(k){return "<tr><td>"+esc(k.replace(/_/g," "))+"</td><td>"+esc(h[k]||"n/a")+"</td></tr>";}).join("")+"</table></div></article>";
+    '<div class="specgrid"><div class="spec score"><small>Hook TVL</small><b>'+fmtUSD(h.tvl_usd)+'</b></div>'+
+    '<div class="spec"><small>Volume</small><b>'+esc((h.volume_note||"n/a").slice(0,42))+'</b></div></div>'+
+    '<p class="swlabel">Pools — TVL / volume / APR each</p><table class="kv"><tr><td>Pool</td><td>TVL</td><td>Volume</td><td>APR</td></tr>'+pools+'</table>'+
+    '<table class="kv">'+keep.map(function(k){return "<tr><td>"+esc(k.replace(/_/g," "))+"</td><td>"+esc(h[k]||"n/a")+"</td></tr>";}).join("")+"</table>"+
+    '<p class="swlabel">TVL source: '+esc(h.tvl_source||"n/a")+' · Volume source: '+esc(h.volume_source||"n/a")+'</p></div></article>';
   }).join("");
+  if(j&&(j.watchlist||[]).length){html+='<article class="frame"><div class="frame-top"><span class="fid">Frame / hook-watch</span><span class="node">node-id: watchlist</span></div><div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Watchlist — more teams, no TVL yet</h3><p class="blurb">'+j.watchlist.map(esc).join(" · ")+"</p><p class='swlabel'>"+esc(j.solana_note||"")+"</p></div></article>";}
+  document.getElementById("hk").innerHTML=html;
 });}
 function loadChains(){return get("/api/chains").then(function(c){
   function fr(n,id,t,b){return '<article class="frame"><div class="frame-top"><span class="fid">Frame / '+id+'</span><span class="node">node-id: '+id+'</span></div><div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+t+'</h3><p class="blurb">'+esc(b)+'</p></div></article>';}
