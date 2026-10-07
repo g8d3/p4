@@ -15,26 +15,19 @@
   "x_read": {
     "adhoc": "tinyfish CLI (present, no X account needed) \u2014 research only",
     "dedicated": {
-      "provider": "twitterapi.io",
-      "configured": false,
-      "why": "real-time X read API, ~$0.15/1k reads (\u224833x cheaper than official), no approval wait, $0.1 free credits",
-      "env": "TWITTERAPI_IO_KEY (sent as X-API-Key header)",
-      "url": "https://twitterapi.io"
+      "provider": "twitterapis.com",
+      "configured": true,
+      "proof": "live 200 on tweet/advanced_search, 2026-10-07",
+      "coverage": "94 endpoints: 60 read + 34 WRITE (one bearer key covers both)",
+      "pricing": "$0.0008/call, ~20 tweets/call; $0.50 free signup credits",
+      "env": "TWITTERAPIS_API_KEY (present, value hidden)",
+      "url": "https://www.twitterapis.com"
     }
   },
   "x_write": {
-    "configured": false,
-    "candidates": {
-      "typefully": {
-        "status": "verified-vendor",
-        "needs": "TYPEFULLY_API_KEY (REST: create/schedule/publish drafts+threads)",
-        "url": "https://typefully.com"
-      },
-      "uploadpost": {
-        "status": "UNVERIFIED \u2014 no such vendor found; closest match bundle.social X API",
-        "needs": "please confirm exact URL + API key name"
-      }
-    }
+    "configured": true,
+    "via": "twitterapis.com 34 write endpoints (same key)",
+    "alternative": "Typefully REST (TYPEFULLY_API_KEY) as managed scheduler with human dashboard \u2014 optional"
   },
   "x_today": "ad-hoc unauthenticated scraping only (tinyfish fetch) \u2014 fragile, logged-out view, no scale; NOT a configured pipeline"
 }
