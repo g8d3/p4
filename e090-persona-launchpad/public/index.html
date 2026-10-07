@@ -325,7 +325,7 @@ function loadHooks(){return get("/api/hooks").then(function(j){
     '<p class="swlabel">Pools — TVL / volume / APR each</p><table class="kv"><tr><td>Pool</td><td>TVL</td><td>Volume</td><td>APR</td></tr>'+pools+'</table>'+
     '<table class="kv">'+keep.map(function(k){return "<tr><td>"+esc(k.replace(/_/g," "))+"</td><td>"+esc(h[k]||"n/a")+"</td></tr>";}).join("")+"</table>"+
     '<p class="swlabel">TVL source: '+esc(h.tvl_source||"n/a")+' · Volume source: '+esc(h.volume_source||"n/a")+'</p></div>'+
-    '<div class="actions">'+(h.verify||[]).map(function(v){return '<a class="src" href="'+esc(v.url)+'" target="_blank" rel="noopener">Verify: '+esc(v.label)+'</a>';}).join("")+"</div>";
+    '<div class="actions">'+(h.verify||[]).map(function(v){return '<a class="src" href="'+esc(v.url)+'" target="_blank" rel="noopener">Verify: '+esc(v.label)+'</a>';}).join("")+"</div></article>";
   }).join("");
   if(j&&(j.watchlist||[]).length){html+='<article class="frame"><div class="frame-top"><span class="fid">Frame / hook-watch</span><span class="node">node-id: watchlist</span></div><div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Watchlist — more teams, no TVL yet</h3><p class="blurb">'+j.watchlist.map(esc).join(" · ")+"</p><p class='swlabel'>"+esc(j.solana_note||"")+"</p></div></article>";}
   document.getElementById("hk").innerHTML=html;
@@ -359,7 +359,7 @@ function loadPads(){return get("/api/launchpads").then(function(j){
     '<div class="anno"><b>Security</b>'+esc(d.security_note)+'</div>'+
     '<div class="anno"><b>Rug vectors</b>'+esc(d.rug_vectors)+'</div>'+
     '<table class="kv">'+[["Creator cut",d.creator_cut],["Liquidity",d.liquidity_model],["Distribution",d.distribution],["Audit",d.audit],["Verdict",d.verdict]].map(function(k){return "<tr><td>"+k[0]+"</td><td>"+esc(k[1]||"n/a")+"</td></tr>";}).join("")+"</table></div>"+
-    '<div class="actions"><a class="src" href="'+esc(d.url)+'" target="_blank" rel="noopener">Open launchpad</a>'+(d.verify||[]).filter(function(v){return v.url!==d.url;}).map(function(v){return '<a class="src" href="'+esc(v.url)+'" target="_blank" rel="noopener">Verify: '+esc(v.label)+'</a>';}).join("")+"</div>";
+    '<div class="actions"><a class="src" href="'+esc(d.url)+'" target="_blank" rel="noopener">Open launchpad</a>'+(d.verify||[]).filter(function(v){return v.url!==d.url;}).map(function(v){return '<a class="src" href="'+esc(v.url)+'" target="_blank" rel="noopener">Verify: '+esc(v.label)+'</a>';}).join("")+"</div></article>";
   }).join("");
 });}
 var loaders={personas:loadPersonas,logs:loadLogs,funds:loadFunds,hooks:loadHooks,chains:loadChains,dirs:loadDirs,pads:loadPads,need:function(){return Promise.resolve();}};
