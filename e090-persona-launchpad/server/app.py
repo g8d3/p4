@@ -34,6 +34,12 @@ def append_log(entry):
     with open(LOGS, "a") as f: f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     return entry
 
+DIRECTORIES = [
+  {"name": "HookRank", "url": "https://hookrank.io/", "kind": "metrics / benchmarking", "what": "Real-time per-hook data: transaction volume, success rate, gas efficiency. Claims $400M in hooked-pool volume. Started as ETHGlobal project, active as @HookRank on X.", "use": "our upstream feed candidate for APR + volume + success-rate cells"},
+  {"name": "HookAtlas", "url": "https://hookatlas.com/hooks", "kind": "curated gallery", "what": "17 hook projects with editorial descriptions (Aegis, Angstrom, Arrakis, Clanker, Doppler, EulerSwap, Flaunch, Gamma, Zora…). No TVL, no volume, no APR.", "use": "where half our watchlist came from; discovery, not numbers"},
+  {"name": "Dune: Uniswap v4 Growth by Hooks", "url": "https://dune.com/paulapivat/uniswap-v4-growth-by-hooks", "kind": "analytics dashboard", "what": "Hook adoption data: cross-chain volume, swap counts, LP pool fees. 87% of v4 volume still in hookless pools.", "use": "cross-check for our volume claims + market-share context"},
+  {"name": "awesome-uniswap-hooks", "url": "https://github.com/fewwwww/awesome-uniswap-hooks", "kind": "developer code index", "what": "Community list of hook repos and examples. Code links, zero market data.", "use": "implementation reference when we write our own hook"}
+]
 CHAINS = {
   "decision": "Solana first for launches, Base second for hooks moat. ONE app, pluggable chain adapters — never two codebases.",
   "solana": "Viral memecoin home. Pump-style bonding-curve launches cost cents and confirm in <1s; Raydium migration + Jupiter routing are the standard trust path; Meteora DAMM dynamic fees are Solana's closest answer to 'hooks'. Audience is the largest memecoin trader base — perfect for humor personas. No Uniswap v4 hooks (EVM-only), so custom fee-code moat is thinner; moat here is distribution + persona IP.",
@@ -66,6 +72,7 @@ class H(BaseHTTPRequestHandler):
         if p == "/api/logs": return self._json(read_logs())
         if p == "/api/funds": return self._json(FUNDS)
         if p == "/api/chains": return self._json(CHAINS)
+        if p == "/api/directories": return self._json(DIRECTORIES)
         if p == "/api/hooks":
             try:
                 with open(HOOKS) as f: return self._json(json.load(f))

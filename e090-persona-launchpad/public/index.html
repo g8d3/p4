@@ -186,6 +186,7 @@ footer code{background:#fff;border:1px solid var(--line);border-radius:6px;paddi
       <button type="button" data-page="funds" aria-pressed="false">Funds</button>
       <button type="button" data-page="hooks" aria-pressed="false">Hook directory</button>
       <button type="button" data-page="chains" aria-pressed="false">Chains</button>
+      <button type="button" data-page="dirs" aria-pressed="false">Directories</button>
       <button type="button" data-page="need" aria-pressed="false">Needed from you</button>
     </div>
     <div class="meta-line">
@@ -222,6 +223,7 @@ footer code{background:#fff;border:1px solid var(--line);border-radius:6px;paddi
     <div class="page" id="pg-funds"><div class="frames" id="fundsbox"></div></div>
     <div class="page" id="pg-hooks"><div class="frames two" id="hk"></div></div>
     <div class="page" id="pg-chains"><div class="frames" id="ch"></div></div>
+    <div class="page" id="pg-dirs"><div class="frames two" id="dirs"></div></div>
     <div class="page" id="pg-need"><div class="frames"><article class="frame" aria-label="Checklist">
       <div class="frame-top"><span class="fid">Frame / need-checklist</span><span class="node">node-id: unblock</span><span class="push cat cat-c">3 items</span></div>
       <div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Needed from you — nothing else</h3>
@@ -333,13 +335,23 @@ function loadChains(){return get("/api/chains").then(function(c){
     fr("01","chain-sol","Solana — phase 1",c.solana)+fr("02","chain-bse","Base — phase 2",c.base)+
     fr("03","chain-arc","Why not two apps",c.why_not_two_apps)+fr("04","chain-pln","Phase plan",c.phase_plan);
 });}
-var loaders={personas:loadPersonas,logs:loadLogs,funds:loadFunds,hooks:loadHooks,chains:loadChains,need:function(){return Promise.resolve();}};
-var counts={personas:null,logs:null,funds:null,hooks:null,chains:null,need:"3-item checklist frame on canvas"};
+function loadDirs(){return get("/api/directories").then(function(r){
+  $count.textContent=r.length+" directory frames on canvas";
+  document.getElementById("dirs").innerHTML=r.map(function(d,i){
+    var n=String(i+1).padStart(2,"0");
+    return '<article class="frame"><div class="frame-top"><span class="fid">Frame / dir-'+n+'</span><span class="node">node-id: '+esc(d.name.slice(0,24))+'</span><span class="push cat cat-b">'+esc(d.kind)+'</span></div>'+
+    '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+esc(d.name)+'</h3>'+swatches()+
+    '<p class="blurb">'+esc(d.what)+'</p><div class="anno"><b>We use it for</b>'+esc(d.use)+'</div></div>'+
+    '<div class="actions"><a class="src" href="'+esc(d.url)+'" target="_blank" rel="noopener">Open directory</a></div></article>';
+  }).join("");
+});}
+var loaders={personas:loadPersonas,logs:loadLogs,funds:loadFunds,hooks:loadHooks,chains:loadChains,dirs:loadDirs,need:function(){return Promise.resolve();}};
+var counts={personas:null,logs:null,funds:null,hooks:null,chains:null,dirs:null,need:"3-item checklist frame on canvas"};
 document.getElementById("pageseg").addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
   var pg=b.getAttribute("data-page");
   Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
-  ["personas","logs","funds","hooks","chains","need"].forEach(function(p){document.getElementById("pg-"+p).classList.toggle("on",p===pg);});
+  ["personas","logs","funds","hooks","chains","dirs","need"].forEach(function(p){document.getElementById("pg-"+p).classList.toggle("on",p===pg);});
   $status.textContent="Loading "+pg+"…";
   loaders[pg]().then(function(){
     if(counts[pg])$count.textContent=counts[pg];
