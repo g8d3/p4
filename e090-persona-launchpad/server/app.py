@@ -73,6 +73,10 @@ class H(BaseHTTPRequestHandler):
         if p == "/api/funds": return self._json(FUNDS)
         if p == "/api/chains": return self._json(CHAINS)
         if p == "/api/directories": return self._json(DIRECTORIES)
+        if p == "/api/launchpads":
+            try:
+                with open(os.path.join(BASE, "data", "launchpads.json")) as f: return self._json(json.load(f))
+            except Exception as e: return self._json({"error": str(e)}, 500)
         if p == "/api/hooks":
             try:
                 with open(HOOKS) as f: return self._json(json.load(f))

@@ -187,6 +187,7 @@ footer code{background:#fff;border:1px solid var(--line);border-radius:6px;paddi
       <button type="button" data-page="hooks" aria-pressed="false">Hook directory</button>
       <button type="button" data-page="chains" aria-pressed="false">Chains</button>
       <button type="button" data-page="dirs" aria-pressed="false">Directories</button>
+      <button type="button" data-page="pads" aria-pressed="false">Launchpads</button>
       <button type="button" data-page="need" aria-pressed="false">Needed from you</button>
     </div>
     <div class="meta-line">
@@ -224,6 +225,7 @@ footer code{background:#fff;border:1px solid var(--line);border-radius:6px;paddi
     <div class="page" id="pg-hooks"><div class="frames two" id="hk"></div></div>
     <div class="page" id="pg-chains"><div class="frames" id="ch"></div></div>
     <div class="page" id="pg-dirs"><div class="frames two" id="dirs"></div></div>
+    <div class="page" id="pg-pads"><div class="frames two" id="pads"></div></div>
     <div class="page" id="pg-need"><div class="frames"><article class="frame" aria-label="Checklist">
       <div class="frame-top"><span class="fid">Frame / need-checklist</span><span class="node">node-id: unblock</span><span class="push cat cat-c">3 items</span></div>
       <div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>Needed from you — nothing else</h3>
@@ -345,13 +347,28 @@ function loadDirs(){return get("/api/directories").then(function(r){
     '<div class="actions"><a class="src" href="'+esc(d.url)+'" target="_blank" rel="noopener">Open directory</a></div></article>';
   }).join("");
 });}
-var loaders={personas:loadPersonas,logs:loadLogs,funds:loadFunds,hooks:loadHooks,chains:loadChains,dirs:loadDirs,need:function(){return Promise.resolve();}};
-var counts={personas:null,logs:null,funds:null,hooks:null,chains:null,dirs:null,need:"3-item checklist frame on canvas"};
+function loadPads(){return get("/api/launchpads").then(function(j){
+  var r=j.launchpads||[];
+  $count.textContent=r.length+" launchpad frames · updated "+esc(j.updated||"n/a");
+  document.getElementById("pads").innerHTML=r.map(function(d,i){
+    var n=String(i+1).padStart(2,"0");
+    return '<article class="frame"><div class="frame-top"><span class="fid">Frame / pad-'+n+'</span><span class="node">node-id: '+esc(d.name.slice(0,24))+'</span><span class="push cat cat-a">'+esc(d.chain)+'</span></div>'+
+    '<div class="frame-body"><h3><span class="tick" aria-hidden="true">|</span>'+esc(d.name)+'</h3>'+swatches()+
+    '<div class="specgrid"><div class="spec score"><small>Launch cost</small><b>'+esc(d.launch_cost)+'</b></div>'+
+    '<div class="spec"><small>Trade fee</small><b>'+esc(d.trade_fee)+'</b></div></div>'+
+    '<div class="anno"><b>Security</b>'+esc(d.security_note)+'</div>'+
+    '<div class="anno"><b>Rug vectors</b>'+esc(d.rug_vectors)+'</div>'+
+    '<table class="kv">'+[["Creator cut",d.creator_cut],["Liquidity",d.liquidity_model],["Distribution",d.distribution],["Audit",d.audit],["Verdict",d.verdict]].map(function(k){return "<tr><td>"+k[0]+"</td><td>"+esc(k[1]||"n/a")+"</td></tr>";}).join("")+"</table></div>"+
+    '<div class="actions"><a class="src" href="'+esc(d.url)+'" target="_blank" rel="noopener">Open launchpad</a>'+(d.verify||[]).filter(function(v){return v.url!==d.url;}).map(function(v){return '<a class="src" href="'+esc(v.url)+'" target="_blank" rel="noopener">Verify: '+esc(v.label)+'</a>';}).join("")+"</div>";
+  }).join("");
+});}
+var loaders={personas:loadPersonas,logs:loadLogs,funds:loadFunds,hooks:loadHooks,chains:loadChains,dirs:loadDirs,pads:loadPads,need:function(){return Promise.resolve();}};
+var counts={personas:null,logs:null,funds:null,hooks:null,chains:null,dirs:null,pads:null,need:"3-item checklist frame on canvas"};
 document.getElementById("pageseg").addEventListener("click",function(e){
   var b=e.target.closest("button");if(!b)return;
   var pg=b.getAttribute("data-page");
   Array.prototype.forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
-  ["personas","logs","funds","hooks","chains","dirs","need"].forEach(function(p){document.getElementById("pg-"+p).classList.toggle("on",p===pg);});
+  ["personas","logs","funds","hooks","chains","dirs","pads","need"].forEach(function(p){document.getElementById("pg-"+p).classList.toggle("on",p===pg);});
   $status.textContent="Loading "+pg+"…";
   loaders[pg]().then(function(){
     if(counts[pg])$count.textContent=counts[pg];
