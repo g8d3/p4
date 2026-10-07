@@ -13,10 +13,14 @@
   "treasury": "unset \u2014 fee-recipient address goes here at first deploy",
   "strategy": "phase1-earn-as-clanker-interface, phase2-own-contracts-only-after-volume",
   "x_read": {
-    "configured": true,
-    "provider": "tinyfish (CLI, server-side auth present)",
-    "env": "TINYFISH_API_KEY (optional override; not currently exported in shell)",
-    "scope": "ad-hoc research reads: search + page fetch. No X Developer account needed."
+    "adhoc": "tinyfish CLI (present, no X account needed) \u2014 research only",
+    "dedicated": {
+      "provider": "twitterapi.io",
+      "configured": false,
+      "why": "real-time X read API, ~$0.15/1k reads (\u224833x cheaper than official), no approval wait, $0.1 free credits",
+      "env": "TWITTERAPI_IO_KEY (sent as X-API-Key header)",
+      "url": "https://twitterapi.io"
+    }
   },
   "x_write": {
     "configured": false,
