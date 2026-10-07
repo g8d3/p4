@@ -5,8 +5,20 @@
   "x_api_configured": false,
   "wallet_configured": false,
   "primary_chain": "solana",
-  "chain_role": {"solana": "token launches phase-1 (viral, cheap)", "base": "hooks moat + clanker-interface fees phase-2 (research now)"},
+  "chain_role": {
+    "solana": "token launches phase-1 (viral, cheap)",
+    "base": "hooks moat + clanker-interface fees phase-2 (research now)"
+  },
   "launcher": "pump-adapter-first, clanker-v4-as-interface-second",
-  "treasury": "unset — fee-recipient address goes here at first deploy",
-  "strategy": "phase1-earn-as-clanker-interface, phase2-own-contracts-only-after-volume"
+  "treasury": "unset \u2014 fee-recipient address goes here at first deploy",
+  "strategy": "phase1-earn-as-clanker-interface, phase2-own-contracts-only-after-volume",
+  "x_read": {
+    "configured": false,
+    "path": "X API Basic read endpoints (or LunarCrush/social-listening vendor), keys pending"
+  },
+  "x_write": {
+    "configured": false,
+    "path": "X API Basic write (poster worker) or managed scheduler (Typefully/Hypefury), keys pending"
+  },
+  "x_today": "ad-hoc unauthenticated scraping only (tinyfish fetch) \u2014 fragile, logged-out view, no scale; NOT a configured pipeline"
 }
