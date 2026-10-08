@@ -12,6 +12,10 @@ def skills():
     with open(os.path.join(ROOT, "data", "skills.json")) as f:
         return json.load(f)
 
+def indexers():
+    with open(os.path.join(ROOT, "data", "indexers.json")) as f:
+        return json.load(f)
+
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
@@ -38,6 +42,12 @@ class H(BaseHTTPRequestHandler):
             return self.send_json({"ok": True, "ts": int(time.time())})
         if u.path == "/api/skills":
             return self.send_json({"skills": skills(), "updated": "2026-10-05"})
+        if u.path == "/api/indexers":
+            return self.send_json({"indexers": indexers(), "updated": "2026-10-08"})
+        if u.path in ("/mobile", "/mobile.html"):
+            return self.serve_file(os.path.join(ROOT, "public", "mobile.html"))
+        if u.path in ("/m1", "/m2", "/m3", "/m4", "/m5"):
+            return self.serve_file(os.path.join(ROOT, "public", u.path[1:] + ".html"))
         if u.path in ("/", "/index.html"):
             p = os.path.join(ROOT, "public", "index.html")
             return self.serve_file(p)

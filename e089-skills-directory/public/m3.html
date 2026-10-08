@@ -1,0 +1,79 @@
+<!-- m3 · driving skill: responsive-design (owl-listener/designer-skills) · installs 2.0K, repo stars 2.9K shared · skills.sh: https://www.skills.sh/owl-listener/designer-skills/responsive-design · evidence: evidence-mobile/01-skills-sh-owl-listener-responsive-design.md · doctrine: adaptive breakpoints (375/640/1024/1440), Priority+ columns, off-canvas filters, input-method adaptation (touch vs pointer) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indexer Directory · m3 (adaptive + Priority+)</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:#17211e;background:#e9ecea}
+.wrap{max-width:60rem;margin:0 auto;padding:0 1.1rem}
+header{padding:2rem 0 .5rem}
+h1{margin:0;font-size:2rem;letter-spacing:-.01em}
+.sub{color:#5c6762;max-width:38em}
+.bar{display:flex;gap:.6rem;align-items:center;padding:.7rem 0;border-block:2px solid #17211e;flex-wrap:wrap}
+.bar input{flex:1;min-width:12rem;font-size:1rem;padding:.55rem .7rem;border:1px solid #5c6762;border-radius:.4rem;background:transparent;min-height:44px}
+.bar select{font-size:.95rem;padding:.55rem;border-radius:.4rem;min-height:44px}
+.bar button{font-size:.95rem;padding:.55rem .9rem;border-radius:1.2rem;border:1px solid #17211e;background:transparent;min-height:44px;cursor:pointer}
+.cards{display:grid;gap:.7rem;padding:1rem 0 5rem;grid-template-columns:1fr}
+@media(min-width:640px){.cards{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){table.full{display:table}.cards{display:none}.drawer{display:none!important}#fbtn{display:none!important}}
+@media(min-width:1440px){.wrap{max-width:72rem}}
+.card{background:#f1f4f2;border:1px solid #c4ccc7;border-radius:.6rem;padding:.9rem}
+.card h2{margin:0 0 .2rem;font-size:1.2rem}
+.pri{font-size:.8rem;color:#1f5c40;font-weight:700}
+.sec{font-size:.85rem;color:#5c6762}
+table.full{display:none;width:100%;border-collapse:collapse;background:#f1f4f2;margin:1rem 0 5rem;font-size:.9rem}
+th,td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid #c4ccc7}
+.drawer{position:fixed;inset:0 auto 0 0;width:min(20rem,85vw);background:#fff;border-right:1px solid #c4ccc7;padding:1rem;transform:translateX(-105%);transition:transform .2s;z-index:20}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:19}
+button.copy{color:#1f5c40;border-color:#1f5c40;background:transparent;border-radius:1.2rem;padding:.5rem .9rem;min-height:44px;cursor:pointer}
+@media(hover:hover) and (pointer:fine){.card:hover{border-color:#1f5c40}button:hover{background:#17211e;color:#fff}}
+@media(hover:none) and (pointer:coarse){.card{padding:1.1rem}button{padding:.7rem 1.1rem}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid #1f5c40;outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Indexers, prioritized</h1>
+<p class="sub">m3 · <b>owl-listener responsive-design</b>: Priority+ (name+type+latency always visible, rest overflows), off-canvas filters, touch-vs-pointer tuning. <a href="/mobile">Compare m1–m5</a></p></header>
+<div class="bar">
+<button id="fbtn" aria-expanded="false">☰ Filters</button>
+<input id="q" type="search" placeholder="Search — try solana, sql, stream" aria-label="Search">
+<select id="s" aria-label="Sort"><option value="name">Name</option><option value="chains">Chains ↓</option></select>
+</div>
+<div class="cards" id="cards"></div>
+<table class="full" id="tbl" aria-label="Full table on large screens"></table>
+</div>
+<div class="drawer" id="drawer" aria-label="Filters">
+<h2>Filters</h2>
+<p><label><input type="checkbox" class="ft" value="indexer-framework" checked> indexer-framework</label><br>
+<label><input type="checkbox" class="ft" value="unified-data-api" checked> unified-data-api</label><br>
+<label><input type="checkbox" class="ft" value="rpc-stream" checked> rpc-stream</label><br>
+<label><input type="checkbox" class="ft" value="sql-warehouse" checked> sql-warehouse</label><br>
+<label><input type="checkbox" class="ft" value="app-subgraph" checked> app-subgraph</label></p>
+<p><label><input type="checkbox" id="freeOnly"> Free tier only</label></p>
+<button id="close">Done ✓</button>
+</div>
+<script>
+const D=[["The Graph","app-subgraph",60,"GraphQL","indexed","per-query",1],["GoldRush by Covalent","unified-data-api",100,"REST+stream","near-real-time","subscription",1],["Moralis","unified-data-api",0,"REST+webhook","near-real-time","subscription",1],["Alchemy","rpc-stream",100,"RPC+REST","near-real-time","compute-units",1],["QuickNode Streams","rpc-stream",0,"RPC+streams","streaming","subscription",0],["Helius","rpc-stream",1,"RPC+WSS/gRPC","streaming","subscription",1],["Bitquery","sql-warehouse",9,"GraphQL+WS+SQL","streaming","subscription",1],["Dune","sql-warehouse",0,"SQL+API","warehouse","credits",1],["Flipside","sql-warehouse",30,"SQL+API","warehouse","seats",0],["Subsquid (SQD)","indexer-framework",200,"GraphQL","indexed","self-host",1],["Envio HyperIndex","indexer-framework",0,"GraphQL","indexed","self-host",1],["Ponder","indexer-framework",0,"GraphQL/SQL","indexed","self-host",1],["Apibara","indexer-framework",0,"gRPC stream","streaming","self-host",1],["Checkpoint","indexer-framework",2,"GraphQL","indexed","self-host",1],["Chainbase","unified-data-api",0,"REST+GraphQL","near-real-time","subscription",0]];
+function sel(){return [...document.querySelectorAll('.ft')].filter(x=>x.checked).map(x=>x.value);}
+function render(){const q=document.getElementById('q').value.toLowerCase(),T=sel(),F=document.getElementById('freeOnly').checked,S=document.getElementById('s').value;
+let L=D.filter(r=>T.includes(r[1])&&(!F||r[6])&&(r[0]+r[1]+r[3]+r[4]).toLowerCase().includes(q));
+L.sort((a,b)=>S==='chains'?b[2]-a[2]:a[0].localeCompare(b[0]));
+document.getElementById('cards').innerHTML=L.map(r=>'<article class="card"><div class="pri">'+r[1]+' · '+r[4]+'</div><h2>'+r[0]+'</h2><div class="sec">Priority: '+(r[2]||'verify')+' chains · '+r[3]+'<br>Overflow: '+r[5]+' · '+(r[6]?'has free tier':'no free tier')+'</div><p><button class="copy" data-c="'+r[0]+'">Copy name</button> <a href="/api/indexers">Source</a></p></article>').join('')||'<p>Nothing matches.</p>';
+document.getElementById('tbl').innerHTML='<tr><th>Name</th><th>Type</th><th>Chains</th><th>Interface</th><th>Latency</th><th>Pricing</th><th>Free</th></tr>'+L.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+(r[2]||'verify')+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td><td>'+r[5]+'</td><td>'+(r[6]?'yes':'no')+'</td></tr>').join('');
+document.querySelectorAll('.copy').forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.dataset.c);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy name',1200);});}
+const dr=document.getElementById('drawer');
+document.getElementById('fbtn').onclick=e=>{dr.classList.add('open');e.target.setAttribute('aria-expanded','true');const s=document.createElement('div');s.className='scrim';s.id='scrim';s.onclick=closeD;document.body.appendChild(s);};
+function closeD(){dr.classList.remove('open');document.getElementById('fbtn').setAttribute('aria-expanded','false');document.getElementById('scrim')?.remove();}
+document.getElementById('close').onclick=closeD;
+document.getElementById('q').oninput=render;document.getElementById('s').onchange=render;document.querySelectorAll('.ft,#freeOnly').forEach(x=>x.onchange=render);render();
+</script>
+<nav class="mxbar"><span>m3 owl-listener</span><a href="/mobile">compare</a><a href="/m1">m1</a><a href="/m2">m2</a><a href="/m4">m4</a><a href="/m5">m5</a></nav>
+<style>.mxbar{position:fixed;bottom:0;left:0;right:0;display:flex;gap:.4rem;align-items:center;padding:.6rem .8rem calc(.6rem + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:14px system-ui}.mxbar a{color:#cfd4da;text-decoration:none;border:1px solid #3a3f44;border-radius:2rem;padding:.45rem .9rem;min-height:44px;display:inline-flex;align-items:center}body{padding-bottom:76px}</style>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile skill showdown — indexer directory</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#14171a;background:#fff;padding-bottom:120px}
+.wrap{max-width:820px;margin:0 auto;padding:26px 18px}
+h1{font-size:26px;margin:0 0 4px}p.sub{color:#5b6470;margin:0 0 16px}
+h2{font-size:19px;margin:26px 0 8px}table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #e2e5ef;vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#5b6470}
+.cards{display:grid;gap:10px;grid-template-columns:1fr}
+@media(min-width:640px){.cards{grid-template-columns:1fr 1fr}}
+.card{border:1px solid #e2e5ef;border-radius:10px;padding:12px}
+.card h3{margin:0 0 4px;font-size:16px}.card p{margin:4px 0;font-size:13.5px;color:#333}
+.card a.btn{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;border:1px solid #14171a;border-radius:20px;text-decoration:none;color:#14171a;margin-top:6px}
+.pick{background:#f4f8f4;border:1px solid #1F5C40;border-radius:10px;padding:12px 14px}
+code{background:#f1f3f5;padding:1px 6px;border-radius:4px}
+:focus-visible{outline:2px solid #1F5C40;outline-offset:2px}
+@media(max-width:560px){table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>One directory, five mobile skills</h1>
+<p class="sub">Same 15 blockchain indexers, same 10 columns, rebuilt once per mobile-design skill on this same server. Open each on a phone (390px) and judge with your thumb, not your mouse.</p>
+<div class="cards">
+<div class="card"><h3>m1 · wshobson responsive-design</h3><p>20.0K installs. Container queries + clamp() fluid type. Cards reflow 1→2→3 by container, not viewport.</p><a class="btn" href="/m1">Open m1</a></div>
+<div class="card"><h3>m2 · mobile-ux-optimizer</h3><p>489 installs, the <b>only mobile-specific</b> skill: 44px targets, bottom tab bar, safe-area + 100dvh fix.</p><a class="btn" href="/m2">Open m2</a></div>
+<div class="card"><h3>m3 · owl-listener responsive-design</h3><p>2.0K installs. Adaptive 375/640/1024/1440 + Priority+ columns + off-canvas filters + touch-vs-pointer.</p><a class="btn" href="/m3">Open m3</a></div>
+<div class="card"><h3>m4 · responsive-craft</h3><p>★61 skill-specific. Intrinsic-first (1 media query), data-table fork, sticky compare tray.</p><a class="btn" href="/m4">Open m4</a></div>
+<div class="card"><h3>m5 · supercent responsive-design</h3><p>11.2K installs. 320px-first, rem-only, lightest CSS. The perf baseline.</p><a class="btn" href="/m5">Open m5</a></div>
+</div>
+<h2>Which columns matter for indexers</h2>
+<table>
+<tr><th>Column</th><th>Why it decides</th></tr>
+<tr><td><code>type</code> (5-way enum)</td><td>Biggest fork: per-app subgraph vs framework vs unified API vs RPC-stream vs SQL warehouse. Filter this first.</td></tr>
+<tr><td><code>chains_count</code> + note</td><td>Kills mismatches instantly (Solana-only Helius vs 200-chain SQD). Number sorts, note keeps it honest.</td></tr>
+<tr><td><code>query_interface</code></td><td>Integration cost: frontend → GraphQL/REST, analysts → SQL, backends → streams/webhooks.</td></tr>
+<tr><td><code>latency</code> (streaming→warehouse)</td><td>Trading bots need streaming; dashboards tolerate warehouse. Sort fastest-first.</td></tr>
+<tr><td><code>pricing_model</code> + <code>free_tier</code></td><td>Bill shape + can-I-prototype-today. Split in two columns, never one mushy "price" cell.</td></tr>
+<tr><td><code>decentralization</code> + <code>self_host</code></td><td>Trust/lock-in axis and the exit option. $0 self-host (Ponder/Checkpoint) vs hosted SaaS.</td></tr>
+<tr><td><code>verified</code> + <code>source_url</code></td><td>Pricing rots quarterly — every row carries its evidence date + link. Raw data: <a href="/api/indexers">/api/indexers</a>.</td></tr>
+</table>
+<h2>How to pick a skill — what to look at</h2>
+<table>
+<tr><th>#</th><th>Test (do it at 390px)</th><th>What separates them</th></tr>
+<tr><td>1</td><td>Can you compare 3 indexers with one thumb, no horizontal scroll?</td><td>m2 bottom-nav + m4 compare tray vs m1/m5 pure grids. Table-forks (m4) beat squished &lt;table&gt;s.</td></tr>
+<tr><td>2</td><td>Do targets hit 44px? Does content clear the notch/home bar?</td><td>Only m2 was <i>taught</i> safe-area + 100dvh + 44px. Check others with a ruler, not trust.</td></tr>
+<tr><td>3</td><td>Does type grow without breakpoints breaking? (zoom to 400%)</td><td>m1 container queries + m4 intrinsic auto-fit survive; fixed-breakpoint layouts (m3/m5) snap.</td></tr>
+<tr><td>4</td><td>Which columns survive on a phone?</td><td>m3 Priority+ is explicit (name+type+latency stay, rest overflows). Others show all-or-nothing — ask which you'd drop.</td></tr>
+<tr><td>5</td><td>Distrust the vanity numbers</td><td>40.3K stars on wshobson = whole repo, not this skill. Skill-specific signals: responsive-craft ★61, supercent 11.2K installs. Installs-per-skill &gt; repo stars, always.</td></tr>
+<tr><td>6</td><td>Speed on a slow phone</td><td>m5 (rem-only, smallest CSS) should win first paint; m2's fixed bars cost compositing. Time it, don't eyeball.</td></tr>
+</table>
+<div class="pick"><b>Short answer:</b> default to <b>m1 (wshobson)</b> for general responsive work — most installs, modern primitives. Take <b>m2</b> when the audience is phones-first (touch/safe-area/bottom-nav baked in). Take <b>m4</b> when the page <i>is</i> a data table — it's the only skill with table forks. Use <b>m3</b> when columns outnumber the screen (Priority+ discipline). Use <b>m5</b> as the perf floor every other version must beat.</div>
+<h2>Raw</h2>
+<p><a href="/api/indexers">/api/indexers</a> · evidence in <code>evidence-mobile/</code> + <code>evidence-indexers/</code> · ranking rule for skills: installs-per-skill + mobile-specificity + table strategy, never repo stars alone.</p>
+</div>
+<nav class="vxbar"><span class="on">compare</span><a href="/m1">m1</a><a href="/m2">m2</a><a href="/m3">m3</a><a href="/m4">m4</a><a href="/m5">m5</a></nav>
+<style>.vxbar{position:fixed;bottom:0;left:0;right:0;z-index:9999;display:flex;gap:6px;align-items:center;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#14171a;color:#9aa0a6;font:13px system-ui}.vxbar a{color:#9aa0a6;text-decoration:none;padding:3px 10px;border:1px solid #3a3f44;border-radius:20px}.vxbar .on{background:#fff;color:#14171a;font-weight:700;padding:3px 10px;border-radius:20px}</style>
+</body>
+</html>

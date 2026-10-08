@@ -1,0 +1,68 @@
+<!-- m2 · driving skill: mobile-ux-optimizer (curiositech/some_claude_skills) · installs 489, repo stars 242 shared across collection · skills.sh: https://www.skills.sh/curiositech/some_claude_skills/mobile-ux-optimizer · evidence: evidence-mobile/02-skills-sh-mobile-ux-optimizer.md · doctrine: 44px touch targets, bottom nav, safe-area + 100dvh viewport fix, gestures, mobile perf · only candidate scoped to mobile UX specifically -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Indexer Directory · m2 (thumb-first)</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#0f1419;background:#f6f7f9;min-height:100dvh;padding-bottom:calc(172px + env(safe-area-inset-bottom))}
+.top{position:sticky;top:0;background:#0f1419;color:#fff;padding:.9rem 1rem calc(.9rem);z-index:5}
+.top h1{margin:0;font-size:1.2rem}
+.top p{margin:.2rem 0 0;font-size:.82rem;color:#b9c2cc}
+.top p a{color:#fff}
+.srch{padding:.8rem 1rem 0}
+.srch input{width:100%;font-size:1rem;padding:.8rem;border:1px solid #d4dae1;border-radius:.9rem;min-height:48px}
+.chips{display:flex;gap:.5rem;overflow-x:auto;padding:.7rem 1rem;-webkit-overflow-scrolling:touch}
+.chips button{flex:0 0 auto;min-height:44px;min-width:44px;padding:.6rem 1rem;border-radius:2rem;border:1px solid #d4dae1;background:#fff;font-size:.9rem}
+.chips button[aria-pressed="true"]{background:#0f1419;color:#fff;border-color:#0f1419}
+.list{padding:.4rem 1rem;display:grid;gap:.7rem}
+.card{background:#fff;border:1px solid #e3e7ec;border-radius:1rem;padding:1rem}
+.card h2{margin:0 0 .2rem;font-size:1.15rem}
+.tag{display:inline-block;font-size:.78rem;background:#eef4ff;color:#0b5fff;border-radius:2rem;padding:.25rem .7rem;margin-right:.3rem}
+.meta{color:#5c6670;font-size:.88rem;margin:.4rem 0}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.5rem}
+.acts button,.acts a{min-height:48px;display:flex;align-items:center;justify-content:center;border-radius:.8rem;font-size:1rem;border:1px solid #0f1419;background:#fff;color:#0f1419;text-decoration:none}
+.acts .go{background:#0f1419;color:#fff}
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #d4dae1;display:flex;flex-wrap:wrap;padding:.4rem .6rem calc(.5rem + env(safe-area-inset-bottom));z-index:9}
+.tabbar button{flex:1 1 30%}
+.tabbar .vers{flex:1 1 100%;display:flex;gap:.35rem;justify-content:center;flex-wrap:wrap;border-top:1px solid #e3e7ec;padding-top:.35rem;margin-top:.1rem}
+.tabbar .vers a{font-size:.82rem;color:#0f1419;text-decoration:none;border:1px solid #d4dae1;border-radius:2rem;padding:.5rem .8rem;min-height:44px;display:inline-flex;align-items:center}
+.tabbar button{min-height:52px;border:0;background:none;font-size:.85rem;display:flex;flex-direction:column;align-items:center;gap:2px;color:#0f1419}
+.tabbar button b{font-size:1.1rem}
+#census{padding:0 1rem;color:#5c6670;font-size:.85rem}
+</style>
+</head>
+<body>
+<div class="top"><h1>Indexers · thumb-first</h1><p>m2 · <b>mobile-ux-optimizer</b> (touch, safe-area, bottom nav) · <a href="/mobile">compare m1–m5</a></p></div>
+<div class="srch"><input id="q" type="search" placeholder="Search indexers, chains, SQL, stream…" aria-label="Search"></div>
+<div class="chips" id="chips" role="group" aria-label="Type filter"></div>
+<p id="census"></p>
+<div class="list" id="list"></div>
+<nav class="tabbar" aria-label="Bottom navigation">
+<button id="tBrowse"><b>▦</b>Browse</button>
+<button id="tFree"><b>○</b>Free tier</button>
+<button id="tFast"><b>≫</b>Fastest</button>
+<div class="vers" aria-label="Versions"><a href="/mobile">compare</a><a href="/m1">m1</a><a href="/m3">m3</a><a href="/m4">m4</a><a href="/m5">m5</a></div>
+</nav>
+<script>
+const D=[["The Graph","app-subgraph",60,"GraphQL","indexed","per-query",1,"100k/mo free"],["GoldRush by Covalent","unified-data-api",100,"REST+stream","near-real-time","subscription",1,"14-day/25k credits"],["Moralis","unified-data-api",0,"REST+webhook","near-real-time","subscription",1,"free tier (verify)"],["Alchemy","rpc-stream",100,"RPC+REST+webhooks","near-real-time","compute-units",1,"30M CU/mo"],["QuickNode Streams","rpc-stream",0,"RPC+streams","streaming","subscription",0,"verify"],["Helius","rpc-stream",1,"RPC+WSS/gRPC","streaming","subscription",1,"1M credits"],["Bitquery","sql-warehouse",9,"GraphQL+WS+SQL","streaming","subscription",1,"7-day trial"],["Dune","sql-warehouse",0,"SQL+API","warehouse","credits",1,"2,500/mo"],["Flipside","sql-warehouse",30,"SQL+API","warehouse","seats",0,"verify"],["Subsquid (SQD)","indexer-framework",200,"GraphQL","indexed","self-host",1,"portal free"],["Envio HyperIndex","indexer-framework",0,"GraphQL","indexed","self-host",1,"cloud free dev"],["Ponder","indexer-framework",0,"GraphQL/SQL","indexed","self-host",1,"$0"],["Apibara","indexer-framework",0,"gRPC stream","streaming","self-host",1,"$0"],["Checkpoint","indexer-framework",2,"GraphQL","indexed","self-host",1,"$0"],["Chainbase","unified-data-api",0,"REST+GraphQL","near-real-time","subscription",0,"verify"]];
+const TYPES=["all","app-subgraph","indexer-framework","unified-data-api","rpc-stream","sql-warehouse"];
+let type="all",q="",mode="browse";
+const chips=document.getElementById('chips');
+chips.innerHTML=TYPES.map(t=>'<button data-t="'+t+'" aria-pressed="'+(t===type)+'">'+t+'</button>').join('');
+chips.querySelectorAll('button').forEach(b=>b.onclick=()=>{type=b.dataset.t;chips.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.t===type));render();});
+document.getElementById('q').oninput=e=>{q=e.target.value.toLowerCase();render();};
+document.getElementById('tFree').onclick=()=>{mode='free';render();};
+document.getElementById('tFast').onclick=()=>{mode='fast';render();};
+document.getElementById('tBrowse').onclick=()=>{mode='browse';render();};
+function render(){let L=D.filter(r=>(type==='all'||r[1]===type)&&(r[0]+r[1]+r[3]).toLowerCase().includes(q));
+if(mode==='free')L=L.filter(r=>r[6]);if(mode==='fast')L=[...L].sort((a,b)=>a[4].localeCompare(b[4]));
+document.getElementById('census').textContent=L.length+' of '+D.length+' · 48px targets · safe-area padded · columns: name/type/chains/interface/latency/pricing/free';
+document.getElementById('list').innerHTML=L.map(r=>'<article class="card"><h2>'+r[0]+'</h2><span class="tag">'+r[1]+'</span><span class="tag">'+r[4]+'</span><p class="meta">'+(r[2]||'verify')+' chains · '+r[3]+'<br>'+r[5]+' · '+(r[6]?'free: '+r[7]:'no free tier')+'</p><div class="acts"><button class="go" data-c="'+r[0]+'">Copy name</button><a href="/api/indexers" target="_blank" rel="noopener">Source</a></div></article>').join('')||'<p id="census">Nothing matches. Try fewer words.</p>';
+document.querySelectorAll('.go').forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.dataset.c);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy name',1200);});}
+render();
+</script>
+</body>
+</html>

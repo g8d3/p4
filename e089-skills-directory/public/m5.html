@@ -1,0 +1,62 @@
+<!-- m5 · driving skill: responsive-design (supercent-io/skills-template) · installs 11.2K, repo stars 88 · skills.sh: https://www.skills.sh/supercent-io/skills-template/responsive-design · evidence: evidence-mobile/04-skills-sh-supercent-responsive-design.md · doctrine: mobile-first progression 320→1440, relative units only (rem/%), max-width constraints, responsive images, perf per device -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indexer Directory · m5 (320px first)</title>
+<style>
+*{box-sizing:border-box}
+html{font-size:100%}
+body{margin:0;font:1rem/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;color:#1a1a1a;background:#fff}
+.wrap{max-width:90rem;margin:0 auto;padding:0 4%}
+header{padding:2rem 0 0}
+.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:#666}
+h1{font-size:1.9rem;line-height:1.15;margin:.2rem 0;max-width:22ch}
+.lede{font-size:1.05rem;color:#333;max-width:36rem}
+.controls{margin:1rem 0;display:grid;gap:.6rem;grid-template-columns:1fr}
+.controls input,.controls select{width:100%;max-width:100%;font-size:1rem;padding:.7rem;border:.0625rem solid #999;border-radius:.5rem;min-height:2.75rem}
+.list{display:grid;gap:1rem;padding:1rem 0 6rem;grid-template-columns:1fr}
+.item{border-top:.1875rem solid #1a1a1a;padding-top:.7rem}
+.item h2{margin:0;font-size:1.2rem}
+.facts{margin:.4rem 0;font-size:.92rem;color:#333}
+.facts dt{display:inline;font-weight:700}.facts dd{display:inline;margin:0 .8rem 0 .3rem;color:#444}
+.pill{display:inline-block;font-size:.78rem;border:.0625rem solid #ccc;border-radius:2rem;padding:.15rem .7rem;margin:.15rem .25rem .15rem 0;color:#444}
+.actions{display:flex;gap:.6rem;margin-top:.5rem;flex-wrap:wrap}
+.actions button,.actions a{font-size:.95rem;min-height:2.75rem;padding:.55rem 1.1rem;border-radius:2rem;border:.0625rem solid #1a1a1a;background:#fff;color:#1a1a1a;cursor:pointer;text-decoration:none}
+.actions .go{background:#1a1a1a;color:#fff}
+img.logo{width:100%;max-width:100%;height:auto;display:block;background:#f2f2f2;border-radius:.5rem}
+@media(min-width:48rem){.controls{grid-template-columns:2fr 1fr 1fr}.list{grid-template-columns:1fr 1fr}h1{font-size:2.4rem}}
+@media(min-width:90rem){.list{grid-template-columns:1fr 1fr 1fr}}
+:focus-visible{outline:.125rem solid #1a1a1a;outline-offset:.125rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="eyebrow">m5 · supercent responsive-design · 320px first</div>
+<h1>Every blockchain indexer, readable on a phone</h1>
+<p class="lede">Built mobile-first (320px → 1440px), relative units only, zero requests, zero images to download — placeholders are pure CSS. Same 15 indexers as m1–m4. <a href="/mobile">Compare all five</a></p>
+<div class="controls">
+<input id="q" type="search" placeholder="Search indexers…" aria-label="Search">
+<select id="t" aria-label="Type"><option value="">Every type</option><option>app-subgraph</option><option>indexer-framework</option><option>unified-data-api</option><option>rpc-stream</option><option>sql-warehouse</option></select>
+<select id="s" aria-label="Sort"><option value="name">A–Z</option><option value="chains">Most chains</option></select>
+</div>
+<p id="census"></p>
+</header>
+<div class="list" id="list"></div>
+</div>
+<script>
+const D=[["The Graph","app-subgraph",60,"GraphQL","indexed","per-query",1],["GoldRush","unified-data-api",100,"REST+stream","near-real-time","subscription",1],["Moralis","unified-data-api",0,"REST+webhook","near-real-time","subscription",1],["Alchemy","rpc-stream",100,"RPC+REST","near-real-time","CU",1],["QuickNode Streams","rpc-stream",0,"RPC+streams","streaming","subscription",0],["Helius","rpc-stream",1,"RPC+WSS/gRPC","streaming","subscription",1],["Bitquery","sql-warehouse",9,"GraphQL+WS+SQL","streaming","subscription",1],["Dune","sql-warehouse",0,"SQL+API","warehouse","credits",1],["Flipside","sql-warehouse",30,"SQL+API","warehouse","seats",0],["Subsquid (SQD)","indexer-framework",200,"GraphQL","indexed","self-host",1],["Envio","indexer-framework",0,"GraphQL","indexed","self-host",1],["Ponder","indexer-framework",0,"GraphQL/SQL","indexed","self-host",1],["Apibara","indexer-framework",0,"gRPC","streaming","self-host",1],["Checkpoint","indexer-framework",2,"GraphQL","indexed","self-host",1],["Chainbase","unified-data-api",0,"REST+GQL","near-real-time","subscription",0]];
+function render(){const q=document.getElementById('q').value.toLowerCase(),t=document.getElementById('t').value,s=document.getElementById('s').value;
+let L=D.filter(r=>(!t||r[1]===t)&&(r[0]+r[1]+r[3]).toLowerCase().includes(q));
+L.sort((a,b)=>s==='chains'?b[2]-a[2]:a[0].localeCompare(b[0]));
+document.getElementById('census').textContent=L.length+' of '+D.length+' · rem-only CSS · columns: name/type/chains/interface/latency/pricing/free';
+document.getElementById('list').innerHTML=L.map(r=>'<article class="item"><h2>'+r[0]+'</h2><div><span class="pill">'+r[1]+'</span><span class="pill">'+r[4]+'</span><span class="pill">'+(r[2]||'verify')+' chains</span></div><dl class="facts"><dt>Interface</dt><dd>'+r[3]+'</dd><dt>Pricing</dt><dd>'+r[5]+'</dd><dt>Free</dt><dd>'+(r[6]?'yes':'no')+'</dd></dl><div class="actions"><button class="go" data-c="'+r[0]+'">Copy</button><a href="/api/indexers">Source</a></div></article>').join('')||'<p>Nothing matches.</p>';
+document.querySelectorAll('.go').forEach(b=>b.onclick=()=>{navigator.clipboard.writeText(b.dataset.c);b.textContent='Copied ✓';setTimeout(()=>b.textContent='Copy',1200);});}
+document.getElementById('q').oninput=render;document.getElementById('t').onchange=render;document.getElementById('s').onchange=render;render();
+</script>
+<nav class="mxbar"><span>m5 supercent</span><a href="/mobile">compare</a><a href="/m1">m1</a><a href="/m2">m2</a><a href="/m3">m3</a><a href="/m4">m4</a></nav>
+<style>.mxbar{position:fixed;bottom:0;left:0;right:0;display:flex;gap:.4rem;align-items:center;padding:.6rem .8rem calc(.6rem + env(safe-area-inset-bottom));background:#1a1a1a;color:#bbb;font:.85rem system-ui}.mxbar a{color:#fff;text-decoration:none;border:1px solid #666;border-radius:2rem;padding:.45rem .9rem;min-height:44px;display:inline-flex;align-items:center}body{padding-bottom:76px}</style>
+</body>
+</html>

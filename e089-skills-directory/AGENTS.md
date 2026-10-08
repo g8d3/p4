@@ -24,6 +24,22 @@ never raw GitHub stars alone.
 - `data/skills.json` — the listings. Fields per skill: name, repo,
   category, blurb, installs, trend8w, stars_repo, stars_note, last_commit,
   mentions, score, install_cmd, skill_url, verified.
+- `data/indexers.json` — blockchain-indexer directory (15 rows, 2026-10-08).
+  Columns (one fact each): name, type (5-way enum), chains_count +
+  chains_note, query_interface, latency, pricing_model, free_tier +
+  free_note, decentralization, self_host + selfhost_note, verified +
+  source_url. Served at `/api/indexers`.
+- `public/mobile.html` — compare page: same 15 indexers × 5 mobile skills,
+  column rationale, 6-test picking rubric + short-answer verdict.
+- `public/m1.html`–`public/m5.html` — one mobile-skill build each of the
+  same indexer directory: m1 wshobson responsive-design (20.0K),
+  m2 curiositech mobile-ux-optimizer (489, only mobile-specific),
+  m3 owl-listener responsive-design (2.0K, Priority+/input-method),
+  m4 kylezantos responsive-craft (★61 skill-specific, table forks),
+  m5 supercent responsive-design (11.2K, 320px-first).
+  Scout alternate (not built): aj-geddes mobile-first-design — overlaps m5,
+  no per-skill installs published. See `evidence-mobile/SHORTLIST.md`.
+- `evidence-mobile/` + `evidence-indexers/` — raw probes (URL + date + quotes).
 - `bin/serve.sh` — start server (reads port from needs.json).
 
 ## Ranking rule (v1)
