@@ -1,0 +1,42 @@
+{
+ "as_of": "2026-10-09",
+ "rule": "highest-liquidity live pair per token; venue noted",
+ "pairs": {
+  "Hookr": {
+   "chain": "robinhood",
+   "address": "0x24a78c8a834eb556f92da4f83dd7bcd8cf14bf2f029e2620585f28b69403fb83",
+   "venue": "uniswap-v4",
+   "url": "https://dexscreener.com/robinhood/0x24a78c8a834eb556f92da4f83dd7bcd8cf14bf2f029e2620585f28b69403fb83"
+  },
+  "Claus": {
+   "chain": "ethereum",
+   "address": "0xc2DA8a7f8233112Dc5B216dE23c4308063EAa631",
+   "venue": "uniswap-v2",
+   "url": "https://dexscreener.com/ethereum/0xc2DA8a7f8233112Dc5B216dE23c4308063EAa631"
+  },
+  "Programmable ($V4)": {
+   "chain": "robinhood",
+   "address": "0x9d7863a45cf66868249d482a63f9501293bea6c5ed2e2ea9bddab4f5567dfb72",
+   "venue": "uniswap-v4",
+   "url": "https://dexscreener.com/robinhood/0x9d7863a45cf66868249d482a63f9501293bea6c5ed2e2ea9bddab4f5567dfb72"
+  },
+  "Hooked (Hoookedpad)": {
+   "chain": "solana",
+   "address": "FtiotJckV2ZG4S1YgJDJLiXKKDAnKWXgQxo7vxsjPwPe",
+   "venue": "meteora-DLMM",
+   "url": "https://dexscreener.com/solana/FtiotJckV2ZG4S1YgJDJLiXKKDAnKWXgQxo7vxsjPwPe"
+  },
+  "Fairlaunch": {
+   "chain": "ethereum",
+   "address": "0xd6Ef070951d008f1e6426ad9ca1C4FcF7220eE4D",
+   "venue": "uniswap-v2",
+   "url": "https://dexscreener.com/ethereum/0xd6Ef070951d008f1e6426ad9ca1C4FcF7220eE4D"
+  },
+  "Bordrless ($BORDR)": {
+   "chain": "solana",
+   "address": "4xp7kN4nVt19caq4kM629vL8vJEqpSFVdZAh27wvYPh8",
+   "venue": "meteora-DYN2",
+   "url": "https://dexscreener.com/solana/4xp7kN4nVt19caq4kM629vL8vJEqpSFVdZAh27wvYPh8"
+  }
+ }
+}

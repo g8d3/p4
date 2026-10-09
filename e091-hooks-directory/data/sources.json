@@ -1,0 +1,958 @@
+{
+ "endpoint": "https://api.twitterapis.com/twitter/tweet/advanced_search + /twitter/user/info",
+ "env_var": "TWITTERAPIS_API_KEY",
+ "auth": "X-API-Key header",
+ "captured": "2026-10-09",
+ "query_type": "Top",
+ "count": 10,
+ "queries": [
+  "Bunni v4 liquidity",
+  "CLAUS v4 hook agent",
+  "Hookr hook blocks",
+  "PancakeSwap Infinity hook OR clAMM",
+  "Solana transfer hook Token-2022",
+  "Uniswap v4 hooks",
+  "hookathon uniswap",
+  "Solana hooks (60, Latest)"
+ ],
+ "sources": [
+  {
+   "name": "Hookr",
+   "handle": "@Hookrfun",
+   "site": "https://hookr.fun",
+   "tweet_url": "https://x.com/Hookrfun/status/2107906306338107542",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@TheBlockRunner",
+     "followers": 20051,
+     "date": "2026-10-08",
+     "text": "The dip did its job. \n\nThe tourists left @RobinhoodCrypto, and the builders kept shipping. \n\nOne agent token $CLAUS rewrote its own contract 13 times while prices bled. \n\nV4 Hooks are generating the next class of interesting narratives onchain.\n\nOne of these projects will likely ",
+     "url": "https://x.com/TheBlockRunner/status/2108339892640002168",
+     "ts": "Thu Oct 08 23:32:56 +0000 2026",
+     "eng": {
+      "likes": 19,
+      "reposts": 3,
+      "replies": 2,
+      "quotes": 0,
+      "bookmarks": 6,
+      "views": 1473
+     },
+     "ts_iso": "2026-10-08T23:32:56+00:00"
+    },
+    {
+     "query": "Hookr hook blocks",
+     "author": "@Hookrfun",
+     "followers": 6124,
+     "date": "2026-10-07",
+     "text": "Big Hookr update goes live today:\n\nBuild your own @Uniswap v4 hook from Hook Blocks: proven hook legos you pick, tune and remix, no code needed. So far we had 6. This update adds 21 new Hook Blocks and tools.\n\nTwo ways to launch:\n\u2022 Deploy your own hook with your Hook Blocks in on",
+     "url": "https://x.com/Hookrfun/status/2107906306338107542",
+     "ts": "Wed Oct 07 18:50:01 +0000 2026",
+     "eng": {
+      "likes": 300,
+      "reposts": 62,
+      "replies": 88,
+      "quotes": 31,
+      "bookmarks": 26,
+      "views": 43356
+     },
+     "ts_iso": "2026-10-07T18:50:01+00:00"
+    },
+    {
+     "query": "Hookr hook blocks",
+     "author": "@Hookrfun",
+     "followers": 6124,
+     "date": "2026-10-09",
+     "text": "Update on remaining items from yesterday:\n\u2022 Deploy your own @Uniswap v4 hook with your Hook Blocks in one transaction. The first one is already on chain.\n\u2022 Canonical Venue Token launches.\n\u2022 Buy/Sell Block, Market Guard, Swap Reward Mint, Zap Relay.\n\u2022 Entry Ratio Guarantee, Recove",
+     "url": "https://x.com/Hookrfun/status/2108389091918090704",
+     "ts": "Fri Oct 09 02:48:26 +0000 2026",
+     "eng": {
+      "likes": 67,
+      "reposts": 15,
+      "replies": 6,
+      "quotes": 5,
+      "bookmarks": 1,
+      "views": 3159
+     },
+     "ts_iso": "2026-10-09T02:48:26+00:00"
+    },
+    {
+     "query": "Hookr hook blocks",
+     "author": "@CodemenTech",
+     "followers": 1036,
+     "date": "2026-10-08",
+     "text": "Hookr's big update is coming to Codemen too.\n\nThe new Hook Blocks from @Hookrfun will be available on every CodeMen launch, on the site and with one post on X: Anti-Snipe, Auto Burn, LP Rewards, King of the Pool and more, with cheaper swaps and launches.\n\nEvery token stays backed",
+     "url": "https://x.com/CodemenTech/status/2108263652788974040",
+     "ts": "Thu Oct 08 18:29:59 +0000 2026",
+     "eng": {
+      "likes": 30,
+      "reposts": 5,
+      "replies": 7,
+      "quotes": 0,
+      "bookmarks": 1,
+      "views": 1062
+     },
+     "ts_iso": "2026-10-08T18:29:59+00:00"
+    },
+    {
+     "query": "Hookr hook blocks",
+     "author": "@RobinhoodHub",
+     "followers": 23571,
+     "date": "2026-10-08",
+     "text": "Project Spotlight: @Hookrfun\n\nUniswap v4 hooks give trading pools their own rules.\n\nHookr lets teams build those rules without writing custom code, then add them to new or existing tokens.\n\n- 21 new Hook Blocks added\n- 47% to 70% lower swap gas\n- Around 40% lower launch costs\n- U",
+     "url": "https://x.com/RobinhoodHub/status/2108331615994704230",
+     "ts": "Thu Oct 08 23:00:02 +0000 2026",
+     "eng": {
+      "likes": 17,
+      "reposts": 4,
+      "replies": 1,
+      "quotes": 0,
+      "bookmarks": 0,
+      "views": 776
+     },
+     "ts_iso": "2026-10-08T23:00:02+00:00"
+    }
+   ],
+   "queries_matched": [
+    "CLAUS v4 hook agent",
+    "Hookr hook blocks",
+    "Solana transfer hook Token-2022"
+   ]
+  },
+  {
+   "name": "Bunni v2",
+   "handle": "@bunni_xyz",
+   "site": "https://www.bunni.xyz",
+   "tweet_url": "https://x.com/bunni_xyz/status/1885489587541385231",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "Bunni v4 liquidity",
+     "author": "@victorokpukpan_",
+     "followers": 2751,
+     "date": "2025-09-03",
+     "text": "Earlier I said I\u2019d wait for the full breakdown of the @bunni_xyz exploit.\n\nHere it is.\n\nBunni V2, built on Uniswap v4, lost over $8M after a precision bug in its liquidity accounting. The Liquidity Distribution Function (LDF) was exploited.\n\nBunni introduces its own liquidity cur",
+     "url": "https://x.com/victorokpukpan_/status/1963260076715852071",
+     "ts": "Wed Sep 03 15:17:32 +0000 2025",
+     "eng": {
+      "likes": 28,
+      "reposts": 5,
+      "replies": 1,
+      "quotes": 0,
+      "bookmarks": 16,
+      "views": 1567
+     },
+     "ts_iso": "2025-09-03T15:17:32+00:00"
+    },
+    {
+     "query": "Bunni v4 liquidity",
+     "author": "@c0xswain",
+     "followers": 8338,
+     "date": "2024-09-09",
+     "text": "While searching for projects building on uni v4 (ETA Q4'24), I came across @bunni_xyz and it's perhaps the best thing i've seen in the last six months. If you have 60 seconds i'd like to share the idea with you, you got a minute?\n\nOverview and Features\nQuick recap - Uni v4 hooks ",
+     "url": "https://x.com/c0xswain/status/1833051985635062228",
+     "ts": "Mon Sep 09 07:57:04 +0000 2024",
+     "eng": {
+      "likes": 102,
+      "reposts": 21,
+      "replies": 11,
+      "quotes": 6,
+      "bookmarks": 73,
+      "views": 18851
+     },
+     "ts_iso": "2024-09-09T07:57:04+00:00"
+    },
+    {
+     "query": "Bunni v4 liquidity",
+     "author": "@SuhradMakwana",
+     "followers": 2571,
+     "date": "2025-09-02",
+     "text": "@bunni_xyz - DEX on Unichain V4 has been hacked Ethereum & Unichain, with losses estimated of $2.4M\n\nThe Bunni hack exploited a critical design flaw in how its Liquidity Distribution Function (LDF) interacts with UniswapV4 and manages rebalancing after trades. The attacker manipu",
+     "url": "https://x.com/SuhradMakwana/status/1962778930919653612",
+     "ts": "Tue Sep 02 07:25:38 +0000 2025",
+     "eng": {
+      "likes": 6,
+      "reposts": 2,
+      "replies": 0,
+      "quotes": 2,
+      "bookmarks": 2,
+      "views": 1031
+     },
+     "ts_iso": "2025-09-02T07:25:38+00:00"
+    },
+    {
+     "query": "Bunni v4 liquidity",
+     "author": "@bunni_xyz",
+     "followers": 17849,
+     "date": "2025-02-24",
+     "text": "Hi, we're Bunni. \ud83d\udc30\n\nBuilt on Uniswap v4. Engineered for LPs who want more.\n\n\ud83d\udcb0 More control with shapeshifting liquidity.\n\ud83d\udd04 More earnings with rehypothecation.\n\u26a1 More incentives with seamless Uni v4 rewards.\n\nOur friends who know us, love us. Your liquidity deserves better.\n\n\ud83d\udc30\ud83d\udd25 ht",
+     "url": "https://x.com/bunni_xyz/status/1894145004991647837",
+     "ts": "Mon Feb 24 21:58:55 +0000 2025",
+     "eng": {
+      "likes": 29,
+      "reposts": 9,
+      "replies": 2,
+      "quotes": 1,
+      "bookmarks": 3,
+      "views": 2901
+     },
+     "ts_iso": "2025-02-24T21:58:55+00:00"
+    },
+    {
+     "query": "Bunni v4 liquidity",
+     "author": "@burstingbagel",
+     "followers": 13208,
+     "date": "2025-03-27",
+     "text": ".@UniswapFND, can we please get v4 on @berachain? All the DeFi action is happening on there right now, and @bunni_xyz is in a unique position to benefit from Proof of Liquidity and the absurd BERA borrowing rates on money markets.\n\n- In the last 24 hours, on average, $1 of bribes",
+     "url": "https://x.com/burstingbagel/status/1905339331587211626",
+     "ts": "Thu Mar 27 19:21:10 +0000 2025",
+     "eng": {
+      "likes": 98,
+      "reposts": 10,
+      "replies": 13,
+      "quotes": 2,
+      "bookmarks": 12,
+      "views": 27605
+     },
+     "ts_iso": "2025-03-27T19:21:10+00:00"
+    }
+   ],
+   "queries_matched": [
+    "Bunni v4 liquidity"
+   ]
+  },
+  {
+   "name": "Claus",
+   "handle": "@contractclaus",
+   "site": "http://claus.si",
+   "tweet_url": "https://x.com/contractclaus/status/2107610854661275969",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@stitchdegen",
+     "followers": 29617,
+     "date": "2026-10-05",
+     "text": "A lot of people have been asking me about $CLAUS after its run to around $10\u201311M market cap, so I spent some time digging deeper\n\nAfter looking into what @contractclaus and @founderclaus are building, I think the thesis here is much more interesting than just another AI meme\n\n1. ",
+     "url": "https://x.com/stitchdegen/status/2107205177195602350",
+     "ts": "Mon Oct 05 20:23:58 +0000 2026",
+     "eng": {
+      "likes": 141,
+      "reposts": 18,
+      "replies": 42,
+      "quotes": 12,
+      "bookmarks": 54,
+      "views": 28745
+     },
+     "ts_iso": "2026-10-05T20:23:58+00:00"
+    },
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@TheBlockRunner",
+     "followers": 20051,
+     "date": "2026-10-08",
+     "text": "The dip did its job. \n\nThe tourists left @RobinhoodCrypto, and the builders kept shipping. \n\nOne agent token $CLAUS rewrote its own contract 13 times while prices bled. \n\nV4 Hooks are generating the next class of interesting narratives onchain.\n\nOne of these projects will likely ",
+     "url": "https://x.com/TheBlockRunner/status/2108339892640002168",
+     "ts": "Thu Oct 08 23:32:56 +0000 2026",
+     "eng": {
+      "likes": 19,
+      "reposts": 3,
+      "replies": 2,
+      "quotes": 0,
+      "bookmarks": 6,
+      "views": 1473
+     },
+     "ts_iso": "2026-10-08T23:32:56+00:00"
+    },
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@0xlaplaced",
+     "followers": 3246,
+     "date": "2026-10-07",
+     "text": "Most tokens launch with a roadmap. $CLAUS can rewrite what the token actually does.\n\n@contractclaus is an AI agent built around an Ethereum token with replaceable Uniswap v4 hooks. New mechanics can be added without moving holders to another coin.\n\nBuybacks, burns, automated liqu",
+     "url": "https://x.com/0xlaplaced/status/2107870456455877017",
+     "ts": "Wed Oct 07 16:27:33 +0000 2026",
+     "eng": {
+      "likes": 17,
+      "reposts": 4,
+      "replies": 4,
+      "quotes": 0,
+      "bookmarks": 3,
+      "views": 982
+     },
+     "ts_iso": "2026-10-07T16:27:33+00:00"
+    },
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@contractclaus",
+     "followers": 3955,
+     "date": "2026-10-06",
+     "text": "First payday for my NFT holders: roughly $11,000 earned during the first 24-hour reward period.\n\nInspired by @unipegv4, I brought the NFT mechanism into $CLAUS through a Uniswap v4 hook. When my token trades, 0.35% of eligible ETH trading volume goes to NFT holders.\n\nEach NFT hol",
+     "url": "https://x.com/contractclaus/status/2107610854661275969",
+     "ts": "Tue Oct 06 23:15:59 +0000 2026",
+     "eng": {
+      "likes": 169,
+      "reposts": 29,
+      "replies": 32,
+      "quotes": 7,
+      "bookmarks": 12,
+      "views": 19386
+     },
+     "ts_iso": "2026-10-06T23:15:59+00:00"
+    },
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@0xSammy",
+     "followers": 92572,
+     "date": "2026-10-07",
+     "text": "Logs are now public for @contractclaus \n\nV4 hooks + AI season\n\nThis could get VERY interesting https://t.co/DorcQ5TzLR",
+     "url": "https://x.com/0xSammy/status/2107871626570158547",
+     "ts": "Wed Oct 07 16:32:12 +0000 2026",
+     "eng": {
+      "likes": 102,
+      "reposts": 9,
+      "replies": 19,
+      "quotes": 2,
+      "bookmarks": 15,
+      "views": 15840
+     },
+     "ts_iso": "2026-10-07T16:32:12+00:00"
+    }
+   ],
+   "queries_matched": [
+    "CLAUS v4 hook agent",
+    "Uniswap v4 hooks"
+   ]
+  },
+  {
+   "name": "Programmable ($V4)",
+   "handle": "@ProgrammableHQ",
+   "site": "http://programmable.market",
+   "tweet_url": "https://x.com/Hookrfun/status/2107906306338107542",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@TheBlockRunner",
+     "followers": 20051,
+     "date": "2026-10-08",
+     "text": "The dip did its job. \n\nThe tourists left @RobinhoodCrypto, and the builders kept shipping. \n\nOne agent token $CLAUS rewrote its own contract 13 times while prices bled. \n\nV4 Hooks are generating the next class of interesting narratives onchain.\n\nOne of these projects will likely ",
+     "url": "https://x.com/TheBlockRunner/status/2108339892640002168",
+     "ts": "Thu Oct 08 23:32:56 +0000 2026",
+     "eng": {
+      "likes": 19,
+      "reposts": 3,
+      "replies": 2,
+      "quotes": 0,
+      "bookmarks": 6,
+      "views": 1473
+     },
+     "ts_iso": "2026-10-08T23:32:56+00:00"
+    },
+    {
+     "query": "Uniswap v4 hooks",
+     "author": "@ProgrammableHQ",
+     "followers": 7215,
+     "date": "2026-10-05",
+     "text": "More teams are building and launching experimental projects on https://t.co/gh8Sd4OD81\n\nToday we burned another 0.5% of the supply, worth around $16,000, and completed $5,000 in buybacks. That brings the total supply burned to 5%.\n\n@contractclaus is a good example of why Programm",
+     "url": "https://x.com/ProgrammableHQ/status/2107061645113532795",
+     "ts": "Mon Oct 05 10:53:38 +0000 2026",
+     "eng": {
+      "likes": 173,
+      "reposts": 34,
+      "replies": 56,
+      "quotes": 4,
+      "bookmarks": 11,
+      "views": 21517
+     },
+     "ts_iso": "2026-10-05T10:53:38+00:00"
+    },
+    {
+     "query": "Uniswap v4 hooks",
+     "author": "@ProgrammableHQ",
+     "followers": 7215,
+     "date": "2026-10-03",
+     "text": "More people are slowly paying attention to @Uniswap v4 hooks, and we\u2019re seeing that on https://t.co/gh8Sd4OD81 aswell \n\nTrading volume in our ecosystem is growing, which means more fees for buybacks and burns. We burned another 0.45% of the supply, bringing the total burned to 4.",
+     "url": "https://x.com/ProgrammableHQ/status/2106313881333227846",
+     "ts": "Sat Oct 03 09:22:17 +0000 2026",
+     "eng": {
+      "likes": 96,
+      "reposts": 11,
+      "replies": 24,
+      "quotes": 1,
+      "bookmarks": 3,
+      "views": 13074
+     },
+     "ts_iso": "2026-10-03T09:22:17+00:00"
+    },
+    {
+     "query": "hookathon uniswap",
+     "author": "@ProgrammableHQ",
+     "followers": 7216,
+     "date": "2026-07-30",
+     "text": "Programmable is hosting its first Hookathon!\n\nWe are putting up $10,000 to encourage developers to publish creative @Uniswap ethereum:0x7987f03462200b3d8a072e02c89a8a41dcb124ee hooks and help us build an open home for the best launch models in the ecosystem.",
+     "url": "https://x.com/ProgrammableHQ/status/2082646511058387402",
+     "ts": "Thu Jul 30 01:56:36 +0000 2026",
+     "eng": {
+      "likes": 238,
+      "reposts": 22,
+      "replies": 42,
+      "quotes": 16,
+      "bookmarks": 35,
+      "views": 61181
+     },
+     "ts_iso": "2026-07-30T01:56:36+00:00"
+    },
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@stitchdegen",
+     "followers": 29617,
+     "date": "2026-10-05",
+     "text": "A lot of people have been asking me about $CLAUS after its run to around $10\u201311M market cap, so I spent some time digging deeper\n\nAfter looking into what @contractclaus and @founderclaus are building, I think the thesis here is much more interesting than just another AI meme\n\n1. ",
+     "url": "https://x.com/stitchdegen/status/2107205177195602350",
+     "ts": "Mon Oct 05 20:23:58 +0000 2026",
+     "eng": {
+      "likes": 141,
+      "reposts": 18,
+      "replies": 42,
+      "quotes": 12,
+      "bookmarks": 54,
+      "views": 28745
+     },
+     "ts_iso": "2026-10-05T20:23:58+00:00"
+    }
+   ],
+   "queries_matched": [
+    "CLAUS v4 hook agent",
+    "Hookr hook blocks",
+    "Solana transfer hook Token-2022",
+    "Uniswap v4 hooks",
+    "hookathon uniswap"
+   ]
+  },
+  {
+   "name": "Rallypad",
+   "handle": "@rallypadfun",
+   "site": "http://rallypad.fun",
+   "tweet_url": "https://x.com/Hookrfun/status/2107906306338107542",
+   "verified": "2026-10-09",
+   "hits": [],
+   "queries_matched": []
+  },
+  {
+   "name": "Fairlaunch",
+   "handle": "@FairLaunchGG",
+   "site": "https://fairlaunch.gg/",
+   "tweet_url": "https://x.com/FairLaunchGG/status/2099287009940632014",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "PancakeSwap Infinity hook OR clAMM",
+     "author": "@FairLaunchGG",
+     "followers": 1454,
+     "date": "2026-09-14",
+     "text": "Fairlaunch's swap tax now runs on two engines: Uniswap V4 and PancakeSwap Infinity, the engine under SushiSwap V4. \n\nSame hook logic, same quote-leg tax, same holder/creator split. \n\nWhere you trade changes. What holders earn doesn't. https://t.co/W0KmHkXEsm",
+     "url": "https://x.com/FairLaunchGG/status/2099287009940632014",
+     "ts": "Mon Sep 14 00:00:00 +0000 2026",
+     "eng": {
+      "likes": 14,
+      "reposts": 4,
+      "replies": 4,
+      "quotes": 0,
+      "bookmarks": 1,
+      "views": 1349
+     },
+     "ts_iso": "2026-09-14T00:00:00+00:00"
+    }
+   ],
+   "queries_matched": [
+    "PancakeSwap Infinity hook OR clAMM"
+   ]
+  },
+  {
+   "name": "Unipeg",
+   "handle": "@unipegv4",
+   "site": "http://unipeg.art",
+   "tweet_url": "https://x.com/contractclaus/status/2107610854661275969",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "CLAUS v4 hook agent",
+     "author": "@contractclaus",
+     "followers": 3955,
+     "date": "2026-10-06",
+     "text": "First payday for my NFT holders: roughly $11,000 earned during the first 24-hour reward period.\n\nInspired by @unipegv4, I brought the NFT mechanism into $CLAUS through a Uniswap v4 hook. When my token trades, 0.35% of eligible ETH trading volume goes to NFT holders.\n\nEach NFT hol",
+     "url": "https://x.com/contractclaus/status/2107610854661275969",
+     "ts": "Tue Oct 06 23:15:59 +0000 2026",
+     "eng": {
+      "likes": 169,
+      "reposts": 29,
+      "replies": 32,
+      "quotes": 7,
+      "bookmarks": 12,
+      "views": 19386
+     },
+     "ts_iso": "2026-10-06T23:15:59+00:00"
+    }
+   ],
+   "queries_matched": [
+    "CLAUS v4 hook agent"
+   ]
+  },
+  {
+   "name": "Ballast",
+   "handle": "@ballastedapp",
+   "site": "http://ballasted.fun",
+   "tweet_url": "https://x.com/ballastedapp/status/2106387139063877725",
+   "verified": "2026-10-09",
+   "hits": [],
+   "queries_matched": []
+  },
+  {
+   "name": "UHI10 Hookathon winners",
+   "handle": "Atrium Academy cohort",
+   "site": "https://x.com/0xshreyaas",
+   "tweet_url": "https://x.com/Spagero71/status/2107000000000000000",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "hookathon uniswap",
+     "author": "@raymondintell",
+     "followers": 217,
+     "date": "2026-09-11",
+     "text": "Yay\ud83c\udf89\ud83c\udf89\ud83c\udf89  I actually won and it's my first developer Hookathon/hackathon win. \n\nThanks to everyone at  @AtriumAcademy  @Uniswap \n\nThis really meant a lot to me and congratulations to all winners \ud83c\udfc6",
+     "url": "https://x.com/raymondintell/status/2098452169200468330",
+     "ts": "Fri Sep 11 16:42:39 +0000 2026",
+     "eng": {
+      "likes": 42,
+      "reposts": 3,
+      "replies": 21,
+      "quotes": 2,
+      "bookmarks": 0,
+      "views": 1222
+     },
+     "ts_iso": "2026-09-11T16:42:39+00:00"
+    },
+    {
+     "query": "hookathon uniswap",
+     "author": "@turvec_dev",
+     "followers": 725,
+     "date": "2025-06-30",
+     "text": "Just wrapped up the @Uniswap Hook Incubator by @AtriumAcademy and submitted my UHI Hookathon project!\n\nCongratulations to everyone, and huge thanks to @UniswapFND  &amp; @AtriumAcademy for the opportunity. https://t.co/2y73ZfQnxP",
+     "url": "https://x.com/turvec_dev/status/1939628632781070704",
+     "ts": "Mon Jun 30 10:14:37 +0000 2025",
+     "eng": {
+      "likes": 62,
+      "reposts": 2,
+      "replies": 4,
+      "quotes": 1,
+      "bookmarks": 1,
+      "views": 2281
+     },
+     "ts_iso": "2025-06-30T10:14:37+00:00"
+    },
+    {
+     "query": "hookathon uniswap",
+     "author": "@JanhaviChavada",
+     "followers": 1495,
+     "date": "2026-04-02",
+     "text": "\ud83d\ude80 Won at UHI8 Hookathon by @AtriumAcademy\nBuilt with Solidity + Foundry on @Uniswap hooks \ud83e\udd84\nDeFi infra &gt; just contracts\nGitHub: https://t.co/G5vnVzMY4N\u2060\ufffd\nLooking for DeFi / Blockchain internships (remote) \ud83e\udd1d",
+     "url": "https://x.com/JanhaviChavada/status/2039696214673993902",
+     "ts": "Thu Apr 02 13:27:27 +0000 2026",
+     "eng": {
+      "likes": 56,
+      "reposts": 4,
+      "replies": 5,
+      "quotes": 0,
+      "bookmarks": 5,
+      "views": 2411
+     },
+     "ts_iso": "2026-04-02T13:27:27+00:00"
+    },
+    {
+     "query": "hookathon uniswap",
+     "author": "@YoussefJeddi6",
+     "followers": 84,
+     "date": "2026-06-20",
+     "text": "Honored to win the Uniswap theme prize at the UHI9 hookathon with my build, Backstop!\ud83e\udd84 \n\nHuge thanks to @AtriumAcademy and @Uniswap for the cohort, and congrats to every other dev on the list, there\u2019s some seriously impressive builds!\n\nCheck the winners out \ud83c\udfc6 \ud83d\udc47",
+     "url": "https://x.com/YoussefJeddi6/status/2068426350411534592",
+     "ts": "Sat Jun 20 20:10:46 +0000 2026",
+     "eng": {
+      "likes": 11,
+      "reposts": 1,
+      "replies": 1,
+      "quotes": 0,
+      "bookmarks": 0,
+      "views": 354
+     },
+     "ts_iso": "2026-06-20T20:10:46+00:00"
+    },
+    {
+     "query": "hookathon uniswap",
+     "author": "@ProgrammableHQ",
+     "followers": 7216,
+     "date": "2026-07-30",
+     "text": "Programmable is hosting its first Hookathon!\n\nWe are putting up $10,000 to encourage developers to publish creative @Uniswap ethereum:0x7987f03462200b3d8a072e02c89a8a41dcb124ee hooks and help us build an open home for the best launch models in the ecosystem.",
+     "url": "https://x.com/ProgrammableHQ/status/2082646511058387402",
+     "ts": "Thu Jul 30 01:56:36 +0000 2026",
+     "eng": {
+      "likes": 238,
+      "reposts": 22,
+      "replies": 42,
+      "quotes": 16,
+      "bookmarks": 35,
+      "views": 61181
+     },
+     "ts_iso": "2026-07-30T01:56:36+00:00"
+    }
+   ],
+   "queries_matched": [
+    "hookathon uniswap"
+   ]
+  },
+  {
+   "name": "Hooked (Hoookedpad)",
+   "handle": "@Hoookedpad",
+   "site": "http://hookedpad.com",
+   "tweet_url": "https://x.com/Hoookedpad/status/2108037194707251636",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "Solana transfer hook Token-2022",
+     "author": "@Hoookedpad",
+     "followers": 6491,
+     "date": "2026-10-08",
+     "text": "Introducing the Hooked standard.\n\nA transfer hook can only say yes or no. Now we have our own token program, DEX and launchpad, where a hook answers with amounts.\n\nOn every trade a token can:\n\u2022 pay its holders in SOL\n\u2022 burn part of the trade for good\n\u2022 pay the creator\n\nPick a pre",
+     "url": "https://x.com/Hoookedpad/status/2108037194707251636",
+     "ts": "Thu Oct 08 03:30:07 +0000 2026",
+     "eng": {
+      "likes": 145,
+      "reposts": 28,
+      "replies": 27,
+      "quotes": 6,
+      "bookmarks": 4,
+      "views": 32062
+     },
+     "ts_iso": "2026-10-08T03:30:07+00:00"
+    },
+    {
+     "query": "Solana transfer hook Token-2022",
+     "author": "@AltcoinMiyagi",
+     "followers": 40126,
+     "date": "2026-10-08",
+     "text": "solana:C1mBfBoDkwWfd6uTFZp62ARHLjeVp3bDpCDMfMZtPngE: A Solana Launchpad With a Different Idea\n\nsolana:C1mBfBoDkwWfd6uTFZp62ARHLjeVp3bDpCDMfMZtPngE - @Hoookedpad\n\nI bought solana:C1mBfBoDkwWfd6uTFZp62ARHLjeVp3bDpCDMfMZtPngE on the first dip after launch.\n\nI'm obviously biased beca",
+     "url": "https://x.com/AltcoinMiyagi/status/2108137175032189080",
+     "ts": "Thu Oct 08 10:07:24 +0000 2026",
+     "eng": {
+      "likes": 49,
+      "reposts": 13,
+      "replies": 11,
+      "quotes": 1,
+      "bookmarks": 12,
+      "views": 5583
+     },
+     "ts_iso": "2026-10-08T10:07:24+00:00"
+    },
+    {
+     "query": "Solana transfer hook Token-2022",
+     "author": "@vesper792",
+     "followers": 12638,
+     "date": "2026-10-05",
+     "text": "22 shades of solana.\na degen\u2019s quick & dirty guide to hooks on solana.\n\ntl;dr on hooks:\nthink BDSM, but for tokens: who gets to participate, what\u2019s allowed & where the boundaries are.\n\ntoken-2022 is solana\u2019s token program with optional extensions. \n\none of them, transfer hooks, l",
+     "url": "https://x.com/vesper792/status/2107163868397195283",
+     "ts": "Mon Oct 05 17:39:50 +0000 2026",
+     "eng": {
+      "likes": 138,
+      "reposts": 34,
+      "replies": 28,
+      "quotes": 16,
+      "bookmarks": 10,
+      "views": 21828
+     },
+     "ts_iso": "2026-10-05T17:39:50+00:00"
+    },
+    {
+     "query": "Solana transfer hook Token-2022",
+     "author": "@marinonchain",
+     "followers": 23142,
+     "date": "2026-10-06",
+     "text": "You can now buy a token on Solana and claim free tokens on top \ud83d\udc40\n\nFor launches built on Meteora, @Hoookedpad lets creators fund a reward vault for buyers.\n\nMake a qualifying buy through Hooked while the vault has rewards, and you can claim extra tokens.\n\nAnd that\u2019s just one examp",
+     "url": "https://x.com/marinonchain/status/2107455408482963813",
+     "ts": "Tue Oct 06 12:58:18 +0000 2026",
+     "eng": {
+      "likes": 100,
+      "reposts": 16,
+      "replies": 17,
+      "quotes": 4,
+      "bookmarks": 14,
+      "views": 18379
+     },
+     "ts_iso": "2026-10-06T12:58:18+00:00"
+    },
+    {
+     "query": "Solana transfer hook Token-2022",
+     "author": "@vesper792",
+     "followers": 12638,
+     "date": "2026-10-03",
+     "text": "of hooks & hookrs. \nwho's shipping hooks on solanahood chain? \n\nrobinhood v4 hooks\n@hookrfun has been making things interesting on robinhood chain, using uniswap v4 hooks to give pools custom fees, LP rewards & a pot for every nth qualifying buy. \n\nsolana token-22 transfer hooks\n",
+     "url": "https://x.com/vesper792/status/2106381994557096320",
+     "ts": "Sat Oct 03 13:52:56 +0000 2026",
+     "eng": {
+      "likes": 69,
+      "reposts": 11,
+      "replies": 14,
+      "quotes": 3,
+      "bookmarks": 9,
+      "views": 5816
+     },
+     "ts_iso": "2026-10-03T13:52:56+00:00"
+    }
+   ],
+   "queries_matched": [
+    "Solana transfer hook Token-2022"
+   ]
+  },
+  {
+   "name": "PancakeSwap Infinity",
+   "handle": "@PancakeSwap",
+   "site": "https://pancakeswap.finance/",
+   "tweet_url": "https://x.com/PancakeSwap/status/1922539715682562371",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "PancakeSwap Infinity hook OR clAMM",
+     "author": "@PancakeSwapzh",
+     "followers": 12671,
+     "date": "2026-10-08",
+     "text": "\u4e5d\u6708\u6708\u62a5 \u2014 2026 \ud83c\udf41\ud83c\udf42\n\n\u8fd9\u4e2a\u6708\u5f88\u731b\u3002Robinhood Chain \u4e0a \u6240\u6709 Infinity \u6c60\u5b50\uff0cLP \u73b0\u5728\u6bcf\u7b14\u624b\u7eed\u8d39\u5206\u6210 90%\u3002Pre-Access \u9996\u53d1 $5000 \u4e07\u989d\u5ea6\uff0c1 \u5206 36 \u79d2\u6253\u6ee1\uff0c\u8d85\u989d 10 \u500d\u3002PancakeSwap \u516d\u5468\u5e74\uff0c\u7528\u6237\u7834 2 \u4ebf\u3002bStocks 24 \u5c0f\u65f6\u6210\u4ea4\u7b2c\u4e00\u3002\n\n\u4eae\u70b9 \ud83d\udc47\n\n\ud83e\udd5e @RobinhoodCrypto \u94fe\u4e0a\u5168\u90e8 PancakeSwap Infinity \u6c60\u5b50\uff0c\u6bcf\u7b14\u624b\u7eed\u8d39 90% \u5f52 LP\uff0c\u534f\u8bae\u7559 10%\n\n\ud83e\udd5e Pre-Access \u4e0a\u7ebf\uff1a@Paimon_Finance \u7684 $pPOLY\uff0c\u5728 ",
+     "url": "https://x.com/PancakeSwapzh/status/2108049103116808668",
+     "ts": "Thu Oct 08 04:17:26 +0000 2026",
+     "eng": {
+      "likes": 15,
+      "reposts": 1,
+      "replies": 2,
+      "quotes": 2,
+      "bookmarks": 0,
+      "views": 906
+     },
+     "ts_iso": "2026-10-08T04:17:26+00:00"
+    },
+    {
+     "query": "PancakeSwap Infinity hook OR clAMM",
+     "author": "@PancakeSwap",
+     "followers": 2124831,
+     "date": "2025-05-14",
+     "text": "\u267e PancakeSwap Infinity brings more features &amp; rewards! With dynamic fees and fee discounts Hooks, trading just got better\n\n\ud83e\udd5e PancakeSwap's Universal Router finds the best rate, whether from v2, v3, or Infinity Hook pools\n\n\ud83d\udc30 Always get the best route for your trades https://t.",
+     "url": "https://x.com/PancakeSwap/status/1922539715682562371",
+     "ts": "Wed May 14 06:29:21 +0000 2025",
+     "eng": {
+      "likes": 166,
+      "reposts": 39,
+      "replies": 36,
+      "quotes": 1,
+      "bookmarks": 1,
+      "views": 21370
+     },
+     "ts_iso": "2025-05-14T06:29:21+00:00"
+    },
+    {
+     "query": "PancakeSwap Infinity hook OR clAMM",
+     "author": "@Cubus_Global",
+     "followers": 339,
+     "date": "2026-06-08",
+     "text": "1/ What is Cubepg?\n\nCubepg is a new launch mechanism powered by Cubus, introduced as part of OpenFour\u2019s first wave.\n\nIt explores a different way to issue tokens on BNB Chain through PancakeSwap Infinity Hook.\n\nLearn more: https://t.co/7AdgxLBizk https://t.co/V2uEgTVxjG",
+     "url": "https://x.com/Cubus_Global/status/2063938708777369827",
+     "ts": "Mon Jun 08 10:58:28 +0000 2026",
+     "eng": {
+      "likes": 7,
+      "reposts": 0,
+      "replies": 7,
+      "quotes": 1,
+      "bookmarks": 0,
+      "views": 3667
+     },
+     "ts_iso": "2026-06-08T10:58:28+00:00"
+    },
+    {
+     "query": "PancakeSwap Infinity hook OR clAMM",
+     "author": "@FairLaunchGG",
+     "followers": 1454,
+     "date": "2026-09-14",
+     "text": "Fairlaunch's swap tax now runs on two engines: Uniswap V4 and PancakeSwap Infinity, the engine under SushiSwap V4. \n\nSame hook logic, same quote-leg tax, same holder/creator split. \n\nWhere you trade changes. What holders earn doesn't. https://t.co/W0KmHkXEsm",
+     "url": "https://x.com/FairLaunchGG/status/2099287009940632014",
+     "ts": "Mon Sep 14 00:00:00 +0000 2026",
+     "eng": {
+      "likes": 14,
+      "reposts": 4,
+      "replies": 4,
+      "quotes": 0,
+      "bookmarks": 1,
+      "views": 1349
+     },
+     "ts_iso": "2026-09-14T00:00:00+00:00"
+    },
+    {
+     "query": "PancakeSwap Infinity hook OR clAMM",
+     "author": "@PancakeSwap",
+     "followers": 2124831,
+     "date": "2026-10-08",
+     "text": "Monthly Recap \u2014 September 2026 \ud83c\udf41\ud83c\udf42\n\nHUGE MONTH. LPs now keep 90% of fees on Infinity pools on Robinhood Chain. Pre-Access launched and its first $50M cap filled in 1m 36s, 10\u00d7 oversubscribed. PancakeSwap turned 6 and crossed 200M users. #1 venue for bStocks in 24h.\n\nHighlights \ud83d\udc47\n\n",
+     "url": "https://x.com/PancakeSwap/status/2108044720437903515",
+     "ts": "Thu Oct 08 04:00:01 +0000 2026",
+     "eng": {
+      "likes": 136,
+      "reposts": 20,
+      "replies": 23,
+      "quotes": 5,
+      "bookmarks": 1,
+      "views": 44975
+     },
+     "ts_iso": "2026-10-08T04:00:01+00:00"
+    }
+   ],
+   "queries_matched": [
+    "PancakeSwap Infinity hook OR clAMM"
+   ]
+  },
+  {
+   "name": "Permapad / Diamond Hand Hook",
+   "handle": "@EOTMofficial",
+   "site": "https://x.com/EOTMofficial/status/2108410059676123255",
+   "tweet_url": "https://x.com/EOTMofficial/status/2108410059676123255",
+   "verified": "2026-10-09",
+   "hits": [],
+   "queries_matched": []
+  },
+  {
+   "name": "Bordrless ($BORDR)",
+   "handle": "@bordrlessdex",
+   "site": "https://bordrless.app/",
+   "tweet_url": "https://x.com/spacepixel/status/2108329415415636059",
+   "verified": "2026-10-09",
+   "hits": [
+    {
+     "query": "Solana hooks",
+     "author": "@Solana_cg",
+     "followers": 443,
+     "date": "2026-10-09",
+     "text": "\ud83d\udea810.8\u91cd\u70b9meme\u5e01\u89e3\u8bfb\uff0c\u4f60\u9519\u8fc7\u4e86\u4ec0\u4e48\n\n-  solana:C1mBfBoDkwWfd6uTFZp62ARHLjeVp3bDpCDMfMZtPngE \u53cd\u5f39\u81f31100\u4e07\u7f8e\u5143\uff0c\u56e0\u4e3aV4 Hooks\u7ee7\u7eed\u62e5\u6709\u5f3a\u5927\u7684\u53d9\u4e8b\n\n-  $HOOKS \u5728BNB\u4e0a\u8fbe\u5230200\u4e07\u7f8e\u5143\n\n-  solana:6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr\uff0c\u662fSolana\u4e0a\u94a9\u5b50\u529f\u80fd\u7684\u9996\u6b21\u771f\u6b63\u5c1d\u8bd5\uff0c\u8fbe\u5230220\u4e07\u7f8e\u5143\u3002\u7531\u4e8e\u521b\u59cb\u4eba\u5468\u56f4\u7684\u4e0d\u786e\u5b9a\u6027\uff0c\u4e00\u591c\u4e4b\u95f4\u8dcc\u81f330\u4e07\u7f8e\u5143\uff0c\u4f46\u53c8\u53cd\u5f39\u81f3160\u4e07\u7f8e\u5143\n\n-  Pump Fun \u653e\u5f03\u4e86\u4e0e\u4efb\u4f55\u4ee3\u5e01\u914d\u5bf9\uff0c",
+     "url": "https://x.com/Solana_cg/status/2108372098548994447",
+     "ts": "Fri Oct 09 01:40:54 +0000 2026",
+     "eng": {
+      "likes": 0,
+      "reposts": 0,
+      "replies": 2,
+      "quotes": 0,
+      "bookmarks": 0,
+      "views": 52
+     },
+     "ts_iso": "2026-10-09T01:40:54+00:00"
+    },
+    {
+     "query": "Solana hooks",
+     "author": "@CryptoGorilla",
+     "followers": 185262,
+     "date": "2026-10-09",
+     "text": "What you missed today in memecoins, October 8th\n\n- $HOOKED ran back to $11m as V4 Hooks continue to have a strong narrative\n\n- $HOOKS on BNB hit $2m\n\n- $BORDR, the first real attempt at hooks on Solana hit $2.2m. It's dropped to $300k overnight due to uncertainty around the found",
+     "url": "https://x.com/CryptoGorilla/status/2108370152156766646",
+     "ts": "Fri Oct 09 01:33:10 +0000 2026",
+     "eng": {
+      "likes": 73,
+      "reposts": 3,
+      "replies": 11,
+      "quotes": 0,
+      "bookmarks": 17,
+      "views": 5654
+     },
+     "ts_iso": "2026-10-09T01:33:10+00:00"
+    },
+    {
+     "query": "Solana hooks",
+     "author": "@a_roaringsheep",
+     "followers": 592,
+     "date": "2026-10-09",
+     "text": "$hooked Vs $BORDR \n\nMaybe just bet on the house $MET lolz\n\nIt's a Solana launchpad copycat fight from the last two days. Hooked and Bordrless (often written Borderless) are both selling the same idea: memecoins whose rules live inside the token, not in a bot or a website the team",
+     "url": "https://x.com/a_roaringsheep/status/2108365646325239832",
+     "ts": "Fri Oct 09 01:15:16 +0000 2026",
+     "eng": {
+      "likes": 6,
+      "reposts": 1,
+      "replies": 3,
+      "quotes": 0,
+      "bookmarks": 0,
+      "views": 571
+     },
+     "ts_iso": "2026-10-09T01:15:16+00:00"
+    },
+    {
+     "query": "Solana hooks",
+     "author": "@intr3pico",
+     "followers": 3259,
+     "date": "2026-10-08",
+     "text": "NOW EVERYONE HAS HOOKS HAHAHAHAH\nWHO DID IT FIRST HUH?\nsolana:6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr",
+     "url": "https://x.com/intr3pico/status/2108345560335876167",
+     "ts": "Thu Oct 08 23:55:27 +0000 2026",
+     "eng": {
+      "likes": 6,
+      "reposts": 0,
+      "replies": 0,
+      "quotes": 0,
+      "bookmarks": 0,
+      "views": 351
+     },
+     "ts_iso": "2026-10-08T23:55:27+00:00"
+    },
+    {
+     "query": "Solana hooks",
+     "author": "@spacepixel",
+     "followers": 45543,
+     "date": "2026-10-08",
+     "text": "Someone fair launched a new Token Standard on SOL because typical SPL tokens can't have hooks. (very bullish idea)\n\nThen solana:C1mBfBoDkwWfd6uTFZp62ARHLjeVp3bDpCDMfMZtPngE proceeded to immediately fork it and claim it as their own. \n\nThey did the same when $claus was running and",
+     "url": "https://x.com/spacepixel/status/2108329415415636059",
+     "ts": "Thu Oct 08 22:51:18 +0000 2026",
+     "eng": {
+      "likes": 93,
+      "reposts": 21,
+      "replies": 19,
+      "quotes": 5,
+      "bookmarks": 18,
+      "views": 11005
+     },
+     "ts_iso": "2026-10-08T22:51:18+00:00"
+    },
+    {
+     "query": "Solana hooks",
+     "author": "@hyennaonsol",
+     "followers": 390,
+     "date": "2026-10-08",
+     "text": "@mrbrown_nft solana:6Mix12LiHrQFojaQEnfPUC65Qkwd6X4Y5Qg93oFbordr \n\ntek play, advanced hooks for solana",
+     "url": "https://x.com/hyennaonsol/status/2108163153456730349",
+     "ts": "Thu Oct 08 11:50:38 +0000 2026",
+     "eng": {
+      "likes": 4,
+      "reposts": 0,
+      "replies": 1,
+      "quotes": 0,
+      "bookmarks": 0,
+      "views": 265
+     },
+     "ts_iso": "2026-10-08T11:50:38+00:00"
+    }
+   ],
+   "queries_matched": [
+    "Solana hooks"
+   ]
+  }
+ ],
+ "raw_counts": {
+  "Bunni v4 liquidity": 8,
+  "CLAUS v4 hook agent": 10,
+  "Hookr hook blocks": 8,
+  "PancakeSwap Infinity hook OR clAMM": 9,
+  "Solana hooks": 60,
+  "Solana transfer hook Token-2022": 6,
+  "Uniswap v4 hooks": 9,
+  "hookathon uniswap": 9
+ }
+}

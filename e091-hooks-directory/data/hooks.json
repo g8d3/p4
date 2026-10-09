@@ -1,0 +1,197 @@
+[
+ {
+  "name": "Hookr",
+  "handle": "@Hookrfun",
+  "followers": 6124,
+  "chain": [
+   "Ethereum",
+   "Base",
+   "Unichain"
+  ],
+  "hook_type": "Uniswap v4 pool hook (modular blocks)",
+  "blurb": "No-code Hook Blocks (anti-snipe, auto burn, LP rewards, dynamic fees). Pick, tune, remix, deploy own hook in one tx. 21 new blocks added Oct 2026; first community hook already onchain. Codemen launches ship with Hookr blocks.",
+  "site": "https://hookr.fun",
+  "tweet_url": "https://x.com/Hookrfun/status/2107906306338107542",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Bunni v2",
+  "handle": "@bunni_xyz",
+  "followers": 17849,
+  "chain": [
+   "Ethereum",
+   "Base",
+   "Arbitrum"
+  ],
+  "hook_type": "Uniswap v4 pool hook (rehypothecation + LDF)",
+  "blurb": "First DEX built on Uniswap v4. Programmable liquidity with rehypothecation hook. CAUTION: $8M+ exploit Sep 2025 via Liquidity Distribution Function precision bug \u2014 research audit status before LP.",
+  "site": "https://www.bunni.xyz",
+  "tweet_url": "https://x.com/bunni_xyz/status/1885489587541385231",
+  "status": "live (post-exploit)",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Claus",
+  "handle": "@contractclaus",
+  "followers": 3953,
+  "chain": [
+   "Ethereum"
+  ],
+  "hook_type": "Uniswap v4 pool hook (self-rewriting, NFT fee share)",
+  "blurb": "AI agent token that rewrites its own v4 hooks (13 rewrites during Oct dip). 0.35% of eligible ETH volume to NFT holders (~$11k first 24h payout). Fee-funded buyback/burn + weather-dependent burn-vs-liquidity split.",
+  "site": "http://claus.si",
+  "tweet_url": "https://x.com/contractclaus/status/2107610854661275969",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Programmable ($V4)",
+  "handle": "@ProgrammableHQ",
+  "followers": 7215,
+  "chain": [
+   "Ethereum",
+   "Base"
+  ],
+  "hook_type": "Uniswap v4 pool hook (launch infra)",
+  "blurb": "Infra for creating/launching customizable tokens with v4 hooks. $V4 trades as a bet on hook-based launches catching on (reported run ~$447k to $7M).",
+  "site": "http://programmable.market",
+  "tweet_url": "https://x.com/Hookrfun/status/2107906306338107542",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Rallypad",
+  "handle": "@rallypadfun",
+  "followers": 1529,
+  "chain": [
+   "Ethereum",
+   "Unichain"
+  ],
+  "hook_type": "Uniswap v4 pool hook (bonding-curve launchpad)",
+  "blurb": "Hook launchpad for humans + AI agents. Coins open as a real pool shaped like a bonding curve, break out into unpullable liquidity. ~$5 to launch, no presale.",
+  "site": "http://rallypad.fun",
+  "tweet_url": "https://x.com/Hookrfun/status/2107906306338107542",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Fairlaunch",
+  "handle": "@FairLaunchGG",
+  "followers": 1454,
+  "chain": [
+   "Ethereum",
+   "BNB Chain",
+   "Base"
+  ],
+  "hook_type": "Uniswap v4 + Pancake Infinity (dual-engine swap tax)",
+  "blurb": "Swap tax runs on two engines: Uniswap V4 and PancakeSwap Infinity (the engine under SushiSwap V4). Same hook logic, same quote-leg tax, same holder/creator split across chains.",
+  "site": "https://fairlaunch.gg/",
+  "tweet_url": "https://x.com/FairLaunchGG/status/2099287009940632014",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Unipeg",
+  "handle": "@unipegv4",
+  "followers": 11191,
+  "chain": [
+   "Ethereum"
+  ],
+  "hook_type": "Uniswap v4 pool hook (onchain objects, NFT fees)",
+  "blurb": "Onchain objects built on Uniswap v4. Its NFT fee mechanism inspired $CLAUS. Reference implementation for fee-sharing hooks.",
+  "site": "http://unipeg.art",
+  "tweet_url": "https://x.com/contractclaus/status/2107610854661275969",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Ballast",
+  "handle": "@ballastedapp",
+  "followers": 485,
+  "chain": [
+   "Ethereum",
+   "Unichain"
+  ],
+  "hook_type": "Uniswap v4 pool hook (reserve-backed, fee in hook)",
+  "blurb": "Reserve layer for tokens: launch on programmable reserves of stocks, ETFs, stables, crypto. Pair is a stock, fee lives in the hook, creator decides where it goes.",
+  "site": "http://ballasted.fun",
+  "tweet_url": "https://x.com/ballastedapp/status/2106387139063877725",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "UHI10 Hookathon winners",
+  "handle": "Atrium Academy cohort",
+  "followers": null,
+  "chain": [
+   "Sepolia (testnet)"
+  ],
+  "hook_type": "Uniswap v4 pool hooks (hackathon prototypes)",
+  "blurb": "Uniswap Hook Incubator UHI10 (Atrium Academy, Sep 2026). Winners: Markout ($1k, 24s-memory hook), Haze (sandwich-flag + Chainlink VRF settlement), Impact Rebated Fees (deposit-refund oracle), Cronstream (time-weighted USDC LP streaming). Prototypes on canonical Sepolia.",
+  "site": "https://x.com/0xshreyaas",
+  "tweet_url": "https://x.com/Spagero71/status/2107000000000000000",
+  "status": "prototype",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Hooked (Hoookedpad)",
+  "handle": "@Hoookedpad",
+  "followers": 6489,
+  "chain": [
+   "Solana"
+  ],
+  "hook_type": "Token-2022 transfer hook (rules in the token)",
+  "blurb": "Solana-native: rules written into token transfers via Token-2022 transfer hook (not pool callbacks like EVM). Launchers pick buy/sell caps, burns, SOL holder payouts, creator fees. Own token program + DEX + launchpad; ~597 hook-launched tokens observed Oct 2026.",
+  "site": "http://hookedpad.com",
+  "tweet_url": "https://x.com/Hoookedpad/status/2108037194707251636",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "PancakeSwap Infinity",
+  "handle": "@PancakeSwap",
+  "followers": 2124831,
+  "chain": [
+   "BNB Chain",
+   "Ethereum",
+   "Base",
+   "Arbitrum",
+   "11+ total"
+  ],
+  "hook_type": "PancakeSwap Infinity hooks (dynamic fees, shared inventory)",
+  "blurb": "Infinity = Pancake's v4-style hook engine (also under SushiSwap V4). Dynamic fees, fee-discount hooks, shared-inventory hook live on 10 bStocks pools. CAKE emission program: hook-enabled LPs earn rewards, devs get ecosystem support (up to 1440 CAKE/day).",
+  "site": "https://pancakeswap.finance/",
+  "tweet_url": "https://x.com/PancakeSwap/status/1922539715682562371",
+  "status": "live",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Permapad / Diamond Hand Hook",
+  "handle": "@EOTMofficial",
+  "followers": 101,
+  "chain": [
+   "Robinhood Chain"
+  ],
+  "hook_type": "Uniswap v4 pool hook (Diamond Hand Hook via Permapad)",
+  "blurb": "Permapad launchpad on Robinhood Chain. First graduation Oct 9 2026; launches can attach the Diamond Hand Hook. Earliest hook activity on the new chain.",
+  "site": "https://x.com/EOTMofficial/status/2108410059676123255",
+  "tweet_url": "https://x.com/EOTMofficial/status/2108410059676123255",
+  "status": "live (first graduation 2026-10-09)",
+  "verified": "2026-10-09"
+ },
+ {
+  "name": "Bordrless ($BORDR)",
+  "handle": "@bordrlessdex",
+  "followers": 1179,
+  "chain": [
+   "Solana"
+  ],
+  "hook_type": "Own token standard (amount-changing hooks)",
+  "blurb": "Rival Solana standard to Token-2022: own token program where hooks decide the amount (cut, burn, fee, 64B state), not just approve/block. Own DEX + launchpad + SPL bridge + hook SDK. $BORDR ran $2.2M, fell to $300k on founder FUD, back to ~$1.6M.",
+  "site": "https://bordrless.app/",
+  "tweet_url": "https://x.com/spacepixel/status/2108329415415636059",
+  "status": "live",
+  "verified": "2026-10-09"
+ }
+]

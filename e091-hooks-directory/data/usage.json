@@ -1,0 +1,70 @@
+{
+ "calls": [
+  {
+   "ts": 1791522711,
+   "endpoint": "mixed (advanced_search x13 + user/info x12)",
+   "detail": "manual research 2026-10-09 pre-logging, estimate",
+   "cost": 0.02
+  },
+  {
+   "ts": 1791522957,
+   "endpoint": "user/info (rate probe)",
+   "detail": "credits widget refresh",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791523146,
+   "endpoint": "user/info (rate probe)",
+   "detail": "credits widget refresh",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791524542,
+   "endpoint": "run:tweet-advanced-search",
+   "detail": "{\"query\": \"Bordrless\", \"product\": \"Latest\"}",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791524549,
+   "endpoint": "run:tweet-advanced-search",
+   "detail": "{\"query\": \"Bordrless\", \"product\": \"Latest\", \"cursor\": \"DAADDAABCgABHUKhqjIWIOMKAAIdQft5jhcQsgAIAAIAAAACCAADAAAAAAgABAAAAAAKAAUdQqiEqAAnEAoABh1CqISn_9jwCwAHAAAA8",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791524551,
+   "endpoint": "save-evidence",
+   "detail": "e2e-test-bordrless",
+   "cost": 0.0
+  },
+  {
+   "ts": 1791524643,
+   "endpoint": "run:custom:trends/locations",
+   "detail": "{}",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791526373,
+   "endpoint": "run:trends",
+   "detail": "{\"category\": \"trending\", \"compact\": \"0\"}",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791526423,
+   "endpoint": "run:trends",
+   "detail": "{\"category\": \"for_you\", \"compact\": \"0\"}",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791526457,
+   "endpoint": "run:trends",
+   "detail": "{\"category\": \"business_and_finance\", \"compact\": \"0\"}",
+   "cost": 0.0008
+  },
+  {
+   "ts": 1791526523,
+   "endpoint": "run:tweet-advanced-search",
+   "detail": "{\"query\": \"Broker ai data\", \"product\": \"Latest\"}",
+   "cost": 0.0008
+  }
+ ]
+}

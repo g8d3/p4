@@ -1,0 +1,6 @@
+{
+ "bind": "0.0.0.0",
+ "note": "all machine values live here; code reads this file",
+ "port": 8772,
+ "credits_balance": null
+}

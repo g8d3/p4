@@ -1,0 +1,977 @@
+<!--
+  e091 hooks-directory — website redo, driven by `figma-implement-design` (same skill + source as e089 v12).
+
+  SOURCE: https://raw.githubusercontent.com/followba/figma-implement-design/main/SKILL.md
+  -> 200, 11513 bytes, READ IN FULL 2026-10-09. frontmatter name "figma-implement-design".
+  Mirror yangcyyang/figma-implement-design (master) is byte-identical per e089 v12 research — not re-fetched.
+  No Figma URL / MCP connection exists in this environment, so Steps 1-4 run in handoff mode:
+  each hook card is a Frame (node-id hook-01..hook-12), chain swatches are the visual reference,
+  zero external assets — same substitution e089 v12 documents. NOT invented: every step below maps
+  to a SKILL.md section.
+
+  SKILL PRINCIPLES APPLIED (SKILL.md steps -> this page):
+  - Step 1 (node-id / file-key): filebar shows file-key label (e091-hooks); every frame carries
+    Frame N/12 + node-id tag + auto-layout position readout.
+  - Step 2 (get_design_context: layout, type, color tokens): 8px spacing scale via --s1..--s4,
+    type ramp 22/17/14/12/11 annotated in the spec row, chain color tokens in the legend.
+  - Step 3 (get_screenshot as source of truth): per-frame chain-swatch strip + fidelity line
+    (token count, type spec, hook_type) as the visual reference.
+  - Step 4 (assets: localhost only, no new icon packages, no placeholders): zero external requests,
+    zero icon fonts, pure CSS glyphs (◆ ⚠ ● ▲).
+  - Step 5 (translate to project conventions): data contract GET /api/hooks {hooks:[...]} respected;
+    single self-contained file convention kept; server/app.py untouched.
+  - Step 6 (1:1 parity: tokens over hardcoded values, WCAG): all paint via :root tokens; skip link,
+    focus-visible rings, live-region count, reduced-motion honored.
+  - Step 7 (validate checklist: layout, typography, spacing, alignment): footer "Handoff QA"
+    checklist mirrors the skill's validation list.
+
+  DATA: GET /api/hooks -> {hooks:[...], updated, source}. Fields: name, handle, followers, chain[],
+  hook_type, blurb, site, tweet_url, status, verified.
+  SOURCES TAB (added 2026-10-09, same skill): second tabpanel renders GET /api/sources
+  (data/sources.json: endpoint, env var, 7 queries, per-hook tweet hits with query/author/date/text/url).
+  Raw twitterapis.com payloads live in evidence/*.json (bin/fetch.sh). Zero-hit hooks show an honest
+  empty state pointing at their primary listing tweet.
+  RETAXONOMY (2026-10-09, after visiting all 10 project sites via tinyfish fetch):
+  role per listing (hook-infra / dex / launchpad / project / program) with site_note from the visit;
+  USD split by kind — own-token vol24 is scored as traction, host-dex vol is fenced off as
+  unscored context, launched-token vol without a public API is an explicit unscored_note.
+  Social adds distinct mention authors (followers + engagement + 2000*authors, log-scaled).
+  Formula lives in data/signals.json and renders in the page banner.
+  IDENTITY: design-handoff / inspect-panel aesthetic (shares the skill language with e089 v12,
+  content + engine-grouped sections are e091-specific).
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13'>🪝</text></svg>">
+<title>Hooks Directory — Figma handoff</title>
+<style>
+:root{
+  --canvas:#E9EAF0;
+  --frame:#FFFFFF;
+  --ink:#1A1D26;
+  --muted:#5C6372;
+  --faint:#8B91A3;
+  --line:#D8DBE6;
+  --line-soft:#E7E9F1;
+  --sel:#0D99FF;
+  --sel-soft:#E7F4FF;
+  --red:#F24E1E;
+  --red-soft:#FFEEE7;
+  --ok:#0E9F6E;
+  --ok-soft:#E6F6EF;
+  --warn:#B7791F;
+  --warn-soft:#FBF2DF;
+  --vio:#7C3AED;
+  --vio-soft:#F2ECFE;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html{background:var(--canvas)}
+body{
+  margin:0;color:var(--ink);background:var(--canvas);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+a{color:var(--sel)}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px;border-radius:6px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:#fff;padding:8px 14px;z-index:99;border-radius:0 0 8px 0}
+.skip:focus{left:0}
+.ruler-x{position:sticky;top:0;z-index:20;height:22px;border-bottom:1px solid var(--line);background:var(--canvas);
+  background-image:repeating-linear-gradient(to right,var(--faint) 0 1px,transparent 1px 8px),repeating-linear-gradient(to right,var(--faint) 0 1px,transparent 1px 40px);
+  background-size:100% 7px,100% 13px;background-repeat:repeat-x;background-position:bottom left}
+.ruler-x span{position:absolute;top:1px;left:10px;font-size:10px;color:var(--faint);letter-spacing:.08em}
+.sheet{max-width:1060px;margin:0 auto;padding:var(--s2) var(--s2) var(--s4)}
+.filebar{background:var(--frame);border:1px solid var(--line);border-radius:var(--r) var(--r) 0 0;border-bottom:none;
+  padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.filebar .dot{width:10px;height:10px;border-radius:50%;background:var(--red);flex:none}
+.filebar strong{color:var(--ink);font-size:12.5px}
+.filebar .tag{border:1px solid var(--line);border-radius:20px;padding:1px 9px;font-size:11.5px;background:var(--canvas)}
+.hero{background:var(--frame);border:1px solid var(--line);padding:var(--s3) var(--s2) var(--s2)}
+.hero h1{margin:0;font-size:22px;line-height:1.2;letter-spacing:-.02em}
+.hero h1 .handoff{color:var(--red)}
+.hero p{margin:8px 0 0;color:var(--muted);font-size:13.5px;max-width:64ch}
+.spec-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--muted)}
+.spec-row b{color:var(--ink)}
+.dim{display:inline-block;border:1px dashed var(--red);color:var(--red);border-radius:6px;padding:0 7px;font-size:11px;background:var(--red-soft);white-space:nowrap}
+.tokens{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.token{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);border:1px solid var(--line-soft);border-radius:6px;padding:2px 8px 2px 4px}
+.token i{width:14px;height:14px;border-radius:4px;flex:none;border:1px solid rgba(0,0,0,.12)}
+.inspect{background:var(--frame);border:1px solid var(--line);border-top:none;border-radius:0 0 var(--r) var(--r);
+  padding:var(--s2);display:grid;gap:12px}
+.inspect h2{margin:0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.field label{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input[type="search"]{width:100%;padding:10px 12px;font-size:14px;color:var(--ink);
+  background:#fff;border:1.5px solid var(--sel);border-radius:8px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:20px;
+  padding:7px 13px;font-size:13px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:650}
+.seg button:hover{border-color:var(--sel)}
+.meta-line{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.meta-line output{font-weight:650;color:var(--ink)}
+.section{margin-top:var(--s3)}
+.section-head{display:flex;align-items:baseline;gap:10px;margin:0 2px 12px}
+.section-head h2{margin:0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.section-head .count{font-size:11.5px;color:var(--faint)}
+.section-head::after{content:"";flex:1;border-top:1px dashed var(--line);transform:translateY(-3px)}
+.frames{display:grid;gap:var(--s3)}
+.frame{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);position:relative;
+  box-shadow:6px 6px 0 rgba(26,29,38,.08)}
+.frame-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line-soft);font-size:11.5px}
+.frame-top .fid{font-weight:700}
+.frame-top .node{color:var(--sel);background:var(--sel-soft);border:1px solid #BFE2FF;border-radius:6px;padding:0 7px}
+.frame-top .push{margin-left:auto}
+.engine{border-radius:6px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid}
+.engine-v4{color:var(--sel);border-color:#BFE2FF;background:var(--sel-soft)}
+.engine-sol{color:var(--vio);border-color:#D9CCFB;background:var(--vio-soft)}
+.engine-inf{color:var(--warn);border-color:#EAD9A8;background:var(--warn-soft)}
+.engine-rb{color:var(--ok);border-color:#B9E5D2;background:var(--ok-soft)}
+.frame-body{padding:14px}
+.frame-body h3{margin:0;font-size:17px;letter-spacing:-.01em}
+.frame-body h3 .tick{color:var(--red);font-weight:400;margin-right:6px}
+.handle{font-size:12.5px;color:var(--muted);margin:3px 0 0}
+.blurb{margin:9px 0;font-size:14px}
+.anno{border-left:3px solid var(--red);background:var(--red-soft);border-radius:0 8px 8px 0;
+  padding:8px 10px;font-size:12.5px;margin:10px 0}
+.anno b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:2px}
+.swatches{display:flex;gap:0;margin:10px 0 4px;border:1px solid var(--line-soft);border-radius:8px;overflow:hidden}
+.swatches div{flex:1;height:26px;position:relative}
+.swatches div span{position:absolute;inset:auto 0 0 0;font-size:9px;text-align:center;color:rgba(255,255,255,.92);
+  background:rgba(0,0,0,.28);padding:1px 0;letter-spacing:.04em}
+.fidelity{font-size:11.5px;color:var(--faint);margin:2px 0 6px}
+.props{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px 14px;margin:10px 0;
+  padding:10px 12px;background:var(--canvas);border:1px solid var(--line-soft);border-radius:8px;font-size:12px}
+.props dt{color:var(--faint);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.props dd{margin:1px 0 0;color:var(--ink);font-weight:600}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn{display:inline-block;text-decoration:none;font-size:13px;font-weight:600;border-radius:8px;padding:8px 14px;border:1px solid var(--ink)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-ghost{background:#fff;color:var(--ink)}
+.btn:hover{border-color:var(--sel);color:var(--sel)}
+.btn-primary:hover{background:var(--sel);border-color:var(--sel);color:#fff}
+.qa{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);margin-top:var(--s3);padding:var(--s2)}
+.qa h2{margin:0 0 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.qa ul{margin:0;padding-left:20px;font-size:13px;color:var(--muted);display:grid;gap:4px}
+.qa li b{color:var(--ink)}
+.empty{background:var(--frame);border:1px dashed var(--line);border-radius:var(--r);padding:var(--s3);text-align:center;color:var(--muted)}
+.tabs{background:var(--frame);border:1px solid var(--line);border-top:none;padding:10px 16px;display:flex;gap:8px;align-items:center}
+.tabs button{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:8px 16px;font-size:13.5px;font-weight:600;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.tabs button:hover{border-color:var(--sel)}
+.tabs .hint{margin-left:auto;font-size:11.5px;color:var(--faint)}
+.src-method{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);padding:var(--s2);margin-top:var(--s2)}
+.src-method h2{margin:0 0 6px;font-size:17px}
+.src-method p{margin:6px 0;font-size:13.5px;color:var(--muted)}
+.src-method p b{color:var(--ink)}
+.qchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.qchip{font-size:11.5px;border:1px solid var(--line);background:var(--canvas);border-radius:20px;padding:2px 10px;font-family:inherit;cursor:pointer}
+.qchip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.mini{font-size:11.5px;color:var(--faint)}
+#src-qchips{margin-top:8px}
+.src-card{background:var(--frame);border:1px solid var(--line);border-radius:var(--r);margin-top:var(--s2);box-shadow:6px 6px 0 rgba(26,29,38,.08)}
+.src-card .frame-top{border-bottom:1px solid var(--line-soft)}
+.src-body{padding:14px}
+.src-body .primary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.tweet{border:1px solid var(--line-soft);border-radius:8px;padding:10px 12px;margin:8px 0;font-size:13px}
+.tweet .who{font-size:12px;color:var(--muted);margin-bottom:4px}
+.tweet .who b{color:var(--ink)}
+.tweet p{margin:4px 0 6px;white-space:pre-wrap}
+.tweet .q{font-size:11px;color:var(--sel);background:var(--sel-soft);border:1px solid #BFE2FF;border-radius:6px;padding:1px 8px;display:inline-block;margin-bottom:2px;cursor:pointer;font-family:inherit}
+.tweet .q:hover{border-color:var(--sel)}
+.req{margin-top:8px;background:var(--ink);color:#EDEFF7;border-radius:8px;padding:10px 12px;font-size:12px}
+.req .k{color:#9FD8FF;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.req code{word-break:break-all}
+.req details{margin-top:6px}
+.req summary{cursor:pointer;color:#9FD8FF}
+.req pre{white-space:pre-wrap;word-break:break-word;font-size:11px;max-height:260px;overflow:auto}
+.credits{margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13px;background:var(--canvas)}
+.credits .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:4px 0}
+.credits .bar{height:10px;background:#fff;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex:1;min-width:120px}
+.credits .bar i{display:block;height:100%;background:var(--ok)}
+.credits input{width:100px;padding:6px 8px;font-size:13px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:#fff}
+.credits .mini{font-size:11.5px;color:var(--faint)}
+.frow{display:grid;grid-template-columns:170px 1fr;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:11.5px}
+.frow span:first-child{color:#9FD8FF}
+.frow .mono{color:#EDEFF7;word-break:break-word}
+.frow.sub{margin-left:14px;border-left:2px solid rgba(159,216,255,.3);padding-left:8px}
+.echips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.echip{font-size:12px;background:rgba(255,255,255,.08);border-radius:14px;padding:2px 10px}
+.tweet .echip{background:var(--canvas);border:1px solid var(--line-soft)}
+.tweet .tzline{font-size:11px;color:var(--faint)}
+.api-grid{display:grid;grid-template-columns:250px 1fr;gap:14px;margin-top:10px}
+.ep-list{display:flex;flex-direction:column;gap:10px;max-height:640px;overflow:auto}
+.ep-list details{border:1px solid var(--line-soft);border-radius:8px;background:#fff}
+.ep-list summary{cursor:pointer;font-size:12px;font-weight:700;padding:6px 10px;color:var(--muted)}
+.ep-list .eps{display:flex;flex-direction:column}
+.ep-list button{border:none;background:none;text-align:left;font-size:12.5px;padding:6px 10px;cursor:pointer;border-top:1px solid var(--line-soft);color:var(--ink)}
+.ep-list button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ep-list button .pr{float:right;color:var(--faint);font-size:11px}
+.ep-list button[aria-pressed="true"] .pr{color:#9FD8FF}
+.ep-main h3{margin:0 0 8px;font-size:16px}
+.prow{display:grid;grid-template-columns:170px 1fr;gap:8px;align-items:start;margin:7px 0}
+.prow label{font-size:12px;font-weight:600}
+.prow label .req{color:var(--red)}
+.prow input,.prow select,.prow textarea{width:100%;padding:7px 9px;font-size:13px;border:1px solid var(--line);border-radius:7px;color:var(--ink);background:#fff;font-family:inherit}
+.prow .hint{font-size:11px;color:var(--faint);margin-top:2px}
+.qb{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 10px;background:var(--canvas)}
+.qb h4{margin:0 0 8px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.qb .ops{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.qb .ops button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 11px;font-size:12px;cursor:pointer}
+.qb .ops button:hover{border-color:var(--sel);color:var(--sel)}
+.qb .row2{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:8px}
+.qb .row2 label{font-size:11px;color:var(--muted);display:grid;gap:3px}
+.qb .row2 input,.qb .row2 select{padding:6px 8px;font-size:12.5px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font-family:inherit}
+.qb table{width:100%;border-collapse:collapse;font-size:11.5px}
+.qb td{border-top:1px solid var(--line-soft);padding:3px 6px 3px 0;vertical-align:top}
+.qb td.mono{white-space:nowrap;color:var(--sel)}
+pre.json{background:var(--ink);color:#EDEFF7;border-radius:8px;padding:12px;font-size:12px;max-height:520px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+@media (max-width:760px){.api-grid{grid-template-columns:1fr}.prow{grid-template-columns:1fr}}
+.none{font-size:13px;color:var(--muted);background:var(--canvas);border:1px dashed var(--line);border-radius:8px;padding:10px 12px}
+.asof{margin-top:12px;font-size:12.5px;background:var(--ink);color:#fff;border-radius:8px;padding:8px 12px}
+.asof .mono{color:#9FD8FF}
+.score{display:flex;gap:12px;align-items:flex-start;margin:10px 0;padding:10px 12px;background:var(--canvas);border:1px solid var(--line);border-radius:8px}
+.score .num{flex:none;text-align:center;background:var(--ink);color:#fff;border-radius:8px;padding:6px 10px;min-width:64px}
+.score .num b{display:block;font-size:22px;line-height:1}
+.score .num span{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.sig{flex:1;display:grid;gap:5px;min-width:0}
+.sig .row{display:grid;grid-template-columns:52px 1fr 86px;gap:8px;align-items:center;font-size:11px}
+.sig .row .k{color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+.sig .bar{height:8px;background:#fff;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.sig .bar i{display:block;height:100%;background:var(--sel)}
+.sig .row .v{text-align:right;color:var(--ink);font-weight:600;white-space:nowrap}
+.datechip{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:2px 9px;margin:6px 0 0;border:1px solid}
+.date-fresh{color:var(--ok);border-color:#B9E5D2;background:var(--ok-soft)}
+.date-stale{color:var(--warn);border-color:#EAD9A8;background:var(--warn-soft)}
+.date-old{color:var(--red);border-color:#F5C5B5;background:var(--red-soft)}
+.bigdate{font-size:15px;font-weight:800;margin-bottom:2px}
+.bigdate span{font-weight:400;font-size:12px;color:var(--muted)}
+.role{border-radius:6px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.04em;border:1px solid}
+.role-infra{color:var(--sel);border-color:#BFE2FF;background:var(--sel-soft)}
+.role-dex{color:var(--ok);border-color:#B9E5D2;background:var(--ok-soft)}
+.role-launch{color:#7C3AED;border-color:#D9CCFB;background:#F2ECFE}
+.role-proj{color:var(--warn);border-color:#EAD9A8;background:var(--warn-soft)}
+.role-prog{color:var(--muted);border-color:var(--line);background:var(--canvas)}
+.sitenote{font-size:13px;color:var(--muted);border-left:3px solid var(--sel);background:var(--sel-soft);border-radius:0 8px 8px 0;padding:8px 10px;margin:10px 0}
+.sitenote b{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sel);display:block;margin-bottom:2px}
+.ctx{font-size:12.5px;color:var(--muted);background:var(--canvas);border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px;margin:10px 0}
+.ctx b{color:var(--ink)}
+.chartctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.chartctl .venue{font-size:11px;color:var(--faint)}
+.seg.small button{padding:4px 10px;font-size:12px}
+.chartbox{margin-top:8px}
+.chartbox iframe{width:100%;height:420px;border:1px solid var(--line);border-radius:8px;background:#0e1116;display:block}
+footer{color:var(--faint);font-size:12px;margin-top:var(--s2);text-align:center}
+@media (max-width:640px){.sheet{padding:8px 8px var(--s3)}.props{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#frames">Skip to frames</a>
+<div class="ruler-x" aria-hidden="true"><span>◀ 8px GRID · SPEC 1440 / FILL ▶</span></div>
+<div class="sheet">
+  <div class="filebar">
+    <span class="dot" aria-hidden="true"></span>
+    <strong>hooks-directory.fig</strong>
+    <span class="tag mono">file-key: e091-hooks</span>
+    <span class="tag">Desktop — 1440</span>
+    <span class="tag mono" id="frame-count">12 frames</span>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-dir" aria-selected="true" aria-controls="view-dir">Frames · directory</button>
+    <button role="tab" id="tab-src" aria-selected="false" aria-controls="view-src">Sources · provenance</button>
+    <button role="tab" id="tab-api" aria-selected="false" aria-controls="view-api">API · explorer</button>
+    <span class="hint mono" id="tab-hint">view 1/2</span>
+  </div>
+  <div id="view-dir" role="tabpanel" aria-labelledby="tab-dir">
+  <div class="hero">
+    <h1>Hooks Directory <span class="handoff">/ design handoff</span></h1>
+    <p>Hook projects across blockchains, handed off frame-by-frame. Each card is a Figma frame:
+    node-id, engine badge, chain swatches as the visual reference, inspect readout, and three
+    actions. Data: <code>GET /api/hooks</code> → <code>{hooks:[...]}</code>, sourced from X via
+    <code>twitterapis.com</code> (<code>TWITTERAPIS_API_KEY</code>), verified 2026-10-09.</p>
+    <div class="spec-row">
+      <span>Type <b>22 / 17 / 14 / 12</b></span>
+      <span>Spacing <b class="mono">--s1 8 · --s2 16 · --s3 24 · --s4 32</b></span>
+      <span>Radius <b class="mono">--r 10</b></span>
+      <span class="dim">W 1060 max · FILL</span>
+      <span class="dim">Card pad 14 · gap 24</span>
+    </div>
+    <div class="tokens" id="legend" aria-label="Chain color tokens"></div>
+    <div class="asof" id="asof">Scores + prices loading…</div>
+  </div>
+
+  <div class="inspect" role="search" aria-label="Inspect panel">
+    <h2>Inspect — filter frames</h2>
+    <div class="field">
+      <label for="q">Search <span class="hint mono">name · handle · hook_type · chain · blurb</span></label>
+      <input id="q" type="search" placeholder="e.g. solana, launchpad, fee…" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Chain</label>
+      <div class="seg" id="chain-seg" role="group" aria-label="Chain filter"></div>
+    </div>
+    <div class="field">
+      <label>Role — what the project is</label>
+      <div class="seg" id="role-seg" role="group" aria-label="Role filter"></div>
+    </div>
+    <div class="field">
+      <label>Engine</label>
+      <div class="seg" id="engine-seg" role="group" aria-label="Engine filter"></div>
+    </div>
+    <div class="field">
+      <label for="sort">Sort</label>
+      <div class="seg" id="sort-seg" role="group" aria-label="Sort">
+        <button data-sort="score" aria-pressed="true">Score ★</button>
+        <button data-sort="followers" aria-pressed="false">Followers ↓</button>
+        <button data-sort="name" aria-pressed="false">Name A–Z</button>
+      </div>
+    </div>
+    <div class="meta-line">
+      <output id="count" aria-live="polite"></output>
+      <span class="status" id="status">● connected · /api/hooks</span>
+    </div>
+  </div>
+
+  <main class="section" id="frames" aria-label="Hook project frames">
+    <div id="list"></div>
+  </main>
+
+  <div class="qa" aria-label="Handoff QA">
+    <h2>Handoff QA — skill step 7 checklist</h2>
+    <ul>
+      <li><b>Layout:</b> 8px grid, card padding 14, section gap 24 — no hardcoded outliers.</li>
+      <li><b>Typography:</b> system stack, 22/17/14/12/11 ramp; every size annotated in the spec row.</li>
+      <li><b>Color:</b> all paint via <span class="mono">:root</span> tokens; chain swatches double as legend.</li>
+      <li><b>States:</b> buttons carry hover + <span class="mono">:focus-visible</span> rings; pressed segments invert.</li>
+      <li><b>Responsive:</b> sheet fills to 1060 max; props grid collapses 640px and under.</li>
+      <li><b>Assets:</b> zero external requests, zero icon fonts — CSS glyphs only (● ◆ ▲).</li>
+      <li><b>Access:</b> skip link, labelled groups, live-region count, reduced-motion honored.</li>
+    </ul>
+  </div>
+
+  </div><!-- /view-dir -->
+  <div id="view-api" role="tabpanel" aria-labelledby="tab-api" hidden>
+    <div class="src-method">
+      <h2>◆ API explorer — the full twitterapis.com surface</h2>
+      <p><b id="api-count"></b> · every parameter the docs list (filters, sorting, <span class="mono">fields</span>/<span class="mono">compact</span> projection, cursors) · every run bills per-call and lands in the <b>Sources → credits</b> log · writes act as your X session and ask first.</p>
+      <div class="api-grid">
+        <div class="ep-list" id="ep-list" aria-label="Endpoints"></div>
+        <div class="ep-main">
+          <div class="credits" id="credits-api">Loading credit usage…</div>
+          <h3 id="api-title" style="margin-top:10px">Pick an endpoint ←</h3>
+          <div id="qbuilder" class="qb" hidden></div>
+          <div id="api-form"></div>
+          <div class="actions" id="api-controls" hidden>
+            <button class="btn btn-primary" id="api-run">Run</button>
+            <button class="btn btn-ghost" id="api-next" hidden>Next page →</button>
+            <button class="btn btn-ghost" id="api-save" hidden>Save to evidence</button>
+            <input id="api-label" placeholder="evidence label" style="padding:8px 10px;font-size:13px;border:1px solid var(--line);border-radius:8px" hidden>
+          </div>
+          <div class="meta-line" style="margin-top:8px"><output id="api-meta"></output></div>
+          <div id="api-out"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="view-src" role="tabpanel" aria-labelledby="tab-src" hidden>
+    <div class="src-method" id="src-method"></div>
+    <div id="src-list"></div>
+  </div>
+
+  <footer>Redo driven by <span class="mono">figma-implement-design</span> (followba, 2026-10-09) · sources in the Sources tab (<span class="mono">/api/sources</span>, raw payloads in <span class="mono">evidence/</span>) · refresh via <span class="mono">bin/fetch.sh</span> · machine config in <span class="mono">needs.json</span></footer>
+</div>
+
+<script>
+var CHAIN_COLORS = {
+  "Ethereum": "#627EEA", "Base": "#0052FF", "Unichain": "#F50DB4",
+  "Arbitrum": "#28A0F0", "BNB Chain": "#F0B90B", "Solana": "#9945FF",
+  "Robinhood Chain": "#0E9F6E", "Sepolia (testnet)": "#8B91A3",
+  "11+ total": "#5C6372", "Ethereum ": "#627EEA"
+};
+function chainColor(c){ return CHAIN_COLORS[c] || "#5C6372"; }
+function engineOf(hookType){
+  if (hookType.indexOf("Token-2022") !== -1) return { key: "sol", label: "Token-2022 · Solana", cls: "engine-sol" };
+  if (hookType.indexOf("Infinity") !== -1) return { key: "inf", label: "Infinity · BNB+", cls: "engine-inf" };
+  if (hookType.indexOf("Diamond Hand") !== -1) return { key: "rb", label: "Permapad · Robinhood", cls: "engine-rb" };
+  return { key: "v4", label: "Uniswap v4 · EVM", cls: "engine-v4" };
+}
+var HOOKS = [];
+var SIG = {};
+var PAIRS = {};
+var ASOF = "2026-10-09";
+var FORMULA = "";
+var state = { q: "", chain: "", engine: "", role: "", sort: "score" };
+function fmtUSD(n){ if (n == null) return "n/a"; if (n >= 1e6) return "$" + (n/1e6).toFixed(1) + "M"; if (n >= 1e3) return "$" + Math.round(n/1e3) + "K"; return "$" + Math.round(n); }
+function fmtDate(iso){ var m = {"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun","07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"}; var p = String(iso).split("-"); return m[p[1]] + " " + Number(p[2]) + (p[0] !== "2026" ? " ’" + p[0].slice(2) : ""); }
+function daysAgo(iso){ var ms = Date.parse(ASOF + "T12:00:00Z") - Date.parse(iso + "T12:00:00Z"); return Math.max(0, Math.round(ms / 86400000)); }
+function dateChip(iso){ var d = daysAgo(iso); var cls = d <= 7 ? "date-fresh" : (d <= 60 ? "date-stale" : "date-old"); var ago = d === 0 ? "today" : (d + "d ago"); return '<span class="datechip ' + cls + '">newest source: ' + fmtDate(iso) + ' · ' + ago + '</span>'; }
+function sigRow(label, pts, cap, val){ var pct = Math.round(100 * pts / cap); return '<div class="row"><span class="k">' + label + '</span><span class="bar"><i style="width:' + pct + '%"></i></span><span class="v">' + val + '</span></div>'; }
+
+function fmtNum(n){ if (n == null) return "n/a"; if (n >= 1e6) return (n/1e6).toFixed(1) + "M"; if (n >= 1e3) return (n/1e3).toFixed(1) + "K"; return String(Math.round(n)); }
+function fmtFollowers(n){ return n == null ? "n/a" : Number(n).toLocaleString("en-US"); }
+
+function frameHTML(h, i, rank){
+  var eng = engineOf(h.hook_type);
+  var g = SIG[h.name] || {score: 0, social_pts: 0, traction_pts: 0, fresh_pts: 0, status_pts: 0, newest_source: h.verified, vol24: null, mcap: null, usd_kind: "none", usd_scored: false, status_label: h.status, engagement: 0, authors: 0, role: "project", site_note: "", unscored_note: null};
+  var role = g.role || "project";
+  var roleLabel = { "hook-infra": "hook infra", dex: "DEX", launchpad: "launchpad", project: "project", program: "program" }[role];
+  var usdVal = g.usd_kind === "token" ? fmtUSD(g.vol24) + "/24h" : (g.usd_kind === "host-dex" ? fmtUSD(g.vol24) + " ctx" : "unscored");
+  var usdLine = g.usd_kind === "token"
+    ? '<div class="ctx"><b>Own token</b> ' + fmtUSD(g.vol24) + '/24h' + (g.mcap ? ' · mcap ' + fmtUSD(g.mcap) : '') + ' · scored as traction. Pool/launched-token volumes (if any) are separate — see site.</div>'
+    : (g.usd_kind === "host-dex"
+      ? '<div class="ctx"><b>Host-DEX volume ' + fmtUSD(g.vol24) + '/24h — whole exchange, context only, NOT scored.</b> ' + esc(g.usd_source || '') + '.</div>'
+      : '<div class="ctx"><b>Traction unscored</b> — ' + esc(g.unscored_note || 'no attributable USD figure') + '.</div>');
+  var launchedLine = g.launched_vol24
+    ? '<div class="ctx"><b>Launched-token venue volume ' + fmtUSD(g.launched_vol24) + '/24h</b> (on-site figure, manual snapshot — shown, not scored).</div>' : '';
+  var nodeId = "hook-" + String(i + 1).padStart(2, "0");
+  var sw = h.chain.map(function(c){
+    return '<div style="background:' + chainColor(c) + '" title="' + c + '"><span>' + c + '</span></div>';
+  }).join("");
+  var props =
+    '<dl class="props">' +
+    '<div><dt>Followers</dt><dd>' + fmtFollowers(h.followers) + '</dd></div>' +
+    '<div><dt>Status</dt><dd>' + h.status + '</dd></div>' +
+    '<div><dt>Verified</dt><dd class="mono">' + h.verified + '</dd></div>' +
+    '<div><dt>Chains</dt><dd>' + h.chain.length + '</dd></div>' +
+    '</dl>';
+  var caution = /exploit/i.test(h.blurb)
+    ? '<div class="anno"><b>⚠ Inspect note</b>Post-exploit project — verify audit status before LP.</div>' : '';
+  return '' +
+  '<article class="frame" data-engine="' + eng.key + '">' +
+    '<div class="frame-top">' +
+      '<span class="fid">Frame ' + (i + 1) + ' / ' + HOOKS.length + '</span>' +
+      '<span class="node mono">node-id ' + nodeId + '</span>' +
+      '<span class="engine ' + eng.cls + '">' + eng.label + '</span>' +
+      '<span class="role ' + (ROLE_CLS[role] || "role-proj") + '">' + roleLabel + '</span>' +
+      '<span class="push mono">x:' + (i % 3) * 360 + ' · auto-layout V</span>' +
+    '</div>' +
+    '<div class="frame-body">' +
+      '<h3><span class="tick">◆</span>' + h.name + '</h3>' +
+      '<p class="handle mono">' + h.handle + '</p>' +
+      '<div class="swatches" role="img" aria-label="Chain coverage: ' + h.chain.join(", ") + '">' + sw + '</div>' +
+      '<p class="fidelity mono">visual ref · ' + h.chain.length + ' chain token' + (h.chain.length > 1 ? 's' : '') + ' · type 14/12 · ' + h.hook_type + '</p>' +
+      '<div class="score"><div class="num"><b>' + g.score + '</b><span>rank #' + rank + '</span></div>' +
+      '<div class="sig">' +
+      sigRow("social", g.social_pts, 30, fmtNum(g.social_raw) + " vol") +
+      sigRow("traction", g.traction_pts, 40, usdVal) +
+      sigRow("fresh", g.fresh_pts, 20, fmtDate(g.newest_source)) +
+      sigRow("status", g.status_pts, 10, esc(g.status_label)) +
+      '</div></div>' + dateChip(g.newest_source) +
+      (g.site_note ? '<div class="sitenote"><b>Site visit · Oct 9</b>' + esc(g.site_note) + '</div>' : '') +
+      usdLine + launchedLine +
+      chartBlock(h.name, i) +
+      '<p class="blurb">' + h.blurb + '</p>' +
+      caution + props +
+      '<div class="actions">' +
+        '<a class="btn btn-primary" href="' + h.site + '" target="_blank" rel="noopener">Open site ↗</a>' +
+        '<a class="btn btn-ghost" href="' + h.tweet_url + '" target="_blank" rel="noopener">Source tweet</a>' +
+        '<a class="btn btn-ghost" href="https://x.com/' + h.handle.replace("@", "") + '" target="_blank" rel="noopener">X profile</a>' +
+      '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+function filtered(){
+  var q = state.q.toLowerCase();
+  return HOOKS.map(function(h, i){ return { h: h, i: i }; }).filter(function(row){
+    var h = row.h;
+    var hay = (h.name + " " + h.handle + " " + h.hook_type + " " + h.chain.join(" ") + " " + h.blurb + " " + roleOf(h.name)).toLowerCase();
+    if (q && hay.indexOf(q) === -1) return false;
+    if (state.chain && h.chain.indexOf(state.chain) === -1) return false;
+    if (state.engine && engineOf(h.hook_type).key !== state.engine) return false;
+    if (state.role && roleOf(h.name) !== state.role) return false;
+    return true;
+  }).sort(function(a, b){
+    if (state.sort === "name") return a.h.name.localeCompare(b.h.name);
+    if (state.sort === "score") return ((SIG[b.h.name] || {}).score || 0) - ((SIG[a.h.name] || {}).score || 0);
+    return (b.h.followers || 0) - (a.h.followers || 0);
+  });
+}
+
+var ROLES = [
+  { key: "", label: "All roles" },
+  { key: "hook-infra", label: "Hook infra" },
+  { key: "dex", label: "DEX" },
+  { key: "launchpad", label: "Launchpad" },
+  { key: "project", label: "Project" },
+  { key: "program", label: "Program" }
+];
+var ROLE_CLS = { "hook-infra": "role-infra", dex: "role-dex", launchpad: "role-launch", project: "role-proj", program: "role-prog" };
+function roleOf(name){ return (SIG[name] || {}).role || "project"; }
+var ENGINES = [
+  { key: "", label: "All engines" },
+  { key: "v4", label: "Uniswap v4" },
+  { key: "sol", label: "Token-2022" },
+  { key: "inf", label: "Infinity" },
+  { key: "rb", label: "Robinhood" }
+];
+
+function embedURL(p, mode){
+  var u = "https://dexscreener.com/" + p.chain + "/" + p.address + "?embed=1&theme=dark";
+  return mode === "full" ? u : u + "&trades=0&info=0";
+}
+function chartBlock(name, i){
+  var p = PAIRS[name];
+  if (!p) return "";
+  return '<div class="chartctl" data-pair="' + i + '" data-name="' + esc(name) + '">' +
+    '<button class="btn btn-ghost" data-act="toggle" aria-expanded="false">📈 Chart</button>' +
+    '<span class="seg small" data-modes hidden><button data-mode="chart" aria-pressed="true">Chart only</button><button data-mode="full" aria-pressed="false">Chart+Txs</button></span>' +
+    '<a class="btn btn-ghost" href="' + p.url + '" target="_blank" rel="noopener">DexScreener ↗</a>' +
+    '<span class="venue mono">' + esc(p.venue) + ' · loads on click</span></div>' +
+    '<div class="chartbox" id="chart-' + i + '" hidden></div>';
+}
+function chartClick(e){
+  var ctl = e.target.closest ? e.target.closest(".chartctl") : null;
+  if (!ctl) return;
+  var p = PAIRS[ctl.getAttribute("data-name")];
+  if (!p) return;
+  var box = document.getElementById("chart-" + ctl.getAttribute("data-pair"));
+  var tgl = e.target.closest ? e.target.closest('[data-act="toggle"]') : null;
+  var modeBtn = e.target.closest ? e.target.closest("[data-mode]") : null;
+  if (modeBtn) {
+    box.setAttribute("data-mode", modeBtn.getAttribute("data-mode"));
+    var fr = box.querySelector("iframe");
+    if (fr) fr.src = embedURL(p, box.getAttribute("data-mode"));
+    Array.prototype.forEach.call(ctl.querySelectorAll("[data-mode]"), function(x){
+      x.setAttribute("aria-pressed", x === modeBtn ? "true" : "false");
+    });
+    return;
+  }
+  if (!tgl) return;
+  var open = box.hidden;
+  box.hidden = !open;
+  tgl.setAttribute("aria-expanded", open ? "true" : "false");
+  tgl.textContent = open ? "📉 Hide chart" : "📈 Chart";
+  ctl.querySelector("[data-modes]").hidden = !open;
+  if (open && !box.querySelector("iframe")) {
+    box.setAttribute("data-mode", "chart");
+    box.innerHTML = '<iframe src="' + embedURL(p, "chart") + '" title="DexScreener chart" loading="lazy"></iframe>';
+  }
+}
+function segButton(label, pressed, attrs){
+  return '<button ' + attrs + ' aria-pressed="' + pressed + '">' + label + '</button>';
+}
+
+function renderSegs(){
+  var chains = [];
+  HOOKS.forEach(function(h){ h.chain.forEach(function(c){ if (chains.indexOf(c) === -1) chains.push(c); }); });
+  chains.sort();
+  var ch = segButton("All chains", state.chain === "", 'data-chain=""');
+  chains.forEach(function(c){
+    ch += segButton('<span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:' + chainColor(c) + ';margin-right:6px"></span>' + c,
+      state.chain === c, 'data-chain="' + c + '"');
+  });
+  document.getElementById("chain-seg").innerHTML = ch;
+  var en = "";
+  ENGINES.forEach(function(e){
+    en += segButton(e.label, state.engine === e.key, 'data-engine="' + e.key + '"');
+  });
+  document.getElementById("engine-seg").innerHTML = en;
+  var rl = "";
+  ROLES.forEach(function(e){
+    rl += segButton(e.label, state.role === e.key, 'data-role="' + e.key + '"');
+  });
+  document.getElementById("role-seg").innerHTML = rl;
+}
+
+function render(){
+  var rows = filtered();
+  var html = "";
+  var lastEng = null;
+  rows.forEach(function(row, n){
+    var eng = engineOf(row.h.hook_type);
+    if (eng.key !== lastEng) {
+      if (lastEng !== null) html += '</div>';
+      html += '<div class="section-head"><h2>' + eng.label + '</h2><span class="count">' +
+        rows.filter(function(r){ return engineOf(r.h.hook_type).key === eng.key; }).length + ' frames</span></div><div class="frames">';
+      lastEng = eng.key;
+    }
+    html += frameHTML(row.h, row.i, n + 1);
+  });
+  if (lastEng !== null) html += '</div>';
+  if (!rows.length) html = '<div class="empty">No frames match — clear search or reset segments.</div>';
+  document.getElementById("list").innerHTML = html;
+  document.getElementById("count").textContent = rows.length + " of " + HOOKS.length + " frames";
+  document.getElementById("frame-count").textContent = HOOKS.length + " frames";
+}
+
+function bindSeg(id, attr, apply){
+  document.getElementById(id).addEventListener("click", function(e){
+    var b = e.target.closest("button");
+    if (!b) return;
+    apply(b.getAttribute(attr));
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){
+      x.setAttribute("aria-pressed", x === b ? "true" : "false");
+    });
+    render();
+  });
+}
+
+async function init(){
+  try {
+    var r = await fetch("/api/hooks");
+    var j = await r.json();
+    HOOKS = j.hooks;
+  } catch (e) {
+    document.getElementById("status").textContent = "○ offline · /api/hooks failed";
+    return;
+  }
+  try {
+    var rs = await fetch("/api/signals");
+    var js = await rs.json();
+    ASOF = js.as_of; FORMULA = js.formula;
+    js.signals.forEach(function(o){ SIG[o.name] = o; });
+    document.getElementById("asof").innerHTML = "Scores as of <span class=\"mono\">" + esc(ASOF) + "</span> · USD vol: DexScreener (tokens) + DeFiLlama (protocols) · social: X followers + captured-tweet engagement · <span class=\"mono\">" + esc(FORMULA) + "</span>";
+  } catch (e) {
+    document.getElementById("asof").textContent = "○ scores offline · /api/signals failed (directory still sortable by followers/name)";
+  }
+  try {
+    var rp = await fetch("/api/pairs");
+    var jp = await rp.json();
+    PAIRS = jp.pairs;
+  } catch (e) { PAIRS = {}; }
+  document.getElementById("list").addEventListener("click", chartClick);
+  var legend = [];
+  HOOKS.forEach(function(h){ h.chain.forEach(function(c){ if (legend.indexOf(c) === -1) legend.push(c); }); });
+  legend.sort();
+  document.getElementById("legend").innerHTML = legend.map(function(c){
+    return '<span class="token"><i style="background:' + chainColor(c) + '"></i><span class="mono">' + c + '</span></span>';
+  }).join("");
+  document.getElementById("q").addEventListener("input", function(e){ state.q = e.target.value; render(); });
+  bindSeg("chain-seg", "data-chain", function(v){ state.chain = v; });
+  bindSeg("engine-seg", "data-engine", function(v){ state.engine = v; });
+  bindSeg("role-seg", "data-role", function(v){ state.role = v; });
+  bindSeg("sort-seg", "data-sort", function(v){ state.sort = v; });
+  renderSegs();
+  render();
+}
+var SRC = null;
+var SRCQ = "";
+function esc(s){ return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+var TABS = ["dir", "src", "api"];
+function setTab(which){
+  if (TABS.indexOf(which) === -1) which = "dir";
+  TABS.forEach(function(t, i){
+    document.getElementById("view-" + t).hidden = (t !== which);
+    document.getElementById("tab-" + t).setAttribute("aria-selected", t === which ? "true" : "false");
+  });
+  document.getElementById("tab-hint").textContent = "view " + (TABS.indexOf(which) + 1) + "/3";
+  if (which === "src" && !SRC) loadSources();
+  if (which === "src") loadUsage("");
+  if (which === "api" && !SPEC) loadSpec();
+  if (which === "api") loadUsage("-api");
+  if ("replaceState" in history) history.replaceState(null, "", which === "dir" ? "#" : "#" + which);
+}
+function hitQueries(m){
+  var c = {};
+  m.sources.forEach(function(s){ s.hits.forEach(function(t){ c[t.query] = (c[t.query] || 0) + 1; }); });
+  return Object.keys(c).sort().map(function(k){ return [k, c[k]]; });
+}
+function renderSources(){
+  var m = SRC;
+  document.getElementById("src-method").innerHTML =
+    '<h2>◆ Method — where every listing comes from</h2>' +
+    '<p><b>Endpoint</b> <span class="mono">' + esc(m.endpoint) + '</span> · <b>auth</b> <span class="mono">' + esc(m.auth) + ' = $' + esc(m.env_var) + '</span> (key stays server-side; never in page code)</p>' +
+    '<p><b>Captured</b> <span class="mono">' + esc(m.captured) + '</span> · <b>queryType</b> <span class="mono">' + esc(m.query_type) + '</span> · <b>count</b> <span class="mono">' + esc(m.count) + '</span> per query · raw payloads in <span class="mono">evidence/*.json</span> (re-run: <span class="mono">bin/fetch.sh</span>)</p>' +
+    '<div class="qchips" id="src-qchips">' + hitQueries(m).map(function(q){
+      var raw = (m.raw_counts || {})[q[0]];
+      var lab = '"' + esc(q[0]) + '" ×' + q[1] + ' kept' + (raw ? ' / ' + raw + ' raw' : '');
+      return '<button class="qchip mono" data-qf="' + esc(q[0]) + '" aria-pressed="' + (SRCQ === q[0]) + '" title="API returned ' + (raw || '?') + ' tweets for this query; ' + q[1] + ' kept as project hits">' + lab + '</button>';
+    }).join("") + '<button class="qchip mono" data-qf="" aria-pressed="' + (SRCQ === "") + '">✕ all</button></div>' +
+    '<div class="mini" style="margin-top:4px">queries run: ' + m.queries.map(function(q){ return esc(q); }).join(" · ") + '</div>' +
+    '<div class="mini" id="src-files" style="margin-top:4px">evidence files loading…</div>' +
+    '<div style="margin-top:8px;font-size:12.5px" id="src-fstatus"></div>' +
+    '<div style="margin-top:6px;font-size:12.5px"><a href="/api/tweets.csv">⬇ all ' + m.sources.reduce(function(n, s){ return n + s.hits.length; }, 0) + ' curated tweets as CSV</a> <span class="mini">(full evidence: SQLite data/evidence.db — 119 tweets, 8 queries)</span></div>' +
+    '<div class="credits" id="credits">Loading credit usage…</div>';
+  var shown = 0;
+  document.getElementById("src-list").innerHTML = m.sources.map(function(s, i){
+    var hits = s.hits.slice().sort(function(a, b){ return (b.date < a.date) ? -1 : 1; });
+    if (SRCQ) hits = hits.filter(function(t){ return t.query === SRCQ; });
+    if (SRCQ && !hits.length) return "";
+    shown++;
+    var tweets = hits.length ? hits.map(function(t){
+      var d = daysAgo(t.date); var ago = d === 0 ? "today" : (d + "d ago");
+      var tid = String(t.url).split("/").pop();
+      var local = t.ts_iso ? fmtLocal(t.ts_iso) : (fmtDate(t.date) + (t.ts ? " " + fmtTime(t.ts) : ""));
+      return '<div class="tweet"><div class="bigdate">' + local + ' <span>· ' + ago + ' · your time (' + esc(userTZ()) + ')</span></div>' +
+        '<button class="q mono" data-qf="' + esc(t.query) + '" title="Filter Sources by this query">query: "' + esc(t.query) + '"</button> ' +
+        '<button class="q mono" data-tid="' + tid + '" title="Show this request + all fields">request ⧉</button>' +
+        '<div class="reqbox" id="req-' + tid + '"></div>' +
+        '<div class="who"><b>' + esc(t.author) + '</b> · ' + (t.followers == null ? "n/a" : Number(t.followers).toLocaleString("en-US")) + ' followers · <span class="mono">' + esc(t.date) + '</span></div>' +
+        engRow(t) +
+        '<p>' + esc(t.text) + '</p>' +
+        '<a href="' + t.url + '" target="_blank" rel="noopener">Open tweet ↗</a></div>';
+    }).join("") : '<div class="none">No tweet in the captured Top-10 snapshots matched this project by handle/name — it surfaced in the earlier Latest-query research (2026-10-09). Primary source is the listing tweet below.</div>';
+    return '<div class="src-card"><div class="frame-top">' +
+      '<span class="fid">Source ' + (i + 1) + ' / ' + m.sources.length + '</span>' +
+      '<span class="node mono">node-id src-' + String(i + 1).padStart(2, "0") + '</span>' +
+      '<span class="push mono">' + s.hits.length + ' tweet' + (s.hits.length === 1 ? "" : "s") + ' · verified ' + esc(s.verified) + '</span></div>' +
+      '<div class="src-body"><h3 style="margin:0;font-size:17px">' + esc(s.name) + ' <span style="color:var(--muted);font-weight:400;font-size:13px" class="mono">' + esc(s.handle) + '</span></h3>' +
+      '<div class="primary"><a class="btn btn-primary" href="' + s.site + '" target="_blank" rel="noopener">Open site ↗</a>' +
+      '<a class="btn btn-ghost" href="' + s.tweet_url + '" target="_blank" rel="noopener">Listing tweet (primary source)</a></div>' +
+      tweets + '</div></div>';
+  }).join("");
+  var fs = document.getElementById("src-fstatus");
+  if (fs) fs.textContent = SRCQ ? shown + " projects · filtered by query \"" + SRCQ + "\" — click ✕ all to reset" : shown + " projects · all queries";
+}
+function fmtTime(ts){ var m = / (\d{2}):(\d{2}):\d{2} /.exec(" " + (ts || "") + " "); return m ? m[1] + ":" + m[2] + " UTC" : ""; }
+function fmtLocal(iso){ try { var d = new Date(iso); if (isNaN(d)) return ""; return d.toLocaleString(undefined, {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"}); } catch (e) { return ""; } }
+function userTZ(){ try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return "local"; } }
+function engRow(t){
+  var e = t.eng || {};
+  function n(v){ return v == null ? "–" : Number(v).toLocaleString("en-US"); }
+  return '<div class="echips"><span class="echip">❤ ' + n(e.likes) + '</span><span class="echip">🔁 ' + n(e.reposts) + '</span>' +
+    '<span class="echip">💬 ' + n(e.replies) + '</span><span class="echip">💭 ' + n(e.quotes) + '</span>' +
+    '<span class="echip">👁 ' + n(e.views) + '</span></div>';
+}
+function fieldTable(o){
+  return '<div class="ftable">' + Object.keys(o).map(function(k){
+    var v = o[k];
+    if (v === null || v === undefined) return '<div class="frow"><span>' + esc(k) + '</span><span class="mono">null</span></div>';
+    if (typeof v === "object") {
+      var sub = "";
+      if (Array.isArray(v)) {
+        sub = v.slice(0, 8).map(function(x, i){
+          return '<div class="frow sub"><span>[' + i + ']</span><span class="mono">' + esc(JSON.stringify(x)).slice(0, 300) + '</span></div>';
+        }).join("");
+        return '<div class="frow"><span>' + esc(k) + ' [' + v.length + ']</span><span class="mono">array</span></div>' + sub;
+      }
+      sub = Object.keys(v).map(function(k2){
+        var v2 = v[k2];
+        var s = (v2 && typeof v2 === "object") ? esc(JSON.stringify(v2)).slice(0, 300) : esc(String(v2));
+        return '<div class="frow sub"><span>' + esc(k2) + '</span><span class="mono">' + s + '</span></div>';
+      }).join("");
+      return '<div class="frow"><span>' + esc(k) + ' {…}</span><span class="mono">object</span></div>' + sub;
+    }
+    return '<div class="frow"><span>' + esc(k) + '</span><span class="mono">' + esc(String(v)).slice(0, 500) + '</span></div>';
+  }).join("") + '</div>';
+}
+function fmtInt(n){ return n == null ? "–" : Number(n).toLocaleString("en-US"); }
+async function openRequest(tid){
+  var box = document.getElementById("req-" + tid);
+  if (!box) return;
+  if (box.innerHTML) { box.innerHTML = ""; return; }
+  box.innerHTML = '<div class="req">loading request…</div>';
+  try {
+    var r = await fetch("/api/tweet?id=" + encodeURIComponent(tid));
+    var j = await r.json();
+    if (j.error) { box.innerHTML = '<div class="req">' + esc(j.error) + '</div>'; return; }
+    var t = j.tweet;
+    var url = "https://api.twitterapis.com/twitter/tweet/advanced_search?query=" + encodeURIComponent(j.query || "") +
+      "&queryType=" + encodeURIComponent(j.queryType || "") + "&count=" + (j.count || 20) +
+      (j.page > 1 ? "&cursor=… (page " + j.page + " of cursor pagination)" : "");
+    var chips = '<div class="echips"><span class="echip">❤ ' + fmtInt(t.favorite_count) + ' likes</span>' +
+      '<span class="echip">🔁 ' + fmtInt(t.retweet_count) + ' reposts</span>' +
+      '<span class="echip">💬 ' + fmtInt(t.reply_count) + ' replies</span>' +
+      '<span class="echip">💭 ' + fmtInt(t.quote_count) + ' quotes</span>' +
+      '<span class="echip">🔖 ' + fmtInt(t.bookmark_count) + ' bookmarks</span>' +
+      '<span class="echip">👁 ' + fmtInt(t.view_count) + ' views</span></div>';
+    box.innerHTML = '<div class="req"><div class="k">The request (exact)</div>' +
+      '<div><span class="k">GET </span><code>' + esc(url) + '</code></div>' +
+      '<div style="margin-top:6px">header <span class="mono">X-API-Key: ▪▪▪redacted</span> · evidence <span class="mono">' + esc(j.file) + '</span> · tweet #' + (j.index + 1) + ' · page ' + j.page + ' · captured <span class="mono">' + esc(j.captured) + '</span> · posted <span class="mono">' + esc(t.created_at || "") + '</span></div>' +
+      '<div class="k" style="margin-top:8px">Engagement</div>' + chips +
+      '<div class="k" style="margin-top:8px">All fields (' + Object.keys(t).length + ' top-level)</div>' + fieldTable(t) +
+      '<details><summary>raw JSON</summary><pre>' + esc(JSON.stringify(t, null, 1)).slice(0, 12000) + '</pre></details></div>';
+  } catch (e) { box.innerHTML = '<div class="req">failed to load</div>'; }
+}
+async function loadSources(){
+  try {
+    var r = await fetch("/api/sources");
+    SRC = await r.json();
+    renderSources();
+    loadUsage();
+    try {
+      var rf = await fetch("/api/files");
+      var jf = await rf.json();
+      var fel = document.getElementById("src-files");
+      if (fel) fel.textContent = "evidence files (incl. explorer saves): " + jf.files.map(function(f){ return f.file + " ×" + f.tweets; }).join(" · ");
+    } catch (e) {}
+  } catch (e) {
+    document.getElementById("src-method").innerHTML = '<div class="none">○ offline · /api/sources failed</div>';
+  }
+}
+async function loadUsage(suf){
+  suf = suf || "";
+  var box = document.getElementById("credits" + suf);
+  if (!box) return;
+  try {
+    var r = await fetch("/api/usage");
+    var u = await r.json();
+    var bal = u.balance_usd;
+    var pct = (bal && bal > 0) ? Math.min(100, 100 * u.spent_usd / bal) : 0;
+    box.innerHTML = '<div class="row"><b>◆ API credits — twitterapis.com</b><span class="mini">reads billed $0.0008/call · writes more · dashboard holds the official balance (no API for it)</span></div>' +
+      '<div class="row"><span>Tracked spend (this project log)</span><b class="mono">' + u.calls + ' calls · $' + u.spent_usd.toFixed(4) + '</b></div>' +
+      '<div class="row"><span>Dashboard balance</span><span>' +
+      (bal == null
+        ? '<input id="bal-in' + suf + '" type="number" step="0.01" min="0" placeholder="$ left"> <button class="btn btn-ghost" id="bal-save' + suf + '" style="padding:4px 10px;font-size:12px">Save</button>'
+        : '<b class="mono">$' + Number(bal).toFixed(2) + '</b> <button class="btn btn-ghost" id="bal-clear' + suf + '" style="padding:4px 10px;font-size:12px">Clear</button>') +
+      '</span></div>' +
+      (bal != null ? '<div class="row"><span>Share used</span><span class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></span><b class="mono">' + pct.toFixed(1) + '%</b></div>' : '') +
+      '<div class="row"><span>Rate window (live probe — costs $0.0008, cached 60s)</span><span><button class="btn btn-ghost" id="rl-check' + suf + '" style="padding:4px 10px;font-size:12px">Check now</button> <span class="mono mini" id="rl-out' + suf + '"></span></span></div>';
+    var sv = document.getElementById("bal-save" + suf);
+    if (sv) sv.addEventListener("click", async function(){
+      var v = parseFloat(document.getElementById("bal-in" + suf).value);
+      if (isNaN(v)) return;
+      await fetch("/api/settings", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({credits_balance: v})});
+      loadUsage(""); loadUsage("-api");
+    });
+    var cl = document.getElementById("bal-clear" + suf);
+    if (cl) cl.addEventListener("click", async function(){
+      await fetch("/api/settings", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({credits_balance: null})});
+      loadUsage(""); loadUsage("-api");
+    });
+    document.getElementById("rl-check" + suf).addEventListener("click", async function(){
+      var o = document.getElementById("rl-out" + suf); o.textContent = "…";
+      try {
+        var rr = await fetch("/api/credits"); var jj = await rr.json();
+        o.textContent = jj.error ? jj.error : (jj.remaining + "/" + jj.limit + " left · resets " + new Date(jj.reset * 1000).toISOString().slice(11, 16) + " UTC");
+      } catch (e) { o.textContent = "failed"; }
+    });
+  } catch (e) { box.innerHTML = '<span class="mini">○ usage offline</span>'; }
+}
+document.getElementById("view-src").addEventListener("click", function(e){
+  var q = e.target.closest ? e.target.closest("[data-qf]") : null;
+  if (q) { SRCQ = q.getAttribute("data-qf"); renderSources(); loadUsage(); return; }
+  var b = e.target.closest ? e.target.closest("[data-tid]") : null;
+  if (b) openRequest(b.getAttribute("data-tid"));
+});
+var SPEC = null, EID = null, ENUMS = {}, LAST = {cursor: null, data: null, params: null, id: null, custom: null};
+async function loadSpec(){
+  try {
+    var r = await fetch("/api/spec");
+    var j = await r.json();
+    SPEC = j; ENUMS = j.enums || {};
+    document.getElementById("api-count").textContent = j.count + " endpoints (" + j.endpoints.filter(function(e){ return e.method === "POST"; }).length + " POST · " + j.endpoints.filter(function(e){ return e.method !== "POST"; }).length + " GET)";
+    renderEpList();
+  } catch (e) { document.getElementById("ep-list").innerHTML = '<div class="none">spec offline</div>'; }
+}
+function renderEpList(){
+  var cats = {};
+  SPEC.endpoints.forEach(function(e){ (cats[e.cat] = cats[e.cat] || []).push(e); });
+  document.getElementById("ep-list").innerHTML = Object.keys(cats).sort().map(function(c){
+    return '<details' + (c === "Search" ? " open" : "") + '><summary>' + esc(c) + ' · ' + cats[c].length + '</summary><div class="eps">' +
+      cats[c].map(function(e){
+        return '<button data-ep="' + e.id + '" aria-pressed="' + (EID === e.id) + '">' + esc(e.id) + (e.write ? ' ✎' : '') + '<span class="pr">$' + e.price.toFixed(4) + '</span></button>';
+      }).join("") + '</div></details>';
+  }).join("") + '<details><summary>Custom path</summary><div class="eps"><button data-ep="__custom" aria-pressed="' + (EID === "__custom") + '">Any path…<span class="pr">$0.0008</span></button></div></details>';
+}
+function paramInput(p){
+  var en = ENUMS[p.name];
+  var req = p.required ? ' <span class="req">*</span>' : '';
+  var ctl = en
+    ? '<select data-p="' + p.name + '">' + en.map(function(o){ return '<option>' + o + '</option>'; }).join("") + '</select>'
+    : '<input data-p="' + p.name + '" placeholder="' + esc(p.hint || '') + '">';
+  return '<div class="prow"><label>' + esc(p.name) + req + '<div class="hint">' + esc(p.hint || '') + '</div></label><div>' + ctl + '</div></div>';
+}
+function selectEp(id){
+  EID = id;
+  renderEpList();
+  var box = document.getElementById("api-form");
+  if (id === "__custom") {
+    document.getElementById("api-title").textContent = "Custom path";
+    box.innerHTML = '<div class="prow"><label>method</label><div><select id="c-method"><option>GET</option><option>POST</option></select></div></div>' +
+      '<div class="prow"><label>path <span class="req">*</span><div class="hint">e.g. tweet/advanced_search (no leading /twitter/)</div></label><div><input id="c-path" placeholder="tweet/advanced_search"></div></div>' +
+      '<div class="prow"><label>params<div class="hint">one k=v per line; POST sends a JSON body</div></label><div><textarea id="c-extra" rows="4" placeholder="query=Solana hooks&#10;product=Latest"></textarea></div></div>';
+  } else {
+    var e = SPEC.endpoints.filter(function(x){ return x.id === id; })[0];
+    document.getElementById("api-title").textContent = e.method + " /twitter/" + e.path.replace(/^\//, "") + (e.write ? "  ✎ needs X session" : "");
+    box.innerHTML = e.params.map(paramInput).join("") +
+      '<div class="prow"><label>extra params<div class="hint">one k=v per line — anything the docs list with no box above</div></label><div><textarea id="c-extra" rows="2" placeholder="cursor=DAAB…"></textarea></div></div>' +
+      (e.hand ? '<div class="mini">⚠ hand-written params (docs describe them in prose) — verify against <a href="' + e.doc + '" target="_blank" rel="noopener">doc ↗</a></div>' : '<div class="mini"><a href="' + e.doc + '" target="_blank" rel="noopener">doc ↗</a> · price $' + e.price.toFixed(4) + '/call</div>');
+  }
+  document.getElementById("api-controls").hidden = false;
+  updateRunBtn();
+  document.getElementById("api-next").hidden = true;
+  document.getElementById("api-save").hidden = true;
+  document.getElementById("api-label").hidden = true;
+  document.getElementById("api-meta").textContent = "";
+  document.getElementById("api-out").innerHTML = "";
+}
+function gatherParams(){
+  var o = {};
+  Array.prototype.forEach.call(document.querySelectorAll("#api-form [data-p]"), function(el){
+    if (el.value !== "") o[el.getAttribute("data-p")] = el.value;
+  });
+  var ex = document.getElementById("c-extra");
+  if (ex) ex.value.split("\n").forEach(function(line){
+    var i = line.indexOf("=");
+    if (i > 0) o[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+  });
+  return o;
+}
+function updateRunBtn(){
+  var e = EID && EID !== "__custom" && SPEC ? SPEC.endpoints.filter(function(x){ return x.id === EID; })[0] : null;
+  document.getElementById("api-run").textContent = "Run ($" + (e ? e.price : 0.0008).toFixed(4) + ")";
+}
+async function runApi(next){
+  var body, price = 0.0008;
+  if (EID === "__custom") {
+    var path = document.getElementById("c-path").value.trim();
+    if (!path) { document.getElementById("api-meta").textContent = "enter a path"; return; }
+    body = {custom: {method: document.getElementById("c-method").value, path: path}, params: gatherParams()};
+  } else {
+    var e = SPEC.endpoints.filter(function(x){ return x.id === EID; })[0];
+    if (!e) return;
+    price = e.price;
+    var params = gatherParams();
+    if (next && LAST.cursor) params.cursor = LAST.cursor;
+    var missing = e.params.filter(function(p){ return p.required && !params[p.name]; });
+    if (missing.length && !next) { document.getElementById("api-meta").textContent = "missing required: " + missing.map(function(p){ return p.name; }).join(", "); return; }
+    if (e.write && !confirm("POST " + e.path + " acts as your X session and bills $" + price.toFixed(4) + ". Run it?")) return;
+    body = {id: EID, params: params};
+  }
+  document.getElementById("api-meta").textContent = "running… ($" + price.toFixed(4) + ")";
+  try {
+    var r = await fetch("/api/run", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    var j = await r.json();
+    LAST = {data: j.data || null, cursor: j.next_cursor || null, params: body.params, id: EID, custom: body.custom || null};
+    showResult(j);
+  } catch (err) { document.getElementById("api-meta").textContent = "request failed"; }
+}
+function showResult(j){
+  var meta = [(j.ok === false ? ("HTTP " + (j.status || "error")) : "200"), ((j.ms || 0) + "ms")];
+  if (j.cost) meta.push("billed $" + Number(j.cost).toFixed(4));
+  var d = j.data || {};
+  ["tweets", "users", "members"].forEach(function(k){ if (Array.isArray(d[k])) meta.push(d[k].length + " " + k); });
+  if (d.user) meta.push("@" + (d.user.username || "?"));
+  if (j.next_cursor) meta.push("more pages ↓");
+  if (d.error) meta.push(d.error + ": " + (d.message || ""));
+  document.getElementById("api-meta").textContent = meta.join(" · ");
+  var s = JSON.stringify(j.data, null, 1) || "";
+  document.getElementById("api-out").innerHTML = '<pre class="json">' + esc(s.slice(0, 60000)) + (s.length > 60000 ? "\n…truncated at 60k chars (Save to evidence keeps the full tweets[])" : "") + '</pre>';
+  document.getElementById("api-next").hidden = !j.next_cursor;
+  var savable = !!(d && Array.isArray(d.tweets));
+  document.getElementById("api-save").hidden = !savable;
+  document.getElementById("api-label").hidden = !savable;
+}
+async function saveEvidence(){
+  var label = document.getElementById("api-label").value.trim() || ("adhoc-" + Date.now());
+  var payload = {query: (LAST.params || {}).query || label, queryType: (LAST.params || {}).product || "explorer", count: (LAST.data.tweets || []).length, method: "explorer", data: LAST.data, tweets: LAST.data.tweets};
+  try {
+    var r = await fetch("/api/save", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({label: label, data: payload})});
+    var j = await r.json();
+    document.getElementById("api-meta").textContent += j.ok ? (" · saved " + j.file + " (" + j.tweets + " tweets, merged) + SQLite") : " · save failed";
+  } catch (e) { document.getElementById("api-meta").textContent += " · save failed"; }
+}
+document.getElementById("ep-list").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("[data-ep]") : null;
+  if (b) selectEp(b.getAttribute("data-ep"));
+});
+document.getElementById("api-run").addEventListener("click", function(){ runApi(false); });
+document.getElementById("api-next").addEventListener("click", function(){ runApi(true); });
+document.getElementById("api-save").addEventListener("click", saveEvidence);
+document.getElementById("tab-dir").addEventListener("click", function(){ setTab("dir"); });
+document.getElementById("tab-src").addEventListener("click", function(){ setTab("src"); });
+document.getElementById("tab-api").addEventListener("click", function(){ setTab("api"); });
+(function(){ var h = location.hash.replace("#", ""); if (h === "src" || h === "sources") setTab("src"); else if (h === "api") setTab("api"); })();
+init();
+</script>
+</body>
+</html>

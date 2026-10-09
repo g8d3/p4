@@ -1,0 +1,2886 @@
+{
+ "updated": "2026-10-09",
+ "count": 79,
+ "enums": {
+  "product": [
+   "Latest",
+   "Top",
+   "People",
+   "Photos",
+   "Videos"
+  ],
+  "category": [
+   "trending",
+   "news",
+   "sports",
+   "entertainment",
+   "for_you",
+   "business_and_finance"
+  ],
+  "compact": [
+   "0",
+   "1"
+  ],
+  "private": [
+   "false",
+   "true"
+  ],
+  "ascending": [
+   "false",
+   "true"
+  ],
+  "include_replies": [
+   "false",
+   "true"
+  ]
+ },
+ "excluded": "articles, monitoring/webhooks, grok, DM reads need session \u2014 reachable via custom path mode",
+ "endpoints": [
+  {
+   "id": "account-me",
+   "cat": "Account",
+   "method": "GET",
+   "path": "/account/me",
+   "price": 0.0008,
+   "params": [],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/account/account-me",
+   "write": false
+  },
+  {
+   "id": "account-payments",
+   "cat": "Account",
+   "method": "GET",
+   "path": "/account/payments",
+   "price": 0.0008,
+   "params": [],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/account/account-payments",
+   "write": false
+  },
+  {
+   "id": "community-about",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/about",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "community_id",
+     "required": true,
+     "type": "string",
+     "hint": "The numeric X community id, the digits in x.com/i/communities/."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-about",
+   "write": false
+  },
+  {
+   "id": "community-info",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/info",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "community_id",
+     "required": true,
+     "type": "string",
+     "hint": "The numeric community id, the digits in a x.com/i/communities/ URL. Digits only, no leading zero."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-info",
+   "write": false
+  },
+  {
+   "id": "community-members",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/members",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "community_id",
+     "required": true,
+     "type": "string",
+     "hint": "The numeric community id, the digits in a x.com/i/communities/ URL."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor. Omit on the first call."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Page size. Defaults to 20 and is clamped to 1-100, so count=500 returns 100 rather than erroring. A non-numeric value is a 400."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-members",
+   "write": false
+  },
+  {
+   "id": "community-memberships",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/memberships",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "user_id",
+     "required": true,
+     "type": "string",
+     "hint": "The numeric X user id, NOT a handle and NOT a community id. Resolve a @handle to an id with User Info first; doing that resolution silently here would"
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor. Omit on the first call."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Page size. Defaults to 20 and is clamped to 1-100. A non-numeric value is a 400."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-memberships",
+   "write": false
+  },
+  {
+   "id": "community-moderators",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/moderators",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "community_id",
+     "required": true,
+     "type": "string",
+     "hint": "The numeric community id, the digits in a x.com/i/communities/ URL."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor. Omit on the first call."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Page size. Defaults to 20 and is clamped to 1-100. A non-numeric value is a 400."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-moderators",
+   "write": false
+  },
+  {
+   "id": "community-search",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/search",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "query",
+     "required": true,
+     "type": "string",
+     "hint": "The keyword to search for. 1 to 500 characters."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor. Omit on the first call."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-search",
+   "write": false
+  },
+  {
+   "id": "community-tweets",
+   "cat": "Communities",
+   "method": "GET",
+   "path": "/community/tweets",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "community_id",
+     "required": true,
+     "type": "string",
+     "hint": "The numeric community id, the digits in a x.com/i/communities/ URL."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor. Omit on the first call."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Page size. Defaults to 20 and is clamped to 1-100. A non-numeric value is a 400."
+    },
+    {
+     "name": "ranking_mode",
+     "required": false,
+     "type": "string",
+     "hint": "Ordering, sent to X as a real upstream parameter rather than applied as a local sort. Recency is the default and the only value confirmed against a li"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/communities/community-tweets",
+   "write": false
+  },
+  {
+   "id": "user-followers",
+   "cat": "Follower graph",
+   "method": "GET",
+   "path": "/user/followers",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; documented range 1-100. NOTE: on follower/following lists X returns pages in fixed chunks, so a small c"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/follower-graph/user-followers",
+   "write": false
+  },
+  {
+   "id": "user-followers-v2",
+   "cat": "Follower graph",
+   "method": "GET",
+   "path": "/user/followers_v2",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; documented range 1-100. NOTE: on follower/following lists X returns pages in fixed chunks, so a small c"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/follower-graph/user-followers-v2",
+   "write": false
+  },
+  {
+   "id": "user-followers-you-know",
+   "cat": "Follower graph",
+   "method": "GET",
+   "path": "/user/followers_you_know",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "user_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the target account to compute shared followers against."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; documented cap 100. NOTE: X returns this list in fixed chunks, so a small count may still return up to a full page (~1"
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/follower-graph/user-followers-you-know",
+   "write": false
+  },
+  {
+   "id": "user-following",
+   "cat": "Follower graph",
+   "method": "GET",
+   "path": "/user/following",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; documented range 1-100. NOTE: on follower/following lists X returns pages in fixed chunks, so a small c"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/follower-graph/user-following",
+   "write": false
+  },
+  {
+   "id": "user-following-v2",
+   "cat": "Follower graph",
+   "method": "GET",
+   "path": "/user/following_v2",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; documented range 1-100. NOTE: on follower/following lists X returns pages in fixed chunks, so a small c"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/follower-graph/user-following-v2",
+   "write": false
+  },
+  {
+   "id": "user-verified-followers",
+   "cat": "Follower graph",
+   "method": "GET",
+   "path": "/user/verified_followers",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/follower-graph/user-verified-followers",
+   "write": false
+  },
+  {
+   "id": "list-followers",
+   "cat": "Lists",
+   "method": "GET",
+   "path": "/list/followers",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "list_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the public List."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/list-data/list-followers",
+   "write": false
+  },
+  {
+   "id": "list-members",
+   "cat": "Lists",
+   "method": "GET",
+   "path": "/list/members",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "list_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the public List."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/list-data/list-members",
+   "write": false
+  },
+  {
+   "id": "list-timeline",
+   "cat": "Lists",
+   "method": "GET",
+   "path": "/list/timeline",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "list_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the public List."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/list-data/list-timeline",
+   "write": false
+  },
+  {
+   "id": "list-tweets",
+   "cat": "Lists",
+   "method": "GET",
+   "path": "/list/tweets",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "list_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the public List."
+    },
+    {
+     "name": "since",
+     "required": false,
+     "type": "string",
+     "hint": "Only posts on or after this date, as YYYY-MM-DD."
+    },
+    {
+     "name": "until",
+     "required": false,
+     "type": "string",
+     "hint": "Only posts before this date, as YYYY-MM-DD. Exclusive, matching X's until: operator."
+    },
+    {
+     "name": "include_replies",
+     "required": false,
+     "type": "boolean",
+     "hint": "Whether to include replies written by List members. Default true."
+    },
+    {
+     "name": "product",
+     "required": false,
+     "type": "string",
+     "hint": "Which search ranking to read: Latest or Top. Default Latest, and any unrecognised value falls back to Latest."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/list-data/list-tweets",
+   "write": false
+  },
+  {
+   "id": "dm-conversation",
+   "cat": "Messages",
+   "method": "GET",
+   "path": "/dm/conversation",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "conversation_id",
+     "required": true,
+     "type": "string",
+     "hint": "Conversation ID from a GET /dm/list entry."
+    },
+    {
+     "name": "max_id",
+     "required": false,
+     "type": "string",
+     "hint": "Page backwards: return entries older than this entry id. Pass the previous page's min\\_entry\\_id to walk a thread back in time; omit for the newest pa"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/direct-messages/dm-conversation",
+   "write": false
+  },
+  {
+   "id": "dm-list",
+   "cat": "Messages",
+   "method": "GET",
+   "path": "/dm/list",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/direct-messages/dm-list",
+   "write": false
+  },
+  {
+   "id": "dm-send",
+   "cat": "Messages",
+   "method": "POST",
+   "path": "/dm/send",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "text",
+     "required": true,
+     "hint": "Message text"
+    },
+    {
+     "name": "user_id",
+     "hint": "Recipient ID (or username \u2014 see doc)"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/direct-messages/dm-send",
+   "write": true
+  },
+  {
+   "id": "tweet-advanced-search",
+   "cat": "Search",
+   "method": "GET",
+   "path": "/tweet/advanced_search",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "query",
+     "required": true,
+     "type": "string",
+     "hint": "Search query using Twitter operator syntax."
+    },
+    {
+     "name": "product",
+     "required": false,
+     "type": "string",
+     "hint": "Ranking and result type: Latest, Top, People, Photos, or Videos. Defaults to Latest."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Accepted but not honoured on this endpoint: the upstream page is fixed at roughly 20 results and raising count does not return more. Use cursor to rea"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/search/tweet-advanced-search",
+   "write": false
+  },
+  {
+   "id": "user-search",
+   "cat": "Search",
+   "method": "GET",
+   "path": "/user/search",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "query",
+     "required": true,
+     "type": "string",
+     "hint": "Name, keyword or partial handle to search for. Matched against display name and handle, not bio."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/search/user-search",
+   "write": false
+  },
+  {
+   "id": "spaces-info",
+   "cat": "Trends & Spaces",
+   "method": "GET",
+   "path": "/spaces/info",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": true,
+     "type": "string",
+     "hint": "The Space id, the trailing token in a x.com/i/spaces/ URL. 5-32 alphanumeric characters. with\\_listeners?boolean Include the listener roster. Defaults"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/spaces/spaces-info",
+   "write": false
+  },
+  {
+   "id": "trends",
+   "cat": "Trends & Spaces",
+   "method": "GET",
+   "path": "/trends",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "country",
+     "required": false,
+     "type": "string",
+     "hint": "Country name or ISO code, e.g. \"US\" or \"Japan\". Resolved against the trends locations list, country-level entries only."
+    },
+    {
+     "name": "woeid",
+     "required": false,
+     "type": "integer",
+     "hint": "Numeric WOEID from /twitter/trends/locations. Takes precedence over country when both are sent."
+    },
+    {
+     "name": "category",
+     "required": false,
+     "type": "string",
+     "hint": "Read a category instead of a location. trending, news, sports, entertainment and for\\_you each read that X Explore tab. business\\_and\\_finance is not "
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Truncate the returned list to this many trends. X has no count of its own; it always returns its full set (about 50 for a location)."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/trends/trends",
+   "write": false
+  },
+  {
+   "id": "trends-locations",
+   "cat": "Trends & Spaces",
+   "method": "GET",
+   "path": "/trends/locations",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/trends/trends-locations",
+   "write": false
+  },
+  {
+   "id": "tweet-detail",
+   "cat": "Tweet details",
+   "method": "GET",
+   "path": "/tweet/detail",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to fetch. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet, for example https://x.com/naval/status/1759123456789012345. Provide either id or url."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/tweet-details/tweet-detail",
+   "write": false
+  },
+  {
+   "id": "tweet-quotes",
+   "cat": "Tweet details",
+   "method": "GET",
+   "path": "/tweet/quotes",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet whose quotes you want. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet whose quotes you want. Provide either id or url."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to request for this page. Defaults to 20 and is clamped to 1-100 by the underlying search, so a larger number returns at most 100 rather tha"
+    },
+    {
+     "name": "product",
+     "required": false,
+     "type": "string",
+     "hint": "Search ordering: Latest (default, reverse-chronological) or Top (X's ranked ordering, materially slower upstream). Any other value falls back to Lates"
+    },
+    {
+     "name": "strict",
+     "required": false,
+     "type": "boolean",
+     "hint": "Set to true to drop every returned row that does not demonstrably quote the requested tweet, instead of only counting them in quote\\_matched. Default "
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/tweet-details/tweet-quotes",
+   "write": false
+  },
+  {
+   "id": "tweet-replies",
+   "cat": "Tweet details",
+   "method": "GET",
+   "path": "/tweet/replies",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the parent tweet. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the parent tweet. Provide either id or url."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/tweet-details/tweet-replies",
+   "write": false
+  },
+  {
+   "id": "tweet-retweeters",
+   "cat": "Tweet details",
+   "method": "GET",
+   "path": "/tweet/retweeters",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet. Provide either id or url."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/tweet-details/tweet-retweeters",
+   "write": false
+  },
+  {
+   "id": "tweet-thread",
+   "cat": "Tweet details",
+   "method": "GET",
+   "path": "/tweet/thread",
+   "price": 0.004,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of any tweet in the thread. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of any tweet in the thread. Provide either id or url."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/tweet-details/tweet-thread",
+   "write": false
+  },
+  {
+   "id": "user-affiliates",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/affiliates",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle of the organization account."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "team",
+     "required": false,
+     "type": "string",
+     "hint": "Affiliate team filter, when the organization exposes teams."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-affiliates",
+   "write": false
+  },
+  {
+   "id": "user-audience-summary",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/audience_summary",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle whose followers are sampled, with or without the leading @. Send username, user\\_id, or tweet\\_id. An unknown handle returns a 404 and nothing "
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID whose followers are sampled, as an alternative to username. Used as sent, with no lookup."
+    },
+    {
+     "name": "tweet_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric tweet ID whose retweeters are sampled, instead of a user's followers. Cannot be combined with username or user\\_id."
+    },
+    {
+     "name": "source",
+     "required": false,
+     "type": "string",
+     "hint": "Optional confirmation of the audience: followers (with username or user\\_id) or retweeters (with tweet\\_id). When sent, it must agree with the identif"
+    },
+    {
+     "name": "sample",
+     "required": false,
+     "type": "integer",
+     "hint": "How many distinct accounts to sample, a whole number from 10 to 100. Default 50. Also sets the balance needed up front: sample plus 3 items. ## Respon"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-audience-summary",
+   "write": false
+  },
+  {
+   "id": "user-blocking",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/blocking",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; capped at 100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-blocking",
+   "write": false
+  },
+  {
+   "id": "user-bookmark-folder-timeline",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/bookmark_folder_timeline",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "folder_id",
+     "required": true,
+     "type": "string",
+     "hint": "The bookmark folder's id, from user/bookmark\\_folders."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-bookmark-folder-timeline",
+   "write": false
+  },
+  {
+   "id": "user-bookmark-folders",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/bookmark_folders",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-bookmark-folders",
+   "write": false
+  },
+  {
+   "id": "user-bookmark-search",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/bookmark_search",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "query",
+     "required": true,
+     "type": "string",
+     "hint": "Keyword(s) to match against your bookmarked tweets' text."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; capped at 100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-bookmark-search",
+   "write": false
+  },
+  {
+   "id": "user-bookmarks",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/bookmarks",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; capped at 100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-bookmarks",
+   "write": false
+  },
+  {
+   "id": "user-check-follow-relationship",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/check_follow_relationship",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "source_user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the account whose following is checked. Send this or source\\_username."
+    },
+    {
+     "name": "source_username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle of the source account, as an alternative to source\\_user\\_id. Resolved to its ID first; an unknown handle returns a 404 and nothing is billed."
+    },
+    {
+     "name": "target_user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the account being checked against. Send this or target\\_username."
+    },
+    {
+     "name": "target_username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle of the target account, as an alternative to target\\_user\\_id. Resolved to its ID first; an unknown handle returns a 404 and nothing is billed."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-check-follow-relationship",
+   "write": false
+  },
+  {
+   "id": "user-check-follow-relationship-batch",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/check_follow_relationship/batch",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "source_user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the single source account, when the list is targets. Used as sent, with no lookup; wins over source\\_username when both are sent."
+    },
+    {
+     "name": "source_username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle of the single source account, when the list is targets. Resolved to its numeric ID first; an unknown handle returns a 404 and nothing is billed"
+    },
+    {
+     "name": "target_usernames",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated target handles, with or without the leading @, checked against the single source. Send this or target\\_user\\_ids, never both, and neve"
+    },
+    {
+     "name": "target_user_ids",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated numeric target IDs, as an alternative to target\\_usernames. Same 1 to 100 limit. Leading zeros are ignored for duplicates (012 and 12 "
+    },
+    {
+     "name": "target_user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the single target account, when the list is sources. Used as sent, with no lookup; wins over target\\_username when both are sent."
+    },
+    {
+     "name": "target_username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle of the single target account, when the list is sources. Resolved to its numeric ID first; an unknown handle returns a 404 and nothing is billed"
+    },
+    {
+     "name": "source_usernames",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated source handles, with or without the leading @, each checked against the single target. Send this or source\\_user\\_ids, never both, and"
+    },
+    {
+     "name": "source_user_ids",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated numeric source IDs, as an alternative to source\\_usernames. Same 1 to 100 limit. Leading zeros are ignored for duplicates (012 and 12 "
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-check-follow-relationship-batch",
+   "write": false
+  },
+  {
+   "id": "user-home-timeline",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/home_timeline",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; capped at 100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-home-timeline",
+   "write": false
+  },
+  {
+   "id": "user-info",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/info",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-info",
+   "write": false
+  },
+  {
+   "id": "user-info-by-id",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/info_by_id",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "user_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the user."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-info-by-id",
+   "write": false
+  },
+  {
+   "id": "user-likes",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/likes",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "user_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the account whose likes to read. Resolve a handle with GET /user/info first."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; capped at 100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-likes",
+   "write": false
+  },
+  {
+   "id": "user-media",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/media",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Max items to return for this page. Default 20; clamped to 1-100."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-media",
+   "write": false
+  },
+  {
+   "id": "user-mentions",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/mentions",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @ to find mentions of."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Accepted but not honoured on this endpoint: the upstream page is fixed at roughly 20 results and raising count does not return more. Use cursor to rea"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-mentions",
+   "write": false
+  },
+  {
+   "id": "user-muting",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/muting",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Items per page. Defaults to 20; capped at 100."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response's next\\_cursor."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-muting",
+   "write": false
+  },
+  {
+   "id": "user-status",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/status",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-status",
+   "write": false
+  },
+  {
+   "id": "user-tweets",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/tweets",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Accepted but not honoured on this endpoint: the upstream timeline page is fixed at roughly 20 tweets and raising count does not return more. Use curso"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-tweets",
+   "write": false
+  },
+  {
+   "id": "user-tweets-and-replies",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/tweets_and_replies",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID; provide either username or user\\_id."
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Pagination cursor from a previous response."
+    },
+    {
+     "name": "count",
+     "required": false,
+     "type": "integer",
+     "hint": "Accepted but not honoured on this endpoint: the upstream timeline page is fixed at roughly 20 tweets and raising count does not return more. Use curso"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-tweets-and-replies",
+   "write": false
+  },
+  {
+   "id": "user-tweets-complete",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/tweets/complete",
+   "price": 0.0024,
+   "params": [
+    {
+     "name": "user_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric ID of the target account. Resolve a handle with GET /user/info first."
+    },
+    {
+     "name": "max",
+     "required": false,
+     "type": "integer",
+     "hint": "Target number of tweets to collect in this call. Defaults to 200. This is a MINIMUM target, not a hard cap: pages arrive in whole chunks, so a respons"
+    },
+    {
+     "name": "cursor",
+     "required": false,
+     "type": "string",
+     "hint": "Resume point from a previous response's next\\_cursor. Omit on the first call. Pass it back to continue collecting where the last call stopped."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    },
+    {
+     "name": "paid_promotion",
+     "required": false,
+     "type": "string",
+     "hint": "Filter this page's tweets by X's Paid partnership label: only keeps tweets whose is\\_paid\\_promotion is true, exclude keeps the rest. Omit it for ever"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-tweets-complete",
+   "write": false
+  },
+  {
+   "id": "user-user-about",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/user_about",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "username",
+     "required": true,
+     "type": "string",
+     "hint": "Handle without the leading @. Required: unlike the other user reads, this endpoint cannot be called with user\\_id alone."
+    },
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric user ID. Not currently a substitute for username on this endpoint: a user\\_id-only request fails upstream. Resolve the ID to a handle with GET"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-user-about",
+   "write": false
+  },
+  {
+   "id": "user-user-about-batch",
+   "cat": "User reads",
+   "method": "GET",
+   "path": "/user/user_about/batch",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "usernames",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated handles, with or without the leading @. Send this or user\\_ids, never both. Between 1 and 100 distinct entries after duplicates are re"
+    },
+    {
+     "name": "user_ids",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated numeric user IDs, as an alternative to usernames. Send this or usernames, never both. Same 1 to 100 limit. Each ID is resolved to its "
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/user-reads/user-user-about-batch",
+   "write": false
+  },
+  {
+   "id": "draft-create",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/draft/create",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "text",
+     "required": true,
+     "hint": "Draft text (unverified fields \u2014 see doc)"
+    },
+    {
+     "name": "reply_to",
+     "hint": "Reply-to tweet ID"
+    },
+    {
+     "name": "media_ids",
+     "hint": "Comma-separated media ids"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/draft-create",
+   "write": true
+  },
+  {
+   "id": "draft-delete",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/draft/delete",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": true,
+     "hint": "Draft ID"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/draft-delete",
+   "write": true
+  },
+  {
+   "id": "draft-edit",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/draft/edit",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "id",
+     "required": true,
+     "hint": "Draft ID"
+    },
+    {
+     "name": "text",
+     "hint": "New text"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/draft-edit",
+   "write": true
+  },
+  {
+   "id": "draft-list",
+   "cat": "Writes",
+   "method": "GET",
+   "path": "/draft/list",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "ascending",
+     "required": false,
+     "type": "boolean",
+     "hint": "Pass true to ask X for the oldest draft first. Anything else, including omitting it, sends ascending=false, which is what X's own composer sends. The "
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/draft-list",
+   "write": false
+  },
+  {
+   "id": "list-add-member",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/list/add_member",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "list_id",
+     "required": true,
+     "hint": "List ID"
+    },
+    {
+     "name": "user_id",
+     "hint": "Member ID"
+    },
+    {
+     "name": "username",
+     "hint": "or handle"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/list-add-member",
+   "write": true
+  },
+  {
+   "id": "list-create",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/list/create",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "name",
+     "required": true,
+     "hint": "List name"
+    },
+    {
+     "name": "description",
+     "hint": "Optional"
+    },
+    {
+     "name": "private",
+     "hint": "true/false"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/list-create",
+   "write": true
+  },
+  {
+   "id": "list-remove-member",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/list/remove_member",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "list_id",
+     "required": true,
+     "hint": "List ID"
+    },
+    {
+     "name": "user_id",
+     "hint": "Member ID"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/list-remove-member",
+   "write": true
+  },
+  {
+   "id": "media-status",
+   "cat": "Writes",
+   "method": "GET",
+   "path": "/media/status",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "media_id",
+     "required": true,
+     "type": "string",
+     "hint": "Numeric media ID (as a string) returned by media/upload."
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/media-status",
+   "write": false
+  },
+  {
+   "id": "media-upload",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/media/upload",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "media",
+     "hint": "Base64 bytes \u2014 large; prefer curl (unverified \u2014 see doc)"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/media-upload",
+   "write": true
+  },
+  {
+   "id": "scheduled-create",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/scheduled/create",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "text",
+     "required": true,
+     "hint": "Tweet text"
+    },
+    {
+     "name": "scheduled_at",
+     "hint": "ISO timestamp (unverified \u2014 see doc)"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/scheduled-create",
+   "write": true
+  },
+  {
+   "id": "scheduled-delete",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/scheduled/delete",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": true,
+     "hint": "Scheduled tweet ID"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/scheduled-delete",
+   "write": true
+  },
+  {
+   "id": "scheduled-list",
+   "cat": "Writes",
+   "method": "GET",
+   "path": "/scheduled/list",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "ascending",
+     "required": false,
+     "type": "boolean",
+     "hint": "Pass true to ask X for the oldest row first. Anything else, including omitting it, sends ascending=false, which is what X's own composer sends. The re"
+    },
+    {
+     "name": "fields",
+     "required": false,
+     "type": "string",
+     "hint": "Comma-separated list of dotted field paths to keep in the response (one parameter, never repeated), applied to every object in the returned lists and "
+    },
+    {
+     "name": "compact",
+     "required": false,
+     "type": "string",
+     "hint": "Set to 1 (or true) to apply the built-in compact preset: ids, url, text, created\\_at, lang, the engagement counts, the is\\_retweet/is\\_reply/is\\_quote"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/scheduled-list",
+   "write": false
+  },
+  {
+   "id": "tweet-bookmark",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/bookmark",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to bookmark. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet to bookmark. Provide either id or url."
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-bookmark",
+   "write": true
+  },
+  {
+   "id": "tweet-create",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/create",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "text",
+     "required": true,
+     "hint": "Tweet text"
+    },
+    {
+     "name": "media_ids",
+     "hint": "Comma-separated media ids from media/upload"
+    },
+    {
+     "name": "reply_to",
+     "hint": "Tweet ID to reply to"
+    },
+    {
+     "name": "quote",
+     "hint": "Tweet ID to quote"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-create",
+   "write": true
+  },
+  {
+   "id": "tweet-delete",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/delete",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to delete. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Status URL of the tweet to delete, for example https://x.com/you/status/1759123456789012345. Provide either id or url. ## Response Body ### `applicati"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-delete",
+   "write": true
+  },
+  {
+   "id": "tweet-favorite",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/favorite",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to like. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet to like. Provide either id or url."
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-favorite",
+   "write": true
+  },
+  {
+   "id": "tweet-retweet",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/retweet",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to retweet. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet to retweet. Provide either id or url."
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-retweet",
+   "write": true
+  },
+  {
+   "id": "tweet-unbookmark",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/unbookmark",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to un-bookmark. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet to un-bookmark. Provide either id or url."
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-unbookmark",
+   "write": true
+  },
+  {
+   "id": "tweet-unfavorite",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/unfavorite",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to unlike. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet to unlike. Provide either id or url."
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-unfavorite",
+   "write": true
+  },
+  {
+   "id": "tweet-unretweet",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/tweet/unretweet",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the tweet to un-retweet. Provide either id or url."
+    },
+    {
+     "name": "url",
+     "required": false,
+     "type": "string",
+     "hint": "Full status URL of the tweet to un-retweet. Provide either id or url."
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/tweet-unretweet",
+   "write": true
+  },
+  {
+   "id": "user-follow",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/user/follow",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the user to follow. Send this or username; user\\_id wins when both are present."
+    },
+    {
+     "name": "username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle of the user to follow, with or without the leading @. Resolved to its numeric ID for you through the same cached lookup as Check Follow Relatio"
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/user-follow",
+   "write": true
+  },
+  {
+   "id": "user-unfollow",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/user/unfollow",
+   "price": 0.0008,
+   "params": [
+    {
+     "name": "user_id",
+     "required": false,
+     "type": "string",
+     "hint": "Numeric ID of the user to unfollow. Send this or username; user\\_id wins when both are present."
+    },
+    {
+     "name": "username",
+     "required": false,
+     "type": "string",
+     "hint": "Handle of the user to unfollow, with or without the leading @. Resolved to its numeric ID for you through the same cached lookup as Check Follow Relat"
+    },
+    {
+     "name": "proxy",
+     "required": false,
+     "type": "string",
+     "hint": "Optional. Pass your own proxy (http(s)/socks URL) to egress the write through your clean IP for best success; if omitted, we use the session's proxy /"
+    }
+   ],
+   "hand": false,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/user-unfollow",
+   "write": true
+  },
+  {
+   "id": "user-update-avatar",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/user/update_avatar",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "image",
+     "hint": "Base64 image bytes (unverified \u2014 see doc)"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/user-update-avatar",
+   "write": true
+  },
+  {
+   "id": "user-update-banner",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/user/update_banner",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "banner",
+     "hint": "Base64 image bytes (unverified \u2014 see doc)"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/user-update-banner",
+   "write": true
+  },
+  {
+   "id": "user-update-profile",
+   "cat": "Writes",
+   "method": "POST",
+   "path": "/user/update_profile",
+   "price": 0.0016,
+   "params": [
+    {
+     "name": "name",
+     "hint": "Display name"
+    },
+    {
+     "name": "description",
+     "hint": "Bio"
+    },
+    {
+     "name": "location",
+     "hint": "Location"
+    },
+    {
+     "name": "url",
+     "hint": "Link"
+    }
+   ],
+   "hand": true,
+   "doc": "https://docs.twitterapis.com/docs/reference/write-actions/user-update-profile",
+   "write": true
+  }
+ ]
+}
