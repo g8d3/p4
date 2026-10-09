@@ -35,6 +35,11 @@ listing is backed by a live X post found via twitterapis.com.
   Explorer tab: pick endpoint, fill every documented param, Run (price shown, billed+logged),
   Next page via cursor, Save to evidence (merges + SQLite import). Writes confirm first.
   Custom-path mode covers the rest (articles, monitoring, grok). `/api/spec`, `/api/run`, `/api/save`.
+  Query builder (2026-10-09): tweet-advanced-search shows a friendly form above the raw
+  `query` box — words/phrase/any/exclude, hashtags, from/to/mention, lang, since/until,
+  min likes/reposts/replies, filter + hide-replies/reposts checkboxes — with live preview,
+  "Use this query ↓" to fill the box, Clear, 3 examples, and an operator cheat-sheet.
+  No operator knowledge needed; raw box stays editable.
 - `data/pairs.json` — top pair per project token (highest-liq live venue, 2026-10-09):
   HOOKR/V4 robinhood v4, CLAUS eth v2, HOOKED solana meteora, FLX eth v2, BORDR solana meteora.
   Served at `/api/pairs`. Cards embed it lazily: Chart-only vs Chart+Txs toggle + DexScreener link.

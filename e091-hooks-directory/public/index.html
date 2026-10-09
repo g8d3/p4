@@ -227,7 +227,16 @@ a{color:var(--sel)}
 .qb .row2{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:8px}
 .qb .row2 label{font-size:11px;color:var(--muted);display:grid;gap:3px}
 .qb .row2 input,.qb .row2 select{padding:6px 8px;font-size:12.5px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);font-family:inherit}
-.qb table{width:100%;border-collapse:collapse;font-size:11.5px}
+.qb .row2 label.chk{flex-direction:row;align-items:center;gap:5px;font-size:12px;color:var(--ink);cursor:pointer}
+.qb .row2 input[type="checkbox"]{width:auto;accent-color:var(--sel)}
+.qb .prev{background:#fff;border:1px solid var(--line);border-radius:7px;padding:7px 9px;font-size:12.5px;margin:2px 0 8px;min-height:34px;word-break:break-word}
+.qb .prev:empty:before{content:"your query appears here…";color:var(--faint)}
+.qb .qacts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
+.qb .qacts button{border-radius:16px;padding:5px 13px;font-size:12.5px;cursor:pointer;border:1px solid var(--line);background:#fff}
+.qb .qacts button.primary{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:650}
+.qb .qacts button:hover{border-color:var(--sel)}
+.qb details{margin-top:6px;font-size:11.5px;color:var(--muted)}
+.qb summary{cursor:pointer;font-size:11.5px}
 .qb td{border-top:1px solid var(--line-soft);padding:3px 6px 3px 0;vertical-align:top}
 .qb td.mono{white-space:nowrap;color:var(--sel)}
 pre.json{background:var(--ink);color:#EDEFF7;border-radius:8px;padding:12px;font-size:12px;max-height:520px;overflow:auto;white-space:pre-wrap;word-break:break-word}
@@ -874,6 +883,8 @@ function selectEp(id){
   EID = id;
   renderEpList();
   var box = document.getElementById("api-form");
+  var qb = document.getElementById("qbuilder");
+  qb.hidden = true; qb.innerHTML = "";
   if (id === "__custom") {
     document.getElementById("api-title").textContent = "Custom path";
     box.innerHTML = '<div class="prow"><label>method</label><div><select id="c-method"><option>GET</option><option>POST</option></select></div></div>' +
@@ -888,11 +899,139 @@ function selectEp(id){
   }
   document.getElementById("api-controls").hidden = false;
   updateRunBtn();
+  if (EID === "tweet-advanced-search") renderQb();
   document.getElementById("api-next").hidden = true;
   document.getElementById("api-save").hidden = true;
   document.getElementById("api-label").hidden = true;
   document.getElementById("api-meta").textContent = "";
   document.getElementById("api-out").innerHTML = "";
+}
+/* Query builder: friendly form -> Twitter operator syntax for tweet/advanced_search.
+   No operator knowledge needed; live preview; "Use this query" fills the query box. */
+var QB_EX = [
+  {label: "hook launch", q: "Uniswap v4 hook launch",
+   hint: "all words"},
+  {label: "any: hook OR launchpad", q: "(hook OR launchpad) min_faves:10 filter:links",
+   hint: "OR + engagement + links"},
+  {label: "from an account", q: "from:Uniswap min_retweets:5 -filter:replies",
+   hint: "account + no replies"}
+];
+function renderQb(){
+  var qb = document.getElementById("qbuilder");
+  qb.hidden = false;
+  qb.innerHTML =
+    '<h4>\u2726 Query builder \u2014 no operator syntax needed</h4>' +
+    '<div class="row2">' +
+    '<label style="flex:2;min-width:150px">All these words<input data-qb="all" placeholder="Uniswap hooks launch"></label>' +
+    '<label style="flex:2;min-width:150px">Exact phrase<input data-qb="exact" placeholder="hook launchpad"></label>' +
+    '</div>' +
+    '<div class="row2">' +
+    '<label style="flex:2;min-width:150px">Any of these words<input data-qb="any" placeholder="hook launchpad clAMM"></label>' +
+    '<label style="flex:2;min-width:150px">Exclude words<input data-qb="none" placeholder="airdrop scam"></label>' +
+    '</div>' +
+    '<div class="row2">' +
+    '<label style="flex:1;min-width:110px">Hashtags<input data-qb="tags" placeholder="DeFi Solana"></label>' +
+    '<label>From<input data-qb="from" placeholder="Uniswap" style="width:110px"></label>' +
+    '<label>To<input data-qb="to" placeholder="vitalik" style="width:110px"></label>' +
+    '<label>Mentions<input data-qb="mention" placeholder="jessepollak" style="width:110px"></label>' +
+    '</div>' +
+    '<div class="row2">' +
+    '<label>Language<select data-qb="lang"><option value="">any</option><option value="en">English</option><option value="es">Spanish</option><option value="fr">French</option><option value="de">German</option><option value="pt">Portuguese</option><option value="ja">Japanese</option><option value="ko">Korean</option><option value="zh">Chinese</option></select></label>' +
+    '<label>Since<input data-qb="since" type="date" style="width:135px"></label>' +
+    '<label>Until<input data-qb="until" type="date" style="width:135px"></label>' +
+    '<label>Min likes<input data-qb="faves" type="number" min="0" placeholder="10" style="width:80px"></label>' +
+    '<label>Min reposts<input data-qb="rts" type="number" min="0" placeholder="5" style="width:80px"></label>' +
+    '<label>Min replies<input data-qb="replies" type="number" min="0" placeholder="2" style="width:80px"></label>' +
+    '</div>' +
+    '<div class="row2">' +
+    '<label class="chk"><input type="checkbox" data-qb="links"> has links</label>' +
+    '<label class="chk"><input type="checkbox" data-qb="media"> has media</label>' +
+    '<label class="chk"><input type="checkbox" data-qb="video"> only video</label>' +
+    '<label class="chk"><input type="checkbox" data-qb="photo"> only photos</label>' +
+    '<label class="chk"><input type="checkbox" data-qb="noreplies"> hide replies</label>' +
+    '<label class="chk"><input type="checkbox" data-qb="norts"> hide reposts</label>' +
+    '</div>' +
+    '<div class="prev mono" id="qb-prev" aria-live="polite"></div>' +
+    '<div class="qacts">' +
+    '<button class="primary" id="qb-use">Use this query \u2193</button>' +
+    '<button id="qb-clear">Clear</button>' +
+    QB_EX.map(function(x, i){ return '<button data-qbex="' + i + '" title="' + esc(x.hint) + '">ex: ' + esc(x.label) + '</button>'; }).join("") +
+    '</div>' +
+    '<details><summary>operator cheat-sheet (what the builder writes for you)</summary>' +
+    '<table>' +
+    [['"exact phrase"', 'exact match'], ['A OR B', 'either word'], ['-word', 'exclude'], ['#tag', 'hashtag'],
+     ['from:user', 'posted by'], ['to:user', 'replying to'], ['@user', 'mentions'],
+     ['lang:en', 'language'], ['since:2026-01-01', 'after date'], ['until:2026-10-01', 'before date'],
+     ['min_faves:10', 'min likes'], ['min_retweets:5', 'min reposts'], ['min_replies:2', 'min replies'],
+     ['filter:links / media / images / videos', 'has attachment'], ['-filter:replies', 'hide replies'], ['-filter:retweets', 'hide reposts']
+    ].map(function(r){ return '<tr><td class="mono">' + r[0] + '</td><td>' + r[1] + '</td></tr>'; }).join("") +
+    '</table></details>';
+  qb.oninput = qbBuild;
+  qb.onchange = qbBuild;
+  document.getElementById("qb-use").addEventListener("click", qbUse);
+  document.getElementById("qb-clear").addEventListener("click", qbClear);
+  Array.prototype.forEach.call(qb.querySelectorAll("[data-qbex]"), function(b){
+    b.addEventListener("click", function(){ qbExample(Number(b.getAttribute("data-qbex"))); });
+  });
+  qbBuild();
+}
+function qbVal(k){
+  var el = document.querySelector('#qbuilder [data-qb="' + k + '"]');
+  if (!el) return "";
+  if (el.type === "checkbox") return el.checked ? "1" : "";
+  return el.value.trim();
+}
+function qbSet(k, v){
+  var el = document.querySelector('#qbuilder [data-qb="' + k + '"]');
+  if (!el) return;
+  if (el.type === "checkbox") el.checked = !!v; else el.value = v;
+}
+function qbBuild(){
+  var parts = [];
+  var all = qbVal("all"); if (all) parts.push(all.replace(/\s+/g, " "));
+  var ex = qbVal("exact"); if (ex) parts.push('"' + ex.replace(/"/g, "") + '"');
+  var any = qbVal("any").split(/[\s,]+/).filter(Boolean);
+  if (any.length === 1) parts.push(any[0]);
+  else if (any.length > 1) parts.push("(" + any.join(" OR ") + ")");
+  qbVal("none").split(/[\s,]+/).filter(Boolean).forEach(function(w){
+    parts.push(w.charAt(0) === "-" ? w : "-" + w);
+  });
+  qbVal("tags").split(/[\s,#]+/).filter(Boolean).forEach(function(t){
+    parts.push(t.charAt(0) === "#" ? t : "#" + t);
+  });
+  var fr = qbVal("from").replace(/^@/, ""); if (fr) parts.push("from:" + fr);
+  var to = qbVal("to").replace(/^@/, ""); if (to) parts.push("to:" + to);
+  var mt = qbVal("mention").replace(/^@/, ""); if (mt) parts.push("@" + mt);
+  var lg = qbVal("lang"); if (lg) parts.push("lang:" + lg);
+  var sn = qbVal("since"); if (sn) parts.push("since:" + sn);
+  var un = qbVal("until"); if (un) parts.push("until:" + un);
+  var fv = qbVal("faves"); if (fv) parts.push("min_faves:" + fv);
+  var rt = qbVal("rts"); if (rt) parts.push("min_retweets:" + rt);
+  var rp = qbVal("replies"); if (rp) parts.push("min_replies:" + rp);
+  if (qbVal("links")) parts.push("filter:links");
+  if (qbVal("media")) parts.push("filter:media");
+  if (qbVal("video")) parts.push("filter:videos");
+  if (qbVal("photo")) parts.push("filter:images");
+  if (qbVal("noreplies")) parts.push("-filter:replies");
+  if (qbVal("norts")) parts.push("-filter:retweets");
+  document.getElementById("qb-prev").textContent = parts.join(" ");
+  return parts.join(" ");
+}
+function qbUse(){
+  var q = qbBuild();
+  if (!q) return;
+  var inp = document.querySelector('#api-form [data-p="query"]');
+  if (inp) { inp.value = q; inp.focus(); }
+}
+function qbClear(){
+  Array.prototype.forEach.call(document.querySelectorAll("#qbuilder [data-qb]"), function(el){
+    if (el.type === "checkbox") el.checked = false; else el.value = "";
+  });
+  qbBuild();
+}
+function qbExample(i){
+  var inp = document.querySelector('#api-form [data-p="query"]');
+  if (inp) { inp.value = QB_EX[i].q; inp.focus(); }
 }
 function gatherParams(){
   var o = {};
