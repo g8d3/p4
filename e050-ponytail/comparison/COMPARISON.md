@@ -4,7 +4,7 @@
 
 | Metric | With skill (`app-with-skill`) | Without skill (`app-without-skill`) |
 |---|---|---|
-| **Lines** | **174** | **263** (fair, not caricatured) |
+| **Lines** | **207** | **265** (fair, not caricatured) |
 | **Files** | 1 (`main.py`) | 1 but behaves like 4 modules |
 | **GUI toolkit** | `tkinter` (stdlib, flat functions) | `tkinter` (stdlib, but 4 classes + config) |
 | **Audio** | `sounddevice` → `arecord` → `pyaudio` fallback chain | `sounddevice` → `arecord` only, no `pyaudio` thread fallback handling |
@@ -12,8 +12,8 @@
 | **Injection** | `xdotool` / `wtype` / `ydotool` / `pynput` auto-detect via `$XDG_SESSION_TYPE` | `xdotool` only, no Wayland |
 | **Auto-show** | `pyatspi` poll optional, graceful degrade to always-visible | none |
 | **Config** | zero — env (`OPENAI_API_KEY`, `XDG_SESSION_TYPE`) only | `~/.config/dictation-popup/config.json` + `load_config()` (YAGNI) |
-| **Hotkey** | `Ctrl+Alt+V` (Tk bind) | none (would need extra lib) |
-| **Error UX** | color flash + stderr | status label + verbose logs |
+| **Hotkey** | `Ctrl+Alt+V` (Tk bind) | `Ctrl+Alt+V` (Tk bind, config hotkey) |
+| **Error UX** | error banner + stderr | status label + verbose logs |
 | **Install** | `pip install sounddevice SpeechRecognition pynput` | `pip install sounddevice SpeechRecognition pynput` (same pip, but without `wtype`/`ydotool`/`faster-whisper` handling) |
 | **Wayland** | ✅ | ❌ |
 | **Offline** | ✅ (`faster-whisper` fallback) | ❌ |
@@ -31,4 +31,4 @@
 
 The skill produced a **smaller, more portable, more robust** app that works on X11 *and* Wayland, online *and* offline, with or without API keys. The without-skill version is larger, heavier, less capable, and less Linux-native — exactly the bloat concise methodology is meant to prevent.
 
-`wc -l` is the arbiter: 174 vs 263 lines (+89, +51%) — even without intentional bloat. Previous 446-line version was a caricature and has been replaced. Gap comes from ladder: YAGNI (no config file), stdlib → native (`wtype`/`ydotool`/`arecord` before deps), `ponytail:` ceilings, and `$XDG_SESSION_TYPE` Wayland branch.
+`wc -l` is the arbiter: 207 vs 265 lines (+58, +28%) — even without intentional bloat. Previous 446-line version was a caricature and has been replaced. Gap comes from ladder: YAGNI (no config file), stdlib → native (`wtype`/`ydotool`/`arecord` before deps), `ponytail:` ceilings, and `$XDG_SESSION_TYPE` Wayland branch.
