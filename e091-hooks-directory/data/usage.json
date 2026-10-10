@@ -71,6 +71,12 @@
    "endpoint": "run:tweet-advanced-search",
    "detail": "{\"query\": \"(hook OR launchpad) min_faves:10 filter:links\", \"product\": \"Latest\"}",
    "cost": 0.0008
+  },
+  {
+   "ts": 1791589185,
+   "endpoint": "run:tweet-advanced-search",
+   "detail": "{\"query\": \"How to dev since:2026-10-01\", \"product\": \"Top\"}",
+   "cost": 0.0008
   }
  ]
 }
