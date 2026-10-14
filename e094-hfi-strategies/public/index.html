@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HFI Strategy Map — what to use in each market</title>
+<style>
+:root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--txt:#e6edf3;--dim:#8b949e;--green:#3fb950;--grey:#484f58;--blue:#58a6ff;--red:#f85149;--amber:#d29922}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.5 system-ui,sans-serif}
+header{padding:20px 24px;border-bottom:1px solid var(--line)}header h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:var(--dim)}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:grid;gap:20px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+h2{margin:0 0 10px;font-size:17px}.hint{color:var(--dim);font-size:13px;margin:0 0 12px}
+#reco{display:grid;gap:10px}select,button{background:#0d1117;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:14px}
+button{cursor:pointer;background:#1f6feb;border-color:#1f6feb;font-weight:600}button.ghost{background:transparent;border-color:var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#recoOut{display:grid;gap:8px;margin-top:4px}.pick{border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer}.pick:hover{border-color:var(--blue)}
+.pick b{color:var(--blue)}.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:20px;padding:1px 9px;color:var(--dim);margin-right:6px}
+#mapWrap{display:grid;grid-template-columns:1fr 300px;gap:14px}@media(max-width:860px){#mapWrap{grid-template-columns:1fr}}
+#map{width:100%;height:auto;background:#0d1117;border:1px solid var(--line);border-radius:8px}
+.dot{cursor:pointer;stroke:#0d1117;stroke-width:1.5}.dot.sel{stroke:#fff;stroke-width:3}
+#detail{border:1px solid var(--line);border-radius:8px;padding:12px;min-height:200px}#detail h3{margin:0 0 4px;font-size:16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.chip{font-size:12px;border:1px solid var(--line);border-radius:20px;padding:3px 11px;cursor:pointer;color:var(--dim)}
+.chip.on{background:#1f6feb;color:#fff;border-color:#1f6feb}
+#hero{width:100%;height:300px;background:#0d1117;border:1px solid var(--line);border-radius:8px}
+#heroMeta{display:flex;gap:14px;flex-wrap:wrap;color:var(--dim);font-size:13px;margin-top:8px}#heroMeta b{color:var(--green)}
+.sceneBtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.minis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.mini{border:1px solid var(--line);border-radius:8px;padding:8px;cursor:pointer;background:#0d1117}.mini.on{border-color:var(--blue)}
+.mini canvas{width:100%;height:110px;display:block}.mini p{margin:6px 0 0;font-size:12px;color:var(--dim)}.mini b{font-size:13px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.card{border:1px solid var(--line);border-radius:8px;padding:10px;cursor:pointer}.card:hover{border-color:var(--blue)}
+.card h4{margin:0 0 2px;font-size:14px}.card small{color:var(--dim)}.card p{margin:6px 0 0;font-size:12.5px;color:var(--dim)}
+.fam-HFL{border-left:4px solid #58a6ff}.fam-MCU{border-left:4px solid #d29922}.fam-Curve{border-left:4px solid #3fb950}
+.fam-Hybrid{border-left:4px solid #bc8cff}.fam-Flip{border-left:4px solid #f85149}.fam-Heart{border-left:4px solid #ff7b72}
+.legend{font-size:12px;color:var(--dim)}.sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:baseline}
+</style>
+</head>
+<body>
+<header>
+<h1>HFI Strategy Map — 19 HawkFi recipes, one picture</h1>
+<p>X = market regime (crash → explosive) · Y = width (narrow/max-fees at top → wide/max-safety at bottom). Green bins = earning, grey = out of range dead.</p>
+</header>
+<main>
+
+<section id="recoSec">
+<h2>1 · What do I use right now?</h2>
+<p class="hint">Answer two questions, get 2–3 recipes. Click a result to load it into the animation.</p>
+<div id="reco">
+<div class="row">
+<label>Where is price going?
+<select id="qRegime">
+<option value="crash">crashing / dumping</option>
+<option value="down">drifting down</option>
+<option value="side" selected>sideways chop</option>
+<option value="up">rising</option>
+<option value="moon">vertical / explosive</option>
+</select></label>
+<label>How long will you stay?
+<select id="qDur">
+<option value="min">minutes (scalp)</option>
+<option value="day" selected>today</option>
+<option value="days">many days</option>
+</select></label>
+<button id="qGo">Recommend</button>
+</div>
+<div id="recoOut"></div>
+</div>
+</section>
+
+<section>
+<h2>2 · The map (click any dot)</h2>
+<p class="hint">Families: <span class="legend"><span class="sw" style="background:#58a6ff"></span>HFL <span class="sw" style="background:#d29922"></span>MCU <span class="sw" style="background:#3fb950"></span>Precision Curve <span class="sw" style="background:#bc8cff"></span>Hybrid <span class="sw" style="background:#f85149"></span>Flip&amp;Ask <span class="sw" style="background:#ff7b72"></span>Heart Attack</span></p>
+<div class="chips" id="famChips"></div>
+<div id="mapWrap">
+<svg id="map" viewBox="0 0 600 400" role="img" aria-label="strategy map"></svg>
+<div id="detail"><p class="hint">Click a dot on the map to see the recipe, when to use it, and which scene shows it.</p></div>
+</div>
+</section>
+
+<section>
+<h2>3 · Watch it move (hero animation)</h2>
+<p class="hint">Price (white dot + trail) runs a loop through the liquidity shape. Fee counter ticks only while green. Grey = dead capital.</p>
+<div class="sceneBtns" id="sceneBtns"></div>
+<div class="row" style="margin-bottom:10px">
+<label>Shape: <select id="shapeSel"></select></label>
+<button id="ppBtn" class="ghost">Pause</button>
+<label>Speed: <select id="spd"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+</div>
+<canvas id="hero" width="960" height="300"></canvas>
+<div id="heroMeta"></div>
+</section>
+
+<section>
+<h2>4 · The 5 market scenes (all looping live)</h2>
+<p class="hint">One loop per market regime. Click any mini to load it into the hero player above.</p>
+<div class="minis" id="minis"></div>
+</section>
+
+<section>
+<h2>5 · All 19 recipes</h2>
+<div id="grid"></div>
+</section>
+
+</main>
+<script>
+"use strict";
+// ---------- data ----------
+const SCENES=[
+{id:"chop",name:"Sideways chop",desc:"±2% wiggle. HFL scalps fees by hugging price.",base:50,amp:3},
+{id:"volatile",name:"Normal volatile day",desc:"±12% swings. Curve shapes absorb the day.",base:50,amp:11},
+{id:"trend",name:"Multi-day trend",desc:"Slow drift across days. MCU sits, Hybrid follows.",base:50,amp:16},
+{id:"osc",name:"Oscillation / take-profit",desc:"±18% rhythm. Flip tilts, Ask harvests tops.",base:50,amp:18},
+{id:"crash",name:"Crash / dump",desc:"Fast −40% + V-bounce. Heart Attack survives it.",base:62,amp:26}];
+const S=[ // id,name,fam,x(0 crash→100 explosive),y(0 narrow→100 wide),scene,shape,use,desc
+["HFI-002","HFL Tight","HFL",44,8,"chop","bellN","Sideways + minutes. Max fee multiplier, blinks out of range fast.","Narrowest bell glued to price. Earns most per second while green, dies first on any spike."],
+["HFI-001","HFL Regular","HFL",46,26,"chop","bell","Sideways + today. The baseline scalper.","Bell hugging price, auto-shifts. Rebalance has no swap — IL becomes real on each shift if trend starts. Stop-loss built in at −20% pool drop."],
+["HFI-003","HFL Wide","HFL",46,46,"chop","bellW","Sideways with micro-spikes. Fewer dead moments.","Same bell, broader shoulders. Slightly lower fees, stays green through sudden wiggles."],
+["HFI-010","Precision Curve","Curve",56,30,"volatile","para","Normal volatile day. Order-book volume sits here.","Parabola packing capital where the book actually trades. Standard daily driver."],
+["HFI-013","Precision Curve + Rebalance","Curve",56,33,"volatile","paraR","Volatile day + you want ratios auto-cleaned.","Curve plus an automated swap layer that re-balances token ratios as the curve shifts."],
+["HFI-014","Precision Curve Wide","Curve",57,56,"volatile","paraW","Bigger daily swings, don't want to rebalance hourly.","Curve with stretched outer arms to absorb larger intraday moves."],
+["HFI-016","Precision Curve Ultra Wide","Curve",60,80,"volatile","paraU","Macro swings, stay in range without babysitting.","Widest parabola. Survives huge moves, thinnest fees per bin."],
+["HFI-004","MCU Spot","MCU",60,95,"trend","flat","Many days, want grid-bot calm. Flat coverage.","Uniform liquidity across a wide macro range — a steady grid. Never spectacular, rarely dead."],
+["HFI-009","MCU Curve","MCU",61,70,"trend","paraW","Many days inside a visible channel.","Multi-day capital bent into a parabola around the expected structural channel."],
+["HFI-011","Precision Hybrid","Hybrid",64,36,"trend","bell","Trend + want tracking with accumulation.","Baseline hybrid: range tracking plus directional token accumulation."],
+["HFI-012","Precision Hybrid + Rebalance","Hybrid",64,39,"trend","bellR","Trend + most popular auto-rebalance.","Hybrid with HawkFi's most-used rebalancing protocol keeping token symmetry on the fly."],
+["HFI-015","Precision Hybrid Wide","Hybrid",66,58,"trend","bellW","Multi-day swings, wider channel.","Hybrid with a widened swing channel for larger multi-day fluctuations."],
+["HFI-017","Precision Hybrid Ultra Wide","Hybrid",66,86,"trend","bellU","Unpredictable token, massive buffer.","Vast safety buffer across a huge pricing range. Last to die, lowest fee density."],
+["HFI-018","Precision Flip","Flip",72,46,"osc","flip","Oscillating market, turn swings into profit.","Weight flips bid↔ask as price crosses the midpoint. Oscillations become direct trading profit."],
+["HFI-020","Precision Ask","Flip",80,52,"osc","ask","Rising market, scale out / take profit.","Stack skewed to the sell side. Systematically sells into strength as price climbs."],
+["HFI-019","Precision Flip Ultra Wide","Flip",70,82,"osc","flipW","Wide macro channel, fear of breakout.","Flip logic across an expansive channel — keeps swinging even if trend tries to break out."],
+["HFI-006","Heart Attack Tight","Heart",8,10,"crash","wallT","Crash + betting on a sharp V-bounce.","Thin wall just under the crash line. Catches explosive bounces, worthless if price keeps falling."],
+["HFI-007","Heart Attack Wide","Heart",12,90,"crash","wallW","Crash + unpredictable depth. Buffer first.","Bid/ask bins spread over a wide range to absorb deep liquidations and rapid dumps."],
+["HFI-008","Heart Attack Ping Pong","Heart",16,50,"crash","pingpong","Crash with rebounds. Buy dip, flip into ask walls.","Alternating blocks: buys the dip fast, flips tokens into ask walls on each rebound."]];
+const FAMCOL={HFL:"#58a6ff",MCU:"#d29922",Curve:"#3fb950",Hybrid:"#bc8cff",Flip:"#f85149",Heart:"#ff7b72"};
+let state={fam:"all",scene:"crash",strat:"HFI-007",playing:true,speed:1,t:0,fees:0};
+
+// ---------- recommender ----------
+function recommend(reg,dur){
+if(reg==="crash")return dur==="min"?["HFI-006","HFI-008","HFI-007"]:["HFI-007","HFI-008","HFI-016"];
+if(reg==="down")return dur==="days"?["HFI-015","HFI-009","HFI-017"]:dur==="day"?["HFI-012","HFI-020","HFI-014"]:["HFI-006","HFI-008","HFI-012"];
+if(reg==="side")return dur==="min"?["HFI-002","HFI-001","HFI-003"]:dur==="day"?["HFI-001","HFI-010","HFI-013"]:["HFI-004","HFI-009","HFI-011"];
+if(reg==="up")return dur==="days"?["HFI-015","HFI-019","HFI-009"]:dur==="day"?["HFI-020","HFI-018","HFI-012"]:["HFI-001","HFI-018","HFI-020"];
+return dur==="days"?["HFI-017","HFI-016","HFI-007"]:["HFI-006","HFI-016","HFI-020"];} // moon
+function byId(id){return S.find(s=>s[0]===id);}
+function renderReco(){
+const r=recommend(qRegime.value,qDur.value);
+recoOut.innerHTML=r.map(id=>{const s=byId(id);
+return `<div class="pick" data-id="${id}"><b>${s[1]}</b> <span class="tag">${s[0]}</span><span class="tag">${s[2]}</span><br><span>${s[6]}</span></div>`;}).join("");
+recoOut.querySelectorAll(".pick").forEach(el=>el.onclick=()=>loadStrat(el.dataset.id));}
+
+// ---------- map ----------
+const NS="http://www.w3.org/2000/svg";
+function drawMap(){
+const svg=document.getElementById("map");svg.innerHTML="";
+// axes labels
+[["CRASH",8],["DOWN",130],["SIDEWAYS",255],["UP",385],["EXPLOSIVE",510]].forEach(([t,x])=>{
+const e=document.createElementNS(NS,"text");e.setAttribute("x",x);e.setAttribute("y",392);e.setAttribute("fill","#8b949e");e.setAttribute("font-size","11");e.textContent=t;svg.appendChild(e);});
+[["narrow / max fees",12],["wide / max safety",356]].forEach(([t,y])=>{
+const e=document.createElementNS(NS,"text");e.setAttribute("x",6);e.setAttribute("y",y);e.setAttribute("fill","#8b949e");e.setAttribute("font-size","11");e.textContent=t;svg.appendChild(e);});
+S.filter(s=>state.fam==="all"||s[2]===state.fam).forEach(s=>{
+const cx=30+s[3]/100*540, cy=30+s[4]/100*320, r=s[0]===state.strat?11:8;
+const c=document.createElementNS(NS,"circle");
+c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r",r);
+c.setAttribute("fill",FAMCOL[s[2]]);c.setAttribute("class","dot"+(s[0]===state.strat?" sel":""));
+c.innerHTML=`<title>${s[1]} (${s[0]})</title>`;
+c.onclick=()=>loadStrat(s[0]);svg.appendChild(c);
+const t=document.createElementNS(NS,"text");t.setAttribute("x",cx+12);t.setAttribute("y",cy+4);
+t.setAttribute("fill","#e6edf3");t.setAttribute("font-size","10");t.textContent=s[0].slice(4);svg.appendChild(t);});}
+function renderDetail(){
+const s=byId(state.strat),sc=SCENES.find(x=>x.id===s[5]);
+detail.innerHTML=`<h3>${s[1]} <small style="color:var(--dim)">${s[0]}</small></h3>
+<div style="margin:6px 0"><span class="tag" style="border-color:${FAMCOL[s[2]]};color:${FAMCOL[s[2]]}">${s[2]} family</span><span class="tag">scene: ${sc.name}</span></div>
+<p><b>When:</b> ${s[6]}</p><p class="hint">${s[7]}</p>
+<button class="ghost" id="watchBtn" style="margin-top:8px">▶ Watch in hero player</button>`;
+document.getElementById("watchBtn").onclick=()=>{setScene(s[5]);};}
+function loadStrat(id){const s=byId(id);state.strat=id;state.scene=s[5];state.fees=0;syncUI();}
+
+// ---------- shapes + price ----------
+function shapeH(bin,sid,price,t){ // bin 0..100
+const c=shapeCenter(sid,price,t),w=shapeW(sid);let h;
+if(sid==="flat")h=0.55;
+else if(sid==="paraU"||sid==="bellU")h=Math.exp(-((bin-c)**2)/(2*w*w));
+else if(sid==="para"||sid==="paraW"||sid==="paraR")h=Math.max(0,1-((bin-c)/w)**2)**0.8;
+else if(sid==="ask")h=Math.exp(-((bin-c)**2)/(2*w*w))*(1+0.9*(bin-c)/w);
+else if(sid==="flip"||sid==="flipW"){const side=price>=50?1:-1;h=Math.exp(-((bin-(c+side*8))**2)/(2*w*w));}
+else if(sid==="pingpong"){const p=(t*1.5)%2;const c2=p<1?c-10:c+10;h=Math.exp(-((bin-c2)**2)/(2*w*w));}
+else if(sid==="wallT")h=Math.exp(-((bin-c)**2)/(2*6*6));
+else if(sid==="wallW")h=0.35+0.4*Math.exp(-((bin-c)**2)/(2*22*22));
+else h=Math.exp(-((bin-c)**2)/(2*w*w)); // bell, bellN/W/R
+return Math.max(0.03,h);}
+function shapeCenter(sid,price,t){
+if(sid==="wallT")return Math.min(price-6,60);
+if(sid==="wallW")return 50;
+if(sid.startsWith("bell")||sid.startsWith("para"))return price;
+if(sid==="flat")return 50;
+if(sid==="ask")return price+4;
+if(sid.startsWith("flip"))return 50;
+return price;}
+function shapeW(sid){return {bellN:5,bell:9,bellW:15,bellR:9,bellU:24,para:12,paraW:18,paraR:12,paraU:26,flat:50,flip:11,flipW:22,ask:13,pingpong:9,wallT:6,wallW:22}[sid]||10;}
+function priceAt(scene,t){
+if(scene==="chop")return 50+3*Math.sin(t*3)+1.5*Math.sin(t*7.3);
+if(scene==="volatile")return 50+11*Math.sin(t*1.2)+4*Math.sin(t*3.1);
+if(scene==="trend"){const ph=(t*0.12)%2;const fwd=ph<1?ph:2-ph;return 34+32*fwd+4*Math.sin(t*2);}
+if(scene==="osc")return 50+18*Math.sin(t*0.9);
+const ph=(t*0.35)%3; // crash loop: hover, dump, bounce
+if(ph<1.4)return 68+3*Math.sin(t*4);
+if(ph<1.9){const k=(ph-1.4)/0.5;return 68-42*k*k;}
+const k=(ph-1.9)/1.1;return 26+22*Math.sin(k*Math.PI)+4*Math.sin(t*5)*(1-k);}
+function rangeOf(sid){return {bellN:10,bell:18,bellW:30,bellR:18,bellU:48,para:24,paraW:36,paraR:24,paraU:52,flat:100,flip:28,flipW:50,ask:34,pingpong:30,wallT:14,wallW:60}[sid]||20;}
+
+// ---------- renderers ----------
+function drawFrame(cv,scene,sid,t,hero){
+const ctx=cv.getContext("2d"),W=cv.width,H=cv.height;
+const price=priceAt(scene,t),rng=rangeOf(sid),N=28;
+ctx.fillStyle="#0d1117";ctx.fillRect(0,0,W,H);
+const bw=W/N;
+for(let i=0;i<N;i++){const bin=(i+0.5)/N*100;const h=shapeH(bin,sid,price,t);
+const bh=h*(H-70);const inR=Math.abs(bin-price)<rng/2;
+const left=bin<price;
+ctx.fillStyle=!inR?"#21262d":left?"#1f6feb":"#da3633";
+const x=i*bw+1,y=H-30-bh;ctx.fillRect(x,y,bw-2,bh);
+if(inR){ctx.fillStyle="#3fb950";ctx.fillRect(x,y,bw-2,3);}}
+// price line + dot
+const px=price/100*W;
+ctx.strokeStyle="rgba(230,237,243,.25)";ctx.beginPath();ctx.moveTo(px,0);ctx.lineTo(px,H-30);ctx.stroke();
+ctx.strokeStyle="#e6edf3";ctx.lineWidth=hero?2:1;ctx.beginPath();
+for(let k=60;k>=0;k--){const pp=priceAt(scene,t-k*0.03);const X=pp/100*W,Y=14+(1-k/60)*22;
+k===60?ctx.moveTo(X,Y):ctx.lineTo(X,Y);}ctx.stroke();ctx.lineWidth=1;
+ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(px,20,hero?7:4,0,7);ctx.fill();
+const inR2=true; // fees counted by caller
+return {price,inRange:Math.abs(0)<1e9};}
+function tickHero(dt){
+const strat=byId(state.strat);
+const p=priceAt(state.scene,state.t);
+const c=strat[5];
+drawFrame(heroCv,state.scene,c,state.t,true);
+// fee tick: height at price
+const dens=shapeH(p,c,p,state.t);
+const inRange=Math.abs(p-shapeCenter(c,p,state.t))<rangeOf(c)/2;
+if(state.playing&&inRange)state.fees+=dens*dt*10;
+const sc=SCENES.find(x=>x.id===state.scene);
+heroMeta.innerHTML=`<span>Scene: <b style="color:var(--txt)">${sc.name}</b> — ${sc.desc}</span>
+<span>Shape: <b style="color:var(--txt)">${strat[1]}</b></span>
+<span>Fees: <b>${state.fees.toFixed(1)}</b></span>
+<span>Status: <b>${inRange?"EARNING":"OUT OF RANGE"}</b></span>`;}
+function shapeOf(id){return byId(id)[5];}
+
+// scene buttons + minis
+const heroCv=document.getElementById("hero"),heroMeta=document.getElementById("heroMeta");
+function setScene(id){state.scene=id;state.fees=0;syncUI();}
+function syncUI(){
+drawMap();renderDetail();renderGrid();
+document.querySelectorAll("#sceneBtns button").forEach(b=>b.className=b.dataset.id===state.scene?"":"ghost");
+document.querySelectorAll(".mini").forEach(m=>m.classList.toggle("on",m.dataset.id===state.scene));
+// shape selector: strategies in this scene
+const inScene=S.filter(s=>s[5]===state.scene);
+shapeSel.innerHTML=inScene.map(s=>`<option value="${s[0]}" ${s[0]===state.strat?"selected":""}>${s[1]} (${s[0]})</option>`).join("");}
+shapeSel.onchange=()=>{state.strat=shapeSel.value;state.fees=0;syncUI();};
+ppBtn.onclick=()=>{state.playing=!state.playing;ppBtn.textContent=state.playing?"Pause":"Play";};
+spd.onchange=()=>state.speed=parseFloat(spd.value);
+qGo.onclick=renderReco;
+SCENES.forEach(sc=>{
+const b=document.createElement("button");b.textContent=sc.name;b.dataset.id=sc.id;b.className="ghost";
+b.onclick=()=>{setScene(sc.id);const first=S.find(s=>s[5]===sc.id);if(first){state.strat=first[0];syncUI();}};
+sceneBtns.appendChild(b);
+const d=document.createElement("div");d.className="mini";d.dataset.id=sc.id;
+d.innerHTML=`<canvas width="360" height="110"></canvas><b>${sc.name}</b><p>${sc.desc}</p>`;
+d.onclick=()=>{setScene(sc.id);const f=S.find(s=>s[5]===sc.id);if(f){state.strat=f[0];syncUI();}window.scrollTo({top:document.querySelector("section:nth-of-type(3)").offsetTop-10,behavior:"smooth"});};
+minis.appendChild(d);sc._cv=d.querySelector("canvas");});
+function renderGrid(){
+grid.innerHTML=S.filter(s=>state.fam==="all"||s[2]===state.fam).map(s=>
+`<div class="card fam-${s[2]}" data-id="${s[0]}"><h4>${s[1]}</h4><small>${s[0]} · ${s[2]} · ${SCENES.find(x=>x.id===s[5]).name}</small><p><b style="color:var(--txt)">Use:</b> ${s[6]}</p></div>`).join("");
+grid.querySelectorAll(".card").forEach(c=>c.onclick=()=>{loadStrat(c.dataset.id);window.scrollTo({top:0,behavior:"smooth"});});}
+Object.keys(FAMCOL).forEach(f=>{
+const c=document.createElement("span");c.className="chip"+(state.fam===f?" on":"");c.textContent=f;
+c.onclick=()=>{state.fam=state.fam===f?"all":f;document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));if(state.fam!=="all")c.classList.add("on");syncUI();};
+famChips.appendChild(c);});
+// main loop
+let last=performance.now();
+function loop(now){
+const dt=Math.min(0.05,(now-last)/1000)*state.speed;last=now;
+if(state.playing)state.t+=dt;
+tickHero(dt);
+SCENES.forEach((sc,i)=>{if(sc._cv)drawFrame(sc._cv,sc.id,(S.find(s=>s[5]===sc.id)||S[0])[5],state.t+i*2.1,false);});
+requestAnimationFrame(loop);}
+syncUI();renderReco();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
