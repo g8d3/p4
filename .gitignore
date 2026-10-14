@@ -16,6 +16,7 @@ e008-asistente-ht/
 e041-web-access-agents/
 e052-pairforge/
 e092-echolike/
+e093-rakazo/rakazo/
 2025-06-panoptic/
 2025-10-sequence/
 
@@ -147,3 +148,7 @@ log/
 # e090 runtime (server log, future secrets) — data/*.json seeds ARE committed
 e090-persona-launchpad/server.log
 e090-persona-launchpad/data/secrets.env
+e093-rakazo/pr-*/
+e093-rakazo/*.bak-*
+e093-rakazo/*.log
+e093-rakazo/dev.log

@@ -1,0 +1,24 @@
+{
+ "api_health": "http://127.0.0.1:3100/health",
+ "api_port": 3100,
+ "app_url": "https://vuos-hcar5000mi.tail6918b0.ts.net",
+ "app_url_lan": "http://192.168.0.177:5173",
+ "app_url_loopback": "http://127.0.0.1:5173 (page loads; auth origin NOT trusted — use https or tailnet IP)",
+ "app_url_tailnet_ip": "http://100.102.52.59:5173 (works: page + auth trusted since 2026-10-12 14:34)",
+ "auth_origins": [
+  "https://vuos-hcar5000mi.tail6918b0.ts.net",
+  "http://100.102.52.59:5173"
+ ],
+ "auth_origins_note": "WEB_ORIGIN=first (product links/screen-capability URLs), BETTER_AUTH_URL=second (second origin slot). Both verified trusted 2026-10-12 14:3x (401 on bad creds, not 403). http://127.0.0.1:5173 page loads but auth rejects it (slot tradeoff); LAN 192.168.0.177:5173 same. HTTPS is the primary URL: secure context required by browsers for microphone/dictation.",
+ "checkout_dir": "/home/vuos/code/p4/e093-rakazo/rakazo",
+ "dev_host_env": "RAKAZO_DEV_HOST=0.0.0.0 in rakazo/.env (binds Vite dev; default 127.0.0.1 stays loopback-only)",
+ "https_ingress": "tailscale serve --bg --https=443 http://127.0.0.1:5173 (tailnet only; Let's Encrypt cert for *.tail6918b0.ts.net). The browser only ever talks to :443; API loopback 3100 stays unexposed.",
+ "local_diff": "apps/web/vite.config.ts (local-only, not committed): server.host reads RAKAZO_DEV_HOST; server.allowedHosts = RAKAZO_HOST + RAKAZO_ALLOWED_HOSTS (CSV) so Vite dev accepts the tailnet hostname (it blocks non-IP hostnames by default).",
+ "note": "all machine values live here; code reads this file, never hardcode",
+ "postgres_host_port": 5433,
+ "sandbox_provider": "docker",
+ "supervisor_port": 7091,
+ "supervisor_url": "http://127.0.0.1:7091",
+ "web_port": 5173,
+ "ssh_access_note": "Bot computer container (172.20.0.2) has its pubkey in /home/vuos/.ssh/authorized_keys (added 2026-10-12 13:58) and SSHes into the host as user vuos; coco-box-1 (100.91.190.79) also logs in. The bot edited .env/vite.config via this path at 14:18-14:21."
+}
