@@ -1,0 +1,11 @@
+{
+  "why": "Machine values for e096-secrets-box. The plugin reads this file; nothing here is hardcoded in src/ (project rule). SECRETS_BOX_NEEDS overrides the path (used by tests).",
+  "vault_cli": "/home/vuos/code/p4/e096-secrets-box/vault/vault",
+  "vault_file": "/home/vuos/.pi-vault.enc",
+  "vault_backend": "auto",
+  "notes": [
+    "vault_backend auto = age if installed, else the openssl fallback (see vault/RFC.md).",
+    "vault_file is created by the vault on first use, mode 0600, encrypted at rest.",
+    "The passphrase is never a config value: it is typed in the panel and travels to the vault on a pipe (fd 3)."
+  ]
+}

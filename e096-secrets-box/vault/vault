@@ -1,0 +1,548 @@
+#!/usr/bin/env python3
+"""vault - minimal encrypted secrets vault prototype (stdlib only).
+
+Commands:
+  vault set NAME            Store secret NAME (value read from TTY, echo off)
+  vault get NAME            Print secret value to stdout (for piping, not viewing)
+  vault list                Print secret NAMES only, one per line (never values)
+  vault exec E=NAME ... -- CMD [ARGS...]
+                            Decrypt and inject secrets as env vars into CMD only
+
+Passphrase:
+  $VAULT_PASSPHRASE if set, else hidden TTY prompt (echo off).
+  Never passed via argv, never printed, never logged.
+
+Secret value for `set`:
+  Always read via hidden TTY prompt (two entries, must match).
+  Never via argv (argv leaks to shell history, ps, and chat transcripts).
+  Test-only escape hatch: $VAULT_TEST_VALUE (dummy values only, never real
+  secrets). Prints a TEST HOOK warning to stderr when used.
+
+Backends (--backend auto|openssl|age, or $VAULT_BACKEND):
+  auto: use `age` if found on PATH (`which age`), else OpenSSL fallback.
+  age:     XChaCha20-Poly1305 + scrypt. Real use: passphrase handled
+           entirely by `age` on /dev/tty (we never see it). Test mode
+           ($VAULT_PASSPHRASE set, dummy values only): we feed the test
+           passphrase to age's TTY prompts through a pty so automated
+           tests round-trip without a human at a terminal.
+  openssl: AES-256-CBC + PBKDF2 (100k iters, salt). Fallback, fully working.
+           Passphrase passed to openssl via env (never argv).
+"""
+import argparse
+import errno
+import getpass
+import json
+import os
+import pty
+import re
+import select
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+
+NAME_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_.-]{0,63}$")
+DEFAULT_BACKENDS = ("auto", "openssl", "age")
+
+
+def die(msg, code=1):
+    print(f"vault: error: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def vault_file(args):
+    return os.path.expanduser(
+        args.file or os.environ.get("VAULT_FILE") or "~/.pi-vault.enc"
+    )
+
+
+def backend(args):
+    b = (args.backend or os.environ.get("VAULT_BACKEND") or "auto").lower()
+    if b not in DEFAULT_BACKENDS:
+        die(f"unknown backend {b!r} (want one of {', '.join(DEFAULT_BACKENDS)})")
+    if b == "auto":
+        if shutil.which("age"):
+            return "age"
+        print("vault: note: `age` not found on PATH, using OpenSSL "
+              "AES-256-CBC fallback", file=sys.stderr)
+        return "openssl"
+    if b == "age" and not shutil.which("age"):
+        die("backend `age` requested but `age` not found on PATH "
+            "(`which age` failed); install age or use --backend openssl")
+    return b
+
+
+def get_passphrase():
+    """Passphrase from env (tests) or hidden TTY prompt. Never argv."""
+    pw = os.environ.get("VAULT_PASSPHRASE")
+    if pw:
+        return pw
+    try:
+        return getpass.getpass("Vault passphrase (hidden, not echoed): ")
+    except (EOFError, OSError, getpass.GetPassWarning if hasattr(getpass, "GetPassWarning") else EOFError) as e:  # noqa: E501
+        die(f"cannot read passphrase: {e}; run on a TTY or set "
+            "$VAULT_PASSPHRASE (tests only)")
+
+
+# --- OpenSSL backend (working fallback) -------------------------------------
+
+def _openssl(args, decrypt, infile, outfile, passphrase):
+    cmd = ["openssl", "enc", "-d" if decrypt else "-e",
+           "-aes-256-cbc", "-pbkdf2", "-iter", "100000"]
+    if not decrypt:
+        cmd += ["-salt"]
+    cmd += ["-in", infile, "-out", outfile, "-pass", "env:VAULT_PASSPHRASE"]
+    env = dict(os.environ, VAULT_PASSPHRASE=passphrase)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, env=env)
+    finally:
+        env["VAULT_PASSPHRASE"] = ""
+    if r.returncode != 0:
+        err = (r.stderr or "").strip().splitlines()
+        detail = err[-1] if err else f"exit {r.returncode}"
+        if decrypt:
+            die(f"decrypt failed (wrong passphrase or corrupt file): {detail}")
+        die(f"encrypt failed: {detail}")
+    return True
+
+
+def openssl_load(path, passphrase):
+    fd, tmp = tempfile.mkstemp(prefix="vault-plain-")
+    os.close(fd)
+    os.chmod(tmp, 0o600)
+    try:
+        p = subprocess.run(
+            ["openssl", "enc", "-d", "-aes-256-cbc", "-pbkdf2",
+             "-iter", "100000", "-in", path, "-pass", "env:VAULT_PASSPHRASE"],            capture_output=False, stdout=open(tmp, "wb"),
+            stderr=subprocess.PIPE,
+            env={**os.environ, "VAULT_PASSPHRASE": passphrase})
+        if p.returncode != 0:
+            detail = (p.stderr or b"").decode(errors="replace").strip().splitlines()
+            die("decrypt failed (wrong passphrase or corrupt file): "
+                f"{detail[-1] if detail else 'exit ' + str(p.returncode)}")
+        with open(tmp, "rb") as f:
+            raw = f.read()
+        try:
+            data = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            die("decrypt ok but plaintext is not valid vault JSON (corrupt?)")
+        if not isinstance(data, dict):
+            die("corrupt vault: top-level JSON is not an object")
+        return data
+    finally:
+        try:
+            with open(tmp, "wb") as f:
+                f.write(b"\x00" * 64)
+        except OSError:
+            pass
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+
+def openssl_save(path, data, passphrase):
+    raw = json.dumps(data, sort_keys=True).encode("utf-8")
+    fd, tmp = tempfile.mkstemp(prefix="vault-plain-")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(raw)
+        os.chmod(tmp, 0o600)
+        _openssl(None, False, tmp, path, passphrase)
+        os.chmod(path, 0o600)
+    finally:
+        try:
+            with open(tmp, "wb") as f:
+                f.write(b"\x00" * max(64, len(raw)))
+        except OSError:
+            pass
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+
+# --- age backend (preferred when installed) ---------------------------------
+# Real use (no $VAULT_PASSPHRASE): passphrase handled entirely by `age` on
+# /dev/tty; our code never sees it, which is transcript-safe by construction.
+# Test mode ($VAULT_PASSPHRASE set, dummy values only): age still insists on
+# prompting on /dev/tty, so we run it under a pty (stdlib `pty` module) and
+# feed the test passphrase to its prompts. Plaintext travels via 0600 temp
+# files (wiped + unlinked after), never via argv or logs.
+
+_AGE_TIMEOUT = 30
+
+
+def _age_pty(argv, passphrases, timeout=_AGE_TIMEOUT):
+    """Run age under a pty so its /dev/tty prompts work without a human.
+
+    Feeds one passphrase per `passphrase` prompt. Returns (returncode,
+    captured_output). Stdlib only (pty.fork + select)."""
+    phrases = [p.encode("utf-8") if isinstance(p, str) else p
+               for p in passphrases]
+    pid, fd = pty.fork()
+    if pid == 0:
+        try:
+            os.execvp(argv[0], argv)
+        except Exception as e:  # pragma: no cover - exec failure path
+            print(f"vault: error: cannot exec age: {e}", file=sys.stderr)
+            os._exit(127)
+    out = b""
+    idx = 0
+    deadline = time.time() + timeout
+    status = None
+    os.set_blocking(fd, False)
+    try:
+        while True:
+            try:
+                wpid, wstatus = os.waitpid(pid, os.WNOHANG)
+                exited = (wpid == pid)
+                if exited:
+                    status = wstatus
+            except ChildProcessError:
+                exited = True
+            try:
+                r, _, _ = select.select([fd], [], [], 0.5)
+            except OSError:
+                break
+            if r:
+                try:
+                    chunk = os.read(fd, 65536)
+                except OSError as e:
+                    if e.errno == errno.EIO:
+                        chunk = b""
+                    else:
+                        raise
+                if chunk:
+                    out += chunk
+                seen = out.lower().count(b"passphrase")
+                while idx < len(phrases) and idx < seen:
+                    try:
+                        os.write(fd, phrases[idx] + b"\n")
+                    except OSError:
+                        break
+                    idx += 1
+                    time.sleep(0.5)
+                if not chunk and exited:
+                    break
+            if exited is True and not r:
+                # No more output and child gone: drain once, then stop.
+                try:
+                    while True:
+                        chunk = os.read(fd, 65536)
+                        if not chunk:
+                            break
+                        out += chunk
+                except OSError:
+                    pass
+                break
+            if time.time() > deadline:
+                try:
+                    os.kill(pid, 9)
+                except OSError:
+                    pass
+                try:
+                    _, status = os.waitpid(pid, 0)
+                except ChildProcessError:
+                    pass
+                tail = out.decode(errors="replace").strip().splitlines()
+                die("age timed out waiting for passphrase prompt: "
+                    f"{tail[-1].strip() if tail else 'no output'}")
+    finally:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+    if status is None:
+        try:
+            _, status = os.waitpid(pid, 0)
+        except ChildProcessError:
+            return -1, out.decode(errors="replace")
+    rc = os.WEXITSTATUS(status) if os.WIFEXITED(status) else -1
+    return rc, out.decode(errors="replace")
+
+
+def _wipe_file(path, n=64):
+    try:
+        with open(path, "wb") as f:
+            f.write(b"\x00" * max(64, n))
+    except OSError:
+        pass
+    try:
+        os.unlink(path)
+    except OSError:
+        pass
+
+
+def age_load(path, passphrase):
+    fd, tmp = tempfile.mkstemp(prefix="vault-plain-")
+    os.close(fd)
+    os.chmod(tmp, 0o600)
+    try:
+        if passphrase is None:
+            p = subprocess.run(["age", "--decrypt", "--output", tmp, path])
+            if p.returncode != 0:
+                die(f"age decrypt failed (exit {p.returncode}); "
+                    "wrong passphrase or corrupt file?")
+        else:
+            rc, captured = _age_pty(
+                ["age", "--decrypt", "--output", tmp, path], [passphrase])
+            if rc != 0:
+                lines = [ln.strip() for ln in captured.strip().splitlines()
+                         if ln.strip()]
+                detail = lines[-1] if lines else f"exit {rc}"
+                die("age decrypt failed "
+                    f"({detail}); wrong passphrase or corrupt file?")
+        with open(tmp, "rb") as f:
+            raw = f.read()
+        try:
+            data = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            die("age decrypt ok but plaintext is not valid vault JSON (corrupt?)")
+        if not isinstance(data, dict):
+            die("corrupt vault: top-level JSON is not an object")
+        return data
+    finally:
+        _wipe_file(tmp)
+
+
+def age_save(path, data, passphrase):
+    raw = json.dumps(data, sort_keys=True).encode("utf-8")
+    fd, tmp = tempfile.mkstemp(prefix="vault-plain-")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(raw)
+        os.chmod(tmp, 0o600)
+        if passphrase is None:
+            print("vault: age will prompt for the vault passphrase on your TTY "
+                  "(twice for a new vault).", file=sys.stderr)
+            p = subprocess.run(["age", "--encrypt", "--passphrase",
+                                "--output", path, tmp])
+            if p.returncode != 0:
+                die(f"age encrypt failed (exit {p.returncode})")
+        else:
+            rc, captured = _age_pty(
+                ["age", "--encrypt", "--passphrase",
+                 "--output", path, tmp], [passphrase, passphrase])
+            if rc != 0:
+                lines = [ln.strip() for ln in captured.strip().splitlines()
+                         if ln.strip()]
+                detail = lines[-1] if lines else f"exit {rc}"
+                die(f"age encrypt failed ({detail})")
+        os.chmod(path, 0o600)
+    finally:
+        _wipe_file(tmp, len(raw))
+
+
+def load_store(path, be, passphrase):
+    if not os.path.exists(path):
+        return {}
+    if be == "age":
+        return age_load(path, passphrase)
+    return openssl_load(path, passphrase)
+
+
+def save_store(path, data, be, passphrase):
+    if be == "age":
+        age_save(path, data, passphrase)
+    else:
+        openssl_save(path, data, passphrase)
+
+
+def check_name(name):
+    if not NAME_RE.match(name or ""):
+        die(f"bad secret name {name!r} "
+            "(letters/digits/_/./-, start with letter or _, max 64 chars)")
+
+
+def read_fd(fd, what="value"):
+    """Read a secret (or passphrase) from an open file descriptor.
+
+    This is the PI WEB path: the browser post goes to the server peer, which
+    spawns us with a pipe on that fd. Nothing reaches argv, the environment or a
+    TTY, so `ps` and /proc/<pid>/environ stay clean. One trailing newline is
+    stripped (pipes add one for free)."""
+    try:
+        with os.fdopen(fd, "rb", closefd=True) as fh:
+            data = fh.read()
+    except OSError as e:
+        die(f"cannot read {what} from fd {fd}: {e}")
+    if data.endswith(b"\n"):
+        data = data[:-1]
+    if not data:
+        die(f"empty {what} on fd {fd}, aborted (nothing stored)")
+    return data.decode()
+
+
+def read_secret_value(name):
+    test_val = os.environ.get("VAULT_TEST_VALUE")
+    if test_val is not None:
+        print("vault: WARNING: using $VAULT_TEST_VALUE test hook "
+              "(dummy values only, never real secrets)", file=sys.stderr)
+        return test_val
+    try:
+        v1 = getpass.getpass(f"Secret value for '{name}' (hidden, not echoed): ")
+        v2 = getpass.getpass(f"Repeat secret value for '{name}': ")
+    except (EOFError, OSError) as e:
+        die(f"cannot read secret (no TTY?): {e}")
+    if v1 != v2:
+        die("values do not match, aborted (nothing stored)")
+    if not v1:
+        die("empty value, aborted (nothing stored)")
+    return v1
+
+
+def cmd_set(args, be, path, pw):
+    check_name(args.name)
+    store = load_store(path, be, pw)
+    existed = args.name in store
+    if getattr(args, "value_fd", None) is not None:
+        store[args.name] = read_fd(args.value_fd, "secret value")
+    else:
+        store[args.name] = read_secret_value(args.name)
+    save_store(path, store, be, pw)
+    print(f"stored '{args.name}' ({'updated' if existed else 'new'}) "
+          f"[backend={be}]")
+
+
+def cmd_get(args, be, path, pw):
+    check_name(args.name)
+    store = load_store(path, be, pw)
+    if args.name not in store:
+        die(f"no such secret: {args.name!r} (see `vault list`)")
+    print("vault: warning: piping this value onward, "
+          "never paste it into chat", file=sys.stderr)
+    sys.stdout.write(store[args.name])
+
+
+def cmd_list(args, be, path, pw):
+    store = load_store(path, be, pw)
+    for name in sorted(store):
+        print(name)
+
+
+def cmd_exec(args, be, path, pw, mappings, cmd):
+    if not mappings:
+        die("no mappings: usage: vault exec ENV=NAME [...] -- CMD [ARGS...]")
+    if not cmd:
+        die("no command: usage: vault exec ENV=NAME [...] -- CMD [ARGS...]")
+    env_add = {}
+    for m in mappings:
+        if "=" not in m:
+            die(f"bad mapping {m!r} (want ENVVAR=secret_name)")
+        envvar, _, secname = m.partition("=")
+        envvar, secname = envvar.strip(), secname.strip()
+        if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", envvar):
+            die(f"bad env var name {envvar!r}")
+        check_name(secname)
+        env_add[envvar] = secname
+    store = load_store(path, be, pw)
+    missing = [s for s in env_add.values() if s not in store]
+    if missing:
+        die(f"no such secret(s): {', '.join(missing)} (see `vault list`)")
+    child_env = dict(os.environ)
+    for envvar, secname in env_add.items():
+        child_env[envvar] = store[secname]
+    # Unset test hook so it cannot leak into the child.
+    child_env.pop("VAULT_TEST_VALUE", None)
+    try:
+        r = subprocess.run(cmd, env=child_env)
+    except FileNotFoundError:
+        die(f"command not found: {cmd[0]!r}")
+    sys.exit(r.returncode)
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(
+        prog="vault",
+        description="Minimal encrypted secrets vault prototype. "
+                    "Values and passphrases are read from the TTY with echo "
+                    "off and never appear in argv, logs, or chat.")
+    ap.add_argument("--file", default=None,
+                    help="vault file (default: $VAULT_FILE or ~/.pi-vault.enc)")
+    ap.add_argument("--passphrase-fd", type=int, default=None,
+                    help="read the passphrase from this fd instead of "
+                         "$VAULT_PASSPHRASE / the TTY (used by every command; "
+                         "the PI WEB server peer passes it on a pipe)")
+    ap.add_argument("--backend", default=None, choices=list(DEFAULT_BACKENDS),
+                    help="crypto backend (default: $VAULT_BACKEND or auto: "
+                         "age if installed, else openssl)")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    p_set = sub.add_parser("set", help="store a secret (hidden TTY prompt, or a pipe)")
+    p_set.add_argument("name", help="secret name")
+    p_set.add_argument("--value-fd", type=int, default=None,
+                       help="read the value from this fd instead of the TTY "
+                            "(PI WEB path: a pipe from the server peer; never argv/env)")
+
+    p_get = sub.add_parser("get", help="print a secret value to stdout (for piping)")  # noqa: E501
+    p_get.add_argument("name", help="secret name")
+
+    sub.add_parser("list", help="list secret names only (never values)")
+
+    # exec takes free-form `ENV=NAME ... -- CMD...`; parse manually so
+    # argparse does not eat the `--` or the child command's flags.
+    sub.add_parser("exec", help="inject secrets as env into one child process",
+                   add_help=False)
+
+    args, rest = ap.parse_known_args(argv)
+    # `--passphrase-fd N` is a global flag, so argparse only accepts it before
+    # the subcommand; accept it after as well, since that is where people type
+    # it (and where the PI WEB peer puts it).
+    if args.passphrase_fd is None and "--passphrase-fd" in rest:
+        i = rest.index("--passphrase-fd")
+        if i + 1 >= len(rest):
+            die("--passphrase-fd needs an integer")
+        try:
+            args.passphrase_fd = int(rest[i + 1])
+        except ValueError:
+            die(f"--passphrase-fd needs an integer, got {rest[i + 1]!r}")
+        del rest[i:i + 2]
+
+    be = backend(args)
+    path = vault_file(args)
+    # age without $VAULT_PASSPHRASE = real ceremony: age prompts on the TTY
+    # and our code never sees the passphrase. With it set (tests, dummies
+    # only) we feed it to age's prompts through a pty (see age_save/load).
+    pw_fd = args.passphrase_fd
+    if pw_fd is not None:
+        pw = read_fd(pw_fd, "passphrase")
+    elif be == "age":
+        # No fd: age prompts on the TTY itself (real ceremony) unless the
+        # test hook is set, in which case we feed its prompts through a pty.
+        pw = os.environ.get("VAULT_PASSPHRASE")
+    else:
+        pw = get_passphrase()
+
+    if args.cmd == "set":
+        if rest:
+            die(f"unexpected args: {' '.join(rest)}")
+        cmd_set(args, be, path, pw)
+    elif args.cmd == "get":
+        if rest:
+            die(f"unexpected args: {' '.join(rest)}")
+        cmd_get(args, be, path, pw)
+    elif args.cmd == "list":
+        if rest:
+            die(f"unexpected args: {' '.join(rest)}")
+        cmd_list(args, be, path, pw)
+    elif args.cmd == "exec":
+        # rest holds everything after `exec`: mappings, `--`, command.
+        if "--" in rest:
+            i = rest.index("--")
+            mappings, cmd = rest[:i], rest[i + 1:]
+        else:
+            # Be forgiving: first non-mapping token starts the command.
+            mappings, cmd = [], list(rest)
+            for j, tok in enumerate(rest):
+                if "=" not in tok:
+                    mappings, cmd = rest[:j], rest[j:]
+                    break
+            else:
+                mappings, cmd = rest, []
+        cmd_exec(args, be, path, pw, mappings, cmd)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,24 @@
+{
+  "name": "pi-web-secrets-box",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PI WEB panel that stores a secret straight into the encrypted vault, bypassing the chat transcript",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "test:vault": "bash vault/test.sh && VAULT_BACKEND=age bash vault/test.sh"
+  },
+  "piWeb": {
+    "plugins": [
+      {
+        "id": "secrets-box",
+        "browserRoot": "src/browser",
+        "module": "src/browser/index.js",
+        "serverModule": "src/server.mjs",
+        "machineSpecific": true,
+        "defaultEnabled": false
+      }
+    ]
+  }
+}
