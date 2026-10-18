@@ -1,0 +1,1 @@
+{"port": 8934, "site_dir": "/home/vuos/code/p4/e098-harness2/site", "upstream_dir": "/home/vuos/code/p4/e098-harness2/upstream", "demo_output": "/home/vuos/code/p4/e098-harness2/upstream/runs/demo", "pid_file": "/home/vuos/code/p4/e098-harness2/site/.serve.pid", "venv_python": "/home/vuos/code/p4/e098-harness2/upstream/.venv/bin/python"}
