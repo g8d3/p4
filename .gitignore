@@ -152,3 +152,9 @@ e093-rakazo/pr-*/
 e093-rakazo/*.bak-*
 e093-rakazo/*.log
 e093-rakazo/dev.log
+
+# e095 has its own repo (public mirror g8d3/pi-web-tps-monitor) — not tracked in p4
+e095-tps-monitor/
+
+# e097 night-worker: runtime only (logs, bench outputs, sids, touch files)
+e097-night-worker/data/

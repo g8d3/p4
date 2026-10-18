@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit preview — read your own turn log</title>
+<meta name="description" content="Drop your agent harness's turn log and see where the per-turn time goes. Runs in your browser; nothing is uploaded.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Audit preview — read your own turn log">
+<meta property="og:description" content="Drop your agent harness's turn log and see where the per-turn time goes. Runs in your browser; nothing is uploaded.">
+<meta property="og:url" content="https://focalis.cc/audit/preview/">
+<meta name="twitter:card" content="summary">
+<style>
+:root { color-scheme: light dark; --fg:#14161a; --bg:#fff; --muted:#5b6270; --line:#e3e6ec; --accent:#1c5fd4; --card:#f7f8fa; --warn:#8a5a00; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e8eaed; --bg:#101215; --muted:#9aa2b1; --line:#282c33; --accent:#79aaff; --card:#171a1f; --warn:#e0b070; } }
+* { box-sizing: border-box; }
+body { margin:0 auto; max-width:56rem; padding:1.6rem 1.2rem 3rem; background:var(--bg); color:var(--fg);
+  font:16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+h1 { font-size:1.65rem; line-height:1.25; margin:.4rem 0 .6rem; }
+h2 { margin-top:2.2rem; border-top:1px solid var(--line); padding-top:1rem; font-size:1.2rem; }
+h3 { margin-top:1.6rem; font-size:1.02rem; }
+table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; display:block; overflow-x:auto; }
+th, td { border-bottom:1px solid var(--line); padding:.4rem .55rem; text-align:left; white-space:nowrap; }
+th { color:var(--muted); font-weight:500; }
+code, .mono { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.9em;
+  background:color-mix(in srgb, currentColor 8%, transparent); padding:.1rem .25rem; border-radius:.25rem; }
+button { font:inherit; padding:.5rem .9rem; border:1px solid var(--line); border-radius:.4rem;
+  background:var(--card); color:var(--fg); cursor:pointer; }
+button:hover { border-color:var(--accent); }
+button:disabled { opacity:.5; cursor:default; }
+#drop { border:1.5px dashed var(--line); border-radius:.6rem; padding:1.1rem; text-align:center; background:var(--card); }
+#drop.hot { border-color:var(--accent); }
+textarea { width:100%; min-height:5.5rem; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size:.82rem; background:var(--bg); color:var(--fg); border:1px solid var(--line); border-radius:.4rem; padding:.5rem; }
+.banner { background:var(--card); border:1px solid var(--line); border-radius:.5rem; padding:.8rem 1rem; font-size:.9rem; margin-bottom:1.4rem; }
+.limits { font-size:.92rem; color:var(--muted); }
+.limits li { margin:.35rem 0; }
+.warn { color:var(--warn); }
+.big { font-size:1.5rem; font-weight:600; }
+.row { display:flex; gap:1.4rem; flex-wrap:wrap; margin:1rem 0; }
+.kpi { background:var(--card); border:1px solid var(--line); border-radius:.5rem; padding:.6rem .9rem; }
+.kpi .lab { font-size:.82rem; color:var(--muted); }
+footer { margin-top:3rem; font-size:.85rem; color:var(--muted); }
+[hidden] { display:none !important; }
+</style></head>
+<body>
+
+<div class="banner">
+  <strong>This page reads the file in your browser. Nothing is uploaded.</strong>
+  The page itself ships no analytics, no fonts and no requests of its own — open it
+  offline and check. The hosted copy gets two additions from Cloudflare, our host: an
+  email-obfuscation script and a cookieless page-view beacon. Neither of them ever sees
+  the file you drop here; watch the network tab while you drop it.
+  <br>Free preview of the instrument that comes with the audit:
+  <a href="https://focalis.cc/audit/">offer</a> ·
+  <a href="https://focalis.cc/tps/">the paper</a> ·
+  <a href="https://focalis.cc/audit/sample/">a filled example deliverable</a> ·
+  <a href="mailto:hello@focalis.cc?subject=TAX">hello@focalis.cc</a>
+</div>
+
+<h1>Where does one turn actually go?</h1>
+<p>Drop the turn log your harness already writes — the file the
+<code>pi-web-tps-monitor</code> plugin appends to, <code>&lt;workspace&gt;/.pi-web/tps-turns.jsonl</code>
+(one JSON object per line) — and this page computes the per-turn decomposition and the
+tail, on <em>your</em> numbers. <strong>Other harness?</strong> Drop a CSV (header row) and
+you map your own column names on the next screen; nothing is guessed from a column's
+position.</p>
+<p>It is the same arithmetic the panel and the audit use:
+<code>rest = turn wall − stream − tools − pre-response</code>, and a turn is
+<em>wasted</em> when it failed, aborted, or produced zero output tokens (the rule in
+<code>models.ts</code>).</p>
+
+<div id="drop">
+  <p><strong>Drop the .jsonl here</strong> or <button id="pick" type="button">choose a file</button></p>
+  <input id="file" type="file" accept=".jsonl,.json,.txt,text/plain" hidden>
+  <p>or paste a few lines:</p>
+  <textarea id="paste" placeholder='{"ts":"2026-10-17T08:35:31.456Z","model":"deepseek-v4.1-flash","turnMsTotal":6915,"llmDurationMs":4530,"preResponseMs":2378,"toolMsTotal":4,"output":861,"outcome":"completed"}'></textarea>
+  <p><button id="go" type="button">read the pasted lines</button>
+  <button id="demo" type="button">use our own 500-turn log instead</button></p>
+</div>
+
+<div id="map" hidden>
+  <h2>Map your columns</h2>
+  <p class="limits">Your file is a CSV, and no file format is universal — so pick which
+  column is which. Values in the timing columns must be <strong>milliseconds</strong>;
+  token columns are counts. Anything you leave as “not in my file” is reported as missing
+  rather than guessed.</p>
+  <table id="mapTable"><thead><tr><th>what we need</th><th>your column</th></tr></thead><tbody></tbody></table>
+  <p><button id="applyMap" type="button">read it with this mapping</button>
+  <span class="limits" id="mapNote"></span></p>
+</div>
+
+<p id="status" class="limits" role="status"></p>
+
+<div id="out" hidden>
+  <div class="row" id="kpis"></div>
+  <p id="story" class="limits"></p>
+
+  <h2>1. Where the time goes</h2>
+  <table id="seg"><thead><tr><th>segment</th><th>p50</th><th>p90</th><th>total</th><th>share of wall</th><th>how it is read</th></tr></thead><tbody></tbody></table>
+  <p class="limits" id="seg-note"></p>
+
+  <div id="routeBox" hidden>
+    <h2>2. The same wall, split by the route that served each turn</h2>
+    <table id="routes"><thead><tr><th>route (provider)</th><th>turns</th><th>wall</th><th>share of wall</th><th>roundtrip p50</th><th>stream p50</th><th>wasted</th></tr></thead><tbody></tbody></table>
+    <p class="limits" id="routes-note"></p>
+  </div>
+
+  <h2>3. The tail</h2>
+  <table id="tail"><thead><tr><th>measure</th><th>p50</th><th>p90</th><th>p99</th><th>worst</th></tr></thead><tbody></tbody></table>
+  <h3>Five slowest turns by unexplained time</h3>
+  <table id="top"><thead><tr><th>when</th><th>model</th><th>route</th><th>turn wall</th><th>stream</th><th>tools</th><th>pre-response</th><th>unexplained</th></tr></thead><tbody></tbody></table>
+
+  <h2>4. What this file cannot tell you</h2>
+  <ul class="limits" id="limits"></ul>
+</div>
+
+<h2>Where the token enters matters too</h2>
+<p>The same model costs different amounts on different routes, and the cheapest route is not
+always the fastest one. We measured it on the providers we hold keys for — input price runs
+<strong>29.1x</strong> between routes for one model, and for another the first token is
+<strong>6.0x</strong> slower on the cheap route than on the fast one. Table, caveats and the raw
+rows: <a href="https://focalis.cc/audit/routes/">https://focalis.cc/audit/routes/</a>. If your
+rows carry the <code>provider</code> field (our monitor writes it per turn since v0.10.8), section 2
+above splits your own wall by the route that served it; a log that predates the field does not, and
+the route is one of the things the audit asks you for.</p>
+
+<h2>What the audit adds to this preview</h2>
+<p>This preview is the part you can run yourself, today. The audit measures the part the
+file does not contain: the <strong>process boot before the first event</strong> (929 ms
+median in our runs, which never appears in a turn row) and a <strong>before/after
+series</strong> on your own loops, ranked by measured effect — plus the regression gate
+that keeps the cut from creeping back. Where we tried something and it did not reproduce
+(cache discipline, startup-scan scoping, a size coefficient) we say so and do not sell it:
+see sections 6-8 of the paper.</p>
+<p>Prices and scope: <a href="https://focalis.cc/audit/">https://focalis.cc/audit/</a> ·
+what to send and what we ask: <a href="https://focalis.cc/audit/intake/">the intake page</a>.
+Write to <a href="mailto:hello@focalis.cc?subject=TAX">hello@focalis.cc</a> with
+<code>TAX</code> in the subject, or just send the log you dropped here and we run the boot
+half of it. <strong>Different harness?</strong> This preview reads the file our monitor
+writes; for anything else, send a day of logs in its own shape — writing the adapter is
+part of the audit.</p>
+<p style="margin-top:1rem"><a href="https://focalis.cc/audit/intake/"
+style="display:inline-block;background:#1c5fd4;color:#fff;text-decoration:none;padding:.6rem 1.1rem;border-radius:.4rem;font-weight:600">Start
+an audit — the three questions →</a></p>
+
+<footer>Percentiles are rank percentiles over your rows (<span class="mono">sorted[round(p×(n−1))]</span>);
+the p50 is the ordinary median. Nothing here is uploaded, logged or kept by this page.</footer>
+
+<script id="sample" type="application/json">__SAMPLE_JSON__</script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const num = (v) => typeof v === "number" && isFinite(v);
+
+/* One row is usable only if it carries the fields the monitor writes (same core the
+   plugin's own validator requires). Rows that do not are counted, not guessed at. */
+function isTurn(o) {
+  return o && typeof o === "object" && typeof o.ts === "string" && typeof o.model === "string"
+    && num(o.turnMsTotal) && num(o.llmDurationMs) && num(o.toolMsTotal) && num(o.output)
+    && (o.outcome === "completed" || o.outcome === "aborted" || o.outcome === "error");
+}
+const hasPre = (o) => num(o.preResponseMs);
+
+function parse(text) {
+  const rows = [], skipped = [];
+  text.split(/\r?\n/).forEach((line, i) => {
+    if (!line.trim()) return;
+    let o = null;
+    try { o = JSON.parse(line); } catch (e) { skipped.push(i + 1); return; }
+    if (isTurn(o)) rows.push(o); else skipped.push(i + 1);
+  });
+  return { rows, skipped };
+}
+
+/* rank percentile: sorted[round(p*(n-1))]. The p50 is the ordinary median. */
+function pct(sorted, p) { return sorted.length ? sorted[Math.round(p * (sorted.length - 1))] : NaN; }
+const median = (a) => { const s = asc(a); return s.length ? (s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2) : NaN; };
+const asc = (a) => a.slice().sort((x, y) => x - y);
+const ms = (v) => (isFinite(v) ? (v >= 1000 ? (v / 1000).toFixed(2) + " s" : Math.round(v) + " ms") : "–");
+const hh = (v) => (isFinite(v) ? (v / 3600000).toFixed(2) + " h" : "–");
+const pctf = (v, tot) => (isFinite(v) && tot > 0 ? ((v / tot) * 100).toFixed(0) + "%" : "–");
+const n1 = (v) => (isFinite(v) ? (Math.round(v * 10) / 10).toFixed(1) : "–");
+
+function compute(rows) {
+  const seg = { pre: [], preOnly: [], stream: [], tools: [], rest: [], wall: [] };
+  let clamped = 0, noPre = 0, wasted = 0, zeroOut = 0, failed = 0, withProvider = 0;
+  const perSession = new Set(), perModel = new Set(), routes = new Map();
+  let sumPre = 0, sumStream = 0, sumTools = 0, sumRest = 0, sumWall = 0;
+  let minTs = null, maxTs = null;
+  for (const o of rows) {
+    const pre = hasPre(o) ? o.preResponseMs : 0;
+    if (!hasPre(o)) noPre++;
+    const stream = o.llmDurationMs, tools = o.toolMsTotal;
+    let rest = o.turnMsTotal - stream - tools - pre;
+    if (rest < 0) { clamped++; rest = 0; }
+    seg.pre.push(pre); if (hasPre(o)) seg.preOnly.push(o.preResponseMs);
+    seg.stream.push(stream); seg.tools.push(tools);
+    seg.rest.push(rest); seg.wall.push(o.turnMsTotal);
+    sumPre += pre; sumStream += stream; sumTools += tools; sumRest += rest; sumWall += o.turnMsTotal;
+    if (o.outcome !== "completed") failed++;
+    if (o.outcome !== "completed" || o.output === 0) wasted++;
+    if (o.output === 0) zeroOut++;
+    perSession.add(o.sessionId || "?");
+    perModel.add(o.model);
+    const prov = (typeof o.provider === "string" && o.provider) ? o.provider : "";
+    if (prov) withProvider++;
+    const rk = prov || "(not recorded)";
+    let R = routes.get(rk);
+    if (!R) { R = { key: rk, n: 0, wall: 0, pre: [], preOnly: [], stream: [], wasted: 0 }; routes.set(rk, R); }
+    R.n++; R.wall += o.turnMsTotal; R.pre.push(pre);
+    if (hasPre(o)) R.preOnly.push(o.preResponseMs);
+    R.stream.push(stream);
+    if (o.outcome !== "completed" || o.output === 0) R.wasted++;
+    if (!minTs || o.ts < minTs) minTs = o.ts;
+    if (!maxTs || o.ts > maxTs) maxTs = o.ts;
+  }
+  const top = rows.map((o) => {
+    const pre = hasPre(o) ? o.preResponseMs : 0;
+    return { ts: o.ts, model: o.model, route: (typeof o.provider === "string" && o.provider) ? o.provider : "–",
+             wall: o.turnMsTotal, stream: o.llmDurationMs,
+             tools: o.toolMsTotal, pre, rest: Math.max(0, o.turnMsTotal - o.llmDurationMs - o.toolMsTotal - pre) };
+  }).sort((a, b) => b.rest - a.rest).slice(0, 5);
+  return {
+    n: rows.length, seg, sums: { pre: sumPre, stream: sumStream, tools: sumTools, rest: sumRest, wall: sumWall },
+    clamped, noPre, wasted, zeroOut, failed, withProvider,
+    routes: [...routes.values()].sort((a, b) => b.wall - a.wall),
+    sessions: perSession.size, models: [...perModel].sort(), minTs, maxTs, top,
+  };
+}
+
+function render(rows, source) {
+  const c = compute(rows);
+  $("kpis").innerHTML = [
+    ["turns read", `${c.n}`],
+    ["wall in this file", hh(c.sums.wall)],
+    ["provider roundtrip p50", ms(median(c.seg.preOnly))],
+    ["stream p50", ms(median(c.seg.stream))],
+    ["unexplained p50", ms(median(c.seg.rest))],
+    ["wasted turns", `${c.wasted} (${n1((c.wasted / c.n) * 100)}%)`],
+    ["window", `${(c.minTs || "").slice(0, 10)} → ${(c.maxTs || "").slice(0, 10)}`],
+  ].map(([lab, val]) => `<div class="kpi"><div class="lab">${lab}</div><div class="big">${val}</div></div>`).join("");
+  $("story").innerHTML = `Over this log the <strong>provider roundtrip is ${pctf(c.sums.pre, c.sums.wall)} of the measured wall</strong>`
+    + ` (${hh(c.sums.pre)}), the model stream ${pctf(c.sums.stream, c.sums.wall)} (${hh(c.sums.stream)}),`
+    + ` tools ${pctf(c.sums.tools, c.sums.wall)} (${hh(c.sums.tools)}), leaving ${pctf(c.sums.rest, c.sums.wall)} unattributed.`
+    + (c.noPre ? ` Caveat: only ${c.n - c.noPre} of ${c.n} rows carry the roundtrip field, so these shares are a floor for the roundtrip and a ceiling for the rest.` : "")
+    + ` Mean per turn: ${ms(c.sums.wall / c.n)}.`;
+
+  const S = c.seg, sums = c.sums;
+  const line = (name, arr, sum, how) => `<tr><td>${name}</td><td>${ms(median(arr))}</td><td>${ms(pct(asc(arr), 0.9))}</td>
+    <td>${hh(sum)}</td><td>${pctf(sum, sums.wall)}</td><td>${how}</td></tr>`;
+  $("seg").querySelector("tbody").innerHTML =
+    line("pre-response (turn start → provider's first message)", S.preOnly, sums.pre, "the roundtrip a harness log usually does not time" + (c.noPre ? ` · ${c.noPre} row(s) predate the field` : "")) +
+    line("stream (first token → end)", S.stream, sums.stream, "what the harness reports as <em>LLM time</em>") +
+    line("tools", S.tools, sums.tools, "tool execution inside the turn") +
+    line("<strong>unexplained</strong> (this file's residual)", S.rest, sums.rest, "wall − stream − tools − pre-response") +
+    `<tr><td><strong>turn wall</strong></td><td>${ms(median(S.wall))}</td><td>${ms(pct(asc(S.wall), 0.9))}</td><td>${hh(sums.wall)}</td><td>100%</td><td>measured end-to-end by the plugin</td></tr>`;
+
+  $("seg-note").innerHTML = c.clamped
+    ? `<span class="warn">${c.clamped} row(s) had stream + tools + pre-response greater than the turn wall</span> (independent timers; the residual is clamped to 0 rather than shown negative).`
+    : "No row had its segments exceed the turn wall (the timers agree in this file).";
+
+  /* the route split: the monitor writes `provider` per turn since v0.10.8 */
+  if (c.withProvider) {
+    $("routes").querySelector("tbody").innerHTML = c.routes.map((R) =>
+      `<tr><td>${R.key}</td><td>${R.n}</td><td>${hh(R.wall)}</td><td>${pctf(R.wall, c.sums.wall)}</td>
+       <td>${ms(median(R.preOnly))}</td><td>${ms(median(R.stream))}</td><td>${R.wasted}</td></tr>`).join("");
+    const missing = c.n - c.withProvider;
+    $("routes-note").innerHTML = (c.routes.length === 1
+        ? `Every row in this file was served by the same route, so this table has one row and cannot show a route gap — for this file that is itself the finding. `
+        : `${c.routes.length} routes served turns in this file: the same model name on two rows is two providers, and that is where the price and the roundtrip floor part ways. `)
+      + (missing ? `${missing} row(s) carry no <code>provider</code> field (a monitor older than v0.10.8) and are grouped under “(not recorded)”.`
+                 : `Every row names its route: the monitor records <code>provider</code> per turn since v0.10.8.`)
+      + ` No $ here — a route's price is not in this page. The audit prices your log with your provider's real rates.`;
+    $("routeBox").hidden = false;
+  } else {
+    $("routeBox").hidden = true;
+  }
+
+  const trow = (name, arr) => { const s = asc(arr); return `<tr><td>${name}</td><td>${ms(median(s))}</td><td>${ms(pct(s, 0.9))}</td><td>${ms(pct(s, 0.99))}</td><td>${ms(s[s.length - 1])}</td></tr>`; };
+  $("tail").querySelector("tbody").innerHTML =
+    trow("turn wall", S.wall) + trow("unexplained", S.rest) + trow("pre-response", S.preOnly) + trow("tools", S.tools);
+
+  $("top").querySelector("tbody").innerHTML = c.top.map((t) =>
+    `<tr><td>${(t.ts || "").slice(0, 16).replace("T", " ")}</td><td>${t.model}</td><td>${t.route}</td><td>${ms(t.wall)}</td>
+     <td>${ms(t.stream)}</td><td>${ms(t.tools)}</td><td>${ms(t.pre)}</td><td><strong>${ms(t.rest)}</strong></td></tr>`).join("");
+
+  const L = [];
+  L.push(`<strong>No process boot.</strong> A turn row starts when the turn starts; the process
+    start before it is not in this file. On our own loop that boot is 929 ms per turn (median,
+    measured from outside), which at 10 loops × 100 turns/day is 65 wall-hours a year — this
+    preview cannot see it, and it is the first thing the audit measures.`);
+  L.push(c.noPre ? `<strong>${c.noPre} of ${c.n} rows carry no pre-response field</strong> (written before the
+    monitor's v23): for those rows the provider roundtrip is inside <em>unexplained</em>, so
+    the split above is a lower bound. Upload a log written by a current build to see the split.`
+    : `<strong>Every row carries the pre-response field</strong>, so the roundtrip is separated from the rest.`);
+  L.push(c.withProvider
+    ? `<strong>Route.</strong> ${c.withProvider} of ${c.n} rows name the provider that served the turn
+       (<code>provider</code>, written by the monitor since v0.10.8); the route table is that split, and rows
+       without the field are grouped under “(not recorded)”.`
+    : `<strong>Route not recorded.</strong> None of these rows carries <code>provider</code> — either a log written
+       before the monitor's v0.10.8, or a mapped CSV. The audit asks for the route because the same model on
+       another route is a different floor and a different price.`);
+  L.push(`<strong>No money.</strong> Turn rows have no cached-token column and this page ships no price
+    list, so no $ figure is shown — inventing one would be the easiest lie on this page. The
+    audit prices your log with your provider's real rates.`);
+  L.push(`<strong>${c.wasted} wasted turns (${n1((c.wasted / c.n) * 100)}%)</strong> — failed, aborted, or zero
+    output tokens (${c.failed} by outcome, ${c.zeroOut} with no output at all). We quote the rate, not a
+    dollar cost: turns that produced nothing often also ran on models whose list price we would
+    have to guess.`);
+  if (/^mapped from /.test(source)) {
+    L.push(`<strong>Column mapping.</strong> ${source}. We did not inspect your other
+      columns, and no value was invented for a column you did not map.`);
+  }
+  L.push(`<strong>Read from ${source}.</strong> ${c.n} rows across ${c.sessions} session(s), model(s):
+    ${c.models.join(", ")}.`);
+  L.push(`<strong>This page made no request with your data.</strong> The file is parsed in this tab. The
+    only line in the network tab belongs to Cloudflare, our host (its page-view beacon); turn the
+    network off after loading the page and drop the file again — the numbers still appear.`);
+  $("limits").innerHTML = L.map((x) => `<li>${x}</li>`).join("");
+  $("out").hidden = false;
+}
+
+let lastName = "the pasted lines";
+
+function readText(text, source) {
+  const first = (text.split(/\r?\n/).find((l) => l.trim()) || "").trim();
+  if (first[0] !== "{" && first.indexOf(",") > 0) {
+    const rows = parseCSV(text);
+    if (rows.length >= 2) { offerMapping(rows, source); return; }
+  }
+  const { rows, skipped } = parse(text);
+  if (!rows.length) {
+    $("status").className = "limits warn";
+    $("status").textContent = skipped.length
+      ? `No usable turn in ${skipped.length} line(s): this needs one JSON object per line with turnMsTotal, llmDurationMs, toolMsTotal, output and outcome — or a CSV, which you map on the next screen.`
+      : "Nothing to read.";
+    $("out").hidden = true;
+    return;
+  }
+  readRows(rows, source, skipped.length, skipped);
+}
+
+function readRows(rows, source, skippedCount, skippedLines) {
+  $("map").hidden = true;
+  lastName = source;
+  $("status").className = "limits";
+  $("status").textContent = `Read ${rows.length} turn(s) from ${source}` +
+    (skippedCount ? `, skipped ${skippedCount} line(s) that are not usable rows` +
+      (skippedLines && skippedLines.length ? ` (line ${skippedLines.slice(0, 5).join(", ")}${skippedLines.length > 5 ? ", …" : ""})` : "") : "") + ".";
+  render(rows, source);
+}
+
+/* ---------- CSV path: column mapping, so the page works for any harness ---------- */
+
+const NEED = [
+  ["wall", "turn wall (ms)", true],
+  ["llm", "model span / stream (ms)", true],
+  ["tools", "tool time inside the turn (ms)", true],
+  ["output", "output tokens", true],
+  ["pre", "pre-response, turn start to first message (ms)", false],
+  ["ts", "timestamp", false],
+  ["model", "model name", false],
+  ["outcome", "outcome (completed/error/aborted)", false],
+];
+
+function parseCSV(text) {
+  const rows = []; let row = [], field = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
+      else field += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+    else if (c !== "\r") field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  return rows.filter((r) => r.some((x) => x.trim() !== ""));
+}
+
+const GUESS = { wall: /wall|total|dur|latenc/i, llm: /llm|stream|gen|model_ms|response_ms/i,
+  tools: /tool/i, output: /output|out_?tok|completion/i, pre: /pre|ttft|first/i,
+  ts: /^ts$|time|stamp|date/i, model: /^model$|model_?name/i, outcome: /outcome|status|error|result/i };
+
+let csvRows = null;
+
+function offerMapping(rows, source) {
+  csvRows = { header: rows[0], body: rows.slice(1), source };
+  const tb = $("mapTable").querySelector("tbody");
+  tb.innerHTML = NEED.map(([key, label, required]) => {
+    const guess = rows[0].findIndex((h) => GUESS[key] && GUESS[key].test(h));
+    const opts = [`<option value="-1">${required ? "— pick a column —" : "not in my file"}</option>`]
+      .concat(rows[0].map((h, i) => `<option value="${i}"${i === guess ? " selected" : ""}>${h || "(column " + (i + 1) + ")"}</option>`));
+    return `<tr><td>${label}${required ? "" : " <span class=\"limits\">(optional)</span>"}</td>
+      <td><select data-need="${key}">${opts.join("")}</select></td></tr>`;
+  }).join("");
+  $("map").hidden = false;
+  $("out").hidden = true;
+  $("status").textContent = `Read a CSV with ${rows.length - 1} data row(s) from ${source}. Map the columns below, then read it.`;
+  $("map").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function numOrNull(v) {
+  if (v === undefined || v === null) return null;
+  const t = String(v).trim().replace(/[, ]/g, "");
+  if (t === "") return null;
+  const n = Number(t);
+  return isFinite(n) ? n : null;
+}
+
+function normOutcome(v) {
+  const t = String(v || "").toLowerCase();
+  if (/err|fail|timeout/.test(t)) return "error";
+  if (/abort|cancel|interrupt/.test(t)) return "aborted";
+  return "completed";
+}
+
+function applyMapping() {
+  if (!csvRows) return;
+  const pick = {};
+  for (const [key, , required] of NEED) {
+    const sel = $("mapTable").querySelector(`select[data-need="${key}"]`);
+    const i = sel ? Number(sel.value) : -1;
+    if (required && i < 0) {
+      $("status").className = "limits warn";
+      $("status").textContent = `Map every required column first (missing: ${NEED.filter(([k, , r]) => r && Number($("mapTable").querySelector('select[data-need="' + k + '"]').value) < 0).map(([k, l]) => l).join(", ")}).`;
+      return;
+    }
+    pick[key] = i;
+  }
+  const rows = [], skipped = [];
+  csvRows.body.forEach((r, idx) => {
+    const wall = numOrNull(r[pick.wall]), llm = numOrNull(r[pick.llm]);
+    const tools = numOrNull(r[pick.tools]), output = numOrNull(r[pick.output]);
+    if ([wall, llm, tools, output].some((v) => v === null) || wall < 0) { skipped.push(idx + 2); return; }
+    const o = { ts: pick.ts >= 0 ? String(r[pick.ts] || "") : "", model: pick.model >= 0 ? String(r[pick.model] || "") : "(mapped CSV)",
+      turnMsTotal: wall, llmDurationMs: llm, toolMsTotal: tools, output,
+      outcome: pick.outcome >= 0 ? normOutcome(r[pick.outcome]) : "completed" };
+    const pre = pick.pre >= 0 ? numOrNull(r[pick.pre]) : null;
+    if (pre !== null) o.preResponseMs = pre;
+    rows.push(o);
+  });
+  const note = `mapped from ${csvRows.source}: wall=${csvRows.header[pick.wall]}, model span=${csvRows.header[pick.llm]}, tools=${csvRows.header[pick.tools]}, output=${csvRows.header[pick.output]}`
+    + (pick.pre >= 0 ? `, pre-response=${csvRows.header[pick.pre]}` : ", no pre-response column")
+    + (pick.outcome >= 0 ? `, outcome=${csvRows.header[pick.outcome]}` : ", no outcome column (all turns counted as completed)");
+  if (!rows.length) {
+    $("status").className = "limits warn";
+    $("status").textContent = `No usable row: every one of ${csvRows.body.length} line(s) needed a number in the four required columns.`;
+    return;
+  }
+  readRows(rows, note, skipped.length);
+}
+
+function readFile(file) {
+  const name = `${file.name} (${(file.size / 1024).toFixed(0)} KB, read locally)`;
+  const r = new FileReader();
+  r.onload = () => readText(String(r.result), name);
+  r.readAsText(file);
+}
+
+$("applyMap").onclick = applyMapping;
+$("pick").onclick = () => $("file").click();
+$("file").onchange = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); };
+$("go").onclick = () => readText($("paste").value, "the pasted lines");
+/* the sample is stored as a JSON array; the parser wants one object per line */
+$("demo").onclick = () => {
+  const arr = JSON.parse($("sample").textContent);
+  readText(arr.map((o) => JSON.stringify(o)).join("\n"), "our own 500-turn fleet log (session ids replaced)");
+};
+
+const drop = $("drop");
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("hot"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("hot"); }));
+drop.addEventListener("drop", (e) => { const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+document.addEventListener("paste", (e) => {
+  const t = (e.clipboardData || {}).getData ? e.clipboardData.getData("text") : "";
+  if (t && t.indexOf("{") >= 0) readText(t, "the pasted lines");
+});
+</script>
+</body></html>

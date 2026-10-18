@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Per-loop tax breakdown</title>
+<meta name="description" content="Where the wall-clock of one agent loop goes, measured per turn.">
+<style>
+:root { color-scheme: light dark; --fg:#14161a; --bg:#fff; --muted:#5b6270; --line:#e3e6ec; --accent:#1c5fd4; --card:#f7f8fa; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e8eaed; --bg:#101215; --muted:#9aa2b1; --line:#282c33; --accent:#79aaff; --card:#171a1f; } }
+* { box-sizing: border-box; }
+body { margin:0 auto; max-width:52rem; padding:1.6rem 1.2rem 3rem; background:var(--bg); color:var(--fg);
+  font:16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+h1 { font-size:1.7rem; line-height:1.25; margin:.4rem 0 .6rem; }
+h2 { margin-top:2.2rem; border-top:1px solid var(--line); padding-top:1rem; font-size:1.2rem; }
+h3 { margin-top:1.6rem; font-size:1.05rem; }
+table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; display:block; overflow-x:auto; }
+th, td { border-bottom:1px solid var(--line); padding:.45rem .6rem; text-align:left; }
+th { color:var(--muted); font-weight:500; }
+code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.9em;
+  background:color-mix(in srgb, currentColor 8%, transparent); padding:.1rem .25rem; border-radius:.25rem; }
+blockquote { border-left:3px solid var(--line); margin:1.2rem 0; padding:.2rem 0 .2rem 1rem; color:var(--muted); }
+hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+strong { font-weight:600; }
+.banner { background:var(--card); border:1px solid var(--line); border-radius:.5rem; padding:.8rem 1rem; font-size:.9rem; margin-bottom:1.4rem; }
+footer { margin-top:3rem; font-size:.85rem; color:var(--muted); }
+.tag { font-size:.85em; color:var(--muted); }
+</style></head>
+<body>
+
+<div class="banner">
+  <strong>Client deliverable.</strong> Measured from the turn log you supplied
+  (our own fleet (500 message samples, 2026-10-18)), labelled <em>[measured]</em> where it comes
+  from your log or our published measurements, <em>[example]</em> where it is an
+  illustrative parameter and <em>[assumption]</em> where it is a number you replace. The
+  boot figure is marked with who measured it. Raw logs stay yours.
+</div>
+
+<h1>Cuts — our own fleet (500 message samples, 2026-10-18)</h1>
+<p>Ranked by measured effect on <em>this</em> loop. Every line carries its own label:
+<code>measured</code> (from the run), <code>measured on your loop</code> (before/after series), or
+<code>hypothesis</code> (we would run the series first).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>change</th>
+<th>expected effect</th>
+<th>confidence</th>
+<th>effort</th>
+<th>risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>keep the process warm</td>
+<td>-0.37 s/turn = -26 h/year at this volume [measured boot: us, measured from outside the harness (paper 5.4; 372 ms with the startup cache warm, 940 ms cold)]</td>
+<td>measured</td>
+<td>low</td>
+<td>none to correctness; watch long-lived process state</td>
+</tr>
+<tr>
+<td>2</td>
+<td>cut carried context from 108 KB to 30 KB <span class="tag">[example]</span></td>
+<td>-0.9 s/turn is illustrative <span class="tag">[example]</span>: we retracted a size coefficient (paper 8), so what you buy is the before/after series on your own loop</td>
+<td>measured on your loop</td>
+<td>medium</td>
+<td>compaction can lose task state; the gate catches the wall, not the quality</td>
+</tr>
+<tr>
+<td>3</td>
+<td>cap tool-result size before it enters the transcript</td>
+<td>not yet measured on this loop: we would run the series first</td>
+<td>hypothesis</td>
+<td>low</td>
+<td>truncated tool output changes behaviour</td>
+</tr>
+</tbody>
+</table>
+<h2>Explicitly not recommended, with reasons</h2>
+<ul>
+<li><strong>Cache discipline</strong> — did not reproduce in our own data (paper §6). Measured and
+  reported in <code>cache-report.md</code>; not sold as a lever.</li>
+<li><strong>Startup-scan scoping</strong> — startup does not scale with the session store (paper §7).</li>
+<li><strong>A size coefficient</strong> — mis-stated by 10x and would not rebuild (paper §8).</li>
+</ul>
+<p>If your profile shows no lever worth pulling, the implementation half is refunded;
+we would rather say that than ship a preset playbook.</p>
+<h2>The route: what the same model costs elsewhere</h2>
+<p>Your answers price <code>deepseek-v4.1-flash</code> at $0.27/M input on DeepSeek. We measured the same base model on the routes we can reach, reading each provider's own published price (2026-10-18):</p>
+<table>
+<thead>
+<tr>
+<th>route</th>
+<th>$/M in</th>
+<th>$/M cache-read</th>
+<th>first token p50 (ours)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>openrouter</td>
+<td>$0.0648</td>
+<td>$0.0016</td>
+<td>680 ms</td>
+</tr>
+<tr>
+<td>chutes</td>
+<td>$0.44</td>
+<td>$0.044</td>
+<td>1011 ms</td>
+</tr>
+</tbody>
+</table>
+<p>At your volume (250,000 turns/year, 40,000 input tokens per turn, 70% cached) the input line is <strong>$1,300/year</strong> on your route and
+<strong>$206/year</strong> on <code>openrouter</code> — a difference of <strong>$1,094/year</strong>, before any output-token difference.</p>
+<p><strong>Labels, so this is not mistaken for your own bill:</strong> the prices are the providers' own
+metadata and the latency is our measurement, both on our keys and not on yours. Verify on
+your account before switching, and re-run the gate after any switch — a different
+deployment can behave differently even at the same model name. Re-run <code>routes/matrix.py</code>
+before quoting any row: prices rotate.</p>
+<footer>Generated by the audit's delivery script; the offer this belongs to is
+<a href="https://focalis.cc/audit/">https://focalis.cc/audit/</a>. The page ships no tracking and no external requests;
+the hosted copy gets Cloudflare's cookieless page-view beacon.</footer>
+</body></html>

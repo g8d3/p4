@@ -111,6 +111,38 @@ def track_data(t):
         pass
     return {}
 
+TURNS_FILE = os.environ.get('FLEET_TURNS_FILE', os.path.join(P4, '.pi-web/tps-turns.jsonl'))
+
+def live_sessions(limit_rows=2000):
+    # Live PI WEB sessions from the TPS turn log: one row per session —
+    # plain name, turns, spend, last activity, done vs failed. Read-only tail.
+    try:
+        with open(TURNS_FILE) as f:
+            lines = f.readlines()[-limit_rows:]
+    except Exception:
+        return []
+    agg = {}
+    for ln in lines:
+        try: r = json.loads(ln)
+        except Exception: continue
+        sid = str(r.get('sessionId') or '')[:8]
+        if not sid: continue
+        a = agg.setdefault(sid, {'id': sid, 'name': '', 'turns': 0, 'cost': 0.0,
+                                 'last': '', 'done': 0, 'failed': 0, 'errors': 0})
+        a['turns'] += 1
+        try: a['cost'] += float(r.get('costUsd') or 0)
+        except Exception: pass
+        if r.get('ts'): a['last'] = r['ts']
+        if r.get('sessionName'): a['name'] = r['sessionName']
+        oc = r.get('outcome') or ''
+        if oc == 'completed': a['done'] += 1
+        elif oc: a['failed'] += 1
+        try: a['errors'] += int(r.get('toolErrors') or 0)
+        except Exception: pass
+    rows = sorted(agg.values(), key=lambda a: a['last'], reverse=True)
+    for a in rows: a['cost'] = round(a['cost'], 4)
+    return rows
+
 def _state():
     c = sqlite3.connect(DB)
     c.execute('CREATE TABLE IF NOT EXISTS focus(track TEXT PRIMARY KEY, text TEXT, ts INTEGER)')
@@ -165,6 +197,7 @@ def _state():
     if cur: runner.update({'run_id': cur[0], 'started': cur[1], 'scope': cur[2], 'trigger': cur[3], 'status': cur[4]})
     return {'tracks': tracks, 'events': events, 'proposals': props, 'trials': trials,
             'notes': notes, 'paused': paused, 'runs': runs,
+            'live_sessions': live_sessions(),
             'runway': {'spent': sp, 'earned': ea, 'left': 300.0 - sp + ea},
             'directives': directives, 'ideas': ideas,
             'prefs': get_prefs(), 'runner': runner, 'now': int(time.time())}

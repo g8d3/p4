@@ -185,8 +185,18 @@ function vTable() {
     '</tbody></table></div>';
 }
 function vSessions() {
+  const live = (D.live_sessions || []).filter(s => match(s.id + ' ' + (s.name || '')));
+  const liveHtml = live.map(s => {
+    const bad = (s.failed || 0) > 0;
+    const line = s.turns + ' turns · $' + Number(s.cost || 0).toFixed(4) + ' · done ' + (s.done || 0) +
+      (s.failed ? ' · failed ' + s.failed : '') + ((s.errors || 0) ? ' · tool errors ' + s.errors : '');
+    return '<div class="card"><div class=row1><span class=dot ' + (bad ? 'bad' : 'ok') + '></span>' +
+    '<b>' + esc(s.name || s.id) + '</b><span class=track>live session</span>' +
+    '<span class=meta>' + esc(s.last || '') + '</span></div>' +
+    '<div class=beat>' + esc(line) + '</div></div>';
+  }).join('');
   const rows = (D.runs || []).filter(r => match('run #' + r.id + ' ' + (r.scope || '') + ' ' + (r.session || '') + ' ' + (r.summary || '')));
-  return rows.slice(0, PER).map(r => {
+  const runsHtml = rows.slice(0, PER).map(r => {
     const open = S.open === 's:' + r.id;
     const bits = [];
     if (r.tokens != null) bits.push(Number(r.tokens).toLocaleString() + ' tok');
@@ -200,7 +210,8 @@ function vSessions() {
     '<div class=beat>' + esc(fmt(r.summary || bits.join(' · ') || '—')) + '</div>' +
     (open ? '<div class=meta>' + esc(bits.join(' · ') + ' · ' + (r.trigger || '')) + ' <a href="/api/leg/' + r.id + '" target=_blank>full log</a></div>' +
       '<div class=log id="log-' + r.id + '">tap full log ↑</div>' : '') + '</div>';
-  }).join('') || '<div class=empty>no sessions match.</div>';
+  }).join('');
+  return (liveHtml || '<div class=empty>no live sessions.</div>') + (runsHtml || '<div class=empty>no runs match.</div>');
 }
 function oneLine(s, n) {
   s = String(s == null ? '' : s).replace(/^-\s*/, '').trim();

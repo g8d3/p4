@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Per-loop tax breakdown</title>
+<meta name="description" content="Where the wall-clock of one agent loop goes, measured per turn.">
+<style>
+:root { color-scheme: light dark; --fg:#14161a; --bg:#fff; --muted:#5b6270; --line:#e3e6ec; --accent:#1c5fd4; --card:#f7f8fa; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e8eaed; --bg:#101215; --muted:#9aa2b1; --line:#282c33; --accent:#79aaff; --card:#171a1f; } }
+* { box-sizing: border-box; }
+body { margin:0 auto; max-width:52rem; padding:1.6rem 1.2rem 3rem; background:var(--bg); color:var(--fg);
+  font:16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+h1 { font-size:1.7rem; line-height:1.25; margin:.4rem 0 .6rem; }
+h2 { margin-top:2.2rem; border-top:1px solid var(--line); padding-top:1rem; font-size:1.2rem; }
+h3 { margin-top:1.6rem; font-size:1.05rem; }
+table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; display:block; overflow-x:auto; }
+th, td { border-bottom:1px solid var(--line); padding:.45rem .6rem; text-align:left; }
+th { color:var(--muted); font-weight:500; }
+code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:.9em;
+  background:color-mix(in srgb, currentColor 8%, transparent); padding:.1rem .25rem; border-radius:.25rem; }
+blockquote { border-left:3px solid var(--line); margin:1.2rem 0; padding:.2rem 0 .2rem 1rem; color:var(--muted); }
+hr { border:0; border-top:1px solid var(--line); margin:2rem 0; }
+strong { font-weight:600; }
+.banner { background:var(--card); border:1px solid var(--line); border-radius:.5rem; padding:.8rem 1rem; font-size:.9rem; margin-bottom:1.4rem; }
+footer { margin-top:3rem; font-size:.85rem; color:var(--muted); }
+.tag { font-size:.85em; color:var(--muted); }
+</style></head>
+<body>
+
+<div class="banner">
+  <strong>Client deliverable.</strong> Measured from the turn log you supplied
+  (our own fleet (500 turns + 500 message samples, published as fleet/fleet-turns-2026-10-18.jsonl and fleet/fleet-history-2026-10-18.jsonl)), labelled <em>[measured]</em> where it comes
+  from your log or our published measurements, <em>[example]</em> where it is an
+  illustrative parameter and <em>[assumption]</em> where it is a number you replace. The
+  boot figure is marked with who measured it. Raw logs stay yours.
+</div>
+
+<h1>Size curve — overhead against carried context</h1>
+<p>From 362 ratable message samples, bucketed to the nearest 8 KB.
+<strong>Ranges, not a slope.</strong> We tried to fit a size coefficient of our own and it did not
+reproduce (paper §8), so this page reports what your sizes do and stops there.</p>
+<table>
+<thead>
+<tr>
+<th>context size</th>
+<th>rows</th>
+<th>wall p50</th>
+<th>wall p90</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>~8 KB</td>
+<td>3</td>
+<td>0.45 s</td>
+<td>0.77 s</td>
+</tr>
+<tr>
+<td>~16 KB</td>
+<td>1</td>
+<td>4.62 s</td>
+<td>4.62 s</td>
+</tr>
+<tr>
+<td>~24 KB</td>
+<td>2</td>
+<td>0.72 s</td>
+<td>1.05 s</td>
+</tr>
+<tr>
+<td>~32 KB</td>
+<td>2</td>
+<td>0.47 s</td>
+<td>0.63 s</td>
+</tr>
+<tr>
+<td>~48 KB</td>
+<td>2</td>
+<td>0.42 s</td>
+<td>0.48 s</td>
+</tr>
+<tr>
+<td>~64 KB</td>
+<td>1</td>
+<td>0.35 s</td>
+<td>0.35 s</td>
+</tr>
+<tr>
+<td>~72 KB</td>
+<td>6</td>
+<td>1.88 s</td>
+<td>2.80 s</td>
+</tr>
+<tr>
+<td>~80 KB</td>
+<td>6</td>
+<td>3.86 s</td>
+<td>7.24 s</td>
+</tr>
+<tr>
+<td>~88 KB</td>
+<td>14</td>
+<td>2.08 s</td>
+<td>9.10 s</td>
+</tr>
+<tr>
+<td>~96 KB</td>
+<td>11</td>
+<td>1.88 s</td>
+<td>8.45 s</td>
+</tr>
+<tr>
+<td>~104 KB</td>
+<td>14</td>
+<td>2.28 s</td>
+<td>3.44 s</td>
+</tr>
+<tr>
+<td>~112 KB</td>
+<td>12</td>
+<td>2.09 s</td>
+<td>8.86 s</td>
+</tr>
+<tr>
+<td>~120 KB</td>
+<td>14</td>
+<td>4.62 s</td>
+<td>18.56 s</td>
+</tr>
+<tr>
+<td>~128 KB</td>
+<td>12</td>
+<td>4.38 s</td>
+<td>20.48 s</td>
+</tr>
+<tr>
+<td>~136 KB</td>
+<td>18</td>
+<td>2.81 s</td>
+<td>10.86 s</td>
+</tr>
+<tr>
+<td>~144 KB</td>
+<td>13</td>
+<td>2.67 s</td>
+<td>11.78 s</td>
+</tr>
+<tr>
+<td>~152 KB</td>
+<td>16</td>
+<td>2.67 s</td>
+<td>31.52 s</td>
+</tr>
+<tr>
+<td>~160 KB</td>
+<td>12</td>
+<td>3.78 s</td>
+<td>14.56 s</td>
+</tr>
+<tr>
+<td>~168 KB</td>
+<td>14</td>
+<td>2.41 s</td>
+<td>13.62 s</td>
+</tr>
+<tr>
+<td>~176 KB</td>
+<td>15</td>
+<td>3.44 s</td>
+<td>8.02 s</td>
+</tr>
+<tr>
+<td>~184 KB</td>
+<td>11</td>
+<td>3.93 s</td>
+<td>6.49 s</td>
+</tr>
+<tr>
+<td>~192 KB</td>
+<td>15</td>
+<td>2.76 s</td>
+<td>13.24 s</td>
+</tr>
+<tr>
+<td>~200 KB</td>
+<td>18</td>
+<td>2.54 s</td>
+<td>6.92 s</td>
+</tr>
+<tr>
+<td>~208 KB</td>
+<td>9</td>
+<td>2.56 s</td>
+<td>5.15 s</td>
+</tr>
+<tr>
+<td>~216 KB</td>
+<td>8</td>
+<td>3.30 s</td>
+<td>6.86 s</td>
+</tr>
+<tr>
+<td>~224 KB</td>
+<td>14</td>
+<td>3.43 s</td>
+<td>7.12 s</td>
+</tr>
+<tr>
+<td>~232 KB</td>
+<td>15</td>
+<td>3.25 s</td>
+<td>13.71 s</td>
+</tr>
+<tr>
+<td>~240 KB</td>
+<td>15</td>
+<td>3.86 s</td>
+<td>9.55 s</td>
+</tr>
+<tr>
+<td>~248 KB</td>
+<td>14</td>
+<td>4.82 s</td>
+<td>10.38 s</td>
+</tr>
+<tr>
+<td>~256 KB</td>
+<td>10</td>
+<td>4.96 s</td>
+<td>13.87 s</td>
+</tr>
+<tr>
+<td>~352 KB</td>
+<td>5</td>
+<td>2.25 s</td>
+<td>4.53 s</td>
+</tr>
+<tr>
+<td>~360 KB</td>
+<td>9</td>
+<td>2.18 s</td>
+<td>2.90 s</td>
+</tr>
+<tr>
+<td>~368 KB</td>
+<td>7</td>
+<td>2.94 s</td>
+<td>5.38 s</td>
+</tr>
+<tr>
+<td>~376 KB</td>
+<td>6</td>
+<td>2.85 s</td>
+<td>4.35 s</td>
+</tr>
+<tr>
+<td>~384 KB</td>
+<td>7</td>
+<td>1.16 s</td>
+<td>1.38 s</td>
+</tr>
+<tr>
+<td>~392 KB</td>
+<td>10</td>
+<td>2.64 s</td>
+<td>3.43 s</td>
+</tr>
+<tr>
+<td>~400 KB</td>
+<td>1</td>
+<td>7.79 s</td>
+<td>7.79 s</td>
+</tr>
+</tbody>
+</table>
+<p>Caveats that apply to every row above: context size is confounded with cache state,
+model and task type; a bucket with a handful of rows is an anecdote, not a rate; and
+your own before/after series is the only honest way to price a compaction change.</p>
+<footer>Generated by the audit's delivery script; the offer this belongs to is
+<a href="https://focalis.cc/audit/">https://focalis.cc/audit/</a>. The page ships no tracking and no external requests;
+the hosted copy gets Cloudflare's cookieless page-view beacon.</footer>
+</body></html>
