@@ -1,0 +1,464 @@
+diff --git a/apps/web/src/lib/dictation.test.ts b/apps/web/src/lib/dictation.test.ts
+index 37b20fbd..e2cfe035 100644
+--- a/apps/web/src/lib/dictation.test.ts
++++ b/apps/web/src/lib/dictation.test.ts
+@@ -3,6 +3,9 @@ import {
+   combineTranscript,
+   Dictation,
+   MAX_TRANSCRIPTION_RESPONSE_BYTES,
++  mergeSpeechResults,
++  speechLocaleTag,
++  speechRecognitionLang,
+   TRANSCRIPTION_RESPONSE_TIMEOUT_MS,
+   webSpeechAvailable,
+   webSpeechNeedsServerFallback,
+@@ -204,6 +207,88 @@ describe("Dictation recorder fallback", () => {
+     expect(headers.get("content-type")).toBe("application/json");
+   });
+ 
++  it("sends Android to the server before the voice status has loaded", async () => {
++    const track = { stop: vi.fn() };
++    vi.stubGlobal("navigator", {
++      userAgent:
++        "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/141 Mobile Safari/537.36",
++      mediaDevices: {
++        getUserMedia: vi.fn(async () => ({ getTracks: () => [track] })),
++      },
++      language: "en-US",
++    });
++    const fetchMock = vi.fn(async () => Response.json({ text: "hola, una prueba" }));
++    vi.stubGlobal("fetch", fetchMock);
++
++    class FakeRecorder {
++      state = "inactive";
++      ondataavailable: ((event: { data: Blob }) => void) | null = null;
++      onstop: (() => void) | null = null;
++      start() {
++        this.state = "recording";
++      }
++      stop() {
++        this.state = "inactive";
++        this.ondataavailable?.({ data: new Blob(["audio"], { type: "audio/webm" }) });
++        this.onstop?.();
++      }
++    }
++    vi.stubGlobal("MediaRecorder", FakeRecorder);
++
++    const onFinal = vi.fn();
++    const dictation = new Dictation();
++    await dictation.listen({ mode: "hold", onFinal });
++    dictation.submitHold();
++    await vi.waitFor(() => expect(onFinal).toHaveBeenCalledWith("hola, una prueba"));
++
++    expect(fetchMock).toHaveBeenCalledWith(
++      "/api/voice/transcribe",
++      expect.objectContaining({ credentials: "include" }),
++    );
++  });
++
++  it("prefers the server on iOS Safari, which cannot hold the microphone open either", async () => {
++    const track = { stop: vi.fn() };
++    vi.stubGlobal("navigator", {
++      userAgent:
++        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
++      maxTouchPoints: 5,
++      mediaDevices: {
++        getUserMedia: vi.fn(async () => ({ getTracks: () => [track] })),
++      },
++      language: "es-ES",
++    });
++    const fetchMock = vi.fn(async () => Response.json({ text: "hola otra vez" }));
++    vi.stubGlobal("fetch", fetchMock);
++
++    class FakeRecorder {
++      state = "inactive";
++      ondataavailable: ((event: { data: Blob }) => void) | null = null;
++      onstop: (() => void) | null = null;
++      start() {
++        this.state = "recording";
++      }
++      stop() {
++        this.state = "inactive";
++        this.ondataavailable?.({ data: new Blob(["audio"], { type: "audio/mp4" }) });
++        this.onstop?.();
++      }
++    }
++    vi.stubGlobal("MediaRecorder", FakeRecorder);
++
++    const onFinal = vi.fn();
++    const dictation = new Dictation();
++    await dictation.listen({ mode: "hold", onFinal });
++    dictation.submitHold();
++    await vi.waitFor(() => expect(onFinal).toHaveBeenCalledWith("hola otra vez"));
++
++    expect(fetchMock).toHaveBeenCalledWith(
++      "/api/voice/transcribe",
++      expect.objectContaining({ credentials: "include" }),
++    );
++    expect(track.stop).toHaveBeenCalled();
++  });
++
+   it("rejects oversized transcription responses without waiting for cancellation", async () => {
+     const cancel = vi.fn(() => new Promise<void>(() => undefined));
+     const fetchMock = vi.fn(
+@@ -705,6 +790,36 @@ describe("Dictation web speech", () => {
+     expect(onFinal).toHaveBeenCalledWith("okay tell me about the projects");
+   });
+ 
++  it("does not repeat words Chrome re-reports at each result index", async () => {
++    vi.useFakeTimers();
++    const onFinal = vi.fn();
++    const dictation = new Dictation();
++    await dictation.listen({ mode: "endpoint", onFinal });
++    const rec = instances[0];
++
++    // Android Chrome hands the whole utterance back again on every new result index.
++    said(rec, "orlando", "orlando", "orlando florida", "orlando florida international");
++    expect(dictation.state.transcript).toBe("orlando florida international");
++
++    await vi.advanceTimersByTimeAsync(1_400);
++    expect(onFinal).toHaveBeenCalledWith("orlando florida international");
++  });
++
++  it("does not repeat what the next session hands back after a restart", async () => {
++    vi.useFakeTimers();
++    const onFinal = vi.fn();
++    const dictation = new Dictation();
++    await dictation.listen({ mode: "endpoint", onFinal });
++    const rec = instances[0];
++
++    said(rec, done("orlando florida international"));
++    rec?.onend?.();
++    // Chrome can replay the same buffer once the session is picked back up.
++    said(rec, "orlando florida international");
++
++    expect(dictation.state.transcript).toBe("orlando florida international");
++  });
++
+   it("never ends the turn because the browser ended the session", async () => {
+     vi.useFakeTimers();
+     const onFinal = vi.fn();
+@@ -1294,3 +1409,49 @@ describe("Dictation web speech", () => {
+     expect(started).not.toHaveBeenCalled();
+   });
+ });
++
++describe("mergeSpeechResults", () => {
++  it("keeps one copy of a phrase the recognizer sends back with a shorter tail", () => {
++    expect(
++      mergeSpeechResults([
++        "estas una pray Opera is over",
++        "estas una pray Opera is",
++        "estas una pray Opera is over Keller",
++      ]),
++    ).toBe("estas una pray Opera is over Keller");
++  });
++
++  it("joins a part that re-states the phrase word for word", () => {
++    expect(mergeSpeechResults(["orlando", "orlando", "orlando florida"])).toBe("orlando florida");
++    expect(mergeSpeechResults(["okay tell me", "okay tell me", " about the projects"])).toBe(
++      "okay tell me about the projects",
++    );
++  });
++
++  it("separates genuinely new words with a space", () => {
++    expect(mergeSpeechResults(["hello world", "how are you"])).toBe("hello world how are you");
++  });
++
++  it("drops words the next part repeats from the end of what it has", () => {
++    expect(mergeSpeechResults(["quiero pedir una pizza", "una pizza por favor"])).toBe(
++      "quiero pedir una pizza por favor",
++    );
++  });
++
++  it("ignores empty parts", () => {
++    expect(mergeSpeechResults([undefined, "", "   "])).toBe("");
++  });
++});
++
++describe("speechRecognitionLang", () => {
++  it("maps an app locale to a tag the recognizer accepts", () => {
++    expect(speechLocaleTag("es")).toBe("es-ES");
++    expect(speechLocaleTag("pt-BR")).toBe("pt-BR");
++    expect(speechLocaleTag("zh-CN")).toBe("zh-CN");
++  });
++
++  it("follows the app locale so another language is not heard as English", () => {
++    vi.stubGlobal("navigator", { language: "es-ES" });
++    expect(speechRecognitionLang()).toBe("es-ES");
++  });
++});
+diff --git a/apps/web/src/lib/dictation.ts b/apps/web/src/lib/dictation.ts
+index 3ce49d06..0267cd56 100644
+--- a/apps/web/src/lib/dictation.ts
++++ b/apps/web/src/lib/dictation.ts
+@@ -1,5 +1,7 @@
+ import { readBoundedResponseBytes } from "@rakazo/core";
++import { getActiveUiLocale } from "./i18n.js";
+ import { selectedSpaceId, withSpaceHeaders } from "./rpc.js";
++import type { UiLocale } from "./ui-locale.js";
+ import { errorText } from "./user-error.js";
+ 
+ export type DictationMode = "hold" | "endpoint";
+@@ -58,6 +60,21 @@ function electronSpeechHost(): boolean {
+   return typeof agent === "string" && agent.includes("Electron");
+ }
+ 
++/**
++ * Phones cannot hold a speech session open: `start()` replays the system tone on every
++ * restart and the session ends at each pause, so Web Speech there means one beep per
++ * phrase and a transcript that keeps getting cut. Server transcription records silently,
++ * so prefer it on mobile browsers wherever a provider can transcribe.
++ */
++export function prefersServerDictation(): boolean {
++  if (typeof navigator === "undefined") return false;
++  const agent = typeof navigator.userAgent === "string" ? navigator.userAgent : "";
++  if (/android|iphone|ipod|ipad|mobile/i.test(agent)) return true;
++  // iPadOS 13+ reports a desktop Safari user agent, so fall back to touch support.
++  const touchPoints = typeof navigator.maxTouchPoints === "number" ? navigator.maxTouchPoints : 0;
++  return touchPoints > 1 && /macintosh/i.test(agent);
++}
++
+ /** Connected server transcription should take over after Web Speech cannot run. */
+ export function webSpeechNeedsServerFallback(
+   error: string | undefined,
+@@ -66,6 +83,127 @@ export function webSpeechNeedsServerFallback(
+   return transcribe && typeof error === "string" && WEB_SPEECH_SERVICE_ERRORS.has(error);
+ }
+ 
++/**
++ * Web Speech ends the session on its own, and every start() plays the recognizer's tone.
++ * When the browser cannot hold the microphone the sessions end the moment they begin, so
++ * an immediate restart turns into a stream of beeps. Back off, then hand the microphone
++ * over instead of hammering it.
++ */
++const RESTART_SHORT_SESSION_MS = 400;
++const RESTART_BACKOFF_AFTER = 2;
++const RESTART_BACKOFF_MS = 900;
++const RESTART_GIVE_UP_AFTER = 4;
++const RESTART_GIVE_UP_ERROR =
++  "The browser keeps dropping the microphone. Start dictation again to retry.";
++
++/**
++ * Chrome can report the whole utterance again at every new result index ("orlando",
++ * "orlando", "orlando florida"), and on Android a later part can be a shorter or reordered
++ * version of an earlier one. Gluing them together repeats words and welds them into one
++ * ("overestas"), so compare word by word: drop a part we already have, prefer the fuller
++ * version of it, and append only words that are genuinely new.
++ */
++export function mergeSpeechResults(parts: readonly (string | undefined)[]): string {
++  let merged: string[] = [];
++  let mergedKey: string[] = [];
++  for (const raw of parts) {
++    const words = normalizedTranscript(raw ?? "")
++      .split(" ")
++      .filter(Boolean);
++    if (words.length === 0) continue;
++    const key = words.map((word) => word.toLowerCase());
++    if (mergedKey.length === 0) {
++      merged = words;
++      mergedKey = key;
++      continue;
++    }
++    if (containsWords(mergedKey, key)) continue;
++    if (containsWords(key, mergedKey)) {
++      merged = words;
++      mergedKey = key;
++      continue;
++    }
++    const repeated = repeatedBoundaryWords(mergedKey, key);
++    merged = merged.concat(words.slice(repeated));
++    mergedKey = mergedKey.concat(key.slice(repeated));
++  }
++  return merged.join(" ");
++}
++
++/** True when `needle` appears in `haystack` as a run of whole words. */
++function containsWords(haystack: readonly string[], needle: readonly string[]): boolean {
++  for (let start = 0; start <= haystack.length - needle.length; start++) {
++    let run = true;
++    for (let offset = 0; offset < needle.length; offset++) {
++      if (haystack[start + offset] !== needle[offset]) {
++        run = false;
++        break;
++      }
++    }
++    if (run) return true;
++  }
++  return false;
++}
++
++/**
++ * How many words the next part repeats from the end of what we already have. Two is the
++ * floor: one shared word is as likely to be a word the speaker really said twice.
++ */
++function repeatedBoundaryWords(merged: readonly string[], next: readonly string[]): number {
++  const most = Math.min(merged.length, next.length);
++  for (let size = most; size >= 2; size--) {
++    let same = true;
++    for (let offset = 0; offset < size; offset++) {
++      if (merged[merged.length - size + offset] !== next[offset]) {
++        same = false;
++        break;
++      }
++    }
++    if (same) return size;
++  }
++  return 0;
++}
++
++/** Web Speech wants a BCP-47 tag; the app's UI locale is a short code. */
++const SPEECH_LOCALE_TAGS: Record<UiLocale, string> = {
++  en: "en-US",
++  de: "de-DE",
++  es: "es-ES",
++  fr: "fr-FR",
++  hi: "hi-IN",
++  ko: "ko-KR",
++  "pt-BR": "pt-BR",
++  ru: "ru-RU",
++  tr: "tr-TR",
++  "zh-CN": "zh-CN",
++};
++
++/** The tag the recognizer needs for a UI locale, when we know one. */
++export function speechLocaleTag(locale: UiLocale): string | undefined {
++  return SPEECH_LOCALE_TAGS[locale];
++}
++
++/**
++ * The browser recognizes in one language per session and otherwise follows the browser's
++ * own, which turns speech in another language into lookalike words. Follow what the user
++ * picked in the app and only fall back to the browser when the locale has no tag.
++ */
++export function speechRecognitionLang(): string {
++  const tag = speechLocaleTag(getActiveUiLocale());
++  if (tag) return tag;
++  const language = typeof navigator === "undefined" ? "" : navigator.language;
++  return language || "en-US";
++}
++
++/**
++ * Language hint for server transcription: the primary subtag of the app's own locale
++ * (`es`, `pt`, `zh`). Undefined leaves detection to the provider.
++ */
++export function transcriptionLanguage(): string | undefined {
++  const tag = speechLocaleTag(getActiveUiLocale());
++  return tag ? tag.split("-")[0]?.toLowerCase() : undefined;
++}
++
+ function normalizedTranscript(text: string): string {
+   return text.trim().replace(/\s+/g, " ");
+ }
+@@ -115,6 +253,7 @@ export class Dictation {
+   private chunks: Blob[] = [];
+   private token = 0;
+   private silenceTimer: ReturnType<typeof setTimeout> | undefined;
++  private restartTimer: ReturnType<typeof setTimeout> | undefined;
+   private transcribeAbort: AbortController | null = null;
+   private audioContext: AudioContext | null = null;
+   private vadTimer: ReturnType<typeof setInterval> | undefined;
+@@ -144,6 +283,8 @@ export class Dictation {
+     this.stopVad();
+     clearTimeout(this.silenceTimer);
+     this.silenceTimer = undefined;
++    clearTimeout(this.restartTimer);
++    this.restartTimer = undefined;
+     const rec = this.recognition;
+     this.recognition = null;
+     if (rec) {
+@@ -183,6 +324,12 @@ export class Dictation {
+     this.onFinal = opts.onFinal;
+     this.set({ status: "listening", transcript: "" });
+     const transcribe = Boolean(opts.transcribe);
++    // An unknown capability is not a refusal: a device whose browser cannot hold the
++    // microphone open goes to the server even before the voice status has loaded.
++    if (prefersServerDictation() && opts.transcribe !== false) {
++      await this.listenRecorder(mine, opts.mode, opts.endpointMs ?? ENDPOINT_SILENCE_MS, spaceId);
++      return;
++    }
+     if (webSpeechAvailable()) {
+       this.listenWebSpeech(
+         opts.mode,
+@@ -217,16 +364,17 @@ export class Dictation {
+     let live = true;
+     rec.continuous = true;
+     rec.interimResults = true;
+-    rec.lang = navigator.language || "en-US";
++    rec.lang = speechRecognitionLang();
+     // Chrome numbers results per session, so a restart starts over: keep the earlier text.
+     let carried = "";
++    let sessionStartedAt = Date.now();
++    let shortSessions = 0;
+     rec.onresult = (event) => {
+       if (!live || this.token !== mine) return;
+-      let session = "";
+-      for (let i = 0; i < event.results.length; i += 1) {
+-        session += event.results[i]?.[0]?.transcript ?? "";
+-      }
+-      const transcript = `${carried} ${session}`.trim();
++      const session = mergeSpeechResults(
++        Array.from(event.results, (result) => result?.[0]?.transcript),
++      );
++      const transcript = combineTranscript(carried, session);
+       this.set({ status: "listening", transcript });
+       if (mode !== "endpoint") return;
+       // Every result means the caller was just heard, so the quiet gap is measured from
+@@ -263,16 +411,39 @@ export class Dictation {
+       }
+       // Chrome ends the session on its own — after a pause, or its ~60s cap — and that
+       // says nothing about whether the caller finished. Only the silence window above
+-      // ends an utterance; here we just pick the microphone back up.
++      // ends an utterance; here we just pick the microphone back up — unless it keeps
++      // ending straight away, which means the browser cannot hold the microphone at all.
+       carried = this.snapshot.transcript;
+-      try {
+-        rec.start();
+-      } catch {
+-        this.set({ ...IDLE, error: "Dictation ended unexpectedly." });
++      shortSessions =
++        Date.now() - sessionStartedAt < RESTART_SHORT_SESSION_MS ? shortSessions + 1 : 0;
++      if (shortSessions >= RESTART_GIVE_UP_AFTER) {
++        live = false;
++        if (transcribe) {
++          this.fallbackToServer(rec, mine, mode, endpointMs, spaceId);
++          return;
++        }
++        this.releaseRecognition(rec);
++        this.set({ ...IDLE, error: RESTART_GIVE_UP_ERROR });
++        return;
++      }
++      const restart = () => {
++        if (!live || this.token !== mine) return;
++        try {
++          sessionStartedAt = Date.now();
++          rec.start();
++        } catch {
++          this.set({ ...IDLE, error: "Dictation ended unexpectedly." });
++        }
++      };
++      if (shortSessions >= RESTART_BACKOFF_AFTER) {
++        this.restartTimer = setTimeout(restart, RESTART_BACKOFF_MS);
++        return;
+       }
++      restart();
+     };
+     this.recognition = rec;
+     try {
++      sessionStartedAt = Date.now();
+       rec.start();
+     } catch {
+       if (!live || this.token !== mine) return;
+@@ -456,7 +627,11 @@ export class Dictation {
+           method: "POST",
+           headers: withSpaceHeaders({ "content-type": "application/json" }, spaceId),
+           credentials: "include",
+-          body: JSON.stringify({ audioBase64, mimeType: blob.type }),
++          body: JSON.stringify({
++            audioBase64,
++            mimeType: blob.type,
++            language: transcriptionLanguage(),
++          }),
+           signal: abort.signal,
+         }),
+         abort.signal,
