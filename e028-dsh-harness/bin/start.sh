@@ -2,18 +2,28 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-# DeepSeek Harness (dsh) web + LAN reverse proxies.
+# DeepSeek Harness (dsh) web + any-IP reverse proxies.
 #
-# Topology (all verified 2026-08-15):
-#   127.0.0.1:3080  dsh web --trusted-host <LAN>:8443
-#   0.0.0.0:8080    socat HTTP  -> 127.0.0.1:3080  (plain-LAN browsing, non-privileged APIs)
-#   0.0.0.0:8443    socat TLS   -> 127.0.0.1:3080  (secure context: crypto.randomUUID works)
+# Topology (verified 2026-08-15, refreshed 2026-10-18 for dsh 0.2.1-rc.2):
+#   127.0.0.1:3080  dsh web --trusted-host <each entry-point authority>
+#   0.0.0.0:8080    socat HTTP  -> 127.0.0.1:3080  (plain LAN/tailnet, trusted-LAN-only)
+#   0.0.0.0:8443    socat TLS   -> 127.0.0.1:3080  (secure context for any-IP browsers)
+#   0.0.0.0:8090    portal (password + passkey launcher, no terminal needed)
+#   tailnet :9443   tailscale serve -> 127.0.0.1:8090 (portal, trusted cert)
+#   tailnet :9444   tailscale serve -> 127.0.0.1:8443 (dsh, trusted cert)
 #
-# For FULL functionality (settings.*, credentials.*, etc.) use an SSH tunnel
-# so the browser origin is loopback:
+# dsh 0.2.1-rc.2 could bind a LAN IP natively (--host takes one interface
+# literal now) and even terminate TLS itself, but the socat topology stays:
+# one dsh boot = one launch token, and socat keeps a single origin server
+# for HTTP + TLS + tailnet-serve at once.
+#
+# For a loopback origin from another machine (full functionality without
+# trusting extra hosts):
 #   ssh -L 3080:127.0.0.1:3080 <user>@<LAN>  then open http://127.0.0.1:3080
 
 LAN_HOST="${1:-$(hostname -I | awk '{print $1}')}"
+TS_IP="$(tailscale ip -4 2>/dev/null | head -1 || true)"
+PUBLIC_HOST="$(node -e "try{console.log(require('./needs.json').public_host)}catch(e){}" 2>/dev/null || true)"
 HTTP_PORT=8080
 TLS_PORT=8443
 DSH_PORT=3080
@@ -31,7 +41,18 @@ if [[ ! -d app/node_modules ]]; then
   echo "app/ not installed — run bin/install.sh first" >&2
   exit 1
 fi
-(cd app && nohup npx dsh web --trusted-host "$LAN_HOST:$TLS_PORT" >"../$LOG_DIR/dsh.log" 2>&1) &
+# Trust every authority a browser may present: LAN + tailnet IPs (any port
+# via bare-host form, plus explicit ports for the documented entries) and
+# the tailnet MagicDNS name served by `tailscale serve` on :9444.
+TRUST_ARGS=(--trusted-host "$LAN_HOST:$TLS_PORT" --trusted-host "$LAN_HOST:$HTTP_PORT")
+TRUST_ARGS+=(--trusted-host "$LAN_HOST")
+if [[ -n "${TS_IP:-}" && "$TS_IP" != "$LAN_HOST" ]]; then
+  TRUST_ARGS+=(--trusted-host "$TS_IP" --trusted-host "$TS_IP:$TLS_PORT" --trusted-host "$TS_IP:$HTTP_PORT")
+fi
+if [[ -n "${PUBLIC_HOST:-}" ]]; then
+  TRUST_ARGS+=(--trusted-host "$PUBLIC_HOST" --trusted-host "$PUBLIC_HOST:9444")
+fi
+(cd app && nohup npx dsh web --no-open "${TRUST_ARGS[@]}" >"../$LOG_DIR/dsh.log" 2>&1) &
 echo "dsh  -> 127.0.0.1:$DSH_PORT (token URL in $LOG_DIR/dsh.log — that URL is a credential, do not paste it into chats/logs)"
 
 sleep 8

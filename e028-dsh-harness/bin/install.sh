@@ -6,15 +6,17 @@ cd "$(dirname "$0")/.."
 # packages that need native build/install scripts. Without approval,
 # node-pty's pty.node is never compiled and dsh fails to boot.
 
+DSH_SPEC="${1:-@deepseek-ai/dsh@next}"
+
 if [[ -d app/node_modules ]]; then
-  echo "app/ already installed"
+  echo "app/ already installed (for a version bump: cd app && npm install \"$DSH_SPEC\" && npm install-scripts approve node-pty koffi @deepseek-ai/dsh-subprocess-local)"
   exit 0
 fi
 
 mkdir -p app
 cd app
 npm init -y >/dev/null
-npm install @deepseek-ai/dsh
+npm install "$DSH_SPEC"
 npm install-scripts approve node-pty koffi @deepseek-ai/dsh-subprocess-local
 npm rebuild node-pty
 

@@ -12,7 +12,7 @@
 // break-glass recovery. Users are stored in USERS_FILE (0600, gitignored).
 // Stdlib only (node >= 18).
 import { createServer } from "node:https";
-import { readFileSync, writeFileSync, existsSync, chmodSync, renameSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, chmodSync, renameSync, appendFileSync } from "node:fs";
 import { scryptSync, timingSafeEqual, randomBytes, randomUUID } from "node:crypto";
 import { networkInterfaces } from "node:os";
 import { dirname, resolve } from "node:path";
@@ -31,6 +31,7 @@ const LOG_PATH = resolve(DIR, process.env.DSH_LOG ?? "../log/dsh.log");
 const PEM_PATH = resolve(DIR, process.env.DSH_PEM ?? "../cert/dsh.pem");
 const PASS_FILE = resolve(DIR, process.env.PASS_FILE ?? "./.pass.json");
 const USERS_FILE = resolve(DIR, process.env.USERS_FILE ?? "./users.json");
+const CLIENT_ERR_LOG = resolve(DIR, process.env.CLIENT_ERR_LOG ?? "../log/client-errors.log"); // phone-error inbox (gitignored); each line carries a derr_ ref shown on the failing page
 const RP_ID = PUBLIC_HOST;
 const ORIGINS = [`https://${PUBLIC_HOST}:${TS_PORTAL_PORT}`];
 const SESSION_TTL_MS = 12 * 3600 * 1000;
@@ -97,10 +98,12 @@ const validName = (n) => /^[a-zA-Z0-9._-]{2,32}$/.test(n ?? "");
 const sessions = new Map(); // sid -> {exp, uid, method}
 const pending = new Map();  // id -> {exp, kind, ...}
 const attempts = new Map();
+const cerrTs = new Map(); // ip -> [timestamps] throttle for the client-error inbox
 setInterval(() => {
   const now = Date.now();
   for (const [k, v] of sessions) if (v.exp < now) sessions.delete(k);
   for (const [k, v] of pending) if (v.exp < now) pending.delete(k);
+  for (const [k, v] of cerrTs) { const f = v.filter((t) => now - t < 600_000); if (f.length) cerrTs.set(k, f); else cerrTs.delete(k); }
 }, 60_000).unref();
 function rateLimited(ip) {
   const now = Date.now();
@@ -149,6 +152,19 @@ const wkjs = `<script>
 const eb=(s)=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
 const be=(b)=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\\+/g,"-").replace(/\\//g,"_").replace(/=+$/,"");
 async function post(p,o){const r=await fetch(p,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(o)});const t=await r.json();if(!r.ok)throw new Error(t.error||("HTTP "+r.status));return t;}
+let __reporting=false;
+function reportErr(flow,e){
+  if(window.__reporting)return"";window.__reporting=true;
+  try{
+    const id="derr_"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+    const payload=JSON.stringify({id,flow,name:(e&&e.name)||"Error",message:String((e&&e.message)||e||"").slice(0,300)});
+    if(navigator.sendBeacon)navigator.sendBeacon("/wk/client-error",new Blob([payload],{type:"application/json"}));
+    else fetch("/wk/client-error",{method:"POST",headers:{"content-type":"application/json"},body:payload,keepalive:true}).catch(()=>{});
+    return id;
+  }catch{return""}finally{window.__reporting=false;}
+}
+window.addEventListener("error",(ev)=>reportErr("page",ev.error||ev.message));
+window.addEventListener("unhandledrejection",(ev)=>reportErr("page",ev.reason));
 async function pkLogin(){
   try{
     const name=document.getElementById("pkname").value.trim();
@@ -156,19 +172,20 @@ async function pkLogin(){
     const cred=await navigator.credentials.get({publicKey:{...o.options,challenge:eb(o.options.challenge),allowCredentials:(o.options.allowCredentials||[]).map(c=>({...c,id:eb(c.id)}))}});
     const r=await post("/wk/login-verify",{loginId:o.loginId,id:cred.id,response:{authenticatorData:be(cred.response.authenticatorData),clientDataJSON:be(cred.response.clientDataJSON),signature:be(cred.response.signature),userHandle:cred.response.userHandle?be(cred.response.userHandle):null}});
     location.href="/";
-  }catch(e){document.getElementById("msg").textContent="Passkey failed: "+e.message;}
+  }catch(e){const ref=reportErr("login",e);const base=e&&e.name==="NotAllowedError"?"No passkey on this device matched (cancelled, timed out, or this phone/computer has no key yet). No key at all? Create one below, or log in with the recovery password and choose 'Register passkey on this device'.":"Passkey failed: "+(e&&e.message||e);document.getElementById("msg").textContent=base+(ref?" (ref #"+ref+" — sent automatically, no need to report it)":"");}
 }
 async function pkRegister(isAdd){
   try{
-    const name=document.getElementById("regname").value.trim();
+    const nameEl=document.getElementById("regname");
+    const name=nameEl?nameEl.value.trim():undefined;
     const inv=new URLSearchParams(location.search).get("invite");
     const url=isAdd?"/wk/add-key-options":"/wk/register-options";
-    const o=await post(url,isAdd?{label:document.getElementById("keylabel").value.trim()||undefined}:{username:name,invite:inv||undefined});
+    const o=await post(url,isAdd?{label:(document.getElementById("keylabel")||{}).value.trim()||undefined}:{username:name,invite:inv||undefined});
     const cred=await navigator.credentials.create({publicKey:{...o.options,challenge:eb(o.options.challenge),user:{...o.options.user,id:eb(o.options.user.id)},excludeCredentials:(o.options.excludeCredentials||[]).map(c=>({...c,id:eb(c.id)}))}});
     const vurl=isAdd?"/wk/add-key-verify":"/wk/register-verify";
     await post(vurl,{regId:o.regId,id:cred.id,response:{attestationObject:be(cred.response.attestationObject),clientDataJSON:be(cred.response.clientDataJSON)},label:isAdd?(document.getElementById("keylabel").value.trim()||undefined):undefined});
     location.href="/";
-  }catch(e){document.getElementById("msg").textContent="Registration failed: "+e.message;}
+  }catch(e){const ref=reportErr(isAdd?"add-key":"register",e);const base=e&&e.name==="NotAllowedError"?"Registration was cancelled or not allowed — approve the system prompt and try again.":"Registration failed: "+(e&&e.message||e);document.getElementById("msg").textContent=base+(ref?" (ref #"+ref+" — sent automatically, no need to report it)":"");}
 }
 </script>`;
 
@@ -200,7 +217,9 @@ function registerPage(db, invite, msg = "") {
   const inv = invite ? db.invites.find((i) => i.token === invite && !i.usedBy) : null;
   let body;
   if (!firstRun && !inv) {
-    body = `<p class="err">${esc(msg || "You need a valid invite link — ask the admin.")}</p>`;
+    body = `<p class="err">${esc(msg || "You need a valid invite link — this server already has users.")}</p>
+<p class="small">Two ways in:<br>1. On your other device: log in → Admin → Create invite link → open that link on this phone.<br>2. Or log in here with the recovery password and choose “Register passkey on this device”.</p>
+<script>try{navigator.sendBeacon&&navigator.sendBeacon('/wk/client-error',new Blob([JSON.stringify({id:'derr_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),flow:'register-no-invite',name:'InviteRequired',message:'register page shown without a valid invite'})],{type:'application/json'}))}catch(e){}</script>`;
   } else {
     body = `${msg ? `<p class="err">${esc(msg)}</p>` : ""}<p class="small">${firstRun ? "No users yet — this account becomes <b>admin</b>." : "Invite accepted — pick a username."}</p>
 <input id="regname" placeholder="Username (letters, digits, . _ -)" autocomplete="username"><button onclick="pkRegister(false)">Create account with passkey</button><p id="msg" class="err"></p>${wkjs}`;
@@ -233,6 +252,27 @@ const server = createServer(
     };
     const fail = (msg) => sendJson(400, { error: msg });
     try {
+      // Phone-error inbox: no session needed (failures happen pre-login),
+      // throttled per IP. The page shows the derr_ ref; the operator picks
+      // it up from CLIENT_ERR_LOG — nobody has to retype anything.
+      if (req.method === "POST" && url.pathname === "/wk/client-error") {
+        try {
+          const b = await readJson(req);
+          const now = Date.now();
+          const arr = (cerrTs.get(ip) ?? []).filter((t) => now - t < 600_000);
+          if (arr.length < 10) {
+            arr.push(now); cerrTs.set(ip, arr);
+            const id = /^derr_[a-z0-9]{4,16}$/.test(b.id ?? "") ? b.id : ("derr_srv_" + now.toString(36));
+            appendFileSync(CLIENT_ERR_LOG, JSON.stringify({
+              ts: new Date().toISOString(), id,
+              flow: String(b.flow ?? "?").slice(0, 30), name: String(b.name ?? "?").slice(0, 60),
+              message: String(b.message ?? "").slice(0, 300),
+              ua: String(req.headers["user-agent"] ?? "").slice(0, 150), ip,
+            }) + "\n");
+          }
+        } catch {}
+        return sendJson(200, { ok: true });
+      }
       const db = loadUsers();
       const sess = sessionOf(req);
 

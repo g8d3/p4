@@ -10,9 +10,10 @@
     "portal": 8090,
     "portal_bind": "0.0.0.0 (password-gated launcher, no terminal needed)"
   },
+  "dsh_version": "0.2.1-rc.2 (npm tag next; 2026-10-18)",
   "lan_host": {
     "value": "auto",
-    "how": "bin/start.sh and portal auto-detect via hostname -I; override with DSH_LAN_HOST env",
+    "how": "bin/start.sh and portal auto-detect via hostname -I; override with DSH_LAN_HOST env or start.sh $1",
     "last_seen": "192.168.0.177"
   },
   "public_host": "vuos-hcar5000mi.tail6918b0.ts.net",

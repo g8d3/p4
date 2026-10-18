@@ -32,11 +32,13 @@ loopback origins regardless of `--trusted-host`.
 | `bin/start.sh` | Start dsh + HTTP/TLS reverse proxies |
 | `bin/stop.sh` | Stop everything by PID |
 | `bin/gen-cert.sh` | Self-signed TLS cert for the LAN HTTPS proxy |
+| `bin/check.sh` | Self-test replicating a phone browser (listeners, 401/403/200/302 assertions, both phone traps); exit 1 on anything a user would feel |
+| `bin/e2e.mjs` | Deep E2E: real headless Chrome (phone viewport) + virtual passkey authenticator through every portal button/input, then the live dsh UI (inventory, view tour, typing, terminal echo). `node bin/e2e.mjs [--portal\|--dsh]`; screenshots to `/tmp/dsh-e2e-*` |
 | `portal/server.mjs` | Password + passkey (WebAuthn) accounts + invites + admin (stdlib only, port 8090) — no terminal needed |
 | `portal/webauthn.mjs` | Dependency-free WebAuthn core: CBOR, COSE→JWK, attestation-none registration, assertion verify |
 | `portal/.pass.json` | Portal password (scrypt hash, 0600, **gitignored**) |
 | `cert/` | Generated cert, **gitignored** |
-| `log/` | Runtime logs |
+| `log/` | Runtime logs, incl. `client-errors.log` — the phone-error inbox (each line a `derr_` ref shown on the failing page) + `.client-errors.cursor` (what the operator already processed) |
 
 ## Install (the npm 12 trap)
 
@@ -72,6 +74,11 @@ ls node_modules/node-pty/build/Release/pty.node   # must exist
 ls node_modules/node-pty/prebuilds/linux-x64/pty.node   # must exist
 ```
 
+> 2026-10-18: bumped to dsh 0.2.1-rc.2 (npm tag `next`; `latest` is still
+> 0.2.0-rc.2). Same three approvals at new versions, prebuild used, no
+> compile. `bin/install.sh` takes an optional spec (default
+> `@deepseek-ai/dsh@next`); pinned version recorded in `needs.json`.
+>
 > 2026-10-05: after updating to dsh 0.2.0-rc.2, four packages asked for
 > approval (`node-pty`, `koffi`, `@deepseek-ai/dsh-subprocess-local`, plus
 > no-op scripts in `@google/genai`/`protobufjs` which were left denied).
@@ -323,6 +330,71 @@ What changed (verified live + upstream docs at
   `192.168.0.93` default — pass an explicit IP to `bin/start.sh` to override.
   The committed self-signed cert still carries the old CN (harmless:
   browsers warn on self-signed either way; delete `cert/dsh.pem` to regen).
+
+## Update 2026-10-18: dsh 0.2.1-rc.2 + any-IP access (verified live)
+
+- **Version:** `app/` moved `latest` → `next` (0.2.0-rc.2 → 0.2.1-rc.2).
+  `dsh web --help` deltas: `--host` now takes one concrete interface
+  literal (wildcards still rejected — socat stays mandatory); new
+  `--public-url` (advertise only, grants no trust) and native
+  `--tls-cert/--tls-key`. Topology unchanged by choice: one dsh boot =
+  one launch token, and socat keeps a single origin for HTTP + TLS +
+  tailnet-serve.
+- **Any-IP:** `bin/start.sh` now passes `--trusted-host` for every browser
+  origin: LAN IP (bare + `:8080`/`:8443`), tailscale IP (bare + ports),
+  tailnet MagicDNS host (bare + `:9444`). socat/portal were already
+  `0.0.0.0`-bound; the missing piece was the fence, not the bind.
+- **Verified 2026-10-18:** `GET /` without cookie → 401 on LAN `:8080`,
+  LAN `:8443`, tailnet-IP `:8443`, tailnet `:9444`; `/api` with evil
+  `Origin` → 403 (fence holds), with trusted `Origin` → 401 (auth gate
+  holds); portal 200 on LAN `:8090` and tailnet `:9443`; `/open`
+  logged-out → 302 to login (token never leaks).
+
+## Self-test (so no human has to be the tester)
+
+`bin/check.sh` replays exactly what a phone browser does — same URLs, same
+TLS+SNI, same cookie-less state — and asserts the codes: 401 dsh reachable
++ login wall holds, 403 evil origin fenced, 200 portal login, 302 `/open`
+hides the token. It also asserts both phone traps on record: tailnet portal
+must be 200-not-502 (2026-10-18 silent-death incident: all four processes
+gone with zero log traces, backend dead, phone showed 502), and bare-IP on
+`:9444` must fail TLS (expected: tailscale serve only speaks the MagicDNS
+name there — the `ERR_SSL_PROTOCOL_ERROR` trap). Run it after every
+`bin/start.sh` and before telling the user to reload.
+
+## Phone-error inbox (nobody retypes errors)
+
+Every portal page beacons failures to `POST /wk/client-error` (pre-login,
+throttled 10/10min per IP): WebAuthn login/register/add-key crashes, page
+errors, and the register-without-invite screen. Each error carries a
+`derr_xxx` ref that is shown on the page itself — "ref #derr_x, sent
+automatically, no need to report it" — and logged with timestamp, flow,
+error, user-agent and IP. Operator rule: at every turn touching this
+experiment, read `log/client-errors.log` past `log/.client-errors.cursor`,
+advance the cursor, and surface each new entry as `[dsh-error #id]`.
+There is no push channel into the agent session by platform design; the
+inbox + ref IDs are the mechanism (verified: no session-messaging API
+in the pi docs or CLI). E2E P0 covers it: guidance shown, beacon
+landed, endpoint logs the ref.
+
+`bin/e2e.mjs` goes all the way: headless Chrome at a phone viewport with a
+virtual passkey authenticator clicks through the whole portal (login wrong/
+right password, register admin, passkey login, password-change matrix, invite
+create/consume, second-device enroll + remove, admin delete, logout leaks)
+against an isolated throwaway portal, then drives the live dsh (token
+exchange, 19-element inventory, 10-view tour, type-and-clear every input,
+open session → Chat/Trajectory → New terminal → real `echo` rendered,
+API gate, console-error watch). 20/20 green on 2026-10-18. What it caught:
+
+- **Real portal bug (fixed):** enrolling a second device crashed the page
+  (`regname` is null on the account page) — the exact flow a new phone
+  needs. Plus human error text for `NotAllowedError` (was: raw browser
+  jargon, the red text the user screenshotted).
+- **Real upstream dsh bug (reported, not ours):** right-sidebar "New tab"
+  with no session mounted throws Uncaught
+  `sidebarRight: no session surface is mounted` instead of a no-op. The
+  app survives it. Normal flow (open a session first) never hits it.
+  Re-check after each dsh update; D7 tracks its exact signature.
 
 ## Session trail
 
