@@ -34,6 +34,7 @@ loopback origins regardless of `--trusted-host`.
 | `bin/gen-cert.sh` | Self-signed TLS cert for the LAN HTTPS proxy |
 | `bin/check.sh` | Self-test replicating a phone browser (listeners, 401/403/200/302 assertions, both phone traps); exit 1 on anything a user would feel |
 | `bin/e2e.mjs` | Deep E2E: real headless Chrome (phone viewport) + virtual passkey authenticator through every portal button/input, then the live dsh UI (inventory, view tour, typing, terminal echo). `node bin/e2e.mjs [--portal\|--dsh]`; screenshots to `/tmp/dsh-e2e-*` |
+| `bin/act.mjs` | Act visibly inside the app: creates a session via the UI's New Session button, types a task, submits, waits, prints the chat tail. `node bin/act.mjs "<task>"` — the user watches live on :9444 |
 | `portal/server.mjs` | Password + passkey (WebAuthn) accounts + invites + admin (stdlib only, port 8090) — no terminal needed |
 | `portal/webauthn.mjs` | Dependency-free WebAuthn core: CBOR, COSE→JWK, attestation-none registration, assertion verify |
 | `portal/.pass.json` | Portal password (scrypt hash, 0600, **gitignored**) |
@@ -361,6 +362,20 @@ gone with zero log traces, backend dead, phone showed 502), and bare-IP on
 `:9444` must fail TLS (expected: tailscale serve only speaks the MagicDNS
 name there — the `ERR_SSL_PROTOCOL_ERROR` trap). Run it after every
 `bin/start.sh` and before telling the user to reload.
+
+## Programmatic read/write (actions visible in the app)
+
+Yes — verified live 2026-10-18. Reads: sessions are zstd JSONL at
+`~/.dsh/sessions/<workspace>/<session-id>/session.v4.jsonl` plus the
+`~/.dsh/storages/session_projcache` index (titles, `sessionListMetadata`).
+Writes: `dsh headless` runs headless-profile sessions that stay **invisible**
+in the sidebar (no `sessionListMetadata` row — the list only shows
+`blank: false` sessions). The visible path is `bin/act.mjs`: it drives the
+real UI (New Session → type → Send → wait → chat tail), so the run
+appears exactly as if the user typed it. Notes: Enter only newlines in
+the prompt box — submission needs the Send button; fast runs (~2s) never
+show a catchable Stop button, so completion is detected by chat content
+settling, not by the Stop button.
 
 ## Phone-error inbox (nobody retypes errors)
 
