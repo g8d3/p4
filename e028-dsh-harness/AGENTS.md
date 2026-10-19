@@ -32,6 +32,7 @@ loopback origins regardless of `--trusted-host`.
 | `bin/start.sh` | Start dsh + HTTP/TLS reverse proxies |
 | `bin/stop.sh` | Stop everything by PID |
 | `bin/gen-cert.sh` | Self-signed TLS cert for the LAN HTTPS proxy |
+| `profiles/opencode-default.yml` | Default provider+model from `OPENCODE_*` env (`--patch` overlay applied by `bin/start.sh`) |
 | `bin/check.sh` | Self-test replicating a phone browser (listeners, 401/403/200/302 assertions, both phone traps); exit 1 on anything a user would feel |
 | `bin/e2e.mjs` | Deep E2E: real headless Chrome (phone viewport) + virtual passkey authenticator through every portal button/input, then the live dsh UI (inventory, view tour, typing, terminal echo). `node bin/e2e.mjs [--portal\|--dsh]`; screenshots to `/tmp/dsh-e2e-*` |
 | `bin/act.mjs` | Act visibly inside the app: creates a session via the UI's New Session button, types a task, submits, waits, prints the chat tail. `node bin/act.mjs "<task>"` — the user watches live on :9444 |

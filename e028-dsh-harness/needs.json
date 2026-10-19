@@ -11,6 +11,9 @@
     "portal_bind": "0.0.0.0 (password-gated launcher, no terminal needed)"
   },
   "dsh_version": "0.2.1-rc.2 (npm tag next; 2026-10-18)",
+  "default_provider": "opencode-go (pi-ai route; key OPENCODE_GO_API_KEY, endpoint OPENCODE_GO_BASE_URL, model OPENCODE_GO_MODEL)",
+  "default_model": "muse-spark-1.2-contributor (via OPENCODE_GO_MODEL; 1M ctx)",
+  "provider_config": "profiles/opencode-default.yml, applied as dsh --patch overlay in bin/start.sh; dsh needs OPENCODE_* in its environment at boot",
   "lan_host": {
     "value": "auto",
     "how": "bin/start.sh and portal auto-detect via hostname -I; override with DSH_LAN_HOST env or start.sh $1",

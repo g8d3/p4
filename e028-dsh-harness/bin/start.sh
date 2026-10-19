@@ -52,7 +52,9 @@ fi
 if [[ -n "${PUBLIC_HOST:-}" ]]; then
   TRUST_ARGS+=(--trusted-host "$PUBLIC_HOST" --trusted-host "$PUBLIC_HOST:9444")
 fi
-(cd app && nohup npx dsh web --no-open "${TRUST_ARGS[@]}" >"../$LOG_DIR/dsh.log" 2>&1) &
+# Default provider+model come from profiles/opencode-default.yml (OPENCODE_* env).
+# NOTE: --patch is a launcher flag: it goes with --profile, not after `web`.
+(cd app && nohup npx dsh --profile web --patch ../profiles/opencode-default.yml --no-open "${TRUST_ARGS[@]}" >"../$LOG_DIR/dsh.log" 2>&1) &
 echo "dsh  -> 127.0.0.1:$DSH_PORT (token URL in $LOG_DIR/dsh.log — that URL is a credential, do not paste it into chats/logs)"
 
 sleep 8
