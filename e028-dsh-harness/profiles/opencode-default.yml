@@ -9,9 +9,9 @@
         apiKeyEnv: OPENCODE_GO_API_KEY
         baseURL: !!js process.env.OPENCODE_GO_BASE_URL || "https://opencode.ai/zen/go/v1/"
         models:
-          - id: !!js process.env.OPENCODE_GO_MODEL || "muse-spark-1.2-contributor"
+          - id: !!js process.env.OPENCODE_GO_MODEL || "muse-spark-1.3-contributor"
 - id: agent-default-model
   name: "@deepseek-ai/dsh-agent-default-model"
   config:
     provider: opencode-go
-    model: !!js process.env.OPENCODE_GO_MODEL || "muse-spark-1.2-contributor"
+    model: !!js process.env.OPENCODE_GO_MODEL || "muse-spark-1.3-contributor"

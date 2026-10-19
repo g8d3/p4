@@ -12,7 +12,7 @@
   },
   "dsh_version": "0.2.1-rc.2 (npm tag next; 2026-10-18)",
   "default_provider": "opencode-go (pi-ai route; key OPENCODE_GO_API_KEY, endpoint OPENCODE_GO_BASE_URL, model OPENCODE_GO_MODEL)",
-  "default_model": "muse-spark-1.2-contributor (via OPENCODE_GO_MODEL; 1M ctx)",
+  "default_model": "muse-spark-1.3-contributor (pinned in bin/start.sh; platform env still 1.2; 1M ctx)",
   "provider_config": "profiles/opencode-default.yml, applied as dsh --patch overlay in bin/start.sh; dsh needs OPENCODE_* in its environment at boot",
   "lan_host": {
     "value": "auto",

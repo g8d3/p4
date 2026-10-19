@@ -22,6 +22,9 @@ cd "$(dirname "$0")/.."
 #   ssh -L 3080:127.0.0.1:3080 <user>@<LAN>  then open http://127.0.0.1:3080
 
 LAN_HOST="${1:-$(hostname -I | awk '{print $1}')}"
+# Service model pin (2026-10-18): platform env still exports 1.2; run 1.3.
+# Delete this line to follow the platform value again.
+export OPENCODE_GO_MODEL=muse-spark-1.3-contributor
 TS_IP="$(tailscale ip -4 2>/dev/null | head -1 || true)"
 PUBLIC_HOST="$(node -e "try{console.log(require('./needs.json').public_host)}catch(e){}" 2>/dev/null || true)"
 HTTP_PORT=8080
