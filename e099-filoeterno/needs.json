@@ -1,0 +1,34 @@
+{
+  "base_url_env": "OPENCODE_GO_BASE_URL",
+  "key_envs": [
+    "OPENCODE_GO_API_KEY",
+    "OPENCODE_API_KEY"
+  ],
+  "model_env": "OPENCODE_GO_MODEL",
+  "session_header": "x-opencode-session",
+  "session_id": "filoeterno-v0",
+  "user_agent": "filoeterno/0.1",
+  "protocol": "POST {base}responses (OpenAI Responses API)",
+  "market": "Kraken public OHLC, BTC/USD, daily (no key needed)",
+  "window_days": 30,
+  "score_days": 6,
+  "max_calls_per_day": 500,
+  "state_file": "/home/vuos/code/p4/e099-filoeterno/data/state.json",
+  "lessons_file": "/home/vuos/code/p4/e099-filoeterno/LESSONS.md",
+  "site_dir": "/home/vuos/code/p4/e099-filoeterno/site",
+  "max_position_pct": 0,
+  "paper_only": true,
+  "port": 8935,
+  "pid_file": "/home/vuos/code/p4/e099-filoeterno/site/.serve.pid",
+  "model": "muse-spark-1.3-contributor",
+  "weekly_cap_pct": 80,
+  "direction": "builder: develop + audit real-value dapps (utility-meme launchpad); trading-signal loop retired to side bench",
+  "assets": [
+    "XBTUSD",
+    "ETHUSD",
+    "SOLUSD"
+  ],
+  "interval": 60,
+  "score_periods": 4,
+  "cycle_hours": 2
+}

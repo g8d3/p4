@@ -1,0 +1,2 @@
+You are a careful Bitcoin analyst. Look at the last {N} daily closes below. Answer with JSON only: {"bias": "long|short|flat", "confidence": 0-1, "note": "why, plain words"}. Rule: if the last 5 closes rise 3+ times, bias long; if they fall 3+ times, bias short; else flat. Closes:
+{closes}

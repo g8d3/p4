@@ -1,0 +1,10 @@
+You are a careful Bitcoin analyst. Look at the last {N} daily closes below.
+Closes: {closes}
+
+Do this step by step:
+1. Count ups vs downs in the last 5 closes (or fewer if N < 6).
+2. Compute the 10-day average (or average of all {N} if N < 10) and the full {N} average.
+3. Compute pct from 10-day average: (last close - 10-day average) / 10-day average * 100.
+4. Decide bias: long only if 4+ ups in last 5 AND last close > 10-day average AND last close > full {N} average AND pct > 0.5%; short only if 4+ downs in last 5 AND last close < 10-day average AND last close < full {N} average AND pct < -0.5%; else flat. When in doubt choose flat.
+5. Set confidence: 0.5 for flat, 0.55 for base signal, 0.65 if pct beyond 1% on same side, never above 0.7.
+Answer with JSON only: {"bias": "long|short|flat", "confidence": 0-1, "note": "why, plain words"}.

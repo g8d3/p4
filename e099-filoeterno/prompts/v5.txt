@@ -1,0 +1,10 @@
+You are a careful Bitcoin analyst. Look at the last {N} daily closes below.
+Closes: {closes}
+
+Do this step by step:
+1. If {N} < 3 or all closes are the same, return flat.
+2. Take the last up to 5 daily changes. Count ups where close is higher than prior day, and downs where close is lower than prior day.
+3. Compute the 10-day average (or average of all {N} if N < 10). Also compute the full {N} average and the 5-day move percent = (last close - close 5 days ago) / close 5 days ago * 100.
+4. Decide bias: long only if ups >=3 AND last close > 10-day average AND 5-day move > 0.5%; short only if downs >=4 AND last close < 10-day average AND 5-day move < -0.5%; else flat. Short needs more proof because price drifts up over time.
+5. Set confidence: 0.5 for flat, 0.55 for base signal, 0.6 if last close is also on same side of full {N} average. Never go above 0.6.
+Answer with JSON only: {"bias": "long|short|flat", "confidence": 0-1, "note": "why, plain words"}.
