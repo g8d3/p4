@@ -1,1 +1,0 @@
-{"abi":[{"type":"function","name":"prank","inputs":[{"name":"a","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"warp","inputs":[{"name":"x","type":"uint256","internalType":"uint256"}],"outputs":[],"stateMutability":"nonpayable"}],"id":1}

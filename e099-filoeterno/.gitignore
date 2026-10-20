@@ -1,2 +1,4 @@
 data/
 site/.serve.pid
+tasks/*/cache/
+tasks/*/out/
