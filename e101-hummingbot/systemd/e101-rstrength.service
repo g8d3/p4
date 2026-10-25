@@ -1,0 +1,7 @@
+[Unit]
+Description=EchoLike relative-strength scan (daily, CoinGecko+DefiLlama, paper only)
+[Service]
+Type=oneshot
+WorkingDirectory=%h/code/p4/e101-hummingbot
+ExecStart=/usr/bin/python3 %h/code/p4/e101-hummingbot/scripts/rstrength_scan.py
+# Runs the scan and prints flags; the caller (Coco/Mango Z) decides on pings.
