@@ -87,8 +87,9 @@ def main():
     if replies:
         lines += ["## Suggested replies for @novaisabuilder (drafts — do not post)", ""]
         for s, topics, it in replies:
+            pretty = " and ".join(t.replace("_", " ") for t in topics) or "this"
             lines.append(f"- To {it.get('handle')} ({it['url']}):")
-            lines.append(f"  \"Saw your post on {'/'.join(topics) or 'this'}. We run EchoLike, an AI-agent "
+            lines.append(f"  \"Saw your post on {pretty}. We run EchoLike, an AI-agent "
                          "workshop that turns X bookmarks into research and working tools — happy to trade notes.\"")
             lines.append("")
     out = os.path.join(COCO, f"digest_x_{now.strftime('%Y-%m-%d')}.md")
