@@ -1,0 +1,7 @@
+[Unit]
+Description=Mango Z daily report at 07:00 Bogota
+[Timer]
+OnCalendar=*-*-* 07:00:00 America/Bogota
+Persistent=true
+[Install]
+WantedBy=timers.target

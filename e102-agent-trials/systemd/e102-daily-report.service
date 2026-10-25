@@ -1,0 +1,6 @@
+[Unit]
+Description=Mango Z daily report (inbox summary + mini PC health)
+[Service]
+Type=oneshot
+ExecStart=/bin/bash %h/code/p4/e102-agent-trials/bin/run_daily.sh
+TimeoutStartSec=2400
