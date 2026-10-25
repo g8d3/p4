@@ -30,7 +30,7 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 - [Owner: Mango Z] Daily X research digest by 7:30 AM Bogota -> coco/digest_x_YYYY-MM-DD.md (top 5 verified items + 2-3 reply drafts for @novaisabuilder; no invented posts/URLs; never posts) then bin/to_coco.sh.
 
 ## Done today
-- Sales page gaps 2-6 (CTA, proof, why us, steps+FAQ, phone nav) published to echolike.app by Coco.
+- Sales page LIVE on echolike.app since Oct 25, 4:35 PM Bogotá (GitHub Pages, g8d3/echolike-site 80e9b23, built from e092 0a1edff): gaps 2-6 (CTA, proof, why us, steps+FAQ, phone nav), honest FAQ (no MIT claim), price line "Pro plan, coming soon: $5/mo billed yearly ($60/yr). Founder tier: $39 one-time for the first 100 buyers." with no buy link, EN + /es/, home links Account + Your progress. Directory pages were NOT rebuilt (committed directory code needs uncommitted directorio/ edits); the live copy was kept. Funding-rates page is stale since Oct 24, 9:51 AM (site audit medium).
 - Extension 2.7.0 (local-first) live on echolike.app and in g8d3/echolike-extension.
 - echolike.app moved to GitHub Pages (g8d3/echolike-site) via Cloudflare DNS; email works.
 - Firefox add-on install button is live.
