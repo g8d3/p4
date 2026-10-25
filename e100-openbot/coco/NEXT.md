@@ -1,5 +1,5 @@
 # NEXT — EchoLike business priorities
-Updated: Sun 2026-10-25 15:45 Bogotá (UTC-5)
+Updated: Sun 2026-10-25 16:00 Bogotá (UTC-5)
 
 ## Owners
 - Mango: product + dev (extension, sales page, site).
@@ -16,12 +16,14 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 6. [Owner: Mango] Bottom nav pulls buyers away from the offer.
 "Ready" = passes this checklist with phone screenshots, not just "it loads".
 
-## In progress (assigned 3:25 PM, local only, no push)
-- Mango: gaps 4 (why us) and 6 (bottom nav) in e092-echolike/sitio_unico.py.
-- Mango Z: gap 5 (steps + FAQ) in the same file.
+## In progress (assigned 4:00 PM, local only, no push)
+- Mango: tests/verificar_vivo_movil.py — checks live echolike.app (EN+ES) and the extension at phone size.
+- Mango Z: competitor + pricing scan for X bookmark/likes tools (real prices with sources) → reportes/precios_competencia_2026-10-25.md, ending in max 3 price options + recommendation.
 - Both report via bin/to_coco.sh when done.
 
 ## Done today
+- Sales page gaps 2-6 (CTA, proof, why us, steps+FAQ, phone nav) published to echolike.app by Coco.
+- Extension 2.7.0 (local-first) live on echolike.app and in g8d3/echolike-extension.
 - echolike.app moved to GitHub Pages (g8d3/echolike-site) via Cloudflare DNS; email works.
 - Firefox add-on install button is live.
 - Mango Z daily 7 AM report is live.
