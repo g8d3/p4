@@ -28,8 +28,8 @@ OUT = os.path.join(BASE, "data", "rs_fundamentals.csv")
 MANUAL = os.path.join(BASE, "scripts", "rs_fundamentals_manual.json")
 F = ["date", "token", "cg_id", "is_meme", "has_llama", "tvl",
      "fees_24h", "fees_30d", "rev_24h", "rev_7d", "rev_7d_prior", "rev_30d", "rev_30d_prior",
-     "holders_rev_30d", "buyback_burn_30d", "team", "roadmap", "revenue_plan",
-     "rev_trend_7d", "rev_trend_30d", "llama_category", "taxonomy", "coin_type",
+      "holders_rev_30d", "buyback_burn_30d", "team", "roadmap", "revenue_plan",
+      "rev_trend_7d", "rev_trend_30d", "llama_category", "taxonomy", "coin_type", "auto_class",
      "real_revenue_30d", "self_trading_revenue_30d", "external_revenue_30d",
      "external_share", "business_class", "external_share_trend_7d", "revenue_is_self_trading", "has_real_revenue", "score", "klass"]
 LL = "https://api.llama.fi/overview/fees?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true"
@@ -125,6 +125,10 @@ def refresh(coins):
         ext = r["real_revenue_30d"]
         slf = m.get("self_trading_revenue_30d")
         if self_only: slf, ext = r["rev_30d"], 0.0
+        elif ps and ext is not None and slf is None:
+            # DefiLlama exposes a product-revenue breakdown here (fees vs revenue overviews),
+            # and it reports no self-trading revenue for this protocol -> 0, not a guess.
+            slf = 0.0
         r["external_revenue_30d"], r["self_trading_revenue_30d"] = ext, slf
         if ext is not None and slf is not None and (ext + slf) > 0:
             sh = round(ext / (ext + slf), 3)
@@ -140,6 +144,16 @@ def refresh(coins):
         elif r["is_meme"]: r["coin_type"] = "launchpad_meme"
         elif r["taxonomy"] == "l1": r["coin_type"] = "l1"
         else: r["coin_type"] = None
+        # Auto business class for coins the fixed rules leave unclassified:
+        # CoinGecko categories + the DefiLlama product-revenue fact only.
+        auto = rs_sources.business_class(rs_sources.cg_meta(cid), r["is_meme"],
+                                         bool(r["has_real_revenue"]))
+        if r["coin_type"] is None and auto: r["coin_type"] = auto
+        r["auto_class"] = auto
+        # taxonomy file: record the derived class (None stays as null = n/a);
+        # never touches human-curated keys in the same entry.
+        manual.setdefault(sym, {})["auto_class"] = auto
+        json.dump(manual, open(MANUAL, "w"), indent=1)
         r["score"], r["klass"] = score_of(r)
         out[sym] = r
     new = not os.path.exists(OUT)

@@ -1,1 +1,60 @@
-{"_doc": "Manual fundamentals per SYMBOL: team, roadmap, revenue_plan, buyback_burn_30d. Leave null when unknown; never guess."}
+{
+ "_doc": "Manual fundamentals per SYMBOL: team, roadmap, revenue_plan, buyback_burn_30d. Leave null when unknown; never guess.",
+ "ETH": {
+  "auto_class": null
+ },
+ "BNB": {
+  "auto_class": null
+ },
+ "SOL": {
+  "auto_class": null
+ },
+ "NEAR": {
+  "auto_class": "infra"
+ },
+ "TAO": {
+  "auto_class": null
+ },
+ "LIT": {
+  "auto_class": "real_business"
+ },
+ "LINK": {
+  "auto_class": "infra"
+ },
+ "HYPE": {
+  "auto_class": "real_business"
+ },
+ "JUP": {
+  "auto_class": "real_business"
+ },
+ "MET": {
+  "auto_class": "real_business"
+ },
+ "RAY": {
+  "auto_class": "real_business"
+ },
+ "ORCA": {
+  "auto_class": "real_business"
+ },
+ "PUMP": {
+  "auto_class": "casino"
+ },
+ "UNI": {
+  "auto_class": "real_business"
+ },
+ "CAKE": {
+  "auto_class": "real_business"
+ },
+ "STONK": {
+  "auto_class": "real_business"
+ },
+ "PONS": {
+  "auto_class": "real_business"
+ },
+ "AERO": {
+  "auto_class": null
+ },
+ "ORE": {
+  "auto_class": "real_business"
+ }
+}

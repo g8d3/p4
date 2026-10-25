@@ -64,6 +64,25 @@ def taxonomy(meta):
     return "other" if c else None
 
 
+# business-class judgment from CoinGecko categories + a DefiLlama revenue fact.
+# Config, not data: these category lists decide the label; unknown -> None (n/a).
+INFRA_CATS = {"infrastructure", "oracle", "bridge", "bridges", "wallets", "wallet",
+              "interoperability", "privacy", "node infrastructure", "restaking",
+              "staking", "staking pool", "data availability", "dev tools",
+              "developer platform", "developer tools", "computational infrastructure"}
+STABLE_CATS = {"stablecoin", "stablecoins", "algorithmic stablecoin", "wrapped-staked-only"}
+
+
+def business_class(meta, is_meme=False, has_product_rev=False):
+    """'stable' | 'infra' | 'casino' | 'real_business' | None (never guessed)."""
+    c = {x.lower() for x in meta.get("categories") or []}
+    if any(any(s in x for s in STABLE_CATS) for x in c): return "stable"
+    if is_meme: return "casino"
+    if c & INFRA_CATS: return "infra"
+    if has_product_rev: return "real_business"
+    return None
+
+
 def cmc_key():
     if os.environ.get("CMC_API_KEY"): return os.environ["CMC_API_KEY"]
     for p in SECRETS:
