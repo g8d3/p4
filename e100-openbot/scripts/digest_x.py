@@ -95,10 +95,35 @@ def main():
     lines += ["## Reply drafts (Mango Z)", "",
               "(Hand-written against the candidates above — one per post, under 200",
               "chars, one specific observation or question from the post's actual",
-              "content. No product pitch. Skip the post if nothing real to say.)", ""]
+              "content. No product pitch, no quoting URLs/arrows/lists, no cashtags,",
+              "no repeated questions. Skip the post if nothing real to say.)", ""]
     out = os.path.join(COCO, f"digest_x_{now.strftime('%Y-%m-%d')}.md")
     open(out, "w").write("\n".join(lines) + "\n")
     print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)}")
+    return check_drafts(out)
+
+
+def check_drafts(path):
+    """Fail the run when a hand-written draft contains a link/arrow/cashtag,
+    repeats a question, or exceeds 200 chars. Guards against templated junk.
+    Drafts are the indented lines under '## Reply drafts'; '- To ...' lines
+    carry the source URL and are excluded from the content checks."""
+    sec = open(path).read().split("## Reply drafts")
+    if len(sec) < 2:
+        return 0
+    drafts = [l.strip() for l in sec[1].splitlines()
+              if l.startswith("  ") and l.strip() and not l.strip().startswith("- To")]
+    questions = []
+    for d in drafts:
+        if len(d) > 200:
+            print(f"FAIL draft over 200 chars ({len(d)}): {d[:60]}…"); return 1
+        if re.search(r"http|→|\$[A-Z]{2,}", d):
+            print(f"FAIL draft has link/arrow/cashtag: {d[:60]}…"); return 1
+        questions += re.findall(r"[^?]+\?", d)
+    dup = {q for q in questions if questions.count(q) > 1}
+    if dup:
+        print(f"FAIL repeated question: {next(iter(dup))}"); return 1
+    print(f"drafts OK: {len(drafts)} checked, no links/arrows/cashtags/duplicate questions")
     return 0
 
 
