@@ -2,3 +2,7 @@
 .keyring-state/
 downloads/
 logs/
+.secrets/
+coco/queue.jsonl
+coco/dispatcher.log
+coco/.dispatcher_state.json

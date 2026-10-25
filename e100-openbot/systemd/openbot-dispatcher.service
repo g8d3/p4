@@ -1,0 +1,9 @@
+[Unit]
+Description=OpenBot dispatcher (plain Python, no LLM)
+[Service]
+ExecStart=/usr/bin/python3 %h/code/p4/e100-openbot/bin/dispatcher.py
+Restart=always
+RestartSec=5
+Environment=TZ=America/Bogota
+[Install]
+WantedBy=default.target
