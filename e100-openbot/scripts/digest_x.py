@@ -4,11 +4,12 @@
 Reads Nova's recent likes from e092-echolike/estado/x_items.json (last 48h by
 the 'visto' field) and the topic-alert file estado/likes_alertas.json. Scores
 items against Nova's standing topics (launchpads/fair launches, AI agents and
-AI+crypto, memecoins, coins holding up in drawdowns, dev tools) and writes
-coco/digest_x_YYYY-MM-DD.md with the top 5 verified items (real URLs exactly
-as found in the source files - never constructed) plus 2-3 reply drafts for
-@novaisabuilder chosen from the highest-scored items. Unverifiable entries are
-dropped, not guessed. Never posts anything; output is a draft file only.
+AI+crypto, memecoins, coins holding up in drawdowns, dev tools) using
+word-boundary regexes, and writes coco/digest_x_YYYY-MM-DD.md with:
+  - Candidate posts: top 5, full text, real URLs exactly as found in the
+    source files (never constructed), plus a PUMP holder note when relevant.
+  - A placeholder reply section that Mango Z fills in by hand per candidate.
+Unverifiable entries are dropped, not guessed. Never posts anything.
 """
 import json, os, re, sys
 from datetime import datetime, timedelta, timezone
@@ -16,14 +17,15 @@ from datetime import datetime, timedelta, timezone
 E092 = os.path.expanduser("~/code/p4/e092-echolike")
 COCO = os.path.expanduser("~/code/p4/e100-openbot/coco")
 BOG = timezone(timedelta(hours=-5))
+# Word-boundary regexes: bare "launch"/"cli"/"agent"/"holding" matched too much.
 TOPICS = {
-    "launchpads": ["launchpad", "fair launch", "fair-launch", "launch", "launchpads"],
-    "ai_agents": ["ai agent", "ai agents", "agent", "ai + crypto", "ai x crypto", "ai crypto"],
-    "memecoins": ["memecoin", "meme coin", "memecoin launch", "pump.fun", "pumpfun"],
-    "drawdown_strength": ["holding", "holder", "drawdown", "resilien", "red day", "down market", "holding up"],
-    "dev_tools": ["dev tool", "developer", "sdk", "infrastructure", "open source", "cli", "framework"],
+    "launchpads": [r"\blaunchpads?\b", r"\bfair[ -]launch", r"\btoken launch"],
+    "ai_agents": [r"\bai agents?\b", r"\bai agent\b", r"\bagentic\b", r"\bai\s*\+\s*crypto\b", r"\bai ?x ?crypto\b", r"\bcrypto ?x ?ai\b"],
+    "memecoins": [r"\bmemecoins?\b", r"\bmeme coins?\b", r"\bpump\.fun\b", r"\bpumpfun\b", r"\bmemecoin launch"],
+    "drawdown_strength": [r"\bholding up\b", r"\bdrawdowns?\b", r"\bresilien\w*", r"\bred days?\b", r"\bdown market\b", r"\bwhile the market (falls|dumps|drops)\b"],
+    "dev_tools": [r"\bdev tools?\b", r"\bdevelopers?\b", r"\bsdks?\b", r"\binfrastructure\b", r"\bopen source\b", r"\bframeworks?\b", r"\bclis?\b", r"\breverse engineering\b"],
 }
-REPLY_WORTHY = ("launchpad", "fair launch", "ai agent", "dev tool", "infrastructure")
+PUMP_RX = re.compile(r"\bpump\.fun\b|\bpumpfun\b|\b\$?pump\b", re.I)
 
 
 def jload(p):
@@ -34,9 +36,9 @@ def jload(p):
 
 
 def score(item):
-    """(score, matched topics). Keyword hits only; anything unmatched scores 0."""
+    """(score, matched topics). Regex word-boundary hits only; else 0."""
     text = (item.get("text") or "").lower()
-    topics = [t for t, kws in TOPICS.items() if any(k in text for k in kws)]
+    topics = [t for t, kws in TOPICS.items() if any(re.search(k, text) for k in kws)]
     return len(topics), topics
 
 
@@ -60,7 +62,8 @@ def main():
             continue
         seen.add(url)
         scored.append((s, topics, it))
-    scored.sort(key=lambda x: (-x[0], x[2].get("visto") or ""), reverse=False)
+    # Tie-break newest first, then a stable sort by score (both passes matter).
+    scored.sort(key=lambda x: x[2].get("visto") or "", reverse=True)
     scored.sort(key=lambda x: -x[0])
     top5 = scored[:5]
 
@@ -72,29 +75,25 @@ def main():
     if not top5:
         lines += ["## No fresh on-topic data in the last 48h.", ""]
     else:
-        lines.append("## Top 5")
+        lines.append("## Candidate posts")
         lines.append("")
         for n, (s, topics, it) in enumerate(top5, 1):
             text = " ".join((it.get("text") or "").split())
-            reason = f"matches Nova topics: {', '.join(topics)}"
-            lines.append(f"{n}. {it.get('handle') or 'unknown'} — {text[:140]}"
-                         f"{'…' if len(text) > 140 else ''}")
-            lines.append(f"   {it['url']}")
-            lines.append(f"   Why: {reason}.")
+            lines.append(f"### {n}. {it.get('handle') or 'unknown'} — topics: {', '.join(topics)}")
+            lines.append(f"{it['url']}")
             lines.append("")
-    replies = [x for x in scored if any(k in " ".join(x[1]) or
-               any(k in (x[2].get('text') or '').lower() for k in REPLY_WORTHY) for k in REPLY_WORTHY)][:3]
-    if replies:
-        lines += ["## Suggested replies for @novaisabuilder (drafts — do not post)", ""]
-        for s, topics, it in replies:
-            pretty = " and ".join(t.replace("_", " ") for t in topics) or "this"
-            lines.append(f"- To {it.get('handle')} ({it['url']}):")
-            lines.append(f"  \"Saw your post on {pretty}. We run EchoLike, an AI-agent "
-                         "workshop that turns X bookmarks into research and working tools — happy to trade notes.\"")
+            lines.append(f"Full text: {text}")
+            if PUMP_RX.search(text):
+                lines.append("PUMP holder note: directly about Pump.fun / $PUMP.")
             lines.append("")
+
+    lines += ["## Reply drafts (Mango Z)", "",
+              "(To be written by hand against the candidates above — one per post,",
+              "under 240 chars, about the post's actual point. No EchoLike pitch",
+              "unless it fits naturally.)", ""]
     out = os.path.join(COCO, f"digest_x_{now.strftime('%Y-%m-%d')}.md")
     open(out, "w").write("\n".join(lines) + "\n")
-    print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)} | replies {len(replies)}")
+    print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)}")
     return 0
 
 
