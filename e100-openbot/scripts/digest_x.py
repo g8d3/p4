@@ -92,38 +92,85 @@ def main():
                 lines.append("PUMP holder note: directly about Pump.fun / $PUMP.")
             lines.append("")
 
-    lines += ["## Reply drafts (Mango Z)", "",
-              "(Hand-written against the candidates above — one per post, under 200",
-              "chars, one specific observation or question from the post's actual",
-              "content. No product pitch, no quoting URLs/arrows/lists, no cashtags,",
-              "no repeated questions. Skip the post if nothing real to say.)", ""]
     out = os.path.join(COCO, f"digest_x_{now.strftime('%Y-%m-%d')}.md")
-    open(out, "w").write("\n".join(lines) + "\n")
+    # Never clobber hand-written drafts: keep an existing drafts section that
+    # already has "- To ..." entries, regenerate only the candidates above it.
+    tail = None
+    if os.path.exists(out):
+        prev = open(out, encoding="utf-8").read()
+        if "## Reply drafts" in prev:
+            old_sec = prev.split("## Reply drafts", 1)[1]
+            if re.search(r"^- To \S+ \(https://x\.com/\S+\)", old_sec, re.M):
+                tail = "## Reply drafts" + old_sec.rstrip() + "\n"
+    if tail is None:
+        tail = ("## Reply drafts (hand-written — do not post)\n\n"
+                "(Write drafts here by hand against the candidates above — one per post,\n"
+                "under 200 chars, one specific observation or question from the post's\n"
+                "actual content. No product pitch, no quoting URLs/arrows/lists, no cashtags,\n"
+                "no repeated questions. Skip the post if nothing real to say.)\n")
+    open(out, "w").write("\n".join(lines) + "\n" + tail)
     print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)}")
     return check_drafts(out)
 
 
-def check_drafts(path):
-    """Fail the run when a hand-written draft contains a link/arrow/cashtag,
-    repeats a question, or exceeds 200 chars. Guards against templated junk.
-    Drafts are the indented lines under '## Reply drafts'; '- To ...' lines
-    carry the source URL and are excluded from the content checks."""
-    sec = open(path).read().split("## Reply drafts")
+def parse_drafts(path):
+    """[(handle, url, body)] from a digest file; body = indented lines."""
+    sec = open(path, encoding="utf-8").read().split("## Reply drafts")
     if len(sec) < 2:
-        return 0
-    drafts = [l.strip() for l in sec[1].splitlines()
-              if l.startswith("  ") and l.strip() and not l.strip().startswith("- To")]
+        return []
+    out, cur = [], None
+    for line in sec[1].splitlines():
+        m = re.match(r"^- To (\S+) \((https://x\.com/\S+?)\)", line.strip())
+        if m:
+            cur = [m.group(1), m.group(2).rstrip(":"), []]
+            out.append(cur)
+        elif cur is not None and line.startswith("  ") and line.strip():
+            cur[2].append(line.strip())
+    return [(h, u, " ".join(b)) for h, u, b in out if b]
+
+
+def fact_tokens(body):
+    """Checkable claims in a draft: cashtags and numbers with units."""
+    toks = set(re.findall(r"\$[A-Za-z]{2,}", body))
+    toks.update(re.findall(r"\d[\d.,]*\s*(?:M|B|K|k|%)", body))
+    return toks
+
+
+def check_drafts(path):
+    """Fail the run when a hand-written draft exceeds 200 chars, contains a
+    link/arrow/cashtag, repeats a question, or cites a fact not present in
+    its own cited post (checked against the post's text in this file)."""
+    posts = {}
+    cur_url, buf = None, []
+    for line in open(path, encoding="utf-8"):
+        if line.startswith("https://x.com/"):
+            if cur_url and buf:
+                posts[cur_url] = " ".join(buf)
+            cur_url, buf = line.strip(), []
+        elif line.startswith("Full text: ") and cur_url:
+            buf.append(line[len("Full text: "):].strip())
+    if cur_url and buf:
+        posts[cur_url] = " ".join(buf)
+    drafts = parse_drafts(path)
     questions = []
-    for d in drafts:
+    for handle, url, d in drafts:
         if len(d) > 200:
-            print(f"FAIL draft over 200 chars ({len(d)}): {d[:60]}…"); return 1
+            print(f"FAIL draft over 200 chars ({len(d)}): {d[:60]}…")
+            return 1
         if re.search(r"http|→|\$[A-Z]{2,}", d):
-            print(f"FAIL draft has link/arrow/cashtag: {d[:60]}…"); return 1
+            print(f"FAIL draft has link/arrow/cashtag: {d[:60]}…")
+            return 1
+        post = posts.get(url, "")
+        for tok in fact_tokens(d):
+            if tok.lower() not in post.lower():
+                print(f"FAIL draft cites fact not in its post ({tok}): {d[:60]}…")
+                return 1
         questions += re.findall(r"[^?]+\?", d)
     dup = {q for q in questions if questions.count(q) > 1}
     if dup:
-        print(f"FAIL repeated question: {next(iter(dup))}"); return 1
-    print(f"drafts OK: {len(drafts)} checked, no links/arrows/cashtags/duplicate questions")
+        print(f"FAIL repeated question: {next(iter(dup))}")
+        return 1
+    print(f"drafts OK: {len(drafts)} checked, facts match cited posts")
     return 0
 
 
