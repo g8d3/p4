@@ -7,6 +7,9 @@ umask 077
 D="$(cd "$(dirname "$0")/.." && pwd)"
 export XDG_DATA_HOME="$D/.keyring-data"
 KR="$XDG_DATA_HOME/keyrings"; ST="$D/.keyring-state"
+# OpenGateway provider (Deep / Glim agents): key from private env file, provider from repo config.
+if [ -r "$HOME/.secrets/opengateway.env" ]; then set -a; . "$HOME/.secrets/opengateway.env"; set +a; fi
+export OPENCODE_CONFIG="$D/opencode.opengateway.json"
 mkdir -p "$KR" "$ST" "$D/logs"
 pkill -f "OpenBot-x86_64.AppImage" 2>/dev/null || true
 pkill -f "/tmp/.mount_OpenBo.*/openbot" 2>/dev/null || true
