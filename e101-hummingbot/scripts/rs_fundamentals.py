@@ -152,9 +152,13 @@ def refresh(coins):
         else: r["coin_type"] = None
         # Auto business class for coins the fixed rules leave unclassified:
         # CoinGecko categories + the DefiLlama product-revenue fact only.
-        auto = rs_sources.business_class(rs_sources.cg_meta(cid), r["is_meme"],
-                                         bool(r["has_real_revenue"]),
-                                         launchpad_platform=(sym in PLATFORM))
+        # HYBRID is a Nova rule and outranks every heuristic.
+        if sym in HYBRID:
+            auto = "hybrid"
+        else:
+            auto = rs_sources.business_class(rs_sources.cg_meta(cid), r["is_meme"],
+                                             bool(r["has_real_revenue"]),
+                                             launchpad_platform=(sym in PLATFORM))
         if r["coin_type"] is None and auto: r["coin_type"] = auto
         r["auto_class"] = auto
         # taxonomy file: record the derived class (None stays as null = n/a);
