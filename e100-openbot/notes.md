@@ -73,3 +73,7 @@ XDG_DATA_HOME=.keyring-data (gitignored). Nova's ~/.local/share/keyrings untouch
 ## Fast phone QR
 Run `bin/qr_now.sh` on the mini PC: it opens Settings > Mobile Connect, generates a one-time code and saves `/tmp/openbot_qr.png` (~10 s). From another machine: `ssh minipc ~/code/p4/e100-openbot/bin/qr_now.sh && scp minipc:/tmp/openbot_qr.png .`
 Codes last 2 minutes and work once. For a phone you trust long-term, "Generate link" (permanent link) avoids QR codes but anyone with it can sign in.
+
+## Agents (renamed by Nova, Oct 25 2026)
+- **Mango**: OpenCode Go / Muse Spark 1.3 (was "Coco"). Persona in `coco/persona.md`.
+- **Mango Z**: Zhipu Z.ai GLM (coding plan endpoint).
