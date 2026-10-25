@@ -23,3 +23,10 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - `OPENCODE_API_KEY`: OpenCode API key (secret).
 - `OPENCODE_SERVICE_API_KEY`: OpenCode service key (secret).
 - Default model wiring lives in `~/.config/opencode/opencode.json` (`{env:OPENCODE_GO_API_KEY}` reference, not a pasted key).
+
+## AI credits order
+- AI steps use Zhipu/Z.ai first: env var `ZAI_API_KEY` (in ~/.zshrc), OpenAI-compatible base URL `https://api.z.ai/api/coding/paas/v4` (GLM Coding Plan, level "pro"). Cheapest first: `glm-5.3-flash`, then `glm-5.3`. The general `/api/paas/v4` endpoint has no balance (only free `glm-4.5-flash` works there).
+- Quota: `GET https://api.z.ai/api/monitor/usage/quota/limit` with header `Authorization: $ZAI_API_KEY`.
+- In pi use provider `zai` (already in ~/.pi/agent/models.json, key from `ZAI_API_KEY`). Do not edit ~/.pi/agent/auth.json.
+- When Z.ai quota is exhausted or errors, fall back to OpenCode Go (`opencode-go`), cheapest model first.
+- Never print or commit keys.
