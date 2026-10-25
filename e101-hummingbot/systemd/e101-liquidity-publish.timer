@@ -1,0 +1,8 @@
+[Unit]
+Description=EchoLike Liquidity demo status publish (hourly)
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=60min
+Persistent=true
+[Install]
+WantedBy=timers.target

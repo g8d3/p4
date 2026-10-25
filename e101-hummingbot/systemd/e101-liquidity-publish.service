@@ -1,0 +1,5 @@
+[Unit]
+Description=EchoLike Liquidity: publish paper demo status.json to echolike-site
+[Service]
+Type=oneshot
+ExecStart=%h/code/p4/e101-hummingbot/publish_status.sh

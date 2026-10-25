@@ -1,0 +1,20 @@
+services:
+  hummingbot:
+    image: hummingbot/hummingbot:latest
+    container_name: e101-hummingbot
+    restart: unless-stopped
+    cpus: 1.0
+    mem_limit: 1g
+    env_file: .env   # CONFIG_PASSWORD (gitignored)
+    environment:
+      - SCRIPT_CONFIG=echolike_pmm.yml
+      - HEADLESS_MODE=true
+    volumes:
+      - ./conf:/home/hummingbot/conf
+      - ./conf/connectors:/home/hummingbot/conf/connectors
+      - ./data:/home/hummingbot/data
+      - ./logs:/home/hummingbot/logs
+      - ./scripts/echolike_pmm.py:/home/hummingbot/scripts/echolike_pmm.py:ro
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
