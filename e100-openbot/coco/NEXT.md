@@ -26,6 +26,8 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 - [Owner: Mango] Then: code-only topic cluster alert (5+ likes same topic in 24h -> bin/to_coco.sh with links).
 - [Owner: Mango Z] One draft post in coco/drafts_posts.md: spotting a trend from your own likes (no token claims, no URLs). Coco approves/posts.
 
+- [Owner: Mango Z] Daily relative-strength scan (e101-hummingbot, CoinGecko+DefiLlama, paper-trade CSV, 7:15 AM timer written not enabled). Local commit only.
+
 ## Done today
 - Sales page gaps 2-6 (CTA, proof, why us, steps+FAQ, phone nav) published to echolike.app by Coco.
 - Extension 2.7.0 (local-first) live on echolike.app and in g8d3/echolike-extension.
