@@ -1,0 +1,1 @@
+return [...document.querySelectorAll('input,textarea,[contenteditable=true],button,[role=switch],[role=combobox]')].filter(e=>e.offsetParent&&e.getBoundingClientRect().x>1000).map(e=>e.tagName+':'+(e.getAttribute('aria-label')||e.placeholder||e.innerText||'').slice(0,40)+'='+(e.value||'').slice(0,80)).join('\n')
