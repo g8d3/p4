@@ -38,6 +38,9 @@ WATCHLIST = {
     "RAY": "raydium", "ORCA": "orca", "PUMP": "pump-fun", "UNI": "uniswap",
     "CAKE": "pancakeswap-token", "STONK": "stonk-3", "PONS": "pons",
     "AERO": "aerodrome-finance", "ORE": "ore",
+    # LAUNCH: largest same-symbol candidate (Hyperlauncher, mc ~$166k on 2026-10-25).
+    # _LaunchX's LAUNCH (Stonk Fun) was not on CoinGecko yet; both candidates logged.
+    "LAUNCH": "hyperlauncher",
 }
 FIELDS = ["date", "token", "price_usd", "ret_7d", "ret_30d",
           "sol_ret_7d", "sol_ret_30d", "rev_24h", "rev_30d",
