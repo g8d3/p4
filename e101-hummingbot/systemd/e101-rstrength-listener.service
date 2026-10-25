@@ -1,0 +1,10 @@
+[Unit]
+Description=EchoLike relative-strength event listener (Binance WS + DexScreener/GeckoTerminal + DefiLlama, paper only)
+After=network-online.target
+[Service]
+WorkingDirectory=%h/code/p4/e101-hummingbot
+ExecStart=/usr/bin/python3 -u %h/code/p4/e101-hummingbot/scripts/rstrength_listener.py
+Restart=always
+RestartSec=30
+[Install]
+WantedBy=default.target
