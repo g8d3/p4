@@ -8,7 +8,7 @@ Updated: Sun 2026-10-25 16:00 Bogotá (UTC-5)
 
 ## Top priority
 Get the echolike.app sales page ready to sell on a phone. Six gaps:
-1. [Owner: Mango Z → Nova] No price (Nova decides).
+1. [DECIDED Oct 25 by Coco, delegated by Nova] Price: $5/mo billed yearly ($60/yr) + $39 one-time founder tier, limited to the first 100 buyers. Mango puts it on the sales page (EN+ES).
 2. [Owner: Mango] No clear call to action.
 3. [Owner: Mango] Weak proof, full of jargon.
 4. [Owner: Mango] No reason to pick us.
