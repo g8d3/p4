@@ -144,6 +144,27 @@ def main():
     missing = [s for s, i in WATCHLIST.items() if i not in by_id]
     for s in missing:
         log(f"NOT FOUND on CoinGecko: {s} (id {WATCHLIST[s]})")
+    # LAUNCH stand-in watch: when the real Stonk Fun LAUNCH lists on CoinGecko,
+    # say so in the log so the id gets swapped (never auto-swapped by code).
+    try:
+        hits = get_json("https://api.coingecko.com/api/v3/search?query=launch").get("coins", [])
+        for c in hits:
+            name = (c.get("name") or "").lower()
+            if ("stonk" in name or "launchx" in name or "uselaunch" in name) and c.get("id") != "hyperlauncher":
+                log(f"NOTE: possible Stonk Fun LAUNCH now on CoinGecko: {c.get('id')} "
+                    f"({c.get('name')}) - swap WATCHLIST['LAUNCH'] if confirmed")
+                break
+    except Exception as e:
+        log(f"LAUNCH watch search failed: {e.__class__.__name__}")
+
+    vol_floor = float(os.environ.get("RS_MIN_VOL24", 10000))
+    skip = {}
+    for cid, c in by_id.items():
+        if cid != "solana" and (c.get("total_volume") or 0) < vol_floor:
+            sym = (c.get("symbol") or "").upper()
+            skip[sym] = c.get("total_volume")
+    for sym, v in sorted(skip.items()):
+        log(f"SKIPPED near-zero-volume coin: {sym} 24h vol ${v:,.0f} < ${vol_floor:,.0f} (no fake signals)")
 
     sol = by_id.get("solana")
     if not sol or sol.get("price_change_percentage_30d_in_currency") is None:
@@ -161,6 +182,8 @@ def main():
         if cid == "solana":
             continue
         sym = (c.get("symbol") or "").upper()
+        if sym in skip:
+            continue
         p = c.get("current_price")
         r7 = c.get("price_change_percentage_7d_in_currency")
         r30 = c.get("price_change_percentage_30d_in_currency")
