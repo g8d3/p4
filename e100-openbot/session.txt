@@ -1,0 +1,2 @@
+57226
+DISPLAY=:99, CDP http://localhost:9222, app pid 57226, signed in as pastasjuan@gmail.com, agent Tester on OpenCode/Flint 40B Free

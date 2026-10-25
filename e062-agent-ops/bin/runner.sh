@@ -8,7 +8,7 @@ set -uo pipefail
 LOCK=/tmp/e062-runner.lock
 exec 9>"$LOCK"
 if ! flock -n 9; then echo "== runner leg skipped: another leg running =="; exit 0; fi
-export PATH="/home/vuos/.nvm/versions/node/v24.16.0/bin:/usr/local/bin:/usr/bin:/bin"
+export PATH="/home/vuos/.nvm/versions/node/v24.22.1/bin:/usr/local/bin:/usr/bin:/bin"
 OPS=/home/vuos/code/p4/e062-agent-ops/bin/ops.py
 PROMPT=/home/vuos/code/p4/e062-agent-ops/RUNNER_PROMPT.md
 DB=/home/vuos/code/p4/e062-agent-ops/ops.db

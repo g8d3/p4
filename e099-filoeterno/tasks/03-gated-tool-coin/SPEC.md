@@ -5,7 +5,8 @@ contract_name: GateToolCoin
 src_path: src/GateToolCoin.sol
 test_path: test/GateToolCoin.t.sol
 solc: 0.8.26
-probe: fee math (0.5% to treasury)
+probe_pattern: FEE_BPS = 50
+probe_replacement: FEE_BPS = 5000
 
 ## CONTRACT
 

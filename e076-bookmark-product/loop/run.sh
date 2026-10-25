@@ -8,7 +8,7 @@ set -uo pipefail
 LOCK=/tmp/e076-runner.lock
 exec 9>"$LOCK"
 if ! flock -n 9; then echo "== leg skipped: another leg running =="; exit 0; fi
-export PATH="/home/vuos/.nvm/versions/node/v24.16.0/bin:/usr/local/bin:/usr/bin:/bin"
+export PATH="/home/vuos/.nvm/versions/node/v24.22.1/bin:/usr/local/bin:/usr/bin:/bin"
 EXP=/home/vuos/code/p4/e076-bookmark-product
 TASK="${E076_TASK:-$(python3 -c "import json;print(json.load(open('$EXP/loop/state.json')).get('next','ship version stamps'))")}"
 N=$(python3 -c "import json;s=json.load(open('$EXP/loop/state.json'));print(len(s.get('legs',[]))+1)")

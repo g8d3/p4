@@ -4,7 +4,7 @@
 # Uncapped by SPEND.md, bounded per-leg by timeout + task scope.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-export PATH="/home/vuos/.nvm/versions/node/v24.16.0/bin:/usr/local/bin:/usr/bin:/bin"
+export PATH="/home/vuos/.nvm/versions/node/v24.22.1/bin:/usr/local/bin:/usr/bin:/bin"
 mkdir -p runs log
 LOCK=/tmp/e073-llm-leg.lock
 exec 9>"$LOCK"

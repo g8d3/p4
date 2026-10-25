@@ -8,8 +8,8 @@ PORT=$(python3 -c "import json;print(json.load(open('$DIR/needs.json'))['port'])
 MAX_LEGS="${MAX_LEGS:-8}"
 # cron has a starved PATH (nvm bins missing) — earlier cron legs died with
 # exit 127 on `pi`. Resolve once, fail LOUD if absent (never silent).
-export PATH="$HOME/.nvm/versions/node/v24.16.0/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
-PI_BIN="$(command -v pi || echo /home/vuos/.nvm/versions/node/v24.16.0/bin/pi)"
+export PATH="$HOME/.nvm/versions/node/v24.22.1/bin:/usr/local/bin:/usr/bin:/bin:$PATH"
+PI_BIN="$(command -v pi || echo /home/vuos/.nvm/versions/node/v24.22.1/bin/pi)"
 [ -x "$PI_BIN" ] || { echo "FATAL: pi not found (PATH=$PATH)"; exit 127; }
 
 [ -f "$DIR/data/STOP" ] && { echo "STOP set, thinker stands down"; exit 0; }

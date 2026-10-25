@@ -31,6 +31,8 @@ def spec(task):
     for k in ("contract_file", "contract_name", "probe_pattern", "probe_replacement"):
         m = re.search(rf"^{k}:\s*(.+)$", raw, re.M)
         out[k] = m.group(1).strip() if m else ""
+    missing = [k for k in ("contract_file", "contract_name", "probe_pattern") if not out[k]]
+    assert not missing, f"SPEC.md missing fields: {missing} — fix the SPEC, never guess"
     parts = re.split(r"^##\s+", raw, flags=re.M)
     for p in parts:
         if p.startswith("CONTRACT"):

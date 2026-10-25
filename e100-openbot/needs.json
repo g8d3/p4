@@ -1,0 +1,8 @@
+{
+  "app": "OpenBot desktop",
+  "linux_download": "https://openbot.run/download/linux/latest",
+  "provider_type": "OpenAI-compatible endpoint",
+  "base_url_env": "OPENCODE_GO_BASE_URL",
+  "api_key_env": "OPENCODE_GO_API_KEY",
+  "model_env": "OPENCODE_GO_MODEL"
+}

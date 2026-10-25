@@ -158,3 +158,10 @@ e095-tps-monitor/
 
 # e097 night-worker: runtime only (logs, bench outputs, sids, touch files)
 e097-night-worker/data/
+
+# e100-openbot: AppImage binary (~300MB) stays local; URL is in needs.json
+*.AppImage
+e100-openbot/downloads/
+
+# embedded standalone repo (own remote), never tracked by p4
+echolike-extension/

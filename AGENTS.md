@@ -14,3 +14,12 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - User-seat review before delivering: open the page yourself, list what the user can do there. A page with no user action is a bug.
 - Config, never hardcode: machine values (IPs, ports, paths) and URL lists come from settings or the server, documented in `needs.json` — not buried in code.
 - Kill servers by exact PID (read it from `ss -tlnp`), never broad `pkill -f` patterns — a pattern can match your own shell or the wrong server.
+
+## Default AI credentials
+- Source of truth is env vars starting with `OPENCODE` (names only — never paste values into files, chats, or logs).
+- `OPENCODE_GO_BASE_URL`: OpenAI-compatible base URL for the default proxy.
+- `OPENCODE_GO_MODEL`: default model name on that proxy.
+- `OPENCODE_GO_API_KEY`: API key for that proxy (secret).
+- `OPENCODE_API_KEY`: OpenCode API key (secret).
+- `OPENCODE_SERVICE_API_KEY`: OpenCode service key (secret).
+- Default model wiring lives in `~/.config/opencode/opencode.json` (`{env:OPENCODE_GO_API_KEY}` reference, not a pasted key).
