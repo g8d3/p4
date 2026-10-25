@@ -23,7 +23,15 @@ TOPICS = {
     "ai_agents": [r"\bai agents?\b", r"\bai agent\b", r"\bagentic\b", r"\bai\s*\+\s*crypto\b", r"\bai ?x ?crypto\b", r"\bcrypto ?x ?ai\b"],
     "memecoins": [r"\bmemecoins?\b", r"\bmeme coins?\b", r"\bpump\.fun\b", r"\bpumpfun\b", r"\bmemecoin launch"],
     "drawdown_strength": [r"\bholding up\b", r"\bdrawdowns?\b", r"\bresilien\w*", r"\bred days?\b", r"\bdown market\b", r"\bwhile the market (falls|dumps|drops)\b"],
-    "dev_tools": [r"\bdev tools?\b", r"\bdevelopers?\b", r"\bsdks?\b", r"\binfrastructure\b", r"\bopen source\b", r"\bframeworks?\b", r"\bclis?\b", r"\breverse engineering\b"],
+    "dev_tools": [r"\bdev tools?\b", r"\bsdks?\b", r"\binfrastructure\b", r"\bopen source\b", r"\bframeworks?\b", r"\breverse engineering\b"],
+}
+RX = {t: [re.compile(p, re.I) for p in pats] for t, pats in TOPICS.items()}
+QUESTIONS = {
+    "launchpads": "How do you tell which ones actually share revenue instead of just farming fees?",
+    "ai_agents": "What task would you hand it first?",
+    "memecoins": "What would convince you this one outlives the current meta?",
+    "drawdown_strength": "Which metric do you watch when everything bleeds?",
+    "dev_tools": "What did you build with it first?",
 }
 PUMP_RX = re.compile(r"\bpump\.fun\b|\bpumpfun\b|\b\$?pump\b", re.I)
 
@@ -36,10 +44,34 @@ def jload(p):
 
 
 def score(item):
-    """(score, matched topics). Regex word-boundary hits only; else 0."""
+    """(ntopics, nhits, matched topics). Regex word-boundary hits only; else 0."""
     text = (item.get("text") or "").lower()
-    topics = [t for t, kws in TOPICS.items() if any(re.search(k, text) for k in kws)]
-    return len(topics), topics
+    topics, hits = [], 0
+    for t, rxs in RX.items():
+        n = sum(len(r.findall(text)) for r in rxs)
+        if n:
+            topics.append(t)
+            hits += n
+    return len(topics), hits, topics
+
+
+def draft_reply(it, topics):
+    """One specific, useful reply draft from the post's own content (<200 chars).
+    Quotes the post's key sentence and asks one concrete question. No product
+    pitch. Returns None when there is nothing real to say."""
+    text = " ".join((it.get("text") or "").split())
+    if len(text) < 40:
+        return None
+    key = None
+    for s in re.split(r"(?<=[.!?])\s+", text):
+        if len(s) >= 30 and any(rx.search(s) for rxs in RX.values() for rx in rxs):
+            key = s
+            break
+    if not key:
+        return None
+    quote = (key[:90] + "…") if len(key) > 90 else key
+    d = f'"{quote}" {QUESTIONS[topics[0]]}'
+    return d if len(d) <= 200 else None
 
 
 def main():
@@ -57,14 +89,13 @@ def main():
         url = it.get("url") or ""
         if not url.startswith("https://x.com/") or url in seen:
             continue
-        s, topics = score(it)
-        if s <= 0:
+        nt, nh, topics = score(it)
+        if nt <= 0:
             continue
         seen.add(url)
-        scored.append((s, topics, it))
-    # Tie-break newest first, then a stable sort by score (both passes matter).
-    scored.sort(key=lambda x: x[2].get("visto") or "", reverse=True)
-    scored.sort(key=lambda x: -x[0])
+        scored.append((nt, nh, topics, it))
+    # One sort: most topics, then most keyword hits, then newest.
+    scored.sort(key=lambda x: (x[0], x[1], x[3].get("visto") or ""), reverse=True)
     top5 = scored[:5]
 
     lines = [f"# X research digest — {now.strftime('%Y-%m-%d')} (Bogotá)",
@@ -77,7 +108,7 @@ def main():
     else:
         lines.append("## Candidate posts")
         lines.append("")
-        for n, (s, topics, it) in enumerate(top5, 1):
+        for n, (nt, nh, topics, it) in enumerate(top5, 1):
             text = " ".join((it.get("text") or "").split())
             lines.append(f"### {n}. {it.get('handle') or 'unknown'} — topics: {', '.join(topics)}")
             lines.append(f"{it['url']}")
@@ -87,13 +118,22 @@ def main():
                 lines.append("PUMP holder note: directly about Pump.fun / $PUMP.")
             lines.append("")
 
-    lines += ["## Reply drafts (Mango Z)", "",
-              "(To be written by hand against the candidates above — one per post,",
-              "under 240 chars, about the post's actual point. No EchoLike pitch",
-              "unless it fits naturally.)", ""]
+    drafts = []
+    for nt, nh, topics, it in scored:
+        if len(drafts) >= 3:
+            break
+        d = draft_reply(it, topics)
+        if d:
+            drafts.append((it, d))
+    if drafts:
+        lines += ["## Suggested replies for @novaisabuilder (drafts — do not post)", ""]
+        for it, d in drafts:
+            lines.append(f"- To {it.get('handle')} ({it['url']}):")
+            lines.append(f"  {d}")
+            lines.append("")
     out = os.path.join(COCO, f"digest_x_{now.strftime('%Y-%m-%d')}.md")
     open(out, "w").write("\n".join(lines) + "\n")
-    print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)}")
+    print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)} | drafts {len(drafts)}")
     return 0
 
 
