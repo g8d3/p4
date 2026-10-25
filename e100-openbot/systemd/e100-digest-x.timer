@@ -1,0 +1,8 @@
+[Unit]
+Description=Run the X research digest daily at 07:30 Bogota (America/Bogota, no DST)
+[Timer]
+# System timezone must be America/Bogota for this to fire at 07:30 local.
+OnCalendar=*-*-* 07:30:00
+Persistent=true
+[Install]
+WantedBy=timers.target

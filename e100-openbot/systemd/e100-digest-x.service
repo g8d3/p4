@@ -1,0 +1,6 @@
+[Unit]
+Description=EchoLike daily X research digest for Nova (writes coco/digest_x_<date>.md, paper only)
+[Service]
+Type=oneshot
+WorkingDirectory=%h/code/p4/e100-openbot
+ExecStart=/usr/bin/python3 %h/code/p4/e100-openbot/scripts/digest_x.py
