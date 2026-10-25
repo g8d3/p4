@@ -77,3 +77,8 @@ Codes last 2 minutes and work once. For a phone you trust long-term, "Generate l
 ## Agents (renamed by Nova, Oct 25 2026)
 - **Mango**: OpenCode Go / Muse Spark 1.3 (was "Coco"). Persona in `coco/persona.md`.
 - **Mango Z**: Zhipu Z.ai GLM (coding plan endpoint).
+
+## Talk to an agent in one command: bin/ask.py
+- `python3 bin/ask.py "Mango Z" "message"` opens that agent chat by sidebar name (label starts with "Name, " or "Name. ") and sends it, visible in the same chat on the phone.
+- `--wait [secs]` polls openbot.db (read-only) until the new turn completes and prints the final answer. `@file` sends file contents. `--stat "Mango"` prints the latest turn as JSON.
+- Turn state lives in `projection_turns`; replies are `projection_thread_messages` with item_type final_answer; model/tokens are in `agent_usage_records`.
