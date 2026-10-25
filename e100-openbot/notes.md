@@ -69,3 +69,7 @@ XDG_DATA_HOME=.keyring-data (gitignored). Nova's ~/.local/share/keyrings untouch
 - obctl.py now prefers the index.html page target (a "Team WebRTC" page appears after Mobile Connect).
 - Helpers: bin/ui.py (click by label + dump), bin/rclick.py (real CDP mouse click, needed for Radix popovers),
   bin/pick.py (choose model in picker), bin/send.py (send a chat message).
+
+## Fast phone QR
+Run `bin/qr_now.sh` on the mini PC: it opens Settings > Mobile Connect, generates a one-time code and saves `/tmp/openbot_qr.png` (~10 s). From another machine: `ssh minipc ~/code/p4/e100-openbot/bin/qr_now.sh && scp minipc:/tmp/openbot_qr.png .`
+Codes last 2 minutes and work once. For a phone you trust long-term, "Generate link" (permanent link) avoids QR codes but anyone with it can sign in.
