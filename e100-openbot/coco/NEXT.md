@@ -27,6 +27,7 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 - [Owner: Mango Z] One draft post in coco/drafts_posts.md: spotting a trend from your own likes (no token claims, no URLs). Coco approves/posts.
 
 - [Owner: Mango Z] Daily relative-strength scan (e101-hummingbot, CoinGecko+DefiLlama, paper-trade CSV, 7:15 AM timer written not enabled). Local commit only.
+- [Owner: Mango Z] Daily X research digest by 7:30 AM Bogota -> coco/digest_x_YYYY-MM-DD.md (top 5 verified items + 2-3 reply drafts for @novaisabuilder; no invented posts/URLs; never posts) then bin/to_coco.sh.
 
 ## Done today
 - Sales page gaps 2-6 (CTA, proof, why us, steps+FAQ, phone nav) published to echolike.app by Coco.
