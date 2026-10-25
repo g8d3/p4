@@ -1,5 +1,5 @@
 {
- "_doc": "Manual fundamentals per SYMBOL: team, roadmap, revenue_plan, buyback_burn_30d. Leave null when unknown; never guess.",
+ "_doc": "Manual fundamentals per SYMBOL: team, roadmap, revenue_plan, buyback_burn_30d. Leave null when unknown; never guess. Optional keys: llama_parent (DefiLlama parent id when children carry no gecko_id), self_trading_revenue_30d or self_trading_share (0..1 of rev_30d) with a 'source' URL - only real measurements, never guesses. auto_class is derived, refresh overwrites it.",
  "ETH": {
   "auto_class": null
  },
@@ -10,7 +10,7 @@
   "auto_class": null
  },
  "NEAR": {
-  "auto_class": "infra"
+  "auto_class": "real_business"
  },
  "TAO": {
   "auto_class": null
@@ -19,7 +19,7 @@
   "auto_class": "real_business"
  },
  "LINK": {
-  "auto_class": "infra"
+  "auto_class": "real_business"
  },
  "HYPE": {
   "auto_class": "real_business"
@@ -37,7 +37,7 @@
   "auto_class": "real_business"
  },
  "PUMP": {
-  "auto_class": "casino"
+  "auto_class": "real_business"
  },
  "UNI": {
   "auto_class": "real_business"
@@ -52,7 +52,9 @@
   "auto_class": "real_business"
  },
  "AERO": {
-  "auto_class": null
+  "auto_class": "real_business",
+  "llama_parent": "parent#aero-protocol",
+  "llama_parent_source": "https://api.llama.fi/protocols (children Aerodrome V1 id 3450, Slipstream 4524, Ignition 6942; parent Aero 'parent#aero-protocol' has gecko_id null)"
  },
  "ORE": {
   "auto_class": "real_business"

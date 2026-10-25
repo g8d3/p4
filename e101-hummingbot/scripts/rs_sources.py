@@ -73,13 +73,15 @@ INFRA_CATS = {"infrastructure", "oracle", "bridge", "bridges", "wallets", "walle
 STABLE_CATS = {"stablecoin", "stablecoins", "algorithmic stablecoin", "wrapped-staked-only"}
 
 
-def business_class(meta, is_meme=False, has_product_rev=False):
-    """'stable' | 'infra' | 'casino' | 'real_business' | None (never guessed)."""
+def business_class(meta, is_meme=False, has_product_rev=False, launchpad_platform=False):
+    """'stable' | 'real_business' | 'casino' | 'infra' | None (never guessed).
+    A product-revenue fact (or launchpad-platform status) outranks a meme tag:
+    platform tokens earn fees on OTHER coins, so "meme" alone is not casino."""
     c = {x.lower() for x in meta.get("categories") or []}
     if any(any(s in x for s in STABLE_CATS) for x in c): return "stable"
+    if has_product_rev or launchpad_platform: return "real_business"
     if is_meme: return "casino"
     if c & INFRA_CATS: return "infra"
-    if has_product_rev: return "real_business"
     return None
 
 

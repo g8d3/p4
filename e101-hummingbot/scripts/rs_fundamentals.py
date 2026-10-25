@@ -90,7 +90,12 @@ def refresh(coins):
     manual = json.load(open(MANUAL)) if os.path.exists(MANUAL) else {}
     out = {}
     for sym, cid in coins.items():
+        m = manual.get(sym, {})
         ps = list(by_g.get(cid, []))
+        if not ps and m.get("llama_parent"):
+            # manual DefiLlama parent link (e.g. Aero: children carry no gecko_id)
+            pid = m["llama_parent"]
+            ps = [{"id": pid, "parent": True}] + list(by_parent.get(pid, []))
         for p in list(ps):
             key = p["id"] if p.get("parent") else (p.get("parentProtocol") or "")
             ps += [c for c in by_parent.get(key, []) if c not in ps]
@@ -120,15 +125,16 @@ def refresh(coins):
         else:
             r["revenue_is_self_trading"] = self_only
             r["real_revenue_30d"] = None if self_only else r["rev_30d"]
-        # external = DefiLlama product revenue; self = fees from trading the coin itself
-        # (DefiLlama self-only categories, or manual self_trading_revenue_30d). Unknown -> null.
+        # external = DefiLlama product revenue; self = fees from trading the coin itself.
+        # DefiLlama does NOT split self-trading revenue at all, so its silence is not zero:
+        # self stays None (external_share n/a) unless a human value/share exists in
+        # rs_fundamentals_manual.json (self_trading_revenue_30d, or self_trading_share of
+        # rev_30d with a "source" URL next to it).
         ext = r["real_revenue_30d"]
         slf = m.get("self_trading_revenue_30d")
+        if slf is None and m.get("self_trading_share") is not None and r["rev_30d"]:
+            slf = round(r["rev_30d"] * float(m["self_trading_share"]), 2)
         if self_only: slf, ext = r["rev_30d"], 0.0
-        elif ps and ext is not None and slf is None:
-            # DefiLlama exposes a product-revenue breakdown here (fees vs revenue overviews),
-            # and it reports no self-trading revenue for this protocol -> 0, not a guess.
-            slf = 0.0
         r["external_revenue_30d"], r["self_trading_revenue_30d"] = ext, slf
         if ext is not None and slf is not None and (ext + slf) > 0:
             sh = round(ext / (ext + slf), 3)
@@ -147,7 +153,8 @@ def refresh(coins):
         # Auto business class for coins the fixed rules leave unclassified:
         # CoinGecko categories + the DefiLlama product-revenue fact only.
         auto = rs_sources.business_class(rs_sources.cg_meta(cid), r["is_meme"],
-                                         bool(r["has_real_revenue"]))
+                                         bool(r["has_real_revenue"]),
+                                         launchpad_platform=(sym in PLATFORM))
         if r["coin_type"] is None and auto: r["coin_type"] = auto
         r["auto_class"] = auto
         # taxonomy file: record the derived class (None stays as null = n/a);
