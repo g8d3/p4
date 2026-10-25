@@ -21,6 +21,11 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 - Mango Z: competitor + pricing scan for X bookmark/likes tools (real prices with sources) → reportes/precios_competencia_2026-10-25.md, ending in max 3 price options + recommendation.
 - Both report via bin/to_coco.sh when done.
 
+## Now (added Oct 25)
+- [Owner: Mango] Fix EchoLike likes loop (no new likes recorded after Oct 24 10:10 AM Bogota); verify 2.7.0 sync migration on Nova install.
+- [Owner: Mango] Then: code-only topic cluster alert (5+ likes same topic in 24h -> bin/to_coco.sh with links).
+- [Owner: Mango Z] One draft post in coco/drafts_posts.md: spotting a trend from your own likes (no token claims, no URLs). Coco approves/posts.
+
 ## Done today
 - Sales page gaps 2-6 (CTA, proof, why us, steps+FAQ, phone nav) published to echolike.app by Coco.
 - Extension 2.7.0 (local-first) live on echolike.app and in g8d3/echolike-extension.
