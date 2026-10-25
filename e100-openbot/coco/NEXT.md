@@ -3,7 +3,7 @@ Updated: Sun 2026-10-25 15:45 Bogotá (UTC-5)
 
 ## Owners
 - Mango: product + dev (extension, sales page, site).
-- Mango Z: market, monetization, social (pricing research, competitors, post drafts; Nova approves every post).
+- Mango Z: market, monetization, social (pricing research, competitors, post drafts; Coco approves and posts; Nova does not approve posts).
 - Coco: coordination; decisions for Nova come to Coco as max 3 numbered options + a recommendation.
 
 ## Top priority
@@ -29,14 +29,14 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 
 ## Blocked
 - [Owner: Mango Z] Outreach DMs to 7 people failed: X only allows chats from followers.
-- [Owner: Mango Z] Public announcement post needs Nova's OK on the text.
+- [Owner: Mango Z] Public announcement post : Mango Z drafts, Coco approves and posts.
 - [Owner: Mango] /directory/ and /funding-rates/ are a frozen snapshot until a job publishes them to echolike-site.
 
 ## Paused
 - Trading and Hummingbot (Nova unsure about trading), Churn paper test (undecided), liquidity page.
 
 ## Rules
-- No sending, posting or pushing without Nova.
+- No sending or pushing without Nova. X posts: Mango Z drafts, Coco approves and posts (Nova delegated this). Mango agents never post themselves.
 - Never invent times or approvals.
 
 ## How to reach Coco
