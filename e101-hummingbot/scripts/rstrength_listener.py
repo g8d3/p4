@@ -44,6 +44,9 @@ BOG = timezone(timedelta(hours=-5))
 E = os.environ.get
 DROP_PCT = float(E("RS_DROP_PCT", 3)); LIQ_PCT = float(E("RS_LIQ_PCT", 20))
 VOL_X = float(E("RS_VOL_X", 3)); COOLDOWN_MIN = float(E("RS_COOLDOWN_MIN", 180))
+MIN_VOL5 = float(E("RS_MIN_VOL5", 5000))      # absolute 5m-volume floor (USD)
+MIN_AVG5 = float(E("RS_MIN_AVG5", 500))       # floor for the prior-hour avg baseline
+LIQ_TREND = float(E("RS_LIQ_TREND_PCT", 2))   # STRONG/RUG_RISK liquidity-trend threshold
 GRAD_AGE_H = float(E("RS_GRAD_AGE_H", 24)); GRAD_LIQ = float(E("RS_GRAD_LIQ", 50000))
 GRAD_VOL = float(E("RS_GRAD_VOL", 10000)); LAUNCH_CAP = int(E("RS_LAUNCH_CAP", 150))
 LAUNCH_DEXES = {"pump-fun", "pumpswap", "raydium-launchlab", "letsbonk-fun", "meteora-dbc", "moonshot"}
@@ -92,19 +95,30 @@ def fnum(x):
 
 
 def coin_rules(hist):
-    """hist: samples oldest..newest, 5 min apart -> (rules, deltas)."""
+    """hist: samples oldest..newest, 5 min apart -> (rules, deltas).
+    Needs 12 samples (1h) before any rule fires: thin pairs need a real baseline."""
     cur, d = hist[-1], {}
+    if len(hist) < 12:
+        return [], d
     for name, n in (("5m", 1), ("30m", 6), ("1h", 12)):
         d["liq_chg_" + name] = pct(hist[-1 - n]["liq_usd"], cur["liq_usd"]) if len(hist) > n else None
     prev = [h["vol_m5"] for h in hist[-13:-1] if h.get("vol_m5") is not None]
     avg = sum(prev) / len(prev) if len(prev) >= 3 else None
+    # Floor the baseline so near-zero prior windows cannot fake a x800 spike.
+    avg = max(avg, MIN_AVG5) if avg is not None else None
     d["vol_spike_x"] = round(cur["vol_m5"] / avg, 2) if avg else None
     rules, liq = [], [v for v in (d["liq_chg_5m"], d["liq_chg_30m"], d["liq_chg_1h"]) if v is not None]
     if any(v >= LIQ_PCT for v in liq): rules.append("LIQ_ADD")
     if any(v <= -LIQ_PCT for v in liq): rules.append("LIQ_DRAIN")
-    if d["vol_spike_x"] is not None and d["vol_spike_x"] >= VOL_X:
+    vol = fnum(cur.get("vol_m5")) or 0
+    liq_now = fnum(cur.get("liq_usd")) or 0
+    # Absolute volume floor: single tiny trades on thin pairs are not volume.
+    if (d["vol_spike_x"] is not None and d["vol_spike_x"] >= VOL_X
+            and vol >= max(MIN_VOL5, 0.005 * liq_now)):
         tr = d["liq_chg_30m"] if d["liq_chg_30m"] is not None else d["liq_chg_5m"]
-        rules.append("STRONG" if tr and tr > 0 else ("RUG_RISK" if tr and tr < 0 else "VOL_SPIKE"))
+        # STRONG/RUG_RISK need a real liquidity trend, not a bare sign.
+        rules.append("STRONG" if tr is not None and tr >= LIQ_TREND
+                     else ("RUG_RISK" if tr is not None and tr <= -LIQ_TREND else "VOL_SPIKE"))
     return rules, d
 
 
@@ -175,7 +189,8 @@ class Engine:
         if not main and not head: return
         txt = "; ".join(f"{r['token']} {r['rule']} [{r['label']}] vol x{r['vol_spike_x']} liq 5m "
                         f"{r['liq_chg_5m']}% 30m {r['liq_chg_30m']}% 1h {r['liq_chg_1h']}% "
-                        f"fund {r['fund_score']} ext_share {r['external_share']}" for r in main[:6])
+                        f"fund {r['fund_score']} ext_share {r['external_share'] if r['external_share'] not in (None, '') else 'n/a'}"
+                        for r in main[:6])
         lt = sum(1 for r in rows if r["bucket"] == "low_trust")
         notify((head + " " if head else "") + "Paper only. " + (txt or "No main flags.") +
                (f" (+{lt} low-trust meme flags in data/rs_lowtrust_flags.csv)" if lt else ""))
@@ -340,7 +355,9 @@ def simulate():
             "GOOD": {"price": 1.1 if last else 1, "vol_m5": 5000 if last else 1000, "vol_h1": 0, "liq_usd": 130000 if last else 100000},
             "RUG": {"price": 1, "vol_m5": 8000 if last else 1000, "vol_h1": 0, "liq_usd": 50000 if last else 100000},
             "MEME": {"price": 1, "vol_m5": 9000 if last else 1000, "vol_h1": 0, "liq_usd": 140000 if last else 100000},
-            "FLAT": {"price": 1, "vol_m5": 1000, "vol_h1": 0, "liq_usd": 100000}})
+            "FLAT": {"price": 1, "vol_m5": 1000, "vol_h1": 0, "liq_usd": 100000},
+            # thin-pair single trade: huge multiplier on near-zero volume, liq flat (ORCA/MET case)
+            "TINY": {"price": 1, "vol_m5": 440.28 if last else 0.28, "vol_h1": 0, "liq_usd": 58000 if last else 58000.04}})
     tl = t0 + 3600
     r1 = eng.handle_market(tl, {"SOL": -4.2, "BTC": -1.0}, -4.2, {"GOOD": 2.5, "FLAT": -3.0})
     r2 = eng.handle_market(tl + 600, {"SOL": -5.0, "BTC": -1.0}, -5.0, {"GOOD": 2.5})
@@ -359,6 +376,9 @@ def simulate():
         "RUG_RISK on RUG (vol spike + liq drain)": ("RUG", "RUG_RISK") in got,
         "LIQ_DRAIN on RUG": ("RUG", "LIQ_DRAIN") in got,
         "FLAT never flagged": not any(r["token"] == "FLAT" for r in main + low),
+        "TINY thin-pair trade never flagged (ORCA/MET case)": not any(r["token"] == "TINY" for r in main + low),
+        "warm-up: no rules before 12 samples": coin_rules(
+            [{"vol_m5": 9000, "liq_usd": 100000}] * 5) == ([], {}),
         "meme spike goes to low-trust bucket only": any(r["token"] == "MEME" and r["rule"] == "STRONG" for r in low)
             and not any(r["token"] == "MEME" for r in main),
         "real improving project outranks meme spike": rk[("GOOD", "STRONG")] > rk[("MEME", "STRONG")],
