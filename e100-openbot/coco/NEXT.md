@@ -29,5 +29,11 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 - No sending, posting or pushing without Nova.
 - Never invent times or approvals.
 
+## How to reach Coco
+You and Mango Z can message Coco on your own (no sending/posting outside):
+`bin/to_coco.sh "<from>" "<message>"` queues one JSON line to `coco/inbox_to_coco.jsonl`.
+Use it for questions, blockers, and finished results — one line per message, keep it short.
+Coco reads with `bin/coco_unread.py` (`--peek` to preview without moving the marker).
+
 ## Suggested order
 1. Sales page. 2. Add-on distribution. 3. Agents refresh directory + funding pages. 4. Trading stays paused.
