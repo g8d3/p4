@@ -50,3 +50,22 @@ Visibility was never the issue: every X client enumerated (xlsclients/xdotool), 
 Consequence: OpenBot sessions also don't survive restarts here (session token lives in secret storage) — each restart costs one email code. On any keyring'd machine all of this just works.
 Tester recreated on the fresh profile (free model, greeted 8:05 PM).
 Backup of first profile (Tester history): ~/.config/OpenBot.bak-firstrun
+
+## FIXED: secret storage headless (Oct 24, ~20:40 Bogotá)
+Root cause: the app itself calls `app.commandLine.appendSwitch("password-store", "gnome-libsecret")`
+when there is no known desktop (found in resources/app.asar), so `--password-store=basic` is overridden,
+and `safeStorage.isEncryptionAvailable()` needs an unlocked `default` collection on the session bus.
+Fix = OpenBot's own recipe (resources/hosting/openbot-container): random password file ->
+`gnome-keyring-daemon --unlock --components=secrets < pwfile` (creates + unlocks `login` with no prompter),
+then `--start`, and `keyrings/default` containing `login`. All in a dedicated dbus-launch session with
+XDG_DATA_HOME=.keyring-data (gitignored). Nova's ~/.local/share/keyrings untouched.
+- Launch / restart: `bin/launch.sh` (kills old app + its dbus/keyring, starts fresh, writes `.keyring-state/env`).
+- Signed in as hello@echolike.app (code read from ~/code/p4/e092-echolike/correo/inbox via `bin/entercode.py`).
+- OpenCode Go key saved (Server settings > Providers > OpenCode > Add key; `bin/setkey.py`, key from env).
+- Tester switched to OpenCode Go/DeepSeek V4.1 Flash; "Reply with exactly GO-OK" -> "GO-OK".
+- Restart via launch.sh: still signed in as hello@echolike.app, "Key saved" persisted.
+- Mobile: Settings > Mobile Connect > 2.1 "Generate QR code" (one-time, 2 min, single use);
+  `bin/qr.py` regenerates and screenshots just the QR to /tmp/openbot_qr.png. 2.2 offers a permanent link (not generated).
+- obctl.py now prefers the index.html page target (a "Team WebRTC" page appears after Mobile Connect).
+- Helpers: bin/ui.py (click by label + dump), bin/rclick.py (real CDP mouse click, needed for Radix popovers),
+  bin/pick.py (choose model in picker), bin/send.py (send a chat message).

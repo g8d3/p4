@@ -20,7 +20,8 @@ PORT = 9222
 def connect():
     targets = json.load(urllib.request.urlopen(
         f"http://localhost:{PORT}/json/list", timeout=10))
-    page = [t for t in targets if t.get("type") == "page"][0]
+    pages = [t for t in targets if t.get("type") == "page"]
+    page = next((t for t in pages if t["url"].endswith("/index.html")), pages[0])
     return create_connection(page["webSocketDebuggerUrl"], timeout=15)
 
 
