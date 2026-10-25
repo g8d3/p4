@@ -1,14 +1,19 @@
 # NEXT — EchoLike business priorities
-Updated: Sun 2026-10-25 15:25 Bogotá (UTC-5)
+Updated: Sun 2026-10-25 15:45 Bogotá (UTC-5)
+
+## Owners
+- Mango: product + dev (extension, sales page, site).
+- Mango Z: market, monetization, social (pricing research, competitors, post drafts; Nova approves every post).
+- Coco: coordination; decisions for Nova come to Coco as max 3 numbered options + a recommendation.
 
 ## Top priority
 Get the echolike.app sales page ready to sell on a phone. Six gaps:
-1. No price (Nova decides).
-2. No clear call to action.
-3. Weak proof, full of jargon.
-4. No reason to pick us.
-5. No steps or FAQ.
-6. Bottom nav pulls buyers away from the offer.
+1. [Owner: Mango Z → Nova] No price (Nova decides).
+2. [Owner: Mango] No clear call to action.
+3. [Owner: Mango] Weak proof, full of jargon.
+4. [Owner: Mango] No reason to pick us.
+5. [Owner: Mango Z, in progress] No steps or FAQ.
+6. [Owner: Mango] Bottom nav pulls buyers away from the offer.
 "Ready" = passes this checklist with phone screenshots, not just "it loads".
 
 ## In progress (assigned 3:25 PM, local only, no push)
@@ -23,9 +28,9 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 - Agent trials: Mango 9.5/10, Mango Z 9.5/10.
 
 ## Blocked
-- Outreach DMs to 7 people failed: X only allows chats from followers.
-- Public announcement post needs Nova's OK on the text.
-- /directory/ and /funding-rates/ are a frozen snapshot until a job publishes them to echolike-site.
+- [Owner: Mango Z] Outreach DMs to 7 people failed: X only allows chats from followers.
+- [Owner: Mango Z] Public announcement post needs Nova's OK on the text.
+- [Owner: Mango] /directory/ and /funding-rates/ are a frozen snapshot until a job publishes them to echolike-site.
 
 ## Paused
 - Trading and Hummingbot (Nova unsure about trading), Churn paper test (undecided), liquidity page.
@@ -41,4 +46,4 @@ Use it for questions, blockers, and finished results — one line per message, k
 Coco reads with `bin/coco_unread.py` (`--peek` to preview without moving the marker).
 
 ## Suggested order
-1. Sales page. 2. Add-on distribution. 3. Agents refresh directory + funding pages. 4. Trading stays paused.
+1. Sales page (Mango). 2. Add-on distribution (Mango). 3. Refresh directory + funding pages (Mango); pricing research (Mango Z). 4. Trading stays paused.
