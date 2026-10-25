@@ -1,5 +1,5 @@
 # NEXT — EchoLike business priorities
-Updated: Sun 2026-10-25 11:55 Bogotá (UTC-5)
+Updated: Sun 2026-10-25 15:25 Bogotá (UTC-5)
 
 ## Top priority
 Get the echolike.app sales page ready to sell on a phone. Six gaps:
@@ -10,6 +10,11 @@ Get the echolike.app sales page ready to sell on a phone. Six gaps:
 5. No steps or FAQ.
 6. Bottom nav pulls buyers away from the offer.
 "Ready" = passes this checklist with phone screenshots, not just "it loads".
+
+## In progress (assigned 3:25 PM, local only, no push)
+- Mango: gaps 4 (why us) and 6 (bottom nav) in e092-echolike/sitio_unico.py.
+- Mango Z: gap 5 (steps + FAQ) in the same file.
+- Both report via bin/to_coco.sh when done.
 
 ## Done today
 - echolike.app moved to GitHub Pages (g8d3/echolike-site) via Cloudflare DNS; email works.
