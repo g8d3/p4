@@ -26,13 +26,6 @@ TOPICS = {
     "dev_tools": [r"\bdev tools?\b", r"\bsdks?\b", r"\binfrastructure\b", r"\bopen source\b", r"\bframeworks?\b", r"\breverse engineering\b"],
 }
 RX = {t: [re.compile(p, re.I) for p in pats] for t, pats in TOPICS.items()}
-QUESTIONS = {
-    "launchpads": "How do you tell which ones actually share revenue instead of just farming fees?",
-    "ai_agents": "What task would you hand it first?",
-    "memecoins": "What would convince you this one outlives the current meta?",
-    "drawdown_strength": "Which metric do you watch when everything bleeds?",
-    "dev_tools": "What did you build with it first?",
-}
 PUMP_RX = re.compile(r"\bpump\.fun\b|\bpumpfun\b|\b\$?pump\b", re.I)
 
 
@@ -53,25 +46,6 @@ def score(item):
             topics.append(t)
             hits += n
     return len(topics), hits, topics
-
-
-def draft_reply(it, topics):
-    """One specific, useful reply draft from the post's own content (<200 chars).
-    Quotes the post's key sentence and asks one concrete question. No product
-    pitch. Returns None when there is nothing real to say."""
-    text = " ".join((it.get("text") or "").split())
-    if len(text) < 40:
-        return None
-    key = None
-    for s in re.split(r"(?<=[.!?])\s+", text):
-        if len(s) >= 30 and any(rx.search(s) for rxs in RX.values() for rx in rxs):
-            key = s
-            break
-    if not key:
-        return None
-    quote = (key[:90] + "…") if len(key) > 90 else key
-    d = f'"{quote}" {QUESTIONS[topics[0]]}'
-    return d if len(d) <= 200 else None
 
 
 def main():
@@ -118,22 +92,13 @@ def main():
                 lines.append("PUMP holder note: directly about Pump.fun / $PUMP.")
             lines.append("")
 
-    drafts = []
-    for nt, nh, topics, it in scored:
-        if len(drafts) >= 3:
-            break
-        d = draft_reply(it, topics)
-        if d:
-            drafts.append((it, d))
-    if drafts:
-        lines += ["## Suggested replies for @novaisabuilder (drafts — do not post)", ""]
-        for it, d in drafts:
-            lines.append(f"- To {it.get('handle')} ({it['url']}):")
-            lines.append(f"  {d}")
-            lines.append("")
+    lines += ["## Reply drafts (Mango Z)", "",
+              "(Hand-written against the candidates above — one per post, under 200",
+              "chars, one specific observation or question from the post's actual",
+              "content. No product pitch. Skip the post if nothing real to say.)", ""]
     out = os.path.join(COCO, f"digest_x_{now.strftime('%Y-%m-%d')}.md")
     open(out, "w").write("\n".join(lines) + "\n")
-    print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)} | drafts {len(drafts)}")
+    print(f"wrote {out} | scanned {len(items)} | on-topic {len(scored)} | top {len(top5)}")
     return 0
 
 
