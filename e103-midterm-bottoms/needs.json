@@ -1,0 +1,16 @@
+{
+  "port": 8395,
+  "sources": {
+    "shiller_xls": "http://www.econ.yale.edu/~shiller/data/ie_data.xls",
+    "fred_csv": "https://fred.stlouisfed.org/graph/fredgraph.csv?id={id}",
+    "fred_monthly": ["FEDFUNDS", "CPIAUCSL", "UNRATE", "GS10"],
+    "fred_daily_spx": "SP500"
+  },
+  "windows": {
+    "swingA_peak_from": "Jan of election year",
+    "trough_search": "election month -4M to election month +6M (monthly closes)",
+    "swingB_peak_to": "trough month +12M",
+    "overlay_range": [-12, 12],
+    "trough_tolerance_note": "monthly resolution: trough month, not day"
+  }
+}

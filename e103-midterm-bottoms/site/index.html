@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Do Stocks Bottom Around Midterms? — Every US Midterm Since 1934</title>
+<meta name="description" content="Every US midterm election since 1934 as a measured peak-to-bottom-to-peak swing: fear drawdown, relief rally, macro context, and a live tracker into Nov 3, 2026.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Do stocks bottom around midterms?</h1>
+    <p class="subtitle">Every US midterm since 1934 as a measured peak-to-bottom-to-peak swing, plus macro context and a live tracker into the next one.</p>
+    <p class="updated" id="updated">Loading data…</p>
+  </header>
+
+  <section id="verdict-section" aria-label="Verdict">
+    <p id="verdict" class="verdict">Loading…</p>
+  </section>
+
+  <section aria-label="Overlay chart">
+    <h2>All midterm paths, rebased to 100 at Election Day</h2>
+    <p class="chart-note">Each line is one midterm: index level from 12 months before to 12 months after election month (k = months from election, 100 at k = 0). Shaded band marks the bottom zone k in [&minus;2, +2].</p>
+    <div class="chart-wrap">
+      <svg id="overlay" viewBox="0 0 720 420" role="img" aria-label="Overlay of all midterm index paths"></svg>
+    </div>
+    <ul class="legend" id="overlay-legend">
+      <li><span class="swatch line-sample"></span> Individual midterm path</li>
+      <li><span class="swatch median-sample"></span> Median path</li>
+      <li><span class="swatch zone-sample"></span> Bottom zone (k &minus;2…+2)</li>
+      <li><span class="swatch pre-sample"></span> Pre-peak (fear start)</li>
+      <li><span class="swatch post-sample"></span> Post-peak (relief end)</li>
+    </ul>
+  </section>
+
+  <section aria-label="Scatter chart">
+    <h2>Fear vs relief: drawdown against the rally that followed</h2>
+    <p class="chart-note">Each dot is one midterm with both legs measured. Diagonal is B/A = 1: dots above it mean the relief rally beat the fear drawdown. Color is the Fed stance at the time.</p>
+    <div class="chart-wrap">
+      <svg id="scatter" viewBox="0 0 720 420" role="img" aria-label="Scatter of fear depth versus relief height"></svg>
+    </div>
+    <ul class="legend" id="scatter-legend">
+      <li><span class="dot hiking"></span> Hiking</li>
+      <li><span class="dot cutting"></span> Cutting</li>
+      <li><span class="dot flat"></span> Flat</li>
+      <li><span class="dot unknown"></span> Unknown</li>
+      <li><span class="swatch diag-sample"></span> B/A = 1</li>
+    </ul>
+  </section>
+
+  <section aria-label="Summary statistics">
+    <h2>Summary</h2>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section aria-label="Election table">
+    <h2>Every midterm</h2>
+    <p class="chart-note">Click a column header to sort. &mdash; means unknown; hover it for the reason.</p>
+    <div class="table-wrap">
+      <table id="etable">
+        <thead><tr id="etable-head"></tr></thead>
+        <tbody id="etable-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-label="Live tracker">
+    <h2>Live tracker: road to November 3, 2026</h2>
+    <div class="live" id="live"><p>Loading…</p></div>
+  </section>
+
+  <footer>
+    <h2>Methodology</h2>
+    <p id="method">Loading…</p>
+    <p class="fine">Monthly S&amp;P composite (Shiller, nominal). A dash means unknown: no interpolation, no assumptions. Money and macro cells carry their source window; see each cell's hover text.</p>
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

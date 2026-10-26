@@ -1,0 +1,126 @@
+:root {
+  --ink: #1a1a1a;
+  --muted: #5c5c5c;
+  --line: #d8d8d8;
+  --soft: #f2f2f2;
+  --zone: #e8eef4;
+  --median: #111;
+  --red: #c0392b;
+  --green: #1e8449;
+  --gray: #7f8c8d;
+  --accent: #1a56db;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #fff;
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+}
+h1 { font-size: 1.7rem; line-height: 1.2; margin: 0.6em 0 0.2em; }
+h2 { font-size: 1.2rem; margin: 2em 0 0.4em; }
+.subtitle { color: var(--muted); margin: 0.2em 0; }
+.updated { color: var(--muted); font-size: 0.9rem; }
+.verdict {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  background: var(--soft);
+  border-left: 4px solid var(--ink);
+  padding: 12px 14px;
+  margin: 1.2em 0 0;
+}
+.chart-note { color: var(--muted); font-size: 0.92rem; margin: 0.2em 0 0.6em; }
+.chart-wrap { width: 100%; overflow-x: auto; }
+.chart-wrap svg { width: 100%; height: auto; display: block; }
+.legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  padding: 0;
+  margin: 8px 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.swatch {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.line-sample { border-top: 2px solid #bbb; }
+.median-sample { border-top: 3px solid var(--median); }
+.zone-sample { height: 12px; background: var(--zone); border: 1px solid var(--line); vertical-align: -1px; }
+.pre-sample, .post-sample {
+  width: 10px; height: 10px; border-radius: 50%; vertical-align: baseline;
+}
+.pre-sample { background: var(--accent); }
+.post-sample { background: #e67e22; }
+.diag-sample { border-top: 2px dashed var(--ink); }
+.dot {
+  display: inline-block;
+  width: 11px; height: 11px; border-radius: 50%;
+  margin-right: 6px; vertical-align: baseline;
+}
+.dot.hiking { background: var(--red); }
+.dot.cutting { background: var(--green); }
+.dot.flat { background: var(--gray); }
+.dot.unknown { background: #fff; border: 2px solid var(--ink); width: 9px; height: 9px; }
+svg text { font-size: 11px; fill: var(--muted); }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .axis { stroke: var(--ink); stroke-width: 1; }
+svg .path-line { fill: none; stroke: #bbb; stroke-width: 1.2; opacity: 0.75; }
+svg .median-line { fill: none; stroke: var(--median); stroke-width: 3; }
+svg .zone-rect { fill: var(--zone); }
+svg .base100 { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 4 3; }
+svg .pre-dot { fill: var(--accent); }
+svg .post-dot { fill: #e67e22; stroke: #fff; stroke-width: 1; }
+svg .diag { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 6 4; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+.stat {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+}
+.stat .k { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.stat .v { font-size: 1.3rem; font-weight: 700; margin-top: 2px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 0.88rem; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+th {
+  cursor: pointer;
+  user-select: none;
+  background: var(--soft);
+  position: sticky;
+  top: 0;
+}
+th:hover { background: #e6e6e6; }
+th .arrow { color: var(--accent); }
+.dash { color: #999; cursor: help; }
+.live {
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.live .big { font-size: 1.6rem; font-weight: 700; }
+.live .lbl { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+footer { margin-top: 2em; border-top: 2px solid var(--ink); padding-top: 0.5em; }
+footer .fine { color: var(--muted); font-size: 0.85rem; }
+.error { color: var(--red); font-weight: 700; }
+@media (max-width: 600px) {
+  h1 { font-size: 1.4rem; }
+  .verdict { font-size: 1.02rem; }
+  main { padding: 12px 12px 48px; }
+}

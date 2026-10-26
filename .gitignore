@@ -172,3 +172,5 @@ e092-wt-*/
 
 # embedded standalone repo (own remote), never tracked by p4
 echolike-extension/
+# e103 raw downloads (regenerate with bin/fetch.py)
+e103-midterm-bottoms/data/raw/
