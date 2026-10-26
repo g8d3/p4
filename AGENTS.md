@@ -14,6 +14,8 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - User-seat review before delivering: open the page yourself, list what the user can do there. A page with no user action is a bug.
 - Config, never hardcode: machine values (IPs, ports, paths) and URL lists come from settings or the server, documented in `needs.json` — not buried in code.
 - Kill servers by exact PID (read it from `ss -tlnp`), never broad `pkill -f` patterns — a pattern can match your own shell or the wrong server.
+- Ship to GitHub by default: commit finished work and push to origin without asking. Never end a turn with unpushed commits unless the push fails — then report the failure and the retry command.
+- Leave experiment servers running: after the user-seat review, keep the server up (background, log file, restart command documented in the experiment). Report its full URLs and PID every relevant turn. Never kill a working server to "clean up".
 
 ## Default AI credentials
 - Source of truth is env vars starting with `OPENCODE` (names only — never paste values into files, chats, or logs).
