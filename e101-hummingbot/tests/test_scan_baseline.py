@@ -84,6 +84,23 @@ class ScanBaselineTest(unittest.TestCase):
         self.assertEqual(row["btc_usd"], "")
         self.assertEqual(row["eth_usd"], "3000.0")
 
+    def test_watchlist_has_no_btc_and_listener_never_sees_it(self):
+        # BTC is a baseline only. WATCHLIST drives the listener's 1h coins dict,
+        # mints() and fundamentals.refresh, so it must never contain bitcoin.
+        self.assertNotIn("BTC", self.mod.WATCHLIST)
+        self.assertNotIn("bitcoin", self.mod.WATCHLIST.values())
+        self.assertEqual(self.mod.BASELINE, {"BTC": "bitcoin"})
+        scripts = os.path.join(os.path.dirname(HERE), "scripts")
+        sys.path.insert(0, scripts)
+        try:
+            import rstrength_listener as listener
+        finally:
+            sys.path.remove(scripts)
+        self.assertNotIn("BTC", listener.scan.WATCHLIST)
+        self.assertNotIn("bitcoin", listener.scan.WATCHLIST.values())
+        self.assertNotIn("bitcoin", ",".join(listener.scan.WATCHLIST.values()),
+                         "the listener's CoinGecko ids= and mints() must not ask for bitcoin")
+
     def test_same_timestamp_is_not_duplicated(self):
         self.assertTrue(self.mod.append_scan_row("2026-10-26T03:00:00-05:00", 60000, 3000, 150, -10))
         self.assertFalse(self.mod.append_scan_row("2026-10-26T03:00:00-05:00", 60001, 3001, 151, -9))

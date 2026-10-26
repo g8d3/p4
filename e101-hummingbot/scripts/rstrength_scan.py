@@ -37,7 +37,7 @@ SOLANA_TOP_N = 50
 # symbol -> CoinGecko id, resolved 2026-10-25 by id and largest market cap
 # among same-symbol candidates (checked via /coins/list + /coins/markets).
 WATCHLIST = {
-    "BTC": "bitcoin", "ETH": "ethereum", "BNB": "binancecoin", "SOL": "solana", "NEAR": "near",
+    "ETH": "ethereum", "BNB": "binancecoin", "SOL": "solana", "NEAR": "near",
     "TAO": "bittensor", "LIT": "lighter", "LINK": "chainlink",
     "HYPE": "hyperliquid", "JUP": "jupiter-exchange-solana", "MET": "meteora",
     "RAY": "raydium", "ORCA": "orca", "PUMP": "pump-fun", "UNI": "uniswap",
@@ -48,6 +48,9 @@ WATCHLIST = {
     "LAUNCH": "hyperlauncher",
 }
 SCAN_FIELDS = ["scan_at", "btc_usd", "eth_usd", "sol_usd", "sol_ret_30d"]
+# Hold-baseline coins only: fetched with the watchlist but never picks, and
+# never exposed through WATCHLIST (the listener/fundamentals iterate that).
+BASELINE = {"BTC": "bitcoin"}
 FIELDS = ["date", "token", "price_usd", "ret_7d", "ret_30d",
           "sol_ret_7d", "sol_ret_30d", "rev_24h", "rev_30d",
           "result_7d_date", "result_7d_price", "result_7d_ret",
@@ -164,7 +167,7 @@ def pct(a, b):
 def main():
     now = datetime.now(BOG)
     # Watchlist + Solana top N. SOL's numbers come from the watchlist row.
-    wl = markets(ids=set(WATCHLIST.values()))
+    wl = markets(ids=set(WATCHLIST.values()) | set(BASELINE.values()))
     top_sol = markets(category="solana-ecosystem")[:SOLANA_TOP_N]
     by_id = {}
     for c in wl + top_sol:

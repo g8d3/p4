@@ -35,9 +35,17 @@ assert rug and rug["token"] == "USDC" and rug["rule"] == "RUG_RISK"
 rows = list(csv.DictReader(open(L.FLAGS)))
 assert [(r["token"], r["rule"]) for r in rows] == [("USDC", "RUG_RISK")]
 
-# 3) replay today's real flags with the same filter
+# 3) replay today's real flags with the same filter (fixture if data/ is absent:
+#    data/ is gitignored, so a clean worktree has no real CSV)
 path = os.path.join(B, "data", "rs_event_flags.csv")
-before = list(csv.DictReader(open(path)))
+if os.path.exists(path):
+    before = list(csv.DictReader(open(path)))
+else:
+    before = [
+        {"ts": "2026-10-25T10:00:00", "token": "USDC", "rule": "VOL_SPIKE"},
+        {"ts": "2026-10-25T10:05:00", "token": "EURC", "rule": "LIQ_ADD"},
+        {"ts": "2026-10-25T10:10:00", "token": "ORE", "rule": "RUG_RISK"},
+    ]
 kept = [r for r in before if r["rule"] == "RUG_RISK" or not L.es_pegado(r["token"])]
 removed = [r for r in before if r not in kept]
 print(f"today flags: before={len(before)} after={len(kept)} removed={len(removed)}")
