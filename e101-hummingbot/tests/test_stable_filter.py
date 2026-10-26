@@ -14,6 +14,9 @@ B = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(B, "scripts"))
 import rstrength_listener as L
 
+# Keep the test out of the live listener log; Engine.flag() logs via module-level log().
+L.log = lambda m: None
+
 # 1) symbol recognition
 for t in ("USDC", "SYRUPUSDC", "PSTUSDC", "EURC", "PYUSD", "USDE", "USDT", "USDS",
           "SUSDE", "USDC.E", "USDC-E"):
@@ -37,13 +40,16 @@ assert [(r["token"], r["rule"]) for r in rows] == [("USDC", "RUG_RISK")]
 
 # 3) replay today's real flags with the same filter
 path = os.path.join(B, "data", "rs_event_flags.csv")
-before = list(csv.DictReader(open(path)))
-kept = [r for r in before if r["rule"] == "RUG_RISK" or not L.es_pegado(r["token"])]
-removed = [r for r in before if r not in kept]
-print(f"today flags: before={len(before)} after={len(kept)} removed={len(removed)}")
-for r in removed:
-    print(f"  removed {r['ts']} {r['token']} {r['rule']}")
-assert len(kept) < len(before), "replay should remove stablecoin noise"
-assert all(r["rule"] == "RUG_RISK" or not L.es_pegado(r["token"]) for r in kept)
-assert all(r["token"] in ("EURC", "PYUSD", "SYRUPUSDC", "USDC", "USDE", "USDG") for r in removed)
+if os.path.exists(path):
+    before = list(csv.DictReader(open(path)))
+    kept = [r for r in before if r["rule"] == "RUG_RISK" or not L.es_pegado(r["token"])]
+    removed = [r for r in before if r not in kept]
+    print(f"today flags: before={len(before)} after={len(kept)} removed={len(removed)}")
+    for r in removed:
+        print(f"  removed {r['ts']} {r['token']} {r['rule']}")
+    assert len(kept) < len(before), "replay should remove stablecoin noise"
+    assert all(r["rule"] == "RUG_RISK" or not L.es_pegado(r["token"]) for r in kept)
+    assert all(r["token"] in ("EURC", "PYUSD", "SYRUPUSDC", "USDC", "USDE", "USDG", "SUSDE", "USDC.E", "USDC-E") for r in removed)
+else:
+    print("SKIP replay: data/rs_event_flags.csv not present in this checkout")
 print("PASS stable filter: pegged symbols excluded, RUG_RISK kept")
