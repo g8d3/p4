@@ -10,9 +10,10 @@ canonical for actual pings.
 Topics are plain keyword/cashtag regexes grounded in Oct 2026 liked texts
 (launchpads, AI trading bots, multi-cashtag memecoin chatter).
 
-Usage: python3 operador/racimos_topicos.py [--days 7] [--desde YYYY-MM-DD]
+Usage: python3 operador/racimos_topicos.py [--days 7] [--desde YYYY-MM-DD] [--estado DIR]
   --days: how many Bogota days back (default 7). --desde: first window end
-  (default today). Reads estado/likes_extension.jsonl + estado/x_items.json.
+  (default today). --estado: dir holding likes_extension.jsonl + x_items.json
+  (default: estado/ next to the script). Reads only, warns when files are missing.
 """
 import datetime as dt
 import json
@@ -20,10 +21,7 @@ import os
 import re
 import sys
 
-D = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOG = dt.timezone(dt.timedelta(hours=-5))
-JSONL = os.path.join(D, "estado", "likes_extension.jsonl")
-XITEMS = os.path.join(D, "estado", "x_items.json")
 VENTANA_H = 24
 UMBRAL = 5
 
@@ -49,12 +47,15 @@ def ts(d):
     return None
 
 
-def cargar():
-    rows, vistos = [], set()
+def cargar(estado_dir):
+    rows, vistos, faltan = [], set(), []
+    jsonl = os.path.join(estado_dir, "likes_extension.jsonl")
+    xitems = os.path.join(estado_dir, "x_items.json")
     try:
-        f = open(JSONL, encoding="utf-8")
+        f = open(jsonl, encoding="utf-8")
     except OSError:
         f = None
+        faltan.append(jsonl)
     if f:
         with f:
             for line in f:
@@ -75,9 +76,10 @@ def cargar():
                 rows.append({"id": iid, "t": t, "text": d.get("text") or "",
                              "url": d.get("url") or "", "handle": d.get("handle") or ""})
     try:
-        items = json.load(open(XITEMS, encoding="utf-8")).get("items") or []
+        items = json.load(open(xitems, encoding="utf-8")).get("items") or []
     except Exception:
         items = []
+        faltan.append(xitems)
     for d in items:
         if d.get("type") != "like":
             continue
@@ -90,7 +92,7 @@ def cargar():
         vistos.add(iid)
         rows.append({"id": iid, "t": t, "text": d.get("text") or "",
                      "url": d.get("url") or "", "handle": d.get("handle") or ""})
-    return rows
+    return rows, faltan
 
 
 def topic_de(rx, texto):
@@ -99,15 +101,21 @@ def topic_de(rx, texto):
 
 
 def main(argv):
-    days, desde = 7, None
+    days, desde, estado = 7, None, None
     for i, a in enumerate(argv):
         if a == "--days" and i + 1 < len(argv):
             days = max(1, int(argv[i + 1]))
         if a == "--desde" and i + 1 < len(argv):
             d0 = dt.datetime.strptime(argv[i + 1], "%Y-%m-%d").replace(tzinfo=BOG)
             desde = d0.replace(hour=23, minute=59, second=59, microsecond=0)
+        if a == "--estado" and i + 1 < len(argv):
+            estado = argv[i + 1]
+    if estado is None:
+        estado = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "estado")
     rx = {t: [re.compile(p, re.I) for p in pats] for t, pats in TOPICS.items()}
-    likes = cargar()
+    likes, faltan = cargar(estado)
+    for f in faltan:
+        print(f"warning: missing {f} (use --estado DIR or run where estado/ exists)", file=sys.stderr)
     if desde is None:
         ahora_bog = dt.datetime.now(dt.timezone.utc).astimezone(BOG)
         desde = ahora_bog.replace(hour=23, minute=59, second=59, microsecond=0)

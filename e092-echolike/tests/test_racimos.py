@@ -16,7 +16,7 @@ def like(iid, day, text, url=""):
 
 
 def run(rows, days, desde):
-    R.cargar = lambda: rows
+    R.cargar = lambda *_: (rows, [])
     buf = io.StringIO()
     with redirect_stdout(buf):
         assert R.main(["--days", str(days), "--desde", desde]) == 0
@@ -35,4 +35,15 @@ assert "(1 without stored/duplicate link, not shown)" in out, out
 assert "2026-10-22: 4 likes, no topic hits" in out, out
 assert "https://x.com/a/status/0" in out and "https://x.com/b/status/0" in out
 assert "invent" not in out.lower()
+
+# missing estado files warn instead of silently loading 0 likes
+import tempfile
+from contextlib import redirect_stderr
+import importlib
+importlib.reload(R)  # drop the cargar monkeypatch above; use real loader
+buf, err = io.StringIO(), io.StringIO()
+with redirect_stdout(buf), redirect_stderr(err):
+    assert R.main(["--days", "1", "--estado", tempfile.mkdtemp()]) == 0
+assert "warning: missing" in err.getvalue() and "likes_extension.jsonl" in err.getvalue()
+assert "0 likes loaded" in buf.getvalue()
 print("OK racimos")
