@@ -6,6 +6,14 @@
     "fred_monthly": ["FEDFUNDS", "CPIAUCSL", "UNRATE", "GS10"],
     "fred_daily_spx": "SP500"
   },
+  "refresh": {
+    "timer": "e103-refresh.timer",
+    "schedule": "daily 07:05 America/Bogota",
+    "script": "bin/refresh.sh",
+    "log": "logs/refresh.log",
+    "tracking": "data/tracking.log"
+  },
+  "outreach": "draft in outreach.md; posting and public URL need owner tap",
   "windows": {
     "swingA_peak_from": "Jan of election year",
     "trough_search": "election month -4M to election month +6M (monthly closes)",

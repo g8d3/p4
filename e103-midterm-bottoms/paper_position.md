@@ -19,3 +19,7 @@
 | date | event |
 |---|---|
 | 2026-10-26 | thesis logged; 8 days to Nov 3, 2026; SPX 7757.17 |
+
+## Heartbeat
+- Daily: e103-refresh.timer (07:05 Bogota) refreshes live panel + appends data/tracking.log.
+- Weekly paper check: next 2026-11-02 (day before the vote), then exit/invalidation watch to +12M.
