@@ -23,7 +23,7 @@ launchpad_meme flags go to data/rs_lowtrust_flags.csv. Cooldown per (coin, rule)
 RS_COOLDOWN_MIN. Important flags call e100-openbot/bin/to_coco.sh (RS_DRY_RUN=1 prints).
 Test: --simulate.
 """
-import csv, json, os, subprocess, sys, time
+import csv, json, os, re, subprocess, sys, time
 from collections import deque
 from datetime import datetime, timezone, timedelta
 
@@ -58,6 +58,19 @@ FF = ["ts", "kind", "bucket", "rank", "label", "token", "rule", "price", "price_
       "has_real_revenue", "external_share", "business_class", "external_share_trend_7d"]
 RULE_W = {"STRONG": 30, "UP_WHILE_SOL_DOWN": 25, "GRADUATED": 15, "LIQ_ADD": 10,
           "VOL_SPIKE": 5, "LIQ_DRAIN": 20, "RUG_RISK": 20}
+
+# Stablecoins/pegged cash: their VOL_SPIKE/LIQ_ADD flags are routine noise, not a
+# relative-strength event. RUG_RISK still bypasses this filter (a depeg/drain matters).
+PEGADOS_EXACT = {"DAI", "FRAX", "GHO", "LUSD", "CRVUSD", "SUSD", "RLUSD", "USDB", "USD0", "USD1",
+                 "USTB", "JAAA", "BUIDL", "USYC", "USDY", "PYUSD", "EURC", "EURS", "FDUSD", "TUSD",
+                 "USDC", "USDT", "USDE", "USDG", "USDS", "USDP", "USDD"}
+PEGADO_RE = re.compile(r"(USDC|USDT|USDE|USDG|USDY|USDS|USDP|USDD|PYUSD|EURC|EURS|FDUSD|TUSD|USD1|USD0)$")
+
+
+def es_pegado(tok):
+    """True for fiat-pegged/stable symbols, including wrappers like SYRUPUSDC/PSTUSDC."""
+    t = re.sub(r"[^A-Z0-9]", "", str(tok or "").upper().split(":")[0])
+    return t in PEGADOS_EXACT or bool(PEGADO_RE.search(t))
 
 
 def log(m): scan.log("[listener] " + m)
@@ -165,6 +178,9 @@ class Engine:
         self.state["cool"][key] = t; return True
 
     def flag(self, t, kind, tok, rule, s, d, pc, solc, f=None):
+        if rule != "RUG_RISK" and es_pegado(tok):
+            log(f"SKIP pegado {tok} {rule}")
+            return None
         f = f if f is not None else self.fund.get(tok, {})
         label, rank = label_rank(rule, f)
         lowt = (f.get("coin_type") == "launchpad_meme") or kind == "LAUNCH"
@@ -203,7 +219,8 @@ class Engine:
             if c is not None and c > 0 and sol_chg is not None and sol_chg < 0:
                 h = self.hist.get(tok, [])
                 d = coin_rules(h)[1] if h else {}
-                rows.append(self.flag(t, "MARKET", tok, "UP_WHILE_SOL_DOWN", h[-1] if h else {}, d, c, sol_chg))
+                row = self.flag(t, "MARKET", tok, "UP_WHILE_SOL_DOWN", h[-1] if h else {}, d, c, sol_chg)
+                if row: rows.append(row)
         self.save()
         self.report("Market event: " + ", ".join(f"{k} {v}% from 1h high" for k, v in hit.items()) +
                     f". Up while SOL fell: {', '.join(r['token'] for r in rows) or 'none'}.", rows)
@@ -219,7 +236,8 @@ class Engine:
             for r in rules:
                 if self.cooled(f"{tok}:{r}", t):
                     pc = pct(h[0]["price"], s["price"]) if len(h) >= 13 else None
-                    out.append(self.flag(t, "COIN", tok, r, s, d, pc, None))
+                    row = self.flag(t, "COIN", tok, r, s, d, pc, None)
+                    if row: out.append(row)
         self.save()
         if any(r["rule"] in ("STRONG", "RUG_RISK", "LIQ_DRAIN") and r["bucket"] == "main" for r in out):
             self.report("Coin flags:", out)
@@ -241,7 +259,8 @@ class Engine:
             if not L["grad"] and graduated(L["s"], (t - L["created"]) / 3600):
                 L["grad"] = True
                 f = {"coin_type": "launchpad_meme"}
-                out.append(self.flag(t, "LAUNCH", f"{L['sym']}:{mint[:6]}", "GRADUATED", s, {}, None, None, f))
+                row = self.flag(t, "LAUNCH", f"{L['sym']}:{mint[:6]}", "GRADUATED", s, {}, None, None, f)
+                if row: out.append(row)
         self.save()
         if out:
             notify(f"Launchpad graduates (low-trust, paper only): " +
