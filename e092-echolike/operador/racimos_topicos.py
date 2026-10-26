@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Topic cluster retrospective (code-only, no AI, no network, read-only).
 
-Same rule as operador/alerta_topicos.py (5+ likes on one topic in 24h), but
-looks BACKWARD: for each of the last N Bogota days it prints which clusters
-would have fired, with the real stored post links. Nothing is invented, sent,
-or written — dry-run only. The live alerter (alerta_topicos.py, cron) stays
-canonical for actual pings.
+Same rule and same topics as the live alerter operador/alerta_topicos.py
+(UMBRAL likes on one topic in VENTANA_H hours — imported from that module so
+the two can never drift apart), but looks BACKWARD: for each of the last N
+Bogota CALENDAR days it prints which clusters would have fired, with the real
+stored post links. Windows are fixed calendar days ending 23:59:59 Bogota, not
+the live alerter's rolling 24h — fine for a look back. Nothing is invented,
+sent, or written — dry-run only. The live alerter (alerta_topicos.py, cron)
+stays canonical for actual pings.
 
-Topics are plain keyword/cashtag regexes grounded in Oct 2026 liked texts
-(launchpads, AI trading bots, multi-cashtag memecoin chatter).
+Extra exploratory topics (ai-trading-bots, memecoins) live behind --extra;
+without it only the live alerter's topics are evaluated.
 
-Usage: python3 operador/racimos_topicos.py [--days 7] [--desde YYYY-MM-DD] [--estado DIR]
-  --days: how many Bogota days back (default 7). --desde: first window end
+Usage: python3 operador/racimos_topicos.py [--days 7] [--desde YYYY-MM-DD] [--estado DIR] [--extra]
+  --days: how many Bogota days back (default 7). --desde: last window end
   (default today). --estado: dir holding likes_extension.jsonl + x_items.json
   (default: estado/ next to the script). Reads only, warns when files are missing.
 """
@@ -21,13 +24,17 @@ import os
 import re
 import sys
 
-BOG = dt.timezone(dt.timedelta(hours=-5))
-VENTANA_H = 24
-UMBRAL = 5
+# Single source of truth: the live alerter in the e092 checkout.
+sys.path.insert(0, "/home/vuos/code/p4/e092-echolike/operador")
+try:
+    from alerta_topicos import TOPICS as LIVE_TOPICS, UMBRAL, VENTANA_H
+except ImportError:
+    LIVE_TOPICS, UMBRAL, VENTANA_H = None, 5, 24
 
-TOPICS = {
-    "launchpads": [r"launchpad", r"pump\.?fun", r"presale", r"\btge\b", r"\bido\b",
-                   r"bonding", r"fair launch", r"\blaunch(?:es|ed|ing)?\b"],
+BOG = dt.timezone(dt.timedelta(hours=-5))
+
+# Exploratory only (--extra): grounded in Oct 2026 liked texts, NOT live rules.
+EXTRA_TOPICS = {
     "ai-trading-bots": [r"ai agent", r"trading bot", r"grok bot", r"inference",
                         r"prompts", r"\bswarm\b", r"hotbot"],
     "memecoins": [r"(\$[A-Z]{2,10}\b.*){2,}", r"\baped\b", r"\bmcap\b",
@@ -45,6 +52,18 @@ def ts(d):
             except ValueError:
                 continue
     return None
+
+
+def _agregar(rows, vistos, d, iid, t):
+    # One post = one like: x_items mirrors jsonl rows (same URL, often a
+    # different id, plus exact row duplicates). Dedupe by URL when present.
+    url = d.get("url") or ""
+    key = ("url", url) if url else ("id", iid)
+    if key in vistos:
+        return
+    vistos.add(key)
+    rows.append({"id": iid, "t": t, "text": d.get("text") or "",
+                 "url": url, "handle": d.get("handle") or ""})
 
 
 def cargar(estado_dir):
@@ -71,10 +90,7 @@ def cargar(estado_dir):
                 t = ts(d)
                 if not t:
                     continue
-                iid = str(d.get("id") or "")
-                vistos.add(iid)
-                rows.append({"id": iid, "t": t, "text": d.get("text") or "",
-                             "url": d.get("url") or "", "handle": d.get("handle") or ""})
+                _agregar(rows, vistos, d, str(d.get("id") or ""), t)
     try:
         items = json.load(open(xitems, encoding="utf-8")).get("items") or []
     except Exception:
@@ -86,12 +102,7 @@ def cargar(estado_dir):
         t = ts(d)
         if not t:
             continue
-        iid = str(d.get("id") or "")
-        if iid and iid in vistos:
-            continue
-        vistos.add(iid)
-        rows.append({"id": iid, "t": t, "text": d.get("text") or "",
-                     "url": d.get("url") or "", "handle": d.get("handle") or ""})
+        _agregar(rows, vistos, d, str(d.get("id") or ""), t)
     return rows, faltan
 
 
@@ -101,7 +112,7 @@ def topic_de(rx, texto):
 
 
 def main(argv):
-    days, desde, estado = 7, None, None
+    days, desde, estado, extra = 7, None, None, False
     for i, a in enumerate(argv):
         if a == "--days" and i + 1 < len(argv):
             days = max(1, int(argv[i + 1]))
@@ -110,9 +121,18 @@ def main(argv):
             desde = d0.replace(hour=23, minute=59, second=59, microsecond=0)
         if a == "--estado" and i + 1 < len(argv):
             estado = argv[i + 1]
+        if a == "--extra":
+            extra = True
+    if LIVE_TOPICS is None:
+        print("error: cannot import TOPICS from alerta_topicos.py "
+              "(e092 checkout missing); retrospective needs the live rule", file=sys.stderr)
+        return 2
+    topics = dict(LIVE_TOPICS)
+    if extra:
+        topics.update(EXTRA_TOPICS)
     if estado is None:
         estado = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "estado")
-    rx = {t: [re.compile(p, re.I) for p in pats] for t, pats in TOPICS.items()}
+    rx = {t: [re.compile(p, re.I) for p in pats] for t, pats in topics.items()}
     likes, faltan = cargar(estado)
     for f in faltan:
         print(f"warning: missing {f} (use --estado DIR or run where estado/ exists)", file=sys.stderr)
@@ -144,7 +164,6 @@ def main(argv):
                 if h["url"] and h["url"] not in seen:
                     seen.add(h["url"])
                     links.append(h["url"])
-            dup = len([h for h in hits if h["url"]]) - len(links)
             out.append(f"{etiqueta}: FIRE {topic}: {len(hits)} likes, {len(links)} unique links{marca}")
             for u in links[:10]:
                 out.append(f"  - {u}")
