@@ -10,6 +10,10 @@ points, only while SOL 30d return is negative. Every flag is appended as a
 paper-trade row in data/rstrength_flags.csv; result_7d / result_30d columns
 are backfilled by later runs when the row is 7 / 30 days old.
 
+Every successful scan also appends one row to data/rstrength_scans.csv with
+the BTC, ETH and SOL spot prices at scan time, so later reviews can compare
+picks against a real BTC/ETH hold baseline instead of a proxy.
+
 Rate limits: CoinGecko free ~10-30 calls/min; this script makes 2 calls per
 run plus retries with exponential backoff. DefiLlama: 1 call per run.
 """
@@ -24,6 +28,7 @@ from datetime import datetime, timezone, timedelta
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CSV_PATH = os.path.join(BASE, "data", "rstrength_flags.csv")
+SCAN_PATH = os.path.join(BASE, "data", "rstrength_scans.csv")
 LOG_PATH = os.path.join(BASE, "logs", "rstrength.log")
 BOG = timezone(timedelta(hours=-5))
 THRESH = 15.0
@@ -32,7 +37,7 @@ SOLANA_TOP_N = 50
 # symbol -> CoinGecko id, resolved 2026-10-25 by id and largest market cap
 # among same-symbol candidates (checked via /coins/list + /coins/markets).
 WATCHLIST = {
-    "ETH": "ethereum", "BNB": "binancecoin", "SOL": "solana", "NEAR": "near",
+    "BTC": "bitcoin", "ETH": "ethereum", "BNB": "binancecoin", "SOL": "solana", "NEAR": "near",
     "TAO": "bittensor", "LIT": "lighter", "LINK": "chainlink",
     "HYPE": "hyperliquid", "JUP": "jupiter-exchange-solana", "MET": "meteora",
     "RAY": "raydium", "ORCA": "orca", "PUMP": "pump-fun", "UNI": "uniswap",
@@ -42,6 +47,7 @@ WATCHLIST = {
     # _LaunchX's LAUNCH (Stonk Fun) was not on CoinGecko yet; both candidates logged.
     "LAUNCH": "hyperlauncher",
 }
+SCAN_FIELDS = ["scan_at", "btc_usd", "eth_usd", "sol_usd", "sol_ret_30d"]
 FIELDS = ["date", "token", "price_usd", "ret_7d", "ret_30d",
           "sol_ret_7d", "sol_ret_30d", "rev_24h", "rev_30d",
           "result_7d_date", "result_7d_price", "result_7d_ret",
@@ -126,6 +132,29 @@ def save_rows(rows):
         w.writerows(rows)
 
 
+def append_scan_row(scan_at, btc_usd, eth_usd, sol_usd, sol_ret_30d):
+    """One baseline row per completed scan. Rerunning the same timestamp is a no-op."""
+    rows = []
+    if os.path.exists(SCAN_PATH):
+        with open(SCAN_PATH) as f:
+            rows = list(csv.DictReader(f))
+    if any(r.get("scan_at") == scan_at for r in rows):
+        return False
+    rows.append({
+        "scan_at": scan_at,
+        "btc_usd": btc_usd if btc_usd is not None else "",
+        "eth_usd": eth_usd if eth_usd is not None else "",
+        "sol_usd": sol_usd if sol_usd is not None else "",
+        "sol_ret_30d": round(sol_ret_30d, 2) if sol_ret_30d is not None else "",
+    })
+    os.makedirs(os.path.dirname(SCAN_PATH), exist_ok=True)
+    with open(SCAN_PATH, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=SCAN_FIELDS)
+        w.writeheader()
+        w.writerows(rows)
+    return True
+
+
 def pct(a, b):
     if a in (None, "", 0) or b in (None, ""):
         return None
@@ -173,13 +202,26 @@ def main():
     sol7 = sol["price_change_percentage_7d_in_currency"]
     sol30 = sol["price_change_percentage_30d_in_currency"]
 
+    # Hold baseline for later reviews: BTC/ETH spot at this scan. A missing
+    # ticker never aborts the scan; it is logged and stored blank.
+    btc = by_id.get("bitcoin") or {}
+    eth = by_id.get("ethereum") or {}
+    btc_usd, eth_usd = btc.get("current_price"), eth.get("current_price")
+    if btc_usd is None or eth_usd is None:
+        log(f"baseline missing: BTC={btc_usd} ETH={eth_usd} (row saved with blanks)")
+    try:
+        append_scan_row(now.isoformat(timespec="seconds"), btc_usd, eth_usd,
+                        sol.get("current_price"), sol30)
+    except Exception as e:
+        log(f"baseline row not saved: {e.__class__.__name__}")
+
     fees = defillama_fees()
     rows = load_rows()
     known = {(r["date"], r["token"]) for r in rows}
 
     flags = []
     for cid, c in sorted(by_id.items(), key=lambda kv: -(kv[1].get("market_cap") or 0)):
-        if cid == "solana":
+        if cid in ("solana", "bitcoin"):   # baseline coins are not picks
             continue
         sym = (c.get("symbol") or "").upper()
         if sym in skip:
@@ -235,6 +277,7 @@ def main():
     for f in flags:
         log(f"FLAG {f['token']} 7d={f['ret_7d']}% 30d={f['ret_30d']}% "
             f"(SOL {f['sol_ret_7d']}%/{f['sol_ret_30d']}%)")
+    log(f"scan baseline: BTC={btc_usd} ETH={eth_usd} SOL={sol.get('current_price')}")
     log(f"scan done: watchlist={len(wl)} solana_top={len(top_sol)} "
         f"new_flags={len(flags)} open_rows={sum(1 for r in rows if not r['result_30d_date'])}")
 
