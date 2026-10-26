@@ -18,9 +18,20 @@ PORT = 9222
 
 
 def connect():
-    targets = json.load(urllib.request.urlopen(
-        f"http://localhost:{PORT}/json/list", timeout=10))
-    pages = [t for t in targets if t.get("type") == "page"]
+    # The app page list is briefly empty during reloads; retry ~30s before failing.
+    pages = []
+    for _ in range(15):
+        try:
+            targets = json.load(urllib.request.urlopen(
+                f"http://127.0.0.1:{PORT}/json/list", timeout=10))
+            pages = [t for t in targets if t.get("type") == "page"]
+        except Exception:
+            pages = []
+        if any(t["url"].endswith("/index.html") for t in pages):
+            break
+        time.sleep(2)
+    if not pages:
+        raise RuntimeError("OpenBot has no devtools page (app window not loaded)")
     page = next((t for t in pages if t["url"].endswith("/index.html")), pages[0])
     return create_connection(page["webSocketDebuggerUrl"], timeout=15)
 

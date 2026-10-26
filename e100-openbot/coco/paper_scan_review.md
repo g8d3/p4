@@ -46,3 +46,85 @@ CoinGecko snapshot used for the comparison (`last_updated` **2026-10-25T23:29:51
 ### Re-run check — 2026-10-25 18:32 Bogotá
 
 q36 re-sent; re-ran the scan. Still **0 new daily flags, 2 open rows**. CoinGecko `last_updated` **2026-10-25T23:31:47Z** (18:31:47 Bogotá): GRASS **$0.719496**, ORE **$160.92**, SOL **$100.87**. Both picks still clear the rule; moves versus the 18:29 snapshot are under 0.6%, so nothing material changed. No new lesson.
+
+## Day-3 check — 2026-10-25 19:35 Bogotá (third scan pass, CSVs only)
+
+Read `data/rstrength_flags.csv`, `data/rs_series.csv` and `data/rs_event_flags.csv` only. No API prices, no trades/wallets.
+
+- **No new daily flags.** `rstrength_flags.csv` still has exactly the two 2026-10-25 rows (GRASS $0.715863, ORE $160.02); the `result_7d`/`result_30d` columns are still empty, so the rule's 7d/30d spread cannot be re-measured yet.
+- **Price path from the paper series** (latest sample 19:35:59):
+  - GRASS $0.7145 → **−0.19% vs flag**, +0.08% since the series' first 15:50 sample (WSOL −0.06% over the same window) — flat.
+  - ORE $160.24 → **+0.14% vs flag**, +0.53% since 15:50 — still slightly ahead of SOL, but only fractionally.
+- **What held:** both day-1/day-2 picks are roughly flat at their flag levels and did not lose their absolute price; ORE stayed marginally ahead of WSOL over the series window.
+- **What reversed:** ORE's event stream flipped from `STRONG` (17:15) / `VOL_SPIKE` (18:20) to **`RUG_RISK` at 19:30:59** — price $160.19 (−0.12% 1h) with liquidity −2.71% in 30m and **−3.72% in 1h** while 5-minute volume was 5.26× baseline. That is the first liquidity-side reversal on the name, not a price breakout. No new STRONG flags.
+- **Listener noise:** 4 new flags since the day-2 note (EURC, PYUSD, SYRUPUSDC VOL_SPIKE; ORE RUG_RISK) → 22 total for the day. The three stablecoin/stable-ish volume spikes are the same routine noise; only ORE's risk flag matters.
+- **Verdict:** the signal is **not yet supported**. The picks held flat rather than extending relative strength, and ORE's first reversal is a liquidity warning. Keep the paper rule running until the 7d/30d columns fill (2026-11-01 / 2026-11-24); do not treat the flat day as confirmation and do not add positions. The quiet daily scan still looks more useful than the event fireworks, but it has not earned a keep decision yet.
+
+## Day-3 evening — 2026-10-25 21:27 Bogotá (CSVs only, paper only)
+
+Read `data/rstrength_flags.csv` (still exactly the 2 morning rows, result columns empty), `data/rs_series.csv` (69 samples/token, 15:50:59 → 21:25:59) and `data/rs_event_flags.csv` (22 rows, last 19:30:59). No API prices, no trades/wallets.
+
+**Picks vs first scan (flag prices from the CSV):**
+
+| Pick | Flag | Latest (21:25:59) | Since flag |
+|---|---|---|---|
+| GRASS | $0.715863 | $0.7049 | **−1.53%** |
+| ORE | $160.02 | $150.53 | **−5.93%** |
+
+**Same-window baselines from the series (15:50:59 → 21:25:59, real rows):**
+
+| Baseline | First | Last | Window |
+|---|---|---|---|
+| CBBTC (BTC proxy — wrapped BTC, tracks spot; assumption, not spot BTC) | $80,342 | $79,474.50 | **−1.08%** |
+| WBTC (second BTC proxy) | $80,203.80 | $79,284.40 | **−1.15%** |
+| WSOL (SOL context) | $101.41 | $100.69 | **−0.71%** |
+| ETH | — | — | **not in the CSVs — no ETH baseline available** |
+
+- GRASS (−1.53% since flag; −1.26% over the series window) is roughly in line with the market (BTC-proxy −1.1%, SOL −0.7%): flat-to-soft, no edge either way.
+- ORE (−5.93% since flag; −5.56% over the window) is now **~4.8 pp worse than the BTC proxy**. The damage is concentrated in one move: **21:10 → 21:15, $156.79 → $151.51 (−3.37% in 5 min)** on $24,254 5-minute volume (~5× its recent baseline), with liquidity roughly flat (~$235–239k, no liq collapse) — a sell burst, not a drain.
+- That 21:15 drop produced **no flag**: ORE's RUG_RISK (19:30:59) cools that rule until ~22:30 and its VOL_SPIKE (18:20:59) cools that rule until ~21:20, so both candidate rules were plausibly muted by the 180-minute per-(coin,rule) cooldown. Plausible, not proven — and if cooldowns swallow a −3.4%-in-5-min move on a flagged name, that is itself a design question for the listener.
+- Wider gap: `rs_event_flags.csv` has **nothing after 19:30:59** while series sampling ran to 21:25:59. Cooldowns may explain it (most active pairs were recently flagged), but a silent writer would look identical from the CSVs. Open question, flagged not claimed.
+
+**Sample size:** n = 2 picks, ~1 day. That is not enough data for any verdict on the rule — and the first directional read is adverse (ORE −5.9% vs BTC-proxy −1.1%). The 7d/30d columns remain the real test (2026-11-01 / 2026-11-24). No positions, no change to the plan: keep the paper rule running.
+
+## Day-4 — 2026-10-25 ~22:18 Bogotá (q79: the 19:30→21:30 flag gap, paper only)
+
+q66 asked whether the 2-hour gap in `rs_event_flags.csv` (last row 19:30:59, next 21:30:59) meant the writer died. Verdict from code + CSVs + `logs/rstrength.log`: **the writer was healthy; the evaluator was blind. Two restarts each wiped the in-memory sample history, and `coin_rules` needs 12 five-minute samples — so no rule could fire for most of the gap.**
+
+Evidence (all local, nothing traded):
+
+- **Sampling never stopped.** `rs_series.csv` has continuous 5-minute buckets 15:50:59 → 22:10:59 (78 buckets; one 11-minute hole 20:40:59 → 20:51:59 during a Binance DNS outage, `WebSocketAddressException` in the log). Row counts per bucket stay at the full 43–44 tokens.
+- **Two restarts in the log** (`listening; 53 coins` lines): **19:44:29** (minutes after the q48 stablecoin-filter commit landed) and **20:33:54** (mid-DNS-outage, systemd `Restart=always`). `Engine.hist` lived only in memory, so each restart reset the 1-hour warm-up: blind until ~20:40, then blind again until 21:30.
+- **Replay with the real `coin_rules`:** ignoring restarts, 5 VOL_SPIKEs should have fired in the gap (PYTH 19:50, TRUMP 19:55, ENA 20:25, WLFI 21:00, ORCA 21:05) — cooldowns do not cover any of them. Honoring the two restarts (history wiped, 12-sample warm-up), **zero** rules could fire in the gap. The first post-warm flag lands exactly on the 12th post-restart bucket: **STONK VOL_SPIKE at 21:30:59**, then JLP at 21:50. Cooldown is innocent; warm-up amnesia explains 100% of the gap.
+- **Correction to q66:** the 21:15 ORE −3.37% sell burst was attributed to cooldowns (RUG_RISK cooled till ~22:30, VOL_SPIKE till ~21:20). The replay shows it fell 9 samples after the 20:33 restart — inside the blind window, same root cause, not cooldowns.
+- **Side findings (not bugs, no action):** the `USDC RUG_RISK` log lines at ~19:44 never hit the CSV because they came from the q48 gate test writing to a temp dir; the `GOOD/MEME/GRAD` lines at 19:44:29 are a `--simulate` run, same story. The pre-19:44 code had no pegged-asset filter, so a whole-day replay is not comparable — only the gap window was tested.
+
+**Fix (local branch `q79-hist-persist`, commit `f8044b6`, unpushed):** the engine now persists the last 13 samples per token in `rs_listener_state.json` (same file as the cooldowns) and restores them on start; corrupt/legacy state boots empty, never crashing the loop. Replaying the gap *with* persistence restores all 5 missed detections. Tests: new `tests/test_hist_persist.py` PASS (restart keeps samples → STRONG fires on the 12th sample; corrupt state ignored; capped at 13), plus existing `--simulate` and `test_stable_filter.py` still PASS. Paper only; no timers touched.
+
+## Forward returns by rule — 2026-10-25 22:40 Bogotá (q81, paper only)
+
+Question: do the relative-strength flag rules predict price? Read-only analysis of the real CSVs: `data/rs_event_flags.csv` (24 flags, 16:05:59 → 21:50:59) and `data/rs_series.csv` (43 tokens, 15:50:59 → 22:35:59). No API calls, wallets or orders.
+
+Method: for each flag, forward return = series price at flag time → series price at +1h/+4h/+24h, percent. A horizon counts only when the same token has a series sample within ±10 min of the target. Baseline = random same-coin timestamps that also have that horizon, 200 draws per flag/horizon, fixed seed; baseline draws are not independent samples. Hit rate = share of forward returns > 0. Script: `e101-hummingbot/scripts/flag_forward_returns.py` (branch `q81-forward-returns` `890a266`), fixture test `tests/test_flag_forward_returns.py` 3/3 PASS.
+
+| Rule | Horizon | Flags n | Median | Mean | Hit rate | Baseline median | Baseline mean | Baseline hit | Sample |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| LIQ_ADD | +1h | 1 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 20.00% | too small |
+| RUG_RISK | +1h | 3 | −0.44% | −0.61% | 0.00% | −0.27% | −0.31% | 37.80% | too small |
+| STRONG | +1h | 4 | 0.29% | 0.49% | 50.00% | 0.00% | −0.33% | 18.80% | too small |
+| VOL_SPIKE | +1h | 15 | −0.02% | −0.35% | 26.70% | 0.00% | −0.20% | 27.30% | too small |
+| ALL | +1h | 23 | 0.00% | −0.22% | 26.10% | 0.00% | −0.23% | 26.90% | too small |
+| LIQ_ADD | +4h | 1 | 0.00% | 0.00% | 0.00% | 0.00% | −0.01% | 23.00% | too small |
+| RUG_RISK | +4h | 2 | −0.64% | −0.64% | 50.00% | −1.01% | −0.76% | 37.80% | too small |
+| STRONG | +4h | 4 | 0.00% | −1.48% | 0.00% | −0.58% | −1.11% | 9.80% | too small |
+| VOL_SPIKE | +4h | 11 | −0.52% | −1.03% | 9.10% | −0.43% | −0.78% | 16.20% | too small |
+| ALL | +4h | 18 | −0.19% | −1.03% | 11.10% | −0.39% | −0.81% | 17.60% | too small |
+| all rules | +24h | 0 | — | — | — | — | — | — | no data |
+
+`+24h` is unavailable for every flag: the series ends 22:35:59, only ~6.75 hours after the first flag; nothing can be concluded at that horizon until tomorrow's data exists.
+
+**q79 replay (separate, clearly labelled):** the day-4 review lists five VOL_SPIKEs the pre-persist restarts missed (PYTH 19:50, TRUMP 19:55, ENA 20:25, WLFI 21:00, ORCA 21:05). Using that documented list — not a re-run of the detector — +1h gives n=5, median **−1.07%**, mean −0.98%, hit rate **0/5 (0%)**, vs baseline median −0.15% and hit 25.1%. Too small to conclude, and the direction is adverse.
+
+**Verdict:** no rule shows evidence of predictive edge in this dataset, and no rule can be judged from it: every per-rule sample is under 30 flags, the whole file is one 5.75-hour window, and the ±10-min matching plus overlapping 5-minute series makes the baseline a reference rather than a significance test. The only read is weak and adverse — VOL_SPIKE at +4h has hit rate 9.1% vs 16.2% baseline, and the five replayed misses at +1h were 0/5 positive vs a 25.1% baseline — but with n=11–15 and one day, that is not a conclusion. Keep the paper collector running and re-run this script after 24h of series data exists; only then do +24h and a larger +1h/+4h sample become meaningful.
+
+_Sources: `data/rs_event_flags.csv` (24 rows), `data/rs_series.csv` (43 tokens), q79 day-4 replay list in this file; generated with `python3 scripts/flag_forward_returns.py --data-dir data --replay-q79 --draws 200 --seed 7`. Paper only; no positions, timers or services touched._

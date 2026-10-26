@@ -35,7 +35,12 @@ a=sys.argv[1:]
 if a[0]=="--stat": print(json.dumps(last(thread(a[1])))); sys.exit()
 name,msg=a[0],a[1]
 if msg.startswith("@"): msg=open(msg[1:]).read()
-t=thread(name); before=last(t); send(name,msg); print("sent")
+import fcntl
+_lk=open("/tmp/openbot_ask.lock","w"); fcntl.flock(_lk,fcntl.LOCK_EX)  # one UI driver at a time
+try:
+    t=thread(name); before=last(t); send(name,msg); print("sent")
+finally:
+    fcntl.flock(_lk,fcntl.LOCK_UN)
 if "--wait" in a:
     i=a.index("--wait"); lim=int(a[i+1]) if len(a)>i+1 else 1800; t0=time.time()
     while time.time()-t0<lim:

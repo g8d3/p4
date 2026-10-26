@@ -1,0 +1,28 @@
+# Actually removed 2026-10-25 15:17 Bogota (apt remove libmount-dev libselinux1-dev libfm-qt-dev)
+librsvg2-dev
+libgirepository1.0-dev
+libgirepository-1.0-dev
+gobject-introspection
+libwebkit2gtk-4.1-dev
+libgtk-3-dev
+libatk-bridge2.0-dev
+libatk1.0-dev
+libatspi2.0-dev
+libpango1.0-dev
+libcairo2-dev
+lxqt-core
+xdg-desktop-portal-lxqt
+libfm-qt-dev
+libgdk-pixbuf-2.0-dev
+libsoup-3.0-dev
+libjavascriptcoregtk-4.1-dev
+libglib2.0-dev
+libharfbuzz-dev
+libmenu-cache-dev
+libmount-dev
+libselinux1-dev
+# Not reinstalled: xdg-desktop-portal-lxqt, lxqt-core (would pull libfm-qt-dev/libmount-dev/libselinux1-dev back); upgrade restores them
+
+# Removed 2026-10-25 to unblock do-release-upgrade. Reinstall after upgrade:
+fsearch  # from its PPA (christian-boxdoerfer/fsearch-stable)
+glow     # from its source (charm repo / GitHub release)

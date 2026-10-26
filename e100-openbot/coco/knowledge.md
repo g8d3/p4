@@ -4,6 +4,7 @@
 - Repo `~/code/p4`: one folder per experiment (`eNNN-name/`), each with its own AGENTS.md. Read `~/code/p4/AGENTS.md` first.
 - Wi-Fi card rtw_8821ce: power-saving disabled via `/etc/modprobe.d` (`disable_lps_deep=Y`, `disable_aspm=Y`).
 - Overheating history: most echolike-* services are disabled on purpose. Leave them off.
+- **`echolike-*` timers/services are intentionally disabled since Oct 24 (Nova asked for all of them off); do not treat them as broken or re-enable without Nova.**
 - AI env vars (names only): `OPENCODE_GO_BASE_URL`, `OPENCODE_GO_MODEL`, `OPENCODE_GO_API_KEY`, `ZAI_API_KEY`.
 - Cloudflare env vars: `CLOUDFLARE_FOCALIS_API_KEY` (account token), `CLOUDFLARE_ACCOUNT_ID`.
 

@@ -57,3 +57,6 @@ Coco reads with `bin/coco_unread.py` (`--peek` to preview without moving the mar
 
 ## Suggested order
 1. Sales page (Mango). 2. Add-on distribution (Mango). 3. Refresh directory + funding pages (Mango); pricing research (Mango Z). 4. Trading stays paused.
+
+## Merge order note (q61, Oct 25)
+Branch `q61-site-build-rules` (f42682f/699f828) adds tests/check_sales_rules.py + publicar_sitio.sh gate: the sales-page rules block every publish, and **main's current build still fails 4 of them** (tabbar, proof cards, ES calques). Merge order: site-fixes branch (privacy-policy-2.7.0 / sales fixes) FIRST, then q61. Until then, publishes on main must skip the new gate line.

@@ -57,6 +57,9 @@
   "llama_parent_source": "https://api.llama.fi/protocols (children Aerodrome V1 id 3450, Slipstream 4524, Ignition 6942; parent Aero 'parent#aero-protocol' has gecko_id null)"
  },
  "ORE": {
-  "auto_class": "real_business"
+  "auto_class": "hybrid"
+ },
+ "LAUNCH": {
+  "auto_class": null
  }
 }

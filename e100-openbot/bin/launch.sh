@@ -16,7 +16,7 @@ pkill -f "/tmp/.mount_OpenBo.*/openbot" 2>/dev/null || true
 if [ -f "$ST/pids" ]; then kill $(cat "$ST/pids") 2>/dev/null || true; fi
 pkill -f "gnome-keyring-daemon.*$D" 2>/dev/null || true
 sleep 3
-pgrep -f "Xvfb :99" >/dev/null || (Xvfb :99 -screen 0 1280x800x24 -nolisten tcp >/dev/null 2>&1 &)
+pgrep -f "Xvfb :99" >/dev/null || (Xvfb :99 -screen 0 1024x768x16 -nolisten tcp >/dev/null 2>&1 &)
 export DISPLAY=:99
 if [ ! -s "$ST/keyring-password" ]; then
   if [ -e "$KR/login.keyring" ]; then echo "keyring exists but password file missing" >&2; exit 1; fi
@@ -31,5 +31,7 @@ export GNOME_KEYRING_CONTROL
 printf 'export DISPLAY=:99\nexport DBUS_SESSION_BUS_ADDRESS="%s"\nexport XDG_DATA_HOME="%s"\n' "$DBUS_SESSION_BUS_ADDRESS" "$XDG_DATA_HOME" > "$ST/env"
 echo "$DBUS_SESSION_BUS_PID" > "$ST/pids"
 nohup "$D/downloads/OpenBot-x86_64.AppImage" --no-sandbox --password-store=gnome-libsecret \
-  --remote-debugging-port=9222 --remote-allow-origins=* >> "$D/logs/openbot.log" 2>&1 &
+  --remote-debugging-port=9222 --remote-allow-origins=* \
+  --disable-gpu --disable-software-rasterizer --disable-gpu-compositing --disable-dev-shm-usage \
+  --force-device-scale-factor=1 >> "$D/logs/openbot.log" 2>&1 &
 echo "launched pid $!"

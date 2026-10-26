@@ -18,7 +18,7 @@ DB = os.path.expanduser("~/.config/OpenBot/openbot.db")
 AGENTS = ["Mango", "Mango Z", "Rayo", "Brisa"]   # used only if present in OpenBot
 POLL_S, IDLE_S, TIMEOUT_S = 5, 60, 600         # timeout: idle this long after send w/o DONE
 REVIEW_RE = re.compile(r"\b(push|post|posts|tweet|deploy|publish|money|pay|payment|trade|buy|sell|wallet)\b", re.I)
-INSTR = ("\n\n---\nDispatcher job {id}. Rules: local work only; never post, push, deploy or spend money; "
+INSTR = ("\n\n---\nDispatcher job {id}. Read coco/STATUS.md first (director decisions). Rules: local work only; never post, push, deploy or spend money; "
          "paper trading only; never print secrets. When finished run:\n"
          "bin/to_coco.sh \"{agent}\" \"DONE {id}: <one-line result>\"\n"
          "If you cannot finish, send \"FAIL {id}: <reason>\" instead. If you edit coco/GOAL.md, also append "
@@ -59,7 +59,9 @@ def agent_status():
 def send(agent, text):
     r = subprocess.run([sys.executable, os.path.join(ROOT, "bin/ask.py"), agent, text],
                        capture_output=True, text=True, timeout=120)
-    return r.returncode == 0 and "sent" in r.stdout
+    ok = r.returncode == 0 and "sent" in r.stdout
+    if not ok: log(f"ask.py {agent} rc={r.returncode} out={r.stdout.strip()[-200:]!r} err={r.stderr.strip()[-300:]!r}")
+    return ok
 def wake(msg):
     log("WAKE-COCO " + msg)
     subprocess.run([os.path.join(ROOT, "bin/to_coco.sh"), "dispatcher", msg], capture_output=True, timeout=30)

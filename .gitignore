@@ -162,6 +162,13 @@ e097-night-worker/data/
 # e100-openbot: AppImage binary (~300MB) stays local; URL is in needs.json
 *.AppImage
 e100-openbot/downloads/
+# e100-openbot runtime queue backups (restorable from queue.jsonl)
+e100-openbot/coco/queue.jsonl.bak-*
+# e092 queue-job snapshots + scratch worktree copies (Oct 25 burst).
+# Live tree is e092-echolike/ (own repo, ignored above); wt-topicos is a
+# linked worktree of that repo. None of these are p4 content.
+e092-q*/
+e092-wt-*/
 
 # embedded standalone repo (own remote), never tracked by p4
 echolike-extension/
