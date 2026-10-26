@@ -68,8 +68,11 @@ PEGADO_RE = re.compile(r"(USDC|USDT|USDE|USDG|USDY|USDS|USDP|USDD|PYUSD|EURC|EUR
 
 
 def es_pegado(tok):
-    """True for fiat-pegged/stable symbols, including wrappers like SYRUPUSDC/PSTUSDC."""
-    t = re.sub(r"[^A-Z0-9]", "", str(tok or "").upper().split(":")[0])
+    """True for fiat-pegged/stable symbols, including wrappers like SYRUPUSDC/PSTUSDC
+    and bridged forms like USDC.E/USDC-E (separator + E suffix stripped first)."""
+    raw = str(tok or "").upper().split(":")[0].strip()
+    raw = re.sub(r"[.\-_/\s]+E$", "", raw)
+    t = re.sub(r"[^A-Z0-9]", "", raw)
     return t in PEGADOS_EXACT or bool(PEGADO_RE.search(t))
 
 

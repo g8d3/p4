@@ -15,9 +15,10 @@ sys.path.insert(0, os.path.join(B, "scripts"))
 import rstrength_listener as L
 
 # 1) symbol recognition
-for t in ("USDC", "SYRUPUSDC", "PSTUSDC", "EURC", "PYUSD", "USDE", "USDT", "USDS"):
+for t in ("USDC", "SYRUPUSDC", "PSTUSDC", "EURC", "PYUSD", "USDE", "USDT", "USDS",
+          "SUSDE", "USDC.E", "USDC-E"):
     assert L.es_pegado(t), t
-for t in ("SOL", "WSOL", "JITOSOL", "ORE", "GRASS", "JUP", "RAY"):
+for t in ("SOL", "WSOL", "JITOSOL", "ORE", "GRASS", "JUP", "RAY", "DOGE", "HYPE"):
     assert not L.es_pegado(t), t
 
 # 2) engine filter: stable VOL_SPIKE dropped, stable RUG_RISK kept
@@ -27,6 +28,8 @@ eng = L.Engine()
 s = {"price": 1.0, "vol_m5": 9000, "vol_h1": 0, "liq_usd": 1000000}
 assert eng.flag(1, "COIN", "USDC", "VOL_SPIKE", s, {}, None, None) is None
 assert eng.flag(1, "COIN", "SYRUPUSDC", "LIQ_ADD", s, {}, None, None) is None
+assert eng.flag(1, "COIN", "SUSDE", "VOL_SPIKE", s, {}, None, None) is None
+assert eng.flag(1, "COIN", "USDC.E", "STRONG", s, {}, None, None) is None
 rug = eng.flag(1, "COIN", "USDC", "RUG_RISK", s, {}, None, None)
 assert rug and rug["token"] == "USDC" and rug["rule"] == "RUG_RISK"
 rows = list(csv.DictReader(open(L.FLAGS)))
