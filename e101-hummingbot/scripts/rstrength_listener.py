@@ -93,6 +93,30 @@ def jload(p, d):
     except Exception: return d
 
 
+def trim_hist(hist):
+    """Last 13 samples per token, numbers only (what coin_rules reads)."""
+    out = {}
+    for tok, h in (hist or {}).items():
+        if not isinstance(h, list): continue
+        rows = []
+        for s in h[-13:]:
+            try:
+                rows.append({"price": fnum(s.get("price")), "vol_m5": fnum(s.get("vol_m5")) or 0,
+                             "vol_h1": fnum(s.get("vol_h1")) or 0, "liq_usd": fnum(s.get("liq_usd")) or 0})
+            except (AttributeError, TypeError): continue
+        if rows: out[str(tok)] = rows
+    return out
+
+
+def load_hist(state):
+    """Sample history survives restarts (q79): without it every restart costs
+    an hour of blindness (coin_rules needs 12 five-minute samples)."""
+    try:
+        return trim_hist((state or {}).get("hist") or {})
+    except Exception:
+        return {}
+
+
 def notify(msg):
     if E("RS_DRY_RUN") == "1":
         print("DRY_RUN to_coco:", msg); return
@@ -167,12 +191,14 @@ class Engine:
     def __init__(self):
         self.state = jload(STATE, {"cool": {}})
         self.px = {"SOLUSDT": deque(), "BTCUSDT": deque()}
-        self.hist, self.fund, self.mm = {}, fund.latest(), {}
+        self.hist = load_hist(self.state)
+        self.fund, self.mm = fund.latest(), {}
         self.launch = jload(LAUNCH, {})
         self.bucket = None; self.day = None
 
     def save(self):
         os.makedirs(DATA, exist_ok=True)
+        self.state["hist"] = trim_hist(self.hist)
         json.dump(self.state, open(STATE, "w")); json.dump(self.launch, open(LAUNCH, "w"))
 
     def cooled(self, key, t):
