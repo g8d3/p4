@@ -77,7 +77,7 @@ function composeVerdict(stats) {
   var wk = stats.weekly;
   if (wk && isNum(wk.n) && wk.n > 0) {
     var h4 = asPct(wk.hit_4w), h8 = asPct(wk.hit_8w);
-    parts.push("At weekly precision (" + wk.n + " midterms since 1970), " +
+    parts.push("at weekly precision (" + wk.n + " midterms since 1970), " +
       (h4 === null ? "the 4-week hit rate is unmeasured" : h4.toFixed(1) + "% bottomed within 4 weeks") + " and " +
       (h8 === null ? "the 8-week hit rate is unmeasured" : h8.toFixed(1) + "% within 8 weeks"));
     if (isNum(wk.median_offset_days)) {
