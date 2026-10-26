@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-26T15:44:15+00:00",
+ "updated": "2026-10-26T16:09:08+00:00",
  "elections": [
   {
    "id": "1934",
@@ -168,7 +168,9 @@
      "k": 12,
      "v": 141.74
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1938",
@@ -337,7 +339,9 @@
      "k": 12,
      "v": 96.94
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1942",
@@ -506,7 +510,9 @@
      "k": 12,
      "v": 119.64
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1946",
@@ -675,7 +681,9 @@
      "k": 12,
      "v": 103.95
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1950",
@@ -844,7 +852,9 @@
      "k": 12,
      "v": 114.52
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1954",
@@ -1005,7 +1015,9 @@
      "k": 12,
      "v": 134.42
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1958",
@@ -1166,7 +1178,9 @@
      "k": 12,
      "v": 109.01
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1962",
@@ -1335,7 +1349,9 @@
      "k": 12,
      "v": 120.95
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1966",
@@ -1504,7 +1520,9 @@
      "k": 12,
      "v": 114.41
     }
-   ]
+   ],
+   "weekly": null,
+   "weekly_note": "weekly bars start 1970"
   },
   {
    "id": "1970",
@@ -1673,7 +1691,16 @@
      "k": 12,
      "v": 110.09
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1970-08-12",
+    "offset_days": -83,
+    "offset_weeks": -12,
+    "depth_pct": -16.92,
+    "height_pct": 36.14,
+    "ba_ratio": 2.14
+   },
+   "weekly_note": null
   },
   {
    "id": "1974",
@@ -1842,7 +1869,16 @@
      "k": 12,
      "v": 125.55
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1974-09-25",
+    "offset_days": -41,
+    "offset_weeks": -6,
+    "depth_pct": -36.45,
+    "height_pct": 49.57,
+    "ba_ratio": 1.36
+   },
+   "weekly_note": null
   },
   {
    "id": "1978",
@@ -2011,7 +2047,16 @@
      "k": 12,
      "v": 109.49
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1978-11-09",
+    "offset_days": 2,
+    "offset_weeks": 0,
+    "depth_pct": -12.82,
+    "height_pct": 18.61,
+    "ba_ratio": 1.45
+   },
+   "weekly_note": null
   },
   {
    "id": "1982",
@@ -2180,7 +2225,16 @@
      "k": 12,
      "v": 119.62
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1982-08-11",
+    "offset_days": -83,
+    "offset_weeks": -12,
+    "depth_pct": -8.92,
+    "height_pct": 57.54,
+    "ba_ratio": 6.45
+   },
+   "weekly_note": null
   },
   {
    "id": "1986",
@@ -2349,7 +2403,16 @@
      "k": 12,
      "v": 99.96
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1986-09-10",
+    "offset_days": -55,
+    "offset_weeks": -8,
+    "depth_pct": -8.54,
+    "height_pct": 44.41,
+    "ba_ratio": 5.2
+   },
+   "weekly_note": null
   },
   {
    "id": "1990",
@@ -2518,7 +2581,16 @@
      "k": 12,
      "v": 122.4
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1990-10-10",
+    "offset_days": -27,
+    "offset_weeks": -4,
+    "depth_pct": -18.14,
+    "height_pct": 32.76,
+    "ba_ratio": 1.81
+   },
+   "weekly_note": null
   },
   {
    "id": "1994",
@@ -2687,7 +2759,16 @@
      "k": 12,
      "v": 129.18
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1994-11-17",
+    "offset_days": 9,
+    "offset_weeks": 1,
+    "depth_pct": -6.65,
+    "height_pct": 33.0,
+    "ba_ratio": 4.96
+   },
+   "weekly_note": null
   },
   {
    "id": "1998",
@@ -2856,7 +2937,16 @@
      "k": 12,
      "v": 121.55
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "1998-09-30",
+    "offset_days": -34,
+    "offset_weeks": -5,
+    "depth_pct": -17.38,
+    "height_pct": 44.04,
+    "ba_ratio": 2.53
+   },
+   "weekly_note": null
   },
   {
    "id": "2002",
@@ -3025,7 +3115,16 @@
      "k": 12,
      "v": 115.38
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "2002-10-02",
+    "offset_days": -34,
+    "offset_weeks": -5,
+    "depth_pct": -33.2,
+    "height_pct": 33.09,
+    "ba_ratio": 1.0
+   },
+   "weekly_note": null
   },
   {
    "id": "2006",
@@ -3194,7 +3293,16 @@
      "k": 12,
      "v": 105.38
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "2006-08-16",
+    "offset_days": -83,
+    "offset_weeks": -12,
+    "depth_pct": -2.26,
+    "height_pct": 19.58,
+    "ba_ratio": 8.66
+   },
+   "weekly_note": null
   },
   {
    "id": "2010",
@@ -3363,7 +3471,16 @@
      "k": 12,
      "v": 102.3
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "2010-08-18",
+    "offset_days": -76,
+    "offset_weeks": -11,
+    "depth_pct": -12.83,
+    "height_pct": 28.46,
+    "ba_ratio": 2.22
+   },
+   "weekly_note": null
   },
   {
    "id": "2014",
@@ -3532,7 +3649,16 @@
      "k": 12,
      "v": 101.76
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "2014-10-08",
+    "offset_days": -27,
+    "offset_weeks": -4,
+    "depth_pct": -6.95,
+    "height_pct": 14.14,
+    "ba_ratio": 2.03
+   },
+   "weekly_note": null
   },
   {
    "id": "2018",
@@ -3701,7 +3827,16 @@
      "k": 12,
      "v": 114.02
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "2018-12-20",
+    "offset_days": 44,
+    "offset_weeks": 6,
+    "depth_pct": -15.65,
+    "height_pct": 30.62,
+    "ba_ratio": 1.96
+   },
+   "weekly_note": null
   },
   {
    "id": "2022",
@@ -3860,7 +3995,16 @@
      "k": 10,
      "v": 115.27
     }
-   ]
+   ],
+   "weekly": {
+    "trough": "2022-10-05",
+    "offset_days": -34,
+    "offset_weeks": -5,
+    "depth_pct": -24.32,
+    "height_pct": 27.67,
+    "ba_ratio": 1.14
+   },
+   "weekly_note": null
   }
  ],
  "stats": {
@@ -3871,7 +4015,16 @@
   "median_ba": 2.23,
   "share_relief_beats_fear": 95.2,
   "median_ba_hiking": 1.86,
-  "median_ba_cutting": 2.23
+  "median_ba_cutting": 2.23,
+  "weekly": {
+   "n": 14,
+   "hit_4w": 28.6,
+   "hit_8w": 71.4,
+   "median_offset_days": -34.0,
+   "median_depth": -14.24,
+   "median_height": 32.88,
+   "median_ba": 2.08
+  }
  },
  "live": {
   "asof": "2026-10-21",
@@ -3879,5 +4032,5 @@
   "next_election": "2026-11-03",
   "days_to": 8
  },
- "method": "Monthly S&P composite (Shiller, nominal) for swings; trough = lowest close in [election-4M, election+6M]; fear = high since Jan of election year to trough; relief = trough to high in next 12M; moves under 0.5% are dashes, not swings; macro monthly from FRED; hit = trough within 2 months of election month."
+ "method": "Monthly S&P composite (Shiller, nominal) for swings; trough = lowest close in [election-4M, election+6M]; fear = high since Jan of election year to trough; relief = trough to high in next 12M; moves under 0.5% are dashes, not swings; macro monthly from FRED; hit = trough within 2 months of election month; weekly check (1970+, Yahoo weekly bars): trough in [vote-12w, vote+26w], relief to +52w, hits at \u00b14w/\u00b18w."
 }

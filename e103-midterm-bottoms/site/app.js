@@ -74,6 +74,20 @@ function composeVerdict(stats) {
   }
   parts.push("; ");
 
+  var wk = stats.weekly;
+  if (wk && isNum(wk.n) && wk.n > 0) {
+    var h4 = asPct(wk.hit_4w), h8 = asPct(wk.hit_8w);
+    parts.push("At weekly precision (" + wk.n + " midterms since 1970), " +
+      (h4 === null ? "the 4-week hit rate is unmeasured" : h4.toFixed(1) + "% bottomed within 4 weeks") + " and " +
+      (h8 === null ? "the 8-week hit rate is unmeasured" : h8.toFixed(1) + "% within 8 weeks"));
+    if (isNum(wk.median_offset_days)) {
+      var off = wk.median_offset_days;
+      parts.push(", the median bottom landing " + Math.abs(Math.round(off)) + " days " +
+        (off <= 0 ? "before" : "after") + " the vote");
+    }
+    parts.push("; ");
+  }
+
   if (isNum(medD) && isNum(medH)) {
     var fearMag = Math.abs(medD);
     parts.push("the median fear drawdown was " + medD.toFixed(2) + "% and the median relief rally was +" +
@@ -250,6 +264,8 @@ function renderStats(box, stats) {
   var out = [];
   out.push(cell("Midterms", isNum(stats.n) ? String(stats.n) : dash("No count in stats")));
   out.push(cell("Bottomed ±2m", fmtPct1(stats.hit_rate_2m) !== null ? esc(fmtPct1(stats.hit_rate_2m)) : dash("No hit-rate in stats")));
+  out.push(cell("Bottomed ±4w (wk)", (stats.weekly && fmtPct1(stats.weekly.hit_4w) !== null) ? esc(fmtPct1(stats.weekly.hit_4w) + " · n=" + stats.weekly.n) : dash("Weekly bars start 1970")));
+  out.push(cell("Bottomed ±8w (wk)", (stats.weekly && fmtPct1(stats.weekly.hit_8w) !== null) ? esc(fmtPct1(stats.weekly.hit_8w) + " · n=" + stats.weekly.n) : dash("Weekly bars start 1970")));
   out.push(cell("Median fear", isNum(stats.median_depth) ? esc(stats.median_depth.toFixed(2) + "%") : dash("No median depth in stats")));
   out.push(cell("Median relief", isNum(stats.median_height) ? esc("+" + stats.median_height.toFixed(2) + "%") : dash("No median height in stats")));
   out.push(cell("Median B/A", isNum(stats.median_ba) ? esc(stats.median_ba.toFixed(2) + "x") : dash("Needs both fear and relief legs")));

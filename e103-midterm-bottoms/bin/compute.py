@@ -132,6 +132,45 @@ def chg(series, ek, n):
     return round(a - b, 2)
 
 
+def load_yahoo():
+    d = json.load(open(DATA / "yahoo_spx_weekly.json"))["chart"]["result"][0]
+    ts = d["timestamp"]
+    cl = d["indicators"]["quote"][0]["close"]
+    return sorted((datetime.date.fromtimestamp(t), c)
+                  for t, c in zip(ts, cl) if c)
+
+
+def weekly_swings(bars, edate):
+    """Weekly-resolution swings. Returns dict or None (no coverage)."""
+    import bisect
+    dates = [b[0] for b in bars]
+    jan1 = datetime.date(edate.year, 1, 1)
+    i0 = bisect.bisect_left(dates, jan1)
+    lo = bisect.bisect_left(dates, edate - datetime.timedelta(days=84))
+    hi = bisect.bisect_right(dates, edate + datetime.timedelta(days=182))
+    seg = bars[lo:hi]
+    if not seg or i0 >= len(bars):
+        return None
+    ti = min(range(len(seg)), key=lambda i: seg[i][1])
+    tdate, tclose = seg[ti]
+    pre = bars[i0:lo + ti + 1]
+    if not pre:
+        return None
+    pdate, pclose = max(pre, key=lambda b: b[1])
+    depth = pct(pclose, tclose)
+    end = bisect.bisect_right(dates, tdate + datetime.timedelta(days=364))
+    post = bars[lo + ti:end]
+    qdate, qclose = max(post, key=lambda b: b[1])
+    height = pct(tclose, qclose)
+    off = (tdate - edate).days
+    return {"trough": tdate.isoformat(), "offset_days": off,
+            "offset_weeks": round(off / 7),
+            "depth_pct": depth if depth < -0.5 else None,
+            "height_pct": height if height > 0.5 else None,
+            "ba_ratio": (round(height / abs(depth), 2)
+                          if depth < -0.5 and height > 0.5 else None)}
+
+
 def median(xs):
     xs = sorted(x for x in xs if x is not None)
     if not xs:
@@ -193,6 +232,24 @@ def main():
                                          if x["ba_ratio"] is not None and x["macro"]["fed_stance"] == "hiking"]),
              "median_ba_cutting": median([x["ba_ratio"] for x in out
                                           if x["ba_ratio"] is not None and x["macro"]["fed_stance"] == "cutting"])}
+    try:
+        ybars = load_yahoo()
+    except (OSError, ValueError, KeyError):
+        ybars = []
+    for e, row in zip(elect["elections"], out):
+        ed = datetime.date(int(e["date"][:4]), int(e["date"][5:7]), int(e["date"][8:10]))
+        row["weekly"] = weekly_swings(ybars, ed) if ybars and ed.year >= 1970 else None
+        row["weekly_note"] = (None if row["weekly"] else
+                                ("weekly bars start 1970" if ed.year < 1970 else "no weekly coverage"))
+    wrows = [x["weekly"] for x in out if x["weekly"]]
+    stats["weekly"] = {
+        "n": len(wrows),
+        "hit_4w": round(100 * sum(1 for w in wrows if abs(w["offset_days"]) <= 28) / len(wrows), 1) if wrows else None,
+        "hit_8w": round(100 * sum(1 for w in wrows if abs(w["offset_days"]) <= 56) / len(wrows), 1) if wrows else None,
+        "median_offset_days": median([w["offset_days"] for w in wrows]),
+        "median_depth": median([w["depth_pct"] for w in wrows]),
+        "median_height": median([w["height_pct"] for w in wrows]),
+        "median_ba": median([w["ba_ratio"] for w in wrows])}
     with open(DATA / "fred_sp500.csv") as f:
         rows = [(r["observation_date"], r["SP500"]) for r in csv.DictReader(f) if r["SP500"] not in ("", ".")]
     last_day, last_val = rows[-1]
@@ -207,7 +264,8 @@ def main():
                          "trough = lowest close in [election-4M, election+6M]; "
                          "fear = high since Jan of election year to trough; "
                          "relief = trough to high in next 12M; moves under 0.5% are dashes, not swings; "
-                         "macro monthly from FRED; hit = trough within 2 months of election month.")}
+                         "macro monthly from FRED; hit = trough within 2 months of election month; "
+                         "weekly check (1970+, Yahoo weekly bars): trough in [vote-12w, vote+26w], relief to +52w, hits at ±4w/±8w.")}
     dest = ROOT / "site" / "midterms.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     json.dump(result, open(dest, "w"), indent=1)
