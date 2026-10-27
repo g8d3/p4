@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wheel → LEAPS Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Wheel → LEAPS Tracker</h1>
+  <p class="sub">$10k → $100k system (MarketMovesMatt) — live entry-rule check + backtest. <span id="gen"></span></p>
+  <p class="src">Source: <span id="src"></span>. LEAPS proxy = underlying forward returns, not option P&amp;L.</p>
+</header>
+
+<main>
+<section class="card">
+  <h2>1 · LEAPS entry check — are we at Weekly RSI 30?</h2>
+  <p class="hint">System rule: buy 12–24mo LEAPS only when Weekly RSI hits 30. Red day = wheel entry day.</p>
+  <table id="screen"><thead><tr>
+    <th>Ticker</th><th>Price</th><th>Weekly RSI</th><th>Verdict</th><th>Today</th><th>52w position</th>
+  </tr></thead><tbody></tbody></table>
+</section>
+
+<section class="card">
+  <h2>2 · Does RSI &lt; 30 bounce? (5y history)</h2>
+  <p class="hint">Each past Weekly RSI&lt;30 cluster + what the underlying did 6/12 months later. LEAPS would amplify (up and down).</p>
+  <div id="hist"></div>
+</section>
+
+<section class="card">
+  <h2>3 · Wheel income calculator</h2>
+  <p class="hint">System claims 5% per 30–45 day cycle. Check realistic 1–2% vs claimed 5%.</p>
+  <div class="calc">
+    <label>Capital $ <input id="cap" type="number" value="10000" min="100"></label>
+    <label>Return / cycle % <input id="ret" type="number" value="1.5" step="0.1" min="0" max="10"></label>
+    <label>Cycles / year <input id="cyc" type="number" value="10" min="1" max="24"></label>
+    <button id="go">Calculate</button>
+  </div>
+  <div id="out" class="out"></div>
+  <p class="warn">Assignment risk: in a crash the put seller owns the dip. 5%/cycle on SPY/QQQ ≈ 60–80%/yr — not sustainable. 1–2% is the realistic band.</p>
+</section>
+</main>
+
+<footer>Method: Wilder RSI-14 on Yahoo weekly closes. Generated <span id="gen2"></span>. Not financial advice.</footer>
+<script src="app.js"></script>
+</body>
+</html>

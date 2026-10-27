@@ -1,0 +1,1 @@
+{"port":8095,"tickers":["SPY","QQQ","AVGO","MA"],"yahoo_base":"https://query1.finance.yahoo.com/v8/finance/chart","weekly_range":"5y","daily_range":"1y","rsi_period":14,"rsi_trigger":30,"rsi_watch":40,"source":"Yahoo Finance v8 chart API (free, no key)"}
