@@ -128,3 +128,51 @@ Method: for each flag, forward return = series price at flag time → series pri
 **Verdict:** no rule shows evidence of predictive edge in this dataset, and no rule can be judged from it: every per-rule sample is under 30 flags, the whole file is one 5.75-hour window, and the ±10-min matching plus overlapping 5-minute series makes the baseline a reference rather than a significance test. The only read is weak and adverse — VOL_SPIKE at +4h has hit rate 9.1% vs 16.2% baseline, and the five replayed misses at +1h were 0/5 positive vs a 25.1% baseline — but with n=11–15 and one day, that is not a conclusion. Keep the paper collector running and re-run this script after 24h of series data exists; only then do +24h and a larger +1h/+4h sample become meaningful.
 
 _Sources: `data/rs_event_flags.csv` (24 rows), `data/rs_series.csv` (43 tokens), q79 day-4 replay list in this file; generated with `python3 scripts/flag_forward_returns.py --data-dir data --replay-q79 --draws 200 --seed 7`. Paper only; no positions, timers or services touched._
+
+## Forward returns by rule — 2026-10-26 16:20 Bogotá (q81 re-run, 24h+, paper only)
+
+First run after the series reached 24h. Branch `q81-forward-returns` @ 890a266, worktree `/tmp/opencode/q81-rerun`, same command and seed as the first run. Data read-only from the shared checkout.
+
+**Coverage check:** first flag **2026-10-25 16:05** (-05), last series point **2026-10-26 16:15** (-05) — exactly **24h10m**, i.e. only just past the gate, so `+24h` can still be answered only for flags in the first 10 minutes. Flags: 88 rows over 24h; series: 43 tokens, 15:50 → 16:15.
+
+| Rule | Horizon | Flags n | Median | Mean | Hit rate | Baseline median | Baseline mean | Baseline hit | Sample |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| LIQ_ADD | +1h | 3 | 0.00% | 0.00% | 0.00% | 0.00% | 0.08% | 19.00% | too small |
+| LIQ_DRAIN | +1h | 2 | -0.06% | -0.06% | 0.00% | 0.00% | -0.02% | 19.00% | too small |
+| RUG_RISK | +1h | 8 | -0.07% | -0.11% | 12.50% | 0.00% | 0.08% | 39.60% | too small |
+| STRONG | +1h | 8 | 0.81% | 0.65% | 62.50% | 0.00% | 0.17% | 36.20% | too small |
+| VOL_SPIKE | +1h | 63 | 0.00% | 0.17% | 39.70% | 0.00% | 0.04% | 39.10% | usable n |
+| ALL | +1h | 84 | 0.00% | 0.17% | 36.90% | 0.00% | 0.06% | 37.70% | usable n |
+| LIQ_ADD | +4h | 3 | 0.00% | 0.00% | 0.00% | 0.00% | 0.12% | 31.30% | too small |
+| LIQ_DRAIN | +4h | 1 | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | 0.00% | too small |
+| RUG_RISK | +4h | 6 | 0.01% | -2.01% | 50.00% | 0.00% | 0.51% | 42.90% | too small |
+| STRONG | +4h | 7 | 0.00% | -1.36% | 14.30% | 0.00% | 0.21% | 38.40% | too small |
+| VOL_SPIKE | +4h | 54 | 0.00% | 0.43% | 46.30% | 0.00% | 0.18% | 43.20% | usable n |
+| ALL | +4h | 71 | 0.00% | 0.03% | 40.80% | 0.00% | 0.20% | 41.60% | usable n |
+| LIQ_ADD | +24h | 0 | — | — | — | — | — | — | no data |
+| LIQ_DRAIN | +24h | 0 | — | — | — | — | — | — | no data |
+| RUG_RISK | +24h | 2 | 2.77% | 2.77% | 50.00% | 2.93% | 2.85% | 50.00% | too small |
+| STRONG | +24h | 3 | -0.89% | -1.27% | 0.00% | -0.89% | -1.37% | 0.00% | too small |
+| VOL_SPIKE | +24h | 0 | — | — | — | — | — | — | no data |
+| ALL | +24h | 5 | -0.50% | 0.35% | 20.00% | -0.50% | 0.32% | 20.00% | too small |
+
+Flags rows: 88 · series tokens: 43 · horizons: +1h, +4h, +24h.
+Baseline: random same-coin timestamps, 200 draws per flag/horizon where data exists; draws are not independent. Hit rate = forward return > 0.
+
+**Stale/flat series check (the director's +1h≈0.00% concern), measured on this data:** 6,694 of 12,728 consecutive series steps (**53%**) repeat the previous price exactly, and **20% of +1h** and **21% of +4h** flag returns are exactly 0.00%. All 3 LIQ_ADD +1h and +4h returns are zero. So the zero medians are mostly a price-refresh artefact, not a market fact: a flag whose price did not tick has no +1h move to measure, and that dilutes every median toward 0.
+
+### q79 replay — five VOL_SPIKEs from the day-4 review (list, not re-derived; paper only)
+| Rule | Horizon | Flags n | Median | Mean | Hit rate | Baseline median | Baseline mean | Baseline hit | Sample |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| VOL_SPIKE_q79_replay | +1h | 5 | -1.07% | -0.98% | 0.00% | 0.00% | 0.01% | 34.30% | too small |
+| ALL | +1h | 5 | -1.07% | -0.98% | 0.00% | 0.00% | 0.01% | 34.30% | too small |
+| VOL_SPIKE_q79_replay | +4h | 5 | -0.61% | -0.79% | 0.00% | 0.00% | -0.02% | 45.20% | too small |
+| ALL | +4h | 5 | -0.61% | -0.79% | 0.00% | 0.00% | -0.02% | 45.20% | too small |
+| VOL_SPIKE_q79_replay | +24h | 0 | — | — | — | — | — | — | no data |
+| ALL | +24h | 0 | — | — | — | — | — | — | no data |
+
+Flags rows: 5 · series tokens: 43 · horizons: +1h, +4h, +24h. These five rows are the documented day-4 review list, not a re-run of the detector.
+
+**Verdict:** still no evidence of predictive edge, and the first 24h does not settle it. `+1h` and `+4h` now have usable n for VOL_SPIKE only (63 and 54), and both land on baseline (hit 39.7% vs 39.1% at +1h; 46.3% vs 43.2% at +4h) with 0.00% medians driven by the 53% flat-price share. Every other rule is under 30 flags and too small to judge. `+24h` has just n=5 because coverage is exactly 24h10m — the sample cannot grow until the series is several days long. Before any horizon comparison is trusted, the collector's price refresh needs fixing: near-half of steps are stale, which biases medians to zero and makes hit rates coin-flip-like by construction.
+
+_Sources: `~/code/p4/e101-hummingbot/data/rs_event_flags.csv` (88 rows, 2026-10-25 16:05 → 2026-10-26 16:05), `rs_series.csv` (43 tokens, 2026-10-25 15:50 → 2026-10-26 16:15), q79 day-4 replay list in this file; generated with `python3 e101-hummingbot/scripts/flag_forward_returns.py --data-dir ~/code/p4/e101-hummingbot/data --replay-q79 --draws 200 --seed 7` on branch q81-forward-returns @ 890a266. Paper only; no positions, orders, timers or services touched._
