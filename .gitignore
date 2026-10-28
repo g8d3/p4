@@ -16,6 +16,8 @@ e008-asistente-ht/
 e041-web-access-agents/
 e052-pairforge/
 e092-echolike/
+e092-crew-agent/
+e092-crew-puerto/
 e093-rakazo/rakazo/
 2025-06-panoptic/
 2025-10-sequence/
@@ -98,6 +100,7 @@ e054-money-agent/workers/
 e054-money-agent/w0/
 e054-money-agent/jobs/
 e057-launchpad-tokens/data/
+e104-wheel-leaps/data/
 e057-launchpad-tokens/repo/
 
 # e068 tablelib: verification screenshots + generated demo page (rebuild via example/build.py)
