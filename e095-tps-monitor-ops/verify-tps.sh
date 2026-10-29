@@ -112,12 +112,12 @@ step_panel() {
     waited=$((waited + 5))
     diag=$(agent-browser eval "
 (function(){var wp=document.querySelector('pi-web-app').shadowRoot.querySelector('workspace-panel');if(!wp)return '{}';var sr=wp.shadowRoot;var tables=[...sr.querySelectorAll('table')].map(function(t){return t.querySelectorAll('tbody tr').length;});var txt=sr.textContent;var live=txt.indexOf('● live')!==-1;var page='';var i=txt.indexOf('Page ');if(i!==-1)page=txt.slice(i,i+40).replace(/\s+/g,' ');return JSON.stringify({tables:tables,live:live,page:page});})()" 2>&1 | head -n 1)
-    echo "$diag" | grep -q '"live":true' && break
+    echo "$diag" | python3 -c "import json,sys; d=json.loads(json.loads(sys.stdin.read())); sys.exit(0 if d.get('live') is True else 1)" 2>/dev/null && break
   done
   info "diag (${waited}s): $diag"
-  echo "$diag" | grep -q '"live":true' || { fail "push channel dot (● live) absent after ${waited}s"; return; }
+  echo "$diag" | python3 -c "import json,sys; d=json.loads(json.loads(sys.stdin.read())); sys.exit(0 if d.get('live') is True else 1)" 2>/dev/null || { fail "push channel dot (● live) absent after ${waited}s"; return; }
   local rows
-  rows=$(echo "$diag" | python3 -c "import json,sys; print(json.loads(sys.stdin.read()).get('page',''))" 2>/dev/null)
+  rows=$(echo "$diag" | python3 -c "import json,sys; print(json.loads(json.loads(sys.stdin.read())).get('page',''))" 2>/dev/null)
   info "pagination: $rows"
   agent-browser screenshot "$shotdir/tps-messages.png" >/dev/null 2>&1
   for v in Turns Tools Fleet; do
