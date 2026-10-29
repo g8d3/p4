@@ -1,26 +1,29 @@
 # Handoff after an external PI WEB restart (read this first, then act)
 
 ## What happened
-- `e095-tps-monitor` v11 + small fixes, main @ `b20defa`. 87/87 tests pass.
-- The user sent a phone screenshot of the live TPS tab: works, but every
-  table row is ~60px tall — the 44px coarse-pointer touch rule hit table
-  cells too. Fix (in this build): `.tps td button` capped at 32px /
-  tighter padding on touch; 44px stays on panel-level controls. Pinned by
-  `test/css.test.mjs`.
-- The daemon was restarted EXTERNALLY (any product-dir change stales the
-  revision). You are a fresh agent in session `Revisa el plugin TPS de pi`
-  (cwd `/home/vuos/code/p4`).
+- `e095-tps-monitor` v11 + fixes, main @ `1b9ea9d`. 87/87 tests pass.
+- The user circled the streaming header on their phone: it eats half the
+  screen AND the STALLED chip is cryptic. Fix (in this build):
+  - headline single-line ellipsis at 1.15em on phones (was 1.6em wrapping),
+    status line 0.85em, sparkline 32px (was 48px), buttons no-wrap;
+  - stalled streams now read "stalled mid-stream (no new tokens for a
+    while), still connected" instead of just "STALLED"; the chip carries the
+    same as a tooltip. Pinned in test/css.test.mjs.
+- Row-density fix (32px table buttons) is also in this build, unverified.
+- The daemon was restarted EXTERNALLY. You are a fresh agent in session
+  `Revisa el plugin TPS de pi` (cwd `/home/vuos/code/p4`).
 
 ## Verify now (in order)
 1. `e095-tps-monitor-ops/verify-tps.sh suite revision files` — all PASS.
-2. Phone check (the point of this build): viewport 390x844, TPS tab,
-   Messages view — rows must be clearly denser than ~60px, session buttons
-   single-line truncated, no page-level overflow. Screenshot to
-   /tmp/tps-verify/ and ATTACH it in your report (ops screenshots dir only
-   if the UI changed — it did slightly, so copy this one over).
-3. Quick desktop sanity: headline + `● live` + turn badges.
+2. Phone check (the point): viewport 390x844, TPS tab. While IDLE: headline
+   fits one line, buttons in one row, sparkline short. While STREAMING
+   (start any reply): stalled-or-live status reads as a plain sentence.
+   Screenshot both states to /tmp/tps-verify/ and ATTACH them in the report.
+3. Row density: Messages rows clearly denser than the user's ~60px shot.
+4. Quick desktop sanity: headline + `● live` + turn badges.
 
 ## Then report to the user (in English, one verdict sentence first)
-- Mobile row density fixed (or not — say what the screenshot shows).
-- Server URLs + PIDs. Commit + push anything changed (ops dir only unless
-  product code moved). Leave PI WEB running.
+- Screenshots attached as proof (mobile idle + mobile streaming + row
+  close-up). Server URLs + PIDs. Anything changed goes to the OPS dir or
+  needs another restart via the ops script + a new handoff.
+- Leave PI WEB running.
