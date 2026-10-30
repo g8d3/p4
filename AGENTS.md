@@ -15,6 +15,7 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - Config, never hardcode: machine values (IPs, ports, paths) and URL lists come from settings or the server, documented in `needs.json` — not buried in code.
 - Kill servers by exact PID (read it from `ss -tlnp`), never broad `pkill -f` patterns — a pattern can match your own shell or the wrong server.
 - Ship to GitHub by default: commit finished work and push to origin without asking. Never end a turn with unpushed commits unless the push fails — then report the failure and the retry command.
+- No Nova: there is no third person called Nova. The only parties are the owner (the human reading this) and the assistant. Earlier sessions used "Nova" (from an old handle) across repos and scripts — do not propagate it; say "the owner". Unknown proper nouns get questioned, never repeated.
 - Leave experiment servers running: after the user-seat review, keep the server up (background, log file, restart command documented in the experiment). Report its full URLs and PID every relevant turn. Never kill a working server to "clean up".
 
 ## Default AI credentials
