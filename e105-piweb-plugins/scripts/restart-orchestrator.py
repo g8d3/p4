@@ -25,6 +25,8 @@ import datetime as dt
 import glob
 import json
 import os
+import re
+import urllib.parse
 import subprocess
 import sys
 import time
@@ -84,12 +86,63 @@ def active_sessions(cwd, window_seconds):
     return sorted(out, key=lambda s: s["last_write"], reverse=True)
 
 
+def daemon_sessions(cwd):
+    """Session id + transcript path as the daemon knows them (the filename is not the id)."""
+    try:
+        rows = api(f"/sessions?cwd={urllib.parse.quote(cwd)}")
+    except Exception:
+        return []
+    return rows if isinstance(rows, list) else []
+
+
+def resolve_id(cwd, transcript_path, cache={}):
+    """Map a transcript file to its session id: by path when the daemon knows it, else by the UUID in the name."""
+    key = cwd
+    if key not in cache:
+        cache[key] = {os.path.abspath(r.get("path", "")): r.get("id") for r in daemon_sessions(cwd) if r.get("id")}
+    found = cache[key].get(os.path.abspath(transcript_path))
+    if found:
+        return found, "path"
+    m = re.search(r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", os.path.basename(transcript_path))
+    if m:
+        return m.group(1), "uuid in filename"
+    return None, "unresolved"
+
+
+def daemon_started_at():
+    try:
+        out = subprocess.run(["systemctl", "--user", "show", "pi-web-sessiond", "-p", "ActiveEnterTimestamp"],
+                             capture_output=True, text=True, timeout=10).stdout.strip()
+        return out.split("=", 1)[-1]
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def daemon_health():
+    """The WEB answers without the daemon, so it proves nothing about resumes."""
     try:
         with urllib.request.urlopen(f"{API}/api/plugins", timeout=5) as r:
             return r.status == 200
     except (urllib.error.URLError, OSError):
         return False
+
+
+def daemon_ready(cwd):
+    """True only when the session daemon itself answers: this is what a resume needs."""
+    try:
+        rows = api(f"/sessions?cwd={urllib.parse.quote(cwd)}", timeout=5)
+        return isinstance(rows, list)
+    except Exception:
+        return False
+
+
+def wait_ready(cwd, seconds):
+    t0 = time.time()
+    while time.time() - t0 < seconds:
+        if daemon_ready(cwd):
+            return True, int(time.time() - t0)
+        time.sleep(0.3)
+    return False, int(time.time() - t0)
 
 
 def quiesce_check(cwd, quiet_seconds, timeout, sleep=1.0):
@@ -125,20 +178,32 @@ def record_resume(session_id, boot_iso, ok, detail=""):
 
 
 def resume(cwd, session, boot_iso):
-    """One continuation prompt, recorded before it is sent."""
-    if already_resumed(session["id"], boot_iso):
+    """One continuation prompt, recorded before it is sent. Uses the id the daemon knows."""
+    sid, how = resolve_id(cwd, session["path"]) if session.get("path") else (session["id"], "given")
+    if not sid:
+        return f"failed: could not resolve the session id ({how})"
+    if already_resumed(sid, boot_iso):
         return "skipped (already resumed for this restart)"
-    record_resume(session["id"], boot_iso, None, "dispatching")
+    record_resume(sid, boot_iso, None, "dispatching")
     try:
-        api(f"/sessions/{session['id']}/prompt", {"cwd": cwd, "text": RESUME_TEXT})
-        record_resume(session["id"], boot_iso, True)
-        return "resumed"
+        last = None
+        for attempt in range(8):                       # the socket may still be coming up
+            try:
+                api(f"/sessions/{sid}/prompt", {"cwd": cwd, "text": RESUME_TEXT}, timeout=20)
+                record_resume(sid, boot_iso, True)
+                return f"resumed ({sid[:8]} via {how})" + (f" after {attempt} retry(ies)" if attempt else "")
+            except urllib.error.HTTPError as e:
+                last = e
+                if e.code not in (502, 503, 504):      # only transport-readiness errors are worth retrying
+                    raise
+                time.sleep(1.0)
+        raise last
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", "replace")[:120]
-        record_resume(session["id"], boot_iso, False, f"HTTP {e.code}: {body}")
-        return f"failed HTTP {e.code}"
+        record_resume(sid, boot_iso, False, f"HTTP {e.code}: {body}")
+        return f"failed HTTP {e.code} for {sid[:8]}"
     except Exception as e:
-        record_resume(session["id"], boot_iso, False, str(e)[:120])
+        record_resume(sid, boot_iso, False, str(e)[:120])
         return f"failed: {e}"
 
 
@@ -209,16 +274,22 @@ def main(argv=None):
         return 2
 
     boot_iso = now().isoformat()
+    before = daemon_started_at()
     unit = do_restart(False, a.restart_command)
     print(f"\n3) restart requested from transient unit {unit} (external: it survives the daemon)")
     t0 = time.time()
+    restarted = False
+    # A healthy daemon right now is still the OLD one: wait until its start stamp changes.
     while time.time() - t0 < a.resume_wait:
-        if daemon_health():
+        if daemon_started_at() != before:
+            restarted = True
             break
-        time.sleep(1)
-    else:
-        print("   the daemon did not answer yet; resumes will be attempted anyway (each is recorded)")
-    print(f"   daemon {'back' if daemon_health() else 'still down'} after {int(time.time() - t0)}s")
+        time.sleep(0.5)
+    ready, waited = (False, 0)
+    if restarted:
+        ready, waited = wait_ready(cwd, a.resume_wait + 30)
+    print(f"   restart {'happened' if restarted else 'DID NOT HAPPEN (start stamp unchanged)'} · "
+          f"session daemon {'ready' if ready else 'NOT READY'} after {int(time.time() - t0)}s")
 
     print(f"\n4) resume: {len(act)} session(s) that were active before the restart")
     results = []

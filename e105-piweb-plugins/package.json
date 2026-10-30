@@ -18,5 +18,10 @@
         "machineSpecific": true
       }
     ]
+  },
+  "pi": {
+    "extensions": [
+      "./activity/activity.js"
+    ]
   }
 }
