@@ -82,3 +82,40 @@ Steps 1-2 are a PI WEB plugin and need a session-daemon restart to load a server
 entry. Step 3 is a separate package and needs `/reload`. The catalog panel
 (`p4.catalog`) already lists this as *designed, not built* so nobody assumes it
 exists.
+
+## Restart orchestration (what was discussed on 2026-10-30)
+
+The operator's instinct was: the restart should be part of this work, from an external process, and
+the agents that were working must be told to continue afterwards. That is right, with one correction:
+the *plugin* cannot own the restart, because a plugin with a server entry only loads after a daemon
+restart (chicken and egg), and the browser cannot kill the process hosting it. The owner is an
+**external orchestrator**, and the panel is where you see the result.
+
+`scripts/restart-orchestrator.py` implements the five steps:
+
+1. **detect** — sessions that wrote in the last `--active-window` seconds are the ones a restart would
+   hurt. Nothing else is protected, so nothing else is touched.
+2. **quiesce** — wait until *nothing* writes for `--quiesce-seconds`; `--max-wait` then aborts with
+   nothing killed. Killing an agent mid-tool-call is how work is lost and locks are left behind, so
+   the orchestrator would rather do nothing than restart in the middle of a turn.
+3. **restart** — `systemd-run --user --collect --on-active=2 systemctl --user restart
+   pi-web-sessiond`: a transient unit, so the restart is not a child of the daemon it kills.
+4. **resume** — `POST /api/machines/local/sessions/<id>/prompt` with `{cwd, text}` (the same endpoint
+   the web client uses; verified: a bad id answers `404 {"error":"Session not found"}`, so the payload
+   is right). Attempts are appended to `.pi-web/agent_resumes.jsonl` **before** dispatching, so a
+   crash cannot resume the same session twice.
+5. **report** — `.pi-web/restart_state.json` plus the ledger the Cycles panel reads.
+
+Default is `--plan`; `--execute` is required to change anything.
+
+### Decoupling the web from the agents (the better answer)
+
+The operator asked whether decoupling is better. It is, and half of it is already true: PI WEB runs
+two processes — `pi-web` (web/API, port 8504) and `pi-web-sessiond` (which hosts the agents). So:
+
+* restarting the **web** kills no agent, ever;
+* restarting the **session daemon** kills all of them — it is the only process a normal update forces
+  us to restart, because server plugins load there.
+
+The rest of the decoupling (an agent runtime that outlives a daemon restart) is upstream work; until
+then the orchestrator is the honest way to restart without losing the work in flight.
