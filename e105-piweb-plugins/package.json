@@ -5,7 +5,18 @@
   "description": "Plugins we build for PI WEB, kept in one package so they are found, explained and installed together.",
   "piWeb": {
     "plugins": [
-      { "id": "p4.catalog", "browserRoot": ".", "module": "catalog/pi-web-plugin.js" }
+      {
+        "id": "p4.catalog",
+        "browserRoot": ".",
+        "module": "catalog/pi-web-plugin.js"
+      },
+      {
+        "id": "p4.cycles",
+        "browserRoot": ".",
+        "module": "cycles/pi-web-plugin.js",
+        "serverModule": "cycles/server-plugin.js",
+        "machineSpecific": true
+      }
     ]
   }
 }
