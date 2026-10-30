@@ -136,6 +136,52 @@ def prompt_endpoint_contract():
         return e.code == 404, f"fake id -> HTTP {e.code} {payload} (the payload shape is accepted)"
 
 
+def panel_renders_after_fetch():
+    """Exercise the panel's own logic: first render (loading), the peer call, then the table.
+
+    This uses a host-shaped stub, not the real host: it proves the async refresh path works
+    (fetch -> requestRender -> table) without depending on clicking through the UI.
+    """
+    code = (
+        "import('" + os.path.join(PKG, "cycles", "pi-web-plugin.js") + "').then(async m => {"
+        "  const html = (s, ...v) => ({strings: [...s], values: v});"
+        "  const svg = () => ({});"
+        "  const out = m.default.activate({html, svg});"
+        "  const panel = out.contributions.workspacePanels[0];"
+        "  let renders = 0;"
+        "  const ctx = {"
+        "    machine: {id: 'local'}, workspace: {path: '" + WORKSPACE + "'},"
+        "    host: {requestRender: () => { renders += 1; }},"
+        "    peer: {request: async (op) => {"
+        "      const r = await import('child_process').then(cp => new Promise(res => {"
+        "        cp.execFile('node', ['-e', `import('" + os.path.join(PKG, "cycles", "server-plugin.js").replace("'", "") + "').then(async m=>{const a=m.default.activate();const d=await a.peer.request({operation:'cycles',workspace:{path:'" + WORKSPACE + "'},signal:{aborted:false}});console.log(JSON.stringify(d));})`], (e, so) => res(so));"
+        "      }));"
+        "      return JSON.parse(r.trim().split('\\n').pop());"
+        "    }},"
+        "  };"
+        "  const flatten = (t) => {"
+        "    if (!t || typeof t !== 'object') return '';"
+        "    if (Array.isArray(t)) return t.map(flatten).join('');"
+        "    if (t.strings) return t.strings.reduce((acc, s, i) => acc + s + flatten((t.values||[])[i]), '');"
+        "    return '';"
+        "  };"
+        "  const first = panel.render(ctx);"
+        "  const loading = flatten(first).includes('Loading');"
+        "  await new Promise(r => setTimeout(r, 2500));"
+        "  const second = panel.render(ctx);"
+        "  const text = flatten(second);"
+        "  console.log(JSON.stringify({loading, renders, rows: (second.values.flat ? '' : ''),"
+        "    hasTable: text.includes('<table'), hasRestartHeader: text.includes('Restart')}));"
+        "}).catch(e => { console.log(JSON.stringify({error: String(e.message||e)})); process.exit(1); });"
+    )
+    p = subprocess.run(["node", "-e", code], capture_output=True, text=True, timeout=120)
+    if p.returncode != 0:
+        return False, (p.stdout or p.stderr).strip()[:200]
+    d = json.loads(p.stdout.strip().splitlines()[-1])
+    ok = d.get("loading") and d.get("renders", 0) >= 1 and d.get("hasTable")
+    return ok, f"first render loading={d.get('loading')}, host re-render called {d.get('renders')}x, table={d.get('hasTable')}"
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--verbose", action="store_true")
@@ -148,6 +194,8 @@ def main(argv=None):
     check("host discovers the plugin", host_discovers_plugin, "PI WEB's own plugin catalog",
           "and the tab appearing in the browser, which needs the restart")
     check("catalog panel renders", catalog_panel_renders, "the shipped panel, rendered as a template")
+    check("panel renders after its fetch", panel_renders_after_fetch,
+          "the panel's async refresh path with a host-shaped stub", "the real host mounting the tab")
     check("orchestrator plans", orchestrator_plan_runs, "detect + dry-run of the restart")
     check("resume endpoint shape", prompt_endpoint_contract, "the POST the resume step uses",
           "an actual resume of a live session")

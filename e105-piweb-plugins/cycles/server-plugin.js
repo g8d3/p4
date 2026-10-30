@@ -7,8 +7,44 @@ import path from "node:path";
 
 const FILE = path.join(".pi-web", "agent_cycles.json");
 
-function read(root) {
-  const file = path.join(root, FILE);
+// Worktrees are the normal case here: a workspace may be p4/e092-crew-puerto while the
+// project root is p4/. The ledger belongs to the project, so a worktree resolves to its
+// main checkout before the file is looked up (a worktree's .git is a file pointing at it).
+function projectRoot(start) {
+  let dir = path.resolve(start);
+  for (let i = 0; i < 6; i += 1) {
+    const dotGit = path.join(dir, ".git");
+    try {
+      const st = fs.statSync(dotGit);
+      if (st.isDirectory()) return dir;              // main checkout
+      if (st.isFile()) {                             // worktree: "gitdir: <main>/.git/worktrees/<name>"
+        const line = fs.readFileSync(dotGit, "utf8").trim();
+        const m = line.match(/^gitdir:\s*(.+)$/);
+        if (m) {
+          const common = path.resolve(dir, m[1].trim());
+          const idx = common.indexOf(path.sep + ".git" + path.sep);
+          if (idx > 0) return common.slice(0, idx);
+        }
+        return dir;
+      }
+    } catch (e) { /* keep walking up */ }
+    const up = path.dirname(dir);
+    if (up === dir) break;
+    dir = up;
+  }
+  return path.resolve(start);
+}
+
+function ledgerPaths(workspacePath) {
+  const ws = path.resolve(workspacePath);
+  const root = projectRoot(ws);
+  const seen = [...new Set([path.join(ws, FILE), path.join(root, FILE)])];
+  return { root, candidates: seen };
+}
+
+function read(workspacePath) {
+  const { root, candidates } = ledgerPaths(workspacePath);
+  const file = candidates.find((f) => fs.existsSync(f)) || candidates[0];
   try {
     const data = JSON.parse(fs.readFileSync(file, "utf8"));
     return {
@@ -19,6 +55,8 @@ function read(root) {
       sessions_seen: data.sessions_seen || 0,
       windows: data.windows || {},
       note: data.note || "",
+      root,
+      file,
       cycles: Array.isArray(data.cycles) ? data.cycles : [],
     };
   } catch (error) {
@@ -27,7 +65,8 @@ function read(root) {
       ok: false,
       missing: error && error.code === "ENOENT",
       error: String((error && error.message) || error),
-      file: file,
+      file,
+      root,
       cycles: [],
     };
   }

@@ -29,6 +29,7 @@ import sys
 
 SESSIONS = os.path.expanduser("~/.pi/agent/sessions")
 OUT = os.path.join(os.getcwd(), ".pi-web", "agent_cycles.json")   # --out to change it
+PROJECTS = os.path.expanduser("~/.pi-web/projects.json")
 PRE_WINDOW_MIN = 45     # how far back "was working when it went down" looks
 POST_GRACE_MIN = 10     # how long after a restart a session may stay quiet and still be "resuming"
 
@@ -157,6 +158,9 @@ def main(argv=None):
     ap.add_argument("--since", default="7d")
     ap.add_argument("--table", action="store_true")
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--also-projects", action="store_true", default=True,
+                    help="also write the ledger into every registered project (panels read inside their workspace)")
+    ap.add_argument("--only-out", dest="also_projects", action="store_false")
     a = ap.parse_args(argv)
     now = dt.datetime.now(dt.timezone.utc)
     b = boots(a.since)
@@ -175,10 +179,43 @@ def main(argv=None):
             for w in c["interrupted"]:
                 print(f"    - {w['title'][:60] or w['id'][:12]}  (last {w['last'][11:19]})")
         return 0
-    os.makedirs(os.path.dirname(a.out), exist_ok=True)
-    with open(a.out, "w") as fh:
-        json.dump(data, fh, indent=1, ensure_ascii=False)
-    print(f"cycles: {len(cycles)} restarts with active sessions -> {a.out}")
+    targets = [a.out]
+    if a.also_projects:
+        # The facts are machine-wide, but a panel can only read inside its own workspace, and a
+        # workspace may be a worktree of another repo. So the same ledger is written into every
+        # registered project that has a .pi-web directory to put it in.
+        try:
+            with open(PROJECTS) as fh:
+                for pr in json.load(fh).get("projects") or []:
+                    root = pr.get("path")
+                    if not root or not os.path.isdir(root):
+                        continue
+                    roots = [root]
+                    # worktrees living inside the project folder are workspaces too, and a
+                    # workspace panel reads inside its own workspace
+                    try:
+                        for child in os.listdir(root):
+                            marker = os.path.join(root, child, ".git")
+                            if os.path.isfile(marker):
+                                roots.append(os.path.join(root, child))
+                    except OSError:
+                        pass
+                    for r in roots:
+                        targets.append(os.path.join(r, ".pi-web", "agent_cycles.json"))
+        except (OSError, ValueError):
+            pass
+    written = []
+    for target in dict.fromkeys(targets):
+        try:
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(target, "w") as fh:
+                json.dump(data, fh, indent=1, ensure_ascii=False)
+            written.append(target)
+        except OSError:
+            continue
+    print(f"cycles: {len(cycles)} restarts with active sessions -> {len(written)} ledger(s)")
+    for w in written:
+        print(f"   {w}")
     return 0
 
 

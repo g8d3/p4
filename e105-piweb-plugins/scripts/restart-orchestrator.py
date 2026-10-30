@@ -142,8 +142,17 @@ def resume(cwd, session, boot_iso):
         return f"failed: {e}"
 
 
-def do_restart(dry):
-    """Restart from a transient unit so the restart is not a child of the daemon it kills."""
+def do_restart(dry, override=None):
+    """Restart from a transient unit so the restart is not a child of the daemon it kills.
+
+    A restart is the one step that survives the process it kills, so it always runs from a
+    detached unit; --restart-command exists so the whole flow can be exercised against a
+    throwaway instance instead of the daemon the user is working in."""
+    if override:
+        if dry:
+            return override
+        subprocess.run(override, shell=True, check=True)
+        return override
     unit = f"piweb-restart-{int(time.time())}"
     cmd = ["systemd-run", "--user", "--collect", f"--unit={unit}", "--on-active=2",
            "systemctl", "--user", "restart", "pi-web-sessiond"]
@@ -162,6 +171,9 @@ def main(argv=None):
     ap.add_argument("--quiesce-seconds", type=int, default=8, help="how long nothing may write before restarting")
     ap.add_argument("--max-wait", type=int, default=300, help="give up (no restart) after this many seconds")
     ap.add_argument("--resume-wait", type=int, default=20, help="seconds to wait for the daemon to come back")
+    ap.add_argument("--restart-command", default="",
+                    help="command that restarts the daemon (default: the systemd transient unit); "
+                         "used to rehearse against a throwaway instance")
     a = ap.parse_args(argv)
     dry = not a.execute
 
@@ -177,14 +189,14 @@ def main(argv=None):
         print("   nothing to protect: a restart now would lose no work")
         print("\n(dry run: nothing changed)" if dry else "\nrestarting")
         if not dry:
-            print("   restart unit:", do_restart(False))
+            print("   restart unit:", do_restart(False, a.restart_command))
         return 0
 
     print(f"\n2) quiesce: waiting until nothing writes for {a.quiesce_seconds}s (max {a.max_wait}s)")
     if dry:
         recent = active_sessions(cwd, a.quiesce_seconds)
         print(f"   right now: {'QUIET' if not recent else str(len(recent)) + ' still writing'}")
-        print("\n3) restart (would run):", do_restart(True))
+        print("\n3) restart (would run):", do_restart(True, a.restart_command))
         print(f"4) resume: one prompt to each of the {len(act)} sessions above, once per restart")
         print("   (dry run: nothing changed)")
         return 0
@@ -197,7 +209,7 @@ def main(argv=None):
         return 2
 
     boot_iso = now().isoformat()
-    unit = do_restart(False)
+    unit = do_restart(False, a.restart_command)
     print(f"\n3) restart requested from transient unit {unit} (external: it survives the daemon)")
     t0 = time.time()
     while time.time() - t0 < a.resume_wait:

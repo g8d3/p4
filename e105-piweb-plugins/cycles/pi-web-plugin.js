@@ -40,10 +40,10 @@ function fetchInto(context) {
   const key = keyOf(context);
   const entry = CACHE.get(key) || { data: null, fetching: false, error: null, at: 0 };
   CACHE.set(key, entry);
-  if (entry.fetching) return;
+  if (entry.fetching) return entry;
   if (!context.peer || !context.peer.request) {
     entry.error = "This machine has no backend for the package: enable the plugin and restart the session daemon.";
-    return;
+    return entry;
   }
   entry.fetching = true;
   context.peer.request("cycles", null)
@@ -58,6 +58,7 @@ function fetchInto(context) {
       entry.fetching = false;
       try { context.host.requestRender(); } catch (e) { /* tab closed */ }
     });
+  return entry;
 }
 
 function listInterrupted(html, c) {
@@ -133,9 +134,11 @@ const plugin = {
             <path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 3v6h-6"></path>
           </svg>`,
           render: (context) => {
-            const entry = CACHE.get(keyOf(context)) || { data: null, error: null, fetching: false };
-            if (!entry.data && !entry.fetching && !entry.error) fetchInto(context);
-            if (entry.data && Date.now() - (entry.at || 0) > 60000) fetchInto(context);
+            let entry = CACHE.get(keyOf(context));
+            if (!entry || (!entry.data && !entry.fetching && !entry.error)
+                || (entry.data && Date.now() - (entry.at || 0) > 60000)) {
+              entry = fetchInto(context);
+            }
             return view(html, context, entry);
           },
         },
