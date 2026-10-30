@@ -16,6 +16,13 @@
         "module": "cycles/pi-web-plugin.js",
         "serverModule": "cycles/server-plugin.js",
         "machineSpecific": true
+      },
+      {
+        "id": "p4.models",
+        "browserRoot": ".",
+        "module": "models/pi-web-plugin.js",
+        "serverModule": "models/server-plugin.js",
+        "machineSpecific": true
       }
     ]
   },
