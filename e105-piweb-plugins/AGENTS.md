@@ -30,8 +30,30 @@ curl -s localhost:8504/api/plugins | python3 -c "import json,sys;print([p['id'] 
 package.json          piWeb.plugins: the entries this package ships
 catalog/pi-web-plugin.js   p4.catalog — read-only catalog panel
 catalog/catalog-data.js    the catalog itself (id, what, why, where, kind, status)
-docs/agent-cycles.md       design of the agent-cycles plugin (designed, not built)
+docs/agent-cycles.md       design of the agent-cycles plugin
+scripts/cycles.py          the ledger: what each session-daemon restart interrupted (CLI today)
+                           systemd: p4-agent-cycles.service + .timer (every 15 min, boot)
+                           output: <workspace>/.pi-web/agent_cycles.json
 ```
+
+## Agent cycles: what exists
+
+`scripts/cycles.py` derives, from evidence that already exists (systemd restarts + the session
+transcripts under `~/.pi/agent/sessions`), which sessions were active in the 45 minutes before each
+session-daemon restart and which never wrote again. On 2026-10-30 it found **21 interrupted agents
+in 7 days** across 12 restarts.
+
+```bash
+cd /home/vuos/code/p4 && python3 e105-piweb-plugins/scripts/cycles.py --table   # see it
+```
+It runs every 15 minutes from `p4-agent-cycles.timer` and writes `<workspace>/.pi-web/agent_cycles.json`.
+
+**The panel is not shipped yet on purpose.** Reading that file from a browser panel needs a plugin
+server entry (a browser-only panel cannot read workspace files at render time), and a server entry
+only loads after the session daemon restarts — the very restart that orphans agents. Shipping a panel
+that silently fails is the bug we already had once with the catalog, so the CLI is the honest delivery
+until the restart is worth doing. Resuming the interrupted agents stays a Pi extension (see the design
+doc): this package reports, it does not resurrect.
 
 Adding a plugin means adding an entry to `package.json`, a row to `catalog-data.js`, and a
 note in `docs/`. A plugin that is not described in the catalog is not shipped.
