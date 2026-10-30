@@ -53,7 +53,7 @@ def cache_invalidate(*prefixes):
 
 # ---------------------------------------------------------- live watch ---
 # Fingerprints of system state; versions bump on change, pushed via SSE.
-_versions = {"ports": 0, "cron": 0, "services": 0}
+_versions = {"ports": 0, "cron": 0, "services": 0, "repos": 0}
 _ver_lock = threading.Lock()
 _changes = collections.deque(maxlen=20)
 
@@ -98,11 +98,67 @@ def _fp_services():
         return 0
 
 
+def _repo_dirs():
+    """All git checkout dirs under REPOS_ROOT (no git calls, just walk)."""
+    found = []
+    for dirpath, dirnames, filenames in os.walk(REPOS_ROOT):
+        depth = 0 if dirpath == REPOS_ROOT else os.path.relpath(dirpath, REPOS_ROOT).count(os.sep) + 1
+        if depth > REPOS_MAXDEPTH:
+            dirnames[:] = []
+            continue
+        has_git = ".git" in dirnames or ".git" in filenames
+        dirnames[:] = [x for x in dirnames
+                       if x not in (".git", "node_modules", "__pycache__", ".venv", "venv")
+                       and not x.startswith(".")]
+        if has_git:
+            found.append(dirpath)
+    return found
+
+
+def _fp_repos():
+    # Cheap fingerprint: mtimes of HEAD/index/branch tips only — no git
+    # subprocesses, so the watcher can afford it. A push, commit, fetch or
+    # branch switch touches one of these and the Repos tab refreshes via SSE.
+    try:
+        sig = []
+        for d in _repo_dirs():
+            g = os.path.join(d, ".git")
+            if os.path.isfile(g):  # worktree: pointer file + real gitdir
+                try:
+                    sig.append(os.stat(g).st_mtime)
+                except Exception:
+                    pass
+                try:
+                    with open(g) as f:
+                        gd = f.read().strip().split("gitdir:", 1)[1].strip()
+                    for p in ("HEAD", "index"):
+                        sig.append(os.stat(os.path.join(gd, p)).st_mtime)
+                except Exception:
+                    pass
+            else:
+                for p in ("HEAD", "index", "ORIG_HEAD", "FETCH_HEAD"):
+                    try:
+                        sig.append(os.stat(os.path.join(g, p)).st_mtime)
+                    except Exception:
+                        pass
+                try:
+                    rh = os.path.join(g, "refs", "heads")
+                    for b in os.listdir(rh):
+                        sig.append(os.stat(os.path.join(rh, b)).st_mtime)
+                except Exception:
+                    pass
+        return hash(tuple(sig))
+    except Exception:
+        return 0
+
+
 def _watch_loop():
     last = {"ports": _fp_ports()}
     time.sleep(2)
     last["cron"] = _fp_cron()
     last["services"] = _fp_services()
+    last["repos"] = _fp_repos()
+    tick = 0
     while True:
         try:
             cur = _fp_ports()
@@ -122,6 +178,12 @@ def _watch_loop():
                     if c != last[kind]:
                         last[kind] = c
                         _note_change(kind, f"{kind} changed")
+            tick += 1
+            if tick % 5 == 0:  # ~every 15s: stat-only, no git subprocesses
+                c = _fp_repos()
+                if c != last["repos"]:
+                    last["repos"] = c
+                    _note_change("repos", "repos changed")
         except Exception as e:
             try:
                 with open(os.path.join(BASE, "server.log"), "a") as f:
@@ -946,6 +1008,86 @@ def api_stats(tf: str = "1s", n: int = 0):
         out = (out + [{"t": win["t"], "m": win["m"], "partial": True}])[-n:]
     return {"ok": True, "tf": tf, "period": periods[tf], "n": n,
             "candles": out, "latest": latest}
+
+
+# -------------------------------------------------------------- repos ---
+# Repo tree: every git checkout under the workspace — ours, upstreams,
+# worktrees, local clones — with branch + sync state, so tangles show.
+REPOS_ROOT = os.environ.get("E067_REPOS_ROOT", "/home/vuos/code/p4")
+REPOS_MAXDEPTH = 5
+
+
+def _git(d, *args):
+    try:
+        p = run(["git", "-C", d] + list(args), timeout=10)
+        return p.stdout.strip() if p.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def _repo_row(d):
+    rel = os.path.relpath(d, REPOS_ROOT)
+    is_worktree = os.path.isfile(os.path.join(d, ".git"))
+    remote = _git(d, "remote", "get-url", "origin")
+    if not remote:
+        remotes = _git(d, "remote").split()
+        remote = _git(d, "remote", "get-url", remotes[0]) if remotes else ""
+    branch = _git(d, "branch", "--show-current") or "(detached)"
+    upstream = _git(d, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    ahead = behind = 0
+    if upstream:
+        lr = _git(d, "rev-list", "--left-right", "--count", f"HEAD...{upstream}")
+        m = re.match(r"(\d+)\s+(\d+)", lr or "")
+        if m:
+            ahead, behind = int(m.group(1)), int(m.group(2))
+    dirty = len(_git(d, "status", "--porcelain").splitlines())
+    last = _git(d, "log", "-1", "--format=%ad %s", "--date=short")
+    if is_worktree:
+        kind = "worktree"
+    elif not remote:
+        kind = "local-only"
+    elif "g8d3" in remote:
+        kind = "ours"
+    elif remote.startswith(("/", ".", "file:")):
+        kind = "local-clone"
+    else:
+        kind = "upstream"
+    return {"path": rel, "kind": kind, "remote": remote, "branch": branch,
+            "upstream": upstream, "ahead": ahead, "behind": behind,
+            "dirty": dirty, "last": last}
+
+
+def scan_repos() -> list:
+    found = []
+    for dirpath, dirnames, filenames in os.walk(REPOS_ROOT):
+        depth = 0 if dirpath == REPOS_ROOT else os.path.relpath(dirpath, REPOS_ROOT).count(os.sep) + 1
+        if depth > REPOS_MAXDEPTH:
+            dirnames[:] = []
+            continue
+        has_git = ".git" in dirnames or ".git" in filenames
+        dirnames[:] = [x for x in dirnames
+                       if x not in (".git", "node_modules", "__pycache__", ".venv", "venv")
+                       and not x.startswith(".")]
+        if has_git:
+            found.append(dirpath)
+    rows = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as ex:
+        for r in ex.map(_repo_row, sorted(found)):
+            rows.append(r)
+    rows.sort(key=lambda r: (r["kind"] != "ours", r["path"]))
+    return rows
+
+
+@app.get("/api/repos")
+def api_repos():
+    hit = cache_get(("repos",))
+    if hit is not None:
+        d = dict(hit)
+        d["cached"] = True
+        return d
+    resp = {"ok": True, "root": REPOS_ROOT, "rows": scan_repos()}
+    cache_set(("repos",), resp, 30)
+    return resp
 
 
 # --------------------------------------------------------------- web ---

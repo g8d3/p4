@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>sys-panel · puertos + cron + servicios</title>
+<title>sys-panel · puertos + cron + servicios + repos</title>
 <style>
 :root{--bg:#0f1115;--card:#171b22;--line:#2a3140;--tx:#e8ecf1;--mut:#9aa4b2;--ac:#4da3ff;--ok:#3fb97f;--bad:#e5605e;--warn:#d9a441}
 *{box-sizing:border-box}body{background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,sans-serif;margin:0;padding:12px;max-width:1100px;margin-inline:auto}
@@ -31,12 +31,13 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 </style>
 </head>
 <body>
-<h1>🖥️ sys-panel <small>· puertos · cron · servicios</small> <span id="liveDot" class="badge b-warn" title="live">●</span> <span id="flash" class="mut"></span></h1>
+<h1>🖥️ sys-panel <small>· puertos · cron · servicios · repos</small> <span id="liveDot" class="badge b-warn" title="live">●</span> <span id="flash" class="mut"></span></h1>
 <div class="tabs">
 <button data-t="ports" class="on">🔌 Puertos</button>
 <button data-t="cron">⏰ Cron</button>
 <button data-t="svc">⚙️ Servicios</button>
 <button data-t="stats">📊 Stats</button>
+<button data-t="repos">🗂 Repos</button>
 </div>
 
 <!-- PORTS -->
@@ -97,6 +98,16 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 
 <div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
 
+<!-- REPOS -->
+<section id="t-repos" hidden>
+<div class="card row">
+<button class="act" onclick="loadRepos(true)">↻ escanear</button>
+<span class="mut" id="reposMeta"></span>
+</div>
+<div class="mut" style="margin:0 0 8px">Cada checkout git bajo el workspace: qué es (nuestro / upstream ajeno / worktree / clon local), rama y estado de sync. Verde = al día con GitHub.</div>
+<div id="reposList"></div>
+</section>
+
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -104,10 +115,10 @@ function modal(html){$('#modalBox').innerHTML=html;$('#modal').classList.add('op
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').classList.remove('open')});
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
 document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-['ports','cron','svc','stats'].forEach(t=>$('#t-'+t).hidden=t!==b.dataset.t);
+['ports','cron','svc','stats','repos'].forEach(t=>$('#t-'+t).hidden=t!==b.dataset.t);
 curTab=b.dataset.t;reloadTab(curTab);});
 let curTab='ports';
-function reloadTab(t,force){if(t==='ports')loadPorts(force);else if(t==='cron')loadCron(force);else if(t==='svc')loadSvc(force);else if(t==='stats')loadStats(force)}
+function reloadTab(t,force){if(t==='ports')loadPorts(force);else if(t==='cron')loadCron(force);else if(t==='svc')loadSvc(force);else if(t==='stats')loadStats(force);else if(t==='repos')loadRepos(force)}
 async function api(p,o){const r=await fetch(p,o);return r.json()}
 
 /* ---------- PORTS ---------- */
@@ -354,11 +365,32 @@ $('#statsCount').value=statsN[statsTF];
 $('#statsCount').onchange=e=>{const v=Math.max(2,Math.min(500,+e.target.value||STATS_DEF[statsTF]));statsN[statsTF]=v;localStorage.setItem('e067statsN',JSON.stringify(statsN));renderTfBtns();loadStats(true)};
 $('#statsMetric').onchange=e=>{statsMetric=e.target.value;if(FC.stats)renderStats(FC.stats)};}
 
+/* ---------- REPOS ---------- */
+function repoSync(r){
+if(!r.upstream)return '<span class="badge">sin upstream</span>';
+if(r.behind>0)return `<span class="badge b-bad">↓${r.behind} detrás</span>`;
+if(r.ahead>0)return `<span class="badge b-warn">↑${r.ahead} sin subir</span>`;
+if(r.dirty>0)return `<span class="badge b-warn">● +${r.dirty} sin commit</span>`;
+return '<span class="badge b-ok">● al día</span>';}
+function renderRepos(d){
+$('#reposMeta').textContent=d.rows.length+' checkouts · '+new Date().toLocaleTimeString()+(d.cached?' ⚡':'');
+let h='<div class="card" style="overflow:auto"><table><tr><th>repo</th><th>qué es</th><th>rama</th><th>sync</th><th class=hideM>último commit</th></tr>';
+for(const r of d.rows||[]){
+h+=`<tr><td><code>${esc(r.path)}</code><br><span class=mut>${esc((r.remote||'—').slice(0,60))}</span></td>
+<td><span class=badge>${esc(r.kind)}</span></td>
+<td><code>${esc(r.branch)}</code></td>
+<td>${repoSync(r)}</td>
+<td class="hideM mut">${esc((r.last||'—').slice(0,110))}</td></tr>`}
+$('#reposList').innerHTML=h+'</table></div>';}
+async function loadRepos(force){
+if(FC.repos&&!force){try{renderRepos(FC.repos)}catch(e){}}
+const d=await api('/api/repos');FC.repos=d;renderRepos(d);}
+
 /* ---------- LIVE: SSE push + fallback ---------- */
 let liveVers={};
 function flash(msg){const f=$('#flash');if(!f)return;f.textContent=msg;clearTimeout(f._t);f._t=setTimeout(()=>f.textContent='',4000)}
 function liveDot(ok){const el=$('#liveDot');if(el)el.className='badge '+(ok?'b-ok':'b-bad')}
-function frontInvalidate(k){if(k==='ports')delete FC.ports;else if(k==='cron')delete FC.cron;else if(k==='services'){delete FC.svc;delete FC.custom}}
+function frontInvalidate(k){if(k==='ports')delete FC.ports;else if(k==='cron')delete FC.cron;else if(k==='repos')delete FC.repos;else if(k==='services'){delete FC.svc;delete FC.custom}}
 function initLive(){
 try{
 const es=new EventSource('/api/events');
@@ -366,7 +398,7 @@ es.onopen=()=>liveDot(true);
 es.onerror=()=>liveDot(false);
 es.onmessage=e=>{
 let v;try{v=JSON.parse(e.data)}catch(_){return}
-const map={ports:'ports',cron:'cron',svc:'services'};
+const map={ports:'ports',cron:'cron',svc:'services',repos:'repos'};
 for(const k of Object.keys(map)){
 if(liveVers[k]!==undefined&&v[k]!==liveVers[k]){
 frontInvalidate(k);
