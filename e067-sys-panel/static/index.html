@@ -102,6 +102,7 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <section id="t-repos" hidden>
 <div class="card row">
 <button class="act" onclick="loadRepos(true)">↻ escanear</button>
+<button class="act" onclick="reposFetch()" title="git fetch en todos los repos nuestros, en fondo; la tabla se actualiza sola">↓ fetch all</button>
 <span class="mut" id="reposMeta"></span>
 </div>
 <div class="mut" style="margin:0 0 8px">Cada checkout git bajo el workspace: qué es (nuestro / upstream ajeno / worktree / clon local), rama y estado de sync. Verde = al día con GitHub.</div>
@@ -385,6 +386,10 @@ $('#reposList').innerHTML=h+'</table></div>';}
 async function loadRepos(force){
 if(FC.repos&&!force){try{renderRepos(FC.repos)}catch(e){}}
 const d=await api('/api/repos');FC.repos=d;renderRepos(d);}
+async function reposFetch(){
+if(!confirm('git fetch origin en todos los repos nuestros? (fondo, la tabla se actualiza sola)'))return;
+const d=await api('/api/repos/fetch',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+alert(d.ok?('fetch lanzado en '+d.n+' repos (ver fetch.log)'):'error');}
 
 /* ---------- LIVE: SSE push + fallback ---------- */
 let liveVers={};
