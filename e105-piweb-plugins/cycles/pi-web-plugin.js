@@ -11,6 +11,18 @@
 // Read-only: resuming is a dispatch and belongs to piweb-restart, not to a panel.
 const CACHE = new Map();
 const REFRESH_MS = 20000;
+const REQUEST = { auditLimit: 10, activityLimit: 30, cyclesLimit: 12 };
+
+// The daemon keeps the old backend after a package update until it restarts.
+// The host answers peer.request with stale-plugin-revision / inactive-plugin then.
+// A raw "request failed" hides that; say what to do instead.
+function backendHint(err) {
+  const s = String((err && err.message) || err || "");
+  if (/stale-plugin-revision|inactive-plugin|restart|stale|missing|not active/i.test(s))
+    return "New version installed — restart the session daemon, then reload this page. " +
+      "Your data is safe; the tab shows again after the restart.";
+  return s;
+}
 
 const STYLE = `
 .p4c{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:14px;padding:14px;overflow:auto}
@@ -191,17 +203,18 @@ function fetchInto(context) {
   CACHE.set(key, entry);
   if (entry.fetching) return entry;
   if (!context.peer || !context.peer.request) {
-    entry.error = "This machine has no backend for the package: enable the plugin and restart the session daemon.";
+    entry.error = "No backend on this machine yet — restart the session daemon, then reload this page. " +
+      "Your data is safe; the tab shows again after the restart.";
     return entry;
   }
   entry.fetching = true;
-  context.peer.request("state", null)
+  context.peer.request("state", REQUEST)
     .then((res) => {
       entry.data = res && typeof res === "object" ? res : null;
       entry.error = null;
       entry.at = Date.now();
     })
-    .catch((err) => { entry.error = String((err && err.message) || err); })
+    .catch((err) => { entry.error = backendHint(err); })
     .finally(() => {
       entry.fetching = false;
       try { context.host.requestRender(); } catch { /* tab closed */ }

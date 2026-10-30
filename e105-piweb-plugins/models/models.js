@@ -59,10 +59,14 @@ export function check({ repair = true } = {}) {
   const current = settings.enabledModels || [];
   let canon = readJSON(CANON, null);
   if (!canon || !Array.isArray(canon.enabledModels) || canon.enabledModels.length < current.length) {
-    // first run, or the list legitimately grew: that becomes the new known-good
+    // first run, or the list legitimately grew: that becomes the new known-good.
+    // Logged, so a provider adding 140 models at once shows up in the panel instead of silently
+    // becoming the new canonical (that silent growth is what baked the bloat in).
+    const from = (canon && Array.isArray(canon.enabledModels)) ? canon.enabledModels.length : 0;
     canon = { enabledModels: current, defaultProvider: settings.defaultProvider || null,
               defaultModel: settings.defaultModel || null, savedAt: new Date().toISOString() };
     writeJSON(CANON, canon);
+    if (from > 0 && current.length > from) note({ event: "snapshot", from, to: current.length });
     return { ok: true, action: "snapshot", count: current.length };
   }
   const verdict = classify(current, canon.enabledModels);

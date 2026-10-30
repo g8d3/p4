@@ -50,19 +50,25 @@ function readJSON(file) {
 function readJSONL(file, limit) {
   try {
     const rows = [];
-    for (const line of fs.readFileSync(file, "utf8").split("\n")) {
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    // Only the tail matters: newest decisive event per session, newest audit runs.
+    // Reading the whole file on every panel render is what made this grow without bound.
+    const tail = lines.slice(-Math.max(1, limit));
+    for (const line of tail) {
       const t = line.trim();
       if (!t) continue;
       try { rows.push(JSON.parse(t)); } catch { /* one bad line must not hide the rest */ }
     }
-    return rows.slice(-limit);
+    return rows;
   } catch { return []; }
 }
 
 // The newest decisive event per session: the same rule the orchestrator uses.
-function activityBySession(file) {
+// Bounded by design: the panel only shows the newest N sessions, so the backend
+// only returns that many. Reading more lines than needed was the slow growth.
+function activityBySession(file, lineLimit, sessionLimit) {
   const out = new Map();
-  for (const row of readJSONL(file, 5000)) {
+  for (const row of readJSONL(file, lineLimit)) {
     const sid = row.session;
     if (!sid) continue;
     const ev = row.event || "";
@@ -77,10 +83,24 @@ function activityBySession(file) {
       title: prev.title || "",
     });
   }
-  return [...out.values()].sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  return [...out.values()].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, sessionLimit);
 }
 
-function read(workspacePath) {
+const DEFAULTS = { lines: 2000, audit: 10, cycles: 12, sessions: 30 };
+
+function limitsFrom(input) {
+  const p = (input && typeof input === "object") ? input : {};
+  const num = (v, d) => (Number.isSafeInteger(v) && v > 0 ? Math.min(v, 500) : d);
+  return {
+    lines: num(p.lines, DEFAULTS.lines),
+    auditLimit: num(p.auditLimit ?? p.audit, DEFAULTS.audit),
+    cyclesLimit: num(p.cyclesLimit ?? p.cycles, DEFAULTS.cycles),
+    sessionLimit: num(p.activityLimit ?? p.sessions, DEFAULTS.sessions),
+  };
+}
+
+function read(workspacePath, input) {
+  const lim = limitsFrom(input);
   const ws = path.resolve(workspacePath);
   const root = projectRoot(ws);
   const ledgerFile = firstExisting([path.join(ws, FILE), path.join(root, FILE)]);
@@ -88,8 +108,8 @@ function read(workspacePath) {
   const activityFile = path.join(DATA, "agent_activity.jsonl");
 
   const ledger = readJSON(ledgerFile) || {};
-  const audit = readJSONL(auditFile, 40).filter((r) => !r.intent);
-  const activity = activityBySession(activityFile);
+  const audit = readJSONL(auditFile, lim.lines).filter((r) => !r.intent).slice(-lim.auditLimit);
+  const activity = activityBySession(activityFile, lim.lines, lim.sessionLimit);
 
   return {
     ok: Boolean(ledger.generated_at || audit.length || activity.length),
@@ -99,11 +119,12 @@ function read(workspacePath) {
     sessions_seen: ledger.sessions_seen || 0,
     windows: ledger.windows || {},
     note: ledger.note || "",
-    cycles: Array.isArray(ledger.cycles) ? ledger.cycles : [],
+    cycles: Array.isArray(ledger.cycles) ? ledger.cycles.slice(-lim.cyclesLimit) : [],
     audit,
     activity,
     files: { ledger: ledgerFile, audit: auditFile, activity: activityFile },
     root,
+    limits: lim,
   };
 }
 
@@ -117,7 +138,7 @@ const plugin = {
           if (context.signal && context.signal.aborted) throw new Error("aborted");
           const op = context.operation;
           if (op !== "state" && op !== "cycles") throw new Error("unknown operation: " + op);
-          const data = read(context.workspace.path);
+          const data = read(context.workspace.path, context.input);
           // "cycles" stays for older panel builds: same payload, nothing removed
           return JSON.parse(JSON.stringify(data));
         },

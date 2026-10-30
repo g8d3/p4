@@ -100,13 +100,20 @@ function view(html, entry) {
 function fetchInto(context) {
   if (CACHE.fetching) return;
   if (!context.peer || !context.peer.request) {
-    CACHE.error = "This machine has no backend for the package: enable the plugin and restart the session daemon.";
+    CACHE.error = "No backend on this machine yet — restart the session daemon, then reload this page. " +
+      "Your data is safe; the tab shows again after the restart.";
     return;
   }
   CACHE.fetching = true;
   context.peer.request("models", null)
     .then((res) => { CACHE.data = res || null; CACHE.error = null; CACHE.at = Date.now(); })
-    .catch((err) => { CACHE.error = String((err && err.message) || err); })
+    .catch((err) => {
+      const s = String((err && err.message) || err || "");
+      CACHE.error = /stale-plugin-revision|inactive-plugin|restart|stale|missing|not active/i.test(s)
+        ? ("New version installed — restart the session daemon, then reload this page. " +
+           "Your data is safe; the tab shows again after the restart.")
+        : s;
+    })
     .finally(() => {
       CACHE.fetching = false;
       try { context.host.requestRender(); } catch { /* closed */ }
