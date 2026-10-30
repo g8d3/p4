@@ -48,6 +48,14 @@ cd /home/vuos/code/p4 && python3 e105-piweb-plugins/scripts/cycles.py --table   
 ```
 It runs every 15 minutes from `p4-agent-cycles.timer` and writes `<workspace>/.pi-web/agent_cycles.json`.
 
+**How to test it yourself (one command):**
+
+```bash
+cd /home/vuos/code/p4 && python3 e105-piweb-plugins/scripts/selftest.py
+```
+It prints PASS/FAIL with the evidence for each check, and then lists what it does **not** cover —
+the things that need a daemon restart or that would send a prompt to a live agent.
+
 **The panel is not shipped yet on purpose.** Reading that file from a browser panel needs a plugin
 server entry (a browser-only panel cannot read workspace files at render time), and a server entry
 only loads after the session daemon restarts — the very restart that orphans agents. Shipping a panel
