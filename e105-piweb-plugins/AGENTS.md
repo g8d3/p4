@@ -35,3 +35,24 @@ docs/agent-cycles.md       design of the agent-cycles plugin (designed, not buil
 
 Adding a plugin means adding an entry to `package.json`, a row to `catalog-data.js`, and a
 note in `docs/`. A plugin that is not described in the catalog is not shipped.
+
+## Conventions
+
+- Name our plugin ids `p4.<something>`: in a list of fifteen they sort together and are the
+  ones we can point at. This is why the catalog shows the id next to the name.
+- The catalog is the index: a plugin that is not in `catalog/catalog-data.js` is not shipped,
+  and the panel is the answer to "which of these are ours".
+- `render` must return a template result from the host's `html` tag (`html\`...\``), not a DOM
+  node. Returning an element fails activation silently: the tab simply never appears.
+  Verify with a real browser, never by reading the code:
+
+```bash
+python3 - <<'PY'
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+    b=p.chromium.launch(); pg=b.new_page()
+    pg.goto("http://127.0.0.1:8504/", wait_until="load"); pg.wait_for_timeout(5000)
+    print([t for t in pg.eval_on_selector_all("button","e=>e.map(x=>x.textContent.trim())") if "Plugins" in t])
+    b.close()
+PY
+```
