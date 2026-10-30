@@ -7,9 +7,13 @@ Single FastAPI file + vanilla JS. Mobile-friendly. Port **8326**.
 ## Run
 
 ```bash
-cd e067-sys-panel && python3 app.py        # → http://localhost:8326
-bin/healthcheck.sh                          # restart if down (cron cada 15 min)
+systemctl --user status e067-sys-panel       # systemd owns it (Restart=always)
 ```
+
+No cron, no healthcheck script, no reboot line: with user lingering on,
+the enabled unit starts at boot and systemd restarts it on death — the OS
+is the supervisor, via process events (SIGCHLD), not a timer.
+`bin/healthcheck.sh` stays on disk, unused.
 
 ## What it does
 
@@ -37,15 +41,21 @@ bin/healthcheck.sh                          # restart if down (cron cada 15 min)
 
 ## Cron
 
-- `*/15 * * * * .../bin/healthcheck.sh` → `server.log` # e067-healthcheck (ignored)
-- `@reboot cd .../e067-sys-panel && python3 app.py >> server.log 2>&1` # e067-reboot
+None. (Was: healthcheck every 15 min + @reboot — removed 2026-10-30,
+systemd `Restart=always` replaces both.)
 
-## Repos tab (no polling)
+## Repos tab (events, not polling)
 
 `/api/repos` scans every git checkout under `$E067_REPOS_ROOT` (default
-`/home/vuos/code/p4`). Sync changes (commit, push, pull, branch switch) reach
-the open page through the existing SSE watcher (`/api/events` → `repos`
-version): the fingerprint is HEAD/index/branch-tip mtimes only, no git
-subprocesses, checked ~every 15s. The 30s tab fallback stays as safety net.
-The kind rule lives in `REPOS.md` at repo root: new code goes in `p4/<exp>/`,
-a separate repo only if something deploys from it.
+`/home/vuos/code/p4`). A thread blocks on the kernel's inotify stream for
+every checkout's git metadata (same ctypes pattern as likes_web); a commit,
+push, pull, fetch or branch switch wakes it and the open page refreshes over
+the existing SSE channel. Nothing git-related runs on a timer. New checkouts
+appear on next tab open / rescan. `↓ fetch all` runs `git fetch` in every
+`ours` repo in background; FETCH_HEAD moves, inotify fires, the table updates
+itself.
+
+Honest limits: `↓ behind` for GitHub-side moves is unknowable without asking
+— fetch is the ask, and it only runs on your click. The ports/cron/services
+watcher beside it still ticks (3s/5s): the kernel emits no file event for "a
+process started listening", so that one stays a cheap `ss` look.

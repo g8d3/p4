@@ -2,13 +2,18 @@
 """e067 sys-panel — ports/apps + cron + systemd services manager. Port 8326."""
 import collections
 import concurrent.futures
+import ctypes
+import ctypes.util
 import html
 import json
 import os
 import pwd
 import re
+import select
+import shlex
 import signal
 import sqlite3
+import struct
 import subprocess
 import threading
 import time
@@ -55,6 +60,7 @@ def cache_invalidate(*prefixes):
 # Fingerprints of system state; versions bump on change, pushed via SSE.
 _versions = {"ports": 0, "cron": 0, "services": 0, "repos": 0}
 _ver_lock = threading.Lock()
+_changed_evt = threading.Event()
 _changes = collections.deque(maxlen=20)
 
 
@@ -62,6 +68,7 @@ def _note_change(kind, msg):
     with _ver_lock:
         _versions[kind] += 1
         _changes.append({"t": int(time.time()), "kind": kind, "msg": msg})
+    _changed_evt.set()
     cache_invalidate(kind)
 
 
@@ -157,8 +164,6 @@ def _watch_loop():
     time.sleep(2)
     last["cron"] = _fp_cron()
     last["services"] = _fp_services()
-    last["repos"] = _fp_repos()
-    tick = 0
     while True:
         try:
             cur = _fp_ports()
@@ -178,12 +183,6 @@ def _watch_loop():
                     if c != last[kind]:
                         last[kind] = c
                         _note_change(kind, f"{kind} changed")
-            tick += 1
-            if tick % 5 == 0:  # ~every 15s: stat-only, no git subprocesses
-                c = _fp_repos()
-                if c != last["repos"]:
-                    last["repos"] = c
-                    _note_change("repos", "repos changed")
         except Exception as e:
             try:
                 with open(os.path.join(BASE, "server.log"), "a") as f:
@@ -201,15 +200,17 @@ def api_versions():
 
 @app.get("/api/events")
 def api_events():
+    # No tick: block until _note_change signals (or 50s, to keep the
+    # stream fresh through proxies). Wakes zero times when idle.
     def gen():
         yield ": connected\n\n"
-        last = None
-        for _ in range(50):
-            time.sleep(1)
+        with _ver_lock:
+            last = dict(_versions)
+        if _changed_evt.wait(timeout=50):
+            _changed_evt.clear()
             with _ver_lock:
                 cur = dict(_versions)
             if cur != last:
-                last = cur
                 yield f"data: {json.dumps(cur)}\n\n"
     return StreamingResponse(gen(), media_type="text/event-stream",
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
@@ -1085,9 +1086,135 @@ def api_repos():
         d = dict(hit)
         d["cached"] = True
         return d
-    resp = {"ok": True, "root": REPOS_ROOT, "rows": scan_repos()}
+    resp = {"ok": True, "root": REPOS_ROOT, "rows": scan_repos(),
+            "watch": dict(_repos_inotify)}
     cache_set(("repos",), resp, 30)
     return resp
+
+
+@app.post("/api/repos/fetch")
+async def api_repos_fetch(req: Request):
+    """git fetch origin in every ours checkout, in background. FETCH_HEAD
+    mtimes move, inotify sees it, the tab refreshes itself via SSE."""
+    try:
+        b = await req.json()
+    except Exception:
+        b = {}
+    only = (b.get("path") or "").strip()
+    cached = cache_get(("repos",))
+    rows = cached["rows"] if cached else scan_repos()
+    targets = [r["path"] for r in rows
+               if r["kind"] == "ours" and (not only or r["path"] == only)]
+    log = os.path.join(BASE, "fetch.log")
+    parts = [f"git -C {shlex.quote(os.path.join(REPOS_ROOT, t))} fetch origin"
+             for t in targets]
+    with open(log, "a") as f:
+        f.write(f"\n# fetch {time.strftime('%FT%T')} ({len(targets)} repos)\n")
+        subprocess.Popen("{{ " + "; } { ".join(parts) + "; } >> " +
+                         shlex.quote(log) + " 2>&1",
+                         shell=True, stdout=None, stderr=None, stdin=subprocess.DEVNULL,
+                         start_new_session=True)
+    return {"ok": True, "n": len(targets), "log": "fetch.log"}
+
+
+# --------------------------------------- repos: kernel events, no poll ---
+# inotify on every checkout's git metadata (house pattern from likes_web):
+# the kernel wakes us on commit/push/pull/fetch/branch switch. Nothing
+# here runs on a timer. A brand-new checkout appears on next tab open or
+# rescan (only REPOS_ROOT itself is watched for new top-level dirs).
+IN_MODIFY, IN_CLOSE_WRITE = 0x2, 0x8
+IN_MOVED_TO, IN_CREATE, IN_MOVED_FROM = 0x80, 0x100, 0x40
+IN_IGNORED = 0x8000
+REPOS_MASKS = IN_MODIFY | IN_CLOSE_WRITE | IN_MOVED_TO | IN_CREATE | IN_MOVED_FROM
+_repos_inotify = {"ok": False, "watches": 0}
+
+
+def _git_watch_dirs():
+    """gitdir + branch-tip + remote-tip dirs per checkout (worktrees resolved)."""
+    dirs = set()
+    for d in _repo_dirs():
+        g = os.path.join(d, ".git")
+        if os.path.isfile(g):
+            try:
+                with open(g) as f:
+                    gd = f.read().strip().split("gitdir:", 1)[1].strip()
+                if not os.path.isabs(gd):
+                    gd = os.path.normpath(os.path.join(d, gd))
+            except Exception:
+                continue
+        else:
+            gd = g
+        dirs.add(gd)
+        heads = os.path.join(gd, "refs", "heads")
+        if os.path.isdir(heads):
+            dirs.add(heads)
+        rr = os.path.join(gd, "refs", "remotes")
+        try:
+            for r in os.listdir(rr):
+                p = os.path.join(rr, r)
+                if os.path.isdir(p):
+                    dirs.add(p)
+        except Exception:
+            pass
+    return sorted(dirs)
+
+
+def _repos_watch_forever():
+    try:
+        libc = ctypes.CDLL(ctypes.util.find_library("c") or "libc.so.6", use_errno=True)
+        fd = libc.inotify_init1(os.O_NONBLOCK)
+        if fd < 0:
+            raise OSError("inotify_init1 failed")
+    except (OSError, AttributeError):
+        print("repos: inotify unavailable, fingerprint fallback", flush=True)
+        last = _fp_repos()
+        while True:
+            time.sleep(15)
+            cur = _fp_repos()
+            if cur != last:
+                last = cur
+                _note_change("repos", "repos changed")
+        return
+    watched = set()
+
+    def watch_more():
+        for d in _git_watch_dirs() + [REPOS_ROOT]:
+            if d not in watched:
+                if libc.inotify_add_watch(fd, d.encode(), REPOS_MASKS) >= 0:
+                    watched.add(d)
+    watch_more()
+    _repos_inotify.update(ok=True, watches=len(watched))
+    print(f"repos: watching {len(watched)} dirs over inotify", flush=True)
+    while True:
+        # Block with no timeout: wake ONLY on a kernel event. Zero wakeups idle.
+        try:
+            ready, _, _ = select.select([fd], [], [])
+        except OSError:
+            continue
+        if not ready:
+            continue
+        try:
+            buf = os.read(fd, 65536)
+        except BlockingIOError:
+            continue
+        except OSError:
+            continue
+        off, hit = 0, False
+        while off + 16 <= len(buf):
+            _wd, mask, _cookie, ln = struct.unpack_from("iIII", buf, off)
+            off += 16 + ln
+            if mask & IN_IGNORED:
+                continue
+            hit = True
+        if hit:
+            time.sleep(1.5)  # let the burst (fetch writes many refs) finish, tell once
+            try:
+                os.read(fd, 65536)  # drain leftovers
+            except (BlockingIOError, OSError):
+                pass
+            watch_more()  # pick up brand-new checkouts' gitdirs
+            _repos_inotify["watches"] = len(watched)
+            _note_change("repos", "repos changed")
 
 
 # --------------------------------------------------------------- web ---
@@ -1108,6 +1235,7 @@ stats_load()
 if not os.environ.get("E067_NOSTATS"):
     threading.Thread(target=_stats_loop, daemon=True).start()
 threading.Thread(target=_watch_loop, daemon=True).start()
+threading.Thread(target=_repos_watch_forever, daemon=True).start()
 
 if __name__ == "__main__":
     import uvicorn
