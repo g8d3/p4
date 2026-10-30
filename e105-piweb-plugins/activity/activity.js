@@ -9,6 +9,7 @@
 // One line per event: {"at": ISO-8601 with offset, "session", "cwd", "event", "detail"?}
 // States the orchestrator cares about: turn_start (busy) ... turn_end (idle). Anything else is context.
 import { appendFileSync, mkdirSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
 
 const OFF = process.env.P4_ACTIVITY === "0";
@@ -37,15 +38,29 @@ function stamp() {
   );
 }
 
+// MACHINE-wide on purpose: a daemon restart interrupts every session on the machine, so the
+// orchestrator needs one file that lists all of them. A per-workspace file made "who is busy?"
+// a question about the wrong scope (2026-10-30: a restart was planned for one workspace and
+// killed sessions in every other one).
+const GLOBAL_FILE = join(process.env.PI_WEB_DATA_DIR || join(homedir(), ".pi-web"), "agent_activity.jsonl");
+
 function log(cwd, session, event, detail) {
-  if (OFF || !cwd) return;
+  if (OFF) return;
+  const line = JSON.stringify({ at: stamp(), session, cwd, event, ...(detail ? { detail } : {}) }) + "\n";
+  try {
+    mkdirSync(join(GLOBAL_FILE, ".."), { recursive: true });
+    appendFileSync(GLOBAL_FILE, line);
+  } catch {
+    /* never break the agent because a log line failed */
+  }
+  // the workspace copy stays for anything that inspects a single workspace
+  if (!cwd) return;
   try {
     const dir = join(cwd, ".pi-web");
     mkdirSync(dir, { recursive: true });
-    appendFileSync(join(dir, "agent_activity.jsonl"),
-      JSON.stringify({ at: stamp(), session, cwd, event, ...(detail ? { detail } : {}) }) + "\n");
+    appendFileSync(join(dir, "agent_activity.jsonl"), line);
   } catch {
-    /* never break the agent because a log line failed */
+    /* same */
   }
 }
 
