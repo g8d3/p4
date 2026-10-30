@@ -259,8 +259,10 @@ def wrote_after(path, ts):
 # --------------------------------------------------------------------- audit
 
 def audit_targets(cwd):
-    """The record must exist where a panel can read it: the workspace and every registered project."""
-    targets = [os.path.join(cwd, ".pi-web", "restart_audit.jsonl")]
+    """The record must exist where a panel can read it: the machine, the workspace, every project."""
+    targets = [os.path.join(os.environ.get("PI_WEB_DATA_DIR") or os.path.expanduser("~/.pi-web"),
+                            "restart_audit.jsonl"),
+               os.path.join(cwd, ".pi-web", "restart_audit.jsonl")]
     try:
         with open(PROJECTS) as fh:
             for pr in json.load(fh).get("projects") or []:

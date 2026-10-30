@@ -1,25 +1,29 @@
-// p4.cycles server entry: serves the cycles ledger of the selected workspace.
+// p4.cycles server entry: everything the panel shows comes from here, so the CLI and the UI read
+// the same files. Read-only: nothing in this file restarts or resumes anything.
 //
-// Reads <workspace>/.pi-web/agent_cycles.json, which scripts/cycles.py writes every 15
-// minutes (systemd: p4-agent-cycles.timer). Read-only: nothing here resumes an agent.
+//   .pi-web/agent_cycles.json     restarts and the sessions they interrupted (scripts/cycles.py)
+//   .pi-web/restart_audit.jsonl   one line per run: intent, phases, resumes, and whether they worked
+//   ~/.pi-web/agent_activity.jsonl  machine-wide turn state written by the p4 activity extension
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 const FILE = path.join(".pi-web", "agent_cycles.json");
+const AUDIT = path.join(".pi-web", "restart_audit.jsonl");
+const DATA = process.env.PI_WEB_DATA_DIR || path.join(os.homedir(), ".pi-web");
+const BUSY = new Set(["turn_start", "message_start", "tool_start"]);
+const IDLE = new Set(["turn_end", "session_shutdown"]);
 
-// Worktrees are the normal case here: a workspace may be p4/e092-crew-puerto while the
-// project root is p4/. The ledger belongs to the project, so a worktree resolves to its
-// main checkout before the file is looked up (a worktree's .git is a file pointing at it).
+// A workspace may be a worktree: the ledger belongs to the project, so resolve the main checkout.
 function projectRoot(start) {
   let dir = path.resolve(start);
   for (let i = 0; i < 6; i += 1) {
     const dotGit = path.join(dir, ".git");
     try {
       const st = fs.statSync(dotGit);
-      if (st.isDirectory()) return dir;              // main checkout
-      if (st.isFile()) {                             // worktree: "gitdir: <main>/.git/worktrees/<name>"
-        const line = fs.readFileSync(dotGit, "utf8").trim();
-        const m = line.match(/^gitdir:\s*(.+)$/);
+      if (st.isDirectory()) return dir;
+      if (st.isFile()) {
+        const m = fs.readFileSync(dotGit, "utf8").trim().match(/^gitdir:\s*(.+)$/);
         if (m) {
           const common = path.resolve(dir, m[1].trim());
           const idx = common.indexOf(path.sep + ".git" + path.sep);
@@ -27,7 +31,7 @@ function projectRoot(start) {
         }
         return dir;
       }
-    } catch (e) { /* keep walking up */ }
+    } catch { /* keep walking up */ }
     const up = path.dirname(dir);
     if (up === dir) break;
     dir = up;
@@ -35,41 +39,72 @@ function projectRoot(start) {
   return path.resolve(start);
 }
 
-function ledgerPaths(workspacePath) {
-  const ws = path.resolve(workspacePath);
-  const root = projectRoot(ws);
-  const seen = [...new Set([path.join(ws, FILE), path.join(root, FILE)])];
-  return { root, candidates: seen };
+function firstExisting(paths) {
+  return paths.find((p) => { try { return fs.existsSync(p); } catch { return false; } }) || paths[0];
+}
+
+function readJSON(file) {
+  try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return null; }
+}
+
+function readJSONL(file, limit) {
+  try {
+    const rows = [];
+    for (const line of fs.readFileSync(file, "utf8").split("\n")) {
+      const t = line.trim();
+      if (!t) continue;
+      try { rows.push(JSON.parse(t)); } catch { /* one bad line must not hide the rest */ }
+    }
+    return rows.slice(-limit);
+  } catch { return []; }
+}
+
+// The newest decisive event per session: the same rule the orchestrator uses.
+function activityBySession(file) {
+  const out = new Map();
+  for (const row of readJSONL(file, 5000)) {
+    const sid = row.session;
+    if (!sid) continue;
+    const ev = row.event || "";
+    const decisive = BUSY.has(ev) || IDLE.has(ev);
+    const prev = out.get(sid) || { state: "idle" };
+    out.set(sid, {
+      session: sid,
+      cwd: row.cwd || "",
+      state: decisive ? (BUSY.has(ev) ? "busy" : "idle") : prev.state,
+      at: row.at || "",
+      last: ev,
+      title: prev.title || "",
+    });
+  }
+  return [...out.values()].sort((a, b) => String(b.at).localeCompare(String(a.at)));
 }
 
 function read(workspacePath) {
-  const { root, candidates } = ledgerPaths(workspacePath);
-  const file = candidates.find((f) => fs.existsSync(f)) || candidates[0];
-  try {
-    const data = JSON.parse(fs.readFileSync(file, "utf8"));
-    return {
-      ok: true,
-      generated_at: data.generated_at || null,
-      since: data.since || "",
-      boots: data.boots || 0,
-      sessions_seen: data.sessions_seen || 0,
-      windows: data.windows || {},
-      note: data.note || "",
-      root,
-      file,
-      cycles: Array.isArray(data.cycles) ? data.cycles : [],
-    };
-  } catch (error) {
-    // A missing ledger is not an error: it means the script has not run in this workspace.
-    return {
-      ok: false,
-      missing: error && error.code === "ENOENT",
-      error: String((error && error.message) || error),
-      file,
-      root,
-      cycles: [],
-    };
-  }
+  const ws = path.resolve(workspacePath);
+  const root = projectRoot(ws);
+  const ledgerFile = firstExisting([path.join(ws, FILE), path.join(root, FILE)]);
+  const auditFile = firstExisting([path.join(DATA, AUDIT), path.join(ws, AUDIT), path.join(root, AUDIT)]);
+  const activityFile = path.join(DATA, "agent_activity.jsonl");
+
+  const ledger = readJSON(ledgerFile) || {};
+  const audit = readJSONL(auditFile, 40).filter((r) => !r.intent);
+  const activity = activityBySession(activityFile);
+
+  return {
+    ok: Boolean(ledger.generated_at || audit.length || activity.length),
+    generated_at: ledger.generated_at || null,
+    since: ledger.since || "",
+    boots: ledger.boots || 0,
+    sessions_seen: ledger.sessions_seen || 0,
+    windows: ledger.windows || {},
+    note: ledger.note || "",
+    cycles: Array.isArray(ledger.cycles) ? ledger.cycles : [],
+    audit,
+    activity,
+    files: { ledger: ledgerFile, audit: auditFile, activity: activityFile },
+    root,
+  };
 }
 
 const plugin = {
@@ -80,14 +115,14 @@ const plugin = {
       peer: {
         async request(context) {
           if (context.signal && context.signal.aborted) throw new Error("aborted");
-          if (context.operation !== "cycles") throw new Error("unknown operation: " + context.operation);
-          const root = context.workspace.path;
-          return JSON.parse(JSON.stringify(read(root)));
+          const op = context.operation;
+          if (op !== "state" && op !== "cycles") throw new Error("unknown operation: " + op);
+          const data = read(context.workspace.path);
+          // "cycles" stays for older panel builds: same payload, nothing removed
+          return JSON.parse(JSON.stringify(data));
         },
       },
-      health() {
-        return { status: "healthy" };
-      },
+      health() { return { status: "healthy" }; },
     };
   },
 };
