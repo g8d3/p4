@@ -135,8 +135,11 @@ $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').cl
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
 document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
 ['ports','cron','svc','stats','repos','bg'].forEach(t=>$('#t-'+t).hidden=t!==b.dataset.t);
-curTab=b.dataset.t;reloadTab(curTab);});
+curTab=b.dataset.t;try{localStorage.setItem('e067tab',curTab);history.replaceState(null,'','#'+curTab)}catch(e){}reloadTab(curTab);});
 let curTab='ports';
+try{const h=(location.hash||'').replace('#','');const s=localStorage.getItem('e067tab');if(['ports','cron','svc','stats','repos','bg'].includes(h))curTab=h;else if(['ports','cron','svc','stats','repos','bg'].includes(s))curTab=s;}catch(e){}
+document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x.dataset.t===curTab));
+['ports','cron','svc','stats','repos','bg'].forEach(t=>{const el=$('#t-'+t);if(el)el.hidden=t!==curTab});
 function reloadTab(t,force){if(t==='ports')loadPorts(force);else if(t==='cron')loadCron(force);else if(t==='svc')loadSvc(force);else if(t==='stats')loadStats(force);else if(t==='repos')loadRepos(force);else if(t==='bg')loadBg(force)}
 async function api(p,o){const r=await fetch(p,o);return r.json()}
 
@@ -453,7 +456,7 @@ setInterval(()=>{if(curTab==='stats'&&!document.hidden)loadStats()},3000);
 setInterval(()=>{if(!document.hidden&&curTab==='bg')loadBg()},5000);
 setInterval(()=>{if(!document.hidden&&curTab!=='stats')reloadTab(curTab)},30000);}
 
-loadPorts();initStats();initLive();
+reloadTab(curTab);initStats();initLive();
 </script>
 </body>
 </html>
