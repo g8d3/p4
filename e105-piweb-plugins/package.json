@@ -12,17 +12,23 @@
       },
       {
         "id": "p4.cycles",
-        "browserRoot": ".",
-        "module": "cycles/pi-web-plugin.js",
         "serverModule": "cycles/server-plugin.js",
         "machineSpecific": true
       },
       {
-        "id": "p4.models",
+        "id": "p4.cycles.panel",
         "browserRoot": ".",
-        "module": "models/pi-web-plugin.js",
+        "module": "cycles/panel.js"
+      },
+      {
+        "id": "p4.models",
         "serverModule": "models/server-plugin.js",
         "machineSpecific": true
+      },
+      {
+        "id": "p4.models.panel",
+        "browserRoot": ".",
+        "module": "models/panel.js"
       }
     ]
   },

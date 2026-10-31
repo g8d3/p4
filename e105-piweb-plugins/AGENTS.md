@@ -60,12 +60,7 @@ cd /home/vuos/code/p4 && python3 e105-piweb-plugins/scripts/selftest.py
 It prints PASS/FAIL with the evidence for each check, and then lists what it does **not** cover —
 the things that need a daemon restart or that would send a prompt to a live agent.
 
-**The panel is not shipped yet on purpose.** Reading that file from a browser panel needs a plugin
-server entry (a browser-only panel cannot read workspace files at render time), and a server entry
-only loads after the session daemon restarts — the very restart that orphans agents. Shipping a panel
-that silently fails is the bug we already had once with the catalog, so the CLI is the honest delivery
-until the restart is worth doing. Resuming the interrupted agents stays a Pi extension (see the design
-doc): this package reports, it does not resurrect.
+**Hot reload without daemon restarts (2026-10-30).** A plugin entry with a server entry pins its browser asset to the session daemon's *active* revision, so after any package update the tab 404s until the daemon restarts — the restart that orphans agents. Split pattern, now used by Cycles and Models: the feature id (`p4.cycles`, `p4.models`) is server-only (backend), and a second browser-only entry (`p4.cycles.panel`, `p4.models.panel`, no serverModule) holds the tab. Browser-only assets are served fresh on every page reload; the panel calls its backend over plain HTTP (`paired.js`: active revision from `/api/plugins` → `POST /api/paired-plugin-backends/<id>/...`). New panel code stays compatible with the old running backend (unknown input ignored there; sliced/defaulted here). Panel updates need only a browser reload now; backend updates still wait for the next natural daemon restart. Resuming the interrupted agents stays a Pi extension (see the design doc): this package reports, it does not resurrect.
 
 Adding a plugin means adding an entry to `package.json`, a row to `catalog-data.js`, and a
 note in `docs/`. A plugin that is not described in the catalog is not shipped.

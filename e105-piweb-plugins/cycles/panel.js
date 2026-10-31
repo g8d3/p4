@@ -1,5 +1,14 @@
-// p4.cycles — what the restarts did to the agents, in the selected workspace.
+// p4.cycles.panel — browser-only panel for the agent-cycles backend.
 //
+// This entry has NO serverModule on purpose: a plugin entry with a server
+// entry pins its browser asset to the session daemon's active revision, so
+// after any package update the tab 404s until the daemon restarts (the
+// restart that orphans every working agent). A browser-only entry is served
+// fresh on every page reload, and it calls the server-only p4.cycles backend
+// over plain HTTP (see ../paired.js) using the backend's active revision.
+// New panel code stays compatible with an older running backend: unknown
+// input fields are ignored there, and everything is sliced/defaulted here.
+import { pairedRequest } from "../paired.js";
 // Layout decision: this is a LOG, not a comparison matrix, so it is rendered as cards, not a table.
 // That is also the answer to the mobile problem — a table with five columns made the row as tall as
 // the longest list and squeezed the only text that matters into a sliver on a phone. A card keeps
@@ -202,13 +211,20 @@ function fetchInto(context) {
   const entry = CACHE.get(key) || { data: null, fetching: false, error: null, at: 0 };
   CACHE.set(key, entry);
   if (entry.fetching) return entry;
-  if (!context.peer || !context.peer.request) {
-    entry.error = "No backend on this machine yet — restart the session daemon, then reload this page. " +
-      "Your data is safe; the tab shows again after the restart.";
+  const w = context.workspace || context.selectedWorkspace || {};
+  if (!w.projectId || !w.id) {
+    entry.error = "Open a workspace to see its cycles.";
     return entry;
   }
   entry.fetching = true;
-  context.peer.request("state", REQUEST)
+  pairedRequest({
+    pluginId: "p4.cycles",
+    operation: "state",
+    input: REQUEST,
+    scope: "workspace",
+    projectId: w.projectId,
+    workspaceId: w.id,
+  })
     .then((res) => {
       entry.data = res && typeof res === "object" ? res : null;
       entry.error = null;

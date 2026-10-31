@@ -1,8 +1,17 @@
-// p4.models — whether pi's enabledModels list is intact, and every time it had to be repaired.
+// p4.models.panel — browser-only panel for the model-list guard backend.
 //
-// The bug it watches for: something rewrites ~/.pi/agent/settings.json and collapses the list
-// (2026-10-30: 107 models became 3). A collapse is repaired automatically and logged here; a
-// deliberate removal of a model or two is not touched, and this panel says so.
+// This entry has NO serverModule on purpose (see cycles/panel.js): the panel
+// hot-reloads on page refresh and calls the server-only p4.models backend
+// over plain HTTP (see ../paired.js) using the backend's active revision.
+// No session-daemon restart needed to see new panel code.
+import { pairedRequest } from "../paired.js";
+// The guard behind this panel: whether your picks are still in pi's enabledModels list,
+//
+// Something rewrites ~/.pi/agent/settings.json on some restarts and the list comes back wrong
+// (2026-10-30: 107 models became 3 after `pi install`; later the old guard itself rewrote a
+// deliberate 4-model edit back to 162). A missing pick is put back automatically and logged here;
+// anything extra is left alone, and this panel says so. Picks live in wanted.json — see
+// docs/current-models.md.
 const CACHE = { data: null, fetching: false, error: null, at: 0 };
 const REFRESH_MS = 30000;
 
@@ -38,14 +47,17 @@ const time = (iso) => {
 function view(html, entry) {
   const d = entry.data;
   const events = (d && d.events) || [];
-  const healthy = d && d.count >= d.canonicalCount;
+  const missing = (d && d.missing) || [];
+  const healthy = d && missing.length === 0;
+  const wantedCount = (d && (d.wantedCount ?? d.canonicalCount)) || 0;
+  const savedAt = (d && (d.wantedSavedAt ?? d.savedAt)) || null;
   return html`
     <style>${STYLE}</style>
     <div class="p4m">
       <section>
         <h2>Model list</h2>
         <p class="sub">
-          ${d ? html`${d.count} models enabled · ${d.canonicalCount} known good · snapshot ${time(d.savedAt)}`
+          ${d ? html`${d.count} models enabled · ${wantedCount} picks · saved ${time(savedAt)}`
                : html`Reading the settings file…`}
         </p>
       </section>
@@ -58,12 +70,15 @@ function view(html, entry) {
             <div class="card ${healthy ? "" : "bad"}">
               <div class="head">
                 <span class="when">${d.count} enabled</span>
-                <span class="chip ${healthy ? "ok" : "bad"}">${healthy ? "intact" : `${d.drop} missing`}</span>
+                <span class="chip ${healthy ? "ok" : "bad"}">${healthy ? "all picks present" : `${missing.length} pick(s) missing`}</span>
               </div>
               <div class="row"><span class="k">file</span><span class="v"><code>${d.settings}</code></span></div>
+              <div class="row"><span class="k">picks</span><span class="v"><code>${d.wantedFile || "wanted.json"}</code></span></div>
               <div class="row"><span class="k">default</span><span class="v">${d.defaultProvider || "—"} / ${d.defaultModel || "—"}</span></div>
-              <div class="row"><span class="k">repair rule</span><span class="v">a drop of ${d.minDrop}+ models that is a
-                subset of the snapshot is repaired; removing one or two by hand is left alone</span></div>
+              <div class="row"><span class="k">repair rule</span><span class="v">a missing pick is put back;
+                anything extra is left alone; the picks file is never rewritten by the guard —
+                change picks there, not in the picker</span></div>
+              ${missing.length ? html`<div class="row"><span class="k">missing</span><span class="v">${missing.map((m) => html`<code>${m}</code> `)}</span></div>` : null}
             </div>
           </div>
         </section>` : null}
@@ -81,31 +96,54 @@ function view(html, entry) {
                 restored to ${e.restoredTo}</span></div>` : null}
               ${e.backup ? html`<div class="row"><span class="k">backup</span><span class="v"><code>${e.backup}</code></span></div>` : null}
             </div>`)}</div>`
-          : html`<p class="empty">No repair needed since the snapshot was taken. That is the good case.</p>`}
+          : html`<p class="empty">No repair needed since the picks were recorded. That is the good case.</p>`}
       </section>
 
-      ${d && d.models && d.models.length ? html`
-        <details>
-          <summary class="sub">Show the ${d.models.length} enabled models</summary>
-          <ul>${d.models.map((m) => html`<li><code>${m}</code></li>`)}</ul>
+      ${d && d.wanted && d.wanted.length ? html`
+        <details open>
+          <summary class="sub">Your ${d.wanted.length} picks</summary>
+          <ul>${d.wanted.map((m) => html`<li><code>${m}</code>${d.models && !d.models.includes(m) ? " — missing, will be put back" : ""}</li>`)}</ul>
         </details>` : null}
 
       <p class="sub">
-        The guard repairs the collapse signature; it does not patch pi or PI WEB. If the file is
+        The guard puts back missing picks; it does not patch pi or PI WEB. If the file is
         rewritten again, the repair is logged here with a backup of what was there before.
       </p>
     </div>`;
 }
 
+async function scopeOf(w) {
+  if (w.projectId && w.id) return w;
+  const pr = await (await fetch("/api/projects")).json();
+  for (const p of pr.projects || pr || []) {
+    const pid = p.id || p.projectId;
+    if (!pid) continue;
+    try {
+      const wr = await (await fetch(`/api/projects/${encodeURIComponent(pid)}/workspaces`)).json();
+      const ws = wr.workspaces || [];
+      if (ws.length) return { projectId: pid, id: ws[0].id };
+    } catch { /* try the next project */ }
+  }
+  throw new Error("No workspace exists yet — create one to read the guard.");
+}
+
 function fetchInto(context) {
   if (CACHE.fetching) return;
-  if (!context.peer || !context.peer.request) {
-    CACHE.error = "No backend on this machine yet — restart the session daemon, then reload this page. " +
-      "Your data is safe; the tab shows again after the restart.";
-    return;
-  }
+  // The guard is machine-global, but API v3 backends require workspace scope:
+  // any selected workspace routes the call, the data does not depend on it.
+  // With no workspace selected (fresh page), discover one via the API instead
+  // of showing a dead tab — values come from the server, never hardcoded.
+  const w = context.workspace || context.selectedWorkspace || {};
   CACHE.fetching = true;
-  context.peer.request("models", null)
+  CACHE.error = null;
+  scopeOf(w).then((s) => pairedRequest({
+    pluginId: "p4.models",
+    operation: "models",
+    input: null,
+    scope: "workspace",
+    projectId: s.projectId,
+    workspaceId: s.id,
+  }))
     .then((res) => { CACHE.data = res || null; CACHE.error = null; CACHE.at = Date.now(); })
     .catch((err) => {
       const s = String((err && err.message) || err || "");
