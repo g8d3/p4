@@ -65,6 +65,22 @@ function refresh(entry) {
   writeDoneFile(entry);
   return entry;
 }
+/** Push notify: the job tells your session it finished. Custom event, never a
+ * faked user message. Best-effort and fire-and-forget: proof stays in doneFile,
+ * so a lost ping (e.g. daemon restart) loses nothing. */
+function notifyDone(piRef, entry, how) {
+  if (!entry || entry.notify === false) return;
+  try {
+    const text = `bg job ${entry.id} ${entry.status}` +
+      (entry.exitCode !== null && entry.exitCode !== undefined ? ` (exit ${entry.exitCode})` : ``) +
+      ` — log ${entry.log}` +
+      (entry.notifyText ? `\n${entry.notifyText}` : ``);
+    piRef.sendMessage(
+      { customType: "bg-tasks/done", content: text, display: true, details: { taskId: entry.id, status: entry.status, exitCode: entry.exitCode ?? null, log: entry.log, how } },
+      { triggerTurn: true }
+    );
+  } catch {}
+}
 /** Deterministic completion artifact: trust-the-mechanism.
  * The order names a result file, the worker writes it. No polling. */
 function writeDoneFile(entry) {
@@ -92,6 +108,7 @@ export default function bgTasksExtension(pi) {
       "Commands expected past ~5s go through bg_start and return in milliseconds; never block the turn on slow commands.",
       "Collect output later with bg_tail (peek) or bg_wait (bounded block), and kill strays with bg_kill.",
       "Deterministic completion: pass doneFile, the worker writes it on exit; waiter uses wait-for-file at sync points, otherwise checks at breakpoints. Jobs notify, sessions never poll.",
+      "Push notify: jobs send YOUR session a custom bg-tasks/done event on exit/kill (never a faked user message). Pass notify:false to stay silent. doneFile stays the proof, so a lost ping loses nothing.",
     ],
     parameters: Type.Object({
       cmd: Type.String({ description: "Executable, e.g. /bin/bash or python3" }),
@@ -102,6 +119,8 @@ export default function bgTasksExtension(pi) {
       ),
       log: Type.Optional(Type.String({ description: "Log file path; default ~/.pi/agent/bg-tasks/<id>.log" })),
       doneFile: Type.Optional(Type.String({ description: "Completion artifact path; written with {id,status,exitCode,endedAt,log} on exit. Watch with wait-for-file; no polling." })),
+      notify: Type.Optional(Type.Boolean({ description: "Send this session a custom bg-tasks/done event on exit/kill (default true; pass false to stay silent)." })),
+      notifyText: Type.Optional(Type.String({ description: "Extra text appended to the completion event." })),
       notifyAfterSec: Type.Optional(Type.Number({ description: "If still running after N sec, append taking-long notice to log + write <doneFile>.taking-long. Jobs tell you they are slow." })),
     }),
     async execute(_id, params) {
@@ -127,6 +146,8 @@ export default function bgTasksExtension(pi) {
           cwd: params.cwd || process.cwd(),
           log,
           doneFile: params.doneFile || null,
+          notify: params.notify !== false,
+          notifyText: params.notifyText || null,
           notifyAfterSec: params.notifyAfterSec ?? null,
           pid: child.pid ?? -1,
           startedAt: new Date().toISOString(),
@@ -140,12 +161,13 @@ export default function bgTasksExtension(pi) {
         child.on("exit", (code) => {
           const cur = load(id);
           if (!cur) return;
-          if (cur.status === "killed") { writeDoneFile(cur); return; }
+          if (cur.status === "killed") { writeDoneFile(cur); return; } // killer owns the notify
           cur.status = "done";
           cur.exitCode = code;
           cur.endedAt = new Date().toISOString();
           save(cur);
           writeDoneFile(cur);
+          notifyDone(pi, cur, "exit");
         });
         if (params.notifyAfterSec && params.notifyAfterSec > 0 && params.doneFile) {
           const afterMs = Math.min(3600000, Math.max(1000, params.notifyAfterSec * 1000));
@@ -303,9 +325,12 @@ export default function bgTasksExtension(pi) {
             cur.killedBy = null;
             cur.endedAt = null;
             save(cur);
+            writeDoneFile(cur);
           }
           return ok(`${e.id} still alive (pid ${e.pid}).`, { taskId: e.id, status: "running" });
         }
+        writeDoneFile(load(params.taskId));
+        notifyDone(pi, load(params.taskId), "kill");
         return ok(`${e.id} killed.`, { taskId: e.id, status: "killed" });
       } catch (e) {
         return err(e.message);
