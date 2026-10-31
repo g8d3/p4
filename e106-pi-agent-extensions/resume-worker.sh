@@ -91,17 +91,17 @@ deliver_system() {
 import sys
 rmsg, old, new, queued = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 if old and new:
-    head = ("System restart notice: the session daemon restarted as planned "
-            f"(old pid {old} -> current pid {new}). ")
+    head = ("**System restart notice** — the session daemon restarted as planned "
+            f"(`old pid {old}` -> `current pid {new}`). ")
 elif new:
-    head = ("System restart notice: the session daemon restarted as planned "
-            f"(current pid {new}). ")
+    head = ("**System restart notice** — the session daemon restarted as planned "
+            f"(`current pid {new}`). ")
 else:
-    head = "System restart notice: the session daemon restarted as planned. "
+    head = "**System restart notice** — the session daemon restarted as planned. "
 tail = ("Your transcript, workspace files and settings are intact. Continue the work "
         "you were doing before the restart from where it stopped, then report briefly "
         "what you did and current status.")
-note = f"\n\nResume note: {rmsg}" if rmsg else ""
+note = ("\n\n> Resume note: " + rmsg.replace("\n", "\n> ")) if rmsg else ""
 print(head + tail + note)
 PYEOF
 )"
