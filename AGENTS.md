@@ -18,6 +18,7 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - No Nova: there is no third person called Nova. The only parties are the owner (the human reading this) and the assistant. Earlier sessions used "Nova" (from an old handle) across repos and scripts — do not propagate it; say "the owner". Unknown proper nouns get questioned, never repeated.
 - Leave experiment servers running: after the user-seat review, keep the server up (background, log file, restart command documented in the experiment). Report its full URLs and PID every relevant turn. Never kill a working server to "clean up".
 - Restarting PI WEB means the front door only: run `pi-web-restart` (3 s, sessions untouched). Never restart `pi-web-sessiond` on a plain "restart" order — that kills every working agent; the daemon restarts only on explicit owner approval with a resume plan (`pi-web-restart-resume <session-id>`).
+- Never sleep blindly: no bare `sleep N` to wait for agents, restarts, or pages. Poll the readiness condition in a loop with short intervals and a timeout, exiting the instant it holds. A sleep is granularity, never the plan.
 
 ## Default AI credentials
 - Source of truth is env vars starting with `OPENCODE` (names only — never paste values into files, chats, or logs).
