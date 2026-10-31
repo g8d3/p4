@@ -28,6 +28,13 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 .modal.open{display:flex}.modal .box{background:var(--card);border:1px solid var(--line);border-radius:12px;max-width:700px;width:100%;padding:14px;max-height:90vh;overflow:auto}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:640px){.grid2{grid-template-columns:1fr}table{font-size:13px}.hideM{display:none}}
 .desc{color:var(--tx)}.cmd{color:var(--mut);font-size:12.5px;word-break:break-all}
+.bgcard{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;background:var(--card)}
+.bgcard .top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.bgcard .cmdline{margin:8px 0}
+.bgcard .tail{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:12.5px;white-space:pre-wrap;word-break:break-all}
+.bgcard .actions{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.bgcard .actions button{min-height:44px;min-width:64px;font-size:15px}
+@media(max-width:640px){.bgcard .actions button{flex:1}}
 </style>
 </head>
 <body>
@@ -406,21 +413,15 @@ alert(d.ok?('fetch lanzado en '+d.n+' repos (ver fetch.log)'):'error');}
 function fmtDur(s){if(s==null)return '—';if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m '+(s%60)+'s';return Math.floor(s/3600)+'h '+Math.floor(s%3600/60)+'m'}
 function renderBg(d){
 $('#bgMeta').textContent=(d.total||0)+' trabajos · '+new Date().toLocaleTimeString();
-let h='<div class="card" style="overflow:auto"><table><tr><th>id</th><th>estado</th><th>comando</th><th>duración · exit</th><th>últimas líneas</th><th>acciones</th></tr>';
+let h='';
 for(const r of d.rows||[]){
 const badge=r.status==='running'?'b-ok':(String(r.status).includes('kill')?'b-warn':'b-bad');
-const tail=(r.tail||[]).map(esc).join('<br>')||'<span class=mut>—</span>';
-h+=`<tr><td><code>${esc(r.id)}</code><br><span class=mut>${esc((r.startedAt||'').slice(11,19))}${r.endedAt?' → '+esc(r.endedAt.slice(11,19)):''}</span></td>
-<td><span class="badge ${badge}">${esc(r.status)}</span></td>
-<td><b>${esc((r.cmd||'').split('/').pop())}</b><div class=cmd>${esc([r.cmd,...(r.args||[])].join(' ').slice(0,220))}</div><div class="mut hideM">${esc(r.log||'')}</div></td>
-<td>${fmtDur(r.durSec)}<br><span class=mut>exit ${r.exitCode??'—'}</span></td>
-<td class=cmd style="max-width:320px">${tail}</td>
-<td><div class=row>
-<button class=act onclick="bgLog('${esc(r.id)}')">📄 log</button>
-${r.pid?`<button class="act danger" onclick="killPid(${r.pid},false)">⛔</button>`:''}
-<button class=act onclick="copyText('${esc([r.cmd,...(r.args||[])].join(' ').replace(/'/g,''))}')">📋</button>
-</div></td></tr>`}
-$('#bgList').innerHTML=h+'</table></div>';}
+const tail=(r.tail||[]).map(esc).join('<br>')||'<span class=mut>sin salida aún</span>';
+h+=`<div class=bgcard><div class=top><code>${esc(r.id)}</code><span class="badge ${badge}">${esc(r.status)}</span><span class=mut>${fmtDur(r.durSec)} · exit ${r.exitCode??'—'}</span></div>
+<div class=cmdline><b>${esc((r.cmd||'').split('/').pop())}</b><div class=cmd>${esc([r.cmd,...(r.args||[])].join(' ').slice(0,300))}</div><div class=mut>${esc((r.startedAt||'').slice(11,19))}${r.endedAt?' → '+esc(r.endedAt.slice(11,19)):''} · ${esc(r.log||'')}</div></div>
+<div class=tail>${tail}</div>
+<div class=actions><button class=act onclick="bgLog('${esc(r.id)}')">📄 log</button>${r.pid?`<button class="act danger" onclick="killPid(${r.pid},false)">⛔ matar</button>`:''}<button class=act onclick="copyText('${esc([r.cmd,...(r.args||[])].join(' ').replace(/'/g,''))}')">📋 copiar</button></div></div>`}
+$('#bgList').innerHTML=h||'<div class=mut>sin trabajos</div>';}
 async function bgLog(id){
 const d=await api('/api/bg-log?id='+encodeURIComponent(id)+'&n=50');
 if(!d.ok){alert(d.error);return}
