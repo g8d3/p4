@@ -7,7 +7,7 @@ gone; this file is the record of what you chose.
 | # | Model | Role |
 |---|---|---|
 | 1 | `opencode-go/muse-spark-1.3-contributor` | Daily driver. Also the default (`defaultProvider: opencode-go`, `defaultModel: muse-spark-1.3-contributor`, thinking `high`). |
-| 2 | `opencode/deepseek-v4.1-flash` | Fast cheap fallback on the opencode proxy. |
+| 2 | `opencode-go/deepseek-v4.1-flash` | Fast cheap fallback on the opencode-go proxy. |
 | 3 | `opencode-go/iceman-contributor-free` | Free contributor-tier fallback. |
 | 4 | `opencode-go/beam-free` | Free fallback. |
 
