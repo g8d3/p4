@@ -1217,6 +1217,39 @@ def _repos_watch_forever():
             _note_change("repos", "repos changed")
 
 
+# ------------------------------------------------- bg tasks (pi) ---
+# Live view of my background jobs so the owner verifies without asking.
+# Single truth: ~/.pi/agent/bg-tasks/*.json + logs. Rebuildable, no DB.
+BG_DIR = os.path.expanduser("~/.pi/agent/bg-tasks")
+
+def _bg_alive(pid):
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except Exception:
+        return False
+
+@app.get("/api/bg-tasks")
+def api_bg_tasks():
+    rows = []
+    try:
+        for fn in sorted(os.listdir(BG_DIR)):
+            if not fn.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(BG_DIR, fn)) as f:
+                    e = json.load(f)
+            except Exception:
+                continue
+            status = e.get("status", "?")
+            if status == "running" and not _bg_alive(e.get("pid", -1)):
+                status = "done (dead pid)"
+            rows.append({"id": e.get("id"), "status": status, "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": e.get("log"), "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt")})
+    except Exception as ex:
+        return {"rows": [], "error": str(ex)}
+    rows.sort(key=lambda r: r.get("startedAt") or "", reverse=True)
+    return {"rows": rows[:100], "total": len(rows)}
+
 # --------------------------------------------------------------- web ---
 @app.get("/health")
 def health():
