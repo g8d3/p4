@@ -1,0 +1,12 @@
+[Unit]
+Description=PI WEB resume queued sessions after daemon restart
+PartOf=pi-web-sessiond.service
+After=pi-web-sessiond.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/home/vuos/code/p4/e106-pi-agent-extensions/resume-worker.sh
+
+[Install]
+WantedBy=default.target

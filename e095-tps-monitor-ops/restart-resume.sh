@@ -9,6 +9,10 @@
 # survives, then re-injects the agent via the sessiond prompt API, which wakes
 # idle sessions (verified: probe round-trip create -> prompt -> reply).
 #
+# NOTE (2026-10-31): superseded for routine use by pi-web-restart-resume +
+# pi-web-resume.service (event-driven: PartOf the daemon, queue in
+# ~/.pi-web/resume-queue/, no timers). Kept for bespoke handoffs.
+#
 # Usage:
 #   restart-resume.sh <session-id> <cwd> <message-file>
 #
