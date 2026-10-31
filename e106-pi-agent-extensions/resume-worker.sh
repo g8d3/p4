@@ -142,10 +142,11 @@ raise SystemExit(0 if (not d.get("isStreaming") and not d.get("isCompacting")) e
 
 # archive_relay <relay-sid> <cwd> — best effort, never fails the resume.
 archive_relay() {
-  curl -s -m 15 -X POST "$BASE/sessions/bulk/archive" \
+  local resp
+  resp="$(curl -s -m 15 -X POST "$BASE/sessions/bulk/archive" \
     -H 'Content-Type: application/json' \
-    --data "$(python3 -c 'import json,sys; print(json.dumps({"sessions":[{"id": sys.argv[1], "cwd": sys.argv[2]}]}))' "$1" "$2")" \
-    >/dev/null 2>&1 || true
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"sessions":[{"id": sys.argv[1], "cwd": sys.argv[2]}]}))' "$1" "$2")" 2>&1)" || true
+  echo "$resp" | grep -q '"archived"' || log "relay $1: archive response (non-fatal): $(printf '%s' "$resp" | head -c 200)"
 }
 
 delivered=0
@@ -161,7 +162,7 @@ for f in "${entries[@]}"; do
   # shellcheck disable=SC2154
   rmsg="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("message",""))' "$f")"
   if deliver_system "$psid" "$cwd" "$rmsg"; then
-    rm -f "$f"
+    rm -f "$f" "$ppayload"
     delivered=$((delivered + 1))
     log "resumed $psid via relay (system format)"
     continue
