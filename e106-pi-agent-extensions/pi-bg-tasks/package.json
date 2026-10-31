@@ -1,0 +1,7 @@
+{
+  "name": "pi-bg-tasks",
+  "version": "0.1.0",
+  "description": "Pi extension: non-blocking background shell tasks (start, status, tail, wait, kill). File-based registry shared across sessions.",
+  "type": "module",
+  "license": "MIT"
+}
