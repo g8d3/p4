@@ -38,6 +38,7 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <button data-t="svc">⚙️ Servicios</button>
 <button data-t="stats">📊 Stats</button>
 <button data-t="repos">🗂 Repos</button>
+<button data-t="bg">🧵 BG jobs</button>
 </div>
 
 <!-- PORTS -->
@@ -109,6 +110,16 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <div id="reposList"></div>
 </section>
 
+<!-- BG JOBS: live verification that I am working, no trust needed -->
+<section id="t-bg" hidden>
+<div class="card row">
+<button class="act" onclick="loadBg(true)">↻ recargar</button>
+<span class="mut" id="bgMeta"></span>
+</div>
+<div class="mut" style="margin:0 0 8px">Cada trabajo de fondo que lanzo: qué comando, pid, cuándo empezó, log. Si digo “ya estoy trabajando”, aquí lo ves sin preguntarme.</div>
+<div id="bgList"></div>
+</section>
+
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -116,10 +127,10 @@ function modal(html){$('#modalBox').innerHTML=html;$('#modal').classList.add('op
 $('#modal').addEventListener('click',e=>{if(e.target.id==='modal')$('#modal').classList.remove('open')});
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
 document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-['ports','cron','svc','stats','repos'].forEach(t=>$('#t-'+t).hidden=t!==b.dataset.t);
+['ports','cron','svc','stats','repos','bg'].forEach(t=>$('#t-'+t).hidden=t!==b.dataset.t);
 curTab=b.dataset.t;reloadTab(curTab);});
 let curTab='ports';
-function reloadTab(t,force){if(t==='ports')loadPorts(force);else if(t==='cron')loadCron(force);else if(t==='svc')loadSvc(force);else if(t==='stats')loadStats(force);else if(t==='repos')loadRepos(force)}
+function reloadTab(t,force){if(t==='ports')loadPorts(force);else if(t==='cron')loadCron(force);else if(t==='svc')loadSvc(force);else if(t==='stats')loadStats(force);else if(t==='repos')loadRepos(force);else if(t==='bg')loadBg(force)}
 async function api(p,o){const r=await fetch(p,o);return r.json()}
 
 /* ---------- PORTS ---------- */
@@ -390,6 +401,21 @@ async function reposFetch(){
 if(!confirm('git fetch origin en todos los repos nuestros? (fondo, la tabla se actualiza sola)'))return;
 const d=await api('/api/repos/fetch',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
 alert(d.ok?('fetch lanzado en '+d.n+' repos (ver fetch.log)'):'error');}
+
+/* ---------- BG JOBS ---------- */
+function renderBg(d){
+$('#bgMeta').textContent=(d.total||0)+' trabajos · '+new Date().toLocaleTimeString();
+let h='<div class="card" style="overflow:auto"><table><tr><th>id</th><th>estado</th><th>comando</th><th class=hideM>pid · inicio</th></tr>';
+for(const r of d.rows||[]){
+const badge=r.status==='running'?'b-ok':(String(r.status).includes('kill')?'b-warn':'b-bad');
+h+=`<tr><td><code>${esc(r.id)}</code></td>
+<td><span class="badge ${badge}">${esc(r.status)}</span></td>
+<td><b>${esc((r.cmd||'').split('/').pop())}</b><div class=cmd>${esc([r.cmd,...(r.args||[])].join(' ').slice(0,220))}</div><div class="mut hideM">${esc(r.log||'')}</div></td>
+<td class=hideM>${r.pid||'—'}<br><span class=mut>${esc((r.startedAt||'').slice(11,19))}</span></td></tr>`}
+$('#bgList').innerHTML=h+'</table></div>';}
+async function loadBg(force){
+if(FC.bg&&!force){try{renderBg(FC.bg)}catch(e){}}
+const d=await api('/api/bg-tasks');FC.bg=d;renderBg(d);}
 
 /* ---------- LIVE: SSE push + fallback ---------- */
 let liveVers={};
