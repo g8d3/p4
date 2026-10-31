@@ -1,0 +1,12 @@
+#!/bin/bash
+# run-bg — start a long command without blocking the caller.
+# Detaches fully (setsid + nohup): survives the launching shell, writes to
+# the given log. The caller continues immediately and checks the log (or a
+# result file via wait-for-file) at the next natural breakpoint.
+# Usage: run-bg <logfile> <cmd> [args...]
+# Prints: pid + log path. Kill with: kill <pid>.
+set -u
+LOG="$1"; shift
+mkdir -p "$(dirname "$LOG")"
+setsid nohup "$@" >>"$LOG" 2>&1 < /dev/null &
+echo "pid=$! log=$LOG"

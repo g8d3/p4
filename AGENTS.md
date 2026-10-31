@@ -21,6 +21,7 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - Never sleep blindly: no bare `sleep N` to wait for agents, restarts, or pages. Poll the readiness condition in a loop with short intervals and a timeout, exiting the instant it holds. A sleep is granularity, never the plan.
 - Fire and notify, never babysit: an order to another session carries the requester's session id and the instruction to report back via `send_session_message` on completion. The requester does other work until woken — nobody polls transcripts to see if work finished.
 - Trust the mechanism for must-not-miss completion: the order names a result file, the worker writes it. The requester never parks on it — it keeps working and checks the file at the next natural breakpoint (or gets nudged via `send_session_message`). `wait-for-file` is for scripts at true synchronization points only; a session blocked on it is a session doing nothing.
+- Never block the turn: commands expected past ~5s start with `run-bg <log> <cmd>` and return instantly; every call carries an explicit timeout. State the expected duration up front; on overrun, kill and report instead of extending. The owner can steer at any moment — a blocked agent cannot be steered.
 
 ## Default AI credentials
 - Source of truth is env vars starting with `OPENCODE` (names only — never paste values into files, chats, or logs).
