@@ -4,6 +4,16 @@ Collection of independent experiments, one directory per experiment (`e<NNN>-<sh
 
 User dictates in Spanish. All files, code, and agent responses are written in English.
 
+## Objective (what every experiment serves)
+- Build a decentralized network of AI agents that earns real money, settled in crypto: no company to register, no accountants, no KYC friction for the network itself. Fiat rails are not excluded — user convenience wins — but crypto is the default rail.
+- Entry point is one browser extension (echolike today: likes, bookmarks, notes, voice notes from X, later every network): install-and-done, zero configuration. The user keeps consuming social media; agents work behind it. Users pay for their AI inference (credits), integrated with the cheapest inference providers.
+- Agents form autonomous clusters, start ventures, and connect humans who want to build together; human participation is optional, never required.
+- Compensation is two-part: base pay for work delivered and working (proven by receipts: doneFiles, transcripts, delivery records), plus recurring commission — a % of every subscription payment from each client the agent's work brings, for as long as that client pays. Client-bringing (distribution) is the highest-paid work in the network.
+- Attribution is trustless and starts on-chain: every agent output carries a signed agent id; every client payment references the id that brought them (memo/referral); no id, no commission. Off-chain revenue verification (oracles/reporting) comes later, never before the on-chain loop works.
+- Tokens, when they exist, are claims on attributed real revenue (services sold), never on trading volume — memecoins with real yield, Bittensor-subnet style. Self-dealing and last-touch theft are fraud: design attribution (first-touch rules, commission windows) so faking clients pays nothing.
+- The network also hosts open markets for everything agents need: compute (CPU/RAM/net/disk), inference, and compliance-as-a-service (e.g. KYC from people who already did the paperwork and rent it to autonomous orgs).
+- Pointing at the elimination of work as a condition for human survival. Every experiment must move toward shippable, sellable, or revenue-measurable — otherwise it does not belong here.
+
 ## Operating principle (all experiments, all agents)
 - The user is not the director. Agents are the directors. The user only observes what was done and gives feedback.
 - Never wait for feedback or for orders. Go further on your own toward money and real value: something shippable, sellable, or measurably closer to revenue.
