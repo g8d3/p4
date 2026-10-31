@@ -8,6 +8,15 @@
 # Queue: ~/.pi-web/resume-queue/<session-id>.json
 #   {"sid": "...", "cwd": "/home/vuos/code/p4", "message": "..."}
 # Delivered entries are deleted. Undeliverable ones are kept for the next run.
+#
+# System-format delivery (no core edits): the only wake path core exposes for
+# an existing idle session is POST /prompt, which core renders as an OWNER
+# bubble. So we relay: create a throwaway session, prompt IT (owner bubble
+# stays hidden in the throwaway), and its agent calls send_session_message
+# into the target — that path is a custom message with display:true, i.e. a
+# SYSTEM bubble, and it starts/continues the target's run. The throwaway is
+# archived afterwards. If the relay fails at any point we fall back to a
+# direct /prompt on the target (owner format) so a resume is never lost.
 set -u
 QUEUE="$HOME/.pi-web/resume-queue"
 BASE="http://127.0.0.1:8504/api/machines/local"
@@ -65,6 +74,80 @@ open(sys.argv[1] + '.payload', 'w', encoding='utf-8').write(
 PYEOF
 }
 
+# message_count <sid> <cwd> — prints messageCount or empty on error.
+message_count() {
+  curl -s -m 10 "$BASE/sessions/$(urlenc "$1")/status?cwd=$(urlenc "$2")" \
+    | python3 -c 'import json,sys
+try: print(json.load(sys.stdin).get("messageCount",""))
+except Exception: print("")'
+}
+
+# deliver_system <target-sid> <cwd> <message> — relay path. Returns 0 on
+# system-format delivery, 1 otherwise (caller falls back to direct prompt).
+deliver_system() {
+  local target="$1" cwd="$2" msg="$3" relay="" resp="" before="" after=""
+  before="$(message_count "$target" "$cwd")"
+  resp="$(curl -s -m 15 -X POST "$BASE/sessions" \
+    -H 'Content-Type: application/json' \
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"cwd": sys.argv[1]}))' "$cwd")")"
+  relay="$(printf '%s' "$resp" | python3 -c 'import json,sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    raise SystemExit
+for k in ("id","sessionId"):
+    if d.get(k): print(d[k]); break
+else:
+    s = d.get("session") or {}
+    print(s.get("id","") if isinstance(s, dict) else "")')"
+  [ -n "$relay" ] || { log "relay: create failed for $target: $(printf '%s' "$resp" | head -c 200)"; return 1; }
+  local instruction
+  instruction="$(python3 - "$target" "$msg" <<'PYEOF'
+import json, sys
+target, rmsg = sys.argv[1], sys.argv[2]
+print("You are a resume relay. Call send_session_message with sessionId="
+      + json.dumps(target) + " and message=" + json.dumps(rmsg)
+      + " exactly. No other tool calls, no other action. "
+      + "After the tool result, reply with exactly: done")
+PYEOF
+)"
+  resp="$(curl -s -m 15 -X POST "$BASE/sessions/$(urlenc "$relay")/prompt" \
+    -H 'Content-Type: application/json' \
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"cwd": sys.argv[1], "text": sys.argv[2]}))' "$cwd" "$instruction")")"
+  echo "$resp" | grep -q '"accepted":true' || {
+    log "relay $relay: prompt not accepted for $target: $(printf '%s' "$resp" | head -c 200)"
+    archive_relay "$relay" "$cwd"
+    return 1
+  }
+  # Wait for the relay turn to finish (bounded): it calls one tool then idles.
+  local i st
+  for i in $(seq 1 60); do
+    st="$(curl -s -m 10 "$BASE/sessions/$(urlenc "$relay")/status?cwd=$(urlenc "$cwd")")"
+    if printf '%s' "$st" | python3 -c 'import json,sys
+try: d=json.load(sys.stdin)
+except Exception: raise SystemExit(1)
+raise SystemExit(0 if (not d.get("isStreaming") and not d.get("isCompacting")) else 1)'; then
+      break
+    fi
+    sleep 2
+  done
+  after="$(message_count "$target" "$cwd")"
+  archive_relay "$relay" "$cwd"
+  if [ -n "$before" ] && [ -n "$after" ] && [ "$after" -gt "$before" ] 2>/dev/null; then
+    return 0
+  fi
+  log "relay $relay: target messageCount did not move for $target (before=$before after=$after)"
+  return 1
+}
+
+# archive_relay <relay-sid> <cwd> — best effort, never fails the resume.
+archive_relay() {
+  curl -s -m 15 -X POST "$BASE/sessions/bulk/archive" \
+    -H 'Content-Type: application/json' \
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"sessions":[{"id": sys.argv[1], "cwd": sys.argv[2]}]}))' "$1" "$2")" \
+    >/dev/null 2>&1 || true
+}
+
 delivered=0
 for f in "${entries[@]}"; do
   unset MALFORMED psid ppayload
@@ -73,15 +156,27 @@ for f in "${entries[@]}"; do
     log "skipping malformed queue file $f"
     continue
   fi
-  resp=$(curl -s -m 15 -X POST "$BASE/sessions/$(urlenc "$psid")/prompt" \
+  # shellcheck disable=SC2154
+  cwd="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("cwd",""))' "$f")"
+  # shellcheck disable=SC2154
+  rmsg="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("message",""))' "$f")"
+  if deliver_system "$psid" "$cwd" "$rmsg"; then
+    rm -f "$f"
+    delivered=$((delivered + 1))
+    log "resumed $psid via relay (system format)"
+    continue
+  fi
+  # Fallback: direct prompt (owner format) so the resume is never lost.
+  resp="$(curl -s -m 15 -X POST "$BASE/sessions/$(urlenc "$psid")/prompt" \
     -H 'Content-Type: application/json' \
-    --data @"$ppayload")
+    --data @"$ppayload")"
   rm -f "$ppayload"
   if echo "$resp" | grep -q '"accepted":true'; then
     rm -f "$f"
     delivered=$((delivered + 1))
-    log "resumed $psid"
+    log "resumed $psid via fallback direct prompt (owner format)"
   else
+    rm -f "$ppayload"
     log "ERROR: resume NOT accepted for $psid, keeping queued: $resp"
   fi
 done
