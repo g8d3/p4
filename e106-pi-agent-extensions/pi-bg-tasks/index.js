@@ -53,14 +53,26 @@ function alive(pid) {
     return false;
   }
 }
-/** Refresh a registry entry against reality; returns the entry. */
+/** Refresh a registry entry against reality; returns the entry.
+ * Killer is authoritative: never overwrites killed (or any terminal state). */
 function refresh(entry) {
   if (!entry || entry.status !== "running") return entry;
+  if (entry.status === "killed") return entry;
   if (alive(entry.pid)) return entry;
   entry.status = "done";
   entry.endedAt = new Date().toISOString();
   save(entry);
+  writeDoneFile(entry);
   return entry;
+}
+/** Deterministic completion artifact: trust-the-mechanism.
+ * The order names a result file, the worker writes it. No polling. */
+function writeDoneFile(entry) {
+  if (!entry || !entry.doneFile) return;
+  try {
+    mkdirSync(dirname(entry.doneFile), { recursive: true });
+    writeFileSync(entry.doneFile, JSON.stringify({ id: entry.id, status: entry.status, exitCode: entry.exitCode ?? null, endedAt: entry.endedAt, log: entry.log }, null, 2) + "\n");
+  } catch {}
 }
 function newId() {
   return `t${Date.now().toString(36)}${Math.floor(Math.random() * 0xffff).toString(36)}`;
@@ -79,6 +91,7 @@ export default function bgTasksExtension(pi) {
     promptGuidelines: [
       "Commands expected past ~5s go through bg_start and return in milliseconds; never block the turn on slow commands.",
       "Collect output later with bg_tail (peek) or bg_wait (bounded block), and kill strays with bg_kill.",
+      "Deterministic completion: pass doneFile, the worker writes it on exit; waiter uses wait-for-file at sync points, otherwise checks at breakpoints. Jobs notify, sessions never poll.",
     ],
     parameters: Type.Object({
       cmd: Type.String({ description: "Executable, e.g. /bin/bash or python3" }),
@@ -88,6 +101,8 @@ export default function bgTasksExtension(pi) {
         Type.String({ description: "Short id [a-z0-9-_]; generated when omitted" }),
       ),
       log: Type.Optional(Type.String({ description: "Log file path; default ~/.pi/agent/bg-tasks/<id>.log" })),
+      doneFile: Type.Optional(Type.String({ description: "Completion artifact path; written with {id,status,exitCode,endedAt,log} on exit. Watch with wait-for-file; no polling." })),
+      notifyAfterSec: Type.Optional(Type.Number({ description: "If still running after N sec, append taking-long notice to log + write <doneFile>.taking-long. Jobs tell you they are slow." })),
     }),
     async execute(_id, params) {
       try {
@@ -111,22 +126,43 @@ export default function bgTasksExtension(pi) {
           args: params.args ?? [],
           cwd: params.cwd || process.cwd(),
           log,
+          doneFile: params.doneFile || null,
+          notifyAfterSec: params.notifyAfterSec ?? null,
           pid: child.pid ?? -1,
           startedAt: new Date().toISOString(),
           status: "running",
           exitCode: null,
           endedAt: null,
+          killedBy: null,
         };
         save(entry);
         child.on("error", () => {});
         child.on("exit", (code) => {
           const cur = load(id);
           if (!cur) return;
+          if (cur.status === "killed") { writeDoneFile(cur); return; }
           cur.status = "done";
           cur.exitCode = code;
           cur.endedAt = new Date().toISOString();
           save(cur);
+          writeDoneFile(cur);
         });
+        if (params.notifyAfterSec && params.notifyAfterSec > 0 && params.doneFile) {
+          const afterMs = Math.min(3600000, Math.max(1000, params.notifyAfterSec * 1000));
+          const watchId = id;
+          setTimeout(() => {
+            try {
+              const cur = refresh(load(watchId));
+              if (!cur || cur.status !== "running") return;
+              const note = `[${new Date().toISOString()}] still running after ${params.notifyAfterSec}s (pid ${cur.pid}) — jobs tell you they are slow.\n`;
+              try { appendFileSync(cur.log, note); } catch {}
+              try {
+                mkdirSync(dirname(cur.doneFile), { recursive: true });
+                writeFileSync(cur.doneFile + ".taking-long", JSON.stringify({ id: cur.id, status: "running", pid: cur.pid, afterSec: params.notifyAfterSec, at: new Date().toISOString(), log: cur.log }, null, 2) + "\n");
+              } catch {}
+            } catch {}
+          }, afterMs);
+        }
         return ok(`Started ${id} (pid ${entry.pid}, log ${log}). Collect with bg_tail/bg_wait.`, {
           taskId: id,
           pid: entry.pid,
@@ -241,6 +277,13 @@ export default function bgTasksExtension(pi) {
         const e = refresh(load(params.taskId));
         if (!e) throw new Error(`Unknown task ${params.taskId}`);
         if (e.status !== "running") return ok(`${e.id} already ${e.status}.`, { taskId: e.id });
+        // Killer is authoritative: stamp killed + killedBy BEFORE signaling.
+        // refresh() and exit handler must never overwrite killed.
+        e.status = "killed";
+        e.killedBy = "bg_kill";
+        e.endedAt = new Date().toISOString();
+        save(e);
+        writeDoneFile(e);
         try {
           process.kill(e.pid, "SIGTERM");
         } catch {}
@@ -251,13 +294,19 @@ export default function bgTasksExtension(pi) {
           } catch {}
           await new Promise((r) => setTimeout(r, 500));
         }
-        e.status = alive(e.pid) ? "running" : "killed";
-        e.endedAt = new Date().toISOString();
-        save(e);
-        return ok(
-          e.status === "killed" ? `${e.id} killed.` : `${e.id} still alive (pid ${e.pid}).`,
-          { taskId: e.id, status: e.status },
-        );
+        const still = alive(e.pid);
+        if (still) {
+          // Kill failed: revert to running so refresh() can judge reality.
+          const cur = load(params.taskId);
+          if (cur && cur.status === "killed" && cur.killedBy === "bg_kill") {
+            cur.status = "running";
+            cur.killedBy = null;
+            cur.endedAt = null;
+            save(cur);
+          }
+          return ok(`${e.id} still alive (pid ${e.pid}).`, { taskId: e.id, status: "running" });
+        }
+        return ok(`${e.id} killed.`, { taskId: e.id, status: "killed" });
       } catch (e) {
         return err(e.message);
       }
