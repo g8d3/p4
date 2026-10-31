@@ -1253,6 +1253,7 @@ def _bg_alive(pid):
 @app.get("/api/bg-tasks")
 def api_bg_tasks():
     rows = []
+    now = time.time()
     try:
         for fn in sorted(os.listdir(BG_DIR)):
             if not fn.endswith(".json"):
@@ -1265,11 +1266,46 @@ def api_bg_tasks():
             status = e.get("status", "?")
             if status == "running" and not _bg_alive(e.get("pid", -1)):
                 status = "done (dead pid)"
-            rows.append({"id": e.get("id"), "status": status, "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": e.get("log"), "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt")})
+            log = e.get("log") or ""
+            tail = []
+            try:
+                with open(log, errors="replace") as lf:
+                    lines = [ln.rstrip("\n") for ln in lf]
+                    lines = [ln for ln in lines if ln.strip() != ""]
+                    tail = lines[-3:]
+            except Exception:
+                tail = []
+            try:
+                import calendar as _cal
+                start_ts = _cal.timegm(time.strptime((e.get("startedAt") or "")[:19], "%Y-%m-%dT%H:%M:%S")) if e.get("startedAt") else None
+            except Exception:
+                start_ts = None
+            try:
+                import calendar as _cal2
+                end_ts = _cal2.timegm(time.strptime((e.get("endedAt") or "")[:19], "%Y-%m-%dT%H:%M:%S")) if e.get("endedAt") else None
+            except Exception:
+                end_ts = None
+            dur = int((end_ts or now) - start_ts) if start_ts else None
+            rows.append({"id": e.get("id"), "status": status, "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": log, "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt"), "exitCode": e.get("exitCode"), "durSec": dur, "tail": tail, "doneFile": e.get("doneFile")})
     except Exception as ex:
         return {"rows": [], "error": str(ex)}
     rows.sort(key=lambda r: r.get("startedAt") or "", reverse=True)
     return {"rows": rows[:100], "total": len(rows)}
+
+@app.get("/api/bg-log")
+def api_bg_log(id: str = "", n: int = 50):
+    n = max(1, min(200, int(n or 50)))
+    try:
+        with open(os.path.join(BG_DIR, id + ".json")) as f:
+            e = json.load(f)
+        log = e.get("log") or ""
+        with open(log, errors="replace") as lf:
+            lines = lf.read().splitlines()
+        while lines and lines[-1].strip() == "":
+            lines.pop()
+        return {"ok": True, "id": id, "log": log, "lines": lines[-n:]}
+    except Exception as ex:
+        return {"ok": False, "error": str(ex)}
 
 # --------------------------------------------------------------- web ---
 @app.get("/health")
