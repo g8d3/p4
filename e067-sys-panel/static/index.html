@@ -414,6 +414,8 @@ alert(d.ok?('fetch lanzado en '+d.n+' repos (ver fetch.log)'):'error');}
 
 /* ---------- BG JOBS ---------- */
 function fmtDur(s){if(s==null)return '—';if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m '+(s%60)+'s';return Math.floor(s/3600)+'h '+Math.floor(s%3600/60)+'m'}
+function fmtWhen(iso){if(!iso)return '—';const d=new Date(iso);if(isNaN(d))return esc(iso);return d.toLocaleDateString()+' '+d.toLocaleTimeString().slice(0,8)}
+function hace(iso,ts){const t=ts?ts*1000:new Date(iso).getTime();if(!t||isNaN(t))return '';let s=Math.max(0,Math.floor((Date.now()-t)/1000));if(s<10)return 'ahora mismo';if(s<60)return `hace ${s}s`;const m=Math.floor(s/60);if(m<60)return `hace ${m} min`;const h=Math.floor(m/60);if(h<24)return `hace ${h} h`;const d=Math.floor(h/24);return `hace ${d} d`}
 function renderBg(d){
 $('#bgMeta').textContent=(d.total||0)+' trabajos · '+new Date().toLocaleTimeString();
 let h='';
@@ -421,6 +423,7 @@ for(const r of d.rows||[]){
 const badge=r.status==='running'?'b-ok':(String(r.status).includes('kill')?'b-warn':'b-bad');
 const tail=(r.tail||[]).map(esc).join('<br>')||'<span class=mut>sin salida aún</span>';
 h+=`<div class=bgcard><div class=top><code>${esc(r.id)}</code><span class="badge ${badge}">${esc(r.status)}</span><span class=mut>${fmtDur(r.durSec)} · exit ${r.exitCode??'—'}</span></div>
+<div class=mut>creado ${fmtWhen(r.startedAt)} (${hace(r.startedAt)}) · actualizado ${fmtWhen(r.updatedAt)} (${hace(r.updatedAt,r.updatedTs)})</div>
 <div class=cmdline><b>${esc((r.cmd||'').split('/').pop())}</b><div class=cmd>${esc([r.cmd,...(r.args||[])].join(' ').slice(0,300))}</div><div class=mut>${esc((r.startedAt||'').slice(11,19))}${r.endedAt?' → '+esc(r.endedAt.slice(11,19)):''} · ${esc(r.log||'')}</div></div>
 <div class=tail>${tail}</div>
 <div class=actions><button class=act onclick="bgLog('${esc(r.id)}')">📄 log</button>${r.pid?`<button class="act danger" onclick="killPid(${r.pid},false)">⛔ matar</button>`:''}<button class=act onclick="copyText('${esc([r.cmd,...(r.args||[])].join(' ').replace(/'/g,''))}')">📋 copiar</button></div></div>`}

@@ -1286,10 +1286,19 @@ def api_bg_tasks():
             except Exception:
                 end_ts = None
             dur = int((end_ts or now) - start_ts) if start_ts else None
-            rows.append({"id": e.get("id"), "status": status, "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": log, "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt"), "exitCode": e.get("exitCode"), "durSec": dur, "tail": tail, "doneFile": e.get("doneFile")})
+            try:
+                log_mtime = os.stat(log).st_mtime if log else None
+            except Exception:
+                log_mtime = None
+            upd_ts = end_ts or log_mtime or start_ts
+            try:
+                upd_iso = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(upd_ts)) + "Z" if upd_ts else None
+            except Exception:
+                upd_iso = e.get("endedAt")
+            rows.append({"id": e.get("id"), "status": status, "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": log, "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt"), "exitCode": e.get("exitCode"), "durSec": dur, "tail": tail, "doneFile": e.get("doneFile"), "updatedAt": upd_iso, "updatedTs": int(upd_ts) if upd_ts else None})
     except Exception as ex:
         return {"rows": [], "error": str(ex)}
-    rows.sort(key=lambda r: r.get("startedAt") or "", reverse=True)
+    rows.sort(key=lambda r: (r.get("updatedTs") or 0, r.get("startedAt") or ""), reverse=True)
     return {"rows": rows[:100], "total": len(rows)}
 
 @app.get("/api/bg-log")
