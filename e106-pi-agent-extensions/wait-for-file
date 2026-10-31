@@ -1,0 +1,34 @@
+#!/bin/bash
+# wait-for-file — block until a completion artifact exists, then return.
+# The deterministic alternative to trusting an agent to remember to notify:
+# the order names a result file, the worker writes it, this returns the
+# instant it appears (inotify event, not a sleep, not a poll). If the file
+# already exists, returns immediately. Timeout exits 1.
+# Usage: wait-for-file <path> [timeout-seconds, default 300]
+set -u
+TARGET="$1"
+TIMEOUT="${2:-300}"
+if [ -e "$TARGET" ]; then exit 0; fi
+DIR=$(dirname "$TARGET")
+BASE=$(basename "$TARGET")
+mkdir -p "$DIR"
+if command -v inotifywait >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+  # Event-driven: block for the next filesystem event, then re-check.
+  # Unrelated events (busy dirs like /tmp) just cause a re-check; only the
+  # deadline below bounds the total wait. No polling, no sleeps.
+  end=$(( $(date +%s) + TIMEOUT ))
+  while [ ! -e "$TARGET" ]; do
+    now=$(date +%s)
+    [ "$now" -ge "$end" ] && exit 1
+    chunk=$(( end - now ))
+    [ "$chunk" -gt 10 ] && chunk=10
+    timeout "$chunk" inotifywait -qq -e close_write -e moved_to "$DIR" >/dev/null 2>&1
+  done
+  exit 0
+fi
+# No inotify here: bounded existence check as last resort.
+for _ in $(seq 1 "$TIMEOUT"); do
+  [ -e "$TARGET" ] && exit 0
+  sleep 1
+done
+exit 1
