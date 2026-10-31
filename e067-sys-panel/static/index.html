@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>sys-panel · puertos + cron + servicios + repos</title>
+<title>sys-panel · ports + cron + services + repos + bg</title>
 <style>
 :root{--bg:#0f1115;--card:#171b22;--line:#2a3140;--tx:#e8ecf1;--mut:#9aa4b2;--ac:#4da3ff;--ok:#3fb97f;--bad:#e5605e;--warn:#d9a441}
 *{box-sizing:border-box}body{background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,sans-serif;margin:0;padding:12px;max-width:1100px;margin-inline:auto}
@@ -38,11 +38,11 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 </style>
 </head>
 <body>
-<h1>🖥️ sys-panel <small>· puertos · cron · servicios · repos</small> <span id="liveDot" class="badge b-warn" title="live">●</span> <span id="flash" class="mut"></span></h1>
+<h1>🖥️ sys-panel <small>· ports · cron · services · repos · bg</small> <span id="liveDot" class="badge b-warn" title="live">●</span> <span id="flash" class="mut"></span></h1>
 <div class="tabs">
-<button data-t="ports" class="on">🔌 Puertos</button>
+<button data-t="ports" class="on">🔌 Ports</button>
 <button data-t="cron">⏰ Cron</button>
-<button data-t="svc">⚙️ Servicios</button>
+<button data-t="svc">⚙️ Services</button>
 <button data-t="stats">📊 Stats</button>
 <button data-t="repos">🗂 Repos</button>
 <button data-t="bg">🧵 BG jobs</button>
@@ -51,8 +51,8 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <!-- PORTS -->
 <section id="t-ports">
 <div class="card row">
-<button class="act" onclick="loadPorts(true)">↻ escanear</button>
-<button class="act" onclick="openAppModal()">＋ app manual</button>
+<button class="act" onclick="loadPorts(true)">↻ rescan</button>
+<button class="act" onclick="openAppModal()">＋ manual app</button>
 <span class="mut" id="portsMeta"></span>
 </div>
 <div id="portsList"></div>
@@ -61,31 +61,31 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <!-- CRON -->
 <section id="t-cron" hidden>
 <div class="card">
-<b>＋ nuevo cron (tu crontab)</b>
+<b>＋ new cron (your crontab)</b>
 <div class="row" style="margin-top:8px">
 <input id="cSched" placeholder="*/15 * * * *  o  @reboot" style="flex:1;min-width:180px">
-<input id="cCmd" placeholder="/ruta/comando --flag >> log 2>&1" style="flex:2;min-width:200px">
-<input id="cTag" placeholder="# etiqueta (opcional)" style="width:150px">
-<button class="act go" onclick="cronAdd()">agregar</button>
+<input id="cCmd" placeholder="/path/command --flag >> log 2>&1" style="flex:2;min-width:200px">
+<input id="cTag" placeholder="# label (optional)" style="width:150px">
+<button class="act go" onclick="cronAdd()">add</button>
 </div>
-<div class="mut" style="margin-top:6px">Formato: min hora día mes weekday · o @reboot/@hourly/@daily. Editar/borrar solo toca <b>tu</b> crontab; lo del sistema se muestra abajo como lectura.</div>
+<div class="mut" style="margin-top:6px">Format: min hour day month weekday · or @reboot/@hourly/@daily. Edit/delete only touches <b>your</b> crontab; system is shown below read-only.</div>
 </div>
-<div class="card"><b>tu crontab</b><div id="userCron"></div></div>
-<div class="card"><b>sistema (solo lectura)</b>
-<div class="row"><button class="act" onclick="toggleSys()">mostrar / ocultar</button></div>
+<div class="card"><b>your crontab</b><div id="userCron"></div></div>
+<div class="card"><b>system (read-only)</b>
+<div class="row"><button class="act" onclick="toggleSys()">show / hide</button></div>
 <div id="sysCron" hidden></div></div>
 </section>
 
 <!-- SERVICES -->
 <section id="t-svc" hidden>
 <div class="card row">
-<button class="act" onclick="loadSvc(true)">↻ recargar</button>
-<button class="act" onclick="openUnitModal()">＋ servicio de usuario</button>
-<select id="svcScope" onchange="renderSvc()"><option value="all">todos</option><option value="user">usuario</option><option value="system">sistema</option></select>
-<input id="svcQ" placeholder="filtrar…" oninput="renderSvc()" style="flex:1;min-width:140px">
+<button class="act" onclick="loadSvc(true)">↻ reload</button>
+<button class="act" onclick="openUnitModal()">＋ user service</button>
+<select id="svcScope" onchange="renderSvc()"><option value="all">all</option><option value="user">user</option><option value="system">system</option></select>
+<input id="svcQ" placeholder="filter…" oninput="renderSvc()" style="flex:1;min-width:140px">
 </div>
 <div id="svcList"></div>
-<div class="card"><b>mis servicios personalizados (~/.config/systemd/user)</b><div id="customUnits"></div></div>
+<div class="card"><b>my custom services (~/.config/systemd/user)</b><div id="customUnits"></div></div>
 </section>
 
 <section id="t-stats" hidden>
@@ -93,14 +93,14 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <div class="card">
 <div class="row" id="tfBtns"></div>
 <div class="row" style="margin-top:8px">
-<label class="mut">velas <input id="statsCount" type="number" min="2" max="500" style="width:76px"></label>
-<select id="statsMetric"><option value="cpu">CPU %</option><option value="mem">RAM %</option><option value="net">Red ↓↑ KB/s</option><option value="disk">Disco %</option><option value="load">Load 1m</option></select>
+<label class="mut">candles <input id="statsCount" type="number" min="2" max="500" style="width:76px"></label>
+<select id="statsMetric"><option value="cpu">CPU %</option><option value="mem">RAM %</option><option value="net">Net ↓↑ KB/s</option><option value="disk">Disk %</option><option value="load">Load 1m</option></select>
 <button class="act" onclick="loadStats(true)">↻</button>
 <span class="mut" id="statsMeta"></span>
 </div>
 <canvas id="statsChart" style="width:100%;height:260px;margin-top:8px"></canvas>
 <div id="statsLegend" style="margin-top:6px"></div>
-<div class="mut">Velas OHLC por timeframe — se llenan solas con el tiempo (1d tarda días). El número de velas se guarda en este navegador.</div>
+<div class="mut">OHLC candles per timeframe — they fill over time (1d takes days). Candle count is stored in this browser.</div>
 </div>
 </section>
 
@@ -109,21 +109,21 @@ pre{background:#0c0e12;border:1px solid var(--line);border-radius:8px;padding:10
 <!-- REPOS -->
 <section id="t-repos" hidden>
 <div class="card row">
-<button class="act" onclick="loadRepos(true)">↻ escanear</button>
-<button class="act" onclick="reposFetch()" title="git fetch en todos los repos nuestros, en fondo; la tabla se actualiza sola">↓ fetch all</button>
+<button class="act" onclick="loadRepos(true)">↻ rescan</button>
+<button class="act" onclick="reposFetch()" title="git fetch on all our repos, in background; table updates itself">↓ fetch all</button>
 <span class="mut" id="reposMeta"></span>
 </div>
-<div class="mut" style="margin:0 0 8px">Cada checkout git bajo el workspace: qué es (nuestro / upstream ajeno / worktree / clon local), rama y estado de sync. Verde = al día con GitHub.</div>
+<div class="mut" style="margin:0 0 8px">Each git checkout under the workspace: what it is (ours / foreign upstream / worktree / local clone), branch and sync state. Green = up to date with GitHub.</div>
 <div id="reposList"></div>
 </section>
 
 <!-- BG JOBS: live verification that I am working, no trust needed -->
 <section id="t-bg" hidden>
 <div class="card row">
-<button class="act" onclick="loadBg(true)">↻ recargar</button>
+<button class="act" onclick="loadBg(true)">↻ reload</button>
 <span class="mut" id="bgMeta"></span>
 </div>
-<div class="mut" style="margin:0 0 8px">Cada trabajo de fondo que lanzo: qué comando, pid, cuándo empezó, log. Si digo “ya estoy trabajando”, aquí lo ves sin preguntarme.</div>
+<div class="mut" style="margin:0 0 8px">Each background job I launch: what command, pid, when it started, log. If I say “already working”, see it here without asking.</div>
 <div id="bgList"></div>
 </section>
 
@@ -147,25 +147,25 @@ async function api(p,o){const r=await fetch(p,o);return r.json()}
 let portsData=[];
 const FC={};
 function renderPorts(d){portsData=d.rows||[];
-$('#portsMeta').textContent=d.rows.length+' puertos escuchando · '+new Date().toLocaleTimeString()+(d.cached?' ⚡':'');
-let h='<div class="card" style="overflow:auto"><table><tr><th>puerto</th><th>proceso / comando</th><th class="hideM">PID·usr</th><th>qué hace (IA)</th><th>acciones</th></tr>';
+$('#portsMeta').textContent=d.rows.length+' ports listening · '+new Date().toLocaleTimeString()+(d.cached?' ⚡':'');
+let h='<div class="card" style="overflow:auto"><table><tr><th>port</th><th>process / command</th><th class="hideM">PID·user</th><th>what it does (AI)</th><th>actions</th></tr>';
 for(const r of portsData){
 h+=`<tr><td><code>:${r.port}</code><br><span class="badge ${r.http?'b-ok':'b-warn'}">${r.http?((r.scheme||'http').toUpperCase()+' '+r.status):'no-HTTP'}</span></td>
 <td><b>${esc(r.cmdline.split(' ')[0].split('/').pop()||'(kernel)')}</b><div class=cmd>${esc(r.cmdline.slice(0,220))}</div><div class="mut hideM">${esc(r.cwd||'')}</div></td>
 <td class=hideM>${r.pid||'—'}<br><span class=mut>${esc(r.user)} · ${r.mem_mb}MB</span></td>
 <td class=desc>${esc(r.description||'')}<br><button class=act onclick="regenDesc(${r.port},this)">✨</button></td>
 <td><div class=row>
-${r.http?`<button class=act onclick="visit(${r.port})">🌐 visitar</button>`:`<button class=act disabled title="no sirve HTTP">🌐</button>`}
+${r.http?`<button class=act onclick="visit(${r.port})">🌐 visit</button>`:`<button class=act disabled title="no HTTP">🌐</button>`}
 ${r.pid?`<button class=act onclick="inspectPid(${r.pid})">🔍</button>
-<button class="act danger" onclick="killPid(${r.pid},false)">⛔ matar</button>`:''}
-<button class=act onclick="copyText(this.dataset.c)" data-c="${esc(r.cmdline).replace(/[`$\\]/g,'')}" title="copiar comando">📋</button>
+<button class="act danger" onclick="killPid(${r.pid},false)">⛔ kill</button>`:''}
+<button class=act onclick="copyText(this.dataset.c)" data-c="${esc(r.cmdline).replace(/[`$\\]/g,'')}" title="copy command">📋</button>
 </div></td></tr>`}
 for(const m of (d.manual||[])){
 h+=`<tr><td><code>:${m.port}</code> <span class="badge b-warn">manual</span></td>
-<td><b>app registrada</b><div class=cmd>${esc(m.command)}</div></td><td class=hideM>—</td>
+<td><b>registered app</b><div class=cmd>${esc(m.command)}</div></td><td class=hideM>—</td>
 <td class=desc>${esc(m.description||'')}</td>
-<td><div class=row><button class=act onclick="visit(${m.port})">🌐 visitar</button>
-<button class=act onclick="relaunch(${m.id})" title="${esc(m.launch_cmd||m.command)}">▶ relanzar</button>
+<td><div class=row><button class=act onclick="visit(${m.port})">🌐 visit</button>
+<button class=act onclick="relaunch(${m.id})" title="${esc(m.launch_cmd||m.command)}">▶ relaunch</button>
 <button class=act onclick="openAppModal(${m.id})">✏️</button>
 <button class="act danger" onclick="delApp(${m.id})">🗑</button></div></td></tr>`}
 $('#portsList').innerHTML=h+'</table></div>';}
@@ -173,15 +173,15 @@ async function loadPorts(force){
 if(FC.ports&&!force){try{renderPorts(FC.ports)}catch(e){}}
 const d=await api('/api/ports');FC.ports=d;renderPorts(d);}
 function visit(p){const r=(portsData||[]).find(x=>x.port===p);const s=(r&&r.scheme)||'http';window.open(s+'://'+location.hostname+':'+p,'_blank')}
-function copyText(t){navigator.clipboard.writeText(t);alert('copiado')}
+function copyText(t){navigator.clipboard.writeText(t);alert('copied')}
 async function killPid(pid,force){
-if(!confirm((force?'MATAR (SIGKILL) ':'Terminar (SIGTERM) ')+'pid '+pid+'?'))return;
+if(!confirm((force?'KILL (SIGKILL) ':'Terminate (SIGTERM) ')+'pid '+pid+'?'))return;
 const d=await api('/api/kill',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pid,force})});
-if(!d.ok&&!force&&confirm(d.error+' — ¿forzar con SIGKILL?'))return killPid(pid,true);
+if(!d.ok&&!force&&confirm(d.error+' — force with SIGKILL?'))return killPid(pid,true);
 if(!d.ok)alert('error: '+d.error);loadPorts(true)}
 async function inspectPid(pid){
 const d=await api('/api/inspect?pid='+pid);
-modal(`<b>🔍 pid ${pid}</b> <button class=act onclick="document.querySelector('#modal').classList.remove('open')">cerrar</button>
+modal(`<b>🔍 pid ${pid}</b> <button class=act onclick="document.querySelector('#modal').classList.remove('open')">close</button>
 <pre>${esc('cmd: '+d.cmdline+'\nuser: '+d.user+'\ncwd: '+d.cwd+'\nstarted: '+d.started+'\nmem: '+d.mem_mb+'MB\nfds: '+d.fds+'\n\n[env filtrado]\n'+(d.env||'—')+'\n\n[conexiones]\n'+(d.conns||'—'))}</pre>`)}
 async function regenDesc(port,btn){
 const r=portsData.find(x=>x.port===port);if(!r)return;btn.textContent='…';
@@ -191,20 +191,20 @@ function loadPortsSoft(){loadPorts()}
 async function relaunch(id){
 const apps=await api('/api/apps');const a=(apps.rows||[]).find(x=>x.id===id);if(!a)return;
 const d=await api('/api/launch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cmd:a.launch_cmd||a.command})});
-alert(d.ok?'relanzado (ver launch.log)':'error: '+d.error);loadPorts(true)}
-async function delApp(id){if(!confirm('borrar registro #'+id+'?'))return;
+alert(d.ok?'relaunched (see launch.log)':'error: '+d.error);loadPorts(true)}
+async function delApp(id){if(!confirm('delete record #'+id+'?'))return;
 await api('/api/apps/'+id,{method:'DELETE'});loadPorts(true)}
 async function openAppModal(id){
 let a={port:'',command:'',description:'',notes:'',launch_cmd:''};
 if(id){const d=await api('/api/apps');a=(d.rows||[]).find(x=>x.id===id)||a}
-modal(`<b>${id?'✏️ editar':'＋ nueva'} app</b><div class=grid2 style="margin-top:8px">
-<input id=aPort type=number placeholder="puerto *" value="${a.port}">
-<input id=aCmd placeholder="comando *" value="${esc(a.command)}" style="grid-column:1/-1">
-<input id=aDesc placeholder="descripción IA (vacío = auto)" value="${esc(a.description||'')}" style="grid-column:1/-1">
-<input id=aLaunch placeholder="comando de relanzar (opcional)" value="${esc(a.launch_cmd||'')}" style="grid-column:1/-1">
-<input id=aNotes placeholder="notas" value="${esc(a.notes||'')}" style="grid-column:1/-1"></div>
-<div class=row style="margin-top:8px"><button class="act go" onclick="saveApp(${id||0})">guardar</button>
-<button class=act onclick="document.querySelector('#modal').classList.remove('open')">cancelar</button></div>`)}
+modal(`<b>${id?'✏️ edit':'＋ new'} app</b><div class=grid2 style="margin-top:8px">
+<input id=aPort type=number placeholder="port *" value="${a.port}">
+<input id=aCmd placeholder="command *" value="${esc(a.command)}" style="grid-column:1/-1">
+<input id=aDesc placeholder="AI description (empty = auto)" value="${esc(a.description||'')}" style="grid-column:1/-1">
+<input id=aLaunch placeholder="relaunch command (optional)" value="${esc(a.launch_cmd||'')}" style="grid-column:1/-1">
+<input id=aNotes placeholder="notes" value="${esc(a.notes||'')}" style="grid-column:1/-1"></div>
+<div class=row style="margin-top:8px"><button class="act go" onclick="saveApp(${id||0})">save</button>
+<button class=act onclick="document.querySelector('#modal').classList.remove('open')">cancel</button></div>`)}
 async function saveApp(id){
 const b={port:+$('#aPort').value,command:$('#aCmd').value,description:$('#aDesc').value,notes:$('#aNotes').value,launch_cmd:$('#aLaunch').value};
 const d=id?await api('/api/apps/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)})
@@ -214,20 +214,20 @@ if(!d.ok)alert('error: '+d.error);else{$('#modal').classList.remove('open');load
 /* ---------- CRON ---------- */
 let cronLoaded=false;
 function renderCron(d){
-let h='<table><tr><th>#</th><th>horario</th><th>comando</th><th>acciones</th></tr>';
+let h='<table><tr><th>#</th><th>schedule</th><th>command</th><th>actions</th></tr>';
 d.user_jobs.forEach(j=>{
 if(j.type==='job'){const off=j.raw.trimStart().startsWith('#');
 h+=`<tr><td>${j.i}</td><td><code>${esc(j.schedule)}</code>${off?' <span class="badge b-warn">off</span>':''}</td>
 <td class=cmd>${esc(j.command.slice(0,200))}</td>
 <td><div class=row><button class=act onclick="cronToggle(${j.i})">${off?'▶':'⏸'}</button>
 <button class=act onclick="cronEdit(${j.i},'${esc(j.schedule)}',\`${esc(j.command).replace(/`/g,'')} \` )">✏️</button>
-<button class=act onclick="cronRun(\`${esc(j.command).replace(/`/g,'')} \`)" title="ejecutar ahora">▶⏱</button>
+<button class=act onclick="cronRun(\`${esc(j.command).replace(/`/g,'')} \`)" title="run now">▶⏱</button>
 <button class="act danger" onclick="cronDel(${j.i})">🗑</button></div></td></tr>`}
 else if(j.type==='comment'&&j.raw.trim())h+=`<tr><td>${j.i}</td><td colspan=2 class=mut>${esc(j.raw.slice(0,160))}</td><td></td></tr>`});
 $('#userCron').innerHTML=h+'</table>';
 $('#sysCron').innerHTML=`<b>/etc/crontab</b><pre>${esc(d.system.crontab||'—')}</pre>
 <b>/etc/cron.d</b><pre>${esc(d.system.cron_d||'—')}</pre>
-<b>periódicos</b><pre>${esc(JSON.stringify({hourly:d.system.hourly,daily:d.system.daily,weekly:d.system.weekly,monthly:d.system.monthly},null,1))}</pre>
+<b>periodic</b><pre>${esc(JSON.stringify({hourly:d.system.hourly,daily:d.system.daily,weekly:d.system.weekly,monthly:d.system.monthly},null,1))}</pre>
 <b>systemd timers</b><pre>${esc(d.system.timers||'—')}</pre>`;FC.cron=d;}
 async function loadCron(force){cronLoaded=true;
 if(FC.cron&&!force){try{renderCron(FC.cron)}catch(e){}}
@@ -237,21 +237,21 @@ async function cronAdd(){
 const d=await api('/api/cron',{method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({schedule:$('#cSched').value,command:$('#cCmd').value,tag:$('#cTag').value})});
 if(!d.ok)alert('error: '+d.error);else{$('#cSched').value=$('#cCmd').value=$('#cTag').value='';loadCron(true)}}
-async function cronDel(i){if(!confirm('borrar línea '+i+' de tu crontab?'))return;
+async function cronDel(i){if(!confirm('delete line '+i+' from your crontab?'))return;
 const d=await api('/api/cron/'+i,{method:'DELETE'});if(!d.ok)alert(d.error);loadCron(true)}
 async function cronToggle(i){await api('/api/cron/toggle/'+i,{method:'POST'});loadCron(true)}
 function cronEdit(i,sched,cmd){
-modal(`<b>✏️ cron línea ${i}</b><div class=row style="margin-top:8px">
+modal(`<b>✏️ cron line ${i}</b><div class=row style="margin-top:8px">
 <input id=eSched value="${esc(sched)}" style="flex:1"><input id=eCmd value="${esc(cmd)}" style="flex:3;min-width:220px">
-<button class="act go" onclick="cronEditSave(${i})">guardar</button></div>`)}
+<button class="act go" onclick="cronEditSave(${i})">save</button></div>`)}
 async function cronEditSave(i){
 const d=await api('/api/cron/'+i,{method:'PUT',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({schedule:$('#eSched').value,command:$('#eCmd').value})});
 if(!d.ok)alert(d.error);else{$('#modal').classList.remove('open');loadCron(true)}}
 async function cronRun(cmd){
-if(!confirm('ejecutar ahora?\n'+cmd.slice(0,200)))return;
+if(!confirm('run now?\n'+cmd.slice(0,200)))return;
 const d=await api('/api/cron/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({command:cmd})});
-alert(d.ok?'lanzado (ver cron_run.log)':'error: '+d.error)}
+alert(d.ok?'started (see cron_run.log)':'error: '+d.error)}
 
 /* ---------- SERVICES ---------- */
 let svcLoaded=false,svcData={system:[],user:[]};
@@ -262,7 +262,7 @@ function renderSvc(){
 const q=($('#svcQ').value||'').toLowerCase(),sc=$('#svcScope').value;
 const rows=[...(sc==='all'||sc==='system'?svcData.system||[]:[]),...(sc==='all'||sc==='user'?svcData.user||[]:[])]
 .filter(s=>!q||s.unit.toLowerCase().includes(q)||(s.description||'').toLowerCase().includes(q));
-let h='<div class="card" style="overflow:auto"><table><tr><th>unidad</th><th>estado</th><th class=hideM>descripción</th><th>acciones</th></tr>';
+let h='<div class="card" style="overflow:auto"><table><tr><th>unit</th><th>state</th><th class=hideM>description</th><th>actions</th></tr>';
 for(const s of rows){
 const dot=s.active==='active'?(s.sub==='running'?'b-ok':'b-warn'):(s.active==='failed'?'b-bad':'');
 h+=`<tr><td><code>${esc(s.unit)}</code><br><span class=mut>${s.scope}</span></td>
@@ -282,28 +282,28 @@ const d=await api('/api/services/action',{method:'POST',headers:{'Content-Type':
 if(!d.ok)alert('error: '+d.error);loadSvc(true)}
 async function svcLogs(unit,scope){
 const d=await api(`/api/services/logs?unit=${unit}&scope=${scope}`);
-modal(`<b>📜 ${esc(unit)}</b> <button class=act onclick="document.querySelector('#modal').classList.remove('open')">cerrar</button><pre>${esc(d.logs||'(sin logs)')}</pre>`)}
+modal(`<b>📜 ${esc(unit)}</b> <button class=act onclick="document.querySelector('#modal').classList.remove('open')">close</button><pre>${esc(d.logs||'(no logs)')}</pre>`)}
 async function svcFile(unit,scope){
 const d=await api(`/api/services/file?unit=${unit}&scope=${scope}`);
-modal(`<b>📄 ${esc(unit)}</b> <button class=act onclick="document.querySelector('#modal').classList.remove('open')">cerrar</button><pre>${esc(d.file||'(vacío)')}</pre>`)}
+modal(`<b>📄 ${esc(unit)}</b> <button class=act onclick="document.querySelector('#modal').classList.remove('open')">close</button><pre>${esc(d.file||'(empty)')}</pre>`)}
 function renderCustom(d){FC.custom=d;
 $('#customUnits').innerHTML=(d.rows||[]).map(u=>`<div class=row style="margin:6px 0"><code>${esc(u.unit)}</code>
 <button class=act onclick="svcAct('${esc(u.unit)}','user','start')">▶</button>
 <button class=act onclick="svcAct('${esc(u.unit)}','user','restart')">↻</button>
 <button class="act danger" onclick="svcAct('${esc(u.unit)}','user','stop')">⏹</button>
 <button class=act onclick="editUnit('${esc(u.unit)}')">✏️</button>
-<button class="act danger" onclick="delUnit('${esc(u.unit)}')">🗑</button></div>`).join('')||'<span class=mut>ninguno — crea el primero arriba</span>'}
+<button class="act danger" onclick="delUnit('${esc(u.unit)}')">🗑</button></div>`).join('')||'<span class=mut>none — create the first one above</span>'}
 async function loadCustom(force){
 if(FC.custom&&!force){try{renderCustom(FC.custom)}catch(e){}}
 const d=await api('/api/services/custom');renderCustom(d);}
 function openUnitModal(){
-modal(`<b>＋ servicio de usuario</b><div class=grid2 style="margin-top:8px">
-<input id=uName placeholder="mi-app.service" style="grid-column:1/-1">
-<input id=uDesc placeholder="descripción" style="grid-column:1/-1">
-<input id=uExec placeholder="ExecStart: /ruta/bin --flag" style="grid-column:1/-1"></div>
-<div class=row style="margin-top:8px"><button class="act go" onclick="saveUnit()">crear</button>
-<button class=act onclick="document.querySelector('#modal').classList.remove('open')">cancelar</button></div>
-<div class=mut>Se guarda en ~/.config/systemd/user + daemon-reload. Actívalo con ▶ o systemctl --user enable --now.</div>`)}
+modal(`<b>＋ user service</b><div class=grid2 style="margin-top:8px">
+<input id=uName placeholder="my-app.service" style="grid-column:1/-1">
+<input id=uDesc placeholder="description" style="grid-column:1/-1">
+<input id=uExec placeholder="ExecStart: /path/bin --flag" style="grid-column:1/-1"></div>
+<div class=row style="margin-top:8px"><button class="act go" onclick="saveUnit()">create</button>
+<button class=act onclick="document.querySelector('#modal').classList.remove('open')">cancel</button></div>
+<div class=mut>Saved to ~/.config/systemd/user + daemon-reload. Enable with ▶ or systemctl --user enable --now.</div>`)}
 async function saveUnit(){
 const d=await api('/api/services/custom',{method:'POST',headers:{'Content-Type':'application/json'},
 body:JSON.stringify({unit:$('#uName').value,description:$('#uDesc').value,exec:$('#uExec').value})});
@@ -311,12 +311,12 @@ if(!d.ok)alert(d.error);else{$('#modal').classList.remove('open');loadCustom(tru
 async function editUnit(unit){
 const d=await api('/api/services/custom');const u=(d.rows||[]).find(x=>x.unit===unit);if(!u)return;
 modal(`<b>✏️ ${esc(unit)}</b><textarea id=uContent rows=14>${esc(u.content)}</textarea>
-<div class=row style="margin-top:8px"><button class="act go" onclick="saveUnitEdit('${esc(unit)}')">guardar</button>
-<button class=act onclick="document.querySelector('#modal').classList.remove('open')">cancelar</button></div>`)}
+<div class=row style="margin-top:8px"><button class="act go" onclick="saveUnitEdit('${esc(unit)}')">save</button>
+<button class=act onclick="document.querySelector('#modal').classList.remove('open')">cancel</button></div>`)}
 async function saveUnitEdit(unit){
 const d=await api('/api/services/custom/'+unit,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:$('#uContent').value})});
 if(!d.ok)alert(d.error);else{$('#modal').classList.remove('open');loadCustom(true)}}
-async function delUnit(unit){if(!confirm('borrar '+unit+'?'))return;
+async function delUnit(unit){if(!confirm('delete '+unit+'?'))return;
 const d=await api('/api/services/custom/'+unit,{method:'DELETE'});if(!d.ok)alert(d.error);loadCustom(true);loadSvc(true)}
 
 /* ---------- STATS (time-series candles) ---------- */
@@ -325,7 +325,7 @@ const STATS_DEF={'1s':60,'30s':10,'5m':10,'1h':10,'8h':10,'1d':10};
 let statsTF='1s',statsMetric='cpu',statsN={...STATS_DEF};
 try{Object.assign(statsN,JSON.parse(localStorage.getItem('e067statsN')||'{}'))}catch(e){}
 const SERIES_COLOR={cpu:'#4da3ff',mem:'#b48cff',net_rx:'#3fb97f',net_tx:'#4da3ff',disk_root:'#d9a441',disk_home:'#b48cff',load1:'#4dd0e1'};
-const SERIES_NAME={cpu:'CPU %',mem:'RAM %',net_rx:'↓ down KB/s',net_tx:'↑ up KB/s',disk_root:'/ raiz %',disk_home:'/home %',load1:'load 1m'};
+const SERIES_NAME={cpu:'CPU %',mem:'RAM %',net_rx:'↓ down KB/s',net_tx:'↑ up KB/s',disk_root:'/ root %',disk_home:'/home %',load1:'load 1m'};
 function statsSeries(){
 if(statsMetric==='net')return['net_rx','net_tx'];
 if(statsMetric==='disk')return['disk_root','disk_home'];
@@ -340,9 +340,9 @@ if(!d.ok||d.tf!==statsTF)return;
 FC.stats=d;renderStats(d);}
 function renderStats(d){
 const L=d.latest||{};
-const cards=[['CPU',L.cpu,'%'],['RAM',L.mem,'%'],['NET ↓',L.net_rx,'KB/s'],['NET ↑',L.net_tx,'KB/s'],['DISCO /',L.disk_root,'%'],['LOAD',L.load1,'']];
+const cards=[['CPU',L.cpu,'%'],['RAM',L.mem,'%'],['NET ↓',L.net_rx,'KB/s'],['NET ↑',L.net_tx,'KB/s'],['DISK /',L.disk_root,'%'],['LOAD',L.load1,'']];
 $('#statsCards').innerHTML=cards.map(([k,v,u])=>`<div><span class=mut>${k}</span><br><b style="font-size:20px">${v??'—'}</b> <span class=mut>${u}</span></div>`).join('');
-$('#statsMeta').textContent=`${d.candles.length} velas de ${d.tf}${d.cached?' ⚡':''} · act ${L.t?new Date(L.t*1000).toLocaleTimeString():'—'}`;
+$('#statsMeta').textContent=`${d.candles.length} candles of ${d.tf}${d.cached?' ⚡':''} · updated ${L.t?new Date(L.t*1000).toLocaleTimeString():'—'}`;
 drawStats(d);}
 function fmtY(v){return v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2)}
 function fmtT(t){const d=new Date(t*1000);return d.toLocaleDateString()+' '+d.toLocaleTimeString().slice(0,5)}
@@ -353,7 +353,7 @@ const W=cv.clientWidth,H=cv.clientHeight,dp=window.devicePixelRatio||1;
 cv.width=W*dp;cv.height=H*dp;ctx.setTransform(dp,0,0,dp,0,0);
 ctx.clearRect(0,0,W,H);
 const keys=statsSeries().filter(k=>d.candles.some(c=>c.m&&c.m[k]));
-if(!keys.length||!d.candles.length){ctx.fillStyle='#9aa4b2';ctx.fillText('sin datos aun — las velas se llenan solas con el tiempo',10,20);return}
+if(!keys.length||!d.candles.length){ctx.fillStyle='#9aa4b2';ctx.fillText('no data yet — candles fill over time',10,20);return}
 let lo=Infinity,hi=-Infinity;
 for(const c of d.candles)for(const k of keys){const v=c.m[k];if(!v)continue;lo=Math.min(lo,v[2]);hi=Math.max(hi,v[1])}
 if(!(hi>lo))hi=lo+1;
@@ -389,14 +389,14 @@ $('#statsMetric').onchange=e=>{statsMetric=e.target.value;if(FC.stats)renderStat
 
 /* ---------- REPOS ---------- */
 function repoSync(r){
-if(!r.upstream)return '<span class="badge">sin upstream</span>';
-if(r.behind>0)return `<span class="badge b-bad">↓${r.behind} detrás</span>`;
-if(r.ahead>0)return `<span class="badge b-warn">↑${r.ahead} sin subir</span>`;
-if(r.dirty>0)return `<span class="badge b-warn">● +${r.dirty} sin commit</span>`;
-return '<span class="badge b-ok">● al día</span>';}
+if(!r.upstream)return '<span class="badge">no upstream</span>';
+if(r.behind>0)return `<span class="badge b-bad">↓${r.behind} behind</span>`;
+if(r.ahead>0)return `<span class="badge b-warn">↑${r.ahead} unpushed</span>`;
+if(r.dirty>0)return `<span class="badge b-warn">● +${r.dirty} uncommitted</span>`;
+return '<span class="badge b-ok">● up to date</span>';}
 function renderRepos(d){
 $('#reposMeta').textContent=d.rows.length+' checkouts · '+new Date().toLocaleTimeString()+(d.cached?' ⚡':'');
-let h='<div class="card" style="overflow:auto"><table><tr><th>repo</th><th>qué es</th><th>rama</th><th>sync</th><th class=hideM>último commit</th></tr>';
+let h='<div class="card" style="overflow:auto"><table><tr><th>repo</th><th>what</th><th>branch</th><th>sync</th><th class=hideM>last commit</th></tr>';
 for(const r of d.rows||[]){
 h+=`<tr><td><code>${esc(r.path)}</code><br><span class=mut>${esc((r.remote||'—').slice(0,60))}</span></td>
 <td><span class=badge>${esc(r.kind)}</span></td>
@@ -408,30 +408,30 @@ async function loadRepos(force){
 if(FC.repos&&!force){try{renderRepos(FC.repos)}catch(e){}}
 const d=await api('/api/repos');FC.repos=d;renderRepos(d);}
 async function reposFetch(){
-if(!confirm('git fetch origin en todos los repos nuestros? (fondo, la tabla se actualiza sola)'))return;
+if(!confirm('git fetch origin on all our repos? (background, table updates itself)'))return;
 const d=await api('/api/repos/fetch',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
-alert(d.ok?('fetch lanzado en '+d.n+' repos (ver fetch.log)'):'error');}
+alert(d.ok?('fetch started on '+d.n+' repos (see fetch.log)'):'error');}
 
 /* ---------- BG JOBS ---------- */
 function fmtDur(s){if(s==null)return '—';if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m '+(s%60)+'s';return Math.floor(s/3600)+'h '+Math.floor(s%3600/60)+'m'}
 function fmtWhen(iso){if(!iso)return '—';const d=new Date(iso);if(isNaN(d))return esc(iso);return d.toLocaleDateString()+' '+d.toLocaleTimeString().slice(0,8)}
-function hace(iso,ts){const t=ts?ts*1000:new Date(iso).getTime();if(!t||isNaN(t))return '';let s=Math.max(0,Math.floor((Date.now()-t)/1000));if(s<10)return 'ahora mismo';if(s<60)return `hace ${s}s`;const m=Math.floor(s/60);if(m<60)return `hace ${m} min`;const h=Math.floor(m/60);if(h<24)return `hace ${h} h`;const d=Math.floor(h/24);return `hace ${d} d`}
+function hace(iso,ts){const t=ts?ts*1000:new Date(iso).getTime();if(!t||isNaN(t))return '';let s=Math.max(0,Math.floor((Date.now()-t)/1000));if(s<10)return 'just now';if(s<60)return `${s}s ago`;const m=Math.floor(s/60);if(m<60)return `${m} min ago`;const h=Math.floor(m/60);if(h<24)return `${h} h ago`;const d=Math.floor(h/24);return `${d} d ago`}
 function renderBg(d){
 $('#bgMeta').textContent=(d.total||0)+' trabajos · '+new Date().toLocaleTimeString();
 let h='';
 for(const r of d.rows||[]){
 const badge=r.status==='running'?'b-ok':(String(r.status).includes('kill')?'b-warn':'b-bad');
-const tail=(r.tail||[]).map(esc).join('<br>')||'<span class=mut>sin salida aún</span>';
+const tail=(r.tail||[]).map(esc).join('<br>')||'<span class=mut>no output yet</span>';
 h+=`<div class=bgcard><div class=top><code>${esc(r.id)}</code><span class="badge ${badge}">${esc(r.status)}</span><span class=mut>${fmtDur(r.durSec)} · exit ${r.exitCode??'—'}</span></div>
-<div class=mut>creado ${fmtWhen(r.startedAt)} (${hace(r.startedAt)}) · actualizado ${fmtWhen(r.updatedAt)} (${hace(r.updatedAt,r.updatedTs)})</div>
+<div class=mut>created ${fmtWhen(r.startedAt)} (${hace(r.startedAt)}) · updated ${fmtWhen(r.updatedAt)} (${hace(r.updatedAt,r.updatedTs)})</div>
 <div class=cmdline><b>${esc((r.cmd||'').split('/').pop())}</b><div class=cmd>${esc([r.cmd,...(r.args||[])].join(' ').slice(0,300))}</div><div class=mut>${esc((r.startedAt||'').slice(11,19))}${r.endedAt?' → '+esc(r.endedAt.slice(11,19)):''} · ${esc(r.log||'')}</div></div>
 <div class=tail>${tail}</div>
-<div class=actions><button class=act onclick="bgLog('${esc(r.id)}')">📄 log</button>${r.pid?`<button class="act danger" onclick="killPid(${r.pid},false)">⛔ matar</button>`:''}<button class=act onclick="copyText('${esc([r.cmd,...(r.args||[])].join(' ').replace(/'/g,''))}')">📋 copiar</button></div></div>`}
-$('#bgList').innerHTML=h||'<div class=mut>sin trabajos</div>';}
+<div class=actions><button class=act onclick="bgLog('${esc(r.id)}')">📄 log</button>${r.pid?`<button class="act danger" onclick="killPid(${r.pid},false)">⛔ kill</button>`:''}<button class=act onclick="copyText('${esc([r.cmd,...(r.args||[])].join(' ').replace(/'/g,''))}')">📋 copy</button></div></div>`}
+$('#bgList').innerHTML=h||'<div class=mut>no jobs</div>';}
 async function bgLog(id){
 const d=await api('/api/bg-log?id='+encodeURIComponent(id)+'&n=50');
 if(!d.ok){alert(d.error);return}
-modal(`<b>📄 ${esc(id)}</b><div class=mut>${esc(d.log)}</div><pre style="white-space:pre-wrap;max-height:50vh;overflow:auto">${esc((d.lines||[]).join('\n'))}</pre><div class=row style="margin-top:8px"><button class=act onclick="document.querySelector('#modal').classList.remove('open')">cerrar</button></div>`)}
+modal(`<b>📄 ${esc(id)}</b><div class=mut>${esc(d.log)}</div><pre style="white-space:pre-wrap;max-height:50vh;overflow:auto">${esc((d.lines||[]).join('\n'))}</pre><div class=row style="margin-top:8px"><button class=act onclick="document.querySelector('#modal').classList.remove('open')">close</button></div>`)}
 async function loadBg(force){
 if(FC.bg&&!force){try{renderBg(FC.bg)}catch(e){}}
 const d=await api('/api/bg-tasks');FC.bg=d;renderBg(d);}
@@ -452,7 +452,7 @@ const map={ports:'ports',cron:'cron',svc:'services',repos:'repos',bg:'bg'};
 for(const k of Object.keys(map)){
 if(liveVers[k]!==undefined&&v[k]!==liveVers[k]){
 frontInvalidate(k);
-if(curTab===map[k]){reloadTab(curTab,true);flash('⟳ '+k+' cambio en el sistema')}}}
+if(curTab===map[k]){reloadTab(curTab,true);flash('⟳ '+k+' changed')}}}
 liveVers=v;};
 }catch(e){liveDot(false)}
 setInterval(()=>{if(curTab==='stats'&&!document.hidden)loadStats()},3000);
