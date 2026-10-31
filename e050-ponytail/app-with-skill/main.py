@@ -87,20 +87,21 @@ def transcribe(wav):
     return "[transcription failed: install SpeechRecognition or set OPENAI_API_KEY]"
 
 def type_text(text):
-    if not text or text.startswith("["): return
+    if not text or text.startswith("["): return False
     sess=os.getenv("XDG_SESSION_TYPE","").lower()
     cmds=[]
     if sess=="wayland": cmds=[["wtype",text],["ydotool","type",text]]
     else: cmds=[["xdotool","type","--clearmodifiers",text],["wtype",text],["ydotool","type",text]]
     for c in cmds:
         if shutil.which(c[0]):
-            try: subprocess.run(c,timeout=5,check=False); return
+            try: subprocess.run(c,timeout=5,check=False); return True
             except: pass
     # universal fallback
     try:
         from pynput.keyboard import Controller
-        Controller().type(text)
+        Controller().type(text); return True
     except Exception as e: print("type failed:",e,"text:",text)
+    return False
 
 def setup_ui(root):
     global STATE
@@ -113,6 +114,11 @@ def setup_ui(root):
     # button
     btn=tk.Label(root,text="🎤",font=("Arial",24),bg="#3a3a3a",fg="white",width=3,height=1)
     btn.pack(expand=True,fill="both",padx=2,pady=2)
+    err=tk.Label(root,text="",font=("Arial",9),bg="#1a1a1a",fg="#ff8a80",wraplength=280)
+    def flash(msg):
+        set_state("idle"); err.config(text=msg); err.pack(pady=(0,2),padx=6)
+        root.geometry(f"300x70+{root.winfo_x()}+{root.winfo_y()}")
+        root.after(3000,lambda:(err.pack_forget(),root.geometry(f"64x64+{root.winfo_x()}+{root.winfo_y()}")))
     def set_state(s):
         global STATE; STATE=s
         c={"idle":"#3a3a3a","recording":"#e53935","processing":"#fdd835"}[s]
@@ -127,12 +133,17 @@ def setup_ui(root):
             set_state("processing"); wav=record_audio(False)
             def go():
                 t=transcribe(wav) if wav and os.path.exists(wav) else ""
-                print(">",t); type_text(t)
-                root.after(0,lambda: set_state("idle"))
+                print(">",t)
+                msg=""
+                if not t: msg="no speech captured"
+                elif t.startswith("["): msg=t.strip("[]")
+                elif type_text(t) is False: msg="typing failed — install xdotool/wtype/pynput"
+                root.after(0,lambda: flash(msg) if msg else set_state("idle"))
             threading.Thread(target=go,daemon=True).start()
         elif STATE=="idle":
-            if record_audio(True): set_state("recording")
-            else: print("no audio backend")
+            if record_audio(True):
+                err.pack_forget(); root.geometry(f"64x64+{root.winfo_x()}+{root.winfo_y()}"); set_state("recording")
+            else: flash("no audio backend — install sounddevice or arecord")
     btn.bind("<Button-1>",toggle_recording)
     root.bind("<Control-Alt-v>",toggle_recording); root.bind("<Control-Alt-V>",toggle_recording)
     # close: Ctrl+C / Ctrl+Q / Escape, and right-click menu
@@ -162,6 +173,8 @@ def setup_ui(root):
 
 def poll_focus(root):
     if pyatspi is None: return  # ponytail: graceful degrade — always visible, add AT-SPI only if installed
+    # don't auto-hide mid-session or while the popup itself has focus (mic click)
+    if STATE!="idle" or root.focus_get(): root.after(500,lambda: poll_focus(root)); return
     # ponytail: 500ms dumb poll, event listener if CPU matters
     try:
         desktop=pyatspi.Registry.getDesktop(0)
