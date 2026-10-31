@@ -21,3 +21,4 @@ working the loop never stales the product revision again.
 - After any change under `../e095-tps-monitor/`: restart the daemon
   (restart-resume.sh + handoff), then run verify-tps.sh and screenshot the
   tab BEFORE reporting — no exceptions.
+- settings.json rewritten behind your back? Check ~/.pi/agent/extensions FIRST — sync-opencode-models.ts honors p4-models/wanted.json since 2026-10-31; do NOT file-edit + hope. Diagnose with `./doctor.sh models` and `./doctor.sh tab-missing <id>` before any restart.

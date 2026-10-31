@@ -23,6 +23,14 @@ gone; this file is the record of what you chose.
 - Changing your picks: edit `wanted.json`, then `python3 scripts/models.py sync`
   to trim the settings file down to exactly your picks (a backup is kept first).
 
+## Live daemon vs file
+
+`models.py sync` edits settings.json on disk, but a running daemon also holds
+enabled models in memory — the two can diverge. On a live system prefer
+`python3 scripts/models.py sync-daemon --sid <session-id> --cwd <dir>`, which
+disables everything outside your picks through the daemon's own session models
+API and keeps memory and file consistent.
+
 ## What the old design got wrong
 
 The first version kept a `canonical.json` snapshot that auto-grew to whatever

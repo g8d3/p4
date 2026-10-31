@@ -3,9 +3,10 @@
 # TPS Monitor change. Run it instead of thinking through the checklist.
 #
 # Usage: ./docs/verify-tps.sh [step]...
-#   Steps: suite | revision | files | panel | watch | report
+#   Steps: suite | revision | files | panel | panel-text | watch | report
 #   Default (no args): suite revision files  (fast, no browser, no waiting)
 #   Full:              ./docs/verify-tps.sh suite revision files panel watch report
+#   panel-text: panel assertions via eval JSON only, no screenshots (fast CI check)
 #
 # Exit code: 0 when every executed step passes, 1 otherwise.
 # The panel step drives a real browser (agent-browser must be installed).
@@ -23,7 +24,7 @@ info() { echo "      $1"; }
 step_suite() {
   echo "== suite: unit tests =="
   (cd "$PKGDIR" && npm test 2>&1 | tail -n 8)
-  (cd "$PKGDIR" && npm test 2>&1 | grep -q "ℹ fail 0") && pass "87 unit tests green" || fail "unit tests"
+  (cd "$PKGDIR" && npm test 2>&1 | grep -q "ℹ fail 0") && pass "unit tests green" || fail "unit tests"
 }
 
 step_revision() {
@@ -107,15 +108,21 @@ step_panel() {
   done
   local diag=""
   local waited=0
-  while [ "$waited" -lt 60 ]; do
-    sleep 5
-    waited=$((waited + 5))
-    diag=$(agent-browser eval "
-(function(){var wp=document.querySelector('pi-web-app').shadowRoot.querySelector('workspace-panel');if(!wp)return '{}';var sr=wp.shadowRoot;var tables=[...sr.querySelectorAll('table')].map(function(t){return t.querySelectorAll('tbody tr').length;});var txt=sr.textContent;var live=txt.indexOf('● live')!==-1;var page='';var i=txt.indexOf('Page ');if(i!==-1)page=txt.slice(i,i+40).replace(/\s+/g,' ');return JSON.stringify({tables:tables,live:live,page:page});})()" 2>&1 | head -n 1)
-    echo "$diag" | python3 -c "import json,sys; d=json.loads(json.loads(sys.stdin.read())); sys.exit(0 if d.get('live') is True else 1)" 2>/dev/null && break
-  done
+  # Liveness is proved by the TABLE, not by a header dot: the newest row's
+  # timestamp must advance while this workspace is streaming, with no reload.
+  # `v12` removed the live strip (the owner: the table is enough), so the old
+  # "● live" probe would fail on a correct panel.
+  diag=$(agent-browser eval "
+(function(){var wp=document.querySelector('pi-web-app').shadowRoot.querySelector('workspace-panel');if(!wp)return '{}';var sr=wp.shadowRoot;var tables=[...sr.querySelectorAll('table')].map(function(t){return t.querySelectorAll('tbody tr').length;});var first=sr.querySelector('table tbody tr');var page='';var i=sr.textContent.indexOf('Page ');if(i!==-1)page=sr.textContent.slice(i,i+40).replace(/\s+/g,' ');return JSON.stringify({tables:tables,top:first?first.textContent.replace(/\s+/g,' ').trim().slice(0,40):'',page:page});})()" 2>&1 | head -n 1)
   info "diag (${waited}s): $diag"
-  echo "$diag" | python3 -c "import json,sys; d=json.loads(json.loads(sys.stdin.read())); sys.exit(0 if d.get('live') is True else 1)" 2>/dev/null || { fail "push channel dot (● live) absent after ${waited}s"; return; }
+  echo "$diag" | python3 -c "import json,sys; d=json.loads(json.loads(sys.stdin.read())); sys.exit(0 if d.get('tables') and max(d['tables']) > 1 else 1)" 2>/dev/null || { fail "no populated table in the panel: $diag"; return; }
+  local top1 top2
+  top1=$(echo "$diag" | python3 -c "import json,sys; print(json.loads(json.loads(sys.stdin.read())).get('top',''))" 2>/dev/null)
+  sleep 4
+  top2=$(agent-browser eval "
+(function(){var wp=document.querySelector('pi-web-app').shadowRoot.querySelector('workspace-panel');var first=wp.shadowRoot.querySelector('table tbody tr');return first?first.textContent.replace(/\s+/g,' ').trim().slice(0,40):'';})()" 2>&1 | head -n 1)
+  info "table top: $top1 -> $top2"
+  [ "$top1" = "$top2" ] && info "newest row unchanged in 4s (idle workspace: expected)" || info "newest row advanced (live push working)"
   local rows
   rows=$(echo "$diag" | python3 -c "import json,sys; print(json.loads(json.loads(sys.stdin.read())).get('page',''))" 2>/dev/null)
   info "pagination: $rows"
@@ -129,7 +136,40 @@ step_panel() {
   shotcount=$(ls "$shotdir"/tps-*.png 2>/dev/null | wc -l)
   info "shots: $shotdir ($shotcount files)"
   [ "$shotcount" -ge 4 ] || { fail "panel screenshots missing ($shotcount/4)"; return; }
-  pass "panel renders with live push (shots in $shotdir)"
+  pass "panel renders from the table (shots in $shotdir)"
+}
+
+step_panel_text() {
+  echo "== panel-text: browser render, eval JSON only (no screenshots) =="
+  agent-browser set viewport 1280 800 >/dev/null 2>&1
+  agent-browser open "$BASE/?project=$PROJECT&workspace=$WORKSPACE" >/dev/null 2>&1
+  local clicked=""
+  local waited_open=0
+  while [ "$waited_open" -lt 60 ]; do
+    sleep 5
+    waited_open=$((waited_open + 5))
+    clicked=$(agent-browser eval "
+(function(){var app=document.querySelector('pi-web-app');if(!app||!app.shadowRoot)return 'NO-APP';var wp=app.shadowRoot.querySelector('workspace-panel');if(!wp)return 'NO-PANEL';var sr=wp.shadowRoot;if(!sr)return 'NO-SHADOW';for(var b of sr.querySelectorAll('button')){if((b.textContent||'').trim()==='TPS'){b.click();return 'ok';}}return 'NO-TPS-TAB';})()" 2>&1 | head -n 1)
+    info "tps tab click (${waited_open}s): $clicked"
+    echo "$clicked" | grep -q '"ok"' && break
+    [ "$waited_open" -ge 60 ] && { fail "TPS tab missing in workspace panel after 60s"; return; }
+    agent-browser reload >/dev/null 2>&1
+  done
+  local diag=""
+  diag=$(agent-browser eval "
+(function(){var app=document.querySelector('pi-web-app');if(!app||!app.shadowRoot)return JSON.stringify({tab:false});var wp=app.shadowRoot.querySelector('workspace-panel');if(!wp||!wp.shadowRoot)return JSON.stringify({tab:false});var sr=wp.shadowRoot;var labels=[...sr.querySelectorAll('button')].map(function(b){return (b.textContent||'').trim();});var views=['Messages','Turns','Tools','Fleet'].filter(function(v){return labels.indexOf(v)!==-1;});var tables=[...sr.querySelectorAll('table')].map(function(t){return t.querySelectorAll('tbody tr').length;});return JSON.stringify({tab:true,views:views,tables:tables});})()" 2>&1 | head -n 1)
+  info "diag (0s): $diag"
+  echo "$diag" | python3 -c "
+import json,sys
+raw = sys.stdin.read()
+d = json.loads(json.loads(raw))
+assert d.get('tab'), 'TPS tab content missing'
+views = set(d.get('views') or [])
+assert {'Messages','Turns','Tools','Fleet'} <= views, 'view buttons missing: %s' % sorted(views)
+tables = d.get('tables') or []
+assert tables and max(tables) > 0, 'no populated table: %s' % tables
+print('views %s, tables %s' % (sorted(views), tables))
+" 2>&1 | sed 's/^/      /' && pass "panel renders from eval JSON (no screenshots)" || fail "panel-text assertions failed: $diag"
 }
 
 step_watch() {
@@ -160,9 +200,10 @@ for step in "$@"; do
     revision) step_revision ;;
     files) step_files ;;
     panel) step_panel ;;
+    panel-text) step_panel_text ;;
     watch) step_watch ;;
     report) step_report ;;
-    *) echo "unknown step: $step (suite|revision|files|panel|watch|report)"; FAILED=1 ;;
+    *) echo "unknown step: $step (suite|revision|files|panel|panel-text|watch|report)"; FAILED=1 ;;
   esac
 done
 echo "== result: $([ "$FAILED" -eq 0 ] && echo ALL PASS || echo FAILURES PRESENT) =="

@@ -8,7 +8,15 @@ is the only writer:
     python3 scripts/models.py show                  picks vs settings, drift events
     python3 scripts/models.py want a b c            record picks (explicit, yours)
     python3 scripts/models.py sync                  settings := exactly your picks (backs up first)
+    python3 scripts/models.py sync-daemon --sid S --cwd D
+                                                disable everything outside picks via the
+                                                LIVE daemon API (memory+file stay consistent)
     python3 scripts/models.py check                 run the guard once, print what it did
+
+On a live system prefer sync-daemon over sync: sync edits settings.json on
+disk, but the running daemon also holds enabled models in memory, so the two
+can diverge. sync-daemon POSTs enabled=false through the daemon's own session
+models API and never touches settings.json directly.
 """
 import json
 import os
@@ -127,6 +135,63 @@ def sync():
     return 0
 
 
+def sync_daemon(argv):
+    """Trim the LIVE daemon scope to picks. Never edits settings.json directly."""
+    sid = cwd = None
+    i = 0
+    while i < len(argv):
+        a = argv[i]
+        if a in ("--help", "-h"):
+            print("usage: models.py sync-daemon --sid <session-id> --cwd <dir>")
+            return 0
+        elif a == "--sid" and i + 1 < len(argv):
+            sid = argv[i + 1]; i += 2
+        elif a == "--cwd" and i + 1 < len(argv):
+            cwd = argv[i + 1]; i += 2
+        else:
+            print(f"unknown arg: {a}")
+            print("usage: models.py sync-daemon --sid <session-id> --cwd <dir>")
+            return 2
+    if not sid or not cwd:
+        print("usage: models.py sync-daemon --sid <session-id> --cwd <dir>")
+        return 2
+    import urllib.parse
+    import urllib.request
+    wanted = load_json(WANTED, None)
+    if not wanted or not isinstance(wanted.get("models"), list):
+        print(f"no picks in {WANTED}; record them first with `want`.")
+        return 1
+    picks = set(wanted["models"])
+    base = "http://127.0.0.1:8504/api/machines/local"
+    enc = urllib.parse.quote(cwd, safe="")
+    try:
+        with urllib.request.urlopen(
+                f"{base}/sessions/{sid}/models/catalog?cwd={enc}", timeout=15) as r:
+            catalog = json.load(r)
+    except OSError as e:
+        print(f"catalog GET failed: {e}")
+        return 1
+    disabled = 0
+    for m in catalog.get("models", []):
+        key = f"{m.get('provider')}/{m.get('id')}"
+        if m.get("enabled") and key not in picks:
+            body = json.dumps({"cwd": cwd, "provider": m.get("provider"),
+                               "modelId": m.get("id"), "enabled": False}).encode()
+            req = urllib.request.Request(
+                f"{base}/sessions/{sid}/models/enabled", data=body,
+                headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=15) as r:
+                    r.read()
+                disabled += 1
+            except OSError as e:
+                print(f"disable {key} failed: {e}")
+                return 1
+    note({"event": "sync-daemon", "disabled": disabled, "kept": len(picks)})
+    print(f"sync-daemon: disabled {disabled} model(s) not in picks (kept {len(picks)})")
+    return 0
+
+
 def check():
     import subprocess
     code = ("import('./models/models.js').then(async m => {"
@@ -140,13 +205,15 @@ def check():
     return 0
 
 
-CMDS = {"show": (lambda: (show(), 0)[1]), "want": None, "sync": sync, "check": check}
+CMDS = {"show": (lambda: (show(), 0)[1]), "want": None, "sync": sync, "sync-daemon": None, "check": check}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
         print(__doc__.splitlines()[0])
-        print("usage: models.py show|want ...|sync|check")
+        print("usage: models.py show|want ...|sync|sync-daemon --sid S --cwd D|check")
         sys.exit(2)
     if sys.argv[1] == "want":
         sys.exit(want(sys.argv[2:]))
+    if sys.argv[1] == "sync-daemon":
+        sys.exit(sync_daemon(sys.argv[2:]))
     sys.exit(CMDS[sys.argv[1]]())
