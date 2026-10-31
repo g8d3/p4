@@ -20,7 +20,7 @@ User dictates in Spanish. All files, code, and agent responses are written in En
 - Restarting PI WEB means the front door only: run `pi-web-restart` (3 s, sessions untouched). Never restart `pi-web-sessiond` on a plain "restart" order — that kills every working agent; the daemon restarts only on explicit owner approval with a resume plan (`pi-web-restart-resume <session-id>`).
 - Never sleep blindly: no bare `sleep N` to wait for agents, restarts, or pages. Poll the readiness condition in a loop with short intervals and a timeout, exiting the instant it holds. A sleep is granularity, never the plan.
 - Fire and notify, never babysit: an order to another session carries the requester's session id and the instruction to report back via `send_session_message` on completion. The requester does other work until woken — nobody polls transcripts to see if work finished.
-- Trust the mechanism for must-not-miss completion: the order names a result file, the worker writes it, the requester blocks on `wait-for-file`. An agent can forget to notify; a file appearing cannot be forgotten.
+- Trust the mechanism for must-not-miss completion: the order names a result file, the worker writes it. The requester never parks on it — it keeps working and checks the file at the next natural breakpoint (or gets nudged via `send_session_message`). `wait-for-file` is for scripts at true synchronization points only; a session blocked on it is a session doing nothing.
 
 ## Default AI credentials
 - Source of truth is env vars starting with `OPENCODE` (names only — never paste values into files, chats, or logs).
