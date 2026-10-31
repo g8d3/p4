@@ -1,0 +1,17 @@
+#!/bin/bash
+# pi-web-restart — restart the PI WEB front door, fast and safe.
+# Restarts pi-web.service only: the browser UI drops for ~3s, sessions and
+# agents are untouched. A session-daemon restart is deliberately NOT here:
+# it kills every working agent including the requester, so it stays a
+# scheduled op (e095-tps-monitor-ops/restart-resume.sh + handoff).
+# Usage: pi-web-restart
+set -u
+systemctl --user restart pi-web.service
+for _ in $(seq 1 30); do
+  curl -sf -m 2 http://127.0.0.1:8504/ >/dev/null 2>&1 && break
+  sleep 1
+done
+curl -sf -m 3 http://127.0.0.1:8504/ >/dev/null || { echo "pi-web NOT healthy after restart"; exit 1; }
+echo "pi-web:   $(systemctl --user is-active pi-web.service) pid=$(systemctl --user show pi-web.service -p MainPID --value)"
+echo "sessiond: $(systemctl --user is-active pi-web-sessiond.service) pid=$(systemctl --user show pi-web-sessiond.service -p MainPID --value) (untouched)"
+echo "http://127.0.0.1:8504  http://$(hostname -I | awk '{print $1}'):8504  http://$(tailscale ip -4 2>/dev/null):8504"
