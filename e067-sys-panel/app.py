@@ -1243,6 +1243,9 @@ def _repos_watch_forever():
 # Single truth: ~/.pi/agent/bg-tasks/*.json + logs. Rebuildable, no DB.
 BG_DIR = os.path.expanduser("~/.pi/agent/bg-tasks")
 
+import re as _re
+_BG_ERR_RE = _re.compile(r"error|traceback|exception|fail|fatal|panic|denied|refused|not found|cannot|can't|could not|E\d{3,}", _re.I)
+
 def _bg_alive(pid):
     try:
         os.kill(int(pid), 0)
@@ -1268,11 +1271,16 @@ def api_bg_tasks():
                 status = "done (dead pid)"
             log = e.get("log") or ""
             tail = []
+            guilty = None
             try:
                 with open(log, errors="replace") as lf:
                     lines = [ln.rstrip("\n") for ln in lf]
                     lines = [ln for ln in lines if ln.strip() != ""]
                     tail = lines[-3:]
+                    for ln in reversed(lines[-60:]):
+                        if _BG_ERR_RE.search(ln):
+                            guilty = ln.strip()[:300]
+                            break
             except Exception:
                 tail = []
             try:
@@ -1295,7 +1303,7 @@ def api_bg_tasks():
                 upd_iso = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(upd_ts)) + "Z" if upd_ts else None
             except Exception:
                 upd_iso = e.get("endedAt")
-            rows.append({"id": e.get("id"), "status": status, "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": log, "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt"), "exitCode": e.get("exitCode"), "durSec": dur, "tail": tail, "doneFile": e.get("doneFile"), "updatedAt": upd_iso, "updatedTs": int(upd_ts) if upd_ts else None})
+            rows.append({"id": e.get("id"), "label": e.get("label"), "status": status, "failed": bool((isinstance(status, str) and status.startswith("done") and e.get("exitCode") not in (0, None)) or status == "done (dead pid)"), "guilty": guilty, "notifyError": e.get("notifyError"), "notifiedAt": e.get("notifiedAt"), "pid": e.get("pid"), "cmd": e.get("cmd"), "args": e.get("args", []), "log": log, "startedAt": e.get("startedAt"), "endedAt": e.get("endedAt"), "exitCode": e.get("exitCode"), "durSec": dur, "tail": tail, "doneFile": e.get("doneFile"), "updatedAt": upd_iso, "updatedTs": int(upd_ts) if upd_ts else None})
     except Exception as ex:
         return {"rows": [], "error": str(ex)}
     rows.sort(key=lambda r: (r.get("updatedTs") or 0, r.get("startedAt") or ""), reverse=True)

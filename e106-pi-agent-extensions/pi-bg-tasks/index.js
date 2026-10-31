@@ -67,19 +67,31 @@ function refresh(entry) {
 }
 /** Push notify: the job tells your session it finished. Custom event, never a
  * faked user message. Best-effort and fire-and-forget: proof stays in doneFile,
- * so a lost ping (e.g. daemon restart) loses nothing. */
-function notifyDone(piRef, entry, how) {
+ * so a lost ping (e.g. daemon restart) loses nothing. Delivery outcome is
+ * recorded on the registry entry (notifiedAt / notifyError) so silent jobs
+ * become visible instead of vanishing inside a catch. */
+async function notifyDone(piRef, entry, how) {
   if (!entry || entry.notify === false) return;
+  const id = entry.id;
   try {
-    const text = `bg job ${entry.id} ${entry.status}` +
+    const text = `bg job ${id}` +
+      (entry.label ? ` (${entry.label})` : ``) +
+      ` ${entry.status}` +
       (entry.exitCode !== null && entry.exitCode !== undefined ? ` (exit ${entry.exitCode})` : ``) +
       ` — log ${entry.log}` +
       (entry.notifyText ? `\n${entry.notifyText}` : ``);
-    piRef.sendMessage(
-      { customType: "bg-tasks/done", content: text, display: true, details: { taskId: entry.id, status: entry.status, exitCode: entry.exitCode ?? null, log: entry.log, how } },
+    await piRef.sendMessage(
+      { customType: "bg-tasks/done", content: text, display: true, details: { taskId: entry.id, label: entry.label ?? null, status: entry.status, exitCode: entry.exitCode ?? null, log: entry.log, how } },
       { triggerTurn: true }
     );
-  } catch {}
+    const cur = load(id);
+    if (cur) { cur.notifiedAt = new Date().toISOString(); cur.notifyError = null; save(cur); }
+  } catch (err) {
+    try {
+      const cur = load(id);
+      if (cur) { cur.notifyError = { at: new Date().toISOString(), how, error: String(err && err.message ? err.message : err) }; save(cur); }
+    } catch {}
+  }
 }
 /** Deterministic completion artifact: trust-the-mechanism.
  * The order names a result file, the worker writes it. No polling. */
@@ -94,7 +106,7 @@ function newId() {
   return `t${Date.now().toString(36)}${Math.floor(Math.random() * 0xffff).toString(36)}`;
 }
 function summary(e) {
-  return `${e.id}: ${e.status}${e.exitCode !== undefined && e.exitCode !== null ? ` (exit ${e.exitCode})` : ""} pid=${e.pid} log=${e.log}`;
+  return `${e.id}${e.label ? ` [${e.label}]` : ""}: ${e.status}${e.exitCode !== undefined && e.exitCode !== null ? ` (exit ${e.exitCode})` : ""} pid=${e.pid} log=${e.log}${e.notifyError ? ` NOTIFY-FAILED` : ""}`;
 }
 
 export default function bgTasksExtension(pi) {
@@ -109,6 +121,7 @@ export default function bgTasksExtension(pi) {
       "Collect output later with bg_tail (peek) or bg_wait (bounded block), and kill strays with bg_kill.",
       "Deterministic completion: pass doneFile, the worker writes it on exit; waiter uses wait-for-file at sync points, otherwise checks at breakpoints. Jobs notify, sessions never poll.",
       "Push notify: jobs send YOUR session a custom bg-tasks/done event on exit/kill (never a faked user message). Pass notify:false to stay silent. doneFile stays the proof, so a lost ping loses nothing.",
+      "Give each job a human label (label param) so the BG tab shows what it is, not just its id. Delivery failures are recorded on the entry as notifyError.",
     ],
     parameters: Type.Object({
       cmd: Type.String({ description: "Executable, e.g. /bin/bash or python3" }),
@@ -116,6 +129,9 @@ export default function bgTasksExtension(pi) {
       cwd: Type.Optional(Type.String({ description: "Working directory (default: current)" })),
       taskId: Type.Optional(
         Type.String({ description: "Short id [a-z0-9-_]; generated when omitted" }),
+      ),
+      label: Type.Optional(
+        Type.String({ description: "Human label shown on the BG tab, e.g. 'deploy frontend'. Max 120 chars." }),
       ),
       log: Type.Optional(Type.String({ description: "Log file path; default ~/.pi/agent/bg-tasks/<id>.log" })),
       doneFile: Type.Optional(Type.String({ description: "Completion artifact path; written with {id,status,exitCode,endedAt,log} on exit. Watch with wait-for-file; no polling." })),
@@ -127,6 +143,7 @@ export default function bgTasksExtension(pi) {
       try {
         const id = params.taskId || newId();
         if (!ID_RE.test(id)) throw new Error(`Invalid task id ${JSON.stringify(id)}`);
+        if (typeof params.label === "string" && params.label.length > 120) throw new Error("Label max 120 chars");
         if (load(id) && refresh(load(id)).status === "running")
           throw new Error(`Task ${id} is already running`);
         const log = params.log || join(dir(), `${id}.log`);
@@ -141,6 +158,7 @@ export default function bgTasksExtension(pi) {
         child.unref();
         const entry = {
           id,
+          label: params.label || null,
           cmd: params.cmd,
           args: params.args ?? [],
           cwd: params.cwd || process.cwd(),
@@ -167,7 +185,7 @@ export default function bgTasksExtension(pi) {
           cur.endedAt = new Date().toISOString();
           save(cur);
           writeDoneFile(cur);
-          notifyDone(pi, cur, "exit");
+          void notifyDone(pi, cur, "exit");
         });
         if (params.notifyAfterSec && params.notifyAfterSec > 0 && params.doneFile) {
           const afterMs = Math.min(3600000, Math.max(1000, params.notifyAfterSec * 1000));
@@ -330,7 +348,7 @@ export default function bgTasksExtension(pi) {
           return ok(`${e.id} still alive (pid ${e.pid}).`, { taskId: e.id, status: "running" });
         }
         writeDoneFile(load(params.taskId));
-        notifyDone(pi, load(params.taskId), "kill");
+        void notifyDone(pi, load(params.taskId), "kill");
         return ok(`${e.id} killed.`, { taskId: e.id, status: "killed" });
       } catch (e) {
         return err(e.message);

@@ -151,11 +151,20 @@ raise SystemExit(0 if (not d.get("isStreaming") and not d.get("isCompacting")) e
     sleep 2
   done
   after="$(message_count "$target" "$cwd")"
-  archive_relay "$relay" "$cwd"
-  if [ -n "$before" ] && [ -n "$after" ] && [ "$after" -gt "$before" ] 2>/dev/null; then
+  # Proof of delivery: the relay's own transcript must contain the
+  # send_session_message success text naming the target. The messageCount
+  # movement check below stays only as a fallback for a failed snapshot fetch.
+  snap="$(curl -s -m 15 "$BASE/sessions/$(urlenc "$relay")/transcript-snapshot?cwd=$(urlenc "$cwd")&limit=40")"
+  if printf '%s' "$snap" | grep -Fq "Message accepted for session $target"; then
+    archive_relay "$relay" "$cwd"
     return 0
   fi
-  log "relay $relay: target messageCount did not move for $target (before=$before after=$after)"
+  archive_relay "$relay" "$cwd"
+  if [ -n "$before" ] && [ -n "$after" ] && [ "$after" -gt "$before" ] 2>/dev/null; then
+    log "relay $relay: transcript proof missing for $target, messageCount moved (before=$before after=$after) — accepting"
+    return 0
+  fi
+  log "relay $relay: no delivery proof for $target (no transcript ack, before=$before after=$after)"
   return 1
 }
 
