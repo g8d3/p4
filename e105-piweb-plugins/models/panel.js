@@ -5,6 +5,7 @@
 // over plain HTTP (see ../paired.js) using the backend's active revision.
 // No session-daemon restart needed to see new panel code.
 import { pairedRequest } from "../paired.js";
+import { WANTED } from "./wanted-public.js";
 // The guard behind this panel: whether your picks are still in pi's enabledModels list,
 //
 // Something rewrites ~/.pi/agent/settings.json on some restarts and the list comes back wrong
@@ -47,10 +48,17 @@ const time = (iso) => {
 function view(html, entry) {
   const d = entry.data;
   const events = (d && d.events) || [];
-  const missing = (d && d.missing) || [];
+  // Picks come from the backend when it knows them (after the daemon restart
+  // that loads the new guard); until then this generated copy speaks for them.
+  const backendKnowsPicks = Boolean(d && d.wanted);
+  const picks = backendKnowsPicks ? d.wanted : (WANTED.models || []);
+  const wantedCount = backendKnowsPicks ? (d.wantedCount ?? d.canonicalCount ?? picks.length) : picks.length;
+  const savedAt = backendKnowsPicks ? (d.wantedSavedAt ?? d.savedAt) : (WANTED.savedAt || null);
+  // Missing picks, computed here so the panel is exact even against the old
+  // backend (which reports the enabled list but knows no picks).
+  const enabled = (d && d.models) || [];
+  const missing = (d && d.missing) || picks.filter((m) => !enabled.includes(m));
   const healthy = d && missing.length === 0;
-  const wantedCount = (d && (d.wantedCount ?? d.canonicalCount)) || 0;
-  const savedAt = (d && (d.wantedSavedAt ?? d.savedAt)) || null;
   return html`
     <style>${STYLE}</style>
     <div class="p4m">
@@ -99,10 +107,10 @@ function view(html, entry) {
           : html`<p class="empty">No repair needed since the picks were recorded. That is the good case.</p>`}
       </section>
 
-      ${d && d.wanted && d.wanted.length ? html`
+      ${picks.length ? html`
         <details open>
-          <summary class="sub">Your ${d.wanted.length} picks</summary>
-          <ul>${d.wanted.map((m) => html`<li><code>${m}</code>${d.models && !d.models.includes(m) ? " — missing, will be put back" : ""}</li>`)}</ul>
+          <summary class="sub">Your ${picks.length} picks${backendKnowsPicks ? "" : " (from your saved shortlist — backend update pending)"}</summary>
+          <ul>${picks.map((m) => html`<li><code>${m}</code>${enabled.length && !enabled.includes(m) ? " — missing, will be put back" : ""}</li>`)}</ul>
         </details>` : null}
 
       <p class="sub">
