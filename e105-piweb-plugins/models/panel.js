@@ -83,6 +83,7 @@ function view(html, entry) {
               <div class="row"><span class="k">file</span><span class="v"><code>${d.settings}</code></span></div>
               <div class="row"><span class="k">picks</span><span class="v"><code>${d.wantedFile || "wanted.json"}</code></span></div>
               <div class="row"><span class="k">default</span><span class="v">${d.defaultProvider || "—"} / ${d.defaultModel || "—"}</span></div>
+              ${d.backend ? html`<div class="row"><span class="k">backend</span><span class="v">pid ${d.backend.pid} · up since ${time(d.backend.startedAt)}</span></div>` : ""}
               <div class="row"><span class="k">repair rule</span><span class="v">a missing pick is put back;
                 anything extra is left alone; the picks file is never rewritten by the guard —
                 change picks there, not in the picker</span></div>

@@ -17,6 +17,9 @@ import os from "node:os";
 import path from "node:path";
 
 const SETTINGS = process.env.P4_PI_SETTINGS || path.join(os.homedir(), ".pi", "agent", "settings.json");
+// Backend identity: proves in the panel which daemon serves this report —
+// the pid/startedAt change on every session-daemon restart.
+const BOOT_AT = new Date().toISOString();
 const DATA = path.join(process.env.PI_WEB_DATA_DIR || path.join(os.homedir(), ".pi-web"),
                        "plugin-data", "p4-models");
 const WANTED = path.join(DATA, "wanted.json");
@@ -115,6 +118,7 @@ export function report() {
     savedAt: (wanted && wanted.savedAt) || null,
     defaultProvider: settings.defaultProvider || null,
     defaultModel: settings.defaultModel || null,
+    backend: { pid: process.pid, startedAt: BOOT_AT },
     missing: verdict.missing,
     extras: verdict.extras,
     events: events.slice(-20).reverse(),

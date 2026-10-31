@@ -1,0 +1,21 @@
+#!/bin/bash
+# pi-web-restart-resume — one-line daemon restart that brings the session back.
+# Restarts pi-web-sessiond detached (~5s delay so this shell can exit), waits
+# for health, then prompts the session to continue from its transcript.
+# Sessions persist on disk; the prompt is the only thing that restarts work.
+# Usage: pi-web-restart-resume <session-id> [cwd] [message...]
+#   cwd defaults to /home/vuos/code/p4; message defaults to a generic
+#   continue-where-you-stopped prompt (no handoff file needed for routine use).
+set -u
+SID="${1:?usage: pi-web-restart-resume <session-id> [cwd] [message]}"
+CWD="${2:-/home/vuos/code/p4}"
+if [ "$#" -gt 2 ]; then shift 2; MSG="$*"; else MSG=""; fi
+if [ -z "$MSG" ]; then
+  MSG="The session daemon restarted as planned. Your transcript, workspace files and settings are intact. Continue the work you were doing before the restart from where it stopped, then report briefly what you did and current status."
+fi
+F=$(mktemp /tmp/pi-web-resume-XXXXXX.md)
+printf '%s\n' "$MSG" > "$F"
+UNIT="pi-web-restart-resume-$(date +%s)"
+systemd-run --user --on-active=5s --unit="$UNIT" --collect \
+  /home/vuos/code/p4/e095-tps-monitor-ops/restart-resume.sh "$SID" "$CWD" "$F" 2>&1 | grep -E "Running|Will run" || true
+echo "restart+resume scheduled (~5s) for session ${SID}; its reply wakes here"

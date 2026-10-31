@@ -10,6 +10,8 @@ there, but the truth lives here.
 | File | What |
 |---|---|
 | `sync-opencode-models.ts` | Merges live OpenCode Zen + Zen Go model lists into pi's catalog at every pi launch, and enables models in `settings.json`. Honors the model guard's picks (`~/.pi-web/plugin-data/p4-models/wanted.json`): with picks recorded it enables exactly those, otherwise everything discovered. |
+| `pi-web-restart` | 3-second front-door restart (linked from `~/.local/bin`). Sessions untouched. |
+| `pi-web-restart-resume <session-id> [cwd] [message]` | One-line daemon restart + resume. Detached ~5s, waits healthy, prompts the session to continue from its transcript. Default message suffices for routine use. |
 
 ## Rules
 
