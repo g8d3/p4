@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""models.py: your picks for pi's enabledModels list, and the guard that keeps them.
+
+The guard (models/models.js, inside the session daemon) puts back any pick missing
+from ~/.pi/agent/settings.json. It reads wanted.json; it never writes it. This CLI
+is the only writer:
+
+    python3 scripts/models.py show                  picks vs settings, drift events
+    python3 scripts/models.py want a b c            record picks (explicit, yours)
+    python3 scripts/models.py sync                  settings := exactly your picks (backs up first)
+    python3 scripts/models.py check                 run the guard once, print what it did
+"""
+import json
+import os
+import shutil
+import sys
+import time
+
+DATA = os.path.join(os.environ.get("PI_WEB_DATA_DIR", os.path.expanduser("~/.pi-web")),
+                     "plugin-data", "p4-models")
+SETTINGS = os.environ.get("P4_PI_SETTINGS",
+                           os.path.expanduser("~/.pi/agent/settings.json"))
+WANTED = os.path.join(DATA, "wanted.json")
+DRIFT = os.path.join(DATA, "drift.jsonl")
+
+
+def load_json(path, fallback):
+    try:
+        with open(path) as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return fallback
+
+
+def save_json(path, value):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        json.dump(value, fh, indent=2)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+
+def note(entry):
+    try:
+        os.makedirs(DATA, exist_ok=True)
+        entry = {"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), **entry}
+        with open(DRIFT, "a") as fh:
+            fh.write(json.dumps(entry) + "\n")
+    except OSError:
+        pass
+
+
+def show():
+    settings = load_json(SETTINGS, {})
+    wanted = load_json(WANTED, None)
+    current = settings.get("enabledModels") or []
+    want = (wanted or {}).get("models") or []
+    print(f"settings: {SETTINGS} ({len(current)} enabled)")
+    print(f"picks:    {WANTED} ({len(want)} recorded)")
+    print(f"default:  {settings.get('defaultProvider')}/{settings.get('defaultModel')}")
+    missing = [m for m in want if m not in current]
+    extras = [m for m in current if m not in want]
+    for m in want:
+        print(f"  {'MISSING' if m in missing else 'ok     '} {m}")
+    if extras:
+        print(f"{len(extras)} extra model(s) the guard leaves alone; `sync` trims to picks.")
+    try:
+        with open(DRIFT) as fh:
+            lines = [ln for ln in fh.read().splitlines() if ln.strip()]
+        for ln in lines[-5:]:
+            print("  log:", ln[:200])
+    except OSError:
+        print("  no repairs logged yet — the good case.")
+
+
+def want(models):
+    if not models:
+        print("usage: models.py want provider/id [...]");
+        return 1
+    save_json(WANTED, {"models": sorted(set(models)),
+                       "savedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
+    note({"event": "wanted-updated", "count": len(set(models))})
+    print(f"recorded {len(set(models))} picks in {WANTED}")
+    return 0
+
+
+def sync():
+    settings = load_json(SETTINGS, None)
+    if settings is None:
+        print(f"cannot read {SETTINGS}");
+        return 1
+    wanted = load_json(WANTED, None)
+    if not wanted or not isinstance(wanted.get("models"), list):
+        print(f"no picks in {WANTED}; record them first with `want`.");
+        return 1
+    backup = os.path.join(DATA, f"settings-before-sync-{int(time.time() * 1000)}.json")
+    os.makedirs(DATA, exist_ok=True)
+    shutil.copyfile(SETTINGS, backup)
+    settings["enabledModels"] = list(wanted["models"])
+    save_json(SETTINGS, settings)
+    note({"event": "sync", "to": len(wanted["models"]), "backup": backup})
+    print(f"settings trimmed to {len(wanted['models'])} picks (backup: {backup})")
+    return 0
+
+
+def check():
+    import subprocess
+    code = ("import('./models/models.js').then(async m => {"
+            "  console.log(JSON.stringify(m.check()));"
+            "}).catch(e => { console.log(JSON.stringify({ok:false, error:String(e.message||e)})); process.exit(1); });")
+    p = subprocess.run(["node", "-e", code], capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    if p.returncode != 0:
+        print((p.stdout or p.stderr).strip()[:300])
+        return 1
+    print(p.stdout.strip().splitlines()[-1])
+    return 0
+
+
+CMDS = {"show": (lambda: (show(), 0)[1]), "want": None, "sync": sync, "check": check}
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2 or sys.argv[1] not in CMDS:
+        print(__doc__.splitlines()[0])
+        print("usage: models.py show|want ...|sync|check")
+        sys.exit(2)
+    if sys.argv[1] == "want":
+        sys.exit(want(sys.argv[2:]))
+    sys.exit(CMDS[sys.argv[1]]())

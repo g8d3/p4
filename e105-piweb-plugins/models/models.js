@@ -1,13 +1,17 @@
-// Model list guard: keeps pi's enabledModels from being silently collapsed.
+// Model list guard: keeps YOUR picks in pi's enabledModels list.
 //
-// The failure this exists for (observed 2026-10-30): `pi install` rewrote
-// ~/.pi/agent/settings.json and replaced a 107-entry enabledModels list with 3 entries.
-// Nothing warned; the user only noticed missing models later. This guard keeps a canonical
-// snapshot and repairs the signature of that bug: a list that SHRANK A LOT and is a subset
-// of what was there. It deliberately does not fight a deliberate edit: removing one or two
-// models by hand is your call and is never "repaired".
+// Your picks live in wanted.json (see docs/current-models.md). The guard's only job:
+// if a pick is missing from ~/.pi/agent/settings.json, put it back and log it.
+// It never removes anything, and it never changes wanted.json by itself.
 //
-// Settings path can be overridden with P4_PI_SETTINGS (tests, other profiles).
+// Why explicit instead of automatic: the first version kept a canonical.json
+// snapshot that silently grew to 162 models and "repaired" any drop of 5+. On
+// 2026-10-30 that logic rewrote a deliberate 4-model edit back to 162 models
+// twice in one minute. A heuristic cannot tell a collapse from a decision;
+// an explicit list can. canonical.json is retired (kept on disk as history).
+//
+// wanted.json shape: { "models": ["provider/id", ...], "savedAt": "<iso>" }
+// Paths can be overridden for tests: P4_PI_SETTINGS, PI_WEB_DATA_DIR.
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -15,9 +19,8 @@ import path from "node:path";
 const SETTINGS = process.env.P4_PI_SETTINGS || path.join(os.homedir(), ".pi", "agent", "settings.json");
 const DATA = path.join(process.env.PI_WEB_DATA_DIR || path.join(os.homedir(), ".pi-web"),
                        "plugin-data", "p4-models");
-const CANON = path.join(DATA, "canonical.json");
+const WANTED = path.join(DATA, "wanted.json");
 const DRIFT = path.join(DATA, "drift.jsonl");
-const MIN_DROP = 5;          // a drop of 5+ models is the collapse signature, not an edit
 const CHECK_MS = 60_000;
 
 function readJSON(file, fallback) {
@@ -36,56 +39,62 @@ function note(entry) {
   } catch { /* a log line must never break the daemon */ }
 }
 
-export function classify(current, canonical) {
+export function readWanted() {
+  const w = readJSON(WANTED, null);
+  if (!w || !Array.isArray(w.models)) return null;
+  return { models: [...new Set(w.models)], savedAt: w.savedAt || null };
+}
+
+// Kept for callers that used the old heuristic API: now a plain diff against
+// the explicit picks. `collapsed` is true only when picks are missing.
+export function classify(current, wanted) {
   const now = current || [];
-  const want = canonical || [];
+  const want = wanted || [];
   const missing = want.filter((m) => !now.includes(m));
-  const subset = now.every((m) => want.includes(m));
-  const drop = want.length - now.length;
+  const extras = now.filter((m) => !want.includes(m));
   return {
     count: now.length,
+    wantedCount: want.length,
     canonicalCount: want.length,
     missing,
-    drop,
-    // the bug's signature: it collapsed, and it collapsed into a subset of what we knew
-    collapsed: drop >= MIN_DROP && subset && now.length > 0,
-    shrunk: drop > 0,
+    extras,
+    drop: missing.length,
+    shrunk: missing.length > 0,
+    collapsed: missing.length > 0,
   };
 }
 
 export function check({ repair = true } = {}) {
   const settings = readJSON(SETTINGS, null);
   if (!settings) return { ok: false, error: `cannot read ${SETTINGS}` };
+  const wanted = readWanted();
+  // No picks recorded yet: do nothing. The old code snapshotted whatever was
+  // biggest on first run, which is how 162 models of provider bloat became
+  // "known good". Recording picks is an explicit act (scripts/models.py).
+  if (!wanted) return { ok: true, action: "no-wanted", count: (settings.enabledModels || []).length };
   const current = settings.enabledModels || [];
-  let canon = readJSON(CANON, null);
-  if (!canon || !Array.isArray(canon.enabledModels) || canon.enabledModels.length < current.length) {
-    // first run, or the list legitimately grew: that becomes the new known-good.
-    // Logged, so a provider adding 140 models at once shows up in the panel instead of silently
-    // becoming the new canonical (that silent growth is what baked the bloat in).
-    const from = (canon && Array.isArray(canon.enabledModels)) ? canon.enabledModels.length : 0;
-    canon = { enabledModels: current, defaultProvider: settings.defaultProvider || null,
-              defaultModel: settings.defaultModel || null, savedAt: new Date().toISOString() };
-    writeJSON(CANON, canon);
-    if (from > 0 && current.length > from) note({ event: "snapshot", from, to: current.length });
-    return { ok: true, action: "snapshot", count: current.length };
+  const missing = wanted.models.filter((m) => !current.includes(m));
+  if (missing.length === 0) {
+    return { ok: true, action: "none", count: current.length, wantedCount: wanted.models.length,
+             extras: current.length - wanted.models.length };
   }
-  const verdict = classify(current, canon.enabledModels);
-  if (!verdict.collapsed) return { ok: true, action: "none", ...verdict };
-  const restored = [...new Set([...canon.enabledModels, ...current])];
+  // Put back exactly the missing picks, keep everything else in place.
+  const restored = [...current, ...missing];
   if (repair) {
     const backup = path.join(DATA, `settings-before-repair-${Date.now()}.json`);
     fs.mkdirSync(DATA, { recursive: true });
     fs.copyFileSync(SETTINGS, backup);
     settings.enabledModels = restored;
     writeJSON(SETTINGS, settings);
-    note({ event: "repaired", had: current.length, restoredTo: restored.length, backup });
+    note({ event: "repaired", had: current.length, missing, restoredTo: restored.length, backup });
   }
-  return { ok: true, action: repair ? "repaired" : "would-repair", ...verdict, restoredTo: restored.length };
+  return { ok: true, action: repair ? "repaired" : "would-repair", count: current.length,
+           wantedCount: wanted.models.length, missing, restoredTo: restored.length };
 }
 
 export function report() {
   const settings = readJSON(SETTINGS, {});
-  const canon = readJSON(CANON, null);
+  const wanted = readWanted();
   const events = [];
   try {
     for (const line of fs.readFileSync(DRIFT, "utf8").split("\n")) {
@@ -93,18 +102,24 @@ export function report() {
     }
   } catch { /* none yet */ }
   const current = settings.enabledModels || [];
-  const verdict = classify(current, (canon && canon.enabledModels) || []);
+  const want = (wanted && wanted.models) || [];
+  const verdict = classify(current, want);
   return {
     settings: SETTINGS,
+    wantedFile: WANTED,
+    hasWanted: Boolean(wanted),
+    wantedSavedAt: (wanted && wanted.savedAt) || null,
     count: current.length,
-    canonicalCount: verdict.canonicalCount,
-    savedAt: (canon && canon.savedAt) || null,
+    wantedCount: want.length,
+    canonicalCount: want.length,
+    savedAt: (wanted && wanted.savedAt) || null,
     defaultProvider: settings.defaultProvider || null,
     defaultModel: settings.defaultModel || null,
-    drop: verdict.drop,
-    minDrop: MIN_DROP,
+    missing: verdict.missing,
+    extras: verdict.extras,
     events: events.slice(-20).reverse(),
     models: current,
+    wanted: want,
   };
 }
 

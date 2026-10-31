@@ -31,6 +31,10 @@ package.json          piWeb.plugins: the entries this package ships
 catalog/pi-web-plugin.js   p4.catalog — read-only catalog panel
 catalog/catalog-data.js    the catalog itself (id, what, why, where, kind, status)
 docs/agent-cycles.md       design of the agent-cycles plugin
+docs/current-models.md    your 4 picked models (the record; the guard enforces it)
+models/models.js           p4.models guard: puts back missing picks from wanted.json (never removes, never rewrites picks)
+models/server-plugin.js    server entry: runs the guard in the daemon, answers the Models panel
+scripts/models.py          show | want | sync | check — the only writer of wanted.json; sync trims settings to picks
 scripts/cycles.py          the ledger: what each session-daemon restart interrupted (CLI today)
                            systemd: p4-agent-cycles.service + .timer (every 15 min, boot)
                            output: <workspace>/.pi-web/agent_cycles.json
