@@ -85,7 +85,26 @@ except Exception: print("")'
 # deliver_system <target-sid> <cwd> <message> — relay path. Returns 0 on
 # system-format delivery, 1 otherwise (caller falls back to direct prompt).
 deliver_system() {
-  local target="$1" cwd="$2" msg="$3" relay="" resp="" before="" after=""
+  local target="$1" cwd="$2" msg="$3" oldpid="$4" queuedat="$5" relay="" resp="" before="" after="" newpid="" banner=""
+  newpid="$(systemctl --user show pi-web-sessiond.service -p MainPID --value 2>/dev/null || true)"
+  banner="$(python3 - "$msg" "$oldpid" "$newpid" "$queuedat" <<'PYEOF'
+import sys
+rmsg, old, new, queued = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+if old and new:
+    head = ("System restart notice: the session daemon restarted as planned "
+            f"(old pid {old} -> current pid {new}). ")
+elif new:
+    head = ("System restart notice: the session daemon restarted as planned "
+            f"(current pid {new}). ")
+else:
+    head = "System restart notice: the session daemon restarted as planned. "
+tail = ("Your transcript, workspace files and settings are intact. Continue the work "
+        "you were doing before the restart from where it stopped, then report briefly "
+        "what you did and current status.")
+note = f"\n\nResume note: {rmsg}" if rmsg else ""
+print(head + tail + note)
+PYEOF
+)"
   before="$(message_count "$target" "$cwd")"
   resp="$(curl -s -m 15 -X POST "$BASE/sessions" \
     -H 'Content-Type: application/json' \
@@ -102,10 +121,10 @@ else:
     print(s.get("id","") if isinstance(s, dict) else "")')"
   [ -n "$relay" ] || { log "relay: create failed for $target: $(printf '%s' "$resp" | head -c 200)"; return 1; }
   local instruction
-  instruction="$(python3 - "$target" "$msg" <<'PYEOF'
+  instruction="$(python3 - "$target" "$banner" <<'PYEOF'
 import json, sys
 target, rmsg = sys.argv[1], sys.argv[2]
-print("You are a resume relay. Call send_session_message with sessionId="
+print("You are a resume relay. This is a SYSTEM restart notice, not a user request. Call send_session_message with sessionId="
       + json.dumps(target) + " and message=" + json.dumps(rmsg)
       + " exactly. No other tool calls, no other action. "
       + "After the tool result, reply with exactly: done")
@@ -161,7 +180,9 @@ for f in "${entries[@]}"; do
   cwd="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("cwd",""))' "$f")"
   # shellcheck disable=SC2154
   rmsg="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("message",""))' "$f")"
-  if deliver_system "$psid" "$cwd" "$rmsg"; then
+  oldpid="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("oldPid",""))' "$f")"
+  queuedat="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8")).get("queuedAt",""))' "$f")"
+  if deliver_system "$psid" "$cwd" "$rmsg" "$oldpid" "$queuedat"; then
     rm -f "$f" "$ppayload"
     delivered=$((delivered + 1))
     log "resumed $psid via relay (system format)"

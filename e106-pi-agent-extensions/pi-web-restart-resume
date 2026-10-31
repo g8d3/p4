@@ -16,10 +16,13 @@ if [ -z "$MSG" ]; then
 fi
 QUEUE="$HOME/.pi-web/resume-queue"
 mkdir -p "$QUEUE"
-python3 - "$QUEUE/$SID.json" "$SID" "$CWD" "$MSG" <<'PYEOF'
+OLD_PID="$(systemctl --user show pi-web-sessiond.service -p MainPID --value 2>/dev/null || true)"
+QUEUED_AT="$(date -u +%FT%TZ)"
+python3 - "$QUEUE/$SID.json" "$SID" "$CWD" "$MSG" "$OLD_PID" "$QUEUED_AT" <<'PYEOF'
 import json, sys
-_, path, sid, cwd, msg = sys.argv
-json.dump({'sid': sid, 'cwd': cwd, 'message': msg},
+_, path, sid, cwd, msg, old_pid, queued_at = sys.argv
+json.dump({'sid': sid, 'cwd': cwd, 'message': msg,
+           'oldPid': old_pid or '', 'queuedAt': queued_at or ''},
           open(path, 'w', encoding='utf-8'), indent=1)
 PYEOF
 python3 - "$QUEUE/$SID.json" "$SID" <<'PYEOF'
