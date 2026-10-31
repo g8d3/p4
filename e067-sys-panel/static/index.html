@@ -421,7 +421,7 @@ const d=await api('/api/bg-tasks');FC.bg=d;renderBg(d);}
 let liveVers={};
 function flash(msg){const f=$('#flash');if(!f)return;f.textContent=msg;clearTimeout(f._t);f._t=setTimeout(()=>f.textContent='',4000)}
 function liveDot(ok){const el=$('#liveDot');if(el)el.className='badge '+(ok?'b-ok':'b-bad')}
-function frontInvalidate(k){if(k==='ports')delete FC.ports;else if(k==='cron')delete FC.cron;else if(k==='repos')delete FC.repos;else if(k==='services'){delete FC.svc;delete FC.custom}}
+function frontInvalidate(k){if(k==='ports')delete FC.ports;else if(k==='cron')delete FC.cron;else if(k==='repos')delete FC.repos;else if(k==='bg')delete FC.bg;else if(k==='services'){delete FC.svc;delete FC.custom}}
 function initLive(){
 try{
 const es=new EventSource('/api/events');
@@ -429,7 +429,7 @@ es.onopen=()=>liveDot(true);
 es.onerror=()=>liveDot(false);
 es.onmessage=e=>{
 let v;try{v=JSON.parse(e.data)}catch(_){return}
-const map={ports:'ports',cron:'cron',svc:'services',repos:'repos'};
+const map={ports:'ports',cron:'cron',svc:'services',repos:'repos',bg:'bg'};
 for(const k of Object.keys(map)){
 if(liveVers[k]!==undefined&&v[k]!==liveVers[k]){
 frontInvalidate(k);
@@ -437,6 +437,7 @@ if(curTab===map[k]){reloadTab(curTab,true);flash('⟳ '+k+' cambio en el sistema
 liveVers=v;};
 }catch(e){liveDot(false)}
 setInterval(()=>{if(curTab==='stats'&&!document.hidden)loadStats()},3000);
+setInterval(()=>{if(!document.hidden&&curTab==='bg')loadBg()},5000);
 setInterval(()=>{if(!document.hidden&&curTab!=='stats')reloadTab(curTab)},30000);}
 
 loadPorts();initStats();initLive();

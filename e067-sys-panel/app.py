@@ -58,7 +58,7 @@ def cache_invalidate(*prefixes):
 
 # ---------------------------------------------------------- live watch ---
 # Fingerprints of system state; versions bump on change, pushed via SSE.
-_versions = {"ports": 0, "cron": 0, "services": 0, "repos": 0}
+_versions = {"ports": 0, "cron": 0, "services": 0, "repos": 0, "bg": 0}
 _ver_lock = threading.Lock()
 _changed_evt = threading.Event()
 _changes = collections.deque(maxlen=20)
@@ -101,6 +101,23 @@ def _fp_services():
                 ["list-units", "--type=service", "--all", "--no-pager", "--plain", "--no-legend"]
             out.append(run(cmd).stdout)
         return hash("".join(out))
+    except Exception:
+        return 0
+
+
+def _fp_bg():
+    # Cheap: filenames + mtime + size only, no JSON parse. Registry is small (<200 files).
+    try:
+        sig = []
+        for fn in sorted(os.listdir(BG_DIR)):
+            if not fn.endswith(".json"):
+                continue
+            try:
+                st = os.stat(os.path.join(BG_DIR, fn))
+                sig.append((fn, int(st.st_mtime), st.st_size))
+            except Exception:
+                pass
+        return hash(tuple(sig))
     except Exception:
         return 0
 
@@ -160,7 +177,7 @@ def _fp_repos():
 
 
 def _watch_loop():
-    last = {"ports": _fp_ports()}
+    last = {"ports": _fp_ports(), "bg": _fp_bg()}
     time.sleep(2)
     last["cron"] = _fp_cron()
     last["services"] = _fp_services()
@@ -183,6 +200,10 @@ def _watch_loop():
                     if c != last[kind]:
                         last[kind] = c
                         _note_change(kind, f"{kind} changed")
+            c = _fp_bg()
+            if c != last["bg"]:
+                last["bg"] = c
+                _note_change("bg", "bg jobs changed")
         except Exception as e:
             try:
                 with open(os.path.join(BASE, "server.log"), "a") as f:
