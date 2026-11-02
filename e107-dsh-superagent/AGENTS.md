@@ -48,7 +48,8 @@ You don't need localhost. The panel is served through the tailnet with a trusted
 - Direct (needs the token URL from `log/superagent.log`): `https://vuos-hcar5000mi.tail6918b0.ts.net:9445/`.
 - Use the MagicDNS hostname URL, not a bare IP — passkeys only work there (rpId rule, see e028).
 - Expect a setup checklist in Overview (no GitHub agent account configured yet) — that is the operator-steps stage of upstream SETUP.md, not a malfunction.
-- Stack: dsh `--profile superagent` on 127.0.0.1:3082 → socat TLS :8444 → `tailscale serve :9445`; portal :8091 → `tailscale serve :9446`. PIDs in `log/*.pid`; `bin/start.sh` / `bin/stop.sh` (exact-PID kills). dsh 0.2.1-rc.2 from e028/app; bundle linked from `upstream/` (gitignored, fetch with `bin/fetch.sh`).
+- Stack: dsh `--profile superagent` on 127.0.0.1:3082 → socat TLS :8444 → `tailscale serve :9445`; portal :8091 → `tailscale serve :9446`. PIDs in `log/*.pid`; `bin/start.sh` / `bin/stop.sh` (exact-PID kills, stop.sh frees ports via ss-holder fallback). dsh 0.2.1-rc.2 from e028/app; bundle in `upstream/` (pinned `6337fc8` nested clone, parent-gitignored; fetch with `bin/fetch.sh`, re-apply `bin/patch-upstream.sh`, rebuild with `pnpm build`; local patches versioned in `patches/`).
+- Local patch (generic, not tailnet-specific): upstream's `/orchestrator` fence is loopback-only by design, so any remote panel gets `403 Same-origin management request required`. `upstream/src/app/http.ts` accepts allow-listed https authorities from `DSH_SUPERAGENT_TRUSTED_HOSTS` (same CSRF model as dsh's `--trusted-host` `/api` fence: custom header + matching Origin); `bin/start.sh` derives the list live (`hostname -I`, `tailscale ip`, `PUBLIC_HOST`). Any deployment gets its own hosts — nothing owner-specific in code.
 - New invite (one command, prints single-use link): `./bin/invite.sh`.
 
 ## Rules

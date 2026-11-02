@@ -31,8 +31,17 @@ if [[ -n "${TS_IP:-}" && "$TS_IP" != "$LAN_HOST" ]]; then
 fi
 TRUST_ARGS+=(--trusted-host "$PUBLIC_HOST" --trusted-host "$PUBLIC_HOST:$TS_PANEL_PORT")
 
+# /orchestrator management fence (upstream/src/app/http.ts, e107 patch): loopback-only
+# upstream always 403s remote panel calls. The patch accepts these https
+# authorities with a matching Origin — same model as dsh's /api trusted-host fence.
+REMOTE_HOSTS="$PUBLIC_HOST:$TS_PANEL_PORT,$PUBLIC_HOST,$LAN_HOST:$TLS_PORT,$LAN_HOST"
+if [[ -n "${TS_IP:-}" && "$TS_IP" != "$LAN_HOST" ]]; then
+  REMOTE_HOSTS="$REMOTE_HOSTS,$TS_IP:$TLS_PORT,$TS_IP"
+fi
+export DSH_SUPERAGENT_TRUSTED_HOSTS="$REMOTE_HOSTS"
+
 if (echo > /dev/tcp/127.0.0.1/$DSH_PORT) 2>/dev/null; then echo "dsh already up on $DSH_PORT, skipping boot"; else
-(cd "$E028/app" && nohup npx dsh --profile superagent --patch ../profiles/opencode-default.yml --no-open "${TRUST_ARGS[@]}" >"$ROOT/log/superagent.log" 2>&1 &)
+(cd "$E028/app" && exec nohup npx dsh --profile superagent --patch ../profiles/opencode-default.yml --no-open "${TRUST_ARGS[@]}" >"$ROOT/log/superagent.log" 2>&1) &
 echo $! > "$ROOT/log/superagent.pid"
 fi
 echo "dsh superagent -> 127.0.0.1:$DSH_PORT (token URL in log/superagent.log — credential, do not paste)"
@@ -46,7 +55,7 @@ nohup socat -4 openssl-listen:$TLS_PORT,fork,reuseaddr,cert="$PEM",verify=0 TCP:
 echo $! > log/socat.pid
 echo "socat tls -> 0.0.0.0:$TLS_PORT"
 
-(cd "$E028/portal" && DSH_LOG="$ROOT/log/superagent.log" DSH_TLS_PORT=$TLS_PORT TS_DSH_PORT=$TS_PANEL_PORT PUBLIC_HOST=$PUBLIC_HOST TS_PORTAL_PORT=$TS_PORTAL_PORT PORTAL_PORT=$PORTAL_PORT nohup node server.mjs >"$ROOT/log/portal.log" 2>&1 &)
+(cd "$E028/portal" && DSH_LOG="$ROOT/log/superagent.log" DSH_TLS_PORT=$TLS_PORT TS_DSH_PORT=$TS_PANEL_PORT PUBLIC_HOST=$PUBLIC_HOST TS_PORTAL_PORT=$TS_PORTAL_PORT PORTAL_PORT=$PORTAL_PORT exec nohup node server.mjs >"$ROOT/log/portal.log" 2>&1) &
 echo $! > log/portal.pid
 echo "portal -> 0.0.0.0:$PORTAL_PORT (opens panel via live token, never pasted)"
 

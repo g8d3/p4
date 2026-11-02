@@ -4,10 +4,11 @@
   "note": "superagent panel live via tailnet; portal origin fixed to :9446 (2026-11-02, was :9443 default). GitHub agent account NOT configured yet (Overview shows setup checklist). e028 main stack (dsh :3080, portal :8090) is down; its tailnet mappings persist without backends.",
   "panel_direct": "https://vuos-hcar5000mi.tail6918b0.ts.net:9445/ (needs per-boot ?token= from log/superagent.log \u2014 credential, never pasted)",
   "pids": {
-    "dsh_superagent": 4181363,
-    "portal": 276764,
-    "socat_tls": 4184100
+    "dsh_superagent": 292906,
+    "portal": 291814,
+    "socat_tls": 291812
   },
+  "remote_panel_patch": "upstream/src/app/http.ts sameOrigin accepts DSH_SUPERAGENT_TRUSTED_HOSTS (https, header + matching Origin); start.sh derives the list live. Verified 2026-11-02: public host 200 with/without Origin, evil Origin 403, no header 403, loopback 200, full tailnet path 200.",
   "portal": "https://vuos-hcar5000mi.tail6918b0.ts.net:9446 (password/passkey login, then Open superagent)",
   "ports": {
     "dsh_superagent": "127.0.0.1:3082 (loopback only)",
