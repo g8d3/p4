@@ -49,6 +49,7 @@ You don't need localhost. The panel is served through the tailnet with a trusted
 - Use the MagicDNS hostname URL, not a bare IP — passkeys only work there (rpId rule, see e028).
 - Expect a setup checklist in Overview (no GitHub agent account configured yet) — that is the operator-steps stage of upstream SETUP.md, not a malfunction.
 - Stack: dsh `--profile superagent` on 127.0.0.1:3082 → socat TLS :8444 → `tailscale serve :9445`; portal :8091 → `tailscale serve :9446`. PIDs in `log/*.pid`; `bin/start.sh` / `bin/stop.sh` (exact-PID kills). dsh 0.2.1-rc.2 from e028/app; bundle linked from `upstream/` (gitignored, fetch with `bin/fetch.sh`).
+- New invite (one command, prints single-use link): `./bin/invite.sh`.
 
 ## Rules
 

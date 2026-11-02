@@ -28,5 +28,6 @@
     "commit": "6337fc823ce20251c8de8085948165c81aaa701e",
     "dir": "upstream/ (gitignored; bin/fetch.sh, then pnpm install && pnpm build)",
     "url": "https://github.com/deepseek-ai/dsh-superagent-prototype"
-  }
+  },
+  "invite": "./bin/invite.sh (one command, prints single-use https://vuos-hcar5000mi.tail6918b0.ts.net:9446/register?invite=...; ~0.05s)"
 }
