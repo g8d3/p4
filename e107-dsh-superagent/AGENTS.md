@@ -40,6 +40,16 @@ pnpm vitest run tests/sources.spec.ts -t "malformed line"
 
 Toolchain: node 24, pnpm 11.7.0 (via corepack), no `dsh` binary needed for the above.
 
+## Live panel (running)
+
+You don't need localhost. The panel is served through the tailnet with a trusted cert:
+
+- **Portal (your entry): https://vuos-hcar5000mi.tail6918b0.ts.net:9446** — log in with the portal password/passkey, press **Open superagent**. The portal reads the per-boot dsh token live; the token itself is never pasted anywhere.
+- Direct (needs the token URL from `log/superagent.log`): `https://vuos-hcar5000mi.tail6918b0.ts.net:9445/`.
+- Use the MagicDNS hostname URL, not a bare IP — passkeys only work there (rpId rule, see e028).
+- Expect a setup checklist in Overview (no GitHub agent account configured yet) — that is the operator-steps stage of upstream SETUP.md, not a malfunction.
+- Stack: dsh `--profile superagent` on 127.0.0.1:3082 → socat TLS :8444 → `tailscale serve :9445`; portal :8091 → `tailscale serve :9446`. PIDs in `log/*.pid`; `bin/start.sh` / `bin/stop.sh` (exact-PID kills). dsh 0.2.1-rc.2 from e028/app; bundle linked from `upstream/` (gitignored, fetch with `bin/fetch.sh`).
+
 ## Rules
 
 - Standing rules apply (server URLs, user-seat review, needs.json, PID kills, push by default).
