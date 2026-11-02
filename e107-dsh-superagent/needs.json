@@ -1,1 +1,32 @@
-{"dsh":"0.2.1-rc.2 (from e028/app/node_modules/.bin)","lan_host":"192.168.0.93 (auto-detected at boot; cert is e028 self-signed, tailnet uses trusted cert)","note":"superagent panel live via tailnet; GitHub agent account NOT configured yet (Overview shows setup checklist). e028 main stack (dsh :3080, portal :8090) is down; its tailnet mappings persist without backends.","panel_direct":"https://vuos-hcar5000mi.tail6918b0.ts.net:9445/ (needs per-boot ?token= from log/superagent.log — credential, never pasted)","pids":{"dsh_superagent":4181363,"portal":4184106,"socat_tls":4184098},"portal":"https://vuos-hcar5000mi.tail6918b0.ts.net:9446 (password/passkey login, then Open superagent)","ports":{"dsh_superagent":"127.0.0.1:3082 (loopback only)","portal":"0.0.0.0:8091","socat_tls":"0.0.0.0:8444 -> 127.0.0.1:3082","ts_panel":9445,"ts_portal":9446},"provider":"opencode-go via e028 profiles/opencode-default.yml patch (OPENCODE_* env at boot)","restart":"./bin/stop.sh && ./bin/start.sh (from e107-dsh-superagent/)","stateDir":"/home/vuos/.dsh/state/superagent","toolchain":{"gh":"2.45.0","node":"v24.22.1","pnpm":"11.7.0 via corepack"},"upstream":{"commit":"6337fc823ce20251c8de8085948165c81aaa701e","dir":"upstream/ (gitignored; bin/fetch.sh, then pnpm install && pnpm build)","url":"https://github.com/deepseek-ai/dsh-superagent-prototype"}}
+{
+  "dsh": "0.2.1-rc.2 (from e028/app/node_modules/.bin)",
+  "lan_host": "192.168.0.93 (auto-detected at boot; cert is e028 self-signed, tailnet uses trusted cert)",
+  "note": "superagent panel live via tailnet; portal origin fixed to :9446 (2026-11-02, was :9443 default). GitHub agent account NOT configured yet (Overview shows setup checklist). e028 main stack (dsh :3080, portal :8090) is down; its tailnet mappings persist without backends.",
+  "panel_direct": "https://vuos-hcar5000mi.tail6918b0.ts.net:9445/ (needs per-boot ?token= from log/superagent.log \u2014 credential, never pasted)",
+  "pids": {
+    "dsh_superagent": 4181363,
+    "portal": 276764,
+    "socat_tls": 4184100
+  },
+  "portal": "https://vuos-hcar5000mi.tail6918b0.ts.net:9446 (password/passkey login, then Open superagent)",
+  "ports": {
+    "dsh_superagent": "127.0.0.1:3082 (loopback only)",
+    "portal": "0.0.0.0:8091",
+    "socat_tls": "0.0.0.0:8444 -> 127.0.0.1:3082",
+    "ts_panel": 9445,
+    "ts_portal": 9446
+  },
+  "provider": "opencode-go via e028 profiles/opencode-default.yml patch (OPENCODE_* env at boot)",
+  "restart": "./bin/stop.sh && ./bin/start.sh (from e107-dsh-superagent/)",
+  "stateDir": "/home/vuos/.dsh/state/superagent",
+  "toolchain": {
+    "gh": "2.45.0",
+    "node": "v24.22.1",
+    "pnpm": "11.7.0 via corepack"
+  },
+  "upstream": {
+    "commit": "6337fc823ce20251c8de8085948165c81aaa701e",
+    "dir": "upstream/ (gitignored; bin/fetch.sh, then pnpm install && pnpm build)",
+    "url": "https://github.com/deepseek-ai/dsh-superagent-prototype"
+  }
+}

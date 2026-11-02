@@ -46,7 +46,7 @@ nohup socat -4 openssl-listen:$TLS_PORT,fork,reuseaddr,cert="$PEM",verify=0 TCP:
 echo $! > log/socat.pid
 echo "socat tls -> 0.0.0.0:$TLS_PORT"
 
-(cd "$E028/portal" && DSH_LOG="$ROOT/log/superagent.log" DSH_TLS_PORT=$TLS_PORT TS_DSH_PORT=$TS_PANEL_PORT PORTAL_PORT=$PORTAL_PORT nohup node server.mjs >"$ROOT/log/portal.log" 2>&1 &)
+(cd "$E028/portal" && DSH_LOG="$ROOT/log/superagent.log" DSH_TLS_PORT=$TLS_PORT TS_DSH_PORT=$TS_PANEL_PORT PUBLIC_HOST=$PUBLIC_HOST TS_PORTAL_PORT=$TS_PORTAL_PORT PORTAL_PORT=$PORTAL_PORT nohup node server.mjs >"$ROOT/log/portal.log" 2>&1 &)
 echo $! > log/portal.pid
 echo "portal -> 0.0.0.0:$PORTAL_PORT (opens panel via live token, never pasted)"
 
