@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-26T16:24:15+00:00",
+ "updated": "2026-11-05T12:05:01+00:00",
  "elections": [
   {
    "id": "1934",
@@ -4027,10 +4027,10 @@
   }
  },
  "live": {
-  "asof": "2026-10-21",
-  "spx": 7757.17,
+  "asof": "2026-11-03",
+  "spx": 7568.92,
   "next_election": "2026-11-03",
-  "days_to": 8
+  "days_to": -2
  },
  "method": "Monthly S&P composite (Shiller, nominal) for swings; trough = lowest close in [election-4M, election+6M]; fear = high since Jan of election year to trough; relief = trough to high in next 12M; moves under 0.5% are dashes, not swings; macro monthly from FRED; hit = trough within 2 months of election month; weekly check (1970+, Yahoo weekly bars): trough in [vote-12w, vote+26w], relief to +52w, hits at \u00b14w/\u00b18w."
 }

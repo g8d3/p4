@@ -177,3 +177,6 @@ e092-wt-*/
 echolike-extension/
 # e103 raw downloads (regenerate with bin/fetch.py)
 e103-midterm-bottoms/data/raw/
+
+# local tool caches
+.wrangler/
