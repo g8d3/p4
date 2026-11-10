@@ -63,6 +63,20 @@ def cost_usd(feed, model_id, tokens_in, tokens_out):
     return (tokens_in * m["in_per_m"] + tokens_out * m["out_per_m"]) / 1_000_000
 
 
+def model_for(workflow):
+    """The cheapest model that passed the workflow's quality floor, if it has been measured.
+
+    config.model_by_workflow is only the starting guess; data/evals.json is the measurement and
+    wins whenever it exists. The floor itself is defined in evalua.py (acceptance checks + judge).
+    """
+    ev = ROOT / "data" / "evals.json"
+    if ev.exists():
+        chosen = json.loads(ev.read_text()).get("model_by_workflow", {}).get(workflow)
+        if chosen:
+            return chosen
+    return P["model_by_workflow"][workflow]
+
+
 def quote(feed, workflow, tier=None):
     """One workflow -> one price per ownership tier, all on the cheapest model that passes quality.
 
@@ -72,7 +86,7 @@ def quote(feed, workflow, tier=None):
     buying.
     """
     tokens_in, tokens_out = CFG["expected_tokens"][workflow]
-    model = P["model_by_workflow"][workflow]
+    model = model_for(workflow)
     base = cost_usd(feed, model, tokens_in, tokens_out)
     out = {}
     for name, spec in P["tiers"].items():
@@ -89,12 +103,22 @@ def quote(feed, workflow, tier=None):
 
 
 def margin_vs_energy(feed, workflow, joules_per_job, kwh_usd):
-    """What a local miner keeps: the sale price minus its own energy. This is the miner's P&L."""
+    """What a local miner keeps, for the miner's own readout only.
+
+    Energy NEVER enters a price. Pricing is the market price of the output (the feed); whether a
+    miner profits depends on its own hardware and tariff, which is the miner's business — exactly
+    like any other mining. No number for $/kWh is invented here: with no source, the readout says
+    unknown instead of guessing.
+    """
+    if not kwh_usd or not joules_per_job:
+        return {"unknown": True,
+                "note": "no measured energy source: set energy.usd_per_kwh from a bill, or leave "
+                        "it empty. Pricing does not use it."}
     tokens_in, tokens_out = CFG["expected_tokens"][workflow]
     energy = joules_per_job / 3_600_000 * kwh_usd
     rows = {}
     for name, spec in P["tiers"].items():
-        market = cost_usd(feed, P["model_by_workflow"][workflow], tokens_in, tokens_out)
+        market = cost_usd(feed, model_for(workflow), tokens_in, tokens_out)
         price = market * spec["multiple"]
         rows[name] = {"price_usd": round(price, 8), "energy_usd": round(energy, 10),
                       "miner_margin_usd": round(price * (1 - P["network_fee"]) - energy, 8),
@@ -108,8 +132,10 @@ def main(argv):
            "workflows": {}}
     for wf in CFG["expected_tokens"]:
         out["workflows"][wf] = quote(feed, wf)
-    out["miner"] = {wf: margin_vs_energy(feed, wf, CFG["machine_joules_per_job"],
-                                         CFG["machine"]["usd_per_kwh"])
+    joules = None
+    if (ROOT / "data" / "flujo.json").exists():
+        joules = json.loads((ROOT / "data" / "flujo.json").read_text()).get("joules_mean")
+    out["miner"] = {wf: margin_vs_energy(feed, wf, joules, CFG["energy"]["usd_per_kwh"])
                     for wf in CFG["expected_tokens"]}
     if "--json" in argv:
         print(json.dumps(out, indent=1, ensure_ascii=False))
@@ -122,9 +148,12 @@ def main(argv):
             print("  %-8s %-34s cost $%.8f -> price $%.8f  royalty %.0f%%"
                   % (name, t["model"], t["cost_usd"], t["price_usd"],
                      t["royalty_share"] * 100))
-            m = out["miner"][wf][name]
-            print("           miner: energy $%.8f  keeps $%.8f" % (m["energy_usd"],
-                                                                   m["miner_margin_usd"]))
+            m = out["miner"][wf]
+            if m.get("unknown"):
+                print("           miner: energy unknown (not used for pricing)")
+            else:
+                print("           miner: energy $%.8f  keeps $%.8f" % (m[name]["energy_usd"],
+                                                                       m[name]["miner_margin_usd"]))
 
 
 if __name__ == "__main__":

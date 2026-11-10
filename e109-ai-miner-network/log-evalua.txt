@@ -1,0 +1,8 @@
+  z-ai/glm-5.3-flash                 quote-by-text    case 1/6
+  z-ai/glm-5.3-flash                 quote-by-text    case 2/6
+  z-ai/glm-5.3-flash                 estimate-to-paid case 3/6
+  z-ai/glm-5.3-flash                 estimate-to-paid case 4/6
+  z-ai/glm-5.3-flash                 revenue-report   case 5/6
+  z-ai/glm-5.3-flash                 revenue-report   case 6/6
+  z-ai/glm-4.7-flash                 quote-by-text    case 1/6
+  z-ai/glm-4.7-flash                 quote-by-text    case 2/6

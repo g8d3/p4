@@ -32,7 +32,6 @@
    293
   ]
  },
- "machine_joules_per_job": 129.6,
  "pricing": {
   "feed_url": "https://openrouter.ai/api/v1/models",
   "_feed_note": "public catalogue, per-token prices, no key. Cached 1h in data/precios.json; every quote is recomputable from (tokens, feed).",
@@ -68,5 +67,26 @@
   "_note": "a reuse fee splits: sponsor (the client's chosen tier share) + builder (40%) + network (20%). Non-transferable, per-client contract."
  },
  "_legacy_api_cost_note": "api_cost_usd_per_job was a constant copied from one vendor page; superseded by pricing.feed_url (live) - measured 5.7x too expensive.",
- "default_tier": "cost"
+ "default_tier": "cost",
+ "eval": {
+  "key_env": "OPENROUTER_API_KEY",
+  "base_url": "https://openrouter.ai/api/v1",
+  "gold": "evals/gold.jsonl",
+  "incumbent": "z-ai/glm-5.3-flash",
+  "candidates": [
+   "z-ai/glm-5.3-flash",
+   "z-ai/glm-4.7-flash",
+   "inclusionai/ling-3.0-flash",
+   "meta-llama/llama-3.1-8b-instruct",
+   "mistralai/mistral-nemo"
+  ],
+  "judge": "z-ai/glm-5.3",
+  "win_rate_min": 0.45,
+  "_note": "a cheaper model replaces the incumbent only if every acceptance check passes on every case AND it wins or ties >=45% of pairwise judgements"
+ },
+ "energy": {
+  "usd_per_kwh": null,
+  "source": "unknown",
+  "_note": "NEVER used for pricing. Pricing is the market price of the output. This is only the miner's own profit readout; set it from the electricity bill, or leave it empty (unknown stays empty)."
+ }
 }
