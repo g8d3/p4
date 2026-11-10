@@ -56,19 +56,75 @@ settle flows whose unit is cents (a voice minute), never micro-cents.
    is already sunk, so the "small profit over cost" is genuinely small — which is exactly what
    makes it work. Each business is simultaneously buyer, supplier and distribution channel.
 
+## The loop, measured with no chain at all (2026-11-10)
+
+`python3 flujo.py 9` runs the whole thing: buyer posts 9 jobs (3 workflows), a signed worker
+answers, receipts are verified, one in three is spot-checked by re-execution, commissions are
+own first-touch, and the batch closes on a merkle root.
+
+| measured | value |
+|---|---|
+| signature verification | **9/9** |
+| spot-check re-execution | **3/3 exact** (same spec, same seed → same hash) |
+| latency mean | 8.5 s/job |
+| energy mean | 129.6 J/job → **$0.0000054** at $0.15/kWh |
+| sale price used | $0.00006/job (the API baseline) |
+| ledger | 6 unique jobs (identical spec = identical job id: idempotent by construction) |
+| commission owed | $0.000081 to 2 referrers, 15% first-touch |
+| network fee | $0.000036 |
+| chain used | **none** — the merkle root is the anchor |
+
+That is the crux: **re-execution reproduces the output exactly**, so a verifier can catch a lying
+miner without a chain, without redundancy on every job, and without trusting us. One in three
+spot-checks already makes cheating unprofitable at this price level.
+
+## Is a blockchain needed? (the honest answer)
+
+Not for compute, not for inference, not for KYC. This loop proves the first two: the loop is a job
+queue, ed25519 receipts and a SQLite ledger, and the chain adds nothing to the work.
+
+The chain earns its place only where someone **other than us** must verify or be paid:
+
+1. **Independent audit** — a miner proving its own payouts, a referrer proving its commission, a
+   client proving a receipt root, without trusting our database. Until a third party asks, a
+   database row is enough.
+2. **Paying contributors who have no bank** — USDC payouts to people worldwide are the real
+   advantage of crypto rails, and a chain (Solana) is the cheapest way to do that without opening
+   accounts in every country.
+3. **Transferable claims on revenue** — a token, if it ever exists, needs a chain to be transferable.
+
+What a chain does **not** do here: prove that a model ran, hold a business's identity, or satisfy
+KYC. KYC is an off-chain, licensed, human process (documents, sanctions screening, recordkeeping,
+liability). A chain can only *record* the result of a KYC check — never perform it. So a business
+that needs compliance needs an accountable entity (us, or a licensed partner), and the network's
+"compliance-as-a-service" idea is a licensing business, not a chain feature.
+
+**Cost of the anchor**: $0.00043 per batch transaction (base fee, measured) — 1/9 of a 9-job
+batch, 1/900 of a 100-job batch, and 7× the price of one job. Per-job settlement stays forbidden.
+
+`anclar.py` is the plug, complete and tested up to the point of funding: the devnet faucet
+rate-limited this machine (2 attempts, 2026-11-10), so the batch is anchored by its root in
+`batches.root` and `batches.anchor` stays NULL until `keys/devnet.json` is funded.
+
 ## MVP, in order (each step measurable)
 
-1. `job` + `receipt` + `worker` on this machine, batched settlement on **Solana devnet** in USDC:
-   measure real $/job, latency, and receipt verification rate.
+1. ✅ `job` → `receipt` → `worker` → verification → ledger → batch root (measured above).
 2. Two real businesses as miners (the owner's own machines first), one vertical (HVAC quotes).
-3. Only then a token, and only as a claim on the fees the network actually collected.
+3. Solana settlement (USDC) + anchoring, once a third party actually needs to verify or be paid.
+4. Only then a token, and only as a claim on the fees the network actually collected.
 
 ## Files
 
 | File | What |
 |---|---|
-| `mina.py` | measures one real job on local hardware: energy (RAPL), latency, tokens/s, $/job, against the API baseline. Writes `data/mina.json`. |
-| `config.json` | machine values (ollama URL, model, energy counter, $/kWh) + the API baseline + settlement choice. Nothing hardcoded. |
+| `mina.py` | one real job on local hardware: energy (RAPL), latency, tokens/s, $/job, against the API baseline. Writes `data/mina.json`. |
+| `recibo.py` | canonical job spec, ed25519 sign/verify, receipt (`job`, `out_sha`, tokens, joules, price), merkle root over a batch. Keys in `keys/` (0600, gitignored). |
+| `libro.py` | SQLite ledger: agents, jobs, receipts, commissions (first-touch 15%), batches (root + anchor). USD everywhere; crypto is only the rail. |
+| `worker.py` | the miner: `POST /job` → local model (temp 0, seed 42) → signed receipt + output; `GET /health`. |
+| `flujo.py` | end-to-end measurement: 9 jobs, spot-checks by re-execution, ledger, batch root, `data/flujo.json`. |
+| `energia.py` | RAPL joules around a call (root-only counter, sudo -n fallback). |
+| `anclar.py` | writes the newest batch root on Solana devnet as a memo (one tx per batch), records `batches.anchor`. |
+| `config.json` | machine values (ollama URL, model, energy counter, $/kWh), API baseline, settlement (devnet RPC + anchor cost). |
 
 ## Rules
 
