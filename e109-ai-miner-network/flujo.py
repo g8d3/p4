@@ -26,6 +26,7 @@ from pathlib import Path
 
 import energia
 import libro
+import precios
 import recibo
 
 ROOT = Path(__file__).resolve().parent
@@ -33,7 +34,8 @@ CFG = json.loads((ROOT / "config.json").read_text())
 M = CFG["machine"]
 PORT = 11509
 BASE = "http://127.0.0.1:%d" % PORT
-PRICE = CFG["api_cost_usd_per_job"]
+TIER = CFG.get("default_tier", "cost")
+FEED = precios.fetch_feed()
 
 JOBS = [
     ("quote-by-text",
@@ -109,7 +111,8 @@ def main(argv):
             wf, system, user = JOBS[i % len(JOBS)]
             spec = {"workflow": wf, "client": "biz_%02d" % (i % 3),
                     "ref": "agent_ref_%d" % (i % 2),          # first-touch attribution
-                    "price_usd": PRICE,
+                    # price is quoted live from the market feed, never typed in
+                    "price_usd": precios.quote(FEED, wf, TIER)[TIER]["price_usd"],
                     "system": system.format(biz=M["biz"], book=M["price_book"]),
                     "user": user}
             jid = recibo.job_id(spec)
@@ -150,7 +153,9 @@ def main(argv):
             "joules_mean": round(sum(joules) / len(joules), 1),
             "joules_total": round(sum(joules), 1),
             "usd_per_job_energy": round(sum(joules) / 3_600_000 * M["usd_per_kwh"] / n, 8),
-            "price_per_job_usd": PRICE,
+            "price_per_job_usd": round(sum(r["price_usd"] for r in receipts) / len(receipts), 8),
+            "tier": TIER,
+            "feed_at": FEED["_fetched_at"],
             "batch_ledger": rep,
             "anchor": None,
             "anchor_note": "no chain used: the merkle root is the anchor. A Solana memo would "

@@ -106,6 +106,65 @@ batch, 1/900 of a 100-job batch, and 7× the price of one job. Per-job settlemen
 rate-limited this machine (2 attempts, 2026-11-10), so the batch is anchored by its root in
 `batches.root` and `batches.anchor` stays NULL until `keys/devnet.json` is funded.
 
+## Dynamic costs — after the owner caught a constant (2026-11-10)
+
+The first version priced a job from one number copied off a vendor page. It was **5.7x too
+expensive**: the live feed prices `z-ai/glm-5.3-flash:batch` at **$0.033/M in, $0.061/M out**,
+while the coding-plan page lists $0.15 / $0.50 for its non-batch sibling.
+
+Cost is now a function, never a constant: `python3 precios.py`
+
+- feed: OpenRouter's public catalogue (441 models, per-token prices, no key), cached 1h in
+  `data/precios.json` with `_fetched_at`;
+- tokens: measured on every receipt the network already stores;
+- quote: `tokens x live price x tier multiple`, so any client or miner can recompute it.
+
+**Two axes, deliberately separate.** Model choice is a quality decision (the cheapest one that
+passes the workflow's floor, read from the feed); the tier is an ownership decision. Mixing them
+produced a first attempt where the "plus" tier cost 40x the "owner" tier — a ladder nobody could
+read. Measured today, per job:
+
+| workflow | market cost | cost tier (1.1x) | co-build (3x, 15%) | owner (10x, 40%) |
+|---|---|---|---|---|
+| quote-by-text | $0.0000105 | $0.0000116 | $0.0000316 | $0.0001054 |
+| estimate-to-paid | $0.0000253 | $0.0000279 | $0.0000760 | $0.0002532 |
+| revenue-report | $0.0000249 | $0.0000274 | $0.0000748 | $0.0002494 |
+
+Miner P&L on this box (energy $0.0000058/job): at the **cost** tier it keeps $0.000005/job, at
+**owner** $0.000089/job. The loop in `flujo.py` now quotes every job from the feed — measured run:
+6/6 signatures, 2/2 exact spot-checks, mean price $0.0000223/job, mean energy $0.0000059.
+
+Still unpriced from a source (honest gaps): `usd_per_kwh` is an assumption ($0.15) until a real
+bill or a smart plug says otherwise; `expected_tokens` are measured averages from receipts, so a
+long job is under-quoted; and no workflow has a *quality evaluation* proving the cheapest model
+passes its floor — that eval is the next thing to build.
+
+## The scout → contract → registry loop
+
+A scout agent does not sell software. It finds a business with a problem, talks to whoever owns it,
+and puts a live-quoted number in front of them. What it closes is a **contract** (`contrato.py`):
+scope, deliverable, tier, price, royalty share, signed by the client and the scout. The delivered
+piece enters a **registry** as a component with named owners; every later reuse pays them.
+
+```
+python3 contrato.py close quote-by-text owner biz_dana agent_ref_3 scout_a
+python3 contrato.py reuse comp_x biz_other 0.50
+  -> sponsor (client) $0.20   builder (agent) $0.20   network $0.10
+```
+
+So the client is not renting a licence — it is buying a **position** in a piece of software that
+other businesses will use. Three ways it pays back: the work itself (a human doing it costs ~1000x
+more), the ownership share on reuse, and the referral commission if it brings the next business.
+
+**Ledger**: `contracts` (signed), `components` (owners + share), `reuses` (fee split), plus the
+receipts/batches from the work loop. Money is USD; crypto stays the rail.
+
+**Legal, stated plainly**: this is a contractual, per-client, non-transferable revenue share. It
+becomes a security the moment it is marketed as an investment, pooled, or made transferable —
+so: no token on this mechanic without counsel. And the accountable entity for KYC, contracts and
+tax is still a company (us or a licensed partner); the registry records ownership, it does not
+create legal personhood.
+
 ## MVP, in order (each step measurable)
 
 1. ✅ `job` → `receipt` → `worker` → verification → ledger → batch root (measured above).
@@ -124,7 +183,9 @@ rate-limited this machine (2 attempts, 2026-11-10), so the batch is anchored by 
 | `flujo.py` | end-to-end measurement: 9 jobs, spot-checks by re-execution, ledger, batch root, `data/flujo.json`. |
 | `energia.py` | RAPL joules around a call (root-only counter, sudo -n fallback). |
 | `anclar.py` | writes the newest batch root on Solana devnet as a memo (one tx per batch), records `batches.anchor`. |
-| `config.json` | machine values (ollama URL, model, energy counter, $/kWh), API baseline, settlement (devnet RPC + anchor cost). |
+| `precios.py` | live cost feed (OpenRouter catalogue), `cost_usd(tokens, model)`, tier quotes, miner margin vs energy. Cached 1h. |
+| `contrato.py` | quote / close / reuse: 3 ownership tiers, contract signed by client + scout, component registry, royalty split. |
+| `config.json` | machine values (ollama URL, model, energy counter, $/kWh), expected tokens per workflow, pricing (feed URL, tiers, network fee), royalty split, settlement (devnet RPC + anchor cost). |
 
 ## Rules
 

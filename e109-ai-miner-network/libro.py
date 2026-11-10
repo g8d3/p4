@@ -34,6 +34,13 @@ CREATE TABLE IF NOT EXISTS commissions(sale_job TEXT, referrer TEXT, pct REAL, u
   paid INT DEFAULT 0);
 CREATE TABLE IF NOT EXISTS batches(id INTEGER PRIMARY KEY AUTOINCREMENT, created TEXT,
   n_jobs INT, root TEXT, anchor TEXT);
+CREATE TABLE IF NOT EXISTS contracts(id TEXT PRIMARY KEY, client TEXT, ref TEXT, workflow TEXT,
+  tier TEXT, price_usd REAL, royalty_share REAL, model TEXT, feed_at TEXT, spec TEXT,
+  client_sig TEXT, scout_sig TEXT, created TEXT);
+CREATE TABLE IF NOT EXISTS components(id TEXT PRIMARY KEY, kind TEXT, spec TEXT, sponsor TEXT,
+  builder TEXT, tier TEXT, royalty_share REAL, created TEXT);
+CREATE TABLE IF NOT EXISTS reuses(id INTEGER PRIMARY KEY AUTOINCREMENT, component TEXT, buyer TEXT,
+  fee_usd REAL, sponsor_usd REAL, builder_usd REAL, network_usd REAL, created TEXT);
 """
 
 
@@ -74,6 +81,40 @@ def owe_commission(db, jid, ref):
     return usd
 
 
+def add_contract(db, c, now):
+    db.execute("INSERT OR REPLACE INTO contracts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+               (c["id"], c["client"], c["ref"], c["workflow"], c["tier"], c["price_usd"],
+                c["royalty_share"], c["model"], c["feed_at"], json.dumps(c["spec"], sort_keys=True),
+                c["client_sig"], c["scout_sig"], now))
+    db.commit()
+
+
+def register_component(db, component_id, kind, spec, sponsor, builder, tier, share, now):
+    """A delivered piece enters the registry with its owners. Reuse pays them, forever."""
+    db.execute("INSERT OR REPLACE INTO components VALUES (?,?,?,?,?,?,?,?)",
+               (component_id, kind, json.dumps(spec, sort_keys=True), sponsor, builder, tier,
+                share, now))
+    db.commit()
+
+
+def pay_reuse(db, component_id, buyer, fee_usd, builder_share, now):
+    """One reuse event: sponsor gets its contracted share, builder its share, network the rest."""
+    row = db.execute("SELECT sponsor, royalty_share FROM components WHERE id=?",
+                     (component_id,)).fetchone()
+    if not row:
+        raise KeyError("unknown component: %s" % component_id)
+    sponsor, share = row
+    sponsor_usd = round(fee_usd * share, 8)
+    builder_usd = round(fee_usd * builder_share, 8)
+    network_usd = round(fee_usd - sponsor_usd - builder_usd, 8)
+    db.execute("INSERT INTO reuses(component,buyer,fee_usd,sponsor_usd,builder_usd,network_usd,"
+               "created) VALUES (?,?,?,?,?,?,?)",
+               (component_id, buyer, fee_usd, sponsor_usd, builder_usd, network_usd, now))
+    db.commit()
+    return {"sponsor": sponsor, "sponsor_usd": sponsor_usd, "builder_usd": builder_usd,
+            "network_usd": network_usd}
+
+
 def close_batch(db, root, now):
     n = db.execute("SELECT COUNT(*) FROM receipts").fetchone()[0]
     db.execute("INSERT INTO batches(created,n_jobs,root,anchor) VALUES (?,?,?,NULL)",
@@ -98,4 +139,9 @@ def report(db):
         "referrers": [r[0] for r in q("SELECT DISTINCT referrer FROM commissions").fetchall()],
         "network_fee_usd": round(q("SELECT COALESCE(SUM(price_usd),0) FROM receipts")
                                  .fetchone()[0] * NETWORK_FEE, 8),
+        "contracts": q("SELECT COUNT(*) FROM contracts").fetchone()[0],
+        "components": q("SELECT COUNT(*) FROM components").fetchone()[0],
+        "reuse_fees_usd": round(q("SELECT COALESCE(SUM(fee_usd),0) FROM reuses").fetchone()[0], 8),
+        "royalties_paid_usd": round(q("SELECT COALESCE(SUM(sponsor_usd+builder_usd),0) FROM reuses")
+                                    .fetchone()[0], 8),
     }

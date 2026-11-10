@@ -10,7 +10,6 @@
   "price_book": "diagnostic 89 waived with repair; capacitor 180-260; fan motor 380-560; R-410A 45/lb; after-hours +120",
   "max_tokens": 220
  },
- "api_cost_usd_per_job": 6e-05,
  "_api_note": "measured in e108/costo.py on glm-5.3-flash, warm cache, same workflow",
  "settlement": {
   "chain": "solana",
@@ -18,5 +17,56 @@
   "reason": "no new L1: the chain anchors a batch root and settles USDC; it cannot verify inference",
   "anchor_cost_usd_per_tx": 0.000431,
   "anchor_cost_note": "base fee 5000 lamports, measured 2026-11-10 (priority fees were 0)"
- }
+ },
+ "expected_tokens": {
+  "quote-by-text": [
+   177,
+   77
+  ],
+  "estimate-to-paid": [
+   183,
+   316
+  ],
+  "revenue-report": [
+   214,
+   293
+  ]
+ },
+ "machine_joules_per_job": 129.6,
+ "pricing": {
+  "feed_url": "https://openrouter.ai/api/v1/models",
+  "_feed_note": "public catalogue, per-token prices, no key. Cached 1h in data/precios.json; every quote is recomputable from (tokens, feed).",
+  "network_fee": 0.1,
+  "model_by_workflow": {
+   "quote-by-text": "z-ai/glm-5.3-flash:batch",
+   "estimate-to-paid": "z-ai/glm-5.3-flash:batch",
+   "revenue-report": "z-ai/glm-5.3-flash:batch"
+  },
+  "_model_note": "the cheapest model that passes the workflow's quality floor, chosen from the feed, not typed in. A premium model is a separate axis, not an ownership tier.",
+  "tiers": {
+   "cost": {
+    "multiple": 1.1,
+    "royalty_share": 0.0,
+    "_what": "work at cost + network fee. No ownership, no lock-in."
+   },
+   "cobuild": {
+    "multiple": 3.0,
+    "royalty_share": 0.15,
+    "_what": "3x cost: the client is named as co-builder of the component and earns 15% of every reuse."
+   },
+   "owner": {
+    "multiple": 10.0,
+    "royalty_share": 0.4,
+    "_what": "10x cost: the client is a named co-owner and earns 40% of every reuse, forever."
+   }
+  }
+ },
+ "royalty": {
+  "max_share": 0.4,
+  "builder_share": 0.4,
+  "network_share": 0.2,
+  "_note": "a reuse fee splits: sponsor (the client's chosen tier share) + builder (40%) + network (20%). Non-transferable, per-client contract."
+ },
+ "_legacy_api_cost_note": "api_cost_usd_per_job was a constant copied from one vendor page; superseded by pricing.feed_url (live) - measured 5.7x too expensive.",
+ "default_tier": "cost"
 }
