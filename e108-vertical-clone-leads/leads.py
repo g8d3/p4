@@ -115,6 +115,13 @@ def score(lead):
 
 def sheet(rows):
     offer = CFG["offer"]
+    price_rows = (
+        ["| one-time build | $%s |" % offer["price"],
+         "| deposit | $%s |" % offer["deposit"]]
+        if offer.get("price") else
+        ["| pricing | at cost (%s) |" % offer["pricing"],
+         "| network fee | %.0f%% of measured cost |" % (offer["network_fee"] * 100)]
+    )
     lines = [
         "# Vertical clone leads",
         "",
@@ -126,8 +133,7 @@ def sheet(rows):
         "",
         "| | |",
         "|---|---|",
-        "| one-time build | $%s |" % offer["price"],
-        "| deposit | $%s |" % offer["deposit"],
+        *price_rows,
         "| dev cost to us | $%s |" % offer["dev_cost"],
         "| what replaces | %s |" % offer["replaces"],
         "| workflows rebuilt | %s |" % ", ".join(offer["workflows"]),

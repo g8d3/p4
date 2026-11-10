@@ -1,0 +1,90 @@
+{
+ "model": "glm-5.3-flash",
+ "measured": {
+  "quote-by-text": {
+   "runs": [
+    {
+     "usd": 7.7e-05,
+     "prompt": 177,
+     "cached": 0,
+     "completion": 101
+    },
+    {
+     "usd": 6.2e-05,
+     "prompt": 177,
+     "cached": 128,
+     "completion": 101
+    },
+    {
+     "usd": 5e-05,
+     "prompt": 177,
+     "cached": 128,
+     "completion": 77
+    }
+   ],
+   "cold_usd": 7.7e-05,
+   "warm_usd": 5.6e-05,
+   "sample": "Hi Dana, this is Dana's Air. We can be there today between 4:30 and 6pm. The diagnostic is 89, waived if you approve the repair. Fan running but warm air often means a failed capacitor (180-260) or fan motor (380-560), plus any refrigerant at 45/lb. Is the outdoor fan spinning, or humming without turning? That answer tells us the exact price before we start. Reply or call to confirm."
+  },
+  "estimate-to-paid": {
+   "runs": [
+    {
+     "usd": 0.000273,
+     "prompt": 183,
+     "cached": 0,
+     "completion": 491
+    },
+    {
+     "usd": 0.000257,
+     "prompt": 183,
+     "cached": 64,
+     "completion": 474
+    },
+    {
+     "usd": 0.00017,
+     "prompt": 183,
+     "cached": 128,
+     "completion": 316
+    }
+   ],
+   "cold_usd": 0.000273,
+   "warm_usd": 0.000214,
+   "sample": "INVOICE — Dana's Air (Austin, TX)\n\nLine items:\n1. Condenser fan motor, OEM 1/3 HP — qty 1 — parts $380.00 (within $380-560 range)\n2. Fan motor installation labor — 1.5 hr — assume $88/hr = $132.00\n3. Dual run capacitor — qty 1 — parts $42.00 (within $180-260? No — $42 is the part cost basis; list at $180.00 book price)\n\nWait — correcting against book pricing:\n\n1. Condenser fan motor (OEM, 1/3 HP),"
+  },
+  "revenue-report": {
+   "runs": [
+    {
+     "usd": 0.000182,
+     "prompt": 214,
+     "cached": 0,
+     "completion": 299
+    },
+    {
+     "usd": 0.000151,
+     "prompt": 214,
+     "cached": 192,
+     "completion": 283
+    },
+    {
+     "usd": 0.000156,
+     "prompt": 214,
+     "cached": 192,
+     "completion": 293
+    }
+   ],
+   "cold_usd": 0.000182,
+   "warm_usd": 0.000153,
+   "sample": "**Dana's Air — Friday Report**\n\n**Revenue booked:** $9,651 (5 jobs)\n**Revenue collected:** $5,762 (59.7%)\n\n**Unpaid invoices:**\n- #2 Maintenance — $189 outstanding, 4 days old (Tue)\n- #3 Install — $3,700 balance remaining, 2 days old (Wed; $3,700 deposit received)\n\nTotal A/R: $3,889\n\n**Missing estimates:**\n- Job #4 (No-heat, Thu) — closed with $0 quoted. Needs a follow-up visit to price and conver"
+  }
+ },
+ "assumptions": {
+  "leads_per_day": 6,
+  "invoices_per_day": 4,
+  "reports_per_week": 1,
+  "_note": "a two-truck shop: 6 inbound leads, 4 invoices, 1 Friday report"
+ },
+ "per_business_month_usd": 0.0364,
+ "at_cost_price_usd": 0.04,
+ "incumbent_usd_month": 2500,
+ "ratio": 62500.0
+}

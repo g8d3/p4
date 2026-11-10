@@ -8,8 +8,8 @@ names it — nothing here is guessed.
 
 | | |
 |---|---|
-| one-time build | $15000 |
-| deposit | $7500 |
+| pricing | at cost (at-cost) |
+| network fee | 15% of measured cost |
 | dev cost to us | $500 |
 | what replaces | $2,000-$3,000/month vendor subscription |
 | workflows rebuilt | quote-by-text, estimate-to-paid, revenue-report |
