@@ -1,0 +1,47 @@
+{
+  "_comment": "e108 — nothing machine- or market-specific in code. Verticals to mine, the pain signals worth a lead, and the offer we put in front of them.",
+  "verticals": [
+    {
+      "name": "servicetitan",
+      "vendor": "ServiceTitan",
+      "trustpilot": "https://www.trustpilot.com/review/servicetitan.com",
+      "who": "HVAC, plumbing, electrical contractors"
+    },
+    {
+      "name": "mindbody",
+      "vendor": "Mindbody",
+      "trustpilot": "https://www.trustpilot.com/review/www.mindbodyonline.com",
+      "who": "studios, gyms, med spas, salons"
+    },
+    {
+      "name": "houscallpro",
+      "vendor": "Housecall Pro",
+      "trustpilot": "https://www.trustpilot.com/review/housecallpro.com",
+      "who": "home-service contractors"
+    },
+    {
+      "name": "jobber",
+      "vendor": "Jobber",
+      "trustpilot": "https://www.trustpilot.com/review/getjobber.com",
+      "who": "small field-service teams"
+    }
+  ],
+  "signals": [
+    {"id": "support-dead", "any": ["no one answers", "can't get a real person", "cannot get a solution", "support has not", "support hasn't", "no support", "unresponsive", "haven't answered"], "rebuild": ["quote-by-text", "revenue-report"]},
+    {"id": "price-hike", "any": ["raised", "price increase", "increased our", "went up", "too expensive", "expensive", "overpriced", "billing"], "rebuild": ["estimate-to-paid", "revenue-report"]},
+    {"id": "contract-trap", "any": ["contract", "locked in", "cancellation", "cancel", "auto-renew", "3-year", "3 year", "no way out"], "rebuild": ["estimate-to-paid"]},
+    {"id": "crashes", "any": ["crash", "freezes", "down", "outage", "bugs", "glitch", "not loading", "slow"], "rebuild": ["quote-by-text"]},
+    {"id": "workflow-clunky", "any": ["clunky", "complicated", "not intuitive", "too many clicks", "confusing", "hard to use", "overwhelming", "training"], "rebuild": ["quote-by-text", "estimate-to-paid"]},
+    {"id": "invoicing", "any": ["invoice", "invoicing", "payment", "collect", "billing error", "estimate", "quote"], "rebuild": ["estimate-to-paid"]},
+    {"id": "reports", "any": ["report", "dashboard", "analytics", "revenue", "export"], "rebuild": ["revenue-report"]},
+    {"id": "data-locked", "any": ["export my data", "locked out", "lost my data", "cannot access", "can't access"], "rebuild": ["revenue-report"]}
+  ],
+  "offer": {
+    "price": 15000,
+    "deposit": 7500,
+    "dev_cost": 500,
+    "replaces": "$2,000-$3,000/month vendor subscription",
+    "workflows": ["quote-by-text", "estimate-to-paid", "revenue-report"],
+    "note": "Price from the market, not from cost: the buyer already pays $24k-$36k/yr. Our marginal cost is the build, not the licence."
+  }
+}

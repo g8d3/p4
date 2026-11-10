@@ -171,3 +171,4 @@ Nothing here is committed.
 - 2026-09-29 (adversary): e083 per-record size cap — only 1MB body cap, single 500KB record accepted; cap record bytes (e.g. 32KB) and add per-node daily quota. (e083)
 - 2026-09-29 (adversary): e083 anonymous writes — missing node_id/dataset silently become anon/default, polluting the default dataset; require explicit dataset, rate-limit anon. (e083)
 - 2026-09-29 (adversary): shared auth for both experiments — neither server has any token; one bearer token in needs.json for all POST/PUT/DELETE is the single highest-leverage fix. (e082/e083)
+- 2026-11-10 (owner, link): x.com/timchaoai/status/2119907509494591859 — clone the bloated vertical SaaS (ServiceTitan/Mindbody class) for its angriest customers at $15k one-time. → e108: sourcing engine built and measured (101 pain-leads in 5 min, 0 named businesses; the identity join is the open half).

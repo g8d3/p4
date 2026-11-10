@@ -180,3 +180,4 @@ e103-midterm-bottoms/data/raw/
 
 # local tool caches
 .wrangler/
+e108-vertical-clone-leads/data/*.jsonl
