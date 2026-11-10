@@ -1,0 +1,19 @@
+{
+  "_comment": "e109 — a network where people mine AI results. Machine values and the market numbers it is measured against live here, never in code.",
+  "machine": {
+    "label": "vuos-hcar5000mi (Ryzen 5 5625U, 12 threads, no discrete GPU)",
+    "url": "http://127.0.0.1:11434",
+    "model": "qwen2.5:3b",
+    "energy_counter": "/sys/class/powercap/intel-rapl:0/energy_uj",
+    "usd_per_kwh": 0.15,
+    "biz": "Dana's Air (sample HVAC contractor, Austin TX)",
+    "price_book": "diagnostic 89 waived with repair; capacitor 180-260; fan motor 380-560; R-410A 45/lb; after-hours +120",
+    "max_tokens": 220
+  },
+  "api_cost_usd_per_job": 0.00006,
+  "_api_note": "measured in e108/costo.py on glm-5.3-flash, warm cache, same workflow",
+  "settlement": {
+    "chain": "solana",
+    "reason": "no new L1: the chain settles and attributes, it cannot verify inference"
+  }
+}

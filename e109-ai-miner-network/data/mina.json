@@ -1,0 +1,16 @@
+{
+ "machine": "vuos-hcar5000mi (Ryzen 5 5625U, 12 threads, no discrete GPU)",
+ "model": "qwen2.5:3b",
+ "measured": {
+  "wall_s": 3.7,
+  "prompt_tokens": 188,
+  "completion_tokens": 52,
+  "joules": 34.8,
+  "text": "Hi, scheduled visit window 2:41pm-4pm. Diagnostic fee waived with repair. Likely range: $180-$260. Would you prefer R-410A charge included at $45/lb?"
+ },
+ "tokens_per_s": 14.1,
+ "usd_per_job_local": 1.45e-06,
+ "usd_per_job_api": 6e-05,
+ "ratio_local_over_api": 0.02,
+ "note": "energy covers the CPU package only (intel-rapl), not the whole machine; the API price is the wholesale rate we already pay (e108/costo.py)."
+}
