@@ -1,0 +1,15 @@
+[Unit]
+Description=EchoLike Lite inbox (extension captures -> likes.jsonl)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/code/p4/e110-echolike-lite/inbox
+ExecStart=/usr/bin/python3 -u %h/code/p4/e110-echolike-lite/server.py --port 8931
+Restart=always
+RestartSec=2
+# Keep it up across a crash of the interpreter, and never let it die with a shell session.
+KillMode=control-group
+
+[Install]
+WantedBy=default.target

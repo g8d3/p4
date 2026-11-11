@@ -70,7 +70,7 @@ grep -q "version=\"$VER\"" "$UPDATE_JSON" && grep -q "appid=\"$APPID\"" "$UPDATE
 # 5) publish: page, artifacts, update json
 W=$(mktemp -d); trap 'rm -rf "$TMP" "$W"' EXIT
 gh repo clone "$PAGES_REPO" "$W/site" -- --depth 1 -q
-cp site/index.html site/docs.html "$W/site/"
+cp site/index.html site/docs.html server.py "$W/site/"
 cp "$ZIP" "$CRX" "$UPDATE_JSON" "$W/site/"
 python3 - "$W/site/index.html" "$VER" <<'PY'
 import re, sys

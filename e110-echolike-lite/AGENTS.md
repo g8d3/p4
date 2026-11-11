@@ -102,3 +102,22 @@ Lite ships both:
 mkdir -p inbox && cd inbox && nohup python3 -u ../server.py --port 8931 > server.log 2>&1 &
 # prints the token; data lands in inbox/likes.jsonl
 ```
+
+## Durability (2026-11-11: the inbox died mid-test)
+
+A `nohup python3 server.py &` started from a tool call is killed with the run
+that started it, silently, with no traceback: the captures stopped arriving and
+the page answered nothing. It now runs as a user unit, which also restarts it
+if the interpreter dies:
+
+```sh
+cp echolike-lite-inbox.service ~/.config/systemd/user/ && systemctl --user daemon-reload
+systemctl --user enable --now echolike-lite-inbox     # start + survive logout
+systemctl --user status echolike-lite-inbox           # state, PID, memory
+journalctl --user -u echolike-lite-inbox -n 50        # log (stdout of server.py)
+systemctl --user restart echolike-lite-inbox          # restart (token and data are kept)
+```
+
+Token and `likes.jsonl` live in `inbox/`, so a restart never breaks a phone that
+was already connected. `tests/review_abuse.py` proves the server survives
+hanging-up clients, garbage requests, truncated bodies and parallel posts.
