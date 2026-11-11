@@ -64,11 +64,34 @@ with sync_playwright() as p:
     page.wait_for_timeout(150)
     check("no capture for reply", len(page.evaluate("window.__sent")), 3)
 
-    # 5. double injection must not double-send (guard)
+    # 5. ads: promoted post and promoted trend hidden by default, real ones untouched
+    check("ad cell hidden", page.is_visible("#adcell"), False)
+    check("promoted trend hidden", page.is_visible("#promotedtrend"), False)
+    check("real trend visible", page.is_visible("#normaltrand"), True)
+    check("real posts visible", page.is_visible('article:nth-of-type(1)'), True)
+
+    # 5b. the toggle turns it off live, without a reload
+    page.evaluate("window.__setHideAds(false)")
+    page.wait_for_timeout(100)
+    check("toggle shows ads again", page.is_visible("#adcell"), True)
+    check("toggle shows promoted trends", page.is_visible("#promotedtrend"), True)
+    page.evaluate("window.__setHideAds(true)")
+    page.wait_for_timeout(100)
+    check("toggle hides again", page.is_visible("#adcell"), False)
+
+    # 5c. liking an ad is still captured, flagged as ad (never silently dropped)
+    page.evaluate("window.__setHideAds(false)")
+    page.click("#adarticle [data-testid=like]")
+    page.wait_for_timeout(100)
+    last = page.evaluate("window.__sent.slice(-1)[0].item")
+    check("ad like captured", last["id"], "333")
+    check("ad like flagged", last["ad"], True)
+
+    # 6. double injection must not double-send (guard)
     page.add_script_tag(content=CONTENT)
     page.click('article:nth-of-type(1) [data-testid="like"]')
     page.wait_for_timeout(150)
-    check("no double listener", len(page.evaluate("window.__sent")), 4)
+    check("no double listener", len(page.evaluate("window.__sent")), 5)
 
     browser.close()
 

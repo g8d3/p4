@@ -19,6 +19,10 @@ No inbox? The popup lists your last 30 captures anyway, each with a link to the 
 
 Like or bookmark any post on X: a green "✓ sent" toast confirms it. Open `http://<your-ip>:8911/` to see everything captured.
 
+## Ads
+
+Promoted posts and trends are hidden on X (CSS only — no observer, no timer). The popup switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
+
 ## No inbox yet?
 
 Captures are still saved in the browser: the popup lists the last 30 with a link to each post. Connect later — the waiting ones send on Save.

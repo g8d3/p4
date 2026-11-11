@@ -55,6 +55,19 @@ with sync_playwright() as p:
         # XSS check: the seeded <script> must be text, never an element.
         print("script injected:", page.query_selector("#list script") is not None)
 
+        # Ads toggle: on by default, and it writes what the content script reads.
+        check_ads = page.is_checked("#ads")
+        print(("  ok   " if check_ads else "  FAIL ") + "ads hidden by default: " + repr(check_ads))
+        page.uncheck("#ads")
+        page.wait_for_timeout(200)
+        stored = page.evaluate("chrome.storage.local.get({hide_ads:true}).then(s=>s.hide_ads)")
+        print(("  ok   " if stored is False else "  FAIL ") + "uncheck writes storage: " + repr(stored))
+        page.reload()
+        page.wait_for_timeout(400)
+        print(("  ok   " if not page.is_checked("#ads") else "  FAIL ") + "state survives reload: " + repr(page.is_checked("#ads")))
+        page.check("#ads")
+        page.wait_for_timeout(200)
+
         # Connect flow against no server: must report a clean error, not hang.
         page.fill("#url", "http://127.0.0.1:59999")
         page.fill("#token", "deadbeef")

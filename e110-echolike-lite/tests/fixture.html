@@ -13,14 +13,58 @@
     <a href="/someoneelse/status/999"><time datetime="2026-11-09T09:00:00Z">09:00</time></a>
   </div>
 </article>
+
+<!-- A promoted post exactly as X renders it: the article sits inside the ad wrapper. -->
+<div data-testid="cellInnerDiv" id="adcell">
+  <div data-testid="placementTracking">
+    <article data-testid="tweet" id="adarticle">
+      <div data-testid="tweetText">Buy this thing you do not need.</div>
+      <div role="group"><button data-testid="like">1</button></div>
+      <a href="/somedeal/status/333"><time datetime="2026-11-10T12:00:00Z">12:00</time></a>
+    </article>
+  </div>
+</div>
+
 <article data-testid="tweet">
   <div data-testid="tweetText">Second post.</div>
   <div role="group"><button data-testid="unlike">5</button><button data-testid="bookmark">x</button></div>
   <a href="/sama/status/222"><time datetime="2026-11-10T11:00:00Z">11:00</time></a>
 </article>
+
+<div data-testid="sidebarColumn">
+  <div data-testid="trend" id="promotedtrend">
+    <svg><path d="M19.498 3h-15c-1.381 0-2.5 1.12-2.5 2.5v13c0 1.38 1.119 2.5 2.5 2.5h15c1.381 0 2.5-1.12 2.5-2.5v-13c0-1.38-1.119-2.5-2.5-2.5z"></path></svg>
+    Promoted trend
+  </div>
+  <div data-testid="trend" id="normaltrand">
+    <svg><path d="M1 2h3v3H1z"></path></svg>
+    A real trend
+  </div>
+</div>
+
 <script>
-  // Stub of the extension message channel: records what the content script sends.
+  // Stubs of the extension APIs the content script touches: message channel + storage.
+  // One injected flag lets a test flip the ads switch the way the popup does.
   window.__sent = [];
-  window.chrome = { runtime: { sendMessage: (m, cb) => { window.__sent.push(m); cb && cb({ sent: true }); } } };
+  window.__changeListeners = [];
+  let store = { hide_ads: window.__HIDE_ADS !== undefined ? window.__HIDE_ADS : true };
+  window.chrome = {
+    runtime: { sendMessage: (m, cb) => { window.__sent.push(m); cb && cb({ sent: true }); } },
+    storage: {
+      local: {
+        get: (defaults, cb) => {
+          const out = Object.assign({}, defaults);
+          for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];
+          cb && cb(out);
+          return Promise.resolve(out);
+        },
+      },
+      onChanged: { addListener: (fn) => window.__changeListeners.push(fn) },
+    },
+  };
+  window.__setHideAds = (v) => {
+    store.hide_ads = v;
+    window.__changeListeners.forEach((fn) => fn({ hide_ads: { newValue: v } }));
+  };
 </script>
 </body></html>

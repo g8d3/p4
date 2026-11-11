@@ -29,6 +29,8 @@ function renderList(items) {
 async function refresh() {
   const s = await send("state");
   $("url").value = s.url || "";
+  const ads = await chrome.storage.local.get({ hide_ads: true });
+  $("ads").checked = !!ads.hide_ads;
   renderList(s.items || []);
   const st = $("status");
   if (!s.url) {
@@ -58,6 +60,11 @@ $("save").addEventListener("click", async () => {
 $("retry").addEventListener("click", async () => {
   await send("retry");
   refresh();
+});
+
+// Ads toggle: storage is the single source of truth; the content script listens for changes.
+$("ads").addEventListener("change", async () => {
+  await chrome.storage.local.set({ hide_ads: $("ads").checked });
 });
 
 refresh();

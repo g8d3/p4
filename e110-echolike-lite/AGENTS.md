@@ -121,3 +121,26 @@ systemctl --user restart echolike-lite-inbox          # restart (token and data 
 Token and `likes.jsonl` live in `inbox/`, so a restart never breaks a phone that
 was already connected. `tests/review_abuse.py` proves the server survives
 hanging-up clients, garbage requests, truncated bodies and parallel posts.
+
+## Ads toggle (1.0.2)
+
+One switch in the popup (`hide_ads`, default on) hides promoted posts and
+promoted trends on X. Implementation is a single injected `<style>` tag, removed
+when off: no observer, no timer, no per-node work — the cost when off is zero and
+when on is the browser's own style matching.
+
+Markers (verified 2026-11-11 against the maintained extension
+`insin/control-panel-for-twitter`, which uses the same container):
+
+| What | Selector |
+|---|---|
+| promoted post wrapper | `[data-testid="placementTracking"]` |
+| its timeline cell (removes the gap) | `[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"])` |
+| promoted trend | `[data-testid="trend"]:has(path[d^="M19.498 3h-15"])` |
+
+To re-check after X changes its DOM: like a promoted post, inspect it in
+devtools, and look for the `placementTracking` wrapper. If it is gone, the fix
+is one selector in `ADS_CSS` in `extension/content.js` plus `tests/fixture.html`.
+
+Never hide ads from the *capture* path: liking an ad is a real like, so it is
+still sent, with `ad: true` so the inbox can tell them apart.
