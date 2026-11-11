@@ -6,10 +6,11 @@
 // comes with it.
 const MAX_ITEMS = 500;
 
-// Set to the hosted inbox (e.g. "https://inbox.echolike.app") and an install is
-// zero-config: the first capture claims a device token there by itself. Empty
-// means the user picks an inbox, which keeps local-first the honest default.
-const DEFAULT_INBOX = "";
+// The hosted inbox: an install that has never been configured claims a tenant
+// there by itself on the first capture — no address, no token, no click. Point
+// it at empty to require an explicit inbox instead.
+const DEFAULT_INBOX = "https://inbox-lite.echolike.app";
+const DEFAULT_RETRY_MS = 30 * 60 * 1000; // a failed silent claim waits for the next capture
 
 // Where a local inbox is likely to answer. Loopback only: nothing leaves this
 // machine, and only the user's own server is ever probed.
@@ -37,16 +38,21 @@ async function state() {
     outbox: [],
     items: [],
     last: null,
-    defaultTried: false,
+    defaultTriedAt: 0,
   });
   return s;
 }
 
 async function flush(verify) {
   let s = await state();
-  // One silent attempt per install when a hosted inbox is baked in — never a retry loop.
-  if (!s.url && DEFAULT_INBOX && s.outbox.length && !s.defaultTried) {
-    await chrome.storage.local.set({ defaultTried: true });
+  // First capture of a fresh install: claim a tenant on the hosted inbox, silently.
+  if (
+    !s.url &&
+    DEFAULT_INBOX &&
+    s.outbox.length &&
+    (!s.defaultTriedAt || Date.now() - s.defaultTriedAt > DEFAULT_RETRY_MS)
+  ) {
+    await chrome.storage.local.set({ defaultTriedAt: Date.now() });
     if ((await claimAt(DEFAULT_INBOX)).ok) s = await state();
   }
   if (!s.url || !s.token) return { ok: true, pending: s.outbox.length };
@@ -69,15 +75,32 @@ async function flush(verify) {
     await chrome.storage.local.set({ last: s.last });
     return { ok: false, error: s.last.error, pending: s.outbox.length };
   }
+  if (res.status === 402) {
+    const j = await res.json().catch(() => null);
+    s.last = {
+      ok: false,
+      error: "free quota spent this month" + (j && j.quota ? " (" + j.used + "/" + j.quota + ")" : ""),
+      at: new Date().toISOString(),
+    };
+    await chrome.storage.local.set({ last: s.last });
+    return { ok: false, error: s.last.error, pending: s.outbox.length };
+  }
   if (!res.ok) {
     s.last = { ok: false, error: "inbox HTTP " + res.status, at: new Date().toISOString() };
     await chrome.storage.local.set({ last: s.last });
     return { ok: false, error: s.last.error, pending: s.outbox.length };
   }
+  const j = await res.json().catch(() => null);
   const n = s.outbox.length;
-  s.last = { ok: true, error: null, at: new Date().toISOString() };
+  s.last = {
+    ok: true,
+    error: null,
+    at: new Date().toISOString(),
+    used: j && typeof j.used === "number" ? j.used : null,
+    quota: j && typeof j.quota === "number" ? j.quota : null,
+  };
   await chrome.storage.local.set({ outbox: [], last: s.last });
-  return { ok: true, sent: n, pending: 0 };
+  return { ok: true, sent: n, pending: 0, used: s.last.used, quota: s.last.quota };
 }
 
 // Zero-typing setup: the server mints the device token, the extension keeps it.
@@ -119,6 +142,8 @@ async function discover() {
     if (!hres.ok) continue;
     return claimAt(url);
   }
+  // Nothing on this machine: fall back to the hosted inbox, same one tap.
+  if (DEFAULT_INBOX) return claimAt(DEFAULT_INBOX);
   return { ok: false, error: "no inbox found on this computer" };
 }
 
@@ -153,6 +178,8 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             ? state().then((s) => ({
                 url: s.url,
                 hasToken: !!s.token,
+                token: s.token,
+                defaultInbox: DEFAULT_INBOX,
                 pending: s.outbox.length,
                 total: s.items.length,
                 last: s.last,

@@ -9,31 +9,66 @@ A browser extension + one-file inbox server in ~350 lines total (the old
 pair is ~6000). Install-and-done: two steps and one button, near-zero browser
 cost: one click listener, no observers, no timers, no background traffic.
 
-## Use (2 steps, one click)
+## Use (install-and-done)
 
-1. `python3 server.py` on your computer → prints address + token.
-2. `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
-3. Extension popup → **Find my inbox**. That is all: no address, no token.
+1. `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
+2. Like a post on X. Done: the first capture claims a tenant on the hosted inbox
+   (`https://inbox-lite.echolike.app`) by itself and everything after it flows there.
+   No address, no token, no popup action.
 
-Discovery is loopback only (`127.0.0.1` / `localhost`, 8931 then 8911); the first
-inbox that answers takes `POST /api/claim`, which mints a device token and stores
-its sha256 in `.devices.json` (0600). The extension keeps the token; the user
-never sees or copies one. Address + token still exist under **Advanced** for an
-inbox on another machine, or a hosted one that hands out its own token.
+That is the whole setup; everything below is optional paths, not steps. The
+popup's **Find my inbox** prefers an inbox on your own machine (loopback
+`127.0.0.1`/`localhost`, 8931 then 8911) and falls back to the hosted one;
+**Advanced** holds address + token for anything else.
 
-Why: a pasted token was the number-one setup failure — a truncated paste looks
-exactly like a network problem and nothing in the UI can tell them apart. A
-private network (loopback, RFC1918, link-local, Tailscale 100.64/10) is itself
-the credential; a public server needs `--open-claim`, and even then the device cap
-(`ECHO_MAX_DEVICES`, default 5) and per-IP rate limit (`ECHO_CLAIM_PER_HOUR`,
-default 5) hold. The printed server token keeps working — it is the admin path.
-
-Next step toward true install-and-done: put a hosted inbox in `DEFAULT_INBOX`
-(`extension/background.js`) and the first capture claims there by itself, with no
-popup action at all. That is a hosting + payment decision, not a code one.
+Why there is no secret to paste: a pasted token was the number-one setup failure —
+a truncated paste looks exactly like a network problem and nothing in the UI can
+tell them apart. Now the server mints the token (`POST /api/claim`) and the
+extension keeps it. A private network (loopback, RFC1918, link-local, Tailscale
+100.64/10) is itself the credential; the hosted inbox accepts open claims but
+caps them per IP (`CLAIM_PER_IP_HOUR` 5, `DEVICES_PER_IP` 20) and per tenant per
+month (`FREE_PER_MONTH` 3000).
 
 The popup says ✓ Connected when the inbox answers. Failed sends wait in
-the browser and retry on the next like or with Retry — nothing is lost.
+the browser and retry on the next like or with Retry — nothing is lost, and an
+install with no network at all still keeps every capture locally.
+
+## Hosted inbox (the default path, multi-tenant)
+
+`inbox-worker/` — one Cloudflare Worker + one D1 database, serving
+`https://inbox-lite.echolike.app`. **One tenant per install**: a claim mints
+`u_<12 hex>` + a 32-hex device token (stored as sha256 only), and every row is
+scoped by `user_id`, so no tenant can read another's captures (proven by
+`tests/review_inbox_worker.py`, which claims two and checks isolation both ways).
+
+| Endpoint | Auth | What it does |
+|---|---|---|
+| `GET /api/health` | none | api version, `claim: open`, free quota |
+| `POST /api/claim` | none (rate-limited) | new tenant + device token |
+| `POST /api/likes` | Bearer | stores up to 500 captures, 402 when the month is spent |
+| `GET /api/likes?limit=n` | Bearer | the caller's own captures, JSON |
+| `GET /?t=<token>` | token in query | the caller's own captures, readable page |
+
+`GET /` is the read surface the popup links to as **Open my inbox** — the only
+place the token appears in a URL, and it is the user's own secret.
+
+```sh
+export CLOUDFLARE_API_TOKEN=...            # never committed
+cd inbox-worker
+wrangler d1 execute echolike-inbox --remote --file migrations/0001_init.sql   # once
+wrangler deploy                            # worker + custom domain inbox-lite.echolike.app
+python3 ../tests/review_inbox_worker.py    # live: two tenants, isolation both ways
+```
+
+Do **not** name the worker `echolike-inbox`: that name already belongs to another
+lane (a queue consumer). `DEFAULT_INBOX` in `extension/background.js` is the only
+place the hosted URL lives, so changing hosts is a one-line change plus a release.
+
+Honest limits, in the order they must be fixed: the hosted inbox stores captures
+in plaintext, so its operator can read them (self-hosting or client-side
+encryption is the answer); a tenant is a device, not a person — no account, no
+recovery, a reinstall is a new tenant; the free quota is enforced but nothing is
+sold yet (payment + credits are the next product step).
 
 ## Structure
 
@@ -41,9 +76,12 @@ the browser and retry on the next like or with Retry — nothing is lost.
 extension/manifest.json   3 permissions lines, X hosts only
 extension/content.js      one click listener: like/unlike/bookmark/unbookmark
 extension/background.js   local save + POST outbox to /api/likes, retry on event,
-                          loopback discovery + claim (no token to paste)
-extension/popup.html/js   status + Find my inbox + Retry; Advanced = address/token
-server.py                 stdlib only: /api/health, /api/claim, POST /api/likes, GET / list
+                          loopback discovery + claim, DEFAULT_INBOX (hosted)
+extension/popup.html/js   status + Find my inbox + Retry + Open my inbox; Advanced
+server.py                 self-hosted inbox, stdlib only: /api/health, /api/claim,
+                          POST /api/likes, GET /
+inbox-worker/             hosted inbox: Cloudflare Worker + D1 (src/index.js,
+                          migrations/, wrangler.toml)
 ```
 
 Deliberately dropped vs the old extension: voice/text notes, ntfy pipe,
@@ -52,14 +90,17 @@ Each can return as its own experiment if someone pays for it.
 
 ## Servers
 
-- Inbox (dev): `python3 server.py --port 8911` → http://127.0.0.1:8911 (see `GET /api/health`). Log file: `likes.jsonl`. Restart: kill PID, run again.
+- Hosted inbox: `https://inbox-lite.echolike.app` (Cloudflare Worker + D1; worker
+  `echolike-lite-inbox`, database `echolike-inbox`). Redeploy: `cd inbox-worker && wrangler deploy`.
+- Self-hosted inbox (dev): `python3 server.py --port 8911` → http://127.0.0.1:8911 (see `GET /api/health`). Log file: `likes.jsonl`. Restart: kill PID, run again.
 
 ## Rules
 
 - The extension never invents data: unlike/unbookmark are sent as such.
 - No traffic on its own: nothing is probed or sent until the user presses Find my
-  inbox (or a capture is queued for an inbox that is already configured).
-  Discovery touches loopback only.
+  inbox, or a capture is queued and an inbox is already configured ("already
+  configured" includes the silent hosted claim on the first capture of a fresh
+  install). Loopback discovery touches loopback only.
 
 ## Site (echolike.app)
 
@@ -78,6 +119,11 @@ xvfb-run -a python3 tests/review_capture.py   # content script vs X-shaped DOM (
 xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, Find my inbox, bad connect reported
 xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
+python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
+python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
+# the promise in one test: fresh browser, no configuration, one like -> hosted inbox
+# (real network, real tenant: it leaves one tenant behind per run)
+xvfb-run -a python3 tests/review_zero.py
 # the real user seat: no configuration at all, one button, inside a throw-away netns
 # so the live inbox on 8931 is untouched
 unshare -rn sh -c 'ip link set lo up; xvfb-run -a python3 tests/review_find.py'
@@ -91,6 +137,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.1.1 — hosted multi-tenant inbox (`inbox-worker/`, Cloudflare Worker + D1, `inbox-lite.echolike.app`),
+  `DEFAULT_INBOX` claims a tenant on the first capture (truly install-and-done), popup link **Open my
+  inbox**, quota shown in the popup, 402 surfaced as "free quota spent"; ads no longer hide Grok
+  answers (a placement is an ad only when it holds a tweet and shows no Grok marker).
 - 1.1.0 — zero-typing pairing: `POST /api/claim` issues a device token to a private-network client, the popup
   finds the loopback inbox and claims by itself (one button), address/token moved under Advanced, the server
   accepts the printed token or any claimed device token, device cap + per-IP claim limit, `.devices.json`
@@ -162,13 +212,31 @@ Markers (verified 2026-11-11 against the maintained extension
 
 | What | Selector |
 |---|---|
-| promoted post wrapper | `[data-testid="placementTracking"]` |
-| its timeline cell (removes the gap) | `[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"])` |
+| promoted post wrapper | `[data-testid="placementTracking"]` **that holds a tweet** |
+| its timeline cell (removes the gap) | `[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"] [data-testid="tweet"])` |
 | promoted trend | `[data-testid="trend"]:has(path[d^="M19.498 3h-15"])` |
 
-To re-check after X changes its DOM: like a promoted post, inspect it in
-devtools, and look for the `placementTracking` wrapper. If it is gone, the fix
-is one selector in `ADS_CSS` in `extension/content.js` plus `tests/fixture.html`.
+**Grok lives in the same wrapper** (1.1.1): X puts Grok answer modules inside
+`placementTracking` too, so hiding every placement also erased Grok's answers —
+the reported bug. A placement is now an ad only if it holds a tweet *and* shows no
+Grok marker (`[data-testid*=Grok]`, `[data-testid*=grok]`, `a[href*="/grok"]`,
+`[aria-label*=Grok]`). `tests/review_ads.py` pins both directions down: promoted
+post and promoted trend hidden, Grok answer (plain module and Grok-post form) and
+real posts visible, and the switch reversible.
+
+To re-check after X changes its DOM: like a promoted post, inspect it in devtools,
+and look for the `placementTracking` wrapper. If it is gone, the fix is one
+selector in `ADS_CSS` in `extension/content.js` plus `tests/fixture.html`. If a
+Grok answer disappears again, paste this in the console on the offending page and
+send the JSON — it prints structure only, no content:
+
+```sh
+copy(JSON.stringify([...document.querySelectorAll('[data-testid="placementTracking"]')]
+  .filter(e => !e.getClientRects().length)
+  .map(e => [...e.querySelectorAll('[data-testid],[aria-label],a[href]')].slice(0,25)
+    .map(n => [n.tagName, n.getAttribute('data-testid') || n.getAttribute('aria-label') || n.getAttribute('href')]))))
+```
+
 
 Never hide ads from the *capture* path: liking an ad is a real like, so it is
 still sent, with `ad: true` so the inbox can tell them apart.

@@ -61,7 +61,9 @@ try:
             page.goto(f"chrome-extension://{eid}/popup.html")
             page.wait_for_timeout(500)
 
-            check("nothing configured yet", "Not connected" in page.inner_text("#status"), True)
+            status0 = page.inner_text("#status")
+            check("nothing configured yet", "Connected" in status0, False)
+            check("offers the zero-config path", "Nothing to set up" in status0, True)
             check("no address field shown", page.is_visible("#url"), False)
             check("one button to press", page.inner_text("#find"), "Find my inbox")
 

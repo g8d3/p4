@@ -5,12 +5,20 @@
   window.__echolikeLite = true;
 
   // ---- Ads: one stylesheet, no observers, no timers. ----
-  // A promoted post is rendered inside [data-testid="placementTracking"] (the marker
-  // Control Panel for Twitter uses too); pro moted trends carry that arrow icon.
-  // Hiding the whole cell removes the empty gap the ad would leave behind.
+  // A promoted post is a real tweet inside [data-testid="placementTracking"] (the
+  // marker Control Panel for Twitter uses too); promoted trends carry that arrow
+  // icon. Hiding the whole cell removes the empty gap the ad would leave behind.
+  // X puts OTHER inserted modules in the same wrapper — Grok answers, above all —
+  // so a placement only counts as an ad when it holds a tweet and shows no Grok
+  // marker: Grok testids, a /grok author link, or an aria-label naming Grok.
+  const NOT_GROK =
+    ':not(:has([data-testid*="Grok"],[data-testid*="grok"],a[href*="/grok"],' +
+    '[aria-label*="Grok"],[aria-label*="grok"]))';
   const ADS_CSS =
-    '[data-testid="placementTracking"]{display:none !important}' +
-    '[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"]){display:none !important}' +
+    '[data-testid="placementTracking"]:has([data-testid="tweet"])' + NOT_GROK + '{display:none !important}' +
+    '[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"] [data-testid="tweet"])' +
+    NOT_GROK +
+    '{display:none !important}' +
     '[data-testid="trend"]:has(path[d^="M19.498 3h-15"]){display:none !important}';
 
   function applyAds(hide) {

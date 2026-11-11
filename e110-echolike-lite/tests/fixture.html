@@ -31,6 +31,26 @@
   <a href="/sama/status/222"><time datetime="2026-11-10T11:00:00Z">11:00</time></a>
 </article>
 
+<!-- Grok answer module: the same placement wrapper X uses for ads, no tweet.
+     The ads switch must never touch it. -->
+<div data-testid="cellInnerDiv" id="grokcell">
+  <div data-testid="placementTracking" id="grokmodule">
+    <div data-testid="GrokAnswerText">Grok's answer stays visible.</div>
+    <a href="/grok">Grok</a>
+  </div>
+</div>
+
+<!-- Grok answer rendered as a post inside the same wrapper: the /grok author
+     link keeps it visible even though it is a tweet in a placement. -->
+<div data-testid="cellInnerDiv" id="grokTweetCell">
+  <div data-testid="placementTracking" id="grokTweetPlacement">
+    <article data-testid="tweet" id="grokarticle">
+      <div data-testid="tweetText">Grok answers in a post.</div>
+      <a href="/grok/status/444"><time datetime="2026-11-10T13:00:00Z">13:00</time></a>
+    </article>
+  </div>
+</div>
+
 <div data-testid="sidebarColumn">
   <div data-testid="trend" id="promotedtrend">
     <svg><path d="M19.498 3h-15c-1.381 0-2.5 1.12-2.5 2.5v13c0 1.38 1.119 2.5 2.5 2.5h15c1.381 0 2.5-1.12 2.5-2.5v-13c0-1.38-1.119-2.5-2.5-2.5z"></path></svg>

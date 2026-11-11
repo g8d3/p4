@@ -2,24 +2,23 @@
 
 Your X likes and bookmarks, saved in your browser, sent to your inbox. ~350 lines, no build step.
 
-## Install (2 steps, one button)
+## Install (one step, then just use X)
 
-**1. Start the inbox** (one command, stdlib Python only):
+1. `chrome://extensions` → Developer mode → Load unpacked → pick `extension/`.
+   (Edge/Brave: same. Firefox: `about:debugging` → Load Temporary Add-on → `manifest.json`.)
+2. Like or bookmark a post on X. That is it — the first like claims your own tenant
+   on the hosted inbox and everything after it lands there. No address, no token,
+   no account, nothing to configure.
 
-```sh
-python3 server.py
-# prints: address (http://<your-ip>:8911) + token
-```
+Open the popup to see the last 30 captures, and **Open my inbox** for the full list
+on the web. Free hosted quota: 3000 captures/month per install.
 
-**2. Load the extension:** `chrome://extensions` → Developer mode → Load unpacked → pick `extension/`. (Edge/Brave: same. Firefox: `about:debugging` → Load Temporary Add-on → `manifest.json`.)
+**Prefer your own server?** Run `python3 server.py` (stdlib only, prints its
+address) and press **Find my inbox** — it takes the inbox on your own machine
+before the hosted one. Address + token also live under **Advanced**. The popup
+says ✓ Connected either way.
 
-**3. Connect:** click the EchoLike icon → **Find my inbox**. Nothing to paste: the inbox on this computer issues a device token by itself, and the popup says ✓ Connected.
-
-Inbox on another machine? Open **Advanced** in the popup, type its address, and press Save — the server issues the token there too. Paste a token only when a hosted inbox handed you one.
-
-No inbox? The popup lists your last 30 captures anyway, each with a link to the post.
-
-Like or bookmark any post on X: a green "✓ sent" toast confirms it. Open `http://<your-ip>:8911/` to see everything captured.
+No network at all? Captures are saved in the browser and sent when it can be.
 
 ## Ads
 

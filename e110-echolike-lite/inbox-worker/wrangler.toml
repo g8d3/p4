@@ -1,0 +1,14 @@
+name = "echolike-lite-inbox"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+# Hosted multi-tenant inbox for the EchoLike Lite extension. One D1 database,
+# one row per tenant (a claimed device), quota enforced per tenant per month.
+[[d1_databases]]
+binding = "DB"
+database_name = "echolike-inbox"
+database_id = "ef0cbd50-a093-4296-8ddd-24c9dae2e57e"
+
+[[routes]]
+pattern = "inbox-lite.echolike.app"
+custom_domain = true

@@ -35,20 +35,31 @@ async function refresh() {
   const ads = await chrome.storage.local.get({ hide_ads: true });
   $("ads").checked = !!ads.hide_ads;
   $("find").textContent = connected ? "Reconnect" : "Find my inbox";
-  $("find").hidden = false;
   renderList(s.items || []);
+  // The inbox page is the read surface; the key rides in the query, it is the user's own secret.
+  const open = $("open");
+  if (connected) {
+    open.href = s.url + "/?t=" + encodeURIComponent(s.token || "");
+    open.style.display = "inline";
+  } else {
+    open.style.display = "none";
+  }
   const st = $("status");
   const at = s.url ? " <small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" : "";
+  const quota =
+    s.last && s.last.quota && typeof s.last.used === "number" ? ` <small>${s.last.used}/${s.last.quota} this month</small>` : "";
   if (!connected) {
     st.innerHTML = s.pending
-      ? `<span class="err">${s.pending} waiting to send.</span> Nothing is lost — start your inbox and press Find my inbox.`
-      : "Not connected yet. Your likes are already saved in this browser.";
+      ? `<span class="err">${s.pending} waiting to send.</span> Nothing is lost${s.defaultInbox ? " — they go to the hosted inbox on the next like, or press Find my inbox" : " — press Find my inbox"}.`
+      : s.defaultInbox
+        ? "Nothing to set up: your first like connects to the hosted inbox by itself. Or press Find my inbox to use your own server."
+        : "Not connected yet. Your likes are already saved in this browser.";
   } else if (s.pending) {
     st.innerHTML = `<span class="err">${s.pending} waiting to send.</span> ${s.last && s.last.error ? esc(s.last.error) : ""}${at}`;
   } else if (s.last && s.last.ok) {
-    st.innerHTML = `<span class="ok">✓ Connected.</span> <small>(${s.total} saved here)</small>${at}`;
+    st.innerHTML = `<span class="ok">✓ Connected.</span> <small>(${s.total} saved here)</small>${at}${quota}`;
   } else {
-    st.innerHTML = `Connected, nothing pending. <small>(${s.total} saved here)</small>${at}`;
+    st.innerHTML = `Connected, nothing pending. <small>(${s.total} saved here)</small>${at}${quota}`;
   }
 }
 
