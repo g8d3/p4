@@ -6,14 +6,31 @@ capture X likes/bookmarks, send them to your inbox. Nothing else.
 ## What it is, what it's worth
 
 A browser extension + one-file inbox server in ~350 lines total (the old
-pair is ~6000). Install-and-done in 3 steps, near-zero browser cost: one
-click listener, no observers, no timers, no background traffic.
+pair is ~6000). Install-and-done: two steps and one button, near-zero browser
+cost: one click listener, no observers, no timers, no background traffic.
 
-## Use (3 steps)
+## Use (2 steps, one click)
 
 1. `python3 server.py` on your computer → prints address + token.
 2. `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
-3. Extension popup → paste address + token → Save & send. Like any post.
+3. Extension popup → **Find my inbox**. That is all: no address, no token.
+
+Discovery is loopback only (`127.0.0.1` / `localhost`, 8931 then 8911); the first
+inbox that answers takes `POST /api/claim`, which mints a device token and stores
+its sha256 in `.devices.json` (0600). The extension keeps the token; the user
+never sees or copies one. Address + token still exist under **Advanced** for an
+inbox on another machine, or a hosted one that hands out its own token.
+
+Why: a pasted token was the number-one setup failure — a truncated paste looks
+exactly like a network problem and nothing in the UI can tell them apart. A
+private network (loopback, RFC1918, link-local, Tailscale 100.64/10) is itself
+the credential; a public server needs `--open-claim`, and even then the device cap
+(`ECHO_MAX_DEVICES`, default 5) and per-IP rate limit (`ECHO_CLAIM_PER_HOUR`,
+default 5) hold. The printed server token keeps working — it is the admin path.
+
+Next step toward true install-and-done: put a hosted inbox in `DEFAULT_INBOX`
+(`extension/background.js`) and the first capture claims there by itself, with no
+popup action at all. That is a hosting + payment decision, not a code one.
 
 The popup says ✓ Connected when the inbox answers. Failed sends wait in
 the browser and retry on the next like or with Retry — nothing is lost.
@@ -23,9 +40,10 @@ the browser and retry on the next like or with Retry — nothing is lost.
 ```
 extension/manifest.json   3 permissions lines, X hosts only
 extension/content.js      one click listener: like/unlike/bookmark/unbookmark
-extension/background.js   local save + POST outbox to /api/likes, retry on event
-extension/popup.html/js   status + 2 fields + Save + Retry
-server.py                 stdlib only: /api/health, POST /api/likes, GET / list
+extension/background.js   local save + POST outbox to /api/likes, retry on event,
+                          loopback discovery + claim (no token to paste)
+extension/popup.html/js   status + Find my inbox + Retry; Advanced = address/token
+server.py                 stdlib only: /api/health, /api/claim, POST /api/likes, GET / list
 ```
 
 Deliberately dropped vs the old extension: voice/text notes, ntfy pipe,
@@ -39,7 +57,9 @@ Each can return as its own experiment if someone pays for it.
 ## Rules
 
 - The extension never invents data: unlike/unbookmark are sent as such.
-- No outbound traffic before the user pastes an inbox address.
+- No traffic on its own: nothing is probed or sent until the user presses Find my
+  inbox (or a capture is queued for an inbox that is already configured).
+  Discovery touches loopback only.
 
 ## Site (echolike.app)
 
@@ -55,8 +75,12 @@ are left untouched (existing installs keep their update channel).
 
 ```sh
 xvfb-run -a python3 tests/review_capture.py   # content script vs X-shaped DOM (quoted tweet, kinds, double-inject)
-xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, bad connect reported
-xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, token check, 401 shown
+xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, Find my inbox, bad connect reported
+xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
+python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
+# the real user seat: no configuration at all, one button, inside a throw-away netns
+# so the live inbox on 8931 is untouched
+unshare -rn sh -c 'ip link set lo up; xvfb-run -a python3 tests/review_find.py'
 ```
 
 Headless must be `False` under xvfb: Chrome's old headless does not load extensions.
@@ -67,6 +91,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.1.0 — zero-typing pairing: `POST /api/claim` issues a device token to a private-network client, the popup
+  finds the loopback inbox and claims by itself (one button), address/token moved under Advanced, the server
+  accepts the printed token or any claimed device token, device cap + per-IP claim limit, `.devices.json`
+  stores sha256 only (bit-for-bit the same product, minus the thing people failed at).
 
 ## Update channel (why the Update button works — or does not)
 

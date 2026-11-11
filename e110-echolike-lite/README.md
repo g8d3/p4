@@ -2,7 +2,7 @@
 
 Your X likes and bookmarks, saved in your browser, sent to your inbox. ~350 lines, no build step.
 
-## Install (3 steps)
+## Install (2 steps, one button)
 
 **1. Start the inbox** (one command, stdlib Python only):
 
@@ -13,7 +13,9 @@ python3 server.py
 
 **2. Load the extension:** `chrome://extensions` → Developer mode → Load unpacked → pick `extension/`. (Edge/Brave: same. Firefox: `about:debugging` → Load Temporary Add-on → `manifest.json`.)
 
-**3. Connect:** click the EchoLike icon → paste address + token → Save & send. The popup says ✓ Connected.
+**3. Connect:** click the EchoLike icon → **Find my inbox**. Nothing to paste: the inbox on this computer issues a device token by itself, and the popup says ✓ Connected.
+
+Inbox on another machine? Open **Advanced** in the popup, type its address, and press Save — the server issues the token there too. Paste a token only when a hosted inbox handed you one.
 
 No inbox? The popup lists your last 30 captures anyway, each with a link to the post.
 

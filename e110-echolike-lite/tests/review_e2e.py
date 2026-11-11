@@ -67,12 +67,20 @@ try:
         page.wait_for_timeout(400)
 
         url = f"http://127.0.0.1:{PORT}"
+        # Claim path: address only, no token typed. The server mints the device token.
+        # Address (and optional token) live under Advanced; open it explicitly —
+        # clicking the summary is racy in a popup that resizes as status changes.
+        page.evaluate("document.getElementById('adv').open = true")
+        page.wait_for_selector("#url", state="visible")
         page.fill("#url", url)
-        page.fill("#token", token)
         page.click("#save")
         page.wait_for_timeout(1500)
-        check("popup says connected", "Connected" in page.inner_text("#status"), True)
-        check("token no longer echoed", page.input_value("#token"), "")
+        check("claim with no token says connected", "Connected" in page.inner_text("#status"), True)
+        check(
+            "device token stored",
+            len(page.evaluate("chrome.storage.local.get({token:''}).then(s=>s.token)")),
+            32,
+        )
 
         # Same message shape content.js sends.
         reply = page.evaluate(
@@ -97,6 +105,9 @@ try:
         check("server page lists it", "e2e capture" in html, True)
 
         # Token wrong -> the popup must say so and keep the item for retry.
+        # (Paste path: a hosted inbox or another machine still hands out its own token.)
+        page.evaluate("document.getElementById('adv').open = true")
+        page.wait_for_selector("#url", state="visible")
         page.fill("#url", url)
         page.fill("#token", "0" * 32)
         page.click("#save")

@@ -2,3 +2,5 @@ likes.jsonl
 .token
 __pycache__/
 .secrets/
+.devices.json
+inbox/

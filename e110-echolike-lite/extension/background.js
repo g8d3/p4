@@ -1,16 +1,54 @@
 // EchoLike Lite — background. Saves every capture locally, forwards to the
 // inbox when one is configured. The outbox survives restarts; failed sends
 // retry on the next capture, on startup, or from the popup's Retry button.
-// No alarms, no polling, no background traffic of any kind.
+// No alarms, no polling: the only traffic is the claim the user asks for
+// (discover/claim), a send when something is queued, and the health check that
+// comes with it.
 const MAX_ITEMS = 500;
 
+// Set to the hosted inbox (e.g. "https://inbox.echolike.app") and an install is
+// zero-config: the first capture claims a device token there by itself. Empty
+// means the user picks an inbox, which keeps local-first the honest default.
+const DEFAULT_INBOX = "";
+
+// Where a local inbox is likely to answer. Loopback only: nothing leaves this
+// machine, and only the user's own server is ever probed.
+const CANDIDATES = [
+  "http://127.0.0.1:8931",
+  "http://localhost:8931",
+  "http://127.0.0.1:8911",
+  "http://localhost:8911",
+];
+
+async function timed(url, opts, ms) {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), ms || 1500);
+  try {
+    return await fetch(url, Object.assign({ signal: c.signal }, opts || {}));
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 async function state() {
-  const s = await chrome.storage.local.get({ url: "", token: "", outbox: [], items: [], last: null });
+  const s = await chrome.storage.local.get({
+    url: "",
+    token: "",
+    outbox: [],
+    items: [],
+    last: null,
+    defaultTried: false,
+  });
   return s;
 }
 
 async function flush(verify) {
-  const s = await state();
+  let s = await state();
+  // One silent attempt per install when a hosted inbox is baked in — never a retry loop.
+  if (!s.url && DEFAULT_INBOX && s.outbox.length && !s.defaultTried) {
+    await chrome.storage.local.set({ defaultTried: true });
+    if ((await claimAt(DEFAULT_INBOX)).ok) s = await state();
+  }
   if (!s.url || !s.token) return { ok: true, pending: s.outbox.length };
   // Nothing queued and no verification asked: stay quiet (no background traffic).
   if (!s.outbox.length && !verify) return { ok: true, pending: 0 };
@@ -42,6 +80,48 @@ async function flush(verify) {
   return { ok: true, sent: n, pending: 0 };
 }
 
+// Zero-typing setup: the server mints the device token, the extension keeps it.
+// One button; no address, no token to copy, nothing to truncate.
+async function claimAt(url) {
+  const base = String(url || "").replace(/\/$/, "");
+  let cres;
+  try {
+    cres = await timed(base + "/api/claim", { method: "POST" }, 5000);
+  } catch (e) {
+    return { ok: false, url: base, error: "no answer from " + base };
+  }
+  const j = await cres.json().catch(() => null);
+  if (cres.status === 404) {
+    return {
+      ok: false,
+      url: base,
+      error: "that inbox is older than the extension (no /api/claim) — paste its token under Advanced",
+    };
+  }
+  if (!cres.ok || !j || !j.token) {
+    return { ok: false, url: base, error: (j && j.error) || "inbox refused the claim (HTTP " + cres.status + ")" };
+  }
+  await chrome.storage.local.set({ url: base, token: j.token });
+  const out = await flush(true);
+  return { ok: out.ok, url: base, error: out.error || null, pending: out.pending };
+}
+
+async function discover() {
+  const s = await state();
+  if (s.url && s.token) return { ok: true, url: s.url, already: true, pending: s.outbox.length };
+  for (const url of CANDIDATES) {
+    let hres;
+    try {
+      hres = await timed(url + "/api/health", {});
+    } catch (e) {
+      continue; // nothing listening on that port: try the next
+    }
+    if (!hres.ok) continue;
+    return claimAt(url);
+  }
+  return { ok: false, error: "no inbox found on this computer" };
+}
+
 async function capture(item) {
   item.uid = (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
   const s = await state();
@@ -61,10 +141,23 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
       ? capture(m.item)
       : m && m.type === "retry"
         ? flush(true)
-        : m && m.type === "save"
+        : m && m.type === "discover"
+          ? discover()
+          : m && m.type === "claim"
+            ? claimAt(m.url)
+          : m && m.type === "forget"
+            ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
+            : m && m.type === "save"
           ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush(true))
           : m && m.type === "state"
-            ? state().then((s) => ({ url: s.url, pending: s.outbox.length, total: s.items.length, last: s.last, items: s.items.slice(-30).reverse() }))
+            ? state().then((s) => ({
+                url: s.url,
+                hasToken: !!s.token,
+                pending: s.outbox.length,
+                total: s.items.length,
+                last: s.last,
+                items: s.items.slice(-30).reverse(),
+              }))
             : null;
   if (!p) return;
   p.then(reply, (e) => reply({ ok: false, error: String((e && e.message) || e) }));

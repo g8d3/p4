@@ -68,7 +68,17 @@ with sync_playwright() as p:
         page.check("#ads")
         page.wait_for_timeout(200)
 
+        # First run: nothing to type. One button, Advanced folded away.
+        print("find button:", page.inner_text("#find"), "| visible:", page.is_visible("#find"))
+        print("advanced folded by default:", not page.is_visible("#url"))
+        page.click("#find")
+        page.press("#find", "Enter")  # Enter on a focused button must not double-fire
+        page.wait_for_timeout(3000)
+        print("after Find my inbox:", page.inner_text("#status").replace("\n", " "))
+
         # Connect flow against no server: must report a clean error, not hang.
+        page.click("#adv summary")
+        page.wait_for_timeout(150)
         page.fill("#url", "http://127.0.0.1:59999")
         page.fill("#token", "deadbeef")
         page.click("#save")
