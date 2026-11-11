@@ -40,3 +40,13 @@ Each can return as its own experiment if someone pays for it.
 
 - The extension never invents data: unlike/unbookmark are sent as such.
 - No outbound traffic before the user pastes an inbox address.
+
+## Site (echolike.app)
+
+Live page sources are `site/index.html` (one button + one line) and
+`site/docs.html` (install guide). `echolike-lite.zip` is the shipped
+artifact, built with `(cd extension && zip -qr ../echolike-lite.zip . -x ".*")`.
+Publish = copy those four files + `server.py` into `g8d3/echolike-site`,
+commit, push, `wrangler pages deploy --project-name echolike`, verify
+`echolike.app` serves them. Old `extension_echolike.*` files in that repo
+are left untouched (existing installs keep their update channel).
