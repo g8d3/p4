@@ -1,0 +1,76 @@
+"""Capture test: the content script against X-shaped markup, in a real browser.
+
+Checks what actually breaks in the wild: wrong tweet id (quoted tweet), missing
+text, and kind detection (like vs unlike vs bookmark).
+"""
+import pathlib
+import sys
+
+from playwright.sync_api import sync_playwright
+
+ROOT = pathlib.Path(__file__).resolve().parent
+CONTENT = (ROOT.parent / "extension" / "content.js").read_text()
+fixture = ROOT / "fixture.html"
+
+failures = []
+
+
+def check(name, got, want):
+    ok = got == want
+    print(("  ok   " if ok else "  FAIL ") + name + ": " + repr(got))
+    if not ok:
+        failures.append(name)
+
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    page = browser.new_page()
+    page.goto(fixture.as_uri())
+    page.add_script_tag(content=CONTENT)
+
+    # 1. like on the first article: must read the parent tweet, never the quote
+    page.click('article:nth-of-type(1) [data-testid="like"]')
+    page.wait_for_timeout(150)
+    sent = page.evaluate("window.__sent")
+    check("items after like", len(sent), 1)
+    if sent:
+        it = sent[0]["item"]
+        check("tweet id", it["id"], "111")
+        check("handle", it["handle"], "nasa")
+        check("text", it["text"], "The real post text.")
+        check("kind", it["kind"], "like")
+        check("url", it["url"], "https://x.com/nasa/status/111")
+        check("tweet_time", it["tweet_time"], "2026-11-10T10:00:00Z")
+
+    # 2. unlike on the second article (already liked): kind must be unlike
+    page.click('article:nth-of-type(2) [data-testid="unlike"]')
+    page.wait_for_timeout(150)
+    sent = page.evaluate("window.__sent")
+    check("items after unlike", len(sent), 2)
+    if len(sent) == 2:
+        check("unlike kind", sent[1]["item"]["kind"], "unlike")
+        check("unlike id", sent[1]["item"]["id"], "222")
+
+    # 3. bookmark
+    page.click('article:nth-of-type(1) [data-testid="bookmark"]')
+    page.wait_for_timeout(150)
+    sent = page.evaluate("window.__sent")
+    check("items after bookmark", len(sent), 3)
+    if len(sent) == 3:
+        check("bookmark kind", sent[2]["item"]["kind"], "bookmark")
+
+    # 4. a click that is not an action button sends nothing
+    page.click('article:nth-of-type(1) [data-testid="reply"]')
+    page.wait_for_timeout(150)
+    check("no capture for reply", len(page.evaluate("window.__sent")), 3)
+
+    # 5. double injection must not double-send (guard)
+    page.add_script_tag(content=CONTENT)
+    page.click('article:nth-of-type(1) [data-testid="like"]')
+    page.wait_for_timeout(150)
+    check("no double listener", len(page.evaluate("window.__sent")), 4)
+
+    browser.close()
+
+print("FAILURES:", failures if failures else "none")
+sys.exit(1 if failures else 0)

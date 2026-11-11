@@ -1,11 +1,10 @@
 {
   "manifest_version": 3,
   "name": "EchoLike Lite",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Saves your X likes and bookmarks, sends them to your inbox.",
   "permissions": ["storage"],
-  "host_permissions": ["https://x.com/*", "https://twitter.com/*"],
-  "optional_host_permissions": ["*://*/*"],
+  "host_permissions": ["https://x.com/*", "https://twitter.com/*", "http://*/*", "https://*/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
     {

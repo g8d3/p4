@@ -5,9 +5,31 @@ async function send(type, extra) {
   return chrome.runtime.sendMessage(Object.assign({ type }, extra || {}));
 }
 
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderList(items) {
+  const box = $("list");
+  box.textContent = "";
+  if (!items.length) {
+    box.innerHTML = '<p class="mut">Nothing captured yet. Like a post on x.com.</p>';
+    return;
+  }
+  for (const it of items) {
+    const row = document.createElement("div");
+    const text = (it.text || "").replace(/\s+/g, " ").slice(0, 120);
+    row.innerHTML =
+      "<b>" + esc(it.kind) + "</b> <a href=\"" + esc(it.url) + "\" target=\"_blank\">@" + esc(it.handle) + "</a>" +
+      (text ? "<br><span>" + esc(text) + "</span>" : "");
+    box.appendChild(row);
+  }
+}
+
 async function refresh() {
   const s = await send("state");
   $("url").value = s.url || "";
+  renderList(s.items || []);
   const st = $("status");
   if (!s.url) {
     st.innerHTML = "Not connected. Paste your inbox address below.";
@@ -27,10 +49,6 @@ $("save").addEventListener("click", async () => {
     $("status").innerHTML = '<span class="err">Both fields are needed.</span>';
     return;
   }
-  try {
-    // Permission for this inbox origin, asked once, only for what you typed.
-    await chrome.permissions.request({ origins: [url + "/*"] });
-  } catch (e) {}
   const r = await send("save", { url, token });
   $("token").value = "";
   await refresh();

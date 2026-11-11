@@ -1,0 +1,26 @@
+<!doctype html>
+<html><body>
+<article data-testid="tweet">
+  <div data-testid="tweetText">The real post text.</div>
+  <div role="group">
+    <button data-testid="reply">3</button>
+    <button data-testid="like">12</button>
+    <button data-testid="bookmark">x</button>
+  </div>
+  <a href="/nasa/status/111"><time datetime="2026-11-10T10:00:00Z">10:00</time></a>
+  <div role="link" tabindex="0">
+    <div data-testid="tweetText">Quoted tweet text that must be ignored.</div>
+    <a href="/someoneelse/status/999"><time datetime="2026-11-09T09:00:00Z">09:00</time></a>
+  </div>
+</article>
+<article data-testid="tweet">
+  <div data-testid="tweetText">Second post.</div>
+  <div role="group"><button data-testid="unlike">5</button><button data-testid="bookmark">x</button></div>
+  <a href="/sama/status/222"><time datetime="2026-11-10T11:00:00Z">11:00</time></a>
+</article>
+<script>
+  // Stub of the extension message channel: records what the content script sends.
+  window.__sent = [];
+  window.chrome = { runtime: { sendMessage: (m, cb) => { window.__sent.push(m); cb && cb({ sent: true }); } } };
+</script>
+</body></html>

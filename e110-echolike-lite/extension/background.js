@@ -9,9 +9,11 @@ async function state() {
   return s;
 }
 
-async function flush() {
+async function flush(verify) {
   const s = await state();
-  if (!s.url || !s.token || !s.outbox.length) return { ok: true, pending: s.outbox.length };
+  if (!s.url || !s.token) return { ok: true, pending: s.outbox.length };
+  // Nothing queued and no verification asked: stay quiet (no background traffic).
+  if (!s.outbox.length && !verify) return { ok: true, pending: 0 };
   let res;
   try {
     res = await fetch(s.url.replace(/\/$/, "") + "/api/likes", {
@@ -58,11 +60,11 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
     m && m.type === "capture"
       ? capture(m.item)
       : m && m.type === "retry"
-        ? flush()
+        ? flush(true)
         : m && m.type === "save"
-          ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush())
+          ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush(true))
           : m && m.type === "state"
-            ? state().then((s) => ({ url: s.url, pending: s.outbox.length, total: s.items.length, last: s.last }))
+            ? state().then((s) => ({ url: s.url, pending: s.outbox.length, total: s.items.length, last: s.last, items: s.items.slice(-30).reverse() }))
             : null;
   if (!p) return;
   p.then(reply, (e) => reply({ ok: false, error: String((e && e.message) || e) }));
