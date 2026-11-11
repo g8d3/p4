@@ -67,3 +67,38 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+
+## Update channel (why the Update button works — or does not)
+
+The Update button in a browser's extensions page only exists for a **packaged
+.crx whose manifest has `update_url`**. The browser then fetches that XML,
+compares its `version` with the installed one, and installs the crx only if it
+is newer. A "load unpacked" zip has no update_url: Update can only re-read the
+local files, it can never download anything.
+
+Lite ships both:
+
+| File | Serves | Updates itself |
+|---|---|---|
+| `echolike-lite.zip` | desktop dev-mode install | no |
+| `echolike-lite.crx` | phones (Quetta), anyone wanting self-update | yes, via `extension_update_lite.json` |
+
+- appid `jmfddigdennhnndgaecgppajnjabhlgm`, key `.secrets/echolike_lite_crx.pem` (never committed).
+  The same public key is in `manifest.json` as `key`, so a zip install and a crx
+  install are the SAME extension (one storage, one id).
+- The old extension keeps its own lane: `extension_update.json` → `idadgdnihpcaeamkkjpglmbcnabkjinc`,
+  2.20.1. Publishing here would replace every install of that id, which is a
+  product decision, not a release step.
+- Release: `bin/publish.sh` (zip + crx + update json + verify + deploy + verify live),
+  `--build` for local only. `bin/check_crx.py` verifies CRX3 exactly as Chrome
+  does (signature over signed_header_data + payload, crx_id == appid); it was
+  validated against the old crx this browser already accepts.
+- Bump `version` in `extension/manifest.json` before publishing, always upward:
+  a browser will not install a crx older than what it has.
+
+## Server
+
+```sh
+mkdir -p inbox && cd inbox && nohup python3 -u ../server.py --port 8931 > server.log 2>&1 &
+# prints the token; data lands in inbox/likes.jsonl
+```

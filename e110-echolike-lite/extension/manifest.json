@@ -3,16 +3,39 @@
   "name": "EchoLike Lite",
   "version": "1.0.1",
   "description": "Saves your X likes and bookmarks, sends them to your inbox.",
-  "permissions": ["storage"],
-  "host_permissions": ["https://x.com/*", "https://twitter.com/*", "http://*/*", "https://*/*"],
-  "background": { "service_worker": "background.js" },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv7dk7cYexa669H+PXrQLD3y8CU5YG0AB7VFRTK3YTW+oD7h2INCQjORDFl121OxjaCqF/nYoG6ss1Cys/r/8o86qMfZ3tC7W5AaZmnHaooP0z41FvCUgtZWVxkcvqnYt/6gSbWj81JAgVzvGkKoEF5il37rVuNY29leyktygpe7t5KIezLWrEjhrvlmHrIcY5WaQvNqjhq6J2/SWbCsfmTJlTKSz9oRAUHXoypqsgX2tuUB7iDmuLJPpy6lsMAGHKSsJEFshKTQZxknM/EQAz3m2O9MBMf+RehCPjo23HJw9n5CjB7wRjnjjPuNK8gUe++IBe2cRwOCpItc5HKfc6wIDAQAB",
+  "update_url": "https://echolike.app/extension_update_lite.json",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": ["https://x.com/*", "https://twitter.com/*"],
-      "js": ["content.js"],
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
-  "action": { "default_title": "EchoLike Lite", "default_popup": "popup.html" },
-  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  "action": {
+    "default_title": "EchoLike Lite",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

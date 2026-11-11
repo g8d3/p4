@@ -1,3 +1,4 @@
 likes.jsonl
 .token
 __pycache__/
+.secrets/

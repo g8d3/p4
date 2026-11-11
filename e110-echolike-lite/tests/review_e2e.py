@@ -3,7 +3,6 @@
 Connect from the popup, send a capture through the same channel the content
 script uses, and check the server stored it. No mocks on either side.
 """
-import hashlib
 import json
 import pathlib
 import socket
@@ -14,6 +13,9 @@ import time
 import urllib.request
 
 from playwright.sync_api import sync_playwright
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from ids import extension_id  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 EXT = str(ROOT / "extension")
@@ -58,8 +60,7 @@ try:
             prof, headless=False,
             args=[f"--disable-extensions-except={EXT}", f"--load-extension={EXT}", "--no-first-run"],
         )
-        h = hashlib.sha256(EXT.encode()).hexdigest()[:32]
-        eid = "".join(chr(ord("a") + int(c, 16)) for c in h)
+        eid = extension_id()
         page = ctx.new_page()
         page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
         page.goto(f"chrome-extension://{eid}/popup.html")

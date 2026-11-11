@@ -1,9 +1,13 @@
 """User-seat review for EchoLike Lite: load the extension in a real Chrome and
 check what a user can actually do in the popup. No mocks of chrome.* APIs."""
-import hashlib
+import pathlib
+import sys
 import tempfile
 
 from playwright.sync_api import sync_playwright
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from ids import extension_id  # noqa: E402
 
 EXT = "/home/vuos/code/p4/e110-echolike-lite/extension"
 profile = tempfile.mkdtemp(prefix="echolike-lite-prof-")
@@ -19,9 +23,7 @@ with sync_playwright() as p:
         ],
     )
     try:
-        # Unpacked extension ids are derived from the folder path.
-        h = hashlib.sha256(EXT.encode()).hexdigest()[:32]
-        ext_id = "".join(chr(ord("a") + int(c, 16)) for c in h)
+        ext_id = extension_id()
         ctx.new_page().goto("about:blank")
         ctx.pages[0].wait_for_timeout(1500)
         print("extension id:", ext_id, "| service worker:", [s.url for s in ctx.service_workers][:1])
