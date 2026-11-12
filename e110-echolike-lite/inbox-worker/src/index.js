@@ -37,8 +37,8 @@ const API = 3;
 const FREE_PER_MONTH = 3000;
 const CLAIM_PER_IP_HOUR = 20; // a household or a test suite never needs more; a bot still caps at DEVICES_PER_IP
 const DEVICES_PER_IP = 50; // one household, office or CGNAT can share an address; the monthly quota still bounds it
-const MAX_BODY = 256 * 1024;
-const MAX_ITEM = 16 * 1024;
+const MAX_BODY = 512 * 1024;
+const MAX_ITEM = 24 * 1024;
 const MAX_ITEMS = 500;
 const CORS = {
   "access-control-allow-origin": "*",
@@ -461,6 +461,7 @@ function render(rows) {
     const d = document.createElement('div');
     d.innerHTML = '<b>' + esc(it.kind) + '</b> <a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' +
       (it.ad ? ' <small>ad</small>' : '') +
+      countsLine(it) +
       (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '') +
       '<br><small>' + esc(new Date(it.clicked_at || it.received_at || 0).toLocaleString()) + '</small>';
     box.appendChild(d);

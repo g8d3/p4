@@ -37,6 +37,24 @@ async function decryptAll(key, blobs) {
   return out;
 }
 
+// Replies · reposts · likes · bookmarks · views, and when it was published.
+const fmt = (n) => (n == null ? "–" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n));
+function countsLine(it) {
+  const c = it.counts || {};
+  const bits = [
+    ["replies", c.replies],
+    ["reposts", c.reposts],
+    ["likes", c.likes],
+    ["bookmarks", c.bookmarks],
+    ["views", c.views],
+  ]
+    .filter(([, v]) => v != null)
+    .map(([k, v]) => fmt(v) + " " + k);
+  if (it.published_at) bits.push("published " + localTime(it.published_at));
+  if (it.media) bits.push(it.media + " media");
+  return bits.length ? '<br><small>' + esc(bits.join(" · ")) + "</small>" : "";
+}
+
 function render(items) {
   const box = $("list");
   box.textContent = "";
@@ -50,6 +68,7 @@ function render(items) {
       "<b>" + esc(it.kind) + "</b> " +
       (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
       (it.ad ? " <small>ad</small>" : "") +
+      countsLine(it) +
       (it.waiting ? " <small>waiting to send</small>" : "") +
       (it.legacy ? " <small>unencrypted, from an older version</small>" : "") +
       (it.text ? "<br><span>" + esc(String(it.text).slice(0, 600)) + "</span>" : "") +

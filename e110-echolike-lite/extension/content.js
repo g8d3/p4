@@ -55,7 +55,7 @@
   // Bump when the walk changes. The background refuses to start an import on a tab
   // whose script speaks an older api, and reloads it instead — a stale tab is the
   // difference between 7 rows and a thousand, and it is invisible otherwise.
-  const CONTENT_API = 6;
+  const CONTENT_API = 7;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 
@@ -66,6 +66,53 @@
     }
     return el;
   }
+
+  // Counts arrive localized: "1.234 respuestas", "1,234 replies", "1,2 mil", "3.4K".
+  // Separators are guessed by position (3 digits after = thousands), suffixes known.
+  function num(value) {
+    if (value == null) return null;
+    const raw = String(value).replace(/\u00a0/g, " ").trim();
+    const m = raw.match(/(\d+(?:[.,\s]\d+)*)/);
+    if (!m) return null;
+    const token = m[1];
+    const after = raw.slice(m.index + token.length);
+    const suf = (after.match(/^\s*(mil|mn|kk|k|m|b)\b/i) || [])[1] || "";
+    const suffix = suf.toLowerCase();
+    let n = token;
+    const both = n.includes(",") && n.includes(".");
+    if (both) {
+      const lastComma = n.lastIndexOf(",") > n.lastIndexOf(".");
+      n = lastComma ? n.replace(/\./g, "").replace(",", ".") : n.replace(/,/g, "");
+    } else if (n.includes(",")) {
+      n = /,\d{3}(\D|$)/.test(n) && !suffix ? n.replace(/,/g, "") : n.replace(",", ".");
+    } else if (n.includes(".")) {
+      n = /\.\d{3}(\D|$)/.test(n) && !suffix ? n.replace(/\./g, "") : n;
+    }
+    let v = parseFloat(n.replace(/\s/g, ""));
+    if (!isFinite(v)) return null;
+    if (suffix === "mil" || suffix === "k" || suffix === "kk") v *= 1e3;
+    if (suffix === "mn" || suffix === "m") v *= 1e6;
+    if (suffix === "b") v *= 1e9;
+    return Math.round(v);
+  }
+
+  const countOf = (art, testid) => {
+    const el = art.querySelector('[data-testid="' + testid + '"]');
+    if (!el) return null;
+    return num(el.getAttribute("aria-label")) ?? num(el.innerText || el.textContent);
+  };
+
+  const viewsOf = (art) => {
+    const el = art.querySelector('a[href*="/analytics"]');
+    if (!el) return null;
+    return num(el.getAttribute("aria-label")) ?? num(el.innerText || el.textContent);
+  };
+
+  const mediaOf = (art) => {
+    const imgs = art.querySelectorAll('[data-testid="tweetPhoto"]').length;
+    const vids = art.querySelectorAll('[data-testid="videoPlayer"], [data-testid="videoComponent"]').length;
+    return { media: imgs + vids, photos: imgs, videos: vids, card: !!art.querySelector('[data-testid="card.wrapper"]') };
+  };
 
   // The post's own link: any /status/ anchor that is NOT inside the quoted tweet,
   // the media container, or the tweet text. Taking the first anchor made a row with a
@@ -92,15 +139,40 @@
     if (!m) return null;
     const txt = art.querySelector('[data-testid="tweetText"]');
     const time = a.querySelector("time");
+    const name = art.querySelector('[data-testid="User-Name"]');
+    const quoted = art.querySelector('div[role="link"] a[href*="/status/"]');
+    const qm = quoted && quoted.getAttribute("href").match(/\/status\/(\d+)/);
+    const social = art.querySelector('[data-testid="socialContext"]');
+    const media = mediaOf(art);
     return {
       kind,
       id: m[2],
       handle: m[1],
       url: "https://x.com/" + m[1] + "/status/" + m[2],
       text: txt ? (txt.innerText || txt.textContent || "").slice(0, 2000) : "",
-      tweet_time: time ? time.getAttribute("datetime") : null,
+      lang: txt ? txt.getAttribute("lang") || null : null,
+      author_name: name
+        ? ((name.querySelector("span") || name).innerText || name.textContent || "").split("\n")[0].trim().slice(0, 80) ||
+          null
+        : null,
+      published_at: time ? time.getAttribute("datetime") : null,
+      tweet_time: time ? time.getAttribute("datetime") : null, // kept for older inboxes
+      counts: {
+        replies: countOf(art, "reply"),
+        reposts: countOf(art, "retweet"),
+        likes: countOf(art, "like"),
+        bookmarks: countOf(art, "bookmark"),
+        views: viewsOf(art),
+      },
+      quotes: qm ? qm[1] : null,
+      is_repost: social ? /reposted|retweeted|repostó|retuiteó/i.test(social.innerText || "") : false,
       ad,
+      ...media,
+      // when, and from where: the two dates that cannot be recovered later
+      captured_at: new Date().toISOString(),
       clicked_at: new Date().toISOString(),
+      source: kind === "bookmark" ? "bookmark" : "like",
+      page: location.pathname,
     };
   }
 
@@ -375,7 +447,13 @@
     return { ok: true, mode, limit: wanted };
   }
 
-  chrome.runtime.onMessage.addListener((m, _s, reply) => {
+  try {
+    chrome.runtime.onMessage.addListener(importMessage);
+  } catch (e) {
+    /* a page without the message API still captures likes */
+  }
+
+  function importMessage(m, _s, reply) {
     if (!m) return false;
     if (m.type === "import-start") {
       const r = startImport(m.mode, m.limit);
@@ -388,7 +466,7 @@
       return true;
     }
     return false;
-  });
+  }
 
   function toast(msg, ok) {
     let t = document.getElementById("echolike-lite-toast");

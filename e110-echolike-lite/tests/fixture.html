@@ -1,12 +1,15 @@
 <!doctype html>
 <html><body>
 <article data-testid="tweet">
-  <div data-testid="tweetText">The real post text.</div>
+  <div data-testid="User-Name"><span>NASA</span><span>@nasa</span></div>
+  <div data-testid="tweetText" lang="en">The real post text.</div>
   <div role="group">
-    <button data-testid="reply">3</button>
-    <button data-testid="like">12</button>
-    <button data-testid="bookmark">x</button>
+    <button data-testid="reply" aria-label="1.234 respuestas">1,2 mil</button>
+    <button data-testid="retweet" aria-label="56 reposts">56</button>
+    <button data-testid="like" aria-label="12 likes">12</button>
+    <button data-testid="bookmark" aria-label="3 bookmarks">3</button>
   </div>
+  <a href="/nasa/status/111/analytics" aria-label="98.765 visualizaciones">98.765</a>
   <a href="/nasa/status/111"><time datetime="2026-11-10T10:00:00Z">10:00</time></a>
   <div role="link" tabindex="0">
     <div data-testid="tweetText">Quoted tweet text that must be ignored.</div>
@@ -70,6 +73,7 @@
   let store = { hide_ads: window.__HIDE_ADS !== undefined ? window.__HIDE_ADS : true };
   window.chrome = {
     runtime: {
+      onMessage: { addListener: () => {} },
       sendMessage: (m, cb) => {
         if (m.type === "hello" || m.type === "net-online") return Promise.resolve({ ok: true });
         window.__sent.push(m);

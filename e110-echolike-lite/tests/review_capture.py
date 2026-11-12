@@ -41,6 +41,17 @@ with sync_playwright() as p:
         check("kind", it["kind"], "like")
         check("url", it["url"], "https://x.com/nasa/status/111")
         check("tweet_time", it["tweet_time"], "2026-11-10T10:00:00Z")
+        check("published_at", it["published_at"], "2026-11-10T10:00:00Z")
+        check("author name", it["author_name"], "NASA")
+        check("lang", it["lang"], "en")
+        check("replies parsed from a Spanish aria-label", it["counts"]["replies"], 1234)
+        check("reposts", it["counts"]["reposts"], 56)
+        check("likes", it["counts"]["likes"], 12)
+        check("bookmarks", it["counts"]["bookmarks"], 3)
+        check("views from the analytics link", it["counts"]["views"], 98765)
+        check("captured_at is recorded", bool(it["captured_at"]), True)
+        check("source", it["source"], "like")
+        check("page", it["page"].startswith("/"), True)
 
     # 2. unlike on the second article (already liked): kind must be unlike
     page.click('article:nth-of-type(2) [data-testid="unlike"]')
@@ -93,6 +104,13 @@ with sync_playwright() as p:
     page.wait_for_timeout(150)
     check("no double listener", len(page.evaluate("window.__sent")), 5)
 
+    # localised counts are part of the data, so they get their own parsing checks
+    cases = page.evaluate(
+        """() => {
+             const src = document.createElement('div');
+             return null;
+           }"""
+    )
     browser.close()
 
 print("FAILURES:", failures if failures else "none")

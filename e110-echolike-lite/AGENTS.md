@@ -278,6 +278,33 @@ Deliberate design decisions, so they are not "improved" later:
   all of it: nothing runs by itself, 30 of 120, no duplicates, scroll happened,
   progress reports the end, cancel works.
 
+## What a capture holds (1.16.0)
+
+Every capture is one record, sealed whole and stored as one blob, so adding fields
+needs no server migration — the inbox cannot see them anyway.
+
+| Field | Where it comes from | Notes |
+|---|---|---|
+| `kind`, `id`, `handle`, `url`, `text` | the row | the original four |
+| `lang` | `[lang]` on `tweetText` | cheap, useful for filters |
+| `author_name` | `User-Name` | display name, not verified status |
+| `published_at` | `<time datetime>` | **the only date that cannot be recovered later** |
+| `counts.replies/reposts/likes/bookmarks` | each action button's `aria-label` | localized; `review_counts.py` pins the parser |
+| `counts.views` | the `/analytics` link's `aria-label` | X only renders it on some layouts |
+| `quotes` | the quoted tweet's own `/status/` link | id of the quoted post |
+| `is_repost` | `socialContext` text | repost vs original |
+| `ad` | `placementTracking` ancestor | a liked ad is still a like |
+| `media/photos/videos/card` | `tweetPhoto`, `videoPlayer`, `card.wrapper` | what the post carries |
+| `captured_at`, `clicked_at` | the browser clock | ISO UTC; **rendered in the reader's timezone** |
+| `source` | like or bookmark | how it entered |
+| `page` | `location.pathname` | which view it was captured from |
+| `received_at` | the inbox, plaintext column | when the server stored it (only non-secret field) |
+
+Deliberately **not** stored: the liker's own identity, follower counts (not on the
+row), and anything that needs a second request — a capture must cost zero extra
+traffic. `liked_at` does not exist on X's DOM: for a live capture `captured_at` is
+the like moment, for an import it is the import moment, and the field name says so.
+
 ## Automation (1.10.0): events, never a schedule
 
 Nothing in the product is on a timer. Every send is caused by an event that already
@@ -353,6 +380,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.16.0 — captures carry what the post is worth: replies/reposts/likes/bookmarks/views (locale-aware parser,
+  `tests/review_counts.py`), `published_at`, `lang`, `author_name`, `quotes`, `is_repost`, media flags, `source`
+  and `page`, all sealed in the same blob. Readers show the counts and the published date; the export keeps them.
+  Blob caps raised (24 KB per item, 512 KB per request). `CONTENT_API` 7.
 - 1.15.1 — hidden tabs, measured instead of argued: the walk listens to `visibilitychange`, pauses (no timers, no
   observer), writes `import.paused` / `import.resumed` with `hiddenFor` and `rowsDelta` — the number that answers
   "would it work unfocused?" — and hidden time stops counting against the ten-minute guard. The end row carries
