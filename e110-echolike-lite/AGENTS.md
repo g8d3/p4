@@ -231,6 +231,19 @@ Deliberate design decisions, so they are not "improved" later:
   nothing. The quota still bounds a huge import honestly.
 * Progress is written to `chrome.storage.local.import_progress` by the content
   script; the tab renders it from `storage.onChanged`. No polling anywhere.
+* **Which tab**: the Import tab lists the open X tabs by path (an `●` marks the
+  active one), prefers the one that is actually the list, and can open the list
+  itself. "That tab has no EchoLike content script" now names the tab, offers
+  *Reload that tab and start*, and `import.cmd` records the paths it saw — a
+  message that does not say which tab is a bug, not a message.
+* **Patience is the difference between 2 and 1,000**: one quiet tick never ends a
+  walk (`IMPORT_QUIET_ROUNDS` 3, 3.5 s each), a visible `role="progressbar"` resets
+  the count, the scroll container is found by computed `overflow-y` plus
+  `scrollHeight`, and both the container and the window are nudged. The count asked
+  for is the count sent: `harvest()` stops adding at `wanted`.
+* **Times are the reader's**: every timestamp is stored in UTC (server, `at`,
+  `received_at`) and rendered with `toLocale*` in the browser — inbox list,
+  diagnostics log, import progress, hosted reader.
 * **The list URLs** (confirmed by the owner, not guessable): likes live at
   `https://x.com/i/history/likes` and bookmarks at `https://x.com/i/history` — the
   obvious `/likes` and `/i/bookmarks` are wrong. Both places: `import.js` (the link
@@ -324,6 +337,9 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.13.0 — Import picks its tab: the tab lists X tabs by path, can open the list, and names the one that failed
+  (with a *Reload that tab and start* button). The walk waits out stalls (3 quiet rounds, progressbar aware, real
+  scroll container), so it no longer "finishes" at 2 of 100. All displayed times are in the user's timezone.
 - 1.12.0 — the import can be diagnosed: `telemetry.detail` column plus `import.cmd`/`import.begin`/`import.batch`/
   `import.end`/`import.stall` rows with counters (collected, sent, rounds, articles, scrollTop, scrollable, reason);
   the Settings log shows that detail. Patience: a list that answered nothing once gets up to four rounds before

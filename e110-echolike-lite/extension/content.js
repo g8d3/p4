@@ -101,7 +101,8 @@
   // requested count, when the list stops growing, or after ten minutes. Growth is
   // detected with a MutationObserver: the only timer is the "nothing new arrived"
   // guard, and it exists only while an import is running.
-  const IMPORT_QUIET_MS = 2500;
+  const IMPORT_QUIET_MS = 3500; // one quiet tick is not the end of the world
+  const IMPORT_QUIET_ROUNDS = 3; // ... three in a row, with nothing loading, is
   const IMPORT_MAX_MS = 10 * 60 * 1000;
   const IMPORT_BATCH = 25;
   let importRun = null;
@@ -112,14 +113,39 @@
   // The scroll container is whatever ancestor of a tweet actually scrolls: X moves
   // it between layouts, and guessing by testid breaks on every redesign.
   function xScroller() {
+    const scrolls = (el) => {
+      if (!el || el.scrollHeight <= el.clientHeight + 100) return false;
+      const oy = getComputedStyle(el).overflowY;
+      return oy === "auto" || oy === "scroll" || el === document.scrollingElement;
+    };
     const art = document.querySelector("article");
     let el = art && art.parentElement;
-    while (el && el !== document.body && el !== document.documentElement) {
-      if (el.scrollHeight > el.clientHeight + 100) return el;
+    while (el && el !== document.documentElement) {
+      if (scrolls(el)) return el;
       el = el.parentElement;
     }
+    const inner = document.querySelector('div[data-testid="primaryColumn"] div[style*="overflow"]');
+    if (scrolls(inner)) return inner;
     return document.scrollingElement || document.documentElement;
   }
+
+  // X appends in bursts, sometimes seconds apart. Scrolling one element and hoping is
+  // how the first attempt "finished" with 2 of 100.
+  function nudgeToBottom() {
+    const sc = xScroller();
+    if (sc) sc.scrollTop = sc.scrollHeight;
+    try {
+      window.scrollTo(0, document.body.scrollHeight);
+      (sc || document.documentElement).dispatchEvent(new Event("scroll", { bubbles: true }));
+    } catch (e) {
+      /* a page that refuses to scroll is a page we report, not crash on */
+    }
+    return sc;
+  }
+
+  const stillLoading = () =>
+    !!document.querySelector('[role="progressbar"], [data-testid="ProgressBar"]') ||
+    !!document.querySelector('div[role="progressbar"]');
 
   function startImport(mode, limit) {
     if (importRun) return { ok: false, error: "an import is already running" };
@@ -162,8 +188,8 @@
         ok: reason !== "timeout",
         error: reason,
         detail:
-          "collected=" + collected.size + " sent=" + sent + " rounds=" + rounds + " reason=" + reason +
-          " articles=" + document.querySelectorAll("article").length +
+          "collected=" + collected.size + " sent=" + sent + " rounds=" + rounds + " quiet=" + quietRounds +
+          " reason=" + reason + " articles=" + document.querySelectorAll("article").length +
           " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
           " scrollable=" + (sc ? sc.scrollHeight - sc.clientHeight : -1),
       });
@@ -172,6 +198,7 @@
     let rounds = 0;
     const harvest = () => {
       for (const art of document.querySelectorAll("article")) {
+        if (collected.size >= wanted) return; // the number asked for is the number sent
         const it = extract(art, kind);
         if (!it || collected.has(it.id)) continue;
         collected.set(it.id, it);
@@ -179,18 +206,30 @@
       }
     };
 
+    let quietRounds = 0;
     const waitForGrowth = () => {
       if (observer) observer.disconnect();
       clearTimeout(quiet);
       observer = new MutationObserver(() => {
         clearTimeout(quiet);
+        quietRounds = 0;
         quiet = setTimeout(() => {
           if (observer) observer.disconnect();
           step();
-        }, 200);
+        }, 250);
       });
       observer.observe(document.body, { childList: true, subtree: true });
-      quiet = setTimeout(() => finish("end"), IMPORT_QUIET_MS);
+      quiet = setTimeout(() => {
+        if (stillLoading()) {
+          // X is fetching more: wait another tick instead of pretending it ended.
+          quietRounds = 0;
+          step();
+          return;
+        }
+        quietRounds++;
+        if (quietRounds < IMPORT_QUIET_ROUNDS) step();
+        else finish("end");
+      }, IMPORT_QUIET_MS);
     };
 
     function step() {
@@ -201,11 +240,10 @@
       if (collected.size >= wanted) return finish("limit");
       if (Date.now() - startedAt > IMPORT_MAX_MS) return finish("timeout");
       if (queue.length >= IMPORT_BATCH) drain(false);
-      const sc = xScroller();
-      if (sc) sc.scrollTop = sc.scrollHeight;
-      // A list that has not answered once is not "finished": give X another round
-      // before believing the end.
-      if (collected.size === 0 && rounds < 4) {
+      nudgeToBottom();
+      // Never conclude on the first tick, however few we have: X's list loads in
+      // bursts and a lesson learned at 2 of 100.
+      if (rounds < 2) {
         clearTimeout(quiet);
         quiet = setTimeout(() => step(), 800);
         return;

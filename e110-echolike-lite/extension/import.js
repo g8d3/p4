@@ -25,12 +25,55 @@
     const why = { limit: "reached your count", end: "the list ended", timeout: "ten-minute guard", cancelled: "cancelled" }[p.reason] || p.state;
     $("istatus").innerHTML =
       '<span class="ok">' + (p.collected || 0) + " " + what + "</span> collected, " + (p.sent || 0) +
-      " sent · " + esc(why) + (p.at ? " · " + esc(String(p.at).slice(11, 19)) : "");
+      " sent · " + esc(why) + (p.at ? " · " + esc(localTime(p.at)) : "");
   }
+
+  const localTime = (iso) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return isNaN(d) ? String(iso) : d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  };
+
+  // The tabs a user actually has open, named by path: "which tab?" was the complaint.
+  async function loadTabs() {
+    const r = await send("tabs");
+    const sel = $("itab");
+    const keep = sel.value;
+    sel.textContent = "";
+    const tabs = (r && r.tabs) || [];
+    if (!tabs.length) {
+      const o = document.createElement("option");
+      o.value = "";
+      o.textContent = "(no X tab open — use the button below)";
+      sel.appendChild(o);
+      return;
+    }
+    for (const t of tabs) {
+      const o = document.createElement("option");
+      o.value = String(t.id);
+      const path = (t.url || "").replace(/^https:\/\/x\.com/, "").replace(/^https:\/\/twitter\.com/, "") || "/";
+      o.textContent = (t.active ? "● " : "") + path + (t.title ? " — " + t.title.slice(0, 40) : "");
+      sel.appendChild(o);
+    }
+    const wanted = $("imode").value === "bookmarks" ? "/i/history" : "/i/history/likes";
+    const best = tabs.find((t) => (t.url || "").includes(wanted)) || tabs.find((t) => String(t.id) === keep);
+    if (best) sel.value = String(best.id);
+  }
+
+  $("itabs").addEventListener("click", loadTabs);
+
+  $("iopen").addEventListener("click", async () => {
+    const url = LISTS[$("imode").value] || LISTS.likes;
+    await chrome.tabs.create({ url });
+    $("istatus").innerHTML =
+      "Opened <b>" + esc(url.replace(/^https:\/\/x\.com/, "x.com")) +
+      "</b>. Wait for it to load, then press <b>Start import</b> — or press Start now and it starts by itself when the page is ready.";
+  });
 
   async function refresh() {
     const s = await chrome.storage.local.get({ import_progress: null });
     render(s.import_progress);
+    await loadTabs();
     const running = s.import_progress && s.import_progress.state === "running";
     $("istart").disabled = !!running;
     $("icancel").disabled = !running;
@@ -43,10 +86,23 @@
   $("istart").addEventListener("click", async () => {
     $("istart").disabled = true;
     $("istatus").textContent = "Looking for an open X tab…";
-    const r = await send("import-start", { mode: $("imode").value, limit: Number($("ilimit").value) });
+    const tabId = Number($("itab").value) || null;
+    const r = await send("import-start", { mode: $("imode").value, limit: Number($("ilimit").value), tabId });
     if (!r || r.ok === false) {
       $("istatus").innerHTML = '<span class="err">' + esc((r && r.error) || "could not start") + "</span>";
+      if (r && r.tabId) {
+        const btn = document.createElement("button");
+        btn.className = "act";
+        btn.textContent = "Reload that tab and start";
+        btn.onclick = async () => {
+          await chrome.tabs.reload(r.tabId);
+          $("istatus").textContent = "Reloading the tab… when it finishes, press Start again.";
+        };
+        $("istatus").appendChild(document.createElement("br"));
+        $("istatus").appendChild(btn);
+      }
       $("istart").disabled = false;
+      await loadTabs();
       return;
     }
     render({ state: "running", mode: $("imode").value, of: Number($("ilimit").value), collected: 0, sent: 0 });

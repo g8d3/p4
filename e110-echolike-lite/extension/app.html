@@ -53,6 +53,15 @@ button:disabled{opacity:.45;cursor:default}
   <section>
     <h2>Bring in your old likes and bookmarks</h2>
     <p class="help">EchoLike only captures from now on. This walks the list you already have on X — likes or bookmarks — and sends it to your inbox, encrypted like everything else. It needs an X tab open and logged in; it scrolls that tab while it works, and stops on its own.</p>
+    <label for="itab">Which X tab to walk</label>
+    <select id="itab" style="font:inherit;padding:9px;border:1px solid #ccc;border-radius:8px;width:100%">
+      <option value="">(no X tab found)</option>
+    </select>
+    <p style="margin:8px 0 0">
+      <button id="itabs" class="act" type="button">Refresh tabs</button>
+      <button id="iopen" class="act" type="button">Open the list in a new tab</button>
+    </p>
+
     <label for="imode">What to import</label>
     <select id="imode" style="font:inherit;padding:9px;border:1px solid #ccc;border-radius:8px;width:100%">
       <option value="likes">Likes</option>

@@ -56,7 +56,7 @@ async function refresh() {
   $("telcount").textContent = state.telQueued ? state.telQueued + " waiting to be sent" : "";
   $("tellog").textContent = (state.telemetry || [])
     .map((e) =>
-      [e.at.slice(11, 19), e.action, e.ok === false ? "FAIL" : e.ok ? "ok" : "-", e.code || "", e.error || "", e.detail || ""]
+      [new Date(e.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), e.action, e.ok === false ? "FAIL" : e.ok ? "ok" : "-", e.code || "", e.error || "", e.detail || ""]
         .join(" ")
         .trim(),
     )

@@ -504,7 +504,15 @@ async function captureBatch(items, source) {
 // The importer needs a logged-in X tab: send the command to the one that is open.
 let pendingImport = null; // set when we open the list tab: the page's own load starts it
 
-async function importStart(mode, limit) {
+async function listTabs() {
+  const tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
+  return {
+    ok: true,
+    tabs: tabs.map((t) => ({ id: t.id, url: t.url || "", title: t.title || "", active: !!t.active })),
+  };
+}
+
+async function importStart(mode, limit, tabId) {
   const tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
   await tel("import.cmd", {
     ok: true,
@@ -518,14 +526,30 @@ async function importStart(mode, limit) {
     });
     return { ok: false, needTab: true, error: "opening your list: it starts by itself as soon as the page is ready" };
   }
-  // Prefer the tab that is actually the list; otherwise the one the user is on.
-  const tab = tabs.find((t) => (t.url || "").includes(wanted)) || tabs.find((t) => t.active) || tabs[0];
+  // An explicit choice wins; then the tab that is actually the list; then the active one.
+  const chosen = m0 => m0;
+  const tab =
+    (tabId ? tabs.find((t) => t.id === tabId) : null) ||
+    tabs.find((t) => (t.url || "").includes(wanted)) ||
+    tabs.find((t) => t.active) ||
+    tabs[0];
   try {
     const r = await chrome.tabs.sendMessage(tab.id, { type: "import-start", mode, limit });
     return r || { ok: false, error: "that tab did not answer: reload it" };
   } catch (e) {
-    await tel("import.cmd", { ok: false, error: "no content script in that tab: " + String(e.message || e) });
-    return { ok: false, error: "that tab has no EchoLike content script: reload it" };
+    const where = (tab.url || "").replace(/^https:\/\/x\.com/, "") || "that tab";
+    await tel("import.cmd", {
+      ok: false,
+      host: tab.url,
+      error: "no content script in " + where + ": " + String(e.message || e),
+    });
+    return {
+      ok: false,
+      needsReload: true,
+      tabId: tab.id,
+      tabUrl: tab.url,
+      error: "the tab \"" + where + "\" has no EchoLike script yet (it was open before the extension was installed or updated). Reload that tab, or open the list with the button below.",
+    };
   }
 }
 
@@ -576,8 +600,10 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
             : m && m.type === "capture-batch"
               ? captureBatch(m.items, m.source)
-              : m && m.type === "import-start"
-                ? importStart(m.mode, m.limit)
+              : m && m.type === "tabs"
+                ? listTabs()
+                : m && m.type === "import-start"
+                  ? importStart(m.mode, m.limit, m.tabId)
                 : m && m.type === "import-cancel"
                   ? importCancel()
                   : m && m.type === "net-online"
@@ -592,7 +618,7 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                     if (pendingImport) {
                       const { mode, limit } = pendingImport;
                       pendingImport = null;
-                      await importStart(mode, limit);
+                      await importStart(mode, limit).catch(() => {});
                     }
                     const r = await flush(true);
                     await telFlush();

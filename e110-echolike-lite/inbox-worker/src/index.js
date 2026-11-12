@@ -462,7 +462,7 @@ function render(rows) {
     d.innerHTML = '<b>' + esc(it.kind) + '</b> <a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' +
       (it.ad ? ' <small>ad</small>' : '') +
       (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '') +
-      '<br><small>' + esc(it.clicked_at || it.received_at || '') + '</small>';
+      '<br><small>' + esc(new Date(it.clicked_at || it.received_at || 0).toLocaleString()) + '</small>';
     box.appendChild(d);
   }
 }

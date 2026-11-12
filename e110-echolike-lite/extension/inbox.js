@@ -53,12 +53,20 @@ function render(items) {
       (it.waiting ? " <small>waiting to send</small>" : "") +
       (it.legacy ? " <small>unencrypted, from an older version</small>" : "") +
       (it.text ? "<br><span>" + esc(String(it.text).slice(0, 600)) + "</span>" : "") +
-      "<br><small>" + esc(it.clicked_at || it.received_at || "") + "</small>";
+      "<br><small>" + esc(localTime(it.clicked_at || it.received_at)) + "</small>";
     box.appendChild(row);
   }
 }
 
 let shown = [];
+
+// Times come from the clock of whoever captured them and the server's UTC: always
+// render them in the reader's own timezone.
+const localTime = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return isNaN(d) ? String(iso) : d.toLocaleString([], { dateStyle: "short", timeStyle: "short" });
+};
 
 const tel = (action, info) => chrome.runtime.sendMessage({ type: "tel", action, info }).catch(() => {});
 

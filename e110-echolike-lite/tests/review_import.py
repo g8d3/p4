@@ -47,9 +47,15 @@ FIXTURE = """<!doctype html><html><body>
     }
   }
   add(6);
+  // Slow like the real thing: one batch arrives 3 s late (longer than a quiet tick),
+  // which is exactly how the first attempt finished with 2 of 100.
+  let slow = true;
   const sc = document.getElementById('scroller');
   sc.addEventListener('scroll', () => {
-    if (sc.scrollTop + sc.clientHeight > sc.scrollHeight - 50) setTimeout(() => add(6), 30);
+    if (sc.scrollTop + sc.clientHeight > sc.scrollHeight - 50) {
+      if (slow) { slow = false; setTimeout(() => add(6), 3000); }
+      else setTimeout(() => add(6), 30);
+    }
   });
   window.chrome = {
     runtime: {
@@ -87,10 +93,10 @@ with sync_playwright() as p:
         l({type:'import-start', mode:'likes', limit:30}, null, resolve);
       })""")
     check("import started", started.get("ok"), True)
-    page.wait_for_timeout(9000)
+    page.wait_for_timeout(20000)
 
     collected = page.evaluate("window.__batch.length")
-    check("it stopped at the requested count", collected, 30)
+    check("it waited out a 3s stall and stopped at the count", collected, 30)
     check("it scrolled the list itself", page.evaluate("document.getElementById('scroller').scrollTop > 0"), True)
     ids = page.evaluate("window.__batch.map(i => i.id)")
     check("no duplicates", len(ids), len(set(ids)))
