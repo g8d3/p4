@@ -45,7 +45,7 @@ scoped by `user_id`, so no tenant can read another's captures (proven by
 |---|---|---|
 | `GET /api/health` | none | api version, `claim: open`, free quota |
 | `POST /api/claim` | none (rate-limited) | new tenant + device token (`CLAIM_PER_IP_HOUR` 20) |
-| `POST /api/likes` | Bearer | stores up to 500 **encrypted blobs**, 402 when the month is spent |
+| `POST /api/likes` | Bearer | stores up to 500 **encrypted blobs**; plaintext only from a pre-4 client (flagged `legacy`), 402 when the month is spent |
 | `GET /api/likes?limit=n` | Bearer | the caller's own blobs, JSON (ciphertext only) |
 | `GET /` | none | the reader page; token + key arrive in the fragment |
 
@@ -171,6 +171,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.2.1 — protocol handshake: the client sends `x-echolike-api: 4` and the inbox refuses plaintext from it (400),
+  while an older client (1.1.x) is accepted and its row flagged `legacy` — a queued capture is never dropped to
+  enforce a rule. Health reports `min_client_api`. This is the fix for "9 waiting to send. inbox HTTP 400":
+  1.1.1 spoke plaintext to a 1.2.0 inbox.
 - 1.2.0 — end-to-end encryption: AES-256-GCM in the browser, the inbox stores `{uid,iv,ct}` and cannot read
   a word, plaintext uploads refused; extension page `inbox.html` (full list, decrypts locally, JSON export),
   hosted reader `/#t=&k=` with both secrets in the fragment, base64url recovery code in the popup; worker

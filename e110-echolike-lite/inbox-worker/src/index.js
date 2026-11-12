@@ -109,10 +109,19 @@ async function postLikes(env, req, who) {
   }
   const items = Array.isArray(body.items) ? body.items.slice(0, MAX_ITEMS) : null;
   if (!items) return json({ ok: false, error: "items must be a list" }, 400);
+  // A client that says it speaks API 4 must encrypt: no plaintext from it, ever.
+  // Older clients (1.1.x) cannot, so their captures are accepted and flagged
+  // `legacy` — losing a user's queue to enforce a rule is not a trade worth making.
+  const modern = Number(req.headers.get("x-echolike-api") || 0) >= 4;
   for (const it of items) {
-    // Only the shape is checked. Nothing here can read the content.
-    if (!it || !b64ish(it.ct) || !b64ish(it.iv)) return json({ ok: false, error: "items must carry iv + ct" }, 400);
-    if (String(it.ct).length > MAX_ITEM) return json({ ok: false, error: "one item is too large" }, 413);
+    if (!it) return json({ ok: false, error: "items must be objects" }, 400);
+    const sealed = b64ish(it.ct) && b64ish(it.iv);
+    if (sealed) {
+      if (String(it.ct).length > MAX_ITEM) return json({ ok: false, error: "one item is too large" }, 413);
+      continue;
+    }
+    if (modern) return json({ ok: false, error: "items must carry iv + ct" }, 400);
+    if (!it.text && !it.url && !it.handle) return json({ ok: false, error: "item has nothing in it" }, 400);
   }
 
   const used = await usage(env, who.user);
@@ -122,9 +131,25 @@ async function postLikes(env, req, who) {
   const take = items.slice(0, Math.max(0, FREE_PER_MONTH - used));
   const at = now();
   const stmts = take.map((it) =>
-    env.DB.prepare(
-      "INSERT INTO likes (user_id, uid, iv, ct, bytes, received_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
-    ).bind(who.user, clamp(it.uid, 64), it.iv, it.ct, String(it.ct).length, at),
+    b64ish(it.ct) && b64ish(it.iv)
+      ? env.DB.prepare(
+          "INSERT INTO likes (user_id, uid, iv, ct, bytes, received_at, legacy) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0)",
+        ).bind(who.user, clamp(it.uid, 64), it.iv, it.ct, String(it.ct).length, at)
+      : env.DB.prepare(
+          "INSERT INTO likes (user_id, uid, kind, post_id, handle, url, text, clicked_at, ad, received_at, legacy)" +
+            " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 1)",
+        ).bind(
+          who.user,
+          clamp(it.uid, 64),
+          clamp(it.kind, 20),
+          clamp(it.id, 40),
+          clamp(it.handle, 80),
+          clamp(it.url, 500),
+          clamp(it.text, 1400),
+          clamp(it.clicked_at, 40),
+          it.ad ? 1 : 0,
+          at,
+        ),
   );
   stmts.push(
     env.DB.prepare(
@@ -245,6 +270,7 @@ export default {
           api: API,
           claim: "open",
           encryption: "aes-256-gcm",
+          min_client_api: 4,
           free_per_month: FREE_PER_MONTH,
         });
       }
@@ -258,7 +284,8 @@ export default {
         if (!who) return json({ ok: false, error: "unauthorized" }, 401);
         const limit = Math.min(200, Math.max(1, Number(url.searchParams.get("limit") || 100)));
         const rows = await env.DB.prepare(
-          "SELECT uid, iv, ct, received_at FROM likes WHERE user_id = ?1 ORDER BY id DESC LIMIT ?2",
+          "SELECT uid, iv, ct, text, handle, url, kind, clicked_at, ad, legacy, received_at" +
+            " FROM likes WHERE user_id = ?1 ORDER BY id DESC LIMIT ?2",
         )
           .bind(who.user, limit)
           .all();

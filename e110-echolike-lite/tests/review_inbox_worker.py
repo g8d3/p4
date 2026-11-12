@@ -79,6 +79,7 @@ def call(path, token=None, body=None, method=None, headers=None):
 code, health = call("/api/health")
 check("health ok", (code, health.get("ok")), (200, True))
 check("health advertises open claim", health.get("claim"), "open")
+check("health states the client contract", health.get("min_client_api"), 4)
 check("free quota advertised", health.get("free_per_month", 0) > 0, True)
 
 # Two separate tenants, as two separate installs would be.
@@ -133,8 +134,15 @@ check("wrong token refused", code, 401)
 code, r = call("/api/likes", ta, {"items": "not a list"})
 check("bad body rejected", code, 400)
 code, r = call("/api/likes", ta, {"items": []})
-code, r = call("/api/likes", ta, {"items": [{"uid": "x", "text": "plaintext leak"}]})
-check("unsealed items are refused", code, 400)
+# An old client (1.1.x) cannot encrypt, so its queue is accepted and flagged rather
+# than dropped. A client that announces API 4 must seal, and is refused otherwise.
+code, r = call("/api/likes", ta, {"items": [{"uid": "legacy-1", "kind": "like", "handle": "nasa", "text": "from 1.1.x"}]})
+check("legacy plaintext is accepted, not lost", (code, r.get("received")), (200, 1))
+code, r = call("/api/likes", ta, {"items": [{"uid": "x", "text": "plaintext from a v4 client"}]}, headers={"x-echolike-api": "4"})
+check("a v4 client cannot send plaintext", code, 400)
+code, r = call("/api/likes", ta)
+legacy = [i for i in (r.get("items") or []) if i.get("legacy")]
+check("the legacy row is flagged for the reader", len(legacy) >= 1, True)
 code, r = call("/api/likes", ta, {"items": []})
 check("empty batch accepted", (code, r.get("received")), (200, 0))
 

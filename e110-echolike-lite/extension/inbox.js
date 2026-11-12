@@ -49,6 +49,7 @@ function render(items) {
       "<b>" + esc(it.kind) + "</b> " +
       (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
       (it.ad ? " <small>ad</small>" : "") +
+      (it.legacy || (!it.__sealed && it.text) ? " <small>unencrypted, from an older version</small>" : "") +
       (it.text ? "<br><span>" + esc(String(it.text).slice(0, 600)) + "</span>" : "") +
       "<br><small>" + esc(it.clicked_at || it.received_at || "") + "</small>";
     box.appendChild(row);

@@ -107,7 +107,11 @@ async function flush(verify) {
   try {
     res = await fetch(s.url.replace(/\/$/, "") + "/api/likes", {
       method: "POST",
-      headers: { authorization: "Bearer " + s.token, "content-type": "application/json" },
+      headers: {
+        authorization: "Bearer " + s.token,
+        "content-type": "application/json",
+        "x-echolike-api": "4", // this client only ever sends sealed blobs
+      },
       body: JSON.stringify({ items: s.outbox }),
     });
   } catch (e) {
@@ -131,7 +135,13 @@ async function flush(verify) {
     return { ok: false, error: s.last.error, pending: s.outbox.length };
   }
   if (!res.ok) {
-    s.last = { ok: false, error: "inbox HTTP " + res.status, at: new Date().toISOString() };
+    const j = await res.json().catch(() => null);
+    const why = j && j.error ? String(j.error).slice(0, 120) : "inbox HTTP " + res.status;
+    s.last = {
+      ok: false,
+      error: res.status === 400 && j && j.error && /iv \+ ct/.test(j.error) ? "the inbox needs a newer version of this extension" : why,
+      at: new Date().toISOString(),
+    };
     await chrome.storage.local.set({ last: s.last });
     return { ok: false, error: s.last.error, pending: s.outbox.length };
   }
