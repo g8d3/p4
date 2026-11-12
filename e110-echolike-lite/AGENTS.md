@@ -108,9 +108,15 @@ inbox back** on a new phone, and holding a key backup the inbox cannot open.
 
 - `POST /api/account/start {email}` → 6-digit code, 10 minutes, 5/hour per address,
   mailed through Resend (`RESEND_API_KEY` secret; `from` = `MAIL_FROM` or
-  `EchoLike <hello@echolike.app>`, a domain already verified in the zone). Without
-  the secret the endpoint answers 503 "email is not configured on this inbox yet" —
-  it never pretends to have sent something.
+  `EchoLike <hello@echolike.app>`, a domain already verified in the zone). The key
+  used lives in the CORREO repo (`~/code/p4/e092-echolike/.secrets/resend_api_key`,
+  36 chars, `GET /domains` answers 200) and is pushed with
+  `tr -d '\r\n' < that_file | wrangler secret put RESEND_API_KEY` — the value is
+  never printed, pasted or committed. Without the secret the endpoint answers 503
+  "email is not configured on this inbox yet"; it never pretends to have sent.
+  Verified end to end on 2026-11-12: `/api/account/start` with a real address →
+  Resend → mail landed (`correo/inbox/*.json`, subject carries the code) → that
+  code verified and minted an account token.
 - `POST /api/account/verify {email, code}` + the device token as Bearer → account
   token (32 hex, stored hashed) and the device's tenant is linked to the account.
 - `GET /api/account` → email, linked tenants, capture count, whether a key backup exists.
@@ -210,6 +216,8 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.3.1 — accounts live: Resend key installed as a worker secret, real code delivered and verified; health reports
+  `email_configured: true`.
 - 1.3.0 — optional account by email: 6-digit code login (Resend), tenant linking for recovery, and a key
   backup wrapped with a user passphrase (PBKDF2 210k + AES-GCM) that the inbox cannot open; popup gets
   "Email me a code / Verify / Back up key / Restore key". Without `RESEND_API_KEY` the endpoint says so (503).
