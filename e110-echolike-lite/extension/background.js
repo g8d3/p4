@@ -499,7 +499,9 @@ async function captureBatch(items, source) {
 async function importStart(mode, limit) {
   const tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
   if (!tabs.length) {
-    await chrome.tabs.create({ url: mode === "bookmarks" ? "https://x.com/i/bookmarks" : "https://x.com/likes" });
+    await chrome.tabs.create({
+      url: mode === "bookmarks" ? "https://x.com/i/history" : "https://x.com/i/history/likes",
+    });
     return { ok: false, needTab: true, error: "opening your list in a tab: press Start again when it has loaded" };
   }
   const tab = tabs.find((t) => t.active) || tabs[0];

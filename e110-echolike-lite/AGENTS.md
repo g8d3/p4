@@ -231,6 +231,10 @@ Deliberate design decisions, so they are not "improved" later:
   nothing. The quota still bounds a huge import honestly.
 * Progress is written to `chrome.storage.local.import_progress` by the content
   script; the tab renders it from `storage.onChanged`. No polling anywhere.
+* **The list URLs** (confirmed by the owner, not guessable): likes live at
+  `https://x.com/i/history/likes` and bookmarks at `https://x.com/i/history` — the
+  obvious `/likes` and `/i/bookmarks` are wrong. Both places: `import.js` (the link
+  the tab offers) and `importStart()` (the tab it opens when none is open).
 * `tests/review_import.py` builds a list that only grows when scrolled and asserts
   all of it: nothing runs by itself, 30 of 120, no duplicates, scroll happened,
   progress reports the end, cancel works.
@@ -310,6 +314,7 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.11.1 — the import list URLs corrected to `x.com/i/history/likes` (likes) and `x.com/i/history` (bookmarks).
 - 1.11.0 — Import tab: bring in old likes or bookmarks (100/300/1k/5k, or stop at the end), one deliberate button,
   MutationObserver-driven scrolling, dedupe by post, bounded at ten minutes, cancellable. Options on that tab say
   why it is not automatic.

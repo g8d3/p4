@@ -7,7 +7,8 @@
   const esc = (s) =>
     String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  const LISTS = { likes: "https://x.com/likes", bookmarks: "https://x.com/i/bookmarks" };
+  // Verified with the owner: neither lives at the obvious path.
+  const LISTS = { likes: "https://x.com/i/history/likes", bookmarks: "https://x.com/i/history" };
 
   function render(p) {
     if (!p) {
