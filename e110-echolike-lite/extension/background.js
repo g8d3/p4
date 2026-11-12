@@ -321,15 +321,24 @@ async function syncAll() {
   const s = await state();
   if (!s.url || !s.token) return { ok: false, error: "not connected: press Find my inbox first" };
   const base = s.url.replace(/\/$/, "");
-  let have = new Set();
   // Signed in? Then the whole account counts, not just this device: two browsers,
   // one inbox.
-  const readUrl = s.accountToken ? base + "/api/account/likes?limit=500" : base + "/api/likes?limit=500";
+  const readUrl = s.accountToken ? base + "/api/account/likes" : base + "/api/likes";
+  const auth = "Bearer " + (s.accountToken || s.token);
+  // Read the inbox TO THE END. A single capped page used to lie: captures past the
+  // page looked missing, so every repair re-uploaded them as new ones (45 rows of
+  // duplicates, and the real captures pushed out of the window the user sees).
+  let have = new Set();
   try {
-    const r = await timed(readUrl, { headers: { authorization: "Bearer " + (s.accountToken || s.token) } }, 15000);
-    if (r.ok) {
+    for (let offset = 0; offset < 5000; ) {
+      const r = await timed(readUrl + "?limit=500&offset=" + offset, { headers: { authorization: auth } }, 15000);
+      if (!r.ok) throw new Error("HTTP " + r.status);
       const j = await r.json().catch(() => null);
-      have = new Set(((j && j.items) || []).map((i) => i.uid).filter(Boolean));
+      const batch = (j && j.items) || [];
+      for (const it of batch) if (it.uid) have.add(it.uid);
+      const total = j && typeof j.total === "number" ? j.total : 0;
+      if (!batch.length || have.size >= total) break;
+      offset += batch.length;
     }
   } catch (e) {
     return { ok: false, error: "the inbox did not answer" };

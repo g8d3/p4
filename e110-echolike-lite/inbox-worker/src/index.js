@@ -33,13 +33,18 @@
 //   * claims are capped per IP per hour, and devices per IP in total;
 //   * every capture costs one unit of the monthly free quota (402 when spent);
 //   * a body is capped at 256 KB, an item at 16 KB, and 500 items per request.
-const API = 3;
+const API = 4;
 const FREE_PER_MONTH = 3000;
 const CLAIM_PER_IP_HOUR = 20; // a household or a test suite never needs more; a bot still caps at DEVICES_PER_IP
 const DEVICES_PER_IP = 50; // one household, office or CGNAT can share an address; the monthly quota still bounds it
 const MAX_BODY = 512 * 1024;
 const MAX_ITEM = 24 * 1024;
 const MAX_ITEMS = 500;
+// A read must be able to hand back everything a tenant has, or the client cannot
+// tell "not in the inbox" from "further down the list" — which made a re-send
+// re-upload old captures as new ones. Same ceiling as one upload, with `offset`
+// to walk past it.
+const MAX_READ = 500;
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, content-type",
@@ -141,13 +146,23 @@ async function postLikes(env, req, who) {
   }
   const take = items.slice(0, Math.max(0, FREE_PER_MONTH - used));
   const at = now();
+  // An empty batch is a real request: the extension verifies a flush with
+  // `{"items":[]}` when nothing is queued. `DB.batch([])` throws, and that turned
+  // a normal "already in sync" into a 500 the user saw as "internal".
+  if (!take.length) {
+    await env.DB.prepare("UPDATE devices SET last_seen = ?1 WHERE user_id = ?2").bind(at, who.user).run();
+    return json({ ok: true, received: 0, duplicates: 0, user: who.user, used, quota: FREE_PER_MONTH });
+  }
+  // INSERT OR IGNORE against the unique (user_id, uid) index: a client that sends
+  // the same capture twice (a retry, a repair pass) costs nothing and stores
+  // nothing twice. Otherwise every repair inflated the list and the quota.
   const stmts = take.map((it) =>
     b64ish(it.ct) && b64ish(it.iv)
       ? env.DB.prepare(
-          "INSERT INTO likes (user_id, uid, iv, ct, bytes, received_at, legacy) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0)",
+          "INSERT OR IGNORE INTO likes (user_id, uid, iv, ct, bytes, received_at, legacy) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0)",
         ).bind(who.user, clamp(it.uid, 64), it.iv, it.ct, String(it.ct).length, at)
       : env.DB.prepare(
-          "INSERT INTO likes (user_id, uid, kind, post_id, handle, url, text, clicked_at, ad, received_at, legacy)" +
+          "INSERT OR IGNORE INTO likes (user_id, uid, kind, post_id, handle, url, text, clicked_at, ad, received_at, legacy)" +
             " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, 1)",
         ).bind(
           who.user,
@@ -162,14 +177,23 @@ async function postLikes(env, req, who) {
           at,
         ),
   );
-  stmts.push(
+  const results = await env.DB.batch(stmts);
+  // Only rows that actually landed count against the quota, so a retry is free.
+  const stored = results.reduce((n, r) => n + ((r && r.meta && r.meta.changes) || 0), 0);
+  await env.DB.batch([
     env.DB.prepare(
       "INSERT INTO usage (user_id, month, n) VALUES (?1, ?2, ?3) ON CONFLICT(user_id, month) DO UPDATE SET n = n + ?3",
-    ).bind(who.user, month(), take.length),
+    ).bind(who.user, month(), stored),
     env.DB.prepare("UPDATE devices SET last_seen = ?1 WHERE user_id = ?2").bind(at, who.user),
-  );
-  await env.DB.batch(stmts);
-  return json({ ok: true, received: take.length, user: who.user, used: used + take.length, quota: FREE_PER_MONTH });
+  ]);
+  return json({
+    ok: true,
+    received: stored,
+    duplicates: take.length - stored,
+    user: who.user,
+    used: used + stored,
+    quota: FREE_PER_MONTH,
+  });
 }
 
 // ---- diagnostics ----------------------------------------------------------
@@ -349,13 +373,14 @@ async function accountSummary(env, who) {
 // blob is still sealed per device key, so the reader dedupes by (kind, id) after
 // decrypting — the same like captured in two browsers is one like.
 async function accountLikes(env, url, who) {
-  const limit = Math.min(500, Math.max(1, Number(url.searchParams.get("limit") || 200)));
+  const limit = Math.min(MAX_READ, Math.max(1, Number(url.searchParams.get("limit") || 200)));
+  const offset = Math.max(0, Number(url.searchParams.get("offset") || 0));
   const rows = await env.DB.prepare(
     "SELECT l.uid, l.iv, l.ct, l.text, l.handle, l.url, l.kind, l.clicked_at, l.ad, l.legacy, l.received_at" +
       " FROM likes l JOIN account_tenants t ON t.user_id = l.user_id" +
-      " WHERE t.account_id = ?1 ORDER BY l.id DESC LIMIT ?2",
+      " WHERE t.account_id = ?1 ORDER BY l.id DESC LIMIT ?2 OFFSET ?3",
   )
-    .bind(who.id, limit)
+    .bind(who.id, limit, offset)
     .all();
   const total = await env.DB.prepare(
     "SELECT COUNT(*) AS n FROM likes l JOIN account_tenants t ON t.user_id = l.user_id WHERE t.account_id = ?1",
@@ -409,10 +434,16 @@ h1{font-size:20px;margin:0 0 4px}small{color:#666}a{color:#1d9bf0}
 #list div{border-top:1px solid #eee;padding:8px 0}
 input{font:inherit;width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:8px}
 button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}
+select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;background:#fff}
 .ok{color:#00875a}.err{color:#d0021b}.mut{color:#666;font-size:13px}
 </style>
 <h1>My EchoLike inbox</h1>
 <div id=status class=mut>…</div>
+<p id=sorts style="display:none;margin:10px 0 0">
+  <label for=sort class=mut>Sort by</label>
+  <select id=sort></select>
+  <button id=dir type=button>newest first</button>
+</p>
 <div id=ask style="display:none">
   <p>Paste your recovery code to decrypt this inbox in your browser:</p>
   <input id=code placeholder="recovery code" autocomplete=off spellcheck=false>
@@ -454,16 +485,70 @@ async function decrypt(blob) {
   return JSON.parse(new TextDecoder().decode(plain));
 }
 const fmtN = (n) => (n == null ? '–' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n));
-// Counts and dates of one capture, for the reader.
+const localTime = (iso) => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? String(iso) : d.toLocaleString([], {dateStyle:'short', timeStyle:'short'}); };
+// Counts of one capture, for the reader.
 function countsLine(it) {
   const c = it.counts || {};
   const bits = [['replies', c.replies], ['reposts', c.reposts], ['likes', c.likes], ['bookmarks', c.bookmarks], ['views', c.views]]
     .filter(([, v]) => v != null)
     .map(([k, v]) => fmtN(v) + ' ' + k);
-  if (it.published_at) bits.push('published ' + new Date(it.published_at).toLocaleString());
   if (it.media) bits.push(it.media + ' media');
   return bits.length ? '<br><small>' + esc(bits.join(' · ')) + '</small>' : '';
 }
+// Four different events, four dates: when I clicked, when the extension saved it,
+// when this inbox received it, when the post was published.
+function datesLine(it) {
+  const bits = [['liked', it.clicked_at], ['saved', it.captured_at], ['arrived', it.received_at], ['published', it.published_at || it.tweet_time]]
+    .filter(([, v]) => v)
+    .map(([k, v]) => k + ' ' + localTime(v));
+  return bits.length ? '<br><small>' + esc(bits.join(' · ')) + '</small>' : '';
+}
+
+// Sorting: arrival order is not a user-meaningful order, so the reader offers the
+// four dates and the five engagement counts, and remembers what you picked.
+const SORTS = [
+  ['clicked_at', 'my interaction', 'date'],
+  ['captured_at', 'captured in the extension', 'date'],
+  ['received_at', 'arrived in the inbox', 'date'],
+  ['published_at', 'post published', 'date'],
+  ['reposts', 'reposts', 'count'],
+  ['likes', 'post likes', 'count'],
+  ['replies', 'replies', 'count'],
+  ['bookmarks', 'bookmarks', 'count'],
+  ['views', 'views', 'count'],
+];
+const sortKind = (k) => (SORTS.find((s) => s[0] === k) || SORTS[0])[2];
+function sortValue(it, k) {
+  const v = k === 'received_at' ? it.received_at
+    : k === 'captured_at' ? it.captured_at
+    : k === 'published_at' ? (it.published_at || it.tweet_time)
+    : k === 'clicked_at' ? it.clicked_at
+    : (it.counts ? it.counts[k] : null);
+  if (v == null || v === '') return null;
+  if (sortKind(k) === 'date') { const t = Date.parse(v); return isNaN(t) ? null : t; }
+  const n = Number(v);
+  return isNaN(n) ? null : n;
+}
+function sortRows(rows, key, desc) {
+  return rows.slice().sort((a, b) => {
+    const x = sortValue(a, key), y = sortValue(b, key);
+    if (x == null || y == null) return x == null ? (y == null ? 0 : 1) : -1; // unknown always last
+    return desc ? y - x : x - y;
+  });
+}
+let sortKey = localStorage.getItem('el_sort') || 'clicked_at';
+let sortDesc = localStorage.getItem('el_sort_desc') !== '0';
+function dirLabel() {
+  return sortKind(sortKey) === 'date' ? (sortDesc ? 'newest first' : 'oldest first') : (sortDesc ? 'most first' : 'least first');
+}
+function paintSort() {
+  $('sort').innerHTML = SORTS.map(([k, l]) => '<option value=' + k + '>' + esc(l) + '</option>').join('');
+  $('sort').value = sortKey;
+  $('dir').textContent = dirLabel();
+}
+function repaint() { render(sortRows(items, sortKey, sortDesc)); }
+$('sort').onchange = () => { sortKey = $('sort').value; localStorage.setItem('el_sort', sortKey); paintSort(); repaint(); };
+$('dir').onclick = () => { sortDesc = !sortDesc; localStorage.setItem('el_sort_desc', sortDesc ? '1' : '0'); paintSort(); repaint(); };
 
 function render(rows) {
   const box = $('list');
@@ -475,8 +560,8 @@ function render(rows) {
       d.innerHTML = '<b>' + esc(it.kind) + '</b> <a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' +
         (it.ad ? ' <small>ad</small>' : '') +
         countsLine(it) +
-        (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '') +
-        '<br><small>' + esc(new Date(it.clicked_at || it.received_at || 0).toLocaleString()) + '</small>';
+        datesLine(it) +
+        (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '');
     } catch (e) {
       // one malformed record must never empty the list
       d.textContent = (it && it.kind) || 'capture';
@@ -484,30 +569,50 @@ function render(rows) {
     box.appendChild(d);
   }
 }
+// Walk the whole inbox in pages: a capped window hid older captures behind a
+// "showing the newest N" note, which reads exactly like data loss.
+async function readAll(url, headers) {
+  const out = [];
+  let total = 0, extra = {};
+  for (let offset = 0; offset < 5000; ) {
+    const r = await fetch(url + '?limit=500&offset=' + offset, {headers});
+    if (!r.ok) return {ok:false, code:r.status, items:out, total, extra};
+    const body = await r.json();
+    const batch = body.items || [];
+    out.push(...batch);
+    if (body.total != null) total = body.total;
+    if (body.used != null) extra = {used: body.used, quota: body.quota};
+    if (!batch.length || out.length >= total) break;
+    offset += batch.length;
+  }
+  return {ok:true, items:out, total: total || out.length, extra};
+}
 async function load() {
   if (!token && !atoken) { $('status').innerHTML = '<span class=err>No key for this inbox.</span> Open it from the extension: <b>Open on echolike.app</b>.'; return; }
   $('status').textContent = 'Loading…';
-  let r;
-  const url = atoken ? '/api/account/likes?limit=200' : '/api/likes?limit=200';
-  try { r = await fetch(url, {headers:{authorization:'Bearer ' + (atoken || token)}}); }
+  const url = atoken ? '/api/account/likes' : '/api/likes';
+  let got;
+  try { got = await readAll(url, {authorization:'Bearer ' + (atoken || token)}); }
   catch (e) { $('status').innerHTML = '<span class=err>Network error.</span>'; return; }
-  if (r.status === 401) { $('status').innerHTML = '<span class=err>This inbox key is not valid any more.</span>'; return; }
-  const body = await r.json();
-  const rows = body.items || [];
+  if (!got.ok && got.code === 401) { $('status').innerHTML = '<span class=err>This inbox key is not valid any more.</span>'; return; }
+  if (!got.ok) { $('status').innerHTML = '<span class=err>Inbox answered HTTP ' + got.code + '.</span>'; return; }
+  const rows = got.items;
   if (!key) { $('status').textContent = rows.length + ' encrypted capture(s) waiting.'; $('ask').style.display='block'; return; }
   try { aes = await importKey(key); } catch (e) { $('status').innerHTML = '<span class=err>That recovery code is not valid.</span>'; $('ask').style.display='block'; return; }
   try {
     const all = await Promise.all(rows.map(decrypt));
-    // Same X account in two browsers: one like, one row.
+    // Same X account in two browsers: one like, one row. A capture stored twice by
+    // an older release also collapses here (keep the first, newest, copy).
     const seen = new Set();
     items = all.filter((it) => { const k = (it.kind||'')+'|'+(it.id||it.uid||''); if (seen.has(k)) return false; seen.add(k); return true; });
   }
   catch (e) { $('status').innerHTML = '<span class=err>Wrong recovery code: these captures do not decrypt.</span>'; $('ask').style.display='block'; return; }
-  $('status').innerHTML = '<span class=ok>' + (body.total!=null ? body.total : items.length) + '</span> capture(s) in this inbox' +
-    (body.used!=null && body.quota ? ' · ' + body.used + '/' + body.quota + ' this month' : '') +
-    (items.length < (body.total||0) ? ' · showing the newest ' + items.length : '');
+  $('status').innerHTML = '<span class=ok>' + (got.total || items.length) + '</span> capture(s) in this inbox' +
+    (got.extra.used!=null && got.extra.quota ? ' · ' + got.extra.used + '/' + got.extra.quota + ' this month' : '');
   $('export').style.display = 'inline-block';
-  render(items);
+  $('sorts').style.display = items.length ? 'block' : 'none';
+  paintSort();
+  repaint();
 }
 $('go').onclick = () => {
   const v = $('code').value.trim();
@@ -562,12 +667,13 @@ export default {
       if (path === "/api/likes" && req.method === "GET") {
         const who = await tenant(env, req.headers.get("authorization"));
         if (!who) return json({ ok: false, error: "unauthorized" }, 401);
-        const limit = Math.min(200, Math.max(1, Number(url.searchParams.get("limit") || 100)));
+        const limit = Math.min(MAX_READ, Math.max(1, Number(url.searchParams.get("limit") || 200)));
+        const offset = Math.max(0, Number(url.searchParams.get("offset") || 0));
         const rows = await env.DB.prepare(
           "SELECT uid, iv, ct, text, handle, url, kind, clicked_at, ad, legacy, received_at" +
-            " FROM likes WHERE user_id = ?1 ORDER BY id DESC LIMIT ?2",
+            " FROM likes WHERE user_id = ?1 ORDER BY id DESC LIMIT ?2 OFFSET ?3",
         )
-          .bind(who.user, limit)
+          .bind(who.user, limit, offset)
           .all();
         const total = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(who.user).first();
         return json({

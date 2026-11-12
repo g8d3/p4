@@ -13,8 +13,11 @@ stays in your browser. The inbox server stores blobs it cannot open — ours inc
    on the hosted inbox and everything after it lands there. No address, no token,
    no account, nothing to configure.
 
-Click the toolbar icon: it opens the extension page, which shows your captures (newest first) and has a
-**Settings** tab for everything else. **Open on echolike.app** opens the web reader for the full list, which: with the hosted inbox that
+Click the toolbar icon: it opens the extension page, which shows your captures and has a
+**Settings** tab for everything else. The list sorts by any of the four dates it keeps (my interaction,
+captured in the browser, arrived in the inbox, post published) or by any of the five counts (reposts, likes,
+replies, bookmarks, views), either direction, and remembers your choice; a filter next to it picks one slice —
+including **not in the inbox yet**, which the count in the status line opens with one click. **Open on echolike.app** opens the web reader for the full list, which: with the hosted inbox that
 opens a normal web page on echolike.app (any device, nothing to install); with your own server it opens the
 extension's inbox page. Either way it decrypts in your browser, tells you what is *in* the inbox versus what this
 browser holds, and exports JSON. Free hosted quota: 3000 captures/month per install.
@@ -29,8 +32,9 @@ post, and encrypts everything on the way out. It is a button on purpose: scroll-
 scraper looks like.
 
 **Nothing to press.** The first like connects an inbox by itself, and a queue that could not go out is sent by the
-next event: another like, an X tab loading, the browser coming back online, or opening this page. No timers, no
-"retry" to remember.
+next event: another like, an X tab loading, the browser coming back online, opening this page, or a browser
+start. No timers, no "retry" to remember, and the page repairs itself on load: what this browser holds and the
+inbox lacks goes out without a click. A re-sent capture never duplicates (the server keeps one row per capture).
 
 **Two browsers, one account** (optional): install in both, sign in with the same email in each, and back up the
 key with a passphrase in the first one. In the second, sign in and press **Restore key** with that passphrase —

@@ -40,6 +40,13 @@ button:disabled{opacity:.45;cursor:default}
 <div id="panel-inbox" class="panel on" role="tabpanel">
   <p class="help">Your captures, decrypted here. Nothing on the server can read them.</p>
   <div id="status">…</div>
+  <p id="sorts" class="help" style="display:none;margin:10px 0 0">
+    <label for="sort" style="display:inline-block;margin:0 6px 0 0">Sort by</label>
+    <select id="sort" style="font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px"></select>
+    <button id="dir" class="act" type="button" style="margin:0 0 0 6px">newest first</button>
+    <label for="filter" style="display:inline-block;margin:0 0 0 12px">Show</label>
+    <select id="filter" style="font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px"></select>
+  </p>
   <p>
     <button id="find" class="act primary" type="button">Find my inbox</button>
     <button id="export" class="act" style="display:none">Download as JSON</button>

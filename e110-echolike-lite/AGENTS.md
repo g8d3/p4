@@ -313,6 +313,46 @@ row), and anything that needs a second request — a capture must cost zero extr
 traffic. `liked_at` does not exist on X's DOM: for a live capture `captured_at` is
 the like moment, for an import it is the import moment, and the field name says so.
 
+## Ordering and filtering (1.17.0)
+
+Arrival order is not a user-meaningful order, and shipping only arrival order made
+a fresh like look lost: a repair pass re-sent old captures, their new rows took the
+top of the list, and the like the user had just liked sank out of sight. Both
+surfaces — the extension page and the hosted reader — now sort explicitly and
+remember the choice (`el_sort` / `el_sort_desc` in `localStorage`).
+
+| Sort by | Field | Kind |
+|---|---|---|
+| my interaction | `clicked_at` | date |
+| captured in the extension | `captured_at` | date |
+| arrived in the inbox | `received_at` | date |
+| post published | `published_at` | date |
+| reposts, post likes, replies, bookmarks, views | `counts.*` | number |
+
+The direction button says "newest/oldest" for dates and "most/least" for counts.
+A row with an unknown value is always last, whichever direction is chosen — an old
+capture with no counts never pretends to be the largest. Each row prints all four
+dates (`liked`, `saved`, `arrived`, `published`) so the sort can be verified by eye.
+
+The same control block carries a **filter**: all captures, **not in the inbox yet**,
+likes, bookmarks, unlikes, ads, with media. The status line's "N not in the inbox
+yet" is a button that opens exactly those N — the answer to "which ones are
+missing?" without scrolling for them.
+
+Three server-side rules keep that list honest:
+
+* **A read covers the whole inbox.** `GET /api/likes?limit=&offset=` pages the
+  list (max 500 per page) and reports `total` on every page. The client walks it
+  to the end. A capped window is what made the page claim captures were missing
+  when they were only further down, and the repair pass then re-uploaded them.
+* **One capture, one row.** A partial unique index on `(user_id, uid)` plus
+  `INSERT OR IGNORE` makes a retry idempotent; the response reports `received`
+  (stored now) and `duplicates` (already there), and only `received` charges quota.
+* **Nothing to press.** Opening the page reads the inbox and sends by itself
+  whatever this browser holds and the inbox lacks; the "Send N now" button exists
+  only to skip the wait until the next event. Live proof: `tests/review_sort.py`
+  seeds an unsent capture, opens the page and expects it in the inbox.
+
 ## Automation (1.10.0): events, never a schedule
 
 Nothing in the product is on a timer. Every send is caused by an event that already
@@ -323,7 +363,7 @@ exists, and the events that mean "work is worth doing now" are:
 | a capture (like/bookmark) | the queue is sent; if nothing is configured, it *connects itself* first (local candidates, then the hosted inbox) — no button |
 | an X tab finishing loading (`hello` from the content script) | pending queue is sent, diagnostics backlog flushed |
 | the browser's own `online` event (content script on x.com, or the extension page) | `syncAll()`: send what waited **and** repair anything the mirror holds that the inbox never received |
-| opening the extension page | `syncAll()` once per load |
+| opening the extension page | the inbox is read to the end, then anything the mirror holds and the inbox lacks is re-sealed and sent — no button; `syncAll()` also runs on demand for "now" |
 | `chrome.runtime.onStartup` / `onInstalled` | `syncAll()` — an update that fixes a queue repairs it by itself |
 | any diagnostics event | the batch is uploaded immediately, if the user left diagnostics on |
 
@@ -375,14 +415,29 @@ xvfb-run -a python3 tests/review_zero.py
 # a local inbox that refuses must not stop discovery (needs port 8931 free):
 # systemctl --user stop echolike-lite-inbox && xvfb-run -a python3 tests/review_find_fallback.py
 xvfb-run -a python3 tests/review_app.py       # the one page: tabs, find, ads switch, list, bad connect
+python3 tests/review_sort.py                  # LIVE: one capture one row, offset pages, sort/filter both readers, self-repair
 # the real user seat: no configuration at all, one button, inside a throw-away netns
 # so the live inbox on 8931 is untouched
 unshare -rn sh -c 'ip link set lo up; xvfb-run -a python3 tests/review_find.py'
 ```
 
 Headless must be `False` under xvfb: Chrome's old headless does not load extensions.
+`tests/review_sort.py` needs the extension page too, so it runs under
+`xvfb-run -a` as well.
 
 ## Version history
+
+- 1.17.0 — ordering, filtering and an honest window. Both readers sort by the four dates (my interaction,
+  captured in the extension, arrived in the inbox, post published) and the five counts (reposts, likes,
+  replies, bookmarks, views), ascending/descending, remembered across loads; a filter picks one slice
+  ("not in the inbox yet" included) and the count in the status line opens exactly those. Why it was needed:
+  the read was capped at 200 rows while the mirror held 500, so the page reported captures as unsent when
+  they were only past the window, and every repair re-uploaded them — 45 duplicate rows and 45 quota units in
+  one afternoon, with the freshly liked post pushed out of sight. Now: `limit`+`offset` reads to the end
+  (worker API 4), a partial unique index on `(user_id, uid)` with `INSERT OR IGNORE` (migration 0007, which
+  also de-duplicated the existing rows and put the quota back in line), `received`/`duplicates` in the
+  response, `syncAll()` paging the whole inbox, and the page repairing itself on load. `server.py` de-dupes on
+  read and pages too. New test: `tests/review_sort.py`.
 
 - 1.0.0 — capture + send, popup was status only (a list was needed: no inbox meant no way to *see* anything).
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
