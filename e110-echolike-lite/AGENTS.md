@@ -353,6 +353,12 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.15.0 — the two reasons the walk stopped at 7, both evidenced in one telemetry row (`scrollTop=2284`,
+  `scrollable=6655`, `rows=7`): (a) it called "end" **mid-list** after three quiet ticks — now it only ends at
+  the bottom (`atBottom()`), keeps stepping while there is more below (`stuck` counter for a page that never grows),
+  and (b) the likes tab was **in the background**, where Chrome throttles rendering and X's loader never fires —
+  `importStart()` brings the tab to the front before the walk. The scroll is bigger (80% of the viewport), nudges
+  both the window and the resolved container, and fires a wheel hint. `CONTENT_API` 5.
 - 1.14.1 — the walk announces its api (`CONTENT_API` 4). A tab running the previous version's content script is
   detected, reloaded and restarted automatically — that stale script is what produced "7 collected, 1 sent", with
   no `import.begin` in the log at all.

@@ -55,7 +55,7 @@
   // Bump when the walk changes. The background refuses to start an import on a tab
   // whose script speaks an older api, and reloads it instead — a stale tab is the
   // difference between 7 rows and a thousand, and it is invisible otherwise.
-  const CONTENT_API = 4;
+  const CONTENT_API = 5;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 
@@ -155,14 +155,21 @@
   // One viewport at a time. Jumping to scrollHeight makes a virtualized list render
   // its tail and throw away the middle: that is how a 1k list yielded 6 tweets.
   function nudgeStep() {
-    const sc = xScroller();
+    const sc = xScroller() || document.scrollingElement;
     try {
+      const step = Math.max(400, Math.floor((window.innerHeight || 900) * 0.8));
+      // The window, the resolved container, and a wheel hint: X's list reacts to
+      // different ones depending on the layout it shipped this week.
+      window.scrollBy(0, step);
       if (sc && sc !== document.scrollingElement) {
-        const step = Math.max(300, Math.floor(sc.clientHeight * 0.9));
         sc.scrollTop = Math.min(sc.scrollHeight, sc.scrollTop + step);
         sc.dispatchEvent(new Event("scroll", { bubbles: true }));
-      } else {
-        window.scrollBy(0, Math.max(300, Math.floor(window.innerHeight * 0.9)));
+      }
+      window.dispatchEvent(new Event("scroll"));
+      try {
+        window.dispatchEvent(new WheelEvent("wheel", { deltaY: step, bubbles: true }));
+      } catch (e) {
+        /* no WheelEvent in this engine: the scrolls above still happened */
       }
     } catch (e) {
       /* a page that refuses to scroll is a page we report, not crash on */
@@ -226,7 +233,7 @@
           detail:
             "collected=" + collected.size + " sent=" + sent + " skipped=" + Math.max(0, collected.size - sent) +
             " queued=" + queue.length + " rounds=" + rounds + " quiet=" + quietRounds +
-            " reason=" + reason + " rows=" + document.querySelectorAll('article, [data-testid="tweet"]').length +
+            " atBottom=" + atBottom() + " stuck=" + stuckRounds + " reason=" + reason + " rows=" + document.querySelectorAll('article, [data-testid="tweet"]').length +
             " seenRows=" + seenRows + " noId=" + noId +
             " scroller=" + (sc ? sc.tagName + ":" + (getComputedStyle(sc).overflowY || "?") : "none") +
             " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
@@ -258,6 +265,11 @@
     };
 
     let quietRounds = 0;
+    let stuckRounds = 0;
+    const atBottom = () => {
+      const sc = xScroller() || document.scrollingElement || document.documentElement;
+      return sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 200;
+    };
     const waitForGrowth = () => {
       if (observer) observer.disconnect();
       clearTimeout(quiet);
@@ -278,11 +290,22 @@
           return;
         }
         quietRounds++;
+        // A background tab does not render, and a mid-list page has more below: only
+        // call it finished when we are actually at the bottom.
+        const grew = collected.size > lastCount;
+        lastCount = collected.size;
+        if (!grew) stuckRounds++;
+        else stuckRounds = 0;
+        if (!atBottom() && stuckRounds < 8) {
+          step();
+          return;
+        }
         if (quietRounds < IMPORT_QUIET_ROUNDS) step();
-        else finish("end");
+        else finish(atBottom() ? "end" : "stuck");
       }, IMPORT_QUIET_MS);
     };
 
+    let lastCount = 0;
     function step() {
       if (done) return;
       rounds++;

@@ -7,7 +7,7 @@
 const MAX_ITEMS = 500;
 // Must match `CONTENT_API` in content.js: an import refuses to run on a tab whose
 // script speaks an older walk, and reloads it instead.
-const CONTENT_API = 4;
+const CONTENT_API = 5;
 
 // The hosted inbox: an install that has never been configured claims a tenant
 // there by itself on the first capture — no address, no token, no click. Point
@@ -555,6 +555,9 @@ async function importStart(mode, limit, tabId) {
     tabs.find((t) => t.active) ||
     tabs[0];
   try {
+    // Chrome throttles rendering (and X's loader) in a hidden tab, which is exactly
+    // how a list yields its first 7 rows and nothing else.
+    await chrome.tabs.update(tab.id, { active: true }).catch(() => {});
     const r = await chrome.tabs.sendMessage(tab.id, { type: "import-start", mode, limit });
     if (!r) throw new Error("no answer");
     if (r.api !== CONTENT_API) {
