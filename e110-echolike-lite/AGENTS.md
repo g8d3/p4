@@ -337,6 +337,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.13.1 — the walk scrolls **one viewport at a time**: `scrollTop = scrollHeight` made X's virtualized list render its
+  tail and discard the middle (a 1k-like account yielded 6 tweets, `sent=0`, `reason=end`). Failures now leave a row
+  from both sides — `import.sendfail` (content script: `lastError` / no answer, with the batch size) and
+  `import.batch` with `ok:false` if `captureBatch()` throws — because a silent 0 is what cost a round trip.
 - 1.13.0 — Import picks its tab: the tab lists X tabs by path, can open the list, and names the one that failed
   (with a *Reload that tab and start* button). The walk waits out stalls (3 quiet rounds, progressbar aware, real
   scroll container), so it no longer "finishes" at 2 of 100. All displayed times are in the user's timezone.

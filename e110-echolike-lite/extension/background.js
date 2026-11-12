@@ -473,6 +473,15 @@ async function keyRestore(passphrase) {
 // go. Anything this browser already has (by kind + post id) is dropped, so running
 // an import twice, or importing the likes you already captured live, adds nothing.
 async function captureBatch(items, source) {
+  try {
+    return await captureBatchInner(items, source);
+  } catch (e) {
+    await tel("import.batch", { ok: false, error: String(e.message || e), detail: "in=" + (items || []).length });
+    return { ok: false, error: String(e.message || e) };
+  }
+}
+
+async function captureBatchInner(items, source) {
   const s = await state();
   const known = new Set(s.items.map((i) => i.kind + "|" + i.id));
   const fresh = [];

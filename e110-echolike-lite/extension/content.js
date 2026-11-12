@@ -131,12 +131,18 @@
 
   // X appends in bursts, sometimes seconds apart. Scrolling one element and hoping is
   // how the first attempt "finished" with 2 of 100.
-  function nudgeToBottom() {
+  // One viewport at a time. Jumping to scrollHeight makes a virtualized list render
+  // its tail and throw away the middle: that is how a 1k list yielded 6 tweets.
+  function nudgeStep() {
     const sc = xScroller();
-    if (sc) sc.scrollTop = sc.scrollHeight;
     try {
-      window.scrollTo(0, document.body.scrollHeight);
-      (sc || document.documentElement).dispatchEvent(new Event("scroll", { bubbles: true }));
+      if (sc && sc !== document.scrollingElement) {
+        const step = Math.max(300, Math.floor(sc.clientHeight * 0.9));
+        sc.scrollTop = Math.min(sc.scrollHeight, sc.scrollTop + step);
+        sc.dispatchEvent(new Event("scroll", { bubbles: true }));
+      } else {
+        window.scrollBy(0, Math.max(300, Math.floor(window.innerHeight * 0.9)));
+      }
     } catch (e) {
       /* a page that refuses to scroll is a page we report, not crash on */
     }
@@ -169,7 +175,10 @@
       }
       const batch = queue.splice(0, final ? queue.length : IMPORT_BATCH);
       chrome.runtime.sendMessage({ type: "capture-batch", items: batch, source: "import" }, (r) => {
-        if (!chrome.runtime.lastError && r && r.ok) sent += r.added || 0;
+        const err = chrome.runtime.lastError && chrome.runtime.lastError.message;
+        if (err) tel("import.sendfail", { ok: false, error: err, detail: "batch=" + batch.length });
+        else if (!r || r.ok === false) tel("import.sendfail", { ok: false, error: (r && r.error) || "no answer", detail: "batch=" + batch.length });
+        else sent += r.added || 0;
         report(final ? "done" : "running");
         if (final && queue.length) drain(true);
       });
@@ -188,7 +197,8 @@
         ok: reason !== "timeout",
         error: reason,
         detail:
-          "collected=" + collected.size + " sent=" + sent + " rounds=" + rounds + " quiet=" + quietRounds +
+          "collected=" + collected.size + " sent=" + sent + " queued=" + queue.length +
+          " rounds=" + rounds + " quiet=" + quietRounds +
           " reason=" + reason + " articles=" + document.querySelectorAll("article").length +
           " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
           " scrollable=" + (sc ? sc.scrollHeight - sc.clientHeight : -1),
@@ -240,7 +250,7 @@
       if (collected.size >= wanted) return finish("limit");
       if (Date.now() - startedAt > IMPORT_MAX_MS) return finish("timeout");
       if (queue.length >= IMPORT_BATCH) drain(false);
-      nudgeToBottom();
+      const sc = nudgeStep();
       // Never conclude on the first tick, however few we have: X's list loads in
       // bursts and a lesson learned at 2 of 100.
       if (rounds < 2) {
