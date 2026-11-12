@@ -17,7 +17,9 @@ Click the toolbar icon: it opens the extension page, which shows your captures a
 **Settings** tab for everything else. The list sorts by any of the four dates it keeps (my interaction,
 captured in the browser, arrived in the inbox, post published) or by any of the five counts (reposts, likes,
 replies, bookmarks, views), either direction, and remembers your choice; a filter next to it picks one slice —
-including **not in the inbox yet**, which the count in the status line opens with one click. **Open on echolike.app** opens the web reader for the full list, which: with the hosted inbox that
+including **not in the inbox yet**, which the count in the status line opens with one click. Each capture is a card, not a paragraph: the five counts in five aligned columns (a dash when a number is
+missing, so nothing shifts), the four dates in a grid of their own, and the post text with room to select it.
+**Open on echolike.app** opens the web reader for the full list, which: with the hosted inbox that
 opens a normal web page on echolike.app (any device, nothing to install); with your own server it opens the
 extension's inbox page. Either way it decrypts in your browser, tells you what is *in* the inbox versus what this
 browser holds, and exports JSON. Free hosted quota: 3000 captures/month per install.

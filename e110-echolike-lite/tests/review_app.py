@@ -68,7 +68,7 @@ with sync_playwright() as p:
         page.evaluate("items => chrome.storage.local.set({items, outbox: items})", seeded)
         page.reload()
         page.wait_for_timeout(700)
-        rows = page.query_selector_all("#list div")
+        rows = page.query_selector_all("#list .cap")
         check("list rows", len(rows), 2)
         check("newest first", "sama" in (rows[0].inner_text() if rows else ""), True)
         check("XSS-safe", page.query_selector("#list script") is not None, False)

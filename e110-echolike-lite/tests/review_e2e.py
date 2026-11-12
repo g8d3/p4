@@ -94,7 +94,7 @@ try:
         page.wait_for_timeout(400)
         page.reload()  # a real load: the inbox tab fetches and decrypts
         page.wait_for_timeout(2500)
-        rows = page.query_selector_all("#list div")
+        rows = page.query_selector_all("#list .cap")
         check("one row in the inbox list", len(rows), 1)
         check("row text", "e2e capture" in (rows[0].inner_text() if rows else ""), True)
         check("nothing left pending", page.evaluate("chrome.storage.local.get({outbox:[]}).then(s=>s.outbox.length)"), 0)

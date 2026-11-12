@@ -119,7 +119,7 @@ with sync_playwright() as p:
         )
         page.reload()
         page.wait_for_timeout(3000)
-        rows = page.query_selector_all("#list div")
+        rows = page.query_selector_all("#list .cap")
         check("the reader lists the account, not one device", len(rows), 3)
         text = page.inner_text("#list")
         check("it says it is the account", "in my account" in page.inner_text("#status"), True)

@@ -37,36 +37,74 @@ async function decryptAll(key, blobs) {
   return out;
 }
 
-// Replies · reposts · likes · bookmarks · views, and when it was published.
+// One compact line of steam, unless the row is too narrow: the grid below does
+// the alignment, this just holds the numbers.
 const fmt = (n) => (n == null ? "–" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(1) + "K" : String(n));
-function countsLine(it) {
+
+// Short but unambiguous: "12 Nov 08:10", with the year only when it is not this one.
+const shortTime = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso);
+  const o = { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
+  if (d.getFullYear() !== new Date().getFullYear()) o.year = "numeric";
+  return d.toLocaleString([], o);
+};
+
+// A grid, not a sentence: every value in its own column, so the numbers line up
+// down the list and the eye can compare rows instead of re-reading them.
+const STATS = [
+  ["replies", "replies"],
+  ["reposts", "reposts"],
+  ["likes", "likes"],
+  ["bookmarks", "bookmarks"],
+  ["views", "views"],
+];
+function statsGrid(it) {
   const c = it.counts || {};
-  const bits = [
-    ["replies", c.replies],
-    ["reposts", c.reposts],
-    ["likes", c.likes],
-    ["bookmarks", c.bookmarks],
-    ["views", c.views],
-  ]
-    .filter(([, v]) => v != null)
-    .map(([k, v]) => fmt(v) + " " + k);
-  if (it.media) bits.push(it.media + " media");
-  return bits.length ? '<br><small>' + esc(bits.join(" · ")) + "</small>" : "";
+  // Always five cells: an unknown value is a dash in its column, never a hole that
+  // shifts the neighbours, so the numbers stay aligned row after row.
+  const cells = STATS.map(
+    ([k, label]) => '<span><b>' + esc(fmt(c[k])) + "</b><i>" + label + "</i></span>",
+  );
+  return '<div class="grid stats">' + cells.join("") + "</div>";
 }
 
 // Four dates, all kept on purpose: when I clicked, when this browser saved it,
 // when the inbox received it, when the post was published. They are different
 // events, and the point of sorting by one of them is to see the others.
-function datesLine(it) {
-  const bits = [
-    ["liked", it.clicked_at],
-    ["saved", it.captured_at],
-    ["arrived", it.received_at],
-    ["published", it.published_at || it.tweet_time],
-  ]
-    .filter(([, v]) => v)
-    .map(([k, v]) => k + " " + localTime(v));
-  return bits.length ? "<br><small>" + esc(bits.join(" · ")) + "</small>" : "";
+const DATES = [
+  ["liked", "clicked_at"],
+  ["saved", "captured_at"],
+  ["arrived", "received_at"],
+  ["published", "published_at"],
+];
+function datesGrid(it) {
+  const cells = DATES.map(([label, field]) => {
+    const v = it[field] || (field === "published_at" ? it.tweet_time : "");
+    if (!v) return "";
+    // The exact second, without widening the column: it lives in the tooltip.
+    return '<span title="' + esc(localTime(v)) + '"><i>' + label + "</i> <b>" + esc(shortTime(v)) + "</b></span>";
+  })
+    .filter(Boolean);
+  return cells.length ? '<div class="grid dates">' + cells.join("") + "</div>" : "";
+}
+
+// One capture, one card: where it is from, what it is worth, when it happened,
+// and what it says — each in its own block so the layout never becomes a paragraph.
+function rowHtml(it) {
+  return (
+    '<div class="head"><b>' + esc(it.kind) + "</b> " +
+    (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
+    (it.ad ? ' <span class="tag">ad</span>' : "") +
+    (it.media ? ' <span class="tag">' + esc(it.media) + " media</span>" : "") +
+    (it.waiting ? ' <span class="tag warn">waiting to send</span>' : "") +
+    (it.legacy ? ' <span class="tag">unencrypted, older version</span>' : "") +
+    "</div>" +
+    statsGrid(it) +
+    datesGrid(it) +
+    (it.text ? '<p class="body">' + esc(String(it.text).slice(0, 600)) + "</p>" : "")
+  );
 }
 
 // ---- Sorting ---------------------------------------------------------------
@@ -193,15 +231,8 @@ function render(items) {
   }
   for (const it of items) {
     const row = document.createElement("div");
-    row.innerHTML =
-      "<b>" + esc(it.kind) + "</b> " +
-      (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
-      (it.ad ? " <small>ad</small>" : "") +
-      countsLine(it) +
-      datesLine(it) +
-      (it.waiting ? " <small>waiting to send</small>" : "") +
-      (it.legacy ? " <small>unencrypted, from an older version</small>" : "") +
-      (it.text ? "<br><span>" + esc(String(it.text).slice(0, 600)) + "</span>" : "");
+    row.className = "cap";
+    row.innerHTML = rowHtml(it);
     box.appendChild(row);
   }
 }

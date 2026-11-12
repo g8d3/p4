@@ -121,7 +121,7 @@ with sync_playwright() as p:
         opts.click("#revealkey")
         check("reveal works", opts.get_attribute("#key", "type"), "text")
         opts.close()
-        check("row rendered locally too", len(page.query_selector_all("#list div")), 1)
+        check("row rendered locally too", len(page.query_selector_all("#list .cap")), 1)
     finally:
         ctx.close()
 

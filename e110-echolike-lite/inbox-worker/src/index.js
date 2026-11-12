@@ -431,7 +431,21 @@ const PAGE = `<!doctype html><meta charset=utf-8>
 <style>
 body{font:15px system-ui;max-width:680px;margin:24px auto;padding:0 14px;color:#111}
 h1{font-size:20px;margin:0 0 4px}small{color:#666}a{color:#1d9bf0}
-#list div{border-top:1px solid #eee;padding:8px 0}
+#list .cap{border-top:1px solid #eee;padding:10px 12px 12px}
+#list .head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
+#list .tag{font-size:11px;line-height:1.5;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px}
+#list .grid{display:grid;gap:1px 14px;margin-top:7px;font-size:12px;color:#444}
+/* Five counts, five equal columns, always: a row with a missing number leaves a
+   dash in its place instead of shifting the others, so the columns line up down
+   the whole list. Value over label fits a phone without wrapping. */
+#list .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 8px}
+#list .stats b{display:block;font-size:13px;line-height:1.25}
+#list .stats i{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#list .dates{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));font-size:11px}
+#list .grid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
+#list .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
+#list .grid i{font-style:normal;color:#888}
+#list .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
 input{font:inherit;width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:8px}
 button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}
 select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;background:#fff}
@@ -482,26 +496,46 @@ async function importKey(k) {
 }
 async function decrypt(blob) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv: b64d(blob.iv)}, aes, b64d(blob.ct));
-  return JSON.parse(new TextDecoder().decode(plain));
+  // received_at is the server's column, not part of the sealed record: without
+  // this line the reader could not show -- or sort by -- when the inbox got it.
+  return Object.assign(JSON.parse(new TextDecoder().decode(plain)), {received_at: blob.received_at});
 }
 const fmtN = (n) => (n == null ? '–' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n));
 const localTime = (iso) => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? String(iso) : d.toLocaleString([], {dateStyle:'short', timeStyle:'short'}); };
-// Counts of one capture, for the reader.
-function countsLine(it) {
+// "12 Nov 08:10", year only when it is not this one: a grid column has no room
+// for a locale that spells everything out, and the tooltip keeps the exact second.
+const shortTime = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso);
+  const o = {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'};
+  if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+  return d.toLocaleString([], o);
+};
+// Counts in a grid, one column per value: aligned down the list, not a sentence.
+const STATS = [['replies','replies'], ['reposts','reposts'], ['likes','likes'], ['bookmarks','bookmarks'], ['views','views']];
+function statsGrid(it) {
   const c = it.counts || {};
-  const bits = [['replies', c.replies], ['reposts', c.reposts], ['likes', c.likes], ['bookmarks', c.bookmarks], ['views', c.views]]
-    .filter(([, v]) => v != null)
-    .map(([k, v]) => fmtN(v) + ' ' + k);
-  if (it.media) bits.push(it.media + ' media');
-  return bits.length ? '<br><small>' + esc(bits.join(' · ')) + '</small>' : '';
+  // Always five cells: unknown is a dash in its own column, so nothing shifts.
+  const cells = STATS.map(([k, l]) => '<span><b>' + esc(fmtN(c[k])) + '</b><i>' + l + '</i></span>');
+  return '<div class="grid stats">' + cells.join('') + '</div>';
 }
-// Four different events, four dates: when I clicked, when the extension saved it,
-// when this inbox received it, when the post was published.
-function datesLine(it) {
-  const bits = [['liked', it.clicked_at], ['saved', it.captured_at], ['arrived', it.received_at], ['published', it.published_at || it.tweet_time]]
-    .filter(([, v]) => v)
-    .map(([k, v]) => k + ' ' + localTime(v));
-  return bits.length ? '<br><small>' + esc(bits.join(' · ')) + '</small>' : '';
+const DATES = [['liked','clicked_at'], ['saved','captured_at'], ['arrived','received_at'], ['published','published_at']];
+function datesGrid(it) {
+  const cells = DATES.map(([label, field]) => {
+    const v = it[field] || (field === 'published_at' ? it.tweet_time : '');
+    if (!v) return '';
+    return '<span title="' + esc(localTime(v)) + '"><i>' + label + '</i> <b>' + esc(shortTime(v)) + '</b></span>';
+  }).filter(Boolean);
+  return cells.length ? '<div class="grid dates">' + cells.join('') + '</div>' : '';
+}
+function rowHtml(it) {
+  return '<div class="head"><b>' + esc(it.kind) + '</b> ' +
+    (it.url ? '<a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' : esc(it.handle)) +
+    (it.ad ? ' <span class="tag">ad</span>' : '') +
+    (it.media ? ' <span class="tag">' + esc(it.media) + ' media</span>' : '') +
+    '</div>' + statsGrid(it) + datesGrid(it) +
+    (it.text ? '<p class="body">' + esc(String(it.text).slice(0, 400)) + '</p>' : '');
 }
 
 // Sorting: arrival order is not a user-meaningful order, so the reader offers the
@@ -556,12 +590,9 @@ function render(rows) {
   if (!rows.length) { box.innerHTML = '<p class=mut>Nothing yet. Like a post on X.</p>'; return; }
   for (const it of rows) {
     const d = document.createElement('div');
+    d.className = 'cap';
     try {
-      d.innerHTML = '<b>' + esc(it.kind) + '</b> <a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' +
-        (it.ad ? ' <small>ad</small>' : '') +
-        countsLine(it) +
-        datesLine(it) +
-        (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '');
+      d.innerHTML = rowHtml(it);
     } catch (e) {
       // one malformed record must never empty the list
       d.textContent = (it && it.kind) || 'capture';

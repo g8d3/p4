@@ -22,10 +22,24 @@ button.primary{background:#111;color:#fff;border-color:#111}
 button:disabled{opacity:.45;cursor:default}
 .msg{font-size:13px;margin-top:10px;min-height:18px}
 .ok{color:var(--ok)}.err{color:var(--err)}.mut{color:var(--mut)}
-#list div{border-top:1px solid #eee;padding:8px 0}
-#list span{color:#333}
-#list b{font-weight:600}
-#list a{color:#1d9bf0;text-decoration:none}
+#list .cap{border-top:1px solid #eee;padding:10px 12px 12px}
+#list .head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
+#list .tag{font-size:11px;line-height:1.5;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px}
+#list .tag.warn{background:#fff3cd;color:#8a6d3b}
+#list .grid{display:grid;gap:1px 14px;margin-top:7px;font-size:12px;color:#444}
+/* Five counts, five equal columns, always: a row with a missing number leaves a
+   dash in its place instead of shifting the others, so the columns line up down
+   the whole list. Value over label fits a phone without wrapping. */
+#list .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 8px}
+#list .stats b{display:block;font-size:13px;line-height:1.25}
+#list .stats i{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#list .dates{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));font-size:11px}
+#list .grid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
+#list .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
+#list .grid i{font-style:normal;color:#888}
+/* Selectable on purpose: padding and wrapping so a long post never runs into the
+   border, where selecting it with a mouse (or a thumb) is a fight. */
+#list .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
 </style>
 <header>
   <h1>EchoLike Lite</h1>

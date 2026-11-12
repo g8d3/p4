@@ -334,11 +334,6 @@ A row with an unknown value is always last, whichever direction is chosen — an
 capture with no counts never pretends to be the largest. Each row prints all four
 dates (`liked`, `saved`, `arrived`, `published`) so the sort can be verified by eye.
 
-The same control block carries a **filter**: all captures, **not in the inbox yet**,
-likes, bookmarks, unlikes, ads, with media. The status line's "N not in the inbox
-yet" is a button that opens exactly those N — the answer to "which ones are
-missing?" without scrolling for them.
-
 Three server-side rules keep that list honest:
 
 * **A read covers the whole inbox.** `GET /api/likes?limit=&offset=` pages the
@@ -352,6 +347,36 @@ Three server-side rules keep that list honest:
   whatever this browser holds and the inbox lacks; the "Send N now" button exists
   only to skip the wait until the next event. Live proof: `tests/review_sort.py`
   seeds an unsent capture, opens the page and expects it in the inbox.
+
+## The row is a card (1.17.1)
+
+The sort and filter block also carries a **filter**: all captures,
+**not in the inbox yet**, likes, bookmarks, unlikes, ads, with media. The status
+line's "N not in the inbox yet" is a button that opens exactly those N — the answer
+to "which ones are missing?" without scrolling for them.
+
+Before 1.17.1 a row was one run of text with `·` separators, which wrapped wherever
+the width decided: the counts on one line, the dates on another, the post text
+starting in the same visual mist, and the text touching the border so selecting it
+was a fight. Now every capture is four blocks:
+
+| Block | Holds | Layout |
+|---|---|---|
+| head | kind, `@handle` link, tags (ad, N media, waiting to send, unencrypted) | inline; tags are pills |
+| stats | replies · reposts · likes · bookmarks · views | **`repeat(5, minmax(0,1fr))`**: always five cells, value over label, `tabular-nums`, unknown rendered as `–` so nothing shifts |
+| dates | liked · saved · arrived · published | `repeat(auto-fit, minmax(132px,1fr))`: 4 columns on a desktop, 2 on a phone, each cell `nowrap` with the exact second in `title` |
+| body | the post text | `white-space:pre-wrap`, `overflow-wrap:anywhere`, `user-select:text`, and the card carries 12 px of padding so the text never touches the border |
+
+The five-fixed-column rule is the part worth keeping: `auto-fit` looked fine on a
+desktop and produced 4 + a stray fifth cell on a phone. `tests/review_sort.py`
+asserts five cells on one line at 760 px **and** 390 px on both surfaces, plus the
+card padding and the wrapping, because "it looks organised" is exactly the kind of
+thing that silently regresses.
+
+That review also found a real bug: the hosted reader **never had `received_at`** —
+the blob carries the sealed record, the arrival time is the plaintext column next to
+it, and the reader's `decrypt()` dropped it. "Arrived in the inbox" was therefore a
+sort key with nothing to sort in the web reader. It is attached on decrypt now.
 
 ## Automation (1.10.0): events, never a schedule
 
@@ -426,6 +451,13 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.17.1 — the row is a card: kind + handle + tags, then **five aligned count cells** (value over label,
+  tabular numbers, `–` when unknown), then the four dates in their own grid (4 columns, 2 on a phone), then
+  the post text with real padding, pre-wrap and anywhere-wrapping so it can be selected without fighting the
+  border. `auto-fit` gave 4 + a stray fifth cell on a phone; the stats grid is `repeat(5, 1fr)` now.
+  Found on the way: the hosted reader dropped `received_at` on decrypt, so "arrived in the inbox" had no
+  value to show or sort by there. `tests/review_sort.py` checks the layout at 760 px and 390 px, both surfaces.
 
 - 1.17.0 — ordering, filtering and an honest window. Both readers sort by the four dates (my interaction,
   captured in the extension, arrived in the inbox, post published) and the five counts (reposts, likes,
