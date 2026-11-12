@@ -17,6 +17,12 @@ wrangler d1 execute echolike-inbox --remote --command \
    DELETE FROM devices WHERE user_id IN (
      SELECT d.user_id FROM devices d
       WHERE NOT EXISTS (SELECT 1 FROM likes l WHERE l.user_id = d.user_id));
-   DELETE FROM devices WHERE user_id IN (SELECT id FROM users WHERE created_at < datetime('now','-2 hours'));" \
+   DELETE FROM devices WHERE user_id IN (SELECT id FROM users WHERE created_at < datetime('now','-2 hours'));
+   -- Test tenants keep devices behind until the 50-per-IP cap answers 409. A real
+   -- inbox has captures and, usually, a phone or two; a test one has a handful.
+   DELETE FROM devices WHERE user_id IN (
+     SELECT d.user_id FROM devices d
+      WHERE (SELECT COUNT(*) FROM likes l WHERE l.user_id = d.user_id) < 5
+        AND NOT EXISTS (SELECT 1 FROM account_tenants t WHERE t.user_id = d.user_id));" \
   2>&1 | grep -E "rows_written|error" | head -4
 echo "claim window cleared; the live tests can claim again"

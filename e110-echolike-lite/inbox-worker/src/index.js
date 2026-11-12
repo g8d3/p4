@@ -217,6 +217,203 @@ async function postLikes(env, req, who) {
   });
 }
 
+// ---- shared spaces --------------------------------------------------------
+// The collaborative unit. Membership is per tenant, joining is by a one-time token
+// with an expiry, and the content key is the members' business: it never reaches this
+// server. Revoking a member is a row deletion plus (from 1.18) a key rotation by the
+// owner; the server only ever enforces "who is in".
+const SPACE_MAX_MEMBERS = 25;
+const INVITE_HOURS = 24;
+const INVITE_MAX_HOURS = 168;
+
+async function spaceOf(env, id) {
+  if (!/^s_[0-9a-f]{12}$/.test(String(id || ""))) return null;
+  return await env.DB.prepare("SELECT id, name, created_by, created_at FROM spaces WHERE id = ?1").bind(id).first();
+}
+
+async function memberOf(env, id, user) {
+  return await env.DB.prepare("SELECT role FROM space_members WHERE space_id = ?1 AND user_id = ?2").bind(id, user).first();
+}
+
+async function createSpace(env, req, who) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const name = clamp(String(body.name || "").trim().slice(0, 60), 60) || "shared space";
+  const id = "s_" + hex(6);
+  const at = now();
+  await env.DB.batch([
+    env.DB.prepare("INSERT INTO spaces (id, name, created_by, created_at) VALUES (?1, ?2, ?3, ?4)").bind(id, name, who.user, at),
+    env.DB.prepare("INSERT INTO space_members (space_id, user_id, role, joined_at) VALUES (?1, ?2, 'owner', ?3)").bind(id, who.user, at),
+  ]);
+  return json({ ok: true, space: { id, name, role: "owner", created_at: at } });
+}
+
+async function listSpaces(env, who) {
+  const rows = await env.DB.prepare(
+    "SELECT s.id, s.name, s.created_at, m.role FROM spaces s JOIN space_members m ON m.space_id = s.id" +
+      " WHERE m.user_id = ?1 ORDER BY s.created_at DESC",
+  )
+    .bind(who.user)
+    .all();
+  const out = [];
+  for (const sp of rows.results || []) {
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM space_members WHERE space_id = ?1").bind(sp.id).first();
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE space_id = ?1").bind(sp.id).first();
+    out.push({ id: sp.id, name: sp.name, role: sp.role, created_at: sp.created_at, members: n?.n || 0, captures: c?.n || 0 });
+  }
+  return json({ ok: true, spaces: out });
+}
+
+// An invitation is a one-time token, not a key: it cannot be reused, it expires, and
+// the owner can revoke the membership it created. The space key travels in the code
+// the client builds, which is why the code is a secret — but a dying one.
+async function inviteToSpace(env, req, space, who) {
+  let body = {};
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    body = {};
+  }
+  const hours = Math.min(INVITE_MAX_HOURS, Math.max(1, Number(body.hours) || INVITE_HOURS));
+  const open = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM space_invites WHERE space_id = ?1 AND used_by IS NULL AND expires_at > ?2",
+  )
+    .bind(space.id, Math.floor(Date.now() / 1000))
+    .first();
+  if ((open?.n || 0) >= 20) return json({ ok: false, error: "too many open invitations for this space" }, 429);
+  const token = hex(16);
+  const id = "i_" + hex(6);
+  const at = now();
+  const expires = Math.floor(Date.now() / 1000) + hours * 3600;
+  await env.DB.prepare(
+    "INSERT INTO space_invites (id, space_id, sha256, created_by, created_at, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+  )
+    .bind(id, space.id, await sha256(token), who.user, at, expires)
+    .run();
+  return json({ ok: true, space: space.id, token, expires_at: new Date(expires * 1000).toISOString(), hours });
+}
+
+async function joinSpace(env, req, space, who) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const token = String(body.token || "").trim();
+  if (!/^[0-9a-f]{32}$/.test(token)) return json({ ok: false, error: "that invitation is not valid" }, 400);
+  const inv = await env.DB.prepare(
+    "SELECT id, used_by, expires_at FROM space_invites WHERE space_id = ?1 AND sha256 = ?2",
+  )
+    .bind(space.id, await sha256(token))
+    .first();
+  if (!inv) return json({ ok: false, error: "that invitation does not exist" }, 404);
+  if (inv.used_by) return json({ ok: false, error: "that invitation was already used" }, 409);
+  if (inv.expires_at <= Math.floor(Date.now() / 1000)) return json({ ok: false, error: "that invitation expired" }, 410);
+  const existing = await memberOf(env, space.id, who.user);
+  if (existing) return json({ ok: true, space: { id: space.id, name: space.name, role: existing.role }, already: true });
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM space_members WHERE space_id = ?1").bind(space.id).first();
+  if ((n?.n || 0) >= SPACE_MAX_MEMBERS) return json({ ok: false, error: "this space is full" }, 409);
+  const at = now();
+  await env.DB.batch([
+    env.DB.prepare(
+      "INSERT OR IGNORE INTO space_members (space_id, user_id, role, joined_at) VALUES (?1, ?2, 'member', ?3)",
+    ).bind(space.id, who.user, at),
+    env.DB.prepare("UPDATE space_invites SET used_by = ?1, used_at = ?2 WHERE id = ?3").bind(who.user, at, inv.id),
+  ]);
+  return json({ ok: true, space: { id: space.id, name: space.name, role: "member" }, joined_at: at });
+}
+
+async function spaceMembers(env, space) {
+  const rows = await env.DB.prepare(
+    "SELECT user_id, role, joined_at FROM space_members WHERE space_id = ?1 ORDER BY joined_at",
+  )
+    .bind(space.id)
+    .all();
+  return rows.results || [];
+}
+
+async function postSpaceLikes(env, req, space, who) {
+  const len = Number(req.headers.get("content-length") || 0);
+  if (len > MAX_BODY) return json({ ok: false, error: "payload too large" }, 413);
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const items = Array.isArray(body.items) ? body.items.slice(0, MAX_ITEMS) : null;
+  if (!items) return json({ ok: false, error: "items must be a list" }, 400);
+  const modern = Number(req.headers.get("x-echolike-api") || 0) >= 4;
+  for (const it of items) {
+    if (!it) return json({ ok: false, error: "items must be objects" }, 400);
+    if (b64ish(it.ct) && b64ish(it.iv)) continue;
+    if (modern) return json({ ok: false, error: "items must carry iv + ct" }, 400);
+    if (!it.text && !it.url && !it.handle) return json({ ok: false, error: "item has nothing in it" }, 400);
+  }
+  if (!items.length) return json({ ok: true, received: 0, duplicates: 0 });
+  const used = await usage(env, who.user);
+  if (used >= FREE_PER_MONTH) return json({ ok: false, error: "free quota for this month is spent", quota: FREE_PER_MONTH, used }, 402);
+  const take = items.slice(0, Math.max(0, FREE_PER_MONTH - used));
+  const at = now();
+  const stmts = take.map((it) =>
+    env.DB.prepare(
+      "INSERT OR IGNORE INTO likes (user_id, uid, iv, ct, bytes, received_at, legacy, space_id)" +
+        " VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, ?7)",
+    ).bind(who.user, clamp(it.uid, 64), it.iv, it.ct, String(it.ct).length, at, space.id),
+  );
+  const results = await env.DB.batch(stmts);
+  const stored = results.reduce((n, r) => n + ((r && r.meta && r.meta.changes) || 0), 0);
+  await env.DB.batch([
+    env.DB.prepare(
+      "INSERT INTO usage (user_id, month, n) VALUES (?1, ?2, ?3) ON CONFLICT(user_id, month) DO UPDATE SET n = n + ?3",
+    ).bind(who.user, month(), stored),
+  ]);
+  return json({ ok: true, received: stored, duplicates: take.length - stored, space: space.id });
+}
+
+async function readSpaceLikes(env, url, space) {
+  const limit = Math.min(MAX_READ, Math.max(1, Number(url.searchParams.get("limit") || 200)));
+  const offset = Math.max(0, Number(url.searchParams.get("offset") || 0));
+  const rows = await env.DB.prepare(
+    "SELECT uid, iv, ct, user_id AS member, received_at FROM likes WHERE space_id = ?1 ORDER BY id DESC LIMIT ?2 OFFSET ?3",
+  )
+    .bind(space.id, limit, offset)
+    .all();
+  const total = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE space_id = ?1").bind(space.id).first();
+  return json({
+    ok: true,
+    space: { id: space.id, name: space.name },
+    members: await spaceMembers(env, space),
+    items: rows.results || [],
+    total: total?.n || 0,
+  });
+}
+
+// Leaving and revoking. The owner can remove anybody (including themselves); a member
+// can only leave. Content already downloaded stays readable on the removed phone —
+// that is inherent to a local mirror, and it is said in the UI rather than pretended.
+async function leaveSpace(env, req, space, who) {
+  let body = {};
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    body = {};
+  }
+  const target = String(body.user || who.user);
+  const me = await memberOf(env, space.id, who.user);
+  if (!me) return json({ ok: false, error: "you are not in this space" }, 403);
+  if (target !== who.user && me.role !== "owner") {
+    return json({ ok: false, error: "only the space owner can remove someone" }, 403);
+  }
+  await env.DB.prepare("DELETE FROM space_members WHERE space_id = ?1 AND user_id = ?2").bind(space.id, target).run();
+  return json({ ok: true, space: space.id, removed: target });
+}
+
 // ---- diagnostics ----------------------------------------------------------
 // The point of this endpoint is to answer "he pressed a button and something
 // failed — what exactly?". It stores what a request did, never what it carried:
@@ -376,7 +573,7 @@ async function accountSummary(env, who) {
   const ids = (tenants.results || []).map((r) => r.user_id);
   let captures = 0;
   for (const id of ids) {
-    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(id).first();
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1 AND space_id IS NULL").bind(id).first();
     captures += row?.n || 0;
   }
   const kb = await env.DB.prepare("SELECT updated_at FROM key_backups WHERE account_id = ?1").bind(who.id).first();
@@ -399,12 +596,12 @@ async function accountLikes(env, url, who) {
   const rows = await env.DB.prepare(
     "SELECT l.uid, l.iv, l.ct, l.text, l.handle, l.url, l.kind, l.clicked_at, l.ad, l.legacy, l.received_at" +
       " FROM likes l JOIN account_tenants t ON t.user_id = l.user_id" +
-      " WHERE t.account_id = ?1 ORDER BY l.id DESC LIMIT ?2 OFFSET ?3",
+      " WHERE t.account_id = ?1 AND l.space_id IS NULL ORDER BY l.id DESC LIMIT ?2 OFFSET ?3",
   )
     .bind(who.id, limit, offset)
     .all();
   const total = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM likes l JOIN account_tenants t ON t.user_id = l.user_id WHERE t.account_id = ?1",
+    "SELECT COUNT(*) AS n FROM likes l JOIN account_tenants t ON t.user_id = l.user_id WHERE t.account_id = ?1 AND l.space_id IS NULL",
   )
     .bind(who.id)
     .first();
@@ -413,8 +610,8 @@ async function accountLikes(env, url, who) {
   // without needing to decrypt a single blob.
   const perPhone = [];
   for (const id of (tenants.results || []).map((r) => r.user_id)) {
-    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(id).first();
-    const last = await env.DB.prepare("SELECT MAX(received_at) AS at FROM likes WHERE user_id = ?1").bind(id).first();
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1 AND space_id IS NULL").bind(id).first();
+    const last = await env.DB.prepare("SELECT MAX(received_at) AS at FROM likes WHERE user_id = ?1 AND space_id IS NULL").bind(id).first();
     const phones = await env.DB.prepare("SELECT COUNT(*) AS n FROM devices WHERE user_id = ?1").bind(id).first();
     perPhone.push({ user: id, captures: n?.n || 0, last_at: last?.at || null, phones: phones?.n || 1 });
   }
@@ -467,22 +664,35 @@ h1{font-size:20px;margin:0 0 4px}small{color:#666}a{color:#1d9bf0}
 .sec{position:relative;border:1px solid #e4e4e4;border-radius:10px;padding:16px 12px 10px;margin:0 0 14px}
 .sec[hidden]{display:none}
 .sec .secid{position:absolute;top:-8px;left:10px;background:#fff;padding:0 6px;font:10px/1.6 ui-monospace,Menlo,monospace;letter-spacing:.09em;color:#7d7d7d;text-transform:uppercase}
-#list .cap:first-child{border-top:none}
-#list .cap{border-top:1px solid #eee;padding:10px 12px 12px}
-#list .head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
-#list .tag{font-size:11px;line-height:1.5;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px}
-#list .grid{display:grid;gap:1px 14px;margin-top:7px;font-size:12px;color:#444}
+.cards .cap:first-child{border-top:none}
+/* X's shape: avatar column, name/handle/time, text, action row; our extra fields
+   (four dates, media) under the action row, where X has nothing. */
+.cards .cap{border-top:1px solid #eee;padding:12px 12px 10px}
+.cards .head{display:flex;gap:10px;align-items:flex-start}
+.cards .av{flex:0 0 40px;width:40px;height:40px;border-radius:50%;color:#fff;display:flex;align-items:center;
+  justify-content:center;font-weight:650;font-size:16px;user-select:none}
+.cards .ident{font-size:14px;line-height:1.35;min-width:0}
+.cards .ident b{font-weight:700}
+.cards .ident .tags{margin-top:3px}
+.cards .ident .at{color:#666;text-decoration:none}
+.cards .tag{font-size:10px;line-height:1.6;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px;
+  display:inline-block;vertical-align:1px;margin-left:4px;white-space:nowrap}
+.cards .tag.kind{background:#111;color:#fff}
+.cards .tag.good{background:#e3f6ec;color:#0b6b3a}
+.cards .tag{font-size:11px;line-height:1.5;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px}
+.cards .grid{display:grid;gap:1px 14px;margin-top:7px;font-size:12px;color:#444}
 /* Five counts, five equal columns, always: a row with a missing number leaves a
    dash in its place instead of shifting the others, so the columns line up down
    the whole list. Value over label fits a phone without wrapping. */
-#list .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 8px}
-#list .stats b{display:block;font-size:13px;line-height:1.25}
-#list .stats i{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#list .dates{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));font-size:11px}
-#list .grid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
-#list .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
-#list .grid i{font-style:normal;color:#888}
-#list .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
+.cards .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 8px;max-width:420px;color:#536471}
+.cards .stats span{display:flex;align-items:center;gap:5px}
+.cards .stats svg{flex:0 0 14px;opacity:.8}
+.cards .stats b{font-size:12.5px;line-height:1.4}
+.cards .dates{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));font-size:11px}
+.cards .grid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
+.cards .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
+.cards .grid i{font-style:normal;color:#888}
+.cards .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
 input{font:inherit;width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:8px}
 button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}
 select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;background:#fff}
@@ -510,7 +720,7 @@ select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;backgrou
   <p style="margin:0"><button id=export style="display:none">Download as JSON</button></p>
 </div>
 <div class="sec" data-section="I4"><span class=secid>I4 · the list</span>
-  <div id=list></div>
+  <div id=list class=cards></div>
 </div>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -558,12 +768,26 @@ const shortTime = (iso) => {
   if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
   return d.toLocaleString([], o);
 };
+// X's own furniture, drawn small (same shapes as the extension page).
+const ICONS = {
+  reply: 'M3.5 4.5h13v9h-7l-4 3v-3h-2z',
+  repost: 'M5 9V6.5h9M15 11v2.5H6M12.5 4.5 15 6.5l-2.5 2M7.5 15.5 5 13.5l2.5-2',
+  like: 'M10 16.5S3.5 12.7 3.5 8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.3c0 4.1-6.5 7.9-6.5 7.9z',
+  bookmark: 'M6 3.5h8v13l-4-3-4 3z',
+  views: 'M3.5 15V9M8 15V4.5M12.5 15v-3M17 15V7',
+};
+const icon = (n) => '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="' + ICONS[n] + '"/></svg>';
+function avatar(it) {
+  const label = String(it.author_name || it.handle || '?').trim();
+  const h = [...String(it.handle || label)].reduce((a, c) => (a * 31 + c.codePointAt(0)) % 360, 7);
+  return '<span class="av" style="background:hsl(' + h + ' 58% 44%)">' + esc(label[0].toUpperCase()) + '</span>';
+}
 // Counts in a grid, one column per value: aligned down the list, not a sentence.
-const STATS = [['replies','replies'], ['reposts','reposts'], ['likes','likes'], ['bookmarks','bookmarks'], ['views','views']];
+const STATS = [['replies','reply'], ['reposts','repost'], ['likes','like'], ['bookmarks','bookmark'], ['views','views']];
 function statsGrid(it) {
   const c = it.counts || {};
-  // Always five cells: unknown is a dash in its own column, so nothing shifts.
-  const cells = STATS.map(([k, l]) => '<span><b>' + esc(fmtN(c[k])) + '</b><i>' + l + '</i></span>');
+  // Always five cells, in X's order, icon + number; unknown is a dash in its column.
+  const cells = STATS.map(([k, ic]) => '<span title="' + k + '">' + icon(ic) + '<b>' + esc(fmtN(c[k])) + '</b></span>');
   return '<div class="grid stats">' + cells.join('') + '</div>';
 }
 const DATES = [['liked','clicked_at'], ['saved','captured_at'], ['arrived','received_at'], ['published','published_at']];
@@ -576,12 +800,18 @@ function datesGrid(it) {
   return cells.length ? '<div class="grid dates">' + cells.join('') + '</div>' : '';
 }
 function rowHtml(it) {
-  return '<div class="head"><b>' + esc(it.kind) + '</b> ' +
-    (it.url ? '<a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' : esc(it.handle)) +
+  const name = it.author_name || it.handle || 'post';
+  const when = it.published_at || it.clicked_at;
+  return '<div class="head">' + avatar(it) +
+    '<div class="ident"><b>' + esc(name) + '</b>' +
+    (it.url ? ' <a class="at" target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' : ' <span class="at">@' + esc(it.handle) + '</span>') +
+    (when ? '<span class="at"> · ' + esc(shortTime(when)) + '</span>' : '') +
+    '<div class="tags"><span class="tag kind">' + esc(it.kind) + '</span>' +
     (it.ad ? ' <span class="tag">ad</span>' : '') +
     (it.media ? ' <span class="tag">' + esc(it.media) + ' media</span>' : '') +
-    '</div>' + statsGrid(it) + datesGrid(it) +
-    (it.text ? '<p class="body">' + esc(String(it.text).slice(0, 400)) + '</p>' : '');
+    '</div></div></div>' +
+    (it.text ? '<p class="body">' + esc(String(it.text).slice(0, 400)) + '</p>' : '') +
+    statsGrid(it) + datesGrid(it);
 }
 
 // Sorting: arrival order is not a user-meaningful order, so the reader offers the
@@ -756,6 +986,7 @@ export default {
           encryption: "aes-256-gcm",
           min_client_api: 4,
           pair: "/api/devices",
+          spaces: "1.18",
           accounts: "email",
           email_configured: !!env.RESEND_API_KEY,
           free_per_month: FREE_PER_MONTH,
@@ -773,6 +1004,37 @@ export default {
         if (path === "/api/account/key") return await accountKey(env, req, who);
         return json({ ok: false, error: "not found" }, 404);
       }
+      if (path === "/api/spaces") {
+        const who = await tenant(env, req.headers.get("authorization"));
+        if (!who) return json({ ok: false, error: "unauthorized" }, 401);
+        if (req.method === "POST") return await createSpace(env, req, who);
+        return await listSpaces(env, who);
+      }
+      if (path.startsWith("/api/spaces/")) {
+        const who = await tenant(env, req.headers.get("authorization"));
+        if (!who) return json({ ok: false, error: "unauthorized" }, 401);
+        const bits = path.split("/").filter(Boolean); // api, spaces, <id>, <action?>
+        const space = await spaceOf(env, bits[2]);
+        if (!space) return json({ ok: false, error: "no such space" }, 404);
+        const action = bits[3] || "";
+        const member = await memberOf(env, space.id, who.user);
+        if (action === "join" && req.method === "POST") return await joinSpace(env, req, space, who);
+        // Everything else needs membership, and says so plainly.
+        if (!member) return json({ ok: false, error: "you are not in this space" }, 403);
+        if (action === "invite" && req.method === "POST") return await inviteToSpace(env, req, space, who);
+        if (action === "leave" && req.method === "POST") return await leaveSpace(env, req, space, who);
+        if (action === "likes" && req.method === "POST") return await postSpaceLikes(env, req, space, who);
+        if (action === "likes") return await readSpaceLikes(env, url, space);
+        if (!action) {
+          return json({
+            ok: true,
+            space: { id: space.id, name: space.name, created_at: space.created_at },
+            members: await spaceMembers(env, space),
+            role: member.role,
+          });
+        }
+        return json({ ok: false, error: "not found" }, 404);
+      }
       if (path === "/api/devices" && req.method === "POST") {
         const who = await tenant(env, req.headers.get("authorization"));
         return who ? await addDevice(env, req, who) : json({ ok: false, error: "unauthorized" }, 401);
@@ -788,11 +1050,13 @@ export default {
         const offset = Math.max(0, Number(url.searchParams.get("offset") || 0));
         const rows = await env.DB.prepare(
           "SELECT uid, iv, ct, text, handle, url, kind, clicked_at, ad, legacy, received_at" +
-            " FROM likes WHERE user_id = ?1 ORDER BY id DESC LIMIT ?2 OFFSET ?3",
+            " FROM likes WHERE user_id = ?1 AND space_id IS NULL ORDER BY id DESC LIMIT ?2 OFFSET ?3",
         )
           .bind(who.user, limit, offset)
           .all();
-        const total = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(who.user).first();
+        // A capture shared with a space belongs to the space, not to this personal list
+        // (it is sealed with the space key: showing it here would read as unreadable).
+        const total = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1 AND space_id IS NULL").bind(who.user).first();
         // Who is reading, and how many phones write to the same list: two phones on
         // one tenant are one list, and the client says so instead of leaving the
         // user guessing which "account" they are looking at.

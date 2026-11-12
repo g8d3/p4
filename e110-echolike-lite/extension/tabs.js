@@ -1,19 +1,10 @@
-// One extension page, two tabs. The hash picks the tab, so a link can open
+// One extension page, four tabs. The hash picks the tab, so a link can open
 // settings straight away and the browser's back button behaves.
-const PANELS = { inbox: "Inbox", import: "Import", settings: "Settings" };
+const PANELS = { inbox: "Inbox", spaces: "Spaces", import: "Import", settings: "Settings" };
 
 function showPanel(name) {
   const want = PANELS[name] ? name : "inbox";
-  // Which version is installed, in the user's face: after an update this is the
-// only way to tell that the update actually happened.
-const v = document.getElementById("version");
-if (v) {
-  const m = chrome.runtime.getManifest();
-  v.textContent = "v" + m.version;
-  v.title = "EchoLike Lite " + m.version + " · " + m.manifest_version + " · installed " + (chrome.runtime.getManifest().update_url ? "with updates" : "from a folder");
-}
-
-for (const key of Object.keys(PANELS)) {
+  for (const key of Object.keys(PANELS)) {
     const on = key === want;
     const tab = document.getElementById("tab-" + key);
     const panel = document.getElementById("panel-" + key);

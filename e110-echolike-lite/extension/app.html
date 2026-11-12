@@ -25,30 +25,45 @@ button.primary{background:#111;color:#fff;border-color:#111}
 button:disabled{opacity:.45;cursor:default}
 .msg{font-size:13px;margin-top:10px;min-height:18px}
 .ok{color:var(--ok)}.err{color:var(--err)}.mut{color:var(--mut)}
-#list .cap{border-top:1px solid #eee;padding:10px 12px 12px}
-#list .head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
-#list .tag{font-size:11px;line-height:1.5;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px}
-#list .tag.warn{background:#fff3cd;color:#8a6d3b}
-#list .grid{display:grid;gap:1px 14px;margin-top:7px;font-size:12px;color:#444}
+/* X's shape: avatar column, name/handle/time, text, action row. Ours (four dates,
+   media, "saved by") is appended under the action row, where X has nothing. */
+.cards .cap{border-top:1px solid #eee;padding:12px 12px 10px;display:block}
+.cards .head{display:flex;gap:10px;align-items:flex-start}
+.cards .av{flex:0 0 40px;width:40px;height:40px;border-radius:50%;color:#fff;display:flex;align-items:center;
+  justify-content:center;font-weight:650;font-size:16px;user-select:none}
+.cards .ident{font-size:14px;line-height:1.35;min-width:0}
+.cards .ident b{font-weight:700}
+.cards .ident .at{color:#666;text-decoration:none}
+.cards .ident a.at:hover{text-decoration:underline}
+.cards .ident .tags{margin-top:3px}
+.cards .tag{font-size:10px;line-height:1.6;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px;
+  display:inline-block;vertical-align:1px;margin-left:4px;white-space:nowrap}
+.cards .tag.kind{background:#111;color:#fff}
+.cards .tag.good{background:#e3f6ec;color:#0b6b3a}
+.cards .tag.warn{background:#fff3cd;color:#8a6d3b}
+.cards .grid{display:grid;gap:1px 14px;margin-top:7px;font-size:12px;color:#444}
 /* Five counts, five equal columns, always: a row with a missing number leaves a
    dash in its place instead of shifting the others, so the columns line up down
    the whole list. Value over label fits a phone without wrapping. */
-#list .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 8px}
-#list .stats b{display:block;font-size:13px;line-height:1.25}
-#list .stats i{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#list .dates{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));font-size:11px}
-#list .grid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
-#list .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
-#list .grid i{font-style:normal;color:#888}
+.cards .stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 8px;max-width:420px;color:#536471}
+.cards .stats span{display:flex;align-items:center;gap:5px}
+.cards .stats svg{flex:0 0 14px;opacity:.8}
+.cards .stats b{font-size:12.5px;line-height:1.4}
+.cards .savedby{margin:2px 0 0;font-size:11px;color:#0b6b3a}
+.cards .dates{grid-template-columns:repeat(auto-fit,minmax(132px,1fr));font-size:11px}
+.cards .grid span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
+.cards .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
+.cards .grid i{font-style:normal;color:#888}
 /* Selectable on purpose: padding and wrapping so a long post never runs into the
    border, where selecting it with a mouse (or a thumb) is a fight. */
-#list .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
+.cards .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
 </style>
 <header>
   <h1>EchoLike Lite</h1>
   <span id="version" class="mut" style="margin-left:auto;font-size:12px"></span>
   <nav role="tablist">
     <button id="tab-inbox" role="tab" aria-selected="true" aria-controls="panel-inbox">Inbox</button>
+    <button id="tab-spaces" role="tab" aria-selected="false" aria-controls="panel-spaces">Spaces</button>
     <button id="tab-import" role="tab" aria-selected="false" aria-controls="panel-import">Import</button>
     <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">Settings</button>
   </nav>
@@ -91,7 +106,38 @@ button:disabled{opacity:.45;cursor:default}
   </div>
   <div class="sec" data-section="P4">
     <span class="secid">P4 · the list</span>
-    <div id="list"></div>
+    <div id="list" class="cards"></div>
+  </div>
+</div>
+
+<div id="panel-spaces" class="panel" role="tabpanel">
+  <p class="help">A space is a list several people write to. Every capture shows how many people in the space
+  saved the same post — that is how the network finds itself, without anyone publishing a profile. Joining is by
+  an <b>invite</b>: one code, works once, expires in 24 hours.</p>
+
+  <div class="sec" data-section="P12">
+    <span class="secid">P12 · start a space</span>
+    <input id="spacename" type="text" autocomplete="off" placeholder="name it: trip, team, study group…">
+    <button id="spacecreate" class="act primary" type="button">Create space</button>
+    <div id="spacenew" class="msg mut"></div>
+  </div>
+
+  <div class="sec" data-section="P13">
+    <span class="secid">P13 · join with an invite</span>
+    <input id="spacecode" type="text" autocomplete="off" spellcheck="false" placeholder="paste the invite code">
+    <button id="spacejoin" class="act primary" type="button">Join</button>
+    <div id="spacemsg" class="msg mut"></div>
+  </div>
+
+  <div class="sec" data-section="P14">
+    <span class="secid">P14 · my spaces</span>
+    <div id="spacelist"><p class="mut">No spaces yet. Create one, or join with an invite.</p></div>
+  </div>
+
+  <div class="sec" data-section="P15" hidden>
+    <span class="secid">P15 · space view</span>
+    <div id="spacehead"></div>
+    <div id="spacelistitems" class="cards"></div>
   </div>
 </div>
 

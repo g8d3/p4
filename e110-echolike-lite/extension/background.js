@@ -69,14 +69,15 @@ async function aesKey() {
 }
 
 // One blob per capture: {uid, iv, ct}. The uid stays readable so retries are idempotent by eye.
-async function seal(item) {
+async function sealWith(code, item) {
+  const key = await crypto.subtle.importKey("raw", unb64(code), "AES-GCM", false, ["encrypt"]);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
-    await aesKey(),
-    new TextEncoder().encode(JSON.stringify(item)),
-  );
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(item)));
   return { uid: item.uid, iv: b64(iv), ct: b64(new Uint8Array(ct)) };
+}
+
+async function seal(item) {
+  return sealWith(await keyCode(), item);
 }
 
 // Who this device is, as the inbox sees it: one row, no plaintext, no decryption.
@@ -527,6 +528,221 @@ async function keyRestore(passphrase) {
   }
 }
 
+// ---- Shared spaces ----------------------------------------------------------
+// A space is a list several people write to. Two rules keep it safe and simple:
+//   * joining is by a ONE-TIME, expiring invite (not a permanent shared secret),
+//   * the content key belongs to the members: the server stores ciphertext and member
+//     ids, and each phone decrypts the whole space with the key it was invited with.
+// That is also what makes "who else saved this post" possible without telling the
+// server anything about the posts: the members' rows are decrypted here.
+const SPACE_KEY_SLOT = { spaces: [] };
+const SPACE_CODE = 2; // {v,u,s,t,k,n}: v2 codes are invites, v1 pairs a phone
+
+async function localSpaces() {
+  return (await chrome.storage.local.get(SPACE_KEY_SLOT)).spaces || [];
+}
+
+async function saveSpaces(list) {
+  await chrome.storage.local.set({ spaces: list });
+}
+
+async function callAt(base, path, token, opts) {
+  const headers = { "content-type": "application/json", authorization: "Bearer " + token };
+  const r = await timed(
+    String(base).replace(/\/$/, "") + path,
+    Object.assign({ method: "GET", headers }, opts || {}),
+    20000,
+  ).catch(() => null);
+  if (!r) return { ok: false, error: "that inbox did not answer" };
+  const j = await r.json().catch(() => null);
+  if (!j) return { ok: false, error: "HTTP " + r.status };
+  return j;
+}
+
+async function spaceCreate(name) {
+  const s = await state();
+  const base = (s.url || DEFAULT_INBOX).replace(/\/$/, "");
+  if (!base || !s.token) return { ok: false, error: "connect an inbox first" };
+  const j = await callAt(base, "/api/spaces", s.token, {
+    method: "POST",
+    body: JSON.stringify({ name: String(name || "").trim().slice(0, 60) }),
+  });
+  if (!j.ok) return j;
+  const key = b64(crypto.getRandomValues(new Uint8Array(32)));
+  const sp = { id: j.space.id, name: j.space.name, url: base, key, role: "owner", joined_at: j.space.created_at };
+  await saveSpaces((await localSpaces()).filter((x) => x.id !== sp.id).concat([sp]));
+  await tel("space.create", { ok: true, host: base });
+  return { ok: true, space: sp };
+}
+
+async function spaceInvite(id) {
+  const sp = (await localSpaces()).find((x) => x.id === id);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  const j = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/invite", s.token, {
+    method: "POST",
+    body: JSON.stringify({ hours: 24 }),
+  });
+  if (!j.ok) return { ok: false, error: j.error || "could not create an invitation" };
+  const code = b64(
+    new TextEncoder().encode(JSON.stringify({ v: SPACE_CODE, u: sp.url, s: sp.id, t: j.token, k: sp.key, n: sp.name || "" })),
+  );
+  await tel("space.invite", { ok: true, host: sp.url });
+  return { ok: true, code, expires_at: j.expires_at, hours: j.hours };
+}
+
+async function spaceJoin(code) {
+  let o;
+  try {
+    o = JSON.parse(new TextDecoder().decode(unb64(String(code || "").trim().replace(/\s+/g, ""))));
+  } catch (e) {
+    return { ok: false, error: "that is not an invite code" };
+  }
+  if (!o || o.v !== SPACE_CODE || !o.s || !o.t || !o.k) return { ok: false, error: "that is not an invite code" };
+  const s = await state();
+  const base = String(o.u || s.url || DEFAULT_INBOX).replace(/\/$/, "");
+  const j = await callAt(base, "/api/spaces/" + encodeURIComponent(o.s) + "/join", s.token, {
+    method: "POST",
+    body: JSON.stringify({ token: o.t }),
+  });
+  if (!j.ok) {
+    await tel("space.join", { ok: false, host: base, error: String(j.error || "") });
+    return { ok: false, error: String(j.error || "that invitation did not work") };
+  }
+  const sp = {
+    id: o.s,
+    name: (j.space && j.space.name) || o.n || "shared space",
+    url: base,
+    key: o.k,
+    role: (j.space && j.space.role) || "member",
+    joined_at: j.joined_at || new Date().toISOString(),
+  };
+  await saveSpaces((await localSpaces()).filter((x) => x.id !== sp.id).concat([sp]));
+  await tel("space.join", { ok: true, host: base });
+  return { ok: true, space: sp, already: !!j.already };
+}
+
+async function spaceList() {
+  const s = await state();
+  const mine = await localSpaces();
+  const out = [];
+  for (const sp of mine) {
+    // One request per space: the list is small, and the counts stay honest.
+    const j = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(sp.id), s.token).catch(() => null);
+    if (!j || j.ok === false) {
+      out.push(Object.assign({}, sp, { unreachable: true }));
+      continue;
+    }
+    out.push(
+      Object.assign({}, sp, {
+        name: (j.space && j.space.name) || sp.name,
+        role: j.role || sp.role,
+        members: (j.members || []).length,
+        memberList: (j.members || []).map((m) => ({ user: m.user_id, role: m.role })),
+      }),
+    );
+  }
+  return { ok: true, spaces: out, base: (s.url || DEFAULT_INBOX).replace(/\/$/, "") };
+}
+
+// The whole space, decrypted here: `items` are the members' captures (one row per post),
+// `saved` lists the members who hold each post — the social signal, computed locally.
+async function spaceRead(id) {
+  const sp = (await localSpaces()).find((x) => x.id === id);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  const rows = [];
+  let total = 0;
+  let members = [];
+  for (let offset = 0; offset < 5000; ) {
+    const j = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/likes?limit=500&offset=" + offset, s.token);
+    if (!j.ok) return { ok: false, error: String(j.error || "could not read that space") };
+    const batch = j.items || [];
+    rows.push(...batch);
+    total = j.total || rows.length;
+    members = j.members || members;
+    if (!batch.length || rows.length >= total) break;
+    offset += batch.length;
+  }
+  const aes = await crypto.subtle.importKey("raw", unb64(sp.key), "AES-GCM", false, ["decrypt"]);
+  const items = [];
+  let foreign = 0;
+  const saved = {};
+  const former = {};
+  const current = new Set((members || []).map((m) => m.user_id));
+  const seenPost = new Set();
+  const merged = [];
+  for (const b of rows) {
+    let it;
+    try {
+      const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(b.iv) }, aes, unb64(b.ct));
+      it = Object.assign(JSON.parse(new TextDecoder().decode(plain)), { received_at: b.received_at, member: b.member });
+    } catch (e) {
+      foreign += 1;
+      continue;
+    }
+    items.push(it);
+    const k = String(it.kind || "") + "|" + String(it.id || it.uid || "");
+    // Count only people who are in the space right now; a removed member's capture
+    // stays in the space (it was shared), but it no longer speaks for the group.
+    if (it.member && current.has(it.member)) {
+      if (!saved[k]) saved[k] = [];
+      if (saved[k].indexOf(it.member) < 0) saved[k].push(it.member);
+    } else if (it.member) {
+      former[k] = (former[k] || 0) + 1;
+    }
+    if (seenPost.has(k)) continue;
+    seenPost.add(k);
+    merged.push(it);
+  }
+  return {
+    ok: true,
+    space: { id: sp.id, name: sp.name, role: sp.role },
+    items: merged,
+    total: merged.length,
+    raw: rows.length,
+    foreign,
+    members,
+    saved,
+    former,
+  };
+}
+
+// Pushing this browser's captures into a space: re-sealed with the space key, so every
+// member can read them, while the personal copy keeps its own key.
+async function spaceShare(id) {
+  const sp = (await localSpaces()).find((x) => x.id === id);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  if (!s.items.length) return { ok: true, added: 0, total: 0 };
+  const sealed = [];
+  for (const it of s.items) sealed.push(await sealWith(sp.key, it));
+  let added = 0;
+  for (let i = 0; i < sealed.length; i += 100) {
+    const j = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/likes", s.token, {
+      method: "POST",
+      body: JSON.stringify({ items: sealed.slice(i, i + 100) }),
+    });
+    if (!j.ok) return { ok: false, error: String(j.error || "could not share"), added, total: s.items.length };
+    added += j.received || 0;
+  }
+  await tel("space.share", { ok: true, host: sp.url, detail: "added=" + added + " total=" + sealed.length });
+  return { ok: true, added, total: s.items.length };
+}
+
+async function spaceLeave(id, user) {
+  const sp = (await localSpaces()).find((x) => x.id === id);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  const j = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/leave", s.token, {
+    method: "POST",
+    body: JSON.stringify(user ? { user } : {}),
+  });
+  if (!j.ok) return { ok: false, error: String(j.error || "could not leave") };
+  if (!user) await saveSpaces((await localSpaces()).filter((x) => x.id !== id));
+  return { ok: true, removed: j.removed };
+}
+
 // ---- Two phones, one list ---------------------------------------------------
 // A pairing code is {url, token, key} in base64url: the list's address, its device
 // token and the key that decrypts it. Pasting it makes this phone read and write the
@@ -780,6 +996,20 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             ? chrome.tabs
                 .create({ url: chrome.runtime.getURL("app.html#" + (m.page === "settings" ? "settings" : "inbox")) })
                 .then(() => ({ ok: true }))
+            : m && m.type === "space-create"
+              ? spaceCreate(m.name)
+            : m && m.type === "space-invite"
+              ? spaceInvite(m.id)
+            : m && m.type === "space-join"
+              ? spaceJoin(m.code)
+            : m && m.type === "space-list"
+              ? spaceList()
+            : m && m.type === "space-read"
+              ? spaceRead(m.id)
+            : m && m.type === "space-share"
+              ? spaceShare(m.id)
+            : m && m.type === "space-leave"
+              ? spaceLeave(m.id, m.user)
             : m && m.type === "pair"
                 ? pair(m.code)
               : m && m.type === "send-uids"

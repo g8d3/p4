@@ -45,6 +45,11 @@ next event: another like, an X tab loading, the browser coming back online, open
 start. No timers, no "retry" to remember, and the page repairs itself on load: what this browser holds and the
 inbox lacks goes out without a click. A re-sent capture never duplicates (the server keeps one row per capture).
 
+**Spaces — the shared list.** A space is a list several people write to. Create one in the **Spaces** tab, press
+**Invite** and send the code: it works once and expires in 24 hours (no permanent shared secret). Everyone shares
+their captures into it and each card says **saved by N people here** — that is how the network finds itself, with
+no profile and nothing about the post leaving your browser. The owner can remove a member at any time.
+
 **Two phones, one list — one code.** On the phone that already has your captures: Settings → **Your inbox code** →
 Copy. On the other phone: Inbox → **＋ Add my other phone** → paste → **Use that code**. That is the whole thing. Both then read and write the same list with the same
 key — nothing to configure, no account needed. The code carries the list's address, token and key, so treat it like a

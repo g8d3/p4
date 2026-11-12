@@ -25,6 +25,7 @@ from playwright.sync_api import sync_playwright
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from ids import extension_id  # noqa: E402
+from tenant import tenant as get_tenant  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 EXT = ROOT / "extension"
@@ -90,8 +91,7 @@ with sync_playwright() as p:
     aes2 = AESGCM(unb64(key2))
 
     # The OLD phone: its own tenant, its own key, two captures already in it.
-    code, old = call("/api/claim", method="POST")
-    check("the old phone has a list", (code, old.get("ok")), (200, True))
+    old = get_tenant("pair-old")
     key1 = b64(os.urandom(32))
     aes1 = AESGCM(unb64(key1))
     old_blobs = []
@@ -102,8 +102,7 @@ with sync_playwright() as p:
     check("the old phone stored two", (code, r.get("received")), (200, 2))
 
     # The NEW phone: a different tenant, a different key, one capture of its own.
-    code, new = call("/api/claim", method="POST")
-    check("the new phone has its own list", (code, new.get("ok")), (200, True))
+    new = get_tenant("pair-new")
     mine = cap("new-1", "6001", "2026-11-12T10:00:00Z")
     iv = os.urandom(12)
     code, r = call("/api/likes", new["token"], {"items": [{"uid": mine["uid"], "iv": b64(iv), "ct": b64(aes2.encrypt(iv, json.dumps(mine).encode(), None))}]})

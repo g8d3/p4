@@ -9,6 +9,7 @@
 #   bin/publish.sh --build    build and verify locally only (no push, no deploy)
 set -euo pipefail
 cd "$(dirname "$0")/.."
+HERE=$PWD # still valid after the site checkout below changes directory
 
 EXT=extension
 KEY=.secrets/echolike_lite_crx.pem
@@ -101,7 +102,7 @@ echo "   update json live: $GOT"
 # The artifact itself, as a browser would download it: same signature, same version.
 DL=$(mktemp)
 curl -s -m 60 -o "$DL" "https://echolike.app/$CRX?b=$RANDOM"
-if python3 bin/check_crx.py "$DL" --appid "$APPID" --version "$VER" >/tmp/crx-live.txt 2>&1; then
+if python3 "$HERE/bin/check_crx.py" "$DL" --appid "$APPID" --version "$VER" >/tmp/crx-live.txt 2>&1; then
   echo "== LIVE: echolike.app serves $CRX $VER (manifest + artifact verified)"
   rm -f "$DL"
   exit 0

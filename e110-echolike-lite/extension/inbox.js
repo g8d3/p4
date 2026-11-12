@@ -57,21 +57,43 @@ const shortTime = (iso) => {
   return d.toLocaleString([], o);
 };
 
+// X's own furniture, drawn small: a rounded avatar with the author's initial, the name
+// in bold, the @handle and the time in grey, then the action row with icons in X's order
+// (reply, repost, like, bookmark, views). Our extra fields (four dates, media, "saved by")
+// sit under that row, where X puts nothing, so the shape stays recognisable.
+const ICONS = {
+  reply: "M3.5 4.5h13v9h-7l-4 3v-3h-2z",
+  repost: "M5 9V6.5h9M15 11v2.5H6M12.5 4.5 15 6.5l-2.5 2M7.5 15.5 5 13.5l2.5-2",
+  like: "M10 16.5S3.5 12.7 3.5 8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.3c0 4.1-6.5 7.9-6.5 7.9z",
+  bookmark: "M6 3.5h8v13l-4-3-4 3z",
+  views: "M3.5 15V9M8 15V4.5M12.5 15v-3M17 15V7",
+};
+const icon = (name) =>
+  '<svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"' +
+  ' stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="' + ICONS[name] + '"/></svg>';
+
+// A colour per handle, stable: nobody's avatar is stored, so the initial does the work.
+function avatar(it) {
+  const label = String(it.author_name || it.handle || "?").trim();
+  const h = [...String(it.handle || label)].reduce((a, c) => (a * 31 + c.codePointAt(0)) % 360, 7);
+  return '<span class="av" style="background:hsl(' + h + ' 58% 44%)">' + esc(label[0].toUpperCase()) + "</span>";
+}
+
 // A grid, not a sentence: every value in its own column, so the numbers line up
 // down the list and the eye can compare rows instead of re-reading them.
 const STATS = [
-  ["replies", "replies"],
-  ["reposts", "reposts"],
-  ["likes", "likes"],
-  ["bookmarks", "bookmarks"],
+  ["replies", "reply"],
+  ["reposts", "repost"],
+  ["likes", "like"],
+  ["bookmarks", "bookmark"],
   ["views", "views"],
 ];
 function statsGrid(it) {
   const c = it.counts || {};
-  // Always five cells: an unknown value is a dash in its column, never a hole that
-  // shifts the neighbours, so the numbers stay aligned row after row.
+  // Always five cells, in X's order, each an icon + its number: an unknown value is a
+  // dash in its own column, never a hole that shifts its neighbours.
   const cells = STATS.map(
-    ([k, label]) => '<span><b>' + esc(fmt(c[k])) + "</b><i>" + label + "</i></span>",
+    ([k, ic]) => '<span title="' + k + '">' + icon(ic) + "<b>" + esc(fmt(c[k])) + "</b></span>",
   );
   return '<div class="grid stats">' + cells.join("") + "</div>";
 }
@@ -98,19 +120,40 @@ function datesGrid(it) {
 
 // One capture, one card: where it is from, what it is worth, when it happened,
 // and what it says — each in its own block so the layout never becomes a paragraph.
-function rowHtml(it) {
-  return (
-    '<div class="head"><b>' + esc(it.kind) + "</b> " +
-    (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
+function rowHtml(it, opt) {
+  const o = opt || {};
+  const name = it.author_name || it.handle || "post";
+  const when = it.published_at || it.clicked_at;
+  const savedBy = (o.savedBy || []).length;
+  const tags =
+    '<span class="tag kind">' + esc(it.kind) + "</span>" +
     (it.ad ? ' <span class="tag">ad</span>' : "") +
     (it.media ? ' <span class="tag">' + esc(it.media) + " media</span>" : "") +
+    (savedBy > 1 ? ' <span class="tag good">saved by ' + savedBy + " people here</span>" : "") +
     (it.waiting ? ' <span class="tag warn">waiting to send</span>' : "") +
     (it.dup ? ' <span class="tag">also in this browser</span>' : "") +
-    (it.legacy ? ' <span class="tag">unencrypted, older version</span>' : "") +
-    "</div>" +
+    (it.legacy ? ' <span class="tag">unencrypted, older version</span>' : "");
+  return (
+    '<div class="head">' + avatar(it) +
+    '<div class="ident"><b>' + esc(name) + "</b>" +
+    (it.url
+      ? ' <a class="at" target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>"
+      : ' <span class="at">@' + esc(it.handle) + "</span>") +
+    (when ? '<span class="at"> · ' + esc(shortTime(when)) + "</span>" : "") +
+    '<div class="tags">' + tags + "</div>" +
+    "</div></div>" +
+    (it.text ? '<p class="body">' + esc(String(it.text).slice(0, 600)) + "</p>" : "") +
     statsGrid(it) +
     datesGrid(it) +
-    (it.text ? '<p class="body">' + esc(String(it.text).slice(0, 600)) + "</p>" : "")
+    (savedBy > 1 || o.former
+      ? '<p class="savedby">' +
+        (savedBy > 1
+          ? "also saved by " +
+            esc(o.savedBy.map((m) => "member " + String(m).replace(/^u_/, "").slice(0, 6)).slice(0, 6).join(", "))
+          : "") +
+        (o.former ? (savedBy > 1 ? " · " : "") + o.former + " no longer in this space" : "") +
+        "</p>"
+      : "")
   );
 }
 
@@ -492,6 +535,199 @@ $("retry").addEventListener("click", async () => {
   if (r && r.ok === false) {
     $("status").innerHTML = '<span class="err">' + esc(r.error || "could not send") + "</span> Nothing was lost.";
   }
+});
+
+// ---- Spaces: the collaborative tab -----------------------------------------
+// Create, invite (one-time code), join, read, share, leave. The space view renders the
+// same cards as the inbox, with "saved by N people here" coming from decrypting every
+// member's row locally — the server never learns which post is which.
+let openSpace = null;
+// A repaint replaces the rows, so a message written before it would vanish (that is
+// how "shared 1 of 1" disappeared and looked like nothing happened). Messages live
+// here and are re-applied after every paint.
+const spaceMsgs = {};
+function saySpace(id, html) {
+  spaceMsgs[id] = html;
+  const el = document.querySelector('[data-space-msg="' + id + '"]');
+  if (el) el.innerHTML = html;
+}
+
+function painter1(id, on) {
+  const el = document.querySelector('[data-section="' + id + '"]');
+  if (el) el.hidden = !on;
+}
+
+async function paintSpaces() {
+  const r = await chrome.runtime.sendMessage({ type: "space-list" }).catch(() => null);
+  const box = $("spacelist");
+  if (!r || r.ok === false) {
+    box.innerHTML = '<p class="err">' + esc((r && r.error) || "could not read your spaces") + "</p>";
+    return;
+  }
+  if (!r.spaces.length) {
+    box.innerHTML = '<p class="mut">No spaces yet. Create one, or join with an invite.</p>';
+    return;
+  }
+  box.textContent = "";
+  for (const sp of r.spaces) {
+    const row = document.createElement("div");
+    row.className = "spacerow";
+    row.innerHTML =
+      "<b>" + esc(sp.name || "shared space") + "</b>" +
+      (sp.role === "owner" ? ' <span class="tag kind">owner</span>' : "") +
+      (sp.unreachable
+        ? ' <span class="err">unreachable</span>'
+        : ' <span class="at">· ' + (sp.members || 1) + " member" + ((sp.members || 1) === 1 ? "" : "s") + "</span>") +
+      '<p style="margin:6px 0 0">' +
+      '<button class="act" data-space="' + esc(sp.id) + '" data-what="open" type="button">Open</button>' +
+      '<button class="act" data-space="' + esc(sp.id) + '" data-what="invite" type="button">Invite</button>' +
+      '<button class="act" data-space="' + esc(sp.id) + '" data-what="share" type="button">Share my captures</button>' +
+      '<button class="act" data-space="' + esc(sp.id) + '" data-what="leave" type="button">' +
+      (sp.role === "owner" ? "Delete for me" : "Leave") +
+      "</button></p>" +
+      '<div class="msg mut" data-space-msg="' + esc(sp.id) + '"></div>';
+    if (spaceMsgs[sp.id]) row.querySelector("[data-space-msg]").innerHTML = spaceMsgs[sp.id];
+    box.appendChild(row);
+  }
+}
+
+async function showSpace(id) {
+  const r = await chrome.runtime.sendMessage({ type: "space-read", id }).catch(() => null);
+  if (!r || r.ok === false) {
+    $("spacehead").innerHTML = '<p class="err">' + esc((r && r.error) || "could not open that space") + "</p>";
+    painter1("P15", true);
+    return;
+  }
+  openSpace = r;
+  const me = (await chrome.storage.local.get({ url: "", token: "" })).token;
+  $("spacehead").innerHTML =
+    "<b>" + esc(r.space.name) + "</b> · " + r.items.length + " post" + (r.items.length === 1 ? "" : "s") +
+    " · " + (r.members || []).length + " member" + ((r.members || []).length === 1 ? "" : "s") +
+    (r.foreign ? ' · <span class="err">' + r.foreign + " unreadable here</span>" : "") +
+    '<p style="margin:6px 0 0"><button class="act" id="spaceback" type="button">← All spaces</button></p>';
+  const box = $("spacelistitems");
+  box.textContent = "";
+  if (!r.items.length) {
+    box.innerHTML = '<p class="mut">Nothing shared here yet. Press <b>Share my captures</b> in the list above.</p>';
+    painter1("P15", true);
+    painter1("P14", false);
+    return;
+  }
+  for (const it of sortRows(r.items, sortKey, sortDesc)) {
+    const k = String(it.kind || "") + "|" + String(it.id || it.uid || "");
+    const row = document.createElement("div");
+    row.className = "cap";
+    row.innerHTML = rowHtml(it, { savedBy: (r.saved && r.saved[k]) || [], former: (r.former && r.former[k]) || 0, me });
+    box.appendChild(row);
+  }
+  painter1("P14", false);
+  painter1("P15", true);
+}
+
+document.addEventListener("click", async (e) => {
+  const t = e.target instanceof Element ? e.target.closest("[data-space],[data-what]") : null;
+  if (!t) return;
+  const id = t.getAttribute("data-space");
+  const what = t.getAttribute("data-what");
+  if (!id || !what) return;
+  const say = (text, cls) => saySpace(id, '<span class="' + (cls || "mut") + '">' + text + "</span>");
+  if (what === "open") return showSpace(id);
+  if (what === "share") {
+    say("sharing…");
+    const r = await chrome.runtime.sendMessage({ type: "space-share", id }).catch(() => null);
+    if (!r || r.ok === false) {
+      say(esc((r && r.error) || "could not share"), "err");
+      return;
+    }
+    await paintSpaces();
+    say(r.added ? "shared " + r.added + " of " + r.total + " captures" : "already shared", "ok");
+    return;
+  }
+  if (what === "invite") {
+    say("creating an invite…");
+    const r = await chrome.runtime.sendMessage({ type: "space-invite", id }).catch(() => null);
+    if (!r || r.ok === false) {
+      say(esc((r && r.error) || "could not create an invitation"), "err");
+      return;
+    }
+    let copied = "";
+    try {
+      await navigator.clipboard.writeText(r.code);
+      copied = " Copied to the clipboard.";
+    } catch (err) {
+      copied = " Select the code and copy it.";
+    }
+    await paintSpaces();
+    saySpace(
+      id,
+      '<input readonly onclick="this.select()" style="font:11px ui-monospace,monospace;width:100%;box-sizing:border-box;padding:7px;border:1px solid #ccc;border-radius:7px" value="' +
+        esc(r.code) + '">' +
+        '<div class="mut" style="font-size:11px;margin-top:4px">One use, expires <b>' + esc(shortTime(r.expires_at)) +
+        "</b>. Send it to the person you want in — it stops working after that." + esc(copied) + "</div>",
+    );
+    return;
+  }
+  if (what === "leave") {
+    const r = await chrome.runtime.sendMessage({ type: "space-leave", id }).catch(() => null);
+    if (!r || r.ok === false) {
+      say(esc((r && r.error) || "could not leave"), "err");
+      return;
+    }
+    painter1("P15", false);
+    await paintSpaces();
+    say("you are out of that space", "ok");
+  }
+});
+
+$("spacecreate").addEventListener("click", async () => {
+  const name = $("spacename").value.trim();
+  if (!name) {
+    $("spacenew").innerHTML = '<span class="err">Give the space a name first.</span>';
+    return;
+  }
+  $("spacecreate").disabled = true;
+  $("spacenew").textContent = "creating…";
+  const r = await chrome.runtime.sendMessage({ type: "space-create", name }).catch(() => null);
+  $("spacecreate").disabled = false;
+  if (!r || r.ok === false) {
+    $("spacenew").innerHTML = '<span class="err">' + esc((r && r.error) || "could not create it") + "</span>";
+    return;
+  }
+  $("spacename").value = "";
+  $("spacenew").innerHTML = '<span class="ok">Created. Press <b>Invite</b> to get the one-time code.</span>';
+  paintSpaces();
+});
+
+$("spacejoin").addEventListener("click", async () => {
+  const code = $("spacecode").value.trim();
+  if (!code) {
+    $("spacemsg").innerHTML = '<span class="err">Paste the invite code first.</span>';
+    return;
+  }
+  $("spacejoin").disabled = true;
+  $("spacemsg").textContent = "checking the invitation…";
+  const r = await chrome.runtime.sendMessage({ type: "space-join", code }).catch(() => null);
+  $("spacejoin").disabled = false;
+  if (!r || r.ok === false) {
+    $("spacemsg").innerHTML = '<span class="err">' + esc((r && r.error) || "that did not work") + "</span>";
+    return;
+  }
+  $("spacecode").value = "";
+  $("spacemsg").innerHTML = '<span class="ok">You are in <b>' + esc(r.space.name) + "</b>" +
+    (r.already ? " (you were already a member)" : "") + ". Press <b>Open</b> to see it.</span>";
+  paintSpaces();
+});
+
+document.addEventListener("click", (e) => {
+  if (e.target instanceof Element && e.target.id === "spaceback") {
+    painter1("P15", false);
+    painter1("P14", true);
+    paintSpaces();
+  }
+});
+
+window.addEventListener("echolike:tab", (e) => {
+  if (e.detail === "spaces") paintSpaces();
 });
 
 $("sort").addEventListener("change", () => {
