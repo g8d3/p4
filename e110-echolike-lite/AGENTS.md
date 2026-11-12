@@ -337,6 +337,11 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.13.2 — the discrepancy between screen and log: `tel()` written while an upload was in flight was stranded in
+  `telq` until the next user action (so `import.batch` never appeared), and the end row was written before the last
+  batch answered (`sent=0` while the UI said "5 sent"). Diagnostics now drain until empty, the end row is written
+  after the final callback, it carries `skipped=`, and the Import tab says "N already in this browser, not sent
+  twice" instead of leaving 6-vs-5 unexplained.
 - 1.13.1 — the walk scrolls **one viewport at a time**: `scrollTop = scrollHeight` made X's virtualized list render its
   tail and discard the middle (a 1k-like account yielded 6 tweets, `sent=0`, `reason=end`). Failures now leave a row
   from both sides — `import.sendfail` (content script: `lastError` / no answer, with the batch size) and

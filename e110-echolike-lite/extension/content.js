@@ -168,9 +168,12 @@
     const report = (state, reason) =>
       importProgress({ state, mode, of: wanted, collected: collected.size, sent, reason: reason || null });
 
-    const drain = (final) => {
+    const drain = (final, after) => {
       if (!queue.length) {
-        if (final) report("done");
+        if (final) {
+          report("done");
+          if (after) after();
+        }
         return;
       }
       const batch = queue.splice(0, final ? queue.length : IMPORT_BATCH);
@@ -180,7 +183,8 @@
         else if (!r || r.ok === false) tel("import.sendfail", { ok: false, error: (r && r.error) || "no answer", detail: "batch=" + batch.length });
         else sent += r.added || 0;
         report(final ? "done" : "running");
-        if (final && queue.length) drain(true);
+        if (final && queue.length) drain(true, after);
+        else if (final && after) after();
       });
     };
 
@@ -190,19 +194,23 @@
       if (observer) observer.disconnect();
       clearTimeout(quiet);
       importRun = null;
-      drain(true);
       report(reason === "cancelled" ? "cancelled" : "done", reason);
-      const sc = xScroller();
-      tel(reason === "end" || reason === "timeout" ? "import.stall" : "import.end", {
-        ok: reason !== "timeout",
-        error: reason,
-        detail:
-          "collected=" + collected.size + " sent=" + sent + " queued=" + queue.length +
-          " rounds=" + rounds + " quiet=" + quietRounds +
-          " reason=" + reason + " articles=" + document.querySelectorAll("article").length +
-          " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
-          " scrollable=" + (sc ? sc.scrollHeight - sc.clientHeight : -1),
-      });
+      // The end row is written once the last batch answered, so the numbers in the
+      // log are the numbers on screen (they disagreed before: sent=0 vs "5 sent").
+      const writeEnd = () => {
+        const sc = xScroller();
+        tel(reason === "end" || reason === "timeout" ? "import.stall" : "import.end", {
+          ok: reason !== "timeout",
+          error: reason,
+          detail:
+            "collected=" + collected.size + " sent=" + sent + " skipped=" + Math.max(0, collected.size - sent) +
+            " queued=" + queue.length + " rounds=" + rounds + " quiet=" + quietRounds +
+            " reason=" + reason + " articles=" + document.querySelectorAll("article").length +
+            " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
+            " scrollable=" + (sc ? sc.scrollHeight - sc.clientHeight : -1),
+        });
+      };
+      drain(true, writeEnd);
     };
 
     let rounds = 0;

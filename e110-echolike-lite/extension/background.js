@@ -133,7 +133,14 @@ let telSending = null;
 
 async function telFlush() {
   if (telSending) return telSending;
-  telSending = telFlushOnce().finally(() => {
+  telSending = (async () => {
+    // An event can arrive while a batch is in flight; without this loop it waited
+    // for the next user action, which is how a row "went missing" from a run.
+    for (let i = 0; i < 3; i++) {
+      const left = await telFlushOnce();
+      if (!left) break;
+    }
+  })().finally(() => {
     telSending = null;
   });
   return telSending;
@@ -141,17 +148,19 @@ async function telFlush() {
 
 async function telFlushOnce() {
   const s = await chrome.storage.local.get({ telq: [], tel_on: true, url: "", token: "" });
-  if (!s.tel_on || !s.telq.length) return;
+  if (!s.tel_on || !s.telq.length) return 0;
   const base = (s.url || DEFAULT_INBOX).replace(/\/$/, "");
-  if (!base) return;
+  if (!base) return 0;
   const batch = s.telq.slice(-20);
   const headers = { "content-type": "application/json" };
   if (s.token) headers.authorization = "Bearer " + s.token;
   try {
     const r = await timed(base + "/api/telemetry", { method: "POST", headers, body: JSON.stringify({ events: batch }) }, 8000);
     if (r.ok) await chrome.storage.local.set({ telq: s.telq.slice(0, Math.max(0, s.telq.length - batch.length)) });
+    const after = await chrome.storage.local.get({ telq: [] });
+    return after.telq.length;
   } catch (e) {
-    /* offline: keep them queued */
+    return 0; // offline: keep them queued
   }
 }
 

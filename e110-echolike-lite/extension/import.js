@@ -23,9 +23,11 @@
       return;
     }
     const why = { limit: "reached your count", end: "the list ended", timeout: "ten-minute guard", cancelled: "cancelled" }[p.reason] || p.state;
+    const skipped = Math.max(0, (p.collected || 0) - (p.sent || 0));
     $("istatus").innerHTML =
-      '<span class="ok">' + (p.collected || 0) + " " + what + "</span> collected, " + (p.sent || 0) +
-      " sent · " + esc(why) + (p.at ? " · " + esc(localTime(p.at)) : "");
+      '<span class="ok">' + (p.collected || 0) + " " + what + "</span> collected, " + (p.sent || 0) + " sent" +
+      (skipped ? ' <small>(' + skipped + " already in this browser, not sent twice)</small>" : "") +
+      " · " + esc(why) + (p.at ? " · " + esc(localTime(p.at)) : "");
   }
 
   const localTime = (iso) => {
