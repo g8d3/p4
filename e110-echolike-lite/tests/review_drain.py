@@ -106,6 +106,25 @@ with sync_playwright() as p:
         check("status counts them", "in the inbox" in line, True)
         check("and shows the words after decrypting", TEXT in page.inner_text("#list"), True)
         check("the queue did not come back", page.evaluate("chrome.storage.local.get({outbox:[]}).then(s=>s.outbox.length)"), 0)
+
+        # The repair path: the mirror holds captures that never made it (the old
+        # flush race, or a queue cleared by an older version). One button sends them.
+        orphans = [
+            {"uid": "oph-1", "kind": "like", "id": "601", "handle": "esa",
+             "url": "https://x.com/esa/status/601", "text": TEXT + " orphan 1", "clicked_at": "2026-11-12T00:02:00Z"},
+            {"uid": "oph-2", "kind": "like", "id": "602", "handle": "esa",
+             "url": "https://x.com/esa/status/602", "text": TEXT + " orphan 2", "clicked_at": "2026-11-12T00:03:00Z"},
+        ]
+        page.evaluate("items => chrome.storage.local.get({items:[], outbox:[]}).then(s => chrome.storage.local.set({items: s.items.concat(items), outbox: s.outbox}))", orphans)
+        page.reload()
+        page.wait_for_timeout(2500)
+        check("the mirror notices what the inbox lacks", "not in the inbox" in page.inner_text("#status"), True)
+        page.click("#retry")
+        page.wait_for_timeout(4000)
+        stored = (pathlib.Path(server_dir) / "likes.jsonl").read_text()
+        check("the missing ones were re-sent", stored.count('"ct"') >= 4, True)
+        check("and none of their words leaked", "orphan" in stored, False)
+        check("nothing is missing any more", "not in the inbox" in page.inner_text("#status"), False)
     finally:
         ctx.close()
         srv.terminate()

@@ -125,7 +125,7 @@ async function load() {
     '<span class="ok">' + fromInbox.length + "</span> in the inbox " +
     "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
     ' · ' + local.length + " in this browser" +
-    (waiting.length ? ' · <span class="err">' + waiting.length + " waiting to send</span>" : "") +
+    (waiting.length ? ' · <span class="err">' + waiting.length + " not in the inbox yet</span>" : "") +
     quota;
   $("export").style.display = shown.length ? "inline-block" : "none";
   // Only the hosted inbox has a reader page we serve ourselves.
@@ -143,7 +143,7 @@ async function load() {
   } else {
     web.style.display = "none";
   }
-  $("retry").textContent = waiting.length ? "Send " + waiting.length + " waiting" : "Send what is waiting";
+  $("retry").textContent = waiting.length ? "Send " + waiting.length + " missing" : "Send what is waiting";
   $("retry").style.display = waiting.length ? "inline-block" : "none";
   $("retry").classList.toggle("primary", waiting.length > 0);
   $("find").style.display = "none"; // already connected: reconnect lives in Settings
@@ -179,8 +179,14 @@ window.addEventListener("echolike:tab", (e) => {
 });
 
 $("retry").addEventListener("click", async () => {
-  await chrome.runtime.sendMessage({ type: "retry" });
-  load();
+  $("retry").disabled = true;
+  $("status").textContent = "Sending everything this browser holds…";
+  const r = await chrome.runtime.sendMessage({ type: "sync" });
+  $("retry").disabled = false;
+  await load();
+  if (r && r.ok === false) {
+    $("status").innerHTML = '<span class="err">' + esc(r.error || "could not send") + "</span> Nothing was lost.";
+  }
 });
 
 load();

@@ -263,6 +263,13 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.8.0 — **the lost-captures bug**. `flush()` cleared the whole outbox on success, so a capture taken while the
+  POST was in flight disappeared from the queue and stayed in the local mirror for ever: the owner's screen said
+  `1 in the inbox · 18 in this browser` and 28 tenants held one or two captures each, every request answering 200.
+  Now it removes only the uids it actually sent, serializes concurrent flushes (no double upload), and the inbox
+  tab has **Send N missing**: it compares the mirror with `GET /api/likes`, re-seals and re-queues whatever the
+  inbox lacks, then sends — the repair path for anything a broken queue dropped. `tests/review_drain.py` covers
+  both, including a mirror holding captures that never reached the queue.
 - 1.7.2 — the version is visible in two places a user actually looks at: the header of the extension page
   (`v1.7.2`, from `chrome.runtime.getManifest()`) and the toolbar icon's title (`stampVersion()` on install,
   startup and load). There is no popup since 1.6.0 — the icon opens the page.

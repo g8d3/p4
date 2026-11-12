@@ -141,7 +141,18 @@ async function telFlush() {
   }
 }
 
+let flushing = null;
+
 async function flush(verify) {
+  // One flush at a time: two in flight would post the same queue twice.
+  if (flushing) return flushing;
+  flushing = flushOnce(verify).finally(() => {
+    flushing = null;
+  });
+  return flushing;
+}
+
+async function flushOnce(verify) {
   let s = await state();
   // First capture of a fresh install: claim a tenant on the hosted inbox, silently.
   if (
@@ -221,9 +232,14 @@ async function flush(verify) {
     used: j && typeof j.used === "number" ? j.used : null,
     quota: j && typeof j.quota === "number" ? j.quota : null,
   };
-  await chrome.storage.local.set({ outbox: [], last: s.last });
+  // Only the items actually sent leave the queue: clearing all of it loses any
+  // capture that was taken while this request was in flight.
+  const sent = new Set(queue.map((i) => i.uid));
+  const after = await chrome.storage.local.get({ outbox: [] });
+  const left = after.outbox.filter((i) => !sent.has(i.uid));
+  await chrome.storage.local.set({ outbox: left, last: s.last });
   telFlush();
-  return { ok: true, sent: n, pending: 0, used: s.last.used, quota: s.last.quota };
+  return { ok: true, sent: n, pending: left.length, used: s.last.used, quota: s.last.quota };
 }
 
 // Zero-typing setup: the server mints the device token, the extension keeps it.
@@ -259,6 +275,37 @@ async function claimAt(url) {
   await chrome.storage.local.set({ url: base, token: j.token });
   const out = await flush(true);
   return { ok: out.ok, url: base, error: out.error || null, pending: out.pending };
+}
+
+// "Send everything in this browser": compare the local mirror with what the inbox
+// already holds and re-queue whatever is missing. This is the repair path for a
+// queue that diverged from the mirror (lost in the old flush race, or captured by
+// a version whose outbox was cleared).
+async function syncAll() {
+  const s = await state();
+  if (!s.url || !s.token) return { ok: false, error: "not connected: press Find my inbox first" };
+  const base = s.url.replace(/\/$/, "");
+  let have = new Set();
+  try {
+    const r = await timed(base + "/api/likes?limit=500", { headers: { authorization: "Bearer " + s.token } }, 15000);
+    if (r.ok) {
+      const j = await r.json().catch(() => null);
+      have = new Set(((j && j.items) || []).map((i) => i.uid).filter(Boolean));
+    }
+  } catch (e) {
+    return { ok: false, error: "the inbox did not answer" };
+  }
+  const queued = new Set(s.outbox.map((i) => i.uid));
+  const missing = s.items.filter((i) => i.uid && !have.has(i.uid) && !queued.has(i.uid));
+  if (!missing.length) {
+    const r = await flush(true);
+    return { ok: r.ok, added: 0, pending: r.pending, error: r.error || null };
+  }
+  const sealed = [];
+  for (const it of missing) sealed.push(await seal(it));
+  await chrome.storage.local.set({ outbox: s.outbox.concat(sealed).slice(-MAX_ITEMS) });
+  const r = await flush(true);
+  return { ok: r.ok, added: missing.length, pending: r.pending, error: r.error || null };
 }
 
 // Try everything in order and never stop at the first refusal: a local inbox that
@@ -425,7 +472,9 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                   ? keyRestore(m.passphrase)
                   : m && m.type === "forget"
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
-            : m && m.type === "tel"
+            : m && m.type === "sync"
+              ? syncAll()
+              : m && m.type === "tel"
               ? tel(m.action, m.info || {}).then(() => ({ ok: true }))
               : m && m.type === "tel-flush"
               ? telFlush().then(() => ({ ok: true }))
