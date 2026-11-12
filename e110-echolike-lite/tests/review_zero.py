@@ -116,7 +116,7 @@ with sync_playwright() as p:
         opts = ctx.new_page()
         opts.goto(f"chrome-extension://{extension_id()}/app.html#settings")
         opts.wait_for_timeout(700)
-        check("recovery code shown in settings", len(opts.input_value("#key")), 43)
+        check("the one inbox code is shown in settings", len(opts.input_value("#key")) > 60, True)
         check("recovery code is masked until revealed", opts.get_attribute("#key", "type"), "password")
         opts.click("#revealkey")
         check("reveal works", opts.get_attribute("#key", "type"), "text")

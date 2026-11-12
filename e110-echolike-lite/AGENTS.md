@@ -348,6 +348,31 @@ Three server-side rules keep that list honest:
   only to skip the wait until the next event. Live proof: `tests/review_sort.py`
   seeds an unsent capture, opens the page and expects it in the inbox.
 
+## One code, one list (1.17.5)
+
+The first cut of pairing (below) shipped **two** secrets — a recovery code and a pairing
+code — plus a paste box three cards away, and a "see both phones →" link that only
+switched tabs. The owner's verdict was right: *"no pasó nada"* and *"P8 lo volviste muy
+horrible"*. A link that looks like an action but is a navigation is worse than no link.
+
+Rules the product now follows:
+
+* **One code is one list.** The single code in `P8` is the pairing code: `{v,u,t,k}` —
+  where the list lives, how to reach it, and the key that opens it. The raw 43-char key
+  is no longer shown anywhere (it is derived for the reader URL), because two codes for
+  one thing is a riddle, not a feature.
+* **The action lives where the doubt is.** `P1` says `list u_… · this phone only` next to
+  a real button, **＋ Add my other phone**, which opens the field inline and joins the
+  list without leaving the tab. When two phones share the list, the same line says
+  `2 phones` and the button disappears.
+* **The paste box validates before it changes anything** (inbox answers, and the key
+  decrypts an existing blob), and a refusal says why: *not a pairing code* vs *that key
+  does not open the other phone's captures*. On success the phone gets its own device
+  token, its own captures are re-sealed into the shared list, and the page reloads with
+  the merged one.
+* **No new concepts.** One X account per list today; several X accounts inside one list
+  would need captures to carry which account they came from — **not** more codes.
+
 ## Two phones, one list (1.17.4)
 
 Reported as: two phones on the same X account, likes made on the old one do not appear
@@ -589,6 +614,13 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.17.5 — one code, one list. `P8` collapses to a single code (the pairing code, which already carries the
+key) with Reveal/Copy and one paragraph: the recovery-code field and the pair-another-phone block are gone. The
+join action moves to where the doubt is: `P1` shows `list u_… · this phone only` with a real **＋ Add my other
+phone** button that opens the field inline; the old "see both phones →" link only switched tabs, which read as
+"nothing happened". `tests/review_pair.py` now drives that inline flow (one code, masked, reveal, broken code
+refused, foreign-key code refused, join closes the box and merges the lists).
 
 - 1.17.4 — two phones, one list. `P1`/`I1` state which list is open (`list u_…` or `account email · N
 phones`), how many phones share it and whether any capture is sealed with another key; `P8` gains a **pairing

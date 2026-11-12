@@ -125,32 +125,44 @@ with sync_playwright() as p:
     # The pairing code the old phone would show (address + token + key, base64url).
     pairing = b64(json.dumps({"v": 1, "u": BASE, "t": old["token"], "k": key1}).encode())
 
+    # ONE code, in P8, and it is the pairing code (it carries the key).
     page.click("#tab-settings")
     page.wait_for_timeout(300)
-    check("the old phone's own code is offered", len(page.eval_on_selector("#paircode", "e => e.value")) > 40, True)
-    check("and it is masked", page.eval_on_selector("#paircode", "e => e.type"), "password")
+    own_code = page.input_value("#key")
+    check("there is exactly one code to copy", len(own_code) > 60, True)
+    check("and it is masked", page.get_attribute("#key", "type"), "password")
+    page.click("#revealkey")
+    check("reveal works", page.get_attribute("#key", "type"), "text")
+    page.click("#revealkey")
+
+    # The action lives where the doubt is: P1, one button, one field.
+    page.click("#tab-inbox")
+    page.wait_for_timeout(200)
+    check("the inbox offers to add the other phone", page.is_visible("#addphone"), True)
+    page.click("#addphone")
+    page.wait_for_timeout(200)
+    check("and shows the field right there", page.is_visible("#joinin"), True)
 
     # A bad code must be refused without changing anything.
-    page.fill("#pairin", "not-a-code")
-    page.click("#pairuse")
+    page.fill("#joinin", "not-a-code")
+    page.click("#joinbtn")
     page.wait_for_timeout(800)
-    check("a broken code is refused", "not a pairing code" in page.inner_text("#pairmsg"), True)
+    check("a broken code is refused", "not a pairing code" in page.inner_text("#joinmsg"), True)
     check("and the phone is still on its own list", page.evaluate("chrome.storage.local.get({url:''})")["url"] == BASE, True)
 
     # A code whose key does not open the list must be refused too (that is the trap:
     # adopting it produces a list of rows nobody can read).
     wrong = b64(json.dumps({"v": 1, "u": BASE, "t": old["token"], "k": key2}).encode())
-    page.fill("#pairin", wrong)
-    page.click("#pairuse")
+    page.fill("#joinin", wrong)
+    page.click("#joinbtn")
     page.wait_for_timeout(1200)
-    check("a code from another key is refused", "does not open" in page.inner_text("#pairmsg"), True)
+    check("a code from another key is refused", "does not open" in page.inner_text("#joinmsg"), True)
 
     # The real one: this phone joins the old phone's list.
-    page.fill("#pairin", pairing)
-    page.click("#pairuse")
+    page.fill("#joinin", pairing)
+    page.click("#joinbtn")
     page.wait_for_timeout(3500)
-    msg = page.inner_text("#pairmsg")
-    check("pairing succeeded", "same list" in msg, True)
+    check("the box closes once the list is joined", page.is_visible("#joinin"), False)
     code, r = call("/api/likes?limit=500", old["token"])
     check("the old phone's list now holds all three", r.get("total"), 3)
     check("this phone's own capture was carried over, not lost", any(b["uid"] == "new-1" for b in r["items"]), True)
@@ -162,7 +174,7 @@ with sync_playwright() as p:
     check("the new phone sees the old phone's likes", "3 in the inbox" in status, True)
     check("nothing is unreadable after pairing", "sealed with another key" in ident, False)
     check("and the list is named", len(ident) > 3, True)
-    check("two phones share it", "2 phones" in page.inner_text("#deviceid"), True)
+    check("two phones share it", "2 phones" in ident, True)
     ctx.close()
 
 print("FAILURES:", failures if failures else "none")

@@ -19,7 +19,9 @@ async function refresh() {
   state = await send("state");
   const connected = !!(state.url && state.hasToken);
   $("url").value = state.url || "";
-  $("key").value = state.keyCode || "";
+  // The one code the user ever copies: it carries the list, its access and the key.
+  // The raw key stays inside the product (the reader URL is built from it).
+  $("key").value = state.pairCode || state.keyCode || "";
   $("key").type = "password";
   $("revealkey").textContent = "Reveal";
 
@@ -41,7 +43,6 @@ async function refresh() {
       (state.phones > 1 ? " · <b>" + state.phones + " phones share it</b>" : "") +
       (state.accountEmail ? " · account <b>" + esc(state.accountEmail) + "</b>" : " · no account: this phone only")
     : "Not connected yet.";
-  $("paircode").value = state.pairCode || "";
   $("acctstatus").innerHTML = state.accountEmail
     ? '<span class="ok">Signed in as ' + esc(state.accountEmail) + "</span>" +
       (state.keyBackedAt
@@ -98,33 +99,6 @@ $("ads").addEventListener("change", async () => {
 $("fab").addEventListener("change", async () => {
   await chrome.storage.local.set({ fab_on: $("fab").checked });
 });
-$("pairreveal").addEventListener("click", () => {
-  const f = $("paircode");
-  const masked = f.type === "password";
-  f.type = masked ? "text" : "password";
-  $("pairreveal").textContent = masked ? "Hide" : "Reveal";
-});
-$("paircopy").addEventListener("click", async () => {
-  if (!$("paircode").value) return say("pairmsg", "Connect an inbox first: there is nothing to pair yet.", "err");
-  await navigator.clipboard.writeText($("paircode").value);
-  say("pairmsg", "Copied. Paste it in the other phone's Settings — it is a password, not a link.", "ok");
-});
-$("pairuse").addEventListener("click", async () => {
-  const code = $("pairin").value.trim();
-  if (!code) return say("pairmsg", "Paste the code from the other phone first.", "err");
-  say("pairmsg", "Checking that code against the other list…", "mut");
-  const r = await send("pair", { code });
-  $("pairin").value = "";
-  if (!r || r.ok === false) return say("pairmsg", esc((r && r.error) || "that did not work"), "err");
-  $("paircode").value = "";
-  await refresh();
-  say(
-    "pairmsg",
-    "This phone now uses the same list as the other one" + (r.added ? " and sent " + r.added + " capture(s) into it" : "") + ".",
-    "ok",
-  );
-});
-
 $("fabreset").addEventListener("click", async () => {
   await chrome.storage.local.set({ fab_x: null, fab_y: null });
   if (!$("fab").checked) {

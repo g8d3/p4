@@ -383,8 +383,13 @@ async function load() {
     : "<b>list " + esc(short(listId)) + "</b>" + (phones > 1 ? " · " + phones + " phones" : " · this phone only");
   $("identity").innerHTML =
     who +
-    (acct ? "" : ' · <a href="#settings" id="goaccount">see both phones →</a>') +
-    (got.foreign ? ' · <span class="err">' + got.foreign + " sealed with another key — restore or share the key in P8</span>" : "");
+    (phones > 1
+      ? ""
+      : ' · <button id="addphone" class="act" type="button" style="padding:1px 8px;margin:0">＋ Add my other phone</button>') +
+    (got.foreign
+      ? ' · <span class="err">' + got.foreign + " from another code: paste your other phone's code to read " +
+        (got.foreign === 1 ? "it" : "them") + "</span>"
+      : "");
   $("status").innerHTML =
     '<span class="ok">' + fromInbox.length + "</span> " + (acct ? "in my account " : "in the inbox ") +
     "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
@@ -505,15 +510,41 @@ $("filter").addEventListener("change", () => {
 
 // The status line and the empty state can change the filter: one delegated
 // listener, because those buttons are re-created on every render.
-document.addEventListener("click", (e) => {
-  if (e.target instanceof Element && e.target.id === "goaccount") {
-    e.preventDefault();
-    document.getElementById("tab-settings").click();
+document.addEventListener("click", async (e) => {
+  const t = e.target instanceof Element ? e.target : null;
+  if (!t) return;
+  if (t.id === "addphone") {
+    $("joinbox").style.display = "block";
+    $("joinmsg").textContent = "";
+    $("joinin").focus();
     return;
   }
-  const t = e.target instanceof Element ? e.target.closest("#onlywaiting,#clearfilter") : null;
-  if (!t) return;
-  filterKey = t.id === "onlywaiting" ? "waiting" : "all";
+  if (t.id === "joinclose") {
+    $("joinbox").style.display = "none";
+    return;
+  }
+  if (t.id === "joinbtn") {
+    const code = $("joinin").value.trim();
+    if (!code) {
+      $("joinmsg").innerHTML = '<span class="err">Paste the code from the other phone first.</span>';
+      return;
+    }
+    t.disabled = true;
+    $("joinmsg").textContent = "Checking that code against the other list…";
+    const r = await chrome.runtime.sendMessage({ type: "pair", code }).catch(() => null);
+    t.disabled = false;
+    if (!r || r.ok === false) {
+      $("joinmsg").innerHTML = '<span class="err">' + esc((r && r.error) || "that did not work") + "</span>";
+      return;
+    }
+    $("joinin").value = "";
+    $("joinbox").style.display = "none";
+    $("joinmsg").textContent = "";
+    return load();
+  }
+  const chip = t.closest("#onlywaiting,#clearfilter");
+  if (!chip) return;
+  filterKey = chip.id === "onlywaiting" ? "waiting" : "all";
   localStorage.setItem("el_filter", filterKey);
   paintFilter();
   repaint();
