@@ -1,0 +1,90 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EchoLike Lite</title>
+<style>
+:root{--line:#e6e6e6;--mut:#666;--ok:#00875a;--err:#d0021b}
+body{font:15px system-ui;max-width:700px;margin:0 auto;padding:0 18px 40px;color:#111}
+header{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;padding:12px 0;margin-bottom:20px}
+h1{font-size:17px;margin:0}
+nav{display:flex;gap:4px}
+nav button{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:9px 9px 0 0;border-bottom:none;cursor:pointer;color:#444}
+nav button[aria-selected="true"]{background:#111;color:#fff;border-color:#111}
+.panel{display:none}.panel.on{display:block}
+section{border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px;margin:0 0 16px}
+h2{font-size:15px;margin:0 0 4px}
+p.help{color:var(--mut);font-size:13px;margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 2px}
+input{font:inherit;width:100%;box-sizing:border-box;padding:9px;border:1px solid #ccc;border-radius:8px}
+input[readonly]{background:#fafafa;font-family:ui-monospace,monospace;font-size:12px}
+button.act{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;margin:10px 6px 0 0}
+button.primary{background:#111;color:#fff;border-color:#111}
+button:disabled{opacity:.45;cursor:default}
+.msg{font-size:13px;margin-top:10px;min-height:18px}
+.ok{color:var(--ok)}.err{color:var(--err)}.mut{color:var(--mut)}
+#list div{border-top:1px solid #eee;padding:8px 0}
+#list span{color:#333}
+#list b{font-weight:600}
+#list a{color:#1d9bf0;text-decoration:none}
+</style>
+<header>
+  <h1>EchoLike Lite</h1>
+  <nav role="tablist">
+    <button id="tab-inbox" role="tab" aria-selected="true" aria-controls="panel-inbox">Inbox</button>
+    <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">Settings</button>
+  </nav>
+</header>
+
+<div id="panel-inbox" class="panel on" role="tabpanel">
+  <p class="help">Your captures, decrypted here. Nothing on the server can read them.</p>
+  <div id="status">…</div>
+  <p><button id="export" class="act" style="display:none">Download as JSON</button>
+     <button id="retry" class="act" style="display:none">Send what is waiting</button></p>
+  <div id="list"></div>
+</div>
+
+<div id="panel-settings" class="panel" role="tabpanel">
+  <section>
+    <h2>1 · Inbox</h2>
+    <p class="help">Where your captures go. By default: the inbox on this computer if there is one, otherwise the hosted one — found and connected by itself. These fields are for an inbox on another machine.</p>
+    <div id="inboxstatus" class="msg mut">…</div>
+    <label for="url">Address</label>
+    <input id="url" type="url" autocomplete="off" spellcheck="false" placeholder="http://192.168.0.5:8931">
+    <label for="token">Token — only if a server handed you one; otherwise leave it empty and the inbox issues its own</label>
+    <input id="token" type="password" autocomplete="off" placeholder="(usually empty)">
+    <button id="save" class="act primary" type="button">Save &amp; connect</button>
+    <button id="find" class="act" type="button">Find my inbox</button>
+    <button id="forget" class="act" type="button">Disconnect</button>
+  </section>
+
+  <section>
+    <h2>2 · Recovery code</h2>
+    <p class="help">The key to everything in your inbox, and the only copy. It decrypts your captures — nobody can regenerate it, read it or recover it for you. Save it where you keep passwords.</p>
+    <label for="key">Your recovery code</label>
+    <input id="key" type="password" readonly onclick="this.select()">
+    <button id="revealkey" class="act" type="button">Reveal</button>
+    <button id="copykey" class="act" type="button">Copy</button>
+    <div id="keymsg" class="msg mut"></div>
+  </section>
+
+  <section>
+    <h2>3 · Account &amp; key backup <span class="mut">(optional)</span></h2>
+    <p class="help">An account is only for getting your inbox back on a new phone. Sign in with your email — no password — then back up your key wrapped with a passphrase you choose. The backup travels encrypted: our inbox stores it and cannot open it.</p>
+    <div id="acctstatus" class="msg mut">Not signed in.</div>
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="off" placeholder="you@example.com">
+    <button id="sendcode" class="act" type="button">Email me a code</button>
+    <label for="code">The 6 digits from the email</label>
+    <input id="code" inputmode="numeric" autocomplete="off" placeholder="123456">
+    <button id="verify" class="act primary" type="button">Sign in</button>
+    <label for="phrase">Key passphrase — to back up or restore your key</label>
+    <input id="phrase" type="password" autocomplete="off" placeholder="at least 8 characters">
+    <button id="backup" class="act" type="button">Back up key</button>
+    <button id="restore" class="act" type="button">Restore key</button>
+    <div id="acctmsg" class="msg mut"></div>
+  </section>
+</div>
+
+<script src="inbox.js"></script>
+<script src="options.js"></script>
+<script src="tabs.js"></script>

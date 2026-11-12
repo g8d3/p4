@@ -1,3 +1,4 @@
+(function () {
 // EchoLike Lite — settings page. Everything the popup should not hold: a second
 // inbox, the recovery code, and the optional account. Each card owns its own
 // message line, so one failure never looks like another's.
@@ -40,7 +41,6 @@ async function refresh() {
         : ' · <span class="err">key not backed up</span>')
     : "Not signed in.";
   if (!$("email").value) $("email").value = state.accountEmail || "";
-  $("openinbox").disabled = !connected;
 }
 
 // 1 · Inbox -----------------------------------------------------------------
@@ -83,10 +83,6 @@ $("copykey").addEventListener("click", async () => {
   } catch (e) {
     say("keymsg", "Copy failed: select the field and copy it by hand.", "err");
   }
-});
-
-$("openinbox").addEventListener("click", () => {
-  chrome.tabs.create({ url: chrome.runtime.getURL("inbox.html") });
 });
 
 // 3 · Account and key backup ------------------------------------------------
@@ -140,3 +136,4 @@ $("restore").addEventListener("click", async () => {
 });
 
 refresh();
+})();

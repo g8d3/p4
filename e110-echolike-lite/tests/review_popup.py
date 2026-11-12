@@ -81,12 +81,35 @@ with sync_playwright() as p:
 
         # The settings page: three cards, one message line each, connect against no server.
         opts = ctx.new_page()
-        opts.goto(f"chrome-extension://{ext_id}/options.html")
+        opts.goto(f"chrome-extension://{ext_id}/app.html#settings")
         opts.wait_for_timeout(600)
         print("settings inbox line:", opts.inner_text("#inboxstatus").replace("\n", " "))
         print("settings cards:", [opts.inner_text(f"section:nth-of-type({i}) h2") for i in (1, 2, 3)])
+        print("opened on the settings tab:", opts.is_visible("#url"), "| hash:", opts.evaluate("location.hash"))
+        opts.click("#tab-inbox")
+        opts.wait_for_timeout(200)
+        print("inbox tab shows the list:", opts.is_visible("#list"), "| settings hidden:", not opts.is_visible("#url"),
+              "| hash:", opts.evaluate("location.hash"))
+        opts.click("#tab-settings")
+        opts.wait_for_timeout(200)
+        print("back to settings:", opts.is_visible("#url"))
         print("passphrase field is a password:", opts.get_attribute("#phrase", "type"))
         print("recovery code hidden by default:", opts.get_attribute("#key", "type"))
+        # Where "Open my inbox" points: the web reader for the hosted inbox, the
+        # extension page for an inbox on your own machine. Seeded, so no claim.
+        opts.evaluate("""chrome.storage.local.set({
+            url: 'https://inbox-lite.echolike.app', token: 'a'.repeat(32), key: 'k'.repeat(43)})""")
+        page.reload()
+        page.wait_for_timeout(700)
+        href = page.evaluate("document.getElementById('open').href")
+        print("hosted inbox -> open link:", href.split("#")[0], "| fragment keys:", sorted(href.split("#")[1].split("&")[0].split("=")[0:2]))
+        print("label names the site:", "echolike.app" in page.inner_text("#open"))
+        opts.evaluate("""chrome.storage.local.set({url: 'http://127.0.0.1:8931', token: 'b'.repeat(32)})""")
+        page.reload()
+        page.wait_for_timeout(700)
+        print("own server -> open link:", page.evaluate("document.getElementById('open').href"))
+        opts.evaluate("chrome.storage.local.remove(['url','token','key'])")
+
         opts.fill("#url", "http://127.0.0.1:59999")
         opts.fill("#token", "deadbeef")
         opts.click("#save")

@@ -1,6 +1,6 @@
 // EchoLike Lite — popup. Three things only: what is happening, one button, and
-// the list. Addresses, tokens, the recovery code and the account live in
-// options.html: a 320px popup is not a settings screen.
+// the list. Everything else lives in the extension's own page (app.html), whose
+// second tab is the settings: a 320px popup is not a settings screen.
 const $ = (id) => document.getElementById(id);
 
 async function send(type, extra) {
@@ -28,6 +28,19 @@ function renderList(items) {
   }
 }
 
+// The hosted inbox is the only inbox whose reader page we can serve ourselves.
+// (DEFAULT_INBOX lives in background.js — a different scope, so it is not visible here.)
+const HOSTED_HOST = "inbox-lite.echolike.app";
+
+function onHosted(s) {
+  if (!s.url) return false;
+  try {
+    return new URL(s.url).host === HOSTED_HOST;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function refresh() {
   const s = await send("state");
   const connected = !!(s.url && s.hasToken);
@@ -35,9 +48,19 @@ async function refresh() {
   $("ads").checked = !!ads.hide_ads;
   $("find").textContent = connected ? "Reconnect" : "Find my inbox";
   renderList(s.items || []);
-  // The full list lives in the extension's own page: it decrypts with the key in
-  // this browser, so no secret ever travels in a URL.
-  $("open").style.display = connected ? "inline" : "none";
+  // A hosted inbox is read on the web (works on any device, nothing to install);
+  // only an inbox on your own machine needs the extension's own page, because that
+  // page fetches same-origin. Either way the key stays in the fragment, never sent.
+  const open = $("open");
+  if (connected) {
+    open.href = onHosted(s)
+      ? s.url + "/#t=" + encodeURIComponent(s.token || "") + "&k=" + encodeURIComponent(s.keyCode || "")
+      : "app.html#inbox";
+    open.textContent = onHosted(s) ? "Open my inbox on echolike.app →" : "Open my inbox →";
+    open.style.display = "inline";
+  } else {
+    open.style.display = "none";
+  }
   const st = $("status");
   const at = s.url ? " <small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" : "";
   const quota =
@@ -70,7 +93,8 @@ async function find() {
 
 $("find").addEventListener("click", find);
 
-$("settings").addEventListener("click", () => chrome.runtime.openOptionsPage());
+// Settings is a tab of the extension's own page, not a separate screen.
+$("settings").addEventListener("click", () => chrome.tabs.create({ url: chrome.runtime.getURL("app.html#settings") }));
 
 $("retry").addEventListener("click", async () => {
   await send("retry");

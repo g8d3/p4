@@ -86,7 +86,8 @@ Where it is read: in the user's browser, never on a server.
 | Reader | Key comes from |
 |---|---|
 | extension popup (last 30) | the local plaintext mirror kept in `chrome.storage.local` — same browser, no network |
-| extension page `inbox.html` (**Open my inbox**) | the key in `chrome.storage.local`; it fetches `/api/likes` and decrypts |
+| extension page `inbox.html` (own server) | the key in `chrome.storage.local`; it fetches `/api/likes` and decrypts |
+| `https://inbox-lite.echolike.app/#t=&k=` (**Open my inbox** for the hosted inbox) | the URL fragment |
 | hosted `/#t=<token>&k=<key>` | the URL fragment — never sent to the server, never in a log |
 | self-hosted `server.py` | it cannot read anything: its page says so and points at the extension |
 
@@ -151,11 +152,13 @@ extension/content.js      one click listener: like/unlike/bookmark/unbookmark
 extension/background.js   local save + POST outbox to /api/likes, retry on event,
                           loopback discovery + claim, DEFAULT_INBOX (hosted)
 extension/popup.html/js   status + one button + Retry + the list. Nothing else.
-extension/options.html/js settings page (manifest `options_ui`, opened by the
-                          popup's Settings button): 1 · Inbox (address, token,
-                          find, disconnect), 2 · recovery code (masked, reveal/
-                          copy, open inbox), 3 · account (email code + passphrase
-                          key backup). One message line per card.
+extension/app.html        the extension's own page, two tabs: Inbox (decrypts,
+                          export, retry) and Settings (1 · Inbox, 2 · recovery
+                          code, 3 · account). `tabs.js` routes by hash.
+extension/inbox.js        panel scripts, each wrapped in an IIFE: both used to
+extension/options.js      declare `const $` at top level, which in one document
+                          is a duplicate-declaration SyntaxError and kills the
+                          second script whole.
 extension/inbox.html/js   the full inbox page: fetches the blobs, decrypts here, exports
 server.py                 self-hosted inbox, stdlib only: /api/health, /api/claim,
                           POST /api/likes, GET /
@@ -219,6 +222,16 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.5.0 — one extension page, two tabs: `app.html#inbox` and `app.html#settings` (hash-routed, `tabs.js`). The
+  separate `inbox.html` and `options.html` are gone; the popup's Settings button and the extensions page's
+  Options both land on the settings tab. Panel scripts wrapped in IIFEs — two top-level `const $` in one document
+  is a SyntaxError, and the second script died silently until `tests/review_zero.py` caught an empty recovery code.
+- 1.4.1 — **Open my inbox** opens the hosted reader on echolike.app (`/#t=…&k=…`) when the inbox is the hosted
+  one, and the extension page only for a self-hosted inbox (that page fetches same-origin). Both readers now
+  answer the question the popup cannot: `N in the inbox · M in this browser · K waiting to send`, from
+  `GET /api/likes` returning `total` and `quota` (it used to print `2/undefined`). `DEVICES_PER_IP` 20 → 50,
+  because a household, an office or a CGNAT shares one address (the per-tenant monthly quota still bounds it).
+  The popup cannot see `DEFAULT_INBOX` (different scope) — the hosted host is a local constant there now.
 - 1.4.0 — settings left the popup. A 320px popup was holding eleven controls (address, token, save, disconnect,
   recovery code, copy, email, code, verify, passphrase, backup, restore) and read as a mess because it was one.
   Now: popup = status + one button + list; `options.html` = three cards, each with its own message line, its own

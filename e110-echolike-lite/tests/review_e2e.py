@@ -66,7 +66,7 @@ try:
         page.goto(f"chrome-extension://{eid}/popup.html")
         page.wait_for_timeout(400)
         opts = ctx.new_page()
-        opts.goto(f"chrome-extension://{eid}/options.html")
+        opts.goto(f"chrome-extension://{eid}/app.html#settings")
         opts.wait_for_timeout(400)
 
         url = f"http://127.0.0.1:{PORT}"

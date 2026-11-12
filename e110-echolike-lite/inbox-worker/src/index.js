@@ -32,7 +32,7 @@
 const API = 3;
 const FREE_PER_MONTH = 3000;
 const CLAIM_PER_IP_HOUR = 20; // a household or a test suite never needs more; a bot still caps at DEVICES_PER_IP
-const DEVICES_PER_IP = 20;
+const DEVICES_PER_IP = 50; // one household, office or CGNAT can share an address; the monthly quota still bounds it
 const MAX_BODY = 256 * 1024;
 const MAX_ITEM = 16 * 1024;
 const MAX_ITEMS = 500;
@@ -392,7 +392,9 @@ async function load() {
   try { aes = await importKey(key); } catch (e) { $('status').innerHTML = '<span class=err>That recovery code is not valid.</span>'; $('ask').style.display='block'; return; }
   try { items = await Promise.all(rows.map(decrypt)); }
   catch (e) { $('status').innerHTML = '<span class=err>Wrong recovery code: these captures do not decrypt.</span>'; $('ask').style.display='block'; return; }
-  $('status').innerHTML = '<span class=ok>' + items.length + '</span> capture(s)' + (body.used!=null ? ' · ' + body.used + '/' + body.quota + ' this month' : '');
+  $('status').innerHTML = '<span class=ok>' + (body.total!=null ? body.total : items.length) + '</span> capture(s) in this inbox' +
+    (body.used!=null && body.quota ? ' · ' + body.used + '/' + body.quota + ' this month' : '') +
+    (items.length < (body.total||0) ? ' · showing the newest ' + items.length : '');
   $('export').style.display = 'inline-block';
   render(items);
 }
@@ -454,7 +456,15 @@ export default {
         )
           .bind(who.user, limit)
           .all();
-        return json({ ok: true, user: who.user, items: rows.results || [], used: await usage(env, who.user) });
+        const total = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(who.user).first();
+        return json({
+          ok: true,
+          user: who.user,
+          items: rows.results || [],
+          total: total?.n || 0,
+          used: await usage(env, who.user),
+          quota: FREE_PER_MONTH,
+        });
       }
       if (path === "/" && req.method === "GET") {
         return new Response(PAGE, {

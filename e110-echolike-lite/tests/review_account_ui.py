@@ -58,7 +58,7 @@ with sync_playwright() as p:
         page = ctx.new_page()
         page.on("dialog", lambda d: d.accept())
         page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
-        page.goto(f"chrome-extension://{extension_id()}/options.html")
+        page.goto(f"chrome-extension://{extension_id()}/app.html#settings")
         page.wait_for_timeout(600)
         page.fill("#url", BASE)
         page.click("#save")

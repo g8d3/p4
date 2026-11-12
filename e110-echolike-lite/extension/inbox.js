@@ -1,3 +1,4 @@
+(function () {
 // EchoLike Lite — the full inbox, in an extension page.
 // It talks to whatever inbox the extension is connected to, decrypts every blob
 // with the key stored in this browser, and lets the user export the lot. Nothing
@@ -49,6 +50,7 @@ function render(items) {
       "<b>" + esc(it.kind) + "</b> " +
       (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
       (it.ad ? " <small>ad</small>" : "") +
+      (it.waiting ? " <small>waiting to send</small>" : "") +
       (it.legacy || (!it.__sealed && it.text) ? " <small>unencrypted, from an older version</small>" : "") +
       (it.text ? "<br><span>" + esc(String(it.text).slice(0, 600)) + "</span>" : "") +
       "<br><small>" + esc(it.clicked_at || it.received_at || "") + "</small>";
@@ -92,11 +94,21 @@ async function load() {
     return;
   }
   const body = await r.json();
-  shown = await decryptAll(s.keyCode, body.items || []);
-  const quota = body.used != null ? " · " + body.used + "/" + body.quota + " this month" : "";
-  $("status").innerHTML = '<span class="ok">' + shown.length + "</span> capture(s)" + quota;
+  const fromInbox = await decryptAll(s.keyCode, body.items || []);
+  // What is in this browser but not in the inbox yet: the honest answer to
+  // "did my likes arrive?", which the popup alone cannot give.
+  const local = (await chrome.storage.local.get({ items: [], outbox: [] })).items;
+  const sentUids = new Set(fromInbox.map((i) => i.uid));
+  const waiting = local.filter((i) => !sentUids.has(i.uid));
+  shown = fromInbox.concat(waiting.map((i) => Object.assign({}, i, { waiting: true })));
+  const quota = body.used != null && body.quota ? " · " + body.used + "/" + body.quota + " this month" : "";
+  $("status").innerHTML =
+    '<span class="ok">' + fromInbox.length + "</span> in the inbox" +
+    ' · ' + local.length + " in this browser" +
+    (waiting.length ? ' · <span class="err">' + waiting.length + " waiting to send</span>" : "") +
+    quota;
   $("export").style.display = shown.length ? "inline-block" : "none";
-  $("retry").style.display = s.pending ? "inline-block" : "none";
+  $("retry").style.display = waiting.length ? "inline-block" : "none";
   render(shown);
 }
 
@@ -114,3 +126,4 @@ $("retry").addEventListener("click", async () => {
 });
 
 load();
+})();
