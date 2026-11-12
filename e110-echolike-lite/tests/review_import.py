@@ -93,6 +93,7 @@ with sync_playwright() as p:
         l({type:'import-start', mode:'likes', limit:30}, null, resolve);
       })""")
     check("import started", started.get("ok"), True)
+    check("the walk announces its api", started.get("api"), 4)
     page.wait_for_timeout(20000)
 
     collected = page.evaluate("window.__batch.length")

@@ -38,7 +38,7 @@
   // to retry a queue, and the browser's own "online" is when a queue is worth sending.
   const ping = (type) => {
     try {
-      const p = chrome.runtime.sendMessage({ type });
+      const p = chrome.runtime.sendMessage({ type, api: CONTENT_API });
       if (p && p.catch) p.catch(() => {});
     } catch (e) {
       /* a page that cannot talk to the extension still captures likes */
@@ -51,6 +51,11 @@
   chrome.storage.onChanged.addListener((ch) => {
     if (ch.hide_ads) applyAds(ch.hide_ads.newValue);
   });
+
+  // Bump when the walk changes. The background refuses to start an import on a tab
+  // whose script speaks an older api, and reloads it instead — a stale tab is the
+  // difference between 7 rows and a thousand, and it is invisible otherwise.
+  const CONTENT_API = 4;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 
@@ -315,7 +320,8 @@
   chrome.runtime.onMessage.addListener((m, _s, reply) => {
     if (!m) return false;
     if (m.type === "import-start") {
-      reply(startImport(m.mode, m.limit));
+      const r = startImport(m.mode, m.limit);
+      reply(Object.assign({ api: CONTENT_API }, r || {}));
       return true;
     }
     if (m.type === "import-cancel") {

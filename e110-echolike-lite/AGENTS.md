@@ -254,6 +254,13 @@ Deliberate design decisions, so they are not "improved" later:
   lists, so the row selector is `article, [data-testid="tweet"]` (X uses both), and
   the primary link is resolved by `ownStatusLink()` — the first `/status/` anchor was
   often the **quoted** post, which collapsed several rows into one id.
+* **A stale tab is a real, invisible failure**: a content script injected by the
+  previous version keeps running until the tab reloads, so a fixed walk can appear
+  broken (`import.cmd` present, `import.begin` missing, 7 rows collected). The
+  script announces `CONTENT_API` on `hello` and in the `import-start` reply; the
+  background refuses an older api, reloads the tab and starts from `pendingImport`
+  when the page says `hello` again. Bump `CONTENT_API` in **both** files whenever the
+  walk changes.
 * **Counters, not prose**: the end row always carries `rows` (what the DOM had),
   `seenRows`, `noId` (rows we could not resolve) and the scroller's tag + overflow,
   so "the tab shows more than 6" is answerable without another round trip.
@@ -346,6 +353,9 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.14.1 — the walk announces its api (`CONTENT_API` 4). A tab running the previous version's content script is
+  detected, reloaded and restarted automatically — that stale script is what produced "7 collected, 1 sent", with
+  no `import.begin` in the log at all.
 - 1.14.0 — extraction stopped losing rows: the primary `/status/` link is chosen instead of the first one (quotes made
   several rows collapse into one id), and rows rendered as `div[data-testid="tweet"]` are read like `article`s. The end
   row now reports `rows`/`seenRows`/`noId`/`scroller`, so the next "only N came" has a number behind it.

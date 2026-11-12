@@ -5,6 +5,9 @@
 // (discover/claim), a send when something is queued, and the health check that
 // comes with it.
 const MAX_ITEMS = 500;
+// Must match `CONTENT_API` in content.js: an import refuses to run on a tab whose
+// script speaks an older walk, and reloads it instead.
+const CONTENT_API = 4;
 
 // The hosted inbox: an install that has never been configured claims a tenant
 // there by itself on the first capture — no address, no token, no click. Point
@@ -553,7 +556,28 @@ async function importStart(mode, limit, tabId) {
     tabs[0];
   try {
     const r = await chrome.tabs.sendMessage(tab.id, { type: "import-start", mode, limit });
-    return r || { ok: false, error: "that tab did not answer: reload it" };
+    if (!r) throw new Error("no answer");
+    if (r.api !== CONTENT_API) {
+      // The tab is running an older script: reload it and start again by itself.
+      pendingImport = { mode, limit };
+      await chrome.tabs.reload(tab.id);
+      await tel("import.cmd", {
+        ok: false,
+        host: tab.url,
+        error: "stale content script api=" + r.api + " want " + CONTENT_API,
+        detail: "reloading the tab and starting again",
+      });
+      return {
+        ok: false,
+        needsReload: true,
+        tabId: tab.id,
+        autoRestart: true,
+        error:
+          "that tab was running an older EchoLike script (v" + (r.api || "?") + " of " + CONTENT_API +
+          "). Reloading it now — the import starts by itself when the page is ready.",
+      };
+    }
+    return r;
   } catch (e) {
     const where = (tab.url || "").replace(/^https:\/\/x\.com/, "") || "that tab";
     await tel("import.cmd", {
@@ -561,12 +585,16 @@ async function importStart(mode, limit, tabId) {
       host: tab.url,
       error: "no content script in " + where + ": " + String(e.message || e),
     });
+    pendingImport = { mode, limit };
+    await chrome.tabs.reload(tab.id).catch(() => {});
     return {
       ok: false,
       needsReload: true,
       tabId: tab.id,
       tabUrl: tab.url,
-      error: "the tab \"" + where + "\" has no EchoLike script yet (it was open before the extension was installed or updated). Reload that tab, or open the list with the button below.",
+      autoRestart: true,
+      error:
+        "the tab \"" + where + "\" had no EchoLike script yet (it was open before the extension was installed or updated). Reloading it now — the import starts by itself when the page is ready.",
     };
   }
 }

@@ -92,6 +92,11 @@
     const r = await send("import-start", { mode: $("imode").value, limit: Number($("ilimit").value), tabId });
     if (!r || r.ok === false) {
       $("istatus").innerHTML = '<span class="err">' + esc((r && r.error) || "could not start") + "</span>";
+      if (r && r.autoRestart) {
+        $("istatus").textContent = "";
+        $("istatus").innerHTML = esc(r.error || "Reloading that tab and starting again…");
+        return;
+      }
       if (r && r.tabId) {
         const btn = document.createElement("button");
         btn.className = "act";
