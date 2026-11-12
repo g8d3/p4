@@ -14,7 +14,8 @@ cost: one click listener, no observers, no timers, no background traffic.
 1. `chrome://extensions` → Developer mode → Load unpacked → `extension/`.
 2. Like a post on X. Done: the first capture claims a tenant on the hosted inbox
    (`https://inbox-lite.echolike.app`) by itself and everything after it flows there.
-   No address, no token, no popup action.
+   For an inbox on your own machine instead: click the toolbar icon (it opens the
+   one extension page), then **Find my inbox**. No address, no token, no account.
 
 That is the whole setup; everything below is optional paths, not steps. The
 popup's **Find my inbox** prefers an inbox on your own machine (loopback
@@ -200,6 +201,7 @@ are left untouched (existing installs keep their update channel).
 xvfb-run -a python3 tests/review_capture.py   # content script vs X-shaped DOM (quoted tweet, kinds, double-inject)
 xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, Find my inbox, bad connect reported
 xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
+bash bin/live-test-reset.sh                  # clears the hosted claim window (the live tests claim a lot)
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
 python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
@@ -209,6 +211,9 @@ xvfb-run -a python3 tests/review_account_ui.py # the same from the popup, backup
 # the promise in one test: fresh browser, no configuration, one like -> hosted inbox
 # (real network, real tenant: it leaves one tenant behind per run)
 xvfb-run -a python3 tests/review_zero.py
+# a local inbox that refuses must not stop discovery (needs port 8931 free):
+# systemctl --user stop echolike-lite-inbox && xvfb-run -a python3 tests/review_find_fallback.py
+xvfb-run -a python3 tests/review_app.py       # the one page: tabs, find, ads switch, list, bad connect
 # the real user seat: no configuration at all, one button, inside a throw-away netns
 # so the live inbox on 8931 is untouched
 unshare -rn sh -c 'ip link set lo up; xvfb-run -a python3 tests/review_find.py'
@@ -222,6 +227,20 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.6.0 — **the tab panels refresh themselves**: a hash change is a same-document navigation, so the inbox tab kept
+  showing the state from before you connected (Chrome does not reload). `tabs.js` now dispatches `echolike:tab`
+  and each panel reloads its data when it becomes visible. Also: `server.py` grew `GET /api/likes`, without which a
+  self-hosted inbox could never feed the inbox tab (only the hosted worker had it). Bitten once by a blind
+  `s.replace("refresh();", …)`, which also rewrote `await refresh();` inside six handlers — the tests caught it
+  (a 401 shown as "Connected"); edit by anchor, not by bare token.
+- 1.6.0 — no popup at all: the toolbar icon opens `app.html#inbox`, which is the whole extension (two tabs).
+  `Find my inbox` moved to the inbox tab, the ads switch to a settings card, and the not-connected state now
+  says what to press and promises "nothing to type". **discover() no longer aborts at the first refusal**: a local
+  inbox that answers /api/health but refuses the claim (device limit, old server) used to end the whole attempt
+  with a dead button while a working hosted inbox was one step away. It now walks every candidate and reports
+  what each said. `tests/review_find_fallback.py` reproduces exactly that case (a refusing inbox on 8931 plus the
+  real hosted one). Also fixed: the inbox tab listed captures oldest-first (it reversed a list `state` already
+  reversed) and `s.last.ok === false` errors were swallowed on that tab.
 - 1.5.0 — one extension page, two tabs: `app.html#inbox` and `app.html#settings` (hash-routed, `tabs.js`). The
   separate `inbox.html` and `options.html` are gone; the popup's Settings button and the extensions page's
   Options both land on the settings tab. Panel scripts wrapped in IIFEs — two top-level `const $` in one document

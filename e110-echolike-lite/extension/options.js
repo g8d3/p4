@@ -41,6 +41,8 @@ async function refresh() {
         : ' · <span class="err">key not backed up</span>')
     : "Not signed in.";
   if (!$("email").value) $("email").value = state.accountEmail || "";
+  const ads = await chrome.storage.local.get({ hide_ads: true });
+  $("ads").checked = !!ads.hide_ads;
 }
 
 // 1 · Inbox -----------------------------------------------------------------
@@ -54,19 +56,15 @@ $("save").addEventListener("click", async () => {
   if (r && r.ok === false) return say("inboxstatus", esc(r.error), "err");
 });
 
-$("find").addEventListener("click", async () => {
-  $("find").disabled = true;
-  say("inboxstatus", "Looking for an inbox…");
-  const r = await send("discover");
-  $("find").disabled = false;
-  await refresh();
-  if (r && r.ok === false) say("inboxstatus", esc(r.error), "err");
-});
-
 $("forget").addEventListener("click", async () => {
   await send("forget");
   await refresh();
   say("inboxstatus", "Disconnected. Catches stay in this browser until you connect again.", "mut");
+});
+
+// the ads switch is a storage flag the content script watches
+$("ads").addEventListener("change", async () => {
+  await chrome.storage.local.set({ hide_ads: $("ads").checked });
 });
 
 // 2 · Recovery code ---------------------------------------------------------
@@ -133,6 +131,10 @@ $("restore").addEventListener("click", async () => {
   if (!r || r.ok === false) return say("acctmsg", esc((r && r.error) || "failed"), "err");
   $("phrase").value = "";
   say("acctmsg", '<span class="ok">Key restored.</span> Open my inbox to see everything again.', "ok");
+});
+
+window.addEventListener("echolike:tab", (e) => {
+  if (e.detail === "settings") refresh();
 });
 
 refresh();

@@ -51,7 +51,7 @@ with sync_playwright() as p:
         page = ctx.new_page()
         page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
         page.on("dialog", lambda d: d.accept())
-        page.goto(f"chrome-extension://{extension_id()}/popup.html")
+        page.goto(f"chrome-extension://{extension_id()}/app.html#settings")
         page.wait_for_timeout(500)
 
         # Settings page: connect to the local worker with an address only (it mints the token).

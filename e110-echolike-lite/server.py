@@ -7,6 +7,9 @@ Store: likes.jsonl (one JSON object per line) + .token (bearer token),
 
 Endpoints:
   GET  /api/health   -> {"ok": true, "claim": "private"|"open"}
+  GET  /api/likes    -> {"items": [...], "total": N}  Bearer token. The blobs, newest
+                        first, so the extension's inbox tab can read from this server
+                        exactly as it reads from the hosted one.
   POST /api/claim    -> {"token": "..."}  no token needed from a private network
                         (loopback, RFC1918, link-local, Tailscale 100.64/10);
                         the extension calls this itself, so the user pastes nothing
@@ -221,9 +224,32 @@ class H(BaseHTTPRequestHandler):
                     f.write(json.dumps(it) + "\n")
         self._json({"received": len(items)})
 
+    def _likes_list(self):
+        if not authorized(self.headers.get("authorization", "")):
+            return self._json({"ok": False, "error": "unauthorized"}, 401)
+        items = []
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE) as f:
+                for ln in f:
+                    ln = ln.strip()
+                    if not ln:
+                        continue
+                    try:
+                        items.append(json.loads(ln))
+                    except ValueError:
+                        continue  # a half-written line never breaks the list
+        try:
+            limit = int(self.path.split("limit=")[1].split("&")[0])
+        except (IndexError, ValueError):
+            limit = 200
+        limit = max(1, min(500, limit))
+        self._json({"ok": True, "items": list(reversed(items))[:limit], "total": len(items), "api": 2})
+
     def do_GET(self):
         self._safe(
-            lambda: self._json(
+            lambda: self._likes_list()
+            if self.path.split("?")[0] == "/api/likes"
+            else self._json(
                 {"ok": True, "server": "echolike-lite", "api": 2, "claim": "open" if OPEN_CLAIM else "private"}
             )
             if self.path == "/api/health"

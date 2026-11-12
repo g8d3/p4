@@ -187,22 +187,32 @@ async function claimAt(url) {
   return { ok: out.ok, url: base, error: out.error || null, pending: out.pending };
 }
 
+// Try everything in order and never stop at the first refusal: a local inbox that
+// is full, old or mid-restart used to abort the whole attempt, which is how "Find
+// my inbox" ended up doing nothing while a perfectly good hosted inbox was one
+// step away.
 async function discover() {
   const s = await state();
   if (s.url && s.token) return { ok: true, url: s.url, already: true, pending: s.outbox.length };
-  for (const url of CANDIDATES) {
+  const tried = [];
+  for (const url of CANDIDATES.concat(DEFAULT_INBOX ? [DEFAULT_INBOX] : [])) {
     let hres;
     try {
       hres = await timed(url + "/api/health", {});
     } catch (e) {
-      continue; // nothing listening on that port: try the next
+      continue; // nothing listening there: try the next
     }
     if (!hres.ok) continue;
-    return claimAt(url);
+    const r = await claimAt(url);
+    if (r.ok) return r;
+    tried.push(url.replace(/^https?:\/\//, "") + ": " + (r.error || "claim refused"));
   }
-  // Nothing on this machine: fall back to the hosted inbox, same one tap.
-  if (DEFAULT_INBOX) return claimAt(DEFAULT_INBOX);
-  return { ok: false, error: "no inbox found on this computer" };
+  return {
+    ok: false,
+    error: tried.length
+      ? "no inbox accepted this browser (" + tried.join("; ") + ")"
+      : "nothing answered. Start the inbox on this computer, or press Find my inbox again in a moment",
+  };
 }
 
 // ---- Account (optional): recovery of access, never of plaintext --------------
@@ -356,3 +366,6 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
 });
 
 chrome.runtime.onStartup.addListener(() => flush().catch(() => {}));
+
+// One page for the whole extension: the toolbar icon opens it (there is no popup).
+chrome.action.onClicked.addListener(() => chrome.tabs.create({ url: chrome.runtime.getURL("app.html#inbox") }));

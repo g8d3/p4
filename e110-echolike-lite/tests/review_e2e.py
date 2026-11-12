@@ -63,7 +63,7 @@ try:
         eid = extension_id()
         page = ctx.new_page()
         page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
-        page.goto(f"chrome-extension://{eid}/popup.html")
+        page.goto(f"chrome-extension://{eid}/app.html#inbox")
         page.wait_for_timeout(400)
         opts = ctx.new_page()
         opts.goto(f"chrome-extension://{eid}/app.html#settings")
@@ -92,10 +92,10 @@ try:
         check("capture acknowledged as sent", reply.get("sent"), True)
 
         page.wait_for_timeout(400)
-        page.reload()
-        page.wait_for_timeout(500)
+        page.reload()  # a real load: the inbox tab fetches and decrypts
+        page.wait_for_timeout(2500)
         rows = page.query_selector_all("#list div")
-        check("one row in the popup list", len(rows), 1)
+        check("one row in the inbox list", len(rows), 1)
         check("row text", "e2e capture" in (rows[0].inner_text() if rows else ""), True)
         check("nothing left pending", page.evaluate("chrome.storage.local.get({outbox:[]}).then(s=>s.outbox.length)"), 0)
 
@@ -115,7 +115,9 @@ try:
         opts.fill("#token", "0" * 32)
         opts.click("#save")
         opts.wait_for_timeout(1500)
-        check("bad token reported", "401" in opts.inner_text("#inboxstatus"), True)
+        bad = opts.inner_text("#inboxstatus")
+        print("   bad-token line:", bad.replace("\n", " "))
+        check("bad token reported", "401" in bad, True)
         check("nothing was lost", page.evaluate("chrome.storage.local.get({items:[]}).then(s=>s.items.length)"), 1)
         ctx.close()
 finally:

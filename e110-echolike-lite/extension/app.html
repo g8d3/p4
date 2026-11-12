@@ -38,8 +38,12 @@ button:disabled{opacity:.45;cursor:default}
 <div id="panel-inbox" class="panel on" role="tabpanel">
   <p class="help">Your captures, decrypted here. Nothing on the server can read them.</p>
   <div id="status">…</div>
-  <p><button id="export" class="act" style="display:none">Download as JSON</button>
-     <button id="retry" class="act" style="display:none">Send what is waiting</button></p>
+  <p>
+    <button id="find" class="act primary" type="button">Find my inbox</button>
+    <button id="export" class="act" style="display:none">Download as JSON</button>
+    <button id="retry" class="act" style="display:none">Send what is waiting</button>
+    <a id="webinbox" class="mut" style="display:none;margin-left:6px" target="_blank" rel="noreferrer">Open on echolike.app →</a>
+  </p>
   <div id="list"></div>
 </div>
 
@@ -53,7 +57,6 @@ button:disabled{opacity:.45;cursor:default}
     <label for="token">Token — only if a server handed you one; otherwise leave it empty and the inbox issues its own</label>
     <input id="token" type="password" autocomplete="off" placeholder="(usually empty)">
     <button id="save" class="act primary" type="button">Save &amp; connect</button>
-    <button id="find" class="act" type="button">Find my inbox</button>
     <button id="forget" class="act" type="button">Disconnect</button>
   </section>
 
@@ -68,7 +71,13 @@ button:disabled{opacity:.45;cursor:default}
   </section>
 
   <section>
-    <h2>3 · Account &amp; key backup <span class="mut">(optional)</span></h2>
+    <h2>3 · On X</h2>
+    <label style="margin-top:4px"><input id="ads" type="checkbox" style="width:auto;margin-right:8px">Hide ads on X (promoted posts and promoted trends)</label>
+    <p class="help" style="margin:8px 0 0">Grok answers are never hidden. Liking an ad still captures it, marked as an ad.</p>
+  </section>
+
+  <section>
+    <h2>4 · Account &amp; key backup <span class="mut">(optional)</span></h2>
     <p class="help">An account is only for getting your inbox back on a new phone. Sign in with your email — no password — then back up your key wrapped with a passphrase you choose. The backup travels encrypted: our inbox stores it and cannot open it.</p>
     <div id="acctstatus" class="msg mut">Not signed in.</div>
     <label for="email">Email</label>

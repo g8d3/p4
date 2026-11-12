@@ -42,12 +42,14 @@ with sync_playwright() as p:
     try:
         page = ctx.new_page()
         page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
-        page.goto(f"chrome-extension://{extension_id()}/popup.html")
+        page.goto(f"chrome-extension://{extension_id()}/app.html#inbox")
         page.wait_for_timeout(600)
 
         check("nothing configured", page.evaluate("chrome.storage.local.get({url:''}).then(s=>s.url)"), "")
-        check("popup says there is nothing to set up", "Nothing to set up" in page.inner_text("#status"), True)
-        check("no settings fields in the popup", page.query_selector("#url") is None, True)
+        status0 = page.inner_text("#status")
+        check("the page says it is not connected", "Not connected" in status0, True)
+        check("and tells the user what to press", "Find my inbox" in status0, True)
+        check("no settings fields on the inbox tab", page.is_visible("#url"), False)
 
         reply = page.evaluate(
             """async (text) => await chrome.runtime.sendMessage({type:'capture', item:{
@@ -97,11 +99,11 @@ with sync_playwright() as p:
 
         page.reload()
         page.wait_for_timeout(700)
-        check("popup now says connected", "Connected" in page.inner_text("#status"), True)
+        check("inbox tab shows the inbox it chose", "inbox-lite.echolike.app" in page.inner_text("#status"), True)
         href = page.evaluate("document.getElementById('open').href")
-        check("open my inbox goes to echolike.app", href.startswith(HOST + "/#t="), True)
+        check("open on echolike.app", href.startswith(HOST + "/#t="), True)
         check("the key rides in the fragment, not the query", "&k=" in href and href.split("#")[0].count("k=") == 0, True)
-        check("the label says where it opens", "echolike.app" in page.inner_text("#open"), True)
+        check("the link names the site", "echolike.app" in page.inner_text("#webinbox"), True)
 
         # Follow that link for real: a plain web page, no extension, decrypts it.
         web = ctx.new_page()

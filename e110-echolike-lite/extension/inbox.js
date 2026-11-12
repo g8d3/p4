@@ -51,7 +51,7 @@ function render(items) {
       (it.url ? '<a target="_blank" rel="noreferrer" href="' + esc(it.url) + '">@' + esc(it.handle) + "</a>" : esc(it.handle)) +
       (it.ad ? " <small>ad</small>" : "") +
       (it.waiting ? " <small>waiting to send</small>" : "") +
-      (it.legacy || (!it.__sealed && it.text) ? " <small>unencrypted, from an older version</small>" : "") +
+      (it.legacy ? " <small>unencrypted, from an older version</small>" : "") +
       (it.text ? "<br><span>" + esc(String(it.text).slice(0, 600)) + "</span>" : "") +
       "<br><small>" + esc(it.clicked_at || it.received_at || "") + "</small>";
     box.appendChild(row);
@@ -64,13 +64,19 @@ async function load() {
   const s = await chrome.runtime.sendMessage({ type: "state" });
   if (!s.url || !s.hasToken) {
     // No inbox yet: show what is in this browser, and say so honestly.
-    const local = (s.items || []).slice().reverse();
+    // Read storage directly: the state message already trims and reverses.
+    const local = (await chrome.storage.local.get({ items: [] })).items.slice().reverse();
     shown = local;
     $("status").innerHTML =
-      '<span class="mut">No inbox connected yet, so this is only what this browser has kept (' +
-      local.length +
-      ").</span>";
+      '<span class="err">Not connected.</span> ' +
+      (local.length ? local.length + " capture(s) are safe in this browser, waiting to be sent. " : "") +
+      "Press <b>Find my inbox</b>: it uses the inbox on this computer if there is one, otherwise the hosted one. " +
+      "No account, no address, nothing to type.";
     $("export").style.display = local.length ? "inline-block" : "none";
+    $("find").textContent = local.length ? "Connect and send " + local.length : "Find my inbox";
+    $("find").style.display = "inline-block";
+    $("find").classList.add("primary");
+    $("retry").style.display = "none";
     render(local);
     return;
   }
@@ -103,14 +109,47 @@ async function load() {
   shown = fromInbox.concat(waiting.map((i) => Object.assign({}, i, { waiting: true })));
   const quota = body.used != null && body.quota ? " · " + body.used + "/" + body.quota + " this month" : "";
   $("status").innerHTML =
-    '<span class="ok">' + fromInbox.length + "</span> in the inbox" +
+    '<span class="ok">' + fromInbox.length + "</span> in the inbox " +
+    "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
     ' · ' + local.length + " in this browser" +
     (waiting.length ? ' · <span class="err">' + waiting.length + " waiting to send</span>" : "") +
     quota;
   $("export").style.display = shown.length ? "inline-block" : "none";
+  // Only the hosted inbox has a reader page we serve ourselves.
+  const hosted = (() => {
+    try {
+      return new URL(s.url).host === "inbox-lite.echolike.app";
+    } catch (e) {
+      return false;
+    }
+  })();
+  const web = $("webinbox");
+  if (hosted) {
+    web.href = s.url + "/#t=" + encodeURIComponent(s.token || "") + "&k=" + encodeURIComponent(s.keyCode || "");
+    web.style.display = "inline";
+  } else {
+    web.style.display = "none";
+  }
   $("retry").style.display = waiting.length ? "inline-block" : "none";
+  $("find").style.display = "none"; // already connected: reconnect lives in Settings
+  if (s.last && s.last.ok === false && s.last.error) {
+    $("status").innerHTML += ' · <span class="err">' + esc(s.last.error) + "</span>";
+  }
   render(shown);
 }
+
+$("find").addEventListener("click", async () => {
+  $("find").disabled = true;
+  $("status").innerHTML = "Looking for an inbox: this computer first, then the hosted one…";
+  const r = await chrome.runtime.sendMessage({ type: "discover" });
+  $("find").disabled = false;
+  await load();
+  if (r && r.ok === false) {
+    $("status").innerHTML =
+      '<span class="err">' + esc(r.error) + "</span> Nothing was lost. " +
+      "Press <b>Find my inbox</b> again, or set your own server in <b>Settings</b>.";
+  }
+});
 
 $("export").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(shown, null, 1)], { type: "application/json" });
@@ -118,6 +157,10 @@ $("export").addEventListener("click", () => {
   a.href = URL.createObjectURL(blob);
   a.download = "echolike-inbox.json";
   a.click();
+});
+
+window.addEventListener("echolike:tab", (e) => {
+  if (e.detail === "inbox") load();
 });
 
 $("retry").addEventListener("click", async () => {

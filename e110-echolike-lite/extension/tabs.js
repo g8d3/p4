@@ -12,7 +12,12 @@ function showPanel(name) {
     if (panel) panel.classList.toggle("on", on);
   }
   if (location.hash.slice(1) !== want) history.replaceState(null, "", "#" + want);
+  // A hash change is a same-document navigation: nothing reloads, so each panel has
+  // to refresh its own data when it becomes visible.
+  if (ready) window.dispatchEvent(new CustomEvent("echolike:tab", { detail: want }));
 }
+
+let ready = false;
 
 for (const key of Object.keys(PANELS)) {
   const tab = document.getElementById("tab-" + key);
@@ -20,3 +25,4 @@ for (const key of Object.keys(PANELS)) {
 }
 window.addEventListener("hashchange", () => showPanel(location.hash.slice(1)));
 showPanel(location.hash.slice(1));
+ready = true; // the initial render must not double-fetch what the panel scripts already loaded

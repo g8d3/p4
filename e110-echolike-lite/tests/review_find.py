@@ -58,21 +58,21 @@ try:
             eid = extension_id()
             page = ctx.new_page()
             page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
-            page.goto(f"chrome-extension://{eid}/popup.html")
+            page.goto(f"chrome-extension://{eid}/app.html#inbox")
             page.wait_for_timeout(500)
 
             status0 = page.inner_text("#status")
             check("nothing configured yet", "Connected" in status0, False)
-            check("offers the zero-config path", "Nothing to set up" in status0, True)
-            check("no address field in the popup", page.query_selector("#url") is None, True)
+            check("offers the zero-config path", "Find my inbox" in status0, True)
+            check("address fields stay in the settings tab", page.is_visible("#url"), False)
             check("one button to press", page.inner_text("#find"), "Find my inbox")
 
             page.click("#find")
             page.wait_for_timeout(2500)
             status = page.inner_text("#status")
-            check("one click connects", "Connected" in status, True)
+            check("one click connects", "in the inbox" in status, True)
             check("picked the local inbox", "127.0.0.1:8931" in status, True)
-            check("no token typed", page.query_selector("#token") is None, True)
+            check("no token typed", page.input_value("#token"), "")
             check(
                 "device token stored by the extension",
                 len(page.evaluate("chrome.storage.local.get({token:''}).then(s=>s.token)")),

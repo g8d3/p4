@@ -13,7 +13,8 @@ stays in your browser. The inbox server stores blobs it cannot open — ours inc
    on the hosted inbox and everything after it lands there. No address, no token,
    no account, nothing to configure.
 
-Open the popup to see the last 30 captures, and **Open my inbox** for the full list: with the hosted inbox that
+Click the toolbar icon: it opens the extension page, which shows your captures (newest first) and has a
+**Settings** tab for everything else. **Open on echolike.app** opens the web reader for the full list, which: with the hosted inbox that
 opens a normal web page on echolike.app (any device, nothing to install); with your own server it opens the
 extension's inbox page. Either way it decrypts in your browser, tells you what is *in* the inbox versus what this
 browser holds, and exports JSON. Free hosted quota: 3000 captures/month per install.
