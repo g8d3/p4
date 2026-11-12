@@ -55,7 +55,11 @@ async function refresh() {
   $("telon").checked = state.telOn !== false;
   $("telcount").textContent = state.telQueued ? state.telQueued + " waiting to be sent" : "";
   $("tellog").textContent = (state.telemetry || [])
-    .map((e) => [e.at.slice(11, 19), e.action, e.ok === false ? "FAIL" : e.ok ? "ok" : "-", e.code || "", (e.ms || "") + "ms", e.error || ""].join(" ").trim())
+    .map((e) =>
+      [e.at.slice(11, 19), e.action, e.ok === false ? "FAIL" : e.ok ? "ok" : "-", e.code || "", e.error || "", e.detail || ""]
+        .join(" ")
+        .trim(),
+    )
     .join("\n") || "nothing yet";
 }
 

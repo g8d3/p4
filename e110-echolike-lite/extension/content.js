@@ -87,6 +87,15 @@
     return extract(btn.closest("article"), KINDS[btn.getAttribute("data-testid")]);
   }
 
+  const tel = (action, info) => {
+    try {
+      const p = chrome.runtime.sendMessage({ type: "tel", action, info: Object.assign({ host: location.host }, info || {}) });
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) {
+      /* the walk must not die because a diagnostic could not be sent */
+    }
+  };
+
   // ---- Import: walk a list that X builds as you scroll ----------------------
   // Only runs when the user starts it from the Import tab. It stops by itself at the
   // requested count, when the list stops growing, or after ten minutes. Growth is
@@ -148,8 +157,19 @@
       importRun = null;
       drain(true);
       report(reason === "cancelled" ? "cancelled" : "done", reason);
+      const sc = xScroller();
+      tel(reason === "end" || reason === "timeout" ? "import.stall" : "import.end", {
+        ok: reason !== "timeout",
+        error: reason,
+        detail:
+          "collected=" + collected.size + " sent=" + sent + " rounds=" + rounds + " reason=" + reason +
+          " articles=" + document.querySelectorAll("article").length +
+          " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
+          " scrollable=" + (sc ? sc.scrollHeight - sc.clientHeight : -1),
+      });
     };
 
+    let rounds = 0;
     const harvest = () => {
       for (const art of document.querySelectorAll("article")) {
         const it = extract(art, kind);
@@ -175,6 +195,7 @@
 
     function step() {
       if (done) return;
+      rounds++;
       harvest();
       report("running");
       if (collected.size >= wanted) return finish("limit");
@@ -182,10 +203,26 @@
       if (queue.length >= IMPORT_BATCH) drain(false);
       const sc = xScroller();
       if (sc) sc.scrollTop = sc.scrollHeight;
+      // A list that has not answered once is not "finished": give X another round
+      // before believing the end.
+      if (collected.size === 0 && rounds < 4) {
+        clearTimeout(quiet);
+        quiet = setTimeout(() => step(), 800);
+        return;
+      }
       waitForGrowth();
     }
 
     importRun = { cancel: () => finish("cancelled") };
+    const firstScroller = xScroller();
+    tel("import.begin", {
+      ok: true,
+      detail:
+        "path=" + location.pathname + " mode=" + mode + " want=" + wanted +
+        " articles=" + document.querySelectorAll("article").length +
+        " scroller=" + ((firstScroller && firstScroller.tagName) || "none") +
+        " scrollable=" + (firstScroller ? firstScroller.scrollHeight - firstScroller.clientHeight : -1),
+    });
     report("running");
     step();
     return { ok: true, mode, limit: wanted };

@@ -202,8 +202,8 @@ async function telemetry(env, req) {
     if (!e || typeof e.action !== "string" || !TEL_ACTIONS.test(e.action)) continue;
     rows.push(
       env.DB.prepare(
-        "INSERT INTO telemetry (at, ip_hash, user_id, version, action, ok, code, ms, host, error)" +
-          " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+        "INSERT INTO telemetry (at, ip_hash, user_id, version, action, ok, code, ms, host, error, detail)" +
+          " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
       ).bind(
         at,
         ipHash,
@@ -215,6 +215,7 @@ async function telemetry(env, req) {
         Number.isFinite(Number(e.ms)) ? Math.min(600000, Math.max(0, Math.round(Number(e.ms)))) : null,
         clamp(String(e.host || "").slice(0, 60), 60),
         e.error ? clamp(String(e.error).slice(0, TEL_MAX_TEXT), TEL_MAX_TEXT) : null,
+        e.detail ? clamp(String(e.detail).slice(0, 200), 200) : null,
       ),
     );
   }

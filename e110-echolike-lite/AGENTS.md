@@ -235,6 +235,16 @@ Deliberate design decisions, so they are not "improved" later:
   `https://x.com/i/history/likes` and bookmarks at `https://x.com/i/history` — the
   obvious `/likes` and `/i/bookmarks` are wrong. Both places: `import.js` (the link
   the tab offers) and `importStart()` (the tab it opens when none is open).
+* **Diagnostics, because "it did not work" is not a report.** The import path is
+  instrumented at every step: `import.cmd` (mode, limit, how many X tabs, their
+  paths), `import.begin` (path, article count, scroller tag, how much room is left
+  to scroll), `import.batch` (`in`/`fresh`/`pending`), `import.end` and
+  `import.stall` (`collected`, `sent`, `rounds`, `reason`, `scrollTop`,
+  `scrollable`). `reason=end` means the list stopped appending; `reason=timeout`
+  means it never did; `articles=0` means the tab was not a list.
+* If no X tab exists, `importStart()` opens the right list URL, remembers
+  `pendingImport`, and starts the walk when that tab's content script says `hello`
+  — the page's own load is the event, no timer and no second press.
 * `tests/review_import.py` builds a list that only grows when scrolled and asserts
   all of it: nothing runs by itself, 30 of 120, no duplicates, scroll happened,
   progress reports the end, cancel works.
@@ -314,6 +324,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.12.0 — the import can be diagnosed: `telemetry.detail` column plus `import.cmd`/`import.begin`/`import.batch`/
+  `import.end`/`import.stall` rows with counters (collected, sent, rounds, articles, scrollTop, scrollable, reason);
+  the Settings log shows that detail. Patience: a list that answered nothing once gets up to four rounds before
+  "end" is believed, and a missing X tab is opened and started by the page's own `hello`.
 - 1.11.1 — the import list URLs corrected to `x.com/i/history/likes` (likes) and `x.com/i/history` (bookmarks).
 - 1.11.0 — Import tab: bring in old likes or bookmarks (100/300/1k/5k, or stop at the end), one deliberate button,
   MutationObserver-driven scrolling, dedupe by post, bounded at ten minutes, cancellable. Options on that tab say

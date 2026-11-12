@@ -110,6 +110,7 @@ async function tel(action, info) {
     ms: info && Number.isFinite(info.ms) ? info.ms : null,
     host: info && info.host ? String(info.host) : null,
     error: info && info.error ? String(info.error).slice(0, 160) : null,
+    detail: info && info.detail ? String(info.detail).slice(0, 200) : null,
     at: new Date().toISOString(),
     version: chrome.runtime.getManifest().version,
   };
@@ -490,25 +491,40 @@ async function captureBatch(items, source) {
     items: s.items.concat(fresh).slice(-MAX_ITEMS),
     outbox: s.outbox.concat(sealed).slice(-MAX_ITEMS),
   });
-  await tel("import.batch", { ok: true, code: null, host: null, error: null });
   const r = await flush();
+  await tel("import.batch", {
+    ok: r.ok,
+    code: r.ok ? 200 : null,
+    error: r.error || null,
+    detail: "in=" + (items || []).length + " fresh=" + fresh.length + " pending=" + (r.pending || 0),
+  });
   return { ok: true, added: fresh.length, sent: r.ok && !r.pending ? fresh.length : 0, error: r.error || null };
 }
 
 // The importer needs a logged-in X tab: send the command to the one that is open.
+let pendingImport = null; // set when we open the list tab: the page's own load starts it
+
 async function importStart(mode, limit) {
   const tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
+  await tel("import.cmd", {
+    ok: true,
+    detail: "mode=" + mode + " limit=" + limit + " tabs=" + tabs.length + " urls=" + tabs.map((t) => (t.url || "").replace("https://x.com", "")).join(",").slice(0, 120),
+  });
+  const wanted = mode === "bookmarks" ? "/i/history" : "/i/history/likes";
   if (!tabs.length) {
+    pendingImport = { mode, limit };
     await chrome.tabs.create({
       url: mode === "bookmarks" ? "https://x.com/i/history" : "https://x.com/i/history/likes",
     });
-    return { ok: false, needTab: true, error: "opening your list in a tab: press Start again when it has loaded" };
+    return { ok: false, needTab: true, error: "opening your list: it starts by itself as soon as the page is ready" };
   }
-  const tab = tabs.find((t) => t.active) || tabs[0];
+  // Prefer the tab that is actually the list; otherwise the one the user is on.
+  const tab = tabs.find((t) => (t.url || "").includes(wanted)) || tabs.find((t) => t.active) || tabs[0];
   try {
     const r = await chrome.tabs.sendMessage(tab.id, { type: "import-start", mode, limit });
     return r || { ok: false, error: "that tab did not answer: reload it" };
   } catch (e) {
+    await tel("import.cmd", { ok: false, error: "no content script in that tab: " + String(e.message || e) });
     return { ok: false, error: "that tab has no EchoLike content script: reload it" };
   }
 }
@@ -570,10 +586,18 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                 syncAll()
                   .then((r) => telFlush().then(() => ({ ok: r.ok, error: r.error || null, added: r.added || 0 })))
               : m && m.type === "hello"
-                ? // An X tab finished loading: the cheapest honest moment to retry.
-                  flush(true).then((r) =>
-                    telFlush().then(() => ({ ok: r.ok, pending: r.pending, error: r.error || null })),
-                  )
+                ? // An X tab finished loading: the cheapest honest moment to retry — and,
+                  // if an import is waiting for a tab to exist, the moment to start it.
+                  (async () => {
+                    if (pendingImport) {
+                      const { mode, limit } = pendingImport;
+                      pendingImport = null;
+                      await importStart(mode, limit);
+                    }
+                    const r = await flush(true);
+                    await telFlush();
+                    return { ok: r.ok, pending: r.pending, error: r.error || null };
+                  })()
                 : m && m.type === "account-info"
               ? acctCall("/api/account")
               : m && m.type === "sync"

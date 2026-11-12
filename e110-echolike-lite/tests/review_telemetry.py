@@ -43,7 +43,7 @@ def post(events):
         return e.code, json.loads(e.read() or b"{}")
 
 
-code, r = post([{"action": "test." + MARK, "ok": False, "code": 409, "ms": 12, "host": "x", "error": "device limit"}])
+code, r = post([{"action": "test." + MARK, "ok": False, "code": 409, "ms": 12, "host": "x", "error": "device limit", "detail": "in=3 fresh=2 pending=0"}])
 check("an event is accepted", (code, r.get("stored")), (200, 1))
 
 code, r = post([{"action": "Not An Action!"}, {"action": "ok.action"}])
@@ -79,12 +79,13 @@ cols = sorted(rows[0].keys())
 check(
     "only whitelisted columns exist",
     cols,
-    ["action", "at", "code", "error", "host", "id", "ip_hash", "ms", "ok", "user_id", "version"],
+    ["action", "at", "code", "detail", "error", "host", "id", "ip_hash", "ms", "ok", "user_id", "version"],
 )
 check("no capture text anywhere", any("SECRET post text" in json.dumps(r) for r in rows), False)
 check("no handle either", any("nasa" in json.dumps(r) for r in rows), False)
 check("the action is recorded", any(MARK in r["action"] for r in rows), True)
 check("the error text is recorded", any("device limit" in (r.get("error") or "") for r in rows), True)
+check("and the counters are recorded", any((r.get("detail") or "").startswith("in=") for r in rows), True)
 
 print("FAILURES:", failures if failures else "none")
 sys.exit(1 if failures else 0)
