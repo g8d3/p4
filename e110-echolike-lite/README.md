@@ -46,7 +46,8 @@ start. No timers, no "retry" to remember, and the page repairs itself on load: w
 inbox lacks goes out without a click. A re-sent capture never duplicates (the server keeps one row per capture).
 
 **Spaces — the shared list.** A space is a list several people write to. Create one in the **Spaces** tab, press
-**Invite** and send the code: it works once and expires in 24 hours (no permanent shared secret). Everyone shares
+**Invite** and choose how many people and how long, then send that one code: the same code works for all of them
+(3 people / 24 hours by default), and **Active codes** lets you see what is left and revoke it. Everyone shares
 their captures into it and each card says **saved by N people here** — that is how the network finds itself, with
 no profile and nothing about the post leaving your browser. The owner can remove a member at any time.
 

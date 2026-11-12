@@ -95,7 +95,7 @@ with sync_playwright() as p:
     page.reload()
     page.wait_for_timeout(1500)
     check("the spaces tab is there", page.get_attribute("#tab-spaces", "aria-selected"), "true")
-    check("the three boxes are numbered", page.eval_on_selector_all("#panel-spaces [data-section]", "els => els.map(e => e.dataset.section)"), ["P12", "P13", "P14", "P15"])
+    check("every box of the spaces panel is numbered, explanation included", page.eval_on_selector_all("#panel-spaces [data-section]", "els => els.map(e => e.dataset.section)"), ["P12", "P13", "P14", "P15", "P16"])
 
     # 1. Create a space from the UI.
     page.fill("#spacename", "trip to the moon")
@@ -104,12 +104,18 @@ with sync_playwright() as p:
     check("the space was created", "Created" in page.inner_text("#spacenew"), True)
     check("and listed", "trip to the moon" in page.inner_text("#spacelist"), True)
 
-    # 2. Invite: one code, from the UI, and it says how long it lives.
+    # 2. Invite: choose how many people and how long, then ONE code for all of them.
     page.click('#spacelist [data-what="invite"]')
+    page.wait_for_timeout(600)
+    check("the invite asks how many people", page.is_visible('#spacelist [data-inv-uses]'), True)
+    page.select_option('#spacelist [data-inv-uses]', "3")
+    page.select_option('#spacelist [data-inv-hours]', "24")
+    page.click('#spacelist [data-what="invite-make"]')
     page.wait_for_timeout(1800)
     code_value = page.eval_on_selector('#spacelist [data-space-msg] input', "e => e.value")
     check("an invite code was produced", len(code_value) > 60, True)
-    check("and it says it expires", "expires" in page.inner_text("#spacelist [data-space-msg]"), True)
+    check("and it says how many times it works", "Works 3 times" in page.inner_text("#spacelist [data-space-msg]"), True)
+    check("and when it expires", "expires" in page.inner_text("#spacelist [data-space-msg]"), True)
     inv = json.loads(unb64(code_value))
     check("the code carries the space, a token and the key", sorted(k for k in inv if k in ("s", "t", "k", "u")), ["k", "s", "t", "u"])
     check("the token is not the key", inv["t"] != inv["k"], True)
@@ -119,7 +125,17 @@ with sync_playwright() as p:
     code, joined = call("/api/spaces/" + inv["s"] + "/join", other["token"], {"token": inv["t"]})
     check("the invite works once", (code, joined.get("ok")), (200, True))
     code, again = call("/api/spaces/" + inv["s"] + "/join", other["token"], {"token": inv["t"]})
-    check("and a second use is refused", code, 409)
+    check("the same person joining twice is not charged twice", code, 200)
+    # A second and third person can use the SAME code: that is what was missing.
+    code, third = call("/api/claim", method="POST")
+    code, j3 = call("/api/spaces/" + inv["s"] + "/join", third["token"], {"token": inv["t"]})
+    check("a third person uses the same code", (code, j3.get("ok")), (200, True))
+    code, fourth = call("/api/claim", method="POST")
+    code, j4 = call("/api/spaces/" + inv["s"] + "/join", fourth["token"], {"token": inv["t"]})
+    check("the third use is taken", (code, j4.get("ok")), (200, True))
+    code, fifth = call("/api/claim", method="POST")
+    code, j5 = call("/api/spaces/" + inv["s"] + "/join", fifth["token"], {"token": inv["t"]})
+    check("and the code stops when its uses run out", code, 409)
     code, again = call("/api/spaces/" + inv["s"] + "/join", other["token"], {"token": "0" * 32})
     check("a made-up token is refused", code, 404)
 
@@ -141,7 +157,7 @@ with sync_playwright() as p:
     body = page.inner_text("#spacelistitems")
     check("both people are counted on the card", "saved by 2 people here" in body, True)
     check("and the other person is named by id", "also saved by" in body, True)
-    check("two members are reported", "2 members" in page.inner_text("#spacehead"), True)
+    check("everybody who joined is counted", "4 members" in page.inner_text("#spacehead"), True)
     check("the card keeps X's shape", page.eval_on_selector_all("#spacelistitems .cap:first-child .head .av", "els => els.length"), 1)
     check("with five action cells", page.eval_on_selector_all("#spacelistitems .cap:first-child .stats span", "els => els.length"), 5)
     check("our four dates are still there", "published" in body and "arrived" in body, True)

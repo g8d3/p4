@@ -581,6 +581,7 @@ async function paintSpaces() {
       '<p style="margin:6px 0 0">' +
       '<button class="act" data-space="' + esc(sp.id) + '" data-what="open" type="button">Open</button>' +
       '<button class="act" data-space="' + esc(sp.id) + '" data-what="invite" type="button">Invite</button>' +
+      '<button class="act" data-space="' + esc(sp.id) + '" data-what="invites" type="button">Active codes</button>' +
       '<button class="act" data-space="' + esc(sp.id) + '" data-what="share" type="button">Share my captures</button>' +
       '<button class="act" data-space="' + esc(sp.id) + '" data-what="leave" type="button">' +
       (sp.role === "owner" ? "Delete for me" : "Leave") +
@@ -595,7 +596,7 @@ async function showSpace(id) {
   const r = await chrome.runtime.sendMessage({ type: "space-read", id }).catch(() => null);
   if (!r || r.ok === false) {
     $("spacehead").innerHTML = '<p class="err">' + esc((r && r.error) || "could not open that space") + "</p>";
-    painter1("P15", true);
+    painter1("P16", true);
     return;
   }
   openSpace = r;
@@ -609,8 +610,8 @@ async function showSpace(id) {
   box.textContent = "";
   if (!r.items.length) {
     box.innerHTML = '<p class="mut">Nothing shared here yet. Press <b>Share my captures</b> in the list above.</p>';
-    painter1("P15", true);
-    painter1("P14", false);
+    painter1("P16", true);
+    painter1("P15", false);
     return;
   }
   for (const it of sortRows(r.items, sortKey, sortDesc)) {
@@ -620,8 +621,34 @@ async function showSpace(id) {
     row.innerHTML = rowHtml(it, { savedBy: (r.saved && r.saved[k]) || [], former: (r.former && r.former[k]) || 0, me });
     box.appendChild(row);
   }
-  painter1("P14", false);
-  painter1("P15", true);
+  painter1("P15", false);
+  painter1("P16", true);
+}
+
+async function paintInvites(id) {
+  const r = await chrome.runtime.sendMessage({ type: "space-invites", id }).catch(() => null);
+  if (!r || r.ok === false) {
+    saySpace(id, esc((r && r.error) || "could not read the invitations"));
+    return;
+  }
+  const live = r.invites.filter((i) => i.active);
+  if (!live.length) {
+    saySpace(id, '<span class="mut">No code can be used right now. Press <b>Invite</b> to make one.</span>');
+    return;
+  }
+  saySpace(
+    id,
+    live
+      .map(
+        (i) =>
+          '<div style="font-size:11px;color:#555">' +
+          (i.max_uses - i.uses) + " use" + (i.max_uses - i.uses === 1 ? "" : "s") + " left · expires " +
+          esc(shortTime(i.expires_at)) +
+          ' <button class="act" data-space="' + esc(id) + '" data-what="invite-revoke" data-invite="' + esc(i.id) +
+          '" type="button" style="padding:1px 7px;margin-left:6px">Revoke</button></div>',
+      )
+      .join(""),
+  );
 }
 
 document.addEventListener("click", async (e) => {
@@ -644,8 +671,35 @@ document.addEventListener("click", async (e) => {
     return;
   }
   if (what === "invite") {
+    // Ask how many people and for how long, once, inline: the answer changes the code
+    // and a one-use code was the reason inviting a second person needed a second trip.
+    saySpace(
+      id,
+      '<div class="inviteform">' +
+        '<label>for <select data-inv-uses>' +
+        '<option value="1">1 person</option>' +
+        '<option value="2">2 people (or my 2 phones)</option>' +
+        '<option value="3" selected>3 people</option>' +
+        '<option value="5">5 people</option>' +
+        '<option value="10">10 people</option>' +
+        "</select></label>" +
+        '<label>valid <select data-inv-hours>' +
+        '<option value="1">1 hour</option>' +
+        '<option value="24" selected>24 hours</option>' +
+        '<option value="72">3 days</option>' +
+        '<option value="168">7 days</option>' +
+        "</select></label>" +
+        '<button class="act primary" data-space="' + esc(id) + '" data-what="invite-make" type="button">Create invite</button>' +
+        "</div>",
+    );
+    return;
+  }
+  if (what === "invite-make") {
+    const box = t.closest(".inviteform");
+    const uses = box ? Number(box.querySelector("[data-inv-uses]").value) : 1;
+    const hours = box ? Number(box.querySelector("[data-inv-hours]").value) : 24;
     say("creating an invite…");
-    const r = await chrome.runtime.sendMessage({ type: "space-invite", id }).catch(() => null);
+    const r = await chrome.runtime.sendMessage({ type: "space-invite", id, uses, hours }).catch(() => null);
     if (!r || r.ok === false) {
       say(esc((r && r.error) || "could not create an invitation"), "err");
       return;
@@ -662,10 +716,25 @@ document.addEventListener("click", async (e) => {
       id,
       '<input readonly onclick="this.select()" style="font:11px ui-monospace,monospace;width:100%;box-sizing:border-box;padding:7px;border:1px solid #ccc;border-radius:7px" value="' +
         esc(r.code) + '">' +
-        '<div class="mut" style="font-size:11px;margin-top:4px">One use, expires <b>' + esc(shortTime(r.expires_at)) +
-        "</b>. Send it to the person you want in — it stops working after that." + esc(copied) + "</div>",
+        '<div class="mut" style="font-size:11px;margin-top:4px">Works <b>' + r.uses + " time" + (r.uses === 1 ? "" : "s") +
+        "</b>, expires <b>" + esc(shortTime(r.expires_at)) + "</b>. Send it to whoever you want in — the same code works for all of them, up to that count." +
+        esc(copied) + "</div>",
     );
     return;
+  }
+  if (what === "invite-revoke") {
+    const invite = t.getAttribute("data-invite");
+    const r = await chrome.runtime.sendMessage({ type: "space-revoke-invite", id, invite }).catch(() => null);
+    if (!r || r.ok === false) {
+      say(esc((r && r.error) || "could not revoke it"), "err");
+      return;
+    }
+    await paintInvites(id);
+    say("that code no longer works", "ok");
+    return;
+  }
+  if (what === "invites") {
+    return paintInvites(id);
   }
   if (what === "leave") {
     const r = await chrome.runtime.sendMessage({ type: "space-leave", id }).catch(() => null);
@@ -673,7 +742,7 @@ document.addEventListener("click", async (e) => {
       say(esc((r && r.error) || "could not leave"), "err");
       return;
     }
-    painter1("P15", false);
+    painter1("P16", false);
     await paintSpaces();
     say("you are out of that space", "ok");
   }
@@ -694,7 +763,7 @@ $("spacecreate").addEventListener("click", async () => {
     return;
   }
   $("spacename").value = "";
-  $("spacenew").innerHTML = '<span class="ok">Created. Press <b>Invite</b> to get the one-time code.</span>';
+  $("spacenew").innerHTML = '<span class="ok">Created. Press <b>Invite</b> to make a code: choose how many people and how long.</span>';
   paintSpaces();
 });
 
@@ -720,8 +789,8 @@ $("spacejoin").addEventListener("click", async () => {
 
 document.addEventListener("click", (e) => {
   if (e.target instanceof Element && e.target.id === "spaceback") {
-    painter1("P15", false);
-    painter1("P14", true);
+    painter1("P16", false);
+    painter1("P15", true);
     paintSpaces();
   }
 });

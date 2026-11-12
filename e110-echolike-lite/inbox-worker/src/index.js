@@ -271,6 +271,8 @@ async function listSpaces(env, who) {
 // An invitation is a one-time token, not a key: it cannot be reused, it expires, and
 // the owner can revoke the membership it created. The space key travels in the code
 // the client builds, which is why the code is a secret — but a dying one.
+// One code, N uses, an expiry: enough to connect my own two phones and a couple of
+// friends without a round trip per person, and still a credential that dies.
 async function inviteToSpace(env, req, space, who) {
   let body = {};
   try {
@@ -279,8 +281,9 @@ async function inviteToSpace(env, req, space, who) {
     body = {};
   }
   const hours = Math.min(INVITE_MAX_HOURS, Math.max(1, Number(body.hours) || INVITE_HOURS));
+  const maxUses = Math.min(SPACE_MAX_MEMBERS, Math.max(1, Math.floor(Number(body.uses) || 1)));
   const open = await env.DB.prepare(
-    "SELECT COUNT(*) AS n FROM space_invites WHERE space_id = ?1 AND used_by IS NULL AND expires_at > ?2",
+    "SELECT COUNT(*) AS n FROM space_invites WHERE space_id = ?1 AND uses < max_uses AND expires_at > ?2",
   )
     .bind(space.id, Math.floor(Date.now() / 1000))
     .first();
@@ -290,11 +293,63 @@ async function inviteToSpace(env, req, space, who) {
   const at = now();
   const expires = Math.floor(Date.now() / 1000) + hours * 3600;
   await env.DB.prepare(
-    "INSERT INTO space_invites (id, space_id, sha256, created_by, created_at, expires_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
+    "INSERT INTO space_invites (id, space_id, sha256, created_by, created_at, expires_at, max_uses, uses)" +
+      " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, 0)",
   )
-    .bind(id, space.id, await sha256(token), who.user, at, expires)
+    .bind(id, space.id, await sha256(token), who.user, at, expires, maxUses)
     .run();
-  return json({ ok: true, space: space.id, token, expires_at: new Date(expires * 1000).toISOString(), hours });
+  return json({
+    ok: true,
+    space: space.id,
+    invite: id,
+    token,
+    uses: maxUses,
+    expires_at: new Date(expires * 1000).toISOString(),
+    hours,
+  });
+}
+
+// The invitations of a space: how many uses are left, and which one to cut.
+async function listInvites(env, space) {
+  const rows = await env.DB.prepare(
+    "SELECT id, created_by, created_at, expires_at, uses, max_uses FROM space_invites" +
+      " WHERE space_id = ?1 ORDER BY created_at DESC LIMIT 40",
+  )
+    .bind(space.id)
+    .all();
+  const nowSec = Math.floor(Date.now() / 1000);
+  return json({
+    ok: true,
+    invites: (rows.results || []).map((r) => ({
+      id: r.id,
+      uses: r.uses,
+      max_uses: r.max_uses,
+      created_at: r.created_at,
+      expires_at: new Date(r.expires_at * 1000).toISOString(),
+      active: r.expires_at > nowSec && r.uses < r.max_uses,
+    })),
+  });
+}
+
+// Revoking is a timestamp, not a delete: the row still explains what happened.
+async function revokeInvite(env, req, space, who) {
+  let body = {};
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    body = {};
+  }
+  const id = String(body.invite || "");
+  if (!/^i_[0-9a-f]{12}$/.test(id)) return json({ ok: false, error: "no such invitation" }, 400);
+  const inv = await env.DB.prepare("SELECT id, created_by FROM space_invites WHERE id = ?1 AND space_id = ?2")
+    .bind(id, space.id)
+    .first();
+  if (!inv) return json({ ok: false, error: "no such invitation" }, 404);
+  if (inv.created_by !== who.user && (await memberOf(env, space.id, who.user)).role !== "owner") {
+    return json({ ok: false, error: "only the space owner can revoke an invitation" }, 403);
+  }
+  await env.DB.prepare("UPDATE space_invites SET expires_at = 0 WHERE id = ?1").bind(id).run();
+  return json({ ok: true, revoked: id });
 }
 
 async function joinSpace(env, req, space, who) {
@@ -307,13 +362,13 @@ async function joinSpace(env, req, space, who) {
   const token = String(body.token || "").trim();
   if (!/^[0-9a-f]{32}$/.test(token)) return json({ ok: false, error: "that invitation is not valid" }, 400);
   const inv = await env.DB.prepare(
-    "SELECT id, used_by, expires_at FROM space_invites WHERE space_id = ?1 AND sha256 = ?2",
+    "SELECT id, used_by, expires_at, uses, max_uses FROM space_invites WHERE space_id = ?1 AND sha256 = ?2",
   )
     .bind(space.id, await sha256(token))
     .first();
   if (!inv) return json({ ok: false, error: "that invitation does not exist" }, 404);
-  if (inv.used_by) return json({ ok: false, error: "that invitation was already used" }, 409);
   if (inv.expires_at <= Math.floor(Date.now() / 1000)) return json({ ok: false, error: "that invitation expired" }, 410);
+  if (inv.uses >= inv.max_uses) return json({ ok: false, error: "that invitation has no uses left" }, 409);
   const existing = await memberOf(env, space.id, who.user);
   if (existing) return json({ ok: true, space: { id: space.id, name: space.name, role: existing.role }, already: true });
   const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM space_members WHERE space_id = ?1").bind(space.id).first();
@@ -323,7 +378,11 @@ async function joinSpace(env, req, space, who) {
     env.DB.prepare(
       "INSERT OR IGNORE INTO space_members (space_id, user_id, role, joined_at) VALUES (?1, ?2, 'member', ?3)",
     ).bind(space.id, who.user, at),
-    env.DB.prepare("UPDATE space_invites SET used_by = ?1, used_at = ?2 WHERE id = ?3").bind(who.user, at, inv.id),
+    env.DB.prepare("UPDATE space_invites SET used_by = ?1, used_at = ?2, uses = uses + 1 WHERE id = ?3").bind(
+      who.user,
+      at,
+      inv.id,
+    ),
   ]);
   return json({ ok: true, space: { id: space.id, name: space.name, role: "member" }, joined_at: at });
 }
@@ -987,6 +1046,7 @@ export default {
           min_client_api: 4,
           pair: "/api/devices",
           spaces: "1.18",
+          invites: "multi-use",
           accounts: "email",
           email_configured: !!env.RESEND_API_KEY,
           free_per_month: FREE_PER_MONTH,
@@ -1022,6 +1082,8 @@ export default {
         // Everything else needs membership, and says so plainly.
         if (!member) return json({ ok: false, error: "you are not in this space" }, 403);
         if (action === "invite" && req.method === "POST") return await inviteToSpace(env, req, space, who);
+        if (action === "invites" && req.method === "GET") return await listInvites(env, space);
+        if (action === "invites" && req.method === "POST") return await revokeInvite(env, req, space, who);
         if (action === "leave" && req.method === "POST") return await leaveSpace(env, req, space, who);
         if (action === "likes" && req.method === "POST") return await postSpaceLikes(env, req, space, who);
         if (action === "likes") return await readSpaceLikes(env, url, space);

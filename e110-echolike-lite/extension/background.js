@@ -575,20 +575,40 @@ async function spaceCreate(name) {
   return { ok: true, space: sp };
 }
 
-async function spaceInvite(id) {
+// One code, N uses, an expiry. The default is 3 uses so connecting two phones and one
+// friend does not need three round trips; the owner can go up to a full house or drop
+// to a single use for a one-off link.
+async function spaceInvite(id, uses, hours) {
   const sp = (await localSpaces()).find((x) => x.id === id);
   if (!sp) return { ok: false, error: "unknown space" };
   const s = await state();
   const j = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/invite", s.token, {
     method: "POST",
-    body: JSON.stringify({ hours: 24 }),
+    body: JSON.stringify({ uses: Number(uses) || 1, hours: Number(hours) || 24 }),
   });
   if (!j.ok) return { ok: false, error: j.error || "could not create an invitation" };
   const code = b64(
     new TextEncoder().encode(JSON.stringify({ v: SPACE_CODE, u: sp.url, s: sp.id, t: j.token, k: sp.key, n: sp.name || "" })),
   );
-  await tel("space.invite", { ok: true, host: sp.url });
-  return { ok: true, code, expires_at: j.expires_at, hours: j.hours };
+  await tel("space.invite", { ok: true, host: sp.url, detail: "uses=" + (j.uses || 1) + " hours=" + (j.hours || 24) });
+  return { ok: true, code, invite: j.invite, expires_at: j.expires_at, hours: j.hours, uses: j.uses };
+}
+
+async function spaceInvites(id) {
+  const sp = (await localSpaces()).find((x) => x.id === id);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  return await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/invites", s.token);
+}
+
+async function spaceRevokeInvite(id, invite) {
+  const sp = (await localSpaces()).find((x) => x.id === id);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  return await callAt(sp.url, "/api/spaces/" + encodeURIComponent(id) + "/invites", s.token, {
+    method: "POST",
+    body: JSON.stringify({ invite }),
+  });
 }
 
 async function spaceJoin(code) {
@@ -999,7 +1019,11 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             : m && m.type === "space-create"
               ? spaceCreate(m.name)
             : m && m.type === "space-invite"
-              ? spaceInvite(m.id)
+              ? spaceInvite(m.id, m.uses, m.hours)
+            : m && m.type === "space-invites"
+              ? spaceInvites(m.id)
+            : m && m.type === "space-revoke-invite"
+              ? spaceRevokeInvite(m.id, m.invite)
             : m && m.type === "space-join"
               ? spaceJoin(m.code)
             : m && m.type === "space-list"

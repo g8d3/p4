@@ -15,6 +15,10 @@ section,.sec{border:1px solid var(--line);border-radius:12px;padding:18px 16px 1
 /* Every box says what it is: the owner reports a failure by code, not by prose. */
 .secid{position:absolute;top:-8px;left:10px;background:#fff;padding:0 6px;font:10px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em;color:#7d7d7d;text-transform:uppercase}
 .sec[hidden]{display:none}
+.inviteform{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0}
+.inviteform label{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#555;margin:0}
+.inviteform select{font:inherit;font-size:12px;padding:5px 7px;border:1px solid #ccc;border-radius:7px}
+.inviteform button{font-size:12px;padding:6px 11px;margin:0}
 h2{font-size:15px;margin:0 0 4px}
 p.help{color:var(--mut);font-size:13px;margin:0 0 10px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 2px}
@@ -70,10 +74,10 @@ button:disabled{opacity:.45;cursor:default}
 </header>
 
 <div id="panel-inbox" class="panel on" role="tabpanel">
-  <p class="help">Your captures, decrypted here. Nothing on the server can read them. Every box below carries a
-  code (P1, P2…) — say the code and the box that fails.</p>
   <div class="sec" data-section="P1">
-    <span class="secid">P1 · status</span>
+    <span class="secid">P1 · what this page is, and where it writes</span>
+    <p class="help" style="margin:0 0 8px">Your captures, decrypted here. Nothing on the server can read them.
+    Every box on this page carries a code (P1, P2…) — say the code and the box that fails.</p>
     <div id="identity" class="msg mut" style="margin:0 0 6px">…</div>
     <div id="joinbox" style="display:none;margin:0 0 8px">
       <input id="joinin" type="text" autocomplete="off" spellcheck="false"
@@ -111,31 +115,35 @@ button:disabled{opacity:.45;cursor:default}
 </div>
 
 <div id="panel-spaces" class="panel" role="tabpanel">
-  <p class="help">A space is a list several people write to. Every capture shows how many people in the space
-  saved the same post — that is how the network finds itself, without anyone publishing a profile. Joining is by
-  an <b>invite</b>: one code, works once, expires in 24 hours.</p>
-
   <div class="sec" data-section="P12">
-    <span class="secid">P12 · start a space</span>
+    <span class="secid">P12 · what a space is</span>
+    <p class="help" style="margin:0">A space is a list several people write to. Every capture shows how many people
+    in the space saved the same post — that is how the network finds itself, without anyone publishing a profile.
+    Joining is by an <b>invite</b>: one code you decide the uses and lifetime of (3 people, 24 hours by default),
+    and that you can revoke at any moment.</p>
+  </div>
+
+  <div class="sec" data-section="P13">
+    <span class="secid">P13 · start a space</span>
     <input id="spacename" type="text" autocomplete="off" placeholder="name it: trip, team, study group…">
     <button id="spacecreate" class="act primary" type="button">Create space</button>
     <div id="spacenew" class="msg mut"></div>
   </div>
 
-  <div class="sec" data-section="P13">
-    <span class="secid">P13 · join with an invite</span>
+  <div class="sec" data-section="P14">
+    <span class="secid">P14 · join with an invite</span>
     <input id="spacecode" type="text" autocomplete="off" spellcheck="false" placeholder="paste the invite code">
     <button id="spacejoin" class="act primary" type="button">Join</button>
     <div id="spacemsg" class="msg mut"></div>
   </div>
 
-  <div class="sec" data-section="P14">
-    <span class="secid">P14 · my spaces</span>
+  <div class="sec" data-section="P15">
+    <span class="secid">P15 · my spaces</span>
     <div id="spacelist"><p class="mut">No spaces yet. Create one, or join with an invite.</p></div>
   </div>
 
-  <div class="sec" data-section="P15" hidden>
-    <span class="secid">P15 · space view</span>
+  <div class="sec" data-section="P16" hidden>
+    <span class="secid">P16 · space view</span>
     <div id="spacehead"></div>
     <div id="spacelistitems" class="cards"></div>
   </div>
