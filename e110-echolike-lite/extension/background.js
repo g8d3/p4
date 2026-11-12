@@ -7,7 +7,7 @@
 const MAX_ITEMS = 500;
 // Must match `CONTENT_API` in content.js: an import refuses to run on a tab whose
 // script speaks an older walk, and reloads it instead.
-const CONTENT_API = 5;
+const CONTENT_API = 6;
 
 // The hosted inbox: an install that has never been configured claims a tenant
 // there by itself on the first capture — no address, no token, no click. Point

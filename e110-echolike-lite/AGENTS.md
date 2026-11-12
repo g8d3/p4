@@ -353,6 +353,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.15.1 — hidden tabs, measured instead of argued: the walk listens to `visibilitychange`, pauses (no timers, no
+  observer), writes `import.paused` / `import.resumed` with `hiddenFor` and `rowsDelta` — the number that answers
+  "would it work unfocused?" — and hidden time stops counting against the ten-minute guard. The end row carries
+  `hiddenMs` and `rowsWhileHidden`. `CONTENT_API` 6.
 - 1.15.0 — the two reasons the walk stopped at 7, both evidenced in one telemetry row (`scrollTop=2284`,
   `scrollable=6655`, `rows=7`): (a) it called "end" **mid-list** after three quiet ticks — now it only ends at
   the bottom (`atBottom()`), keeps stepping while there is more below (`stuck` counter for a page that never grows),

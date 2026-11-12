@@ -55,7 +55,7 @@
   // Bump when the walk changes. The background refuses to start an import on a tab
   // whose script speaks an older api, and reloads it instead — a stale tab is the
   // difference between 7 rows and a thousand, and it is invisible otherwise.
-  const CONTENT_API = 5;
+  const CONTENT_API = 6;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 
@@ -221,6 +221,7 @@
       done = true;
       if (observer) observer.disconnect();
       clearTimeout(quiet);
+      cleanupVisibility();
       importRun = null;
       report(reason === "cancelled" ? "cancelled" : "done", reason);
       // The end row is written once the last batch answered, so the numbers in the
@@ -233,7 +234,8 @@
           detail:
             "collected=" + collected.size + " sent=" + sent + " skipped=" + Math.max(0, collected.size - sent) +
             " queued=" + queue.length + " rounds=" + rounds + " quiet=" + quietRounds +
-            " atBottom=" + atBottom() + " stuck=" + stuckRounds + " reason=" + reason + " rows=" + document.querySelectorAll('article, [data-testid="tweet"]').length +
+            " atBottom=" + atBottom() + " stuck=" + stuckRounds + " hiddenMs=" + Math.round(pausedMs / 1000) +
+            " rowsWhileHidden=" + rowsWhileHidden + " reason=" + reason + " rows=" + document.querySelectorAll('article, [data-testid="tweet"]').length +
             " seenRows=" + seenRows + " noId=" + noId +
             " scroller=" + (sc ? sc.tagName + ":" + (getComputedStyle(sc).overflowY || "?") : "none") +
             " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
@@ -266,6 +268,38 @@
 
     let quietRounds = 0;
     let stuckRounds = 0;
+    let pausedMs = 0;
+    let pausedAt = 0;
+    let rowsWhileHidden = 0;
+    let rowsAtHide = 0;
+
+    const onVisibility = () => {
+      if (done) return;
+      if (document.visibilityState === "hidden") {
+        pausedAt = Date.now();
+        rowsAtHide = document.querySelectorAll('article, [data-testid="tweet"]').length;
+        clearTimeout(quiet);
+        if (observer) observer.disconnect();
+        tel("import.paused", {
+          ok: true,
+          detail: "collected=" + collected.size + " rows=" + rowsAtHide + " rounds=" + rounds,
+        });
+      } else if (pausedAt) {
+        pausedMs += Date.now() - pausedAt;
+        rowsWhileHidden =
+          document.querySelectorAll('article, [data-testid="tweet"]').length - rowsAtHide;
+        tel("import.resumed", {
+          ok: true,
+          detail:
+            "hiddenFor=" + Math.round((Date.now() - pausedAt) / 1000) + "s rowsDelta=" + rowsWhileHidden +
+            " collected=" + collected.size,
+        });
+        pausedAt = 0;
+        step();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    const cleanupVisibility = () => document.removeEventListener("visibilitychange", onVisibility);
     const atBottom = () => {
       const sc = xScroller() || document.scrollingElement || document.documentElement;
       return sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 200;
@@ -312,7 +346,8 @@
       harvest();
       report("running");
       if (collected.size >= wanted) return finish("limit");
-      if (Date.now() - startedAt > IMPORT_MAX_MS) return finish("timeout");
+      // Time spent hidden does not count against the ten-minute guard.
+      if (Date.now() - startedAt - pausedMs > IMPORT_MAX_MS) return finish("timeout");
       if (queue.length >= IMPORT_BATCH) drain(false);
       const sc = nudgeStep();
       // Never conclude on the first tick, however few we have: X's list loads in
