@@ -60,8 +60,19 @@ function render(items) {
 
 let shown = [];
 
+const tel = (action, info) => chrome.runtime.sendMessage({ type: "tel", action, info }).catch(() => {});
+
+// Opening this tab is a user action: drain whatever is queued, once per load.
+let drained = false;
+
 async function load() {
   const s = await chrome.runtime.sendMessage({ type: "state" });
+  if (!drained && s.url && s.hasToken && s.pending) {
+    drained = true;
+    $("status").innerHTML = "Sending " + s.pending + " waiting…";
+    await chrome.runtime.sendMessage({ type: "retry" });
+    return load();
+  }
   if (!s.url || !s.hasToken) {
     // No inbox yet: show what is in this browser, and say so honestly.
     // Read storage directly: the state message already trims and reverses.
@@ -87,10 +98,12 @@ async function load() {
       headers: { authorization: "Bearer " + s.token },
     });
   } catch (e) {
+    tel("read.unreachable", { ok: false, host: s.url, error: String(e.message || e) });
     $("status").innerHTML = '<span class="err">Inbox unreachable.</span> ' + (s.pending ? s.pending + " waiting locally." : "");
     $("retry").style.display = s.pending ? "inline-block" : "none";
     return;
   }
+  tel("read", { ok: r.ok, code: r.status, host: s.url });
   if (r.status === 401) {
     $("status").innerHTML = '<span class="err">This inbox says the key is not valid (401). Reconnect from the popup.</span>';
     return;
@@ -130,7 +143,9 @@ async function load() {
   } else {
     web.style.display = "none";
   }
+  $("retry").textContent = waiting.length ? "Send " + waiting.length + " waiting" : "Send what is waiting";
   $("retry").style.display = waiting.length ? "inline-block" : "none";
+  $("retry").classList.toggle("primary", waiting.length > 0);
   $("find").style.display = "none"; // already connected: reconnect lives in Settings
   if (s.last && s.last.ok === false && s.last.error) {
     $("status").innerHTML += ' · <span class="err">' + esc(s.last.error) + "</span>";

@@ -47,6 +47,8 @@ with sync_playwright() as p:
 
         # Opened without a hash: land on the inbox tab.
         check("defaults to the inbox tab", page.evaluate("location.hash"), "#inbox")
+        shown = page.inner_text("#version")
+        check("the page states its version", shown, "v" + MANIFEST["version"])
         check("inbox tab is selected", page.get_attribute("#tab-inbox", "aria-selected"), "true")
         check("settings panel hidden", page.is_visible("#url"), False)
         check("the one action is there", page.inner_text("#find"), "Find my inbox")

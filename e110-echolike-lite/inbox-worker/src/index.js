@@ -16,6 +16,10 @@
 //   GET  /api/likes?limit=100 -> the caller's own blobs, JSON (Bearer token)
 //   GET  /                    -> the decrypting reader (static HTML + WebCrypto)
 //
+//   DIAGNOSTICS (no capture content, ever)
+//   POST /api/telemetry        -> {events:[{action, ok, code, ms, error, host, version}]}
+//                                 best effort, no auth required, whitelist + caps
+//
 //   ACCOUNTS (optional, for recovery — capturing never needs one)
 //   POST /api/account/start   -> {email} mails a 6-digit code (Resend)
 //   POST /api/account/verify  -> {email, code, token?} -> {atoken}, links this device
@@ -166,6 +170,57 @@ async function postLikes(env, req, who) {
   );
   await env.DB.batch(stmts);
   return json({ ok: true, received: take.length, user: who.user, used: used + take.length, quota: FREE_PER_MONTH });
+}
+
+// ---- diagnostics ----------------------------------------------------------
+// The point of this endpoint is to answer "he pressed a button and something
+// failed — what exactly?". It stores what a request did, never what it carried:
+// the fields are whitelisted and truncated here, on the server, so a client
+// mistake cannot leak a capture into the log.
+const TEL_ACTIONS = /^[a-z][a-z0-9_.:-]{0,40}$/;
+const TEL_MAX_EVENTS = 20;
+const TEL_MAX_TEXT = 160;
+
+async function telemetry(env, req) {
+  const len = Number(req.headers.get("content-length") || 0);
+  if (len > 8192) return json({ ok: false, error: "payload too large" }, 413);
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const raw = Array.isArray(body.events) ? body.events.slice(0, TEL_MAX_EVENTS) : null;
+  if (!raw) return json({ ok: false, error: "events must be a list" }, 400);
+
+  const ip = req.headers.get("cf-connecting-ip") || "unknown";
+  const ipHash = (await sha256("tel:" + ip)).slice(0, 16);
+  const who = await tenant(env, req.headers.get("authorization"));
+  const at = now();
+  const rows = [];
+  for (const e of raw) {
+    if (!e || typeof e.action !== "string" || !TEL_ACTIONS.test(e.action)) continue;
+    rows.push(
+      env.DB.prepare(
+        "INSERT INTO telemetry (at, ip_hash, user_id, version, action, ok, code, ms, host, error)" +
+          " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+      ).bind(
+        at,
+        ipHash,
+        who ? who.user : null,
+        clamp(String(e.version || "").slice(0, 20), 20),
+        e.action,
+        e.ok === true ? 1 : e.ok === false ? 0 : null,
+        Number.isFinite(Number(e.code)) && Number(e.code) > 0 ? Math.min(999, Number(e.code)) : null,
+        Number.isFinite(Number(e.ms)) ? Math.min(600000, Math.max(0, Math.round(Number(e.ms)))) : null,
+        clamp(String(e.host || "").slice(0, 60), 60),
+        e.error ? clamp(String(e.error).slice(0, TEL_MAX_TEXT), TEL_MAX_TEXT) : null,
+      ),
+    );
+  }
+  if (!rows.length) return json({ ok: true, stored: 0 });
+  await env.DB.batch(rows);
+  return json({ ok: true, stored: rows.length });
 }
 
 // ---- accounts -------------------------------------------------------------
@@ -433,6 +488,7 @@ export default {
         });
       }
       if (path === "/api/claim" && req.method === "POST") return await claim(env, req);
+      if (path === "/api/telemetry" && req.method === "POST") return await telemetry(env, req);
       if (path.startsWith("/api/account")) {
         const who = await accountOf(env, req.headers.get("authorization"));
         if (path === "/api/account/start" && req.method === "POST") return await accountStart(env, req);

@@ -4,7 +4,16 @@ const PANELS = { inbox: "Inbox", settings: "Settings" };
 
 function showPanel(name) {
   const want = PANELS[name] ? name : "inbox";
-  for (const key of Object.keys(PANELS)) {
+  // Which version is installed, in the user's face: after an update this is the
+// only way to tell that the update actually happened.
+const v = document.getElementById("version");
+if (v) {
+  const m = chrome.runtime.getManifest();
+  v.textContent = "v" + m.version;
+  v.title = "EchoLike Lite " + m.version + " · " + m.manifest_version + " · installed " + (chrome.runtime.getManifest().update_url ? "with updates" : "from a folder");
+}
+
+for (const key of Object.keys(PANELS)) {
     const on = key === want;
     const tab = document.getElementById("tab-" + key);
     const panel = document.getElementById("panel-" + key);
@@ -18,6 +27,15 @@ function showPanel(name) {
 }
 
 let ready = false;
+
+// Which version is installed, in the user's face: after an update this is the
+// only way to tell that the update actually happened.
+const v = document.getElementById("version");
+if (v) {
+  const m = chrome.runtime.getManifest();
+  v.textContent = "v" + m.version;
+  v.title = "EchoLike Lite " + m.version + " · " + m.manifest_version + " · installed " + (chrome.runtime.getManifest().update_url ? "with updates" : "from a folder");
+}
 
 for (const key of Object.keys(PANELS)) {
   const tab = document.getElementById("tab-" + key);

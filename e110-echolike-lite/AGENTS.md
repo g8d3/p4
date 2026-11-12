@@ -145,6 +145,40 @@ compatibility date, hence the override):
 cd inbox-worker && wrangler dev --port 8788 --local --compatibility-date 2026-10-30
 ```
 
+## Diagnostics (1.7.0)
+
+`POST /api/telemetry` + a card in Settings. The rule that makes it usable: record
+the **shape** of an attempt, never its content — action, ok, http code, host, ms,
+error text (160 chars), client version. No post text, no handle, no url, no email.
+
+* Extension: `tel(action, info)` keeps the last 200 events in
+  `chrome.storage.local.telemetry` and queues them in `telq`; `telFlush()` uploads
+  up to 20 with the same pass as a send, so diagnostics add no traffic of their own.
+  Instrumented: `claim`, `claim.unreachable`, `send`, `send.unreachable`, `read`,
+  `read.unreachable`, `account.start`, `account.verify`, `key.backup`,
+  `key.restore`. A Send diagnostics toggle (default on) and a Copy button exist in
+  Settings → 5 · Diagnostics, so a user can hand over the log even offline.
+* Worker: whitelisted columns only (`telemetry`: at, ip_hash, user_id, version,
+  action, ok, code, ms, host, error). Unknown actions are dropped, strings are
+  truncated server-side, 20 events / 8 KB per request, IP stored as a salted hash.
+  `tests/review_telemetry.py` proves a client that sends `text`/`handle`/`url`
+  cannot get them stored — the columns do not exist.
+* Reading it, when someone reports "I pressed the button and nothing happened":
+
+```sh
+cd inbox-worker
+wrangler d1 execute echolike-inbox --remote --command \
+  "SELECT at, version, action, ok, code, ms, host, error FROM telemetry ORDER BY id DESC LIMIT 40"
+```
+
+Two bugs this found within minutes of existing: `/api/telemetry` was answered 404
+by `server.py` without draining the request body, and on a keep-alive connection
+the leftover body was parsed as the next request line — the inbox read then failed
+with a 501 that looked like a server outage. The cached body also leaked across
+requests on one connection, so a POST after a bodyless request stored nothing
+(silent data loss). Both fixed in `server.py` (`_safe` resets `self._body` and
+drains it); `tests/review_drain.py` covers the whole path.
+
 ## Structure
 
 ```
@@ -202,6 +236,8 @@ xvfb-run -a python3 tests/review_capture.py   # content script vs X-shaped DOM (
 xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, Find my inbox, bad connect reported
 xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
 bash bin/live-test-reset.sh                  # clears the hosted claim window (the live tests claim a lot)
+python3 tests/review_telemetry.py               # diagnostics contract + no capture content in the log
+python3 tests/review_drain.py                  # a plaintext backlog drains itself and arrives sealed
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
 python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
@@ -227,6 +263,13 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.7.2 — the version is visible in two places a user actually looks at: the header of the extension page
+  (`v1.7.2`, from `chrome.runtime.getManifest()`) and the toolbar icon's title (`stampVersion()` on install,
+  startup and load). There is no popup since 1.6.0 — the icon opens the page.
+- 1.7.0 — diagnostics: `POST /api/telemetry` + Settings card, so a button press leaves a readable record
+  (action, http code, ms, host, error) and never a capture. Not-connected state now drains the queue when the
+  page opens, `Find my inbox` drains it too when already connected, and a plaintext backlog is sealed before it
+  is sent instead of being rejected forever with "items must carry iv + ct".
 - 1.6.0 — **the tab panels refresh themselves**: a hash change is a same-document navigation, so the inbox tab kept
   showing the state from before you connected (Chrome does not reload). `tabs.js` now dispatches `echolike:tab`
   and each panel reloads its data when it becomes visible. Also: `server.py` grew `GET /api/likes`, without which a

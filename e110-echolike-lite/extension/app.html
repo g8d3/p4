@@ -29,6 +29,7 @@ button:disabled{opacity:.45;cursor:default}
 </style>
 <header>
   <h1>EchoLike Lite</h1>
+  <span id="version" class="mut" style="margin-left:auto;font-size:12px"></span>
   <nav role="tablist">
     <button id="tab-inbox" role="tab" aria-selected="true" aria-controls="panel-inbox">Inbox</button>
     <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">Settings</button>
@@ -91,6 +92,16 @@ button:disabled{opacity:.45;cursor:default}
     <button id="backup" class="act" type="button">Back up key</button>
     <button id="restore" class="act" type="button">Restore key</button>
     <div id="acctmsg" class="msg mut"></div>
+  </section>
+
+  <section>
+    <h2>5 · Diagnostics</h2>
+    <p class="help">What each button press did: action, HTTP code, how long it took, and the error text. It never includes what you captured — no post text, no handle, no link. Sending it is what lets a failure be read instead of guessed at.</p>
+    <label style="margin-top:4px"><input id="telon" type="checkbox" style="width:auto;margin-right:8px">Send diagnostics</label>
+    <p><button id="telcopy" class="act" type="button">Copy diagnostics</button>
+       <button id="telsend" class="act" type="button">Send now</button>
+       <span id="telcount" class="mut"></span></p>
+    <div id="tellog" class="msg mut" style="font-family:ui-monospace,monospace;font-size:11px;white-space:pre-wrap;max-height:220px;overflow:auto"></div>
   </section>
 </div>
 

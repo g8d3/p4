@@ -87,8 +87,58 @@ async function state() {
     accountEmail: "",
     accountToken: "",
     keyBackedAt: null,
+    telemetry: [],
+    telq: [],
+    tel_on: true,
   });
   return s;
+}
+
+// ---- diagnostics -----------------------------------------------------------
+// One line per thing the user asked for, so a failure can be read afterwards
+// instead of guessed at. Only the shape of the attempt is recorded: action, ok,
+// http code, host, milliseconds, error text, version. Never a capture — no text,
+// no handle, no url. Kept locally (last 200) and uploaded in the same pass as a
+// send, so there is no extra traffic of its own.
+const TEL_KEEP = 200;
+
+async function tel(action, info) {
+  const e = {
+    action: String(action),
+    ok: info && typeof info.ok === "boolean" ? info.ok : null,
+    code: info && info.code ? Number(info.code) : null,
+    ms: info && Number.isFinite(info.ms) ? info.ms : null,
+    host: info && info.host ? String(info.host) : null,
+    error: info && info.error ? String(info.error).slice(0, 160) : null,
+    at: new Date().toISOString(),
+    version: chrome.runtime.getManifest().version,
+  };
+  try {
+    const s = await chrome.storage.local.get({ telemetry: [], telq: [], tel_on: true });
+    if (!s.tel_on) return;
+    await chrome.storage.local.set({
+      telemetry: s.telemetry.concat([e]).slice(-TEL_KEEP),
+      telq: s.telq.concat([e]).slice(-TEL_KEEP),
+    });
+  } catch (err) {
+    /* diagnostics must never break the thing they observe */
+  }
+}
+
+async function telFlush() {
+  const s = await chrome.storage.local.get({ telq: [], tel_on: true, url: "", token: "" });
+  if (!s.tel_on || !s.telq.length) return;
+  const base = (s.url || DEFAULT_INBOX).replace(/\/$/, "");
+  if (!base) return;
+  const batch = s.telq.slice(-20);
+  const headers = { "content-type": "application/json" };
+  if (s.token) headers.authorization = "Bearer " + s.token;
+  try {
+    const r = await timed(base + "/api/telemetry", { method: "POST", headers, body: JSON.stringify({ events: batch }) }, 8000);
+    if (r.ok) await chrome.storage.local.set({ telq: s.telq.slice(0, Math.max(0, s.telq.length - batch.length)) });
+  } catch (e) {
+    /* offline: keep them queued */
+  }
 }
 
 async function flush(verify) {
@@ -106,7 +156,19 @@ async function flush(verify) {
   if (!s.url || !s.token) return { ok: true, pending: s.outbox.length };
   // Nothing queued and no verification asked: stay quiet (no background traffic).
   if (!s.outbox.length && !verify) return { ok: true, pending: 0 };
+  // Anything queued before encryption existed is sealed now, here, before it goes
+  // out: a v4 client must never upload plaintext, and the queue must not be stuck
+  // for ever because of the version it was written by.
+  let queue = s.outbox;
+  if (queue.some((it) => !it.ct)) {
+    const sealed = [];
+    for (const it of queue) sealed.push(it.ct ? it : await seal(it));
+    await chrome.storage.local.set({ outbox: sealed });
+    queue = sealed;
+    s = Object.assign({}, s, { outbox: sealed });
+  }
   let res;
+  const started = Date.now();
   try {
     res = await fetch(s.url.replace(/\/$/, "") + "/api/likes", {
       method: "POST",
@@ -115,13 +177,15 @@ async function flush(verify) {
         "content-type": "application/json",
         "x-echolike-api": "4", // this client only ever sends sealed blobs
       },
-      body: JSON.stringify({ items: s.outbox }),
+      body: JSON.stringify({ items: queue }),
     });
   } catch (e) {
+    await tel("send.unreachable", { ok: false, host: s.url, ms: Date.now() - started, error: String(e.message || e) });
     s.last = { ok: false, error: "unreachable: " + String(e.message || e).slice(0, 100), at: new Date().toISOString() };
     await chrome.storage.local.set({ last: s.last });
     return { ok: false, error: s.last.error, pending: s.outbox.length };
   }
+  await tel("send", { ok: res.ok, code: res.status, host: s.url, ms: Date.now() - started, error: res.ok ? null : "HTTP " + res.status });
   if (res.status === 401) {
     s.last = { ok: false, error: "bad token (401)", at: new Date().toISOString() };
     await chrome.storage.local.set({ last: s.last });
@@ -158,6 +222,7 @@ async function flush(verify) {
     quota: j && typeof j.quota === "number" ? j.quota : null,
   };
   await chrome.storage.local.set({ outbox: [], last: s.last });
+  telFlush();
   return { ok: true, sent: n, pending: 0, used: s.last.used, quota: s.last.quota };
 }
 
@@ -166,12 +231,21 @@ async function flush(verify) {
 async function claimAt(url) {
   const base = String(url || "").replace(/\/$/, "");
   let cres;
+  const started = Date.now();
   try {
     cres = await timed(base + "/api/claim", { method: "POST" }, 5000);
   } catch (e) {
+    await tel("claim.unreachable", { ok: false, host: base, ms: Date.now() - started, error: String(e.message || e) });
     return { ok: false, url: base, error: "no answer from " + base };
   }
   const j = await cres.json().catch(() => null);
+  await tel("claim", {
+    ok: cres.ok,
+    code: cres.status,
+    host: base,
+    ms: Date.now() - started,
+    error: cres.ok ? null : (j && j.error) || "HTTP " + cres.status,
+  });
   if (cres.status === 404) {
     return {
       ok: false,
@@ -193,7 +267,11 @@ async function claimAt(url) {
 // step away.
 async function discover() {
   const s = await state();
-  if (s.url && s.token) return { ok: true, url: s.url, already: true, pending: s.outbox.length };
+  if (s.url && s.token) {
+    // Already connected: "Find my inbox" must still do the useful thing — send.
+    const r = await flush(true);
+    return { ok: r.ok, url: s.url, already: true, pending: r.pending, error: r.error || null };
+  }
   const tried = [];
   for (const url of CANDIDATES.concat(DEFAULT_INBOX ? [DEFAULT_INBOX] : [])) {
     let hres;
@@ -259,6 +337,7 @@ async function acctCall(path, opts) {
 
 async function acctStart(email) {
   const j = await acctCall("/api/account/start", { method: "POST", body: { email }, auth: "-" });
+  await tel("account.start", { ok: j.ok === true, error: j.ok ? null : j.error, host: DEFAULT_INBOX.replace(/^https?:\/\//, "") });
   if (j.ok) await chrome.storage.local.set({ accountEmail: String(email).trim().toLowerCase() });
   return j;
 }
@@ -270,6 +349,7 @@ async function acctVerify(email, code) {
     body: { email, code },
     auth: s.token || "",
   });
+  await tel("account.verify", { ok: j.ok === true, code: j.ok ? 200 : 401, error: j.ok ? null : j.error });
   if (j.ok && j.atoken) await chrome.storage.local.set({ accountToken: j.atoken, accountEmail: j.account.email });
   return j;
 }
@@ -286,6 +366,7 @@ async function keySave(passphrase) {
     method: "POST",
     body: { salt: b64(salt), iterations: PBKDF2_ITER, iv: b64(iv), ct: b64(new Uint8Array(ct)) },
   });
+  await tel("key.backup", { ok: j.ok === true, error: j.ok ? null : j.error });
   if (j.ok) await chrome.storage.local.set({ keyBackedAt: new Date().toISOString() });
   return j;
 }
@@ -303,8 +384,10 @@ async function keyRestore(passphrase) {
     const code = new TextDecoder().decode(plain);
     if (code.length !== 43) return { ok: false, error: "that backup is not a key" };
     await chrome.storage.local.set({ key: code, keyBackedAt: b.updated_at || new Date().toISOString() });
+    await tel("key.restore", { ok: true });
     return { ok: true, restored: true };
   } catch (e) {
+    await tel("key.restore", { ok: false, error: "wrong passphrase" });
     return { ok: false, error: "wrong passphrase" };
   }
 }
@@ -342,7 +425,11 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                   ? keyRestore(m.passphrase)
                   : m && m.type === "forget"
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
-            : m && m.type === "save"
+            : m && m.type === "tel"
+              ? tel(m.action, m.info || {}).then(() => ({ ok: true }))
+              : m && m.type === "tel-flush"
+              ? telFlush().then(() => ({ ok: true }))
+              : m && m.type === "save"
           ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush(true))
           : m && m.type === "state"
             ? state().then(async (s) => ({
@@ -353,6 +440,9 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                 accountEmail: s.accountEmail || "",
                 accountToken: !!s.accountToken,
                 keyBackedAt: s.keyBackedAt || null,
+                telemetry: s.telemetry.slice(-40).reverse(),
+                telOn: s.tel_on !== false,
+                telQueued: s.telq.length,
                 defaultInbox: DEFAULT_INBOX,
                 pending: s.outbox.length,
                 total: s.items.length,
@@ -368,4 +458,14 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
 chrome.runtime.onStartup.addListener(() => flush().catch(() => {}));
 
 // One page for the whole extension: the toolbar icon opens it (there is no popup).
+// The version lives on the icon's own title, because that is the first thing a
+// user hovers after installing an update.
+function stampVersion() {
+  const { version } = chrome.runtime.getManifest();
+  chrome.action.setTitle({ title: "EchoLike Lite v" + version + " — open your inbox" });
+}
+chrome.runtime.onInstalled.addListener(stampVersion);
+chrome.runtime.onStartup.addListener(stampVersion);
+stampVersion();
+
 chrome.action.onClicked.addListener(() => chrome.tabs.create({ url: chrome.runtime.getURL("app.html#inbox") }));

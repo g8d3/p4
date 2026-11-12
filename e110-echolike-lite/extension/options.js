@@ -43,6 +43,11 @@ async function refresh() {
   if (!$("email").value) $("email").value = state.accountEmail || "";
   const ads = await chrome.storage.local.get({ hide_ads: true });
   $("ads").checked = !!ads.hide_ads;
+  $("telon").checked = state.telOn !== false;
+  $("telcount").textContent = state.telQueued ? state.telQueued + " waiting to be sent" : "";
+  $("tellog").textContent = (state.telemetry || [])
+    .map((e) => [e.at.slice(11, 19), e.action, e.ok === false ? "FAIL" : e.ok ? "ok" : "-", e.code || "", (e.ms || "") + "ms", e.error || ""].join(" ").trim())
+    .join("\n") || "nothing yet";
 }
 
 // 1 · Inbox -----------------------------------------------------------------
@@ -65,6 +70,22 @@ $("forget").addEventListener("click", async () => {
 // the ads switch is a storage flag the content script watches
 $("ads").addEventListener("change", async () => {
   await chrome.storage.local.set({ hide_ads: $("ads").checked });
+});
+
+$("telon").addEventListener("change", async () => {
+  await chrome.storage.local.set({ tel_on: $("telon").checked });
+  refresh();
+});
+
+$("telcopy").addEventListener("click", async () => {
+  await navigator.clipboard.writeText($("tellog").textContent);
+  say("keymsg", "Diagnostics copied.", "ok");
+});
+
+$("telsend").addEventListener("click", async () => {
+  await send("tel-flush");
+  await refresh();
+  say("keymsg", "Sent.", "ok");
 });
 
 // 2 · Recovery code ---------------------------------------------------------
