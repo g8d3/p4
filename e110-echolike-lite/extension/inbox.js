@@ -4,6 +4,11 @@
 // with the key stored in this browser, and lets the user export the lot. Nothing
 // here is sent anywhere: the fetch carries the token, the plaintext never leaves.
 const $ = (id) => document.getElementById(id);
+// Each box of controls has a code (P1, P2…) so a failure can be reported as a code.
+const showSec = (code, on) => {
+  const el = document.querySelector('[data-section="' + code + '"]');
+  if (el) el.hidden = !on;
+};
 
 const unb64 = (s) => {
   let t = String(s).replace(/-/g, "+").replace(/_/g, "/");
@@ -99,6 +104,7 @@ function rowHtml(it) {
     (it.ad ? ' <span class="tag">ad</span>' : "") +
     (it.media ? ' <span class="tag">' + esc(it.media) + " media</span>" : "") +
     (it.waiting ? ' <span class="tag warn">waiting to send</span>' : "") +
+    (it.dup ? ' <span class="tag">also in this browser</span>' : "") +
     (it.legacy ? ' <span class="tag">unencrypted, older version</span>' : "") +
     "</div>" +
     statsGrid(it) +
@@ -190,6 +196,7 @@ function repaint() {
 const FILTERS = [
   ["all", "all captures"],
   ["waiting", "not in the inbox yet"],
+  ["dups", "second copies in this browser"],
   ["like", "likes"],
   ["bookmark", "bookmarks"],
   ["unlike", "unlikes"],
@@ -201,6 +208,7 @@ let filterKey = localStorage.getItem("el_filter") || "all";
 function matchesFilter(it) {
   if (filterKey === "all") return true;
   if (filterKey === "waiting") return !!it.waiting;
+  if (filterKey === "dups") return !!it.dup;
   if (filterKey === "ads") return !!it.ad;
   if (filterKey === "media") return it.media != null && it.media !== "" && it.media !== 0;
   return it.kind === filterKey;
@@ -293,7 +301,7 @@ async function load() {
     $("find").style.display = "inline-block";
     $("find").classList.add("primary");
     $("retry").style.display = "none";
-    $("sorts").style.display = local.length ? "block" : "none";
+    showSec("P2", !!local.length);
     repaint();
     return;
   }
@@ -322,8 +330,9 @@ async function load() {
   // Two browsers, one X account: the same like shows up once, not twice. Also a
   // capture stored twice by an older release: keep the first (newest) copy.
   const seen = new Set();
+  const postKey = (it) => (it.kind || "") + "|" + (it.id || it.uid || "");
   const fromInbox = decrypted.filter((it) => {
-    const k = (it.kind || "") + "|" + (it.id || it.uid || "");
+    const k = postKey(it);
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
@@ -331,10 +340,27 @@ async function load() {
   // What is in this browser but not in the inbox yet: the honest answer to
   // "did my likes arrive?". The inbox is read to the end above, so "missing"
   // really means missing.
+  //
+  // Two sets, deliberately built from the rows BEFORE the display dedupe above:
+  // a row that was folded away because the same post also arrived under another
+  // uid is still a row the inbox HAS. Building "sent" from the deduped list was a
+  // permanent false alarm: the page said "not sent", the send found nothing to do
+  // (it compares uids server-side), and the warning never cleared.
+  const sentUids = new Set(got.items.map((b) => b.uid).filter(Boolean));
+  const sentPosts = new Set(decrypted.map(postKey));
+  for (const it of fromInbox) if (it.uid) sentUids.add(it.uid);
   const local = (await chrome.storage.local.get({ items: [], outbox: [] })).items;
-  const sentUids = new Set(fromInbox.map((i) => i.uid).filter(Boolean));
-  const waiting = local.filter((i) => !sentUids.has(i.uid));
-  shown = fromInbox.concat(waiting.map((i) => Object.assign({}, i, { waiting: true })));
+  // A local capture counts as arrived when its uid is there, or when the same post
+  // is: the user cares that the like made it, not which of their two copies did.
+  const waiting = local.filter((i) => !sentUids.has(i.uid) && !sentPosts.has(postKey(i)));
+  const waitingUids = new Set(waiting.map((i) => i.uid));
+  // A capture whose POST is in the inbox but whose own row is not: the same post
+  // twice in this browser (a re-like, or a live capture plus an import). It is not
+  // unsent — the inbox has that post — so it is counted and named, never sent again.
+  const dups = local.filter((i) => !waitingUids.has(i.uid) && !sentUids.has(i.uid) && sentPosts.has(postKey(i)));
+  shown = fromInbox
+    .concat(waiting.map((i) => Object.assign({}, i, { waiting: true })))
+    .concat(dups.map((i) => Object.assign({}, i, { dup: true })));
   const used = got.extra.used != null ? got.extra.used : null;
   const quota = used != null && got.extra.quota ? " · " + used + "/" + got.extra.quota + " this month" : "";
   $("status").innerHTML =
@@ -342,9 +368,10 @@ async function load() {
     "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
     ' · ' + local.length + " in this browser" +
     (waiting.length ? ' · <span class="err">' + showWaiting(waiting.length) + "</span>" : "") +
+    (dups.length ? ' · ' + dups.length + " second cop" + (dups.length === 1 ? "y" : "ies") + " of a post already in the inbox" : "") +
     quota;
   $("export").style.display = shown.length ? "inline-block" : "none";
-  $("sorts").style.display = shown.length ? "block" : "none";
+  showSec("P2", !!shown.length);
   // Only the hosted inbox has a reader page we serve ourselves.
   const hosted = (() => {
     try {
@@ -379,7 +406,9 @@ async function load() {
   if (waiting.length && !repaired) {
     repaired = true;
     $("status").innerHTML += ' · <span class="mut">sending them now…</span>';
-    await chrome.runtime.sendMessage({ type: "sync" }).catch(() => {});
+    await chrome.runtime
+      .sendMessage({ type: "send-uids", uids: waiting.map((i) => i.uid).filter(Boolean) })
+      .catch(() => {});
     return load();
   }
 }
@@ -426,8 +455,11 @@ window.addEventListener("echolike:tab", (e) => {
 
 $("retry").addEventListener("click", async () => {
   $("retry").disabled = true;
-  $("status").textContent = "Sending everything this browser holds…";
-  const r = await chrome.runtime.sendMessage({ type: "sync" });
+  const uids = shown.filter((i) => i.waiting && i.uid).map((i) => i.uid);
+  $("status").textContent = uids.length
+    ? "Sending " + uids.length + " now…"
+    : "Nothing is waiting: the inbox already has all of them.";
+  const r = uids.length ? await chrome.runtime.sendMessage({ type: "send-uids", uids }) : { ok: true, added: 0 };
   $("retry").disabled = false;
   await load();
   if (r && r.ok === false) {

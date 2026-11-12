@@ -356,6 +356,25 @@ async function syncAll() {
   return { ok: r.ok, added: missing.length, pending: r.pending, error: r.error || null };
 }
 
+// Send exactly these captures. The page can decrypt, so it is the only side that
+// can tell "this post is already in the inbox under another copy" from "this one
+// never arrived". The worker cannot: it holds ciphertext and uids.
+async function sendUids(uids) {
+  const s = await state();
+  if (!s.url || !s.token) return { ok: false, error: "not connected: press Find my inbox first" };
+  const want = new Set(uids || []);
+  const items = s.items.filter((i) => i.uid && want.has(i.uid));
+  if (!items.length) return { ok: true, added: 0, pending: s.outbox.length, error: null };
+  const queued = new Set(s.outbox.map((i) => i.uid));
+  const sealed = [];
+  for (const it of items) if (!queued.has(it.uid)) sealed.push(await seal(it));
+  if (sealed.length) {
+    await chrome.storage.local.set({ outbox: s.outbox.concat(sealed).slice(-MAX_ITEMS) });
+  }
+  const r = await flush(true);
+  return { ok: r.ok, added: sealed.length, pending: r.pending, error: r.error || null };
+}
+
 // Try everything in order and never stop at the first refusal: a local inbox that
 // is full, old or mid-restart used to abort the whole attempt, which is how "Find
 // my inbox" ended up doing nothing while a perfectly good hosted inbox was one
@@ -673,6 +692,8 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             ? chrome.tabs
                 .create({ url: chrome.runtime.getURL("app.html#" + (m.page === "settings" ? "settings" : "inbox")) })
                 .then(() => ({ ok: true }))
+            : m && m.type === "send-uids"
+              ? sendUids(m.uids)
             : m && m.type === "export"
               ? exportItems(m.pick)
               : m && m.type === "forget"

@@ -431,6 +431,11 @@ const PAGE = `<!doctype html><meta charset=utf-8>
 <style>
 body{font:15px system-ui;max-width:680px;margin:24px auto;padding:0 14px;color:#111}
 h1{font-size:20px;margin:0 0 4px}small{color:#666}a{color:#1d9bf0}
+/* Every box of controls carries a code, so a failure can be reported as one. */
+.sec{position:relative;border:1px solid #e4e4e4;border-radius:10px;padding:16px 12px 10px;margin:0 0 14px}
+.sec[hidden]{display:none}
+.sec .secid{position:absolute;top:-8px;left:10px;background:#fff;padding:0 6px;font:10px/1.6 ui-monospace,Menlo,monospace;letter-spacing:.09em;color:#7d7d7d;text-transform:uppercase}
+#list .cap:first-child{border-top:none}
 #list .cap{border-top:1px solid #eee;padding:10px 12px 12px}
 #list .head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}
 #list .tag{font-size:11px;line-height:1.5;color:#555;background:#f1f1f1;border-radius:999px;padding:0 7px}
@@ -452,20 +457,28 @@ select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;backgrou
 .ok{color:#00875a}.err{color:#d0021b}.mut{color:#666;font-size:13px}
 </style>
 <h1>My EchoLike inbox</h1>
-<div id=status class=mut>…</div>
-<p id=sorts style="display:none;margin:10px 0 0">
-  <label for=sort class=mut>Sort by</label>
-  <select id=sort></select>
-  <button id=dir type=button>newest first</button>
-</p>
+<div class="sec" data-section="I1"><span class=secid>I1 · status</span>
+  <div id=status class=mut>…</div>
+</div>
+<div class="sec" data-section="I2" hidden><span class=secid>I2 · sort</span>
+  <p id=sorts style="margin:0">
+    <label for=sort class=mut>Sort by</label>
+    <select id=sort></select>
+    <button id=dir type=button>newest first</button>
+  </p>
+</div>
 <div id=ask style="display:none">
   <p>Paste your recovery code to decrypt this inbox in your browser:</p>
   <input id=code placeholder="recovery code" autocomplete=off spellcheck=false>
   <p><button id=go>Decrypt</button></p>
 </div>
-<p class=mut>Everything below is decrypted here, in your browser. The server only stores encrypted blobs and cannot read them.</p>
-<p><button id=export style="display:none">Download as JSON</button></p>
-<div id=list></div>
+<div class="sec" data-section="I3"><span class=secid>I3 · actions</span>
+  <p class=mut style="margin:0 0 8px">Everything below is decrypted here, in your browser. The server only stores encrypted blobs and cannot read them.</p>
+  <p style="margin:0"><button id=export style="display:none">Download as JSON</button></p>
+</div>
+<div class="sec" data-section="I4"><span class=secid>I4 · the list</span>
+  <div id=list></div>
+</div>
 <script>
 const $ = (id) => document.getElementById(id);
 const b64d = (s) => { let t = s.replace(/-/g,'+').replace(/_/g,'/'); while (t.length % 4) t += '='; const b = atob(t); const u = new Uint8Array(b.length); for (let i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return u; };
@@ -641,7 +654,8 @@ async function load() {
   $('status').innerHTML = '<span class=ok>' + (got.total || items.length) + '</span> capture(s) in this inbox' +
     (got.extra.used!=null && got.extra.quota ? ' · ' + got.extra.used + '/' + got.extra.quota + ' this month' : '');
   $('export').style.display = 'inline-block';
-  $('sorts').style.display = items.length ? 'block' : 'none';
+  const box = document.querySelector('[data-section="I2"]');
+  if (box) box.hidden = !items.length;
   paintSort();
   repaint();
 }

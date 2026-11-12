@@ -348,6 +348,64 @@ Three server-side rules keep that list honest:
   only to skip the wait until the next event. Live proof: `tests/review_sort.py`
   seeds an unsent capture, opens the page and expects it in the inbox.
 
+## Where the boxes are (1.17.3): every control block has a code
+
+The owner reports a failure by code, not by prose ("P2 fails"). Every box of
+controls carries a visible chip in its top-left corner, and `data-section="…"` in the
+DOM, so a bug report and the code that produced it point at the same thing.
+
+The numbering is **stable — never renumber, only add**:
+
+| Code | Surface | What it holds |
+|---|---|---|
+| `P1` | extension page | status line: counts, connection, the last error |
+| `P2` | extension page | sort by + direction + filter |
+| `P3` | extension page | actions: Find my inbox / Send N now / Download JSON / Open on echolike.app |
+| `P4` | extension page | the list itself |
+| `P5` | extension page | Import: which X tab, refresh, open the list |
+| `P6` | extension page | Import: what to import, how many, start/cancel, status |
+| `P7` | extension page | Settings · 1 Inbox (address, token, save, disconnect) |
+| `P8` | extension page | Settings · 2 Recovery code |
+| `P9` | extension page | Settings · 3 On X (ads switch, the circle) |
+| `P10` | extension page | Settings · 4 Account and key backup |
+| `P11` | extension page | Settings · 5 Diagnostics |
+| `I1` | hosted reader | status |
+| `I2` | hosted reader | sort |
+| `I3` | hosted reader | actions (download JSON) |
+| `I4` | hosted reader | the list |
+| `X1` | the circle on x.com | its whole panel |
+
+Rules for keeping it useful: one chip per box, never two boxes with the same code,
+a hidden box takes its chip with it (the wrapper is hidden, not just the contents),
+and `review_sort.py` fails if a code is missing, repeated or unbordered.
+
+## The "not sent for ever" bug (1.17.3)
+
+Reported as: a like shows *not in the inbox yet*, then it appears in the inbox, then
+pressing send says it went, and it still shows as unsent. Server side was clean (221
+rows, all with a `uid`, every send 200), so it was the page's arithmetic:
+
+* the reader dedupes **the list** by post (`kind|id`) so two browsers show one row;
+* "already sent" was built from that **deduped** list, so any row folded away — the
+  same post captured twice, e.g. a re-like, or a live capture plus an import — left
+  its uid out of the sent set;
+* the send compares **uids** server-side, found nothing missing, did nothing, and
+  returned 200. The red line therefore never cleared: a permanent false alarm.
+
+Now two different sets, both built from the rows **before** the display dedupe:
+`sentUids` (server truth, from the blob rows) and `sentPosts`. A capture is:
+
+| Situation | Shown as | Sent? |
+|---|---|---|
+| its uid is in the inbox | a normal row | no need |
+| its post is there under another copy | *also in this browser*, counted in the status, filter **second copies in this browser** | **no** — the inbox already has that post |
+| neither | *waiting to send* (red), filter **not in the inbox yet** | yes, by itself |
+
+That last distinction is only visible after decrypting, so the page now sends
+exactly the uids it decided are missing (`send-uids`) instead of asking the worker to
+recompute from ciphertext: the two sides cannot disagree about what "missing" means.
+
+
 ## The circle on x.com (1.17.2)
 
 The version belongs where the user already is. A small draggable circle sits on
@@ -498,6 +556,13 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.17.3 — every box of controls carries a code (`P1..P11` extension page, `I1..I4` hosted reader, `X1` the circle)
+  so a failure can be reported as a code; `review_sort.py` fails if a code is missing, repeated or unbordered.
+  Fixed the permanent false alarm the owner hit: the reader deduped the list by post and then built "already sent"
+  from that deduped list, so a copy folded away said "not in the inbox yet" for ever while sending did nothing
+  (200), because the worker compares uids. The page now keeps `sentUids` and `sentPosts` from the rows before the
+  display dedupe, names post-level copies as *second copies in this browser* (new filter) instead of unsent, and
+  sends exactly the uids it decided are missing (`send-uids`) so both sides cannot disagree.
 - 1.17.2 — the extension shows up on x.com: a draggable circle in a shadow root, with the version on it (hover
 title, panel header, footer), a red badge with the captures that have not reached the inbox yet, and a panel with
 **My inbox**, **Settings**, **Export likes / bookmarks / everything** (JSON, built from the local mirror, so no

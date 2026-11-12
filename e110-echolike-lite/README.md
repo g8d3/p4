@@ -33,6 +33,9 @@ many, press start, keep that tab open. It stops at your count, when the list end
 post, and encrypts everything on the way out. It is a button on purpose: scroll-walking history on a timer is what a
 scraper looks like.
 
+**Every box of controls has a code.** In the extension page (`P1`…`P11`) and in the web reader (`I1`…`I4`), and
+`X1` for the circle on x.com: say the code and the box that misbehaves.
+
 **On X there is a button now.** A small draggable circle in the corner — with the version on it — opens
 *My inbox*, *Settings* and *Export likes / bookmarks* without leaving the page. A red number on it means that
 many captures have not reached the inbox yet. It is in a shadow root, so X's own styling never touches it, Switch it off (or put it back in the corner) in Settings → **On X**.

@@ -11,7 +11,10 @@ nav{display:flex;gap:4px}
 nav button{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:9px 9px 0 0;border-bottom:none;cursor:pointer;color:#444}
 nav button[aria-selected="true"]{background:#111;color:#fff;border-color:#111}
 .panel{display:none}.panel.on{display:block}
-section{border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px;margin:0 0 16px}
+section,.sec{border:1px solid var(--line);border-radius:12px;padding:18px 16px 12px;margin:0 0 18px;position:relative}
+/* Every box says what it is: the owner reports a failure by code, not by prose. */
+.secid{position:absolute;top:-8px;left:10px;background:#fff;padding:0 6px;font:10px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.09em;color:#7d7d7d;text-transform:uppercase}
+.sec[hidden]{display:none}
 h2{font-size:15px;margin:0 0 4px}
 p.help{color:var(--mut);font-size:13px;margin:0 0 10px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 2px}
@@ -52,26 +55,40 @@ button:disabled{opacity:.45;cursor:default}
 </header>
 
 <div id="panel-inbox" class="panel on" role="tabpanel">
-  <p class="help">Your captures, decrypted here. Nothing on the server can read them.</p>
-  <div id="status">…</div>
-  <p id="sorts" class="help" style="display:none;margin:10px 0 0">
-    <label for="sort" style="display:inline-block;margin:0 6px 0 0">Sort by</label>
-    <select id="sort" style="font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px"></select>
-    <button id="dir" class="act" type="button" style="margin:0 0 0 6px">newest first</button>
-    <label for="filter" style="display:inline-block;margin:0 0 0 12px">Show</label>
-    <select id="filter" style="font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px"></select>
-  </p>
-  <p>
-    <button id="find" class="act primary" type="button">Find my inbox</button>
-    <button id="export" class="act" style="display:none">Download as JSON</button>
-    <button id="retry" class="act" style="display:none">Send what is waiting</button>
-    <a id="webinbox" class="mut" style="display:none;margin-left:6px" target="_blank" rel="noreferrer">Open on echolike.app →</a>
-  </p>
-  <div id="list"></div>
+  <p class="help">Your captures, decrypted here. Nothing on the server can read them. Every box below carries a
+  code (P1, P2…) — say the code and the box that fails.</p>
+  <div class="sec" data-section="P1">
+    <span class="secid">P1 · status</span>
+    <div id="status">…</div>
+  </div>
+  <div class="sec" data-section="P2" hidden>
+    <span class="secid">P2 · sort and filter</span>
+    <p id="sorts" class="help" style="margin:0">
+      <label for="sort" style="display:inline-block;margin:0 6px 0 0">Sort by</label>
+      <select id="sort" style="font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px"></select>
+      <button id="dir" class="act" type="button" style="margin:0 0 0 6px">newest first</button>
+      <label for="filter" style="display:inline-block;margin:0 0 0 12px">Show</label>
+      <select id="filter" style="font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px"></select>
+    </p>
+  </div>
+  <div class="sec" data-section="P3">
+    <span class="secid">P3 · actions</span>
+    <p style="margin:0">
+      <button id="find" class="act primary" type="button">Find my inbox</button>
+      <button id="export" class="act" style="display:none">Download as JSON</button>
+      <button id="retry" class="act" style="display:none">Send what is waiting</button>
+      <a id="webinbox" class="mut" style="display:none;margin-left:6px" target="_blank" rel="noreferrer">Open on echolike.app →</a>
+    </p>
+  </div>
+  <div class="sec" data-section="P4">
+    <span class="secid">P4 · the list</span>
+    <div id="list"></div>
+  </div>
 </div>
 
 <div id="panel-import" class="panel" role="tabpanel">
-  <section>
+  <section class="sec" data-section="P5">
+    <span class="secid">P5 · which tab</span>
     <h2>Bring in your old likes and bookmarks</h2>
     <p class="help">EchoLike only captures from now on. This walks the list you already have on X — likes or bookmarks — and sends it to your inbox, encrypted like everything else. It needs an X tab open and logged in; it scrolls that tab while it works, and stops on its own.</p>
     <label for="itab">Which X tab to walk</label>
@@ -102,7 +119,8 @@ button:disabled{opacity:.45;cursor:default}
     </p>
     <div id="istatus" class="msg mut">Nothing imported yet.</div>
   </section>
-  <section>
+  <section class="sec" data-section="P6">
+    <span class="secid">P6 · what to import</span>
     <h2>Why it is not automatic</h2>
     <p class="help">Scroll-walking someone's history on a timer would look exactly like a scraper and cost you X rate limits. A button you press, on a tab you are already looking at, keeps it a deliberate act — and the extension stops after your count, or when the list stops growing, or after ten minutes.</p>
     <p class="help">Imports are deduped by post: importing twice, or importing posts you already captured live, adds nothing. The quota (3,000 a month) still applies, so a very large import may stop at the limit with an honest message.</p>
@@ -110,7 +128,8 @@ button:disabled{opacity:.45;cursor:default}
 </div>
 
 <div id="panel-settings" class="panel" role="tabpanel">
-  <section>
+  <section class="sec" data-section="P7">
+    <span class="secid">P7 · inbox</span>
     <h2>1 · Inbox</h2>
     <p class="help">Where your captures go. By default: the inbox on this computer if there is one, otherwise the hosted one — found and connected by itself. These fields are for an inbox on another machine.</p>
     <div id="inboxstatus" class="msg mut">…</div>
@@ -122,7 +141,8 @@ button:disabled{opacity:.45;cursor:default}
     <button id="forget" class="act" type="button">Disconnect</button>
   </section>
 
-  <section>
+  <section class="sec" data-section="P8">
+    <span class="secid">P8 · recovery code</span>
     <h2>2 · Recovery code</h2>
     <p class="help">The key to everything in your inbox, and the only copy. It decrypts your captures — nobody can regenerate it, read it or recover it for you. Save it where you keep passwords.</p>
     <label for="key">Your recovery code</label>
@@ -132,7 +152,8 @@ button:disabled{opacity:.45;cursor:default}
     <div id="keymsg" class="msg mut"></div>
   </section>
 
-  <section>
+  <section class="sec" data-section="P9">
+    <span class="secid">P9 · on X</span>
     <h2>3 · On X</h2>
     <label style="margin-top:4px"><input id="ads" type="checkbox" style="width:auto;margin-right:8px">Hide ads on X (promoted posts and promoted trends)</label>
     <p class="help" style="margin:8px 0 0">Grok answers are never hidden. Liking an ad still captures it, marked as an ad.</p>
@@ -141,7 +162,8 @@ button:disabled{opacity:.45;cursor:default}
     <p><button id="fabreset" class="act" type="button">Put the button back in the corner</button></p>
   </section>
 
-  <section>
+  <section class="sec" data-section="P10">
+    <span class="secid">P10 · account and key backup</span>
     <h2>4 · Account &amp; key backup <span class="mut">(optional)</span></h2>
     <p class="help">An account is only for getting your inbox back on a new phone. Sign in with your email — no password — then back up your key wrapped with a passphrase you choose. The backup travels encrypted: our inbox stores it and cannot open it.</p>
     <div id="acctstatus" class="msg mut">Not signed in.</div>
@@ -158,7 +180,8 @@ button:disabled{opacity:.45;cursor:default}
     <div id="acctmsg" class="msg mut"></div>
   </section>
 
-  <section>
+  <section class="sec" data-section="P11">
+    <span class="secid">P11 · diagnostics</span>
     <h2>5 · Diagnostics</h2>
     <p class="help">What each button press did: action, HTTP code, how long it took, and the error text. It never includes what you captured — no post text, no handle, no link. Sending it is what lets a failure be read instead of guessed at.</p>
     <label style="margin-top:4px"><input id="telon" type="checkbox" style="width:auto;margin-right:8px">Send diagnostics</label>

@@ -517,6 +517,7 @@
     .head{display:flex;align-items:baseline;gap:6px;margin:0 0 10px}
     .head b{font-size:14px;font-weight:650}
     .head small{color:#888;font-size:11px;font-variant-numeric:tabular-nums}
+    .head i.code{margin-left:auto;font:10px/1.6 ui-monospace,Menlo,monospace;font-style:normal;letter-spacing:.09em;color:#b3b3b3}
     .row{display:flex;gap:8px;margin:0 0 8px}
     button{font:inherit;flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:9px;background:#fff;
       cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -553,7 +554,7 @@
       (icon ? '<img src="' + icon + '" alt="EchoLike">' : "<b style=\"position:static\">E</b>") +
       "<b>0</b></div>" +
       '<div class="panel" role="dialog" aria-label="EchoLike Lite">' +
-      '<div class="head"><b>EchoLike Lite</b><small>v' + VER + "</small></div>" +
+      '<div class="head"><b>EchoLike Lite</b><small>v' + VER + '</small><i class="code">X1</i></div>' +
       '<div class="row"><button data-act="open" data-page="inbox" class="primary">My inbox</button>' +
       '<button data-act="open" data-page="settings">Settings</button></div>' +
       '<div class="row"><button data-act="export" data-pick="likes">Export likes</button></div>' +

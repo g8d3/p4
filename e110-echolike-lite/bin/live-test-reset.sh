@@ -9,7 +9,14 @@ set -euo pipefail
 cd "$(dirname "$0")/../inbox-worker"
 export CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN:-${CLOUDFLARE_FOCALIS_API_KEY:-}}"
 [ -n "$CLOUDFLARE_API_TOKEN" ] || { echo "no Cloudflare token in the environment"; exit 1; }
+# Two kinds of leftovers: the claim window itself, and the tenants a test suite
+# claims and never uses (no capture). A tenant with captures is NEVER touched —
+# that is somebody's inbox.
 wrangler d1 execute echolike-inbox --remote --command \
-  "DELETE FROM claims; DELETE FROM devices WHERE user_id IN (SELECT id FROM users WHERE created_at < datetime('now','-2 hours'));" \
+  "DELETE FROM claims;
+   DELETE FROM devices WHERE user_id IN (
+     SELECT d.user_id FROM devices d
+      WHERE NOT EXISTS (SELECT 1 FROM likes l WHERE l.user_id = d.user_id));
+   DELETE FROM devices WHERE user_id IN (SELECT id FROM users WHERE created_at < datetime('now','-2 hours'));" \
   2>&1 | grep -E "rows_written|error" | head -4
 echo "claim window cleared; the live tests can claim again"

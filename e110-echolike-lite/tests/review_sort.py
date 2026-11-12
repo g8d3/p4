@@ -161,6 +161,19 @@ with sync_playwright() as p:
     check("the missing capture was sent by itself", r.get("total"), 3)
     rows = page.query_selector_all("#list .cap")
     check("three rows", len(rows), 3)
+
+    # Every box of controls says which one it is: the owner reports a code, not prose.
+    codes = page.eval_on_selector_all("[data-section]", "els => els.map(e => e.dataset.section)")
+    check("the inbox panel is boxed and numbered", codes[:4], ["P1", "P2", "P3", "P4"])
+    check("every box has a visible code label", page.eval_on_selector_all(".secid", "els => els.length") >= 4, True)
+    check("the boxes are bordered", page.eval_on_selector('[data-section="P1"]', "e => getComputedStyle(e).borderTopStyle"), "solid")
+    check("no code is repeated", len(codes) - len(set(codes)), 0)
+    page.click("#tab-settings")
+    page.wait_for_timeout(200)
+    scodes = page.eval_on_selector_all("#panel-settings [data-section]", "els => els.map(e => e.dataset.section)")
+    check("the settings cards are numbered too", scodes, ["P7", "P8", "P9", "P10", "P11"])
+    page.click("#tab-inbox")
+    page.wait_for_timeout(200)
     check("default order by my interaction, newest first", "beta" in rows[0].inner_text(), True)
     check("the oldest click is last", "alpha" in rows[-1].inner_text(), True)
     check("all four dates are shown", "liked" in rows[0].inner_text() and "published" in rows[0].inner_text(), True)
@@ -209,12 +222,39 @@ with sync_playwright() as p:
 
     # Same data, no extension: the hosted reader must offer the same controls and
     # must not hide anything behind a capped window.
+    # The bug the owner hit: the same post captured twice (re-like, or live + import)
+    # arrives with two uids. The page dedupes the LIST by post, and used to build
+    # "already sent" from that deduped list -- so the folded-away copy said "not in
+    # the inbox yet" for ever, pressing send found nothing to do (server-side it is
+    # there by uid) and the warning never cleared.
+    D1 = dict(A, uid="sort-a-again", clicked_at="2026-11-12T09:00:00Z")
+    code, before = call("/api/likes?limit=500", token)
+    page.evaluate("it => chrome.storage.local.get({items: []}).then(s => chrome.storage.local.set({items: s.items.concat([it])}))", D1)
+    page.reload()
+    page.wait_for_timeout(3000)
+    status = page.inner_text("#status")
+    check("a post already in the inbox is not reported as unsent", "not in the inbox yet" in status, False)
+    check("and the second copy is named as what it is", "second cop" in status, True)
+    page.select_option("#filter", "waiting")
+    page.wait_for_timeout(300)
+    check("the waiting filter is empty for it", len(page.query_selector_all("#list .cap")), 0)
+    page.select_option("#filter", "dups")
+    page.wait_for_timeout(300)
+    check("the second-copies filter finds it", len(page.query_selector_all("#list .cap")), 1)
+    page.select_option("#filter", "all")
+    page.wait_for_timeout(200)
+    code, r = call("/api/likes?limit=500", token)
+    check("and the second copy was not re-sent", r.get("total"), before.get("total"))
+    check("nothing was doubled in the inbox", r.get("total"), 3)
+
     reader = ctx.new_page()
     reader.goto(BASE + "/#t=" + token + "&k=" + keycode)
     reader.wait_for_timeout(3000)
     check("the reader lists every capture", len(reader.query_selector_all("#list .cap")), 3)
     check("no 'showing the newest' excuse", "showing the newest" in reader.inner_text("#status"), False)
     check("the reader has the sort control", reader.is_visible("#sort"), True)
+    rcodes = reader.eval_on_selector_all("[data-section]", "els => els.map(e => e.dataset.section)")
+    check("the reader is boxed and numbered too", rcodes, ["I1", "I2", "I3", "I4"])
     check("the reader uses the same grids", len(reader.query_selector_all("#list .cap:first-child .grid")), 2)
     # The arrival date is the server's column, not the sealed record: the reader
     # used to drop it, which also left "sort by arrived" with nothing to sort.

@@ -95,6 +95,7 @@ with sync_playwright() as p:
     check("press opens the panel", fab(page, "document.querySelector('.panel').classList.contains('on')"), True)
     head = fab(page, "document.querySelector('.head').textContent")
     check("the panel states the version", ("v" + VERSION) in head, True)
+    check("the panel carries its own code", fab(page, "document.querySelector('.head .code').textContent"), "X1")
     labels = fab(page, "[...document.querySelectorAll('.panel button')].map(b => b.textContent)")
     check("it offers the inbox", any("My inbox" in x for x in labels), True)
     check("it offers the settings", any("Settings" in x for x in labels), True)
