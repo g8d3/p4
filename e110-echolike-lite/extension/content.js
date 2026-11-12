@@ -62,11 +62,27 @@
     return el;
   }
 
+  // The post's own link: any /status/ anchor that is NOT inside the quoted tweet,
+  // the media container, or the tweet text. Taking the first anchor made a row with a
+  // quote resolve to the *quoted* post, so many rows collapsed into one id.
+  function ownStatusLink(art) {
+    const anchors = Array.from(art.querySelectorAll('a[href*="/status/"]'));
+    const isQuoted = (a) => {
+      const q = a.closest('div[role="link"]');
+      if (q && q !== art && art.contains(q)) return true;
+      const t = a.closest('[data-testid="tweetText"]');
+      return !!(t && t !== art);
+    };
+    const own = anchors.filter((a) => !isQuoted(a) && /\/status\/\d+/.test(a.getAttribute("href")));
+    // the timestamp link is the canonical one when there are several
+    return own.find((a) => a.querySelector("time")) || own[0] || null;
+  }
+
   // One extraction, shared by the click path and the import walk.
   function extract(art, kind) {
     if (!art) return null;
     const ad = !!art.closest('[data-testid="placementTracking"]');
-    const a = art.querySelector('a[href*="/status/"]');
+    const a = ownStatusLink(art);
     const m = a && a.getAttribute("href").match(/\/([A-Za-z0-9_]{1,15})\/status\/(\d+)/);
     if (!m) return null;
     const txt = art.querySelector('[data-testid="tweetText"]');
@@ -205,7 +221,9 @@
           detail:
             "collected=" + collected.size + " sent=" + sent + " skipped=" + Math.max(0, collected.size - sent) +
             " queued=" + queue.length + " rounds=" + rounds + " quiet=" + quietRounds +
-            " reason=" + reason + " articles=" + document.querySelectorAll("article").length +
+            " reason=" + reason + " rows=" + document.querySelectorAll('article, [data-testid="tweet"]').length +
+            " seenRows=" + seenRows + " noId=" + noId +
+            " scroller=" + (sc ? sc.tagName + ":" + (getComputedStyle(sc).overflowY || "?") : "none") +
             " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
             " scrollable=" + (sc ? sc.scrollHeight - sc.clientHeight : -1),
         });
@@ -214,11 +232,21 @@
     };
 
     let rounds = 0;
+    // Counters, so "the tab has more than 6" can be answered with numbers instead of
+    // a guess: how many rows the DOM had, how many we could read, how many had no id.
+    let seenRows = 0;
+    let noId = 0;
     const harvest = () => {
-      for (const art of document.querySelectorAll("article")) {
+      const rows = document.querySelectorAll('article, [data-testid="tweet"]');
+      seenRows = Math.max(seenRows, rows.length);
+      for (const art of rows) {
         if (collected.size >= wanted) return; // the number asked for is the number sent
         const it = extract(art, kind);
-        if (!it || collected.has(it.id)) continue;
+        if (!it) {
+          noId++;
+          continue;
+        }
+        if (collected.has(it.id)) continue;
         collected.set(it.id, it);
         queue.push(it);
       }

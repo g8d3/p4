@@ -121,5 +121,65 @@ with sync_playwright() as p:
     check("cancel answers", cancel.get("ok"), True)
     browser.close()
 
+
+# --- a second fixture: quoted tweets and non-<article> rows ----------------------
+# The likes page sometimes renders rows as div[data-testid="tweet"] and many rows
+# carry a quote, whose /status/ link comes first in the DOM. Taking that first link
+# made several rows collapse into one id — this pins the primary link down.
+QUOTES = """<!doctype html><html><body>
+<div id="scroller" style="height:150px;overflow:auto"><div id="feed"></div></div>
+<script>
+  window.__batch = [];
+  const mk = (id, quotedId, asDiv) => {
+    const el = document.createElement(asDiv ? 'div' : 'article');
+    el.setAttribute('data-testid', 'tweet');
+    el.innerHTML =
+      '<div data-testid="tweetText">post ' + id + '</div>' +
+      '<div role="link"><div data-testid="tweetText">quoted ' + quotedId + '</div>' +
+      '<a href="/other/status/' + quotedId + '"><time>q</time></a></div>' +
+      '<a href="/someone/status/' + id + '"><time datetime="2026-11-01T10:00:00Z">10:00</time></a>';
+    document.getElementById('feed').appendChild(el);
+  };
+  // every row quotes the SAME post; the primary ids differ
+  mk('501', '900', false);
+  mk('502', '900', true);
+  mk('503', '900', false);
+  window.chrome = {
+    runtime: {
+      lastError: null,
+      sendMessage: (m, cb) => {
+        if (m.type === 'capture-batch') { window.__batch.push(...m.items); cb && cb({ ok: true, added: m.items.length }); return Promise.resolve({ ok: true }); }
+        if (m.type === 'hello' || m.type === 'net-online') return Promise.resolve({ ok: true });
+        cb && cb({ sent: true }); return Promise.resolve({ sent: true });
+      },
+      onMessage: { addListener: (fn) => { window.__importListener = fn; } },
+    },
+    storage: {
+      local: {
+        get: (d, cb) => { cb && cb(Object.assign({}, d, { hide_ads: false })); return Promise.resolve(d); },
+        set: (o, cb) => { cb && cb(); return Promise.resolve(); },
+      },
+      onChanged: { addListener: () => {} },
+    },
+  };
+</script></body></html>"""
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
+    page = browser.new_page()
+    page.set_content(QUOTES)
+    page.add_script_tag(content=CONTENT)
+    page.wait_for_timeout(200)
+    page.evaluate("""() => new Promise((resolve) => {
+        window.__importListener({type:'import-start', mode:'likes', limit:10}, null, resolve);
+      })""")
+    page.wait_for_timeout(12000)  # the list never grows: the walk must still take all 3
+    ids = page.evaluate("window.__batch.map(i => i.id)")
+    check("every row is read, not just the first", len(ids), 3)
+    check("the primary post id is used, not the quoted one", sorted(ids), ["501", "502", "503"])
+    check("no row resolves to the quoted id", "900" in ids, False)
+    check("a div row is read like an article", "502" in ids, True)
+    browser.close()
+
 print("FAILURES:", failures if failures else "none")
 sys.exit(1 if failures else 0)

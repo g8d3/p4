@@ -248,6 +248,15 @@ Deliberate design decisions, so they are not "improved" later:
   `https://x.com/i/history/likes` and bookmarks at `https://x.com/i/history` — the
   obvious `/likes` and `/i/bookmarks` are wrong. Both places: `import.js` (the link
   the tab offers) and `importStart()` (the tab it opens when none is open).
+* **The walk reads the DOM; it never intercepts X's API.** That is a deliberate
+  trade: no auth headers to steal, nothing a redesign of the GraphQL payload breaks,
+  and it keeps working in any browser that renders the page. The cost is virtualized
+  lists, so the row selector is `article, [data-testid="tweet"]` (X uses both), and
+  the primary link is resolved by `ownStatusLink()` — the first `/status/` anchor was
+  often the **quoted** post, which collapsed several rows into one id.
+* **Counters, not prose**: the end row always carries `rows` (what the DOM had),
+  `seenRows`, `noId` (rows we could not resolve) and the scroller's tag + overflow,
+  so "the tab shows more than 6" is answerable without another round trip.
 * **Diagnostics, because "it did not work" is not a report.** The import path is
   instrumented at every step: `import.cmd` (mode, limit, how many X tabs, their
   paths), `import.begin` (path, article count, scroller tag, how much room is left
@@ -337,6 +346,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.14.0 — extraction stopped losing rows: the primary `/status/` link is chosen instead of the first one (quotes made
+  several rows collapse into one id), and rows rendered as `div[data-testid="tweet"]` are read like `article`s. The end
+  row now reports `rows`/`seenRows`/`noId`/`scroller`, so the next "only N came" has a number behind it.
+  `tests/review_import.py` gained a second fixture with three rows quoting the same post.
 - 1.13.2 — the discrepancy between screen and log: `tel()` written while an upload was in flight was stranded in
   `telq` until the next user action (so `import.batch` never appeared), and the end row was written before the last
   batch answered (`sent=0` while the UI said "5 sent"). Diagnostics now drain until empty, the end row is written
