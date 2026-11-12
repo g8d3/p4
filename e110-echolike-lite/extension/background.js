@@ -84,6 +84,9 @@ async function state() {
     items: [],
     last: null,
     defaultTriedAt: 0,
+    accountEmail: "",
+    accountToken: "",
+    keyBackedAt: null,
   });
   return s;
 }
@@ -202,6 +205,100 @@ async function discover() {
   return { ok: false, error: "no inbox found on this computer" };
 }
 
+// ---- Account (optional): recovery of access, never of plaintext --------------
+// Email + a 6-digit code gets an account token; the account links this device's
+// tenant so a reinstall can find its captures again. The key itself can be backed
+// up only WRAPPED with a passphrase we derive here: the inbox stores a blob it
+// cannot open, and the passphrase never leaves this browser.
+const PBKDF2_ITER = 210000;
+
+async function derivePhrase(passphrase, salt, iterations, usage) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(passphrase), "PBKDF2", false, [
+    "deriveKey",
+  ]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations, hash: "SHA-256" },
+    base,
+    { name: "AES-GCM", length: 256 },
+    false,
+    [usage],
+  );
+}
+
+async function acctBase() {
+  const s = await state();
+  return { base: (s.url || DEFAULT_INBOX).replace(/\/$/, ""), s };
+}
+
+async function acctCall(path, opts) {
+  const { base, s } = await acctBase();
+  if (!base) return { ok: false, error: "no inbox yet: like a post first" };
+  const auth = (opts && opts.auth) || s.accountToken;
+  const headers = { "content-type": "application/json" };
+  if (auth) headers.authorization = "Bearer " + auth;
+  const r = await timed(
+    base + path,
+    { method: (opts && opts.method) || "GET", headers, body: opts && opts.body ? JSON.stringify(opts.body) : undefined },
+    15000,
+  ).catch(() => null);
+  if (!r) return { ok: false, error: "the inbox did not answer" };
+  const j = await r.json().catch(() => null);
+  if (!j) return { ok: false, error: "inbox HTTP " + r.status };
+  return j;
+}
+
+async function acctStart(email) {
+  const j = await acctCall("/api/account/start", { method: "POST", body: { email }, auth: "-" });
+  if (j.ok) await chrome.storage.local.set({ accountEmail: String(email).trim().toLowerCase() });
+  return j;
+}
+
+async function acctVerify(email, code) {
+  const { s } = await acctBase();
+  const j = await acctCall("/api/account/verify", {
+    method: "POST",
+    body: { email, code },
+    auth: s.token || "",
+  });
+  if (j.ok && j.atoken) await chrome.storage.local.set({ accountToken: j.atoken, accountEmail: j.account.email });
+  return j;
+}
+
+async function keySave(passphrase) {
+  const { s } = await acctBase();
+  if (!s.accountToken) return { ok: false, error: "sign in with your email first" };
+  if (!passphrase || passphrase.length < 8) return { ok: false, error: "use at least 8 characters" };
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await derivePhrase(passphrase, salt, PBKDF2_ITER, "encrypt");
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(await keyCode()));
+  const j = await acctCall("/api/account/key", {
+    method: "POST",
+    body: { salt: b64(salt), iterations: PBKDF2_ITER, iv: b64(iv), ct: b64(new Uint8Array(ct)) },
+  });
+  if (j.ok) await chrome.storage.local.set({ keyBackedAt: new Date().toISOString() });
+  return j;
+}
+
+async function keyRestore(passphrase) {
+  const { s } = await acctBase();
+  if (!s.accountToken) return { ok: false, error: "sign in with your email first" };
+  if (s.outbox.length) return { ok: false, error: "send what is waiting first (" + s.outbox.length + ")" };
+  const j = await acctCall("/api/account/key");
+  if (!j.ok || !j.backup) return { ok: false, error: j.error || "there is no key backup" };
+  const b = j.backup;
+  try {
+    const key = await derivePhrase(passphrase, unb64(b.salt), b.iterations, "decrypt");
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(b.iv) }, key, unb64(b.ct));
+    const code = new TextDecoder().decode(plain);
+    if (code.length !== 43) return { ok: false, error: "that backup is not a key" };
+    await chrome.storage.local.set({ key: code, keyBackedAt: b.updated_at || new Date().toISOString() });
+    return { ok: true, restored: true };
+  } catch (e) {
+    return { ok: false, error: "wrong passphrase" };
+  }
+}
+
 async function capture(item) {
   item.uid = globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
   const s = await state();
@@ -225,7 +322,15 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
           ? discover()
           : m && m.type === "claim"
             ? claimAt(m.url)
-          : m && m.type === "forget"
+          : m && m.type === "acct-start"
+            ? acctStart(m.email)
+            : m && m.type === "acct-verify"
+              ? acctVerify(m.email, m.code)
+              : m && m.type === "key-save"
+                ? keySave(m.passphrase)
+                : m && m.type === "key-restore"
+                  ? keyRestore(m.passphrase)
+                  : m && m.type === "forget"
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
             : m && m.type === "save"
           ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush(true))
@@ -235,6 +340,9 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                 hasToken: !!s.token,
                 token: s.token,
                 keyCode: await keyCode(),
+                accountEmail: s.accountEmail || "",
+                accountToken: !!s.accountToken,
+                keyBackedAt: s.keyBackedAt || null,
                 defaultInbox: DEFAULT_INBOX,
                 pending: s.outbox.length,
                 total: s.items.length,

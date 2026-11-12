@@ -101,6 +101,42 @@ Where it is read: in the user's browser, never on a server.
 * A v2 client or a pre-encryption blob still renders (`inbox.html` and the reader
   page show readable items as they are), so nothing breaks mid-upgrade.
 
+## Account (1.3.0, optional by design)
+
+Capturing never needs an account. An account exists for one thing: **getting your
+inbox back** on a new phone, and holding a key backup the inbox cannot open.
+
+- `POST /api/account/start {email}` → 6-digit code, 10 minutes, 5/hour per address,
+  mailed through Resend (`RESEND_API_KEY` secret; `from` = `MAIL_FROM` or
+  `EchoLike <hello@echolike.app>`, a domain already verified in the zone). Without
+  the secret the endpoint answers 503 "email is not configured on this inbox yet" —
+  it never pretends to have sent something.
+- `POST /api/account/verify {email, code}` + the device token as Bearer → account
+  token (32 hex, stored hashed) and the device's tenant is linked to the account.
+- `GET /api/account` → email, linked tenants, capture count, whether a key backup exists.
+- `POST|GET /api/account/key` → the **wrapped** key backup.
+
+**The key backup can never be opened by us.** The extension derives
+PBKDF2-SHA256 (210k iterations, 16-byte salt) from a user passphrase, encrypts the
+43-char key code with AES-256-GCM, and uploads `{salt, iterations, iv, ct}`. The
+passphrase is never sent. Restore = same passphrase on any device → the key comes
+back; a wrong one fails locally ("wrong passphrase"), not at the server.
+
+Why a passphrase and not the emailed code: a code changes every login, so a key
+wrapped with one could never be reopened. Why not the account token: the server
+sees that token on every request, so wrapping with it would hand us the key.
+
+`ECHO_DEV_CODE=1` in `.dev.vars` makes `POST /api/account/start` return the code
+instead of mailing it, for `tests/review_account.py` and `review_account_ui.py`.
+It is only ever set in local dev; production has no such flag.
+
+Local worker for those tests (the local workerd binary lags the deployed one on
+compatibility date, hence the override):
+
+```sh
+cd inbox-worker && wrangler dev --port 8788 --local --compatibility-date 2026-10-30
+```
+
 ## Structure
 
 ```
@@ -109,7 +145,8 @@ extension/content.js      one click listener: like/unlike/bookmark/unbookmark
 extension/background.js   local save + POST outbox to /api/likes, retry on event,
                           loopback discovery + claim, DEFAULT_INBOX (hosted)
 extension/popup.html/js   status + Find my inbox + Retry + Open my inbox; Advanced
-                          (address, token, recovery code)
+                          (address, token, recovery code, account: email code +
+                          passphrase key backup)
 extension/inbox.html/js   the full inbox page: fetches the blobs, decrypts here, exports
 server.py                 self-hosted inbox, stdlib only: /api/health, /api/claim,
                           POST /api/likes, GET /
@@ -155,6 +192,8 @@ python3 tests/review_claim.py                 # /api/claim over HTTP: private ga
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
 python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
 python3 tests/review_inbox_page.py            # the LIVE reader page: fragment key, decrypts, wrong key refused
+python3 tests/review_account.py               # accounts over HTTP (LOCAL wrangler dev): code, link, wrapped key
+xvfb-run -a python3 tests/review_account_ui.py # the same from the popup, backup and restore included
 # the promise in one test: fresh browser, no configuration, one like -> hosted inbox
 # (real network, real tenant: it leaves one tenant behind per run)
 xvfb-run -a python3 tests/review_zero.py
@@ -171,6 +210,9 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.3.0 — optional account by email: 6-digit code login (Resend), tenant linking for recovery, and a key
+  backup wrapped with a user passphrase (PBKDF2 210k + AES-GCM) that the inbox cannot open; popup gets
+  "Email me a code / Verify / Back up key / Restore key". Without `RESEND_API_KEY` the endpoint says so (503).
 - 1.2.1 — protocol handshake: the client sends `x-echolike-api: 4` and the inbox refuses plaintext from it (400),
   while an older client (1.1.x) is accepted and its row flagged `legacy` — a queued capture is never dropped to
   enforce a rule. Health reports `min_client_api`. This is the fix for "9 waiting to send. inbox HTTP 400":

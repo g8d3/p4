@@ -39,6 +39,10 @@ async function refresh() {
   // The full list lives in the extension's own page: it decrypts with the key in
   // this browser, so no secret ever travels in a URL.
   $("key").value = s.keyCode || "";
+  $("acctstatus").innerHTML = s.accountEmail
+    ? (s.accountToken ? '<span class="ok">Account:</span> ' + esc(s.accountEmail) : "Code sent to " + esc(s.accountEmail) + " — enter it below.") +
+      (s.keyBackedAt ? ' <small>· key backed up ' + esc(String(s.keyBackedAt).slice(0, 10)) + "</small>" : ' <small class="err">· key not backed up</small>')
+    : "Account: not linked. Optional — it is how you get your inbox back on a new phone.";
   $("open").style.display = connected ? "inline" : "none";
   const st = $("status");
   const at = s.url ? " <small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" : "";
@@ -102,6 +106,41 @@ $("forget").addEventListener("click", async () => {
   $("url").value = "";
   $("token").value = "";
   await refresh();
+});
+
+async function acct(fn, extra) {
+  const b = $("acctstatus");
+  b.textContent = "…";
+  const r = await send(fn, extra);
+  await refresh();
+  if (!r || r.ok === false) $("acctstatus").innerHTML = '<span class="err">' + esc((r && r.error) || "failed") + "</span>";
+  return r;
+}
+
+$("sendcode").addEventListener("click", async () => {
+  const email = $("email").value.trim();
+  if (!email) return ($("acctstatus").innerHTML = '<span class="err">An email address is needed.</span>');
+  const r = await acct("acct-start", { email });
+  if (r && r.ok) $("acctstatus").innerHTML = "Code sent to " + esc(email) + " — it works for 10 minutes.";
+});
+
+$("verify").addEventListener("click", async () => {
+  const r = await acct("acct-verify", { email: $("email").value.trim(), code: $("code").value.trim() });
+  if (r && r.ok) {
+    $("code").value = "";
+    $("acctstatus").innerHTML = '<span class="ok">Signed in as ' + esc(r.account.email) + "</span>";
+  }
+});
+
+$("backup").addEventListener("click", async () => {
+  const r = await acct("key-save", { passphrase: $("phrase").value });
+  if (r && r.ok) $("acctstatus").innerHTML = '<span class="ok">Key backed up.</span> Restore it with this passphrase on any device.';
+});
+
+$("restore").addEventListener("click", async () => {
+  if (!confirm("This replaces the key in this browser with the one from your backup. Captures already here stay readable; anything still waiting to be sent must go first.")) return;
+  const r = await acct("key-restore", { passphrase: $("phrase").value });
+  if (r && r.ok) $("acctstatus").innerHTML = '<span class="ok">Key restored.</span> Reload the inbox page to see everything.';
 });
 
 $("copykey").addEventListener("click", async () => {

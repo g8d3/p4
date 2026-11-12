@@ -16,6 +16,13 @@
 //   GET  /api/likes?limit=100 -> the caller's own blobs, JSON (Bearer token)
 //   GET  /                    -> the decrypting reader (static HTML + WebCrypto)
 //
+//   ACCOUNTS (optional, for recovery — capturing never needs one)
+//   POST /api/account/start   -> {email} mails a 6-digit code (Resend)
+//   POST /api/account/verify  -> {email, code, token?} -> {atoken}, links this device
+//   GET  /api/account         -> {email, tenants, captures, has_key}
+//   POST /api/account/key     -> stores a key backup WRAPPED WITH A PASSPHRASE
+//   GET  /api/account/key     -> hands the wrapped backup back; unusable here
+//
 // Rules that keep it honest:
 //   * a device token is a random 32-hex secret, stored only as sha256;
 //   * the tenant id is derived from the token, never from the request body;
@@ -161,6 +168,153 @@ async function postLikes(env, req, who) {
   return json({ ok: true, received: take.length, user: who.user, used: used + take.length, quota: FREE_PER_MONTH });
 }
 
+// ---- accounts -------------------------------------------------------------
+async function accountOf(env, auth) {
+  const tok = (auth || "").replace(/^Bearer\s+/i, "").trim();
+  if (!/^[0-9a-f]{32}$/.test(tok)) return null;
+  const row = await env.DB.prepare("SELECT a.id, a.email FROM account_tokens t JOIN accounts a ON a.id = t.account_id WHERE t.sha256 = ?1")
+    .bind(await sha256(tok))
+    .first();
+  return row ? { id: row.id, email: row.email } : null;
+}
+
+const emailOk = (e) => typeof e === "string" && /^[^\s@]{1,64}@[^\s@]{1,190}\.[A-Za-z]{2,}$/.test(e.trim());
+
+async function sendCode(env, email, code) {
+  if (!env.RESEND_API_KEY) return "email is not configured on this inbox yet";
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { authorization: "Bearer " + env.RESEND_API_KEY, "content-type": "application/json" },
+    body: JSON.stringify({
+      from: env.MAIL_FROM || "EchoLike <hello@echolike.app>",
+      to: [email],
+      subject: "Your EchoLike inbox code: " + code,
+      text:
+        "Your code to sign in to your EchoLike inbox: " + code + "\n\n" +
+        "It works for 10 minutes. If you did not ask for it, ignore this message.\n\n" +
+        "Your likes stay encrypted: this account only restores access to them.",
+    }),
+  });
+  return r.ok ? null : "the mail service refused (" + r.status + ")";
+}
+
+async function accountStart(env, req) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const email = String(body.email || "").trim().toLowerCase();
+  if (!emailOk(email)) return json({ ok: false, error: "that does not look like an email address" }, 400);
+  const ip = req.headers.get("cf-connecting-ip") || "unknown";
+  const hourAgo = Math.floor(Date.now() / 1000) - 3600;
+  const recent = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM login_codes c JOIN accounts a ON a.id = c.account_id WHERE a.email = ?1 AND c.expires_at > ?2",
+  )
+    .bind(email, hourAgo)
+    .first();
+  if ((recent?.n || 0) >= 5) return json({ ok: false, error: "too many codes for this address, try later" }, 429);
+
+  let acc = await env.DB.prepare("SELECT id FROM accounts WHERE email = ?1").bind(email).first();
+  if (!acc) {
+    const id = "a_" + hex(6);
+    await env.DB.prepare("INSERT INTO accounts (id, email, created_at) VALUES (?1, ?2, ?3)")
+      .bind(id, email, now())
+      .run();
+    acc = { id };
+  }
+  const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+  await env.DB.prepare("INSERT INTO login_codes (account_id, code_sha256, expires_at, ip) VALUES (?1, ?2, ?3, ?4)")
+    .bind(acc.id, await sha256(code), Math.floor(Date.now() / 1000) + 600, ip)
+    .run();
+  // A local/dev deployment returns the code instead of mailing it; production
+  // has no such flag and can never read a code back.
+  const dev = env.ECHO_DEV_CODE === "1";
+  const why = dev ? null : await sendCode(env, email, code);
+  if (why) return json({ ok: false, error: why }, 503);
+  return json(dev ? { ok: true, code, dev: true } : { ok: true, sent: true });
+}
+
+async function accountVerify(env, req) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const email = String(body.email || "").trim().toLowerCase();
+  const code = String(body.code || "").replace(/\D/g, "");
+  if (!emailOk(email) || code.length !== 6) return json({ ok: false, error: "email and a 6-digit code are needed" }, 400);
+  const acc = await env.DB.prepare("SELECT id FROM accounts WHERE email = ?1").bind(email).first();
+  if (!acc) return json({ ok: false, error: "wrong code" }, 401);
+  const hit = await env.DB.prepare(
+    "SELECT rowid FROM login_codes WHERE account_id = ?1 AND code_sha256 = ?2 AND used = 0 AND expires_at > ?3",
+  )
+    .bind(acc.id, await sha256(code), Math.floor(Date.now() / 1000))
+    .first();
+  if (!hit) return json({ ok: false, error: "wrong or expired code" }, 401);
+  await env.DB.prepare("UPDATE login_codes SET used = 1 WHERE rowid = ?1").bind(hit.rowid).run();
+
+  const atoken = hex(16);
+  await env.DB.prepare("INSERT INTO account_tokens (sha256, account_id, created_at, last_seen) VALUES (?1, ?2, ?3, ?3)")
+    .bind(await sha256(atoken), acc.id, now())
+    .run();
+  // Attach the calling device's tenant, so a reinstall can find its captures again.
+  const dev = await tenant(env, req.headers.get("authorization"));
+  if (dev) {
+    await env.DB.prepare("INSERT OR IGNORE INTO account_tenants (account_id, user_id, linked_at) VALUES (?1, ?2, ?3)")
+      .bind(acc.id, dev.user, now())
+      .run();
+  }
+  return json({ ok: true, account: { id: acc.id, email }, atoken });
+}
+
+async function accountSummary(env, who) {
+  const tenants = await env.DB.prepare("SELECT user_id FROM account_tenants WHERE account_id = ?1").bind(who.id).all();
+  const ids = (tenants.results || []).map((r) => r.user_id);
+  let captures = 0;
+  for (const id of ids) {
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(id).first();
+    captures += row?.n || 0;
+  }
+  const kb = await env.DB.prepare("SELECT updated_at FROM key_backups WHERE account_id = ?1").bind(who.id).first();
+  return json({
+    ok: true,
+    account: { id: who.id, email: who.email },
+    tenants: ids,
+    captures,
+    has_key: !!kb,
+    key_updated_at: kb ? kb.updated_at : null,
+  });
+}
+
+async function accountKey(env, req, who) {
+  if (req.method === "GET") {
+    const row = await env.DB.prepare("SELECT salt, iterations, iv, ct, updated_at FROM key_backups WHERE account_id = ?1")
+      .bind(who.id)
+      .first();
+    return row ? json({ ok: true, backup: row }) : json({ ok: false, error: "no key backup yet" }, 404);
+  }
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const iterations = Number(body.iterations || 0);
+  if (!b64ish(body.salt) || !b64ish(body.iv) || !b64ish(body.ct) || iterations < 100000 || String(body.ct).length > 4096) {
+    return json({ ok: false, error: "that is not a wrapped key" }, 400);
+  }
+  await env.DB.prepare(
+    "INSERT INTO key_backups (account_id, salt, iterations, iv, ct, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)" +
+      " ON CONFLICT(account_id) DO UPDATE SET salt = ?2, iterations = ?3, iv = ?4, ct = ?5, updated_at = ?6",
+  )
+    .bind(who.id, body.salt, iterations, body.iv, body.ct, now())
+    .run();
+  return json({ ok: true, stored: true });
+}
+
 // The reader: no secret in the request, everything is decrypted in the browser.
 const PAGE = `<!doctype html><meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
@@ -271,10 +425,21 @@ export default {
           claim: "open",
           encryption: "aes-256-gcm",
           min_client_api: 4,
+          accounts: "email",
+          email_configured: !!env.RESEND_API_KEY,
           free_per_month: FREE_PER_MONTH,
         });
       }
       if (path === "/api/claim" && req.method === "POST") return await claim(env, req);
+      if (path.startsWith("/api/account")) {
+        const who = await accountOf(env, req.headers.get("authorization"));
+        if (path === "/api/account/start" && req.method === "POST") return await accountStart(env, req);
+        if (path === "/api/account/verify" && req.method === "POST") return await accountVerify(env, req);
+        if (!who) return json({ ok: false, error: "unauthorized" }, 401);
+        if (path === "/api/account" && req.method === "GET") return await accountSummary(env, who);
+        if (path === "/api/account/key") return await accountKey(env, req, who);
+        return json({ ok: false, error: "not found" }, 404);
+      }
       if (path === "/api/likes" && req.method === "POST") {
         const who = await tenant(env, req.headers.get("authorization"));
         return who ? await postLikes(env, req, who) : json({ ok: false, error: "unauthorized" }, 401);

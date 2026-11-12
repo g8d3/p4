@@ -30,6 +30,15 @@ details{margin:6px 0}summary{cursor:pointer;color:#666;font-size:12px}
   <label class="mut" style="display:block;margin:8px 0 2px">Recovery code — the only key to your inbox. Save it: nobody can regenerate it.</label>
   <input id="key" type="text" readonly onclick="this.select()" style="font-family:ui-monospace,monospace;font-size:11px">
   <button id="copykey" type="button">Copy</button>
+  <div id="acct" style="border-top:1px solid #eee;margin-top:10px;padding-top:8px">
+    <div id="acctstatus" class="mut">Account: not linked. Optional — it is how you get your inbox back on a new phone.</div>
+    <input id="email" type="email" autocomplete="off" placeholder="you@example.com">
+    <button id="sendcode" type="button">Email me a code</button>
+    <input id="code" inputmode="numeric" autocomplete="off" placeholder="6-digit code from the email">
+    <button id="verify" type="button">Verify</button>
+    <input id="phrase" type="password" autocomplete="off" placeholder="key passphrase (to back up the key)">
+    <button id="backup" type="button">Back up key</button><button id="restore" type="button">Restore key</button>
+  </div>
 </details>
 <div id="list"></div>
 <script src="popup.js"></script>

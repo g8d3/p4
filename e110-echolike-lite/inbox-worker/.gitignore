@@ -1,0 +1,4 @@
+
+# local dev only (wrangler dev). Never add secrets here.
+.dev.vars
+.wrangler/
