@@ -348,6 +348,35 @@ Three server-side rules keep that list honest:
   only to skip the wait until the next event. Live proof: `tests/review_sort.py`
   seeds an unsent capture, opens the page and expects it in the inbox.
 
+## Discovery (1.19.0): two strangers find each other, no code in sight
+
+The owner's question was the sharp one: *"two users cannot find each other, and every path
+still makes one of them manage a code"*. A code only works if you already know who to give
+it to, so the fix is not a better code — it is removing the code from the path.
+
+| Piece | Where it lives | What the server sees |
+|---|---|---|
+| device key | ECDH **P-256** keypair per install, private half never leaves it | the public key only (`devices.ecdh_pub`) |
+| interest index | `sha256("echolike-interest-v1|" + kind + "|" + post id)`, **opt-in** (`P17`) | opaque 32-hex hashes, grouped and counted |
+| ranking | overlap count against every other opted-in user | pseudonyms + a number |
+| invitation | space key **wrapped** to the invitee's public key (ECDH -> HKDF-SHA256 -> AES-GCM) | a box it cannot open (`space_invites.wrapped`, `for_user`) |
+| acceptance | the invitee's device unwraps and joins (`P18`) | that it was accepted |
+
+What makes it honest: no text, no handle and no post id ever leaves the browser for
+discovery; opting out deletes the rows; an invitation is addressed, so nobody pastes
+anything. What is *not* private, said out loud: the server can group equal hashes and could
+enumerate X's public post ids to guess what a hash is — which is why this is opt-in, off by
+default, and one checkbox away from being erased.
+
+The wrap is why a targeted invitation works at all: the server routes a box to a user it
+cannot open, and the key arrives without a channel. A match without a registered key shows
+*"they have not opened the app with discovery on yet"* instead of a button that would fail.
+
+`tests/review_discovery.py` is the whole loop with two real installs: A and B share one
+post, both opt in, A finds B ("1 post in common"), A invites with one click, B opens Spaces,
+accepts, shares its own copy and reads A's posts — and the card says `saved by 2 people
+here`. Nothing typed a code anywhere.
+
 ## Spaces (1.18.0): the collaborative unit, and why the pairing code was not it
 
 The owner rejected the pairing code as the answer to "two phones, same account", and he
@@ -478,6 +507,8 @@ The numbering is **stable — never renumber, only add**:
 | `P14` | extension page · Spaces | join with an invite |
 | `P15` | extension page · Spaces | my spaces (open / invite / share / leave) |
 | `P16` | extension page · Spaces | the space view |
+| `P17` | extension page · Spaces | people like me: discovery opt-in, matches, invite |
+| `P18` | extension page · Spaces | invitations addressed to this device |
 | `P5` | extension page | Import: which X tab, refresh, open the list |
 | `P6` | extension page | Import: what to import, how many, start/cancel, status |
 | `P7` | extension page | Settings · 1 Inbox (address, token, save, disconnect) |
@@ -677,6 +708,15 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.19.0 — **discovery**: two users who saved the same posts find each other with no code between them.
+Per-device ECDH P-256 keys (`POST /api/keys`), an opt-in blind interest index (`POST /api/discovery`,
+`sha256(kind|post id)` only), an overlap ranking (`GET /api/discovery/matches`: pseudonyms, counts, public keys),
+invitations **addressed** to a user with the space key wrapped to their key (`POST /api/spaces/:id/invite-for`), and
+an incoming list with accept/decline (`GET /api/invites`, `POST /api/invites/:id/{accept,decline}`). UI: `P17`
+people like me, `P18` invitations for you. Migration 0012. New test: `tests/review_discovery.py` — two real installs,
+zero codes typed. Also fixed: the Spaces tab painted nothing when the page opened straight on `#spaces`, and an
+invitation to a user with no registered key is explained instead of failing.
 
 - 1.18.2 — invitations are **reusable**: `max_uses` (1..25) and a use counter instead of a single use
 (migration 0011), a form in the space row that asks how many people and how long (default 3 people / 24 h), the

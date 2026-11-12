@@ -625,6 +625,149 @@ async function showSpace(id) {
   painter1("P16", true);
 }
 
+// ---- People like me, and invitations addressed to this device --------------
+// The point of discovery: two people who saved the same posts find each other without
+// anybody trading a code. The invitation carries the space key wrapped to this device.
+async function paintDiscovery() {
+  const st = await chrome.runtime.sendMessage({ type: "discovery-state" }).catch(() => null);
+  const box = $("discovery-state");
+  if (!st || st.ok === false) {
+    box.innerHTML = '<span class="err">' + esc((st && st.error) || "could not read your discovery settings") + "</span>";
+    return;
+  }
+  $("discovery-on").checked = !!st.enabled;
+  box.innerHTML = st.enabled
+    ? '<span class="ok">on</span> · ' + (st.hashes || 0) + " posts in your blind index · matches are people who saved the same ones"
+    : '<span class="mut">off</span> · nobody can find you by interest while this is off';
+}
+
+async function paintMatches() {
+  const r = await chrome.runtime.sendMessage({ type: "discovery-matches" }).catch(() => null);
+  const box = $("matchlist");
+  if (!r || r.ok === false) {
+    box.innerHTML = '<p class="err">' + esc((r && r.error) || "could not look for people") + "</p>";
+    return;
+  }
+  if (!r.matches || !r.matches.length) {
+    box.innerHTML = '<p class="mut">No matches yet. Turn discovery on in both phones — and the more captures, the better the match.</p>';
+    return;
+  }
+  const spaces = (await chrome.runtime.sendMessage({ type: "space-list" }).catch(() => null)) || { spaces: [] };
+  const mine = (spaces.spaces || []).filter((x) => !x.unreachable);
+  box.textContent = "";
+  for (const m of r.matches) {
+    const row = document.createElement("div");
+    row.className = "matchrow";
+    const options = mine.map((sp) => '<option value="' + esc(sp.id) + '">' + esc(sp.name || "space") + "</option>").join("");
+    row.innerHTML =
+      '<div><b>member ' + esc(String(m.user).replace(/^u_/, "")) + "</b> · " +
+      '<span class="ok">' + m.shared + " post" + (m.shared === 1 ? "" : "s") + " in common</span>" +
+      (m.in_space ? ' · <span class="mut">already together in ' + esc(m.in_space.name) + "</span>" : "") +
+      "</div>" +
+      (m.in_space
+        ? ""
+        : m.pub
+          ? '<div style="margin-top:6px;font-size:12px">Invite to ' +
+            (mine.length
+              ? '<select data-inv-space="' + esc(m.user) + '">' + options + "</select> " +
+                '<button class="act" data-invite-user="' + esc(m.user) + '" type="button">Invite them</button>'
+              : '<span class="mut">create a space first</span>') +
+            "</div>"
+          : '<div class="mut" style="margin-top:6px;font-size:12px">They have not opened the app with discovery on ' +
+            "yet, so there is no key to seal an invitation to.</div>") +
+      '<div class="msg mut" data-inv-msg="' + esc(m.user) + '"></div>';
+    box.appendChild(row);
+  }
+}
+
+async function paintIncoming() {
+  const r = await chrome.runtime.sendMessage({ type: "invites-pending" }).catch(() => null);
+  const box = $("invitelist");
+  if (!r || r.ok === false) {
+    box.innerHTML = '<p class="err">' + esc((r && r.error) || "could not read your invitations") + "</p>";
+    return;
+  }
+  if (!r.invites.length) {
+    box.innerHTML = '<p class="mut">Nothing waiting.</p>';
+    return;
+  }
+  box.textContent = "";
+  for (const inv of r.invites) {
+    const row = document.createElement("div");
+    row.className = "matchrow";
+    row.innerHTML =
+      "<div><b>" + esc(inv.space.name) + "</b> · invited by member " +
+      esc(String(inv.from).replace(/^u_/, "")) + ' <span class="mut">· expires ' + esc(shortTime(inv.expires_at)) + "</span></div>" +
+      '<p style="margin:6px 0 0"><button class="act primary" data-accept="' + esc(inv.id) + '" type="button">Accept</button>' +
+      '<button class="act" data-decline="' + esc(inv.id) + '" type="button">Decline</button></p>' +
+      '<div class="msg mut" data-inv-res="' + esc(inv.id) + '"></div>';
+    box.appendChild(row);
+  }
+}
+
+document.addEventListener("click", async (e) => {
+  const t = e.target instanceof Element ? e.target : null;
+  if (!t) return;
+  const who = t.getAttribute("data-invite-user");
+  if (who) {
+    const sel = document.querySelector('[data-inv-space="' + who + '"]');
+    const msg = document.querySelector('[data-inv-msg="' + who + '"]');
+    if (!sel) return;
+    if (msg) msg.textContent = "sending the invitation…";
+    const r = await chrome.runtime.sendMessage({ type: "space-invite-user", id: sel.value, user: who }).catch(() => null);
+    if (msg) {
+      msg.innerHTML =
+        r && r.ok
+          ? '<span class="ok">invited — it is waiting for them, no code to send</span>'
+          : '<span class="err">' + esc((r && r.error) || "could not invite them") + "</span>";
+    }
+    return;
+  }
+  const accept = t.getAttribute("data-accept");
+  if (accept) {
+    const holder = document.querySelector('[data-inv-res="' + accept + '"]');
+    if (holder) holder.textContent = "opening it…";
+    const r = await chrome.runtime.sendMessage({ type: "invite-accept", id: accept }).catch(() => null);
+    if (!r || r.ok === false) {
+      if (holder) holder.innerHTML = '<span class="err">' + esc((r && r.error) || "could not accept") + "</span>";
+      return;
+    }
+    await paintIncoming();
+    await paintSpaces();
+    return;
+  }
+  const decline = t.getAttribute("data-decline");
+  if (decline) {
+    await chrome.runtime.sendMessage({ type: "invite-decline", id: decline }).catch(() => null);
+    await paintIncoming();
+  }
+});
+
+$("discovery-on").addEventListener("change", async () => {
+  const on = $("discovery-on").checked;
+  $("discovery-state").textContent = on ? "publishing your blind index…" : "removing it…";
+  const r = await chrome.runtime.sendMessage({ type: "discovery-set", on }).catch(() => null);
+  if (!r || r.ok === false) {
+    $("discovery-on").checked = !on;
+    $("discovery-state").innerHTML = '<span class="err">' + esc((r && r.error) || "could not save it") + "</span>";
+    return;
+  }
+  await paintDiscovery();
+  if (on) await paintMatches();
+});
+
+$("discovery-find").addEventListener("click", async () => {
+  $("matchlist").innerHTML = '<p class="mut">looking for people who saved the same posts…</p>';
+  await paintMatches();
+});
+
+window.addEventListener("echolike:tab", (e) => {
+  if (e.detail === "spaces") {
+    paintDiscovery();
+    paintIncoming();
+  }
+});
+
 async function paintInvites(id) {
   const r = await chrome.runtime.sendMessage({ type: "space-invites", id }).catch(() => null);
   if (!r || r.ok === false) {
@@ -796,7 +939,11 @@ document.addEventListener("click", (e) => {
 });
 
 window.addEventListener("echolike:tab", (e) => {
-  if (e.detail === "spaces") paintSpaces();
+  if (e.detail === "spaces") {
+    paintSpaces();
+    paintDiscovery();
+    paintIncoming();
+  }
 });
 
 $("sort").addEventListener("change", () => {
@@ -865,4 +1012,11 @@ $("dir").addEventListener("click", () => {
 paintSort();
 paintFilter();
 load();
+// Opening the page straight on the Spaces tab must paint it: the tab event only fires
+// on a change, so a reload of #spaces used to show empty boxes.
+if (location.hash === "#spaces") {
+  paintSpaces();
+  paintDiscovery();
+  paintIncoming();
+}
 })();

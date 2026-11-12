@@ -51,6 +51,12 @@ inbox lacks goes out without a click. A re-sent capture never duplicates (the se
 their captures into it and each card says **saved by N people here** — that is how the network finds itself, with
 no profile and nothing about the post leaving your browser. The owner can remove a member at any time.
 
+**Finding people who like what you like.** Turn on **Let people find me by what I save** in the Spaces tab (P17) and
+the app pairs you with people who saved the same posts — by interest, not by profile. What travels is a hash per post:
+never the text, never your handle. Pressing **Invite them** sends the invitation straight to their app (no code to
+paste), because the space key travels sealed to that device's public key. Turn it off and what you published is
+deleted.
+
 **Two phones, one list — one code.** On the phone that already has your captures: Settings → **Your inbox code** →
 Copy. On the other phone: Inbox → **＋ Add my other phone** → paste → **Use that code**. That is the whole thing. Both then read and write the same list with the same
 key — nothing to configure, no account needed. The code carries the list's address, token and key, so treat it like a

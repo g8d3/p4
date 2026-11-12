@@ -23,6 +23,13 @@ wrangler d1 execute echolike-inbox --remote --command \
    DELETE FROM devices WHERE user_id IN (
      SELECT d.user_id FROM devices d
       WHERE (SELECT COUNT(*) FROM likes l WHERE l.user_id = d.user_id) < 5
-        AND NOT EXISTS (SELECT 1 FROM account_tenants t WHERE t.user_id = d.user_id));" \
+        AND NOT EXISTS (SELECT 1 FROM account_tenants t WHERE t.user_id = d.user_id));
+   -- Test tenants also leave interest rows, and identical synthetic posts then make a
+   -- later run match a ghost instead of its own second browser.
+   DELETE FROM interest WHERE user_id IN (
+     SELECT user_id FROM discovery_opt WHERE user_id NOT IN (
+       SELECT user_id FROM likes GROUP BY user_id HAVING COUNT(*) >= 5));
+   DELETE FROM discovery_opt WHERE user_id NOT IN (
+     SELECT user_id FROM likes GROUP BY user_id HAVING COUNT(*) >= 5);" \
   2>&1 | grep -E "rows_written|error" | head -4
 echo "claim window cleared; the live tests can claim again"

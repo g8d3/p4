@@ -76,10 +76,10 @@ const b64ish = (s) => typeof s === "string" && /^[A-Za-z0-9+/=_-]{1,16000}$/.tes
 async function tenant(env, auth) {
   const tok = (auth || "").replace(/^Bearer\s+/i, "").trim();
   if (!/^[0-9a-f]{32}$/.test(tok)) return null;
-  const row = await env.DB.prepare("SELECT d.user_id FROM devices d WHERE d.token_sha256 = ?1")
+  const row = await env.DB.prepare("SELECT d.user_id, d.id AS device FROM devices d WHERE d.token_sha256 = ?1")
     .bind(await sha256(tok))
     .first();
-  return row ? { token: tok, user: row.user_id } : null;
+  return row ? { token: tok, user: row.user_id, device: row.device } : null;
 }
 
 async function usage(env, user) {
@@ -471,6 +471,208 @@ async function leaveSpace(env, req, space, who) {
   }
   await env.DB.prepare("DELETE FROM space_members WHERE space_id = ?1 AND user_id = ?2").bind(space.id, target).run();
   return json({ ok: true, space: space.id, removed: target });
+}
+
+// ---- discovery: two strangers with the same interests ---------------------
+// The server never learns what a capture is: the client publishes sha256(kind|post id)
+// as an opaque hash. It can group equal hashes across users and count overlaps, and
+// that is exactly the ranking. Opt-in, and switching it off deletes the rows.
+const DISCOVERY_MAX = 2000;
+const HASH_RE = /^[0-9a-f]{32}$/;
+const PUB_RE = /^[A-Za-z0-9_-]{80,120}$/;
+
+async function putDeviceKey(env, req, who) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const pub = String(body.pub || "").trim();
+  if (!PUB_RE.test(pub)) return json({ ok: false, error: "that is not a public key" }, 400);
+  await env.DB.prepare("UPDATE devices SET ecdh_pub = ?1 WHERE id = ?2").bind(pub, who.device).run();
+  return json({ ok: true, device: who.device });
+}
+
+async function publishDiscovery(env, req, who) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const enabled = body.enabled === true || body.enabled === 1;
+  const at = now();
+  const hashes = Array.isArray(body.hashes) ? body.hashes.filter((h) => HASH_RE.test(String(h))).slice(0, DISCOVERY_MAX) : [];
+  await env.DB.prepare(
+    "INSERT INTO discovery_opt (user_id, enabled, updated_at) VALUES (?1, ?2, ?3)" +
+      " ON CONFLICT(user_id) DO UPDATE SET enabled = ?2, updated_at = ?3",
+  )
+    .bind(who.user, enabled ? 1 : 0, at)
+    .run();
+  // Replacing, not merging: a capture you deleted in your browser should stop counting.
+  await env.DB.prepare("DELETE FROM interest WHERE user_id = ?1").bind(who.user).run();
+  if (enabled && hashes.length) {
+    const rows = [...new Set(hashes)].map((h) =>
+      env.DB.prepare("INSERT OR IGNORE INTO interest (h, user_id, at) VALUES (?1, ?2, ?3)").bind(h, who.user, at),
+    );
+    for (let i = 0; i < rows.length; i += 50) await env.DB.batch(rows.slice(i, i + 50));
+  }
+  return json({ ok: true, enabled, hashes: enabled ? new Set(hashes).size : 0 });
+}
+
+async function discoveryState(env, who) {
+  const opt = await env.DB.prepare("SELECT enabled, updated_at FROM discovery_opt WHERE user_id = ?1").bind(who.user).first();
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM interest WHERE user_id = ?1").bind(who.user).first();
+  return json({ ok: true, enabled: !!(opt && opt.enabled), hashes: n?.n || 0, updated_at: opt ? opt.updated_at : null });
+}
+
+// Top people with shared interests. Hashes only: no text, no handle, no post id.
+async function discoveryMatches(env, who) {
+  const mine = await env.DB.prepare("SELECT h FROM interest WHERE user_id = ?1 LIMIT ?2")
+    .bind(who.user, DISCOVERY_MAX)
+    .all();
+  const hashes = (mine.results || []).map((r) => r.h);
+  if (!hashes.length) return json({ ok: true, matches: [], reason: "nothing published yet" });
+  const score = new Map();
+  for (let i = 0; i < hashes.length; i += 100) {
+    const part = hashes.slice(i, i + 100);
+    const q = await env.DB.prepare(
+      "SELECT i.user_id AS user, COUNT(*) AS n FROM interest i" +
+        " JOIN discovery_opt o ON o.user_id = i.user_id AND o.enabled = 1" +
+        " WHERE i.h IN (" + part.map((_, k) => "?" + (k + 2)).join(",") + ") AND i.user_id != ?1" +
+        " GROUP BY i.user_id",
+    )
+      .bind(who.user, ...part)
+      .all();
+    for (const r of q.results || []) score.set(r.user, (score.get(r.user) || 0) + (r.n || 0));
+  }
+  const top = [...score.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
+  const out = [];
+  for (const [user, shared] of top) {
+    // The public key is what makes an invitation addressable without a code.
+    const key = await env.DB.prepare(
+      "SELECT ecdh_pub FROM devices WHERE user_id = ?1 AND ecdh_pub IS NOT NULL ORDER BY last_seen DESC LIMIT 1",
+    )
+      .bind(user)
+      .first();
+    const already = await env.DB.prepare(
+      "SELECT s.id, s.name FROM spaces s" +
+        " JOIN space_members a ON a.space_id = s.id AND a.user_id = ?1" +
+        " JOIN space_members b ON b.space_id = s.id AND b.user_id = ?2 LIMIT 1",
+    )
+      .bind(who.user, user)
+      .first();
+    out.push({ user, shared, pub: key ? key.ecdh_pub : null, in_space: already ? { id: already.id, name: already.name } : null });
+  }
+  return json({ ok: true, matches: out, my_hashes: hashes.length });
+}
+
+// An invitation addressed to a user: the space key arrives wrapped to their device key.
+async function inviteForUser(env, req, space, who) {
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const user = String(body.user || "");
+  const wrapped = String(body.wrapped || "");
+  if (!/^u_[0-9a-f]{12}$/.test(user)) return json({ ok: false, error: "no such user" }, 400);
+  if (user === who.user) return json({ ok: false, error: "that is you" }, 400);
+  // iv.ciphertext, both base64url: validation without trying to understand it.
+  if (!/^[A-Za-z0-9_+/=-]{8,2048}\.[A-Za-z0-9_+/=-]{8,2048}$/.test(wrapped)) {
+    return json({ ok: false, error: "that is not a wrapped key" }, 400);
+  }
+  const hours = Math.min(INVITE_MAX_HOURS, Math.max(1, Number(body.hours) || 72));
+  const open = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM space_invites WHERE space_id = ?1 AND uses < max_uses AND expires_at > ?2",
+  )
+    .bind(space.id, Math.floor(Date.now() / 1000))
+    .first();
+  if ((open?.n || 0) >= 20) return json({ ok: false, error: "too many open invitations for this space" }, 429);
+  const id = "i_" + hex(6);
+  const at = now();
+  const expires = Math.floor(Date.now() / 1000) + hours * 3600;
+  await env.DB.prepare(
+    "INSERT INTO space_invites (id, space_id, sha256, created_by, created_at, expires_at, max_uses, uses, for_user, wrapped)" +
+      " VALUES (?1, ?2, ?3, ?4, ?5, ?6, 1, 0, ?7, ?8)",
+  )
+    .bind(id, space.id, await sha256(hex(16)), who.user, at, expires, user, wrapped)
+    .run();
+  return json({ ok: true, invite: id, space: { id: space.id, name: space.name }, expires_at: new Date(expires * 1000).toISOString() });
+}
+
+async function myInvites(env, who) {
+  const rows = await env.DB.prepare(
+    "SELECT i.id, i.space_id, i.created_by, i.expires_at, i.wrapped, s.name" +
+      " FROM space_invites i JOIN spaces s ON s.id = i.space_id" +
+      " WHERE i.for_user = ?1 AND i.uses < i.max_uses AND i.expires_at > ?2 ORDER BY i.created_at DESC LIMIT 20",
+  )
+    .bind(who.user, Math.floor(Date.now() / 1000))
+    .all();
+  const out = [];
+  for (const r of rows.results || []) {
+    const from = await env.DB.prepare(
+      "SELECT ecdh_pub FROM devices WHERE user_id = ?1 AND ecdh_pub IS NOT NULL ORDER BY last_seen DESC LIMIT 1",
+    )
+      .bind(r.created_by)
+      .first();
+    out.push({
+      id: r.id,
+      space: { id: r.space_id, name: r.name },
+      from: r.created_by,
+      from_pub: from ? from.ecdh_pub : null,
+      wrapped: r.wrapped,
+      expires_at: new Date(r.expires_at * 1000).toISOString(),
+    });
+  }
+  return json({ ok: true, invites: out });
+}
+
+async function answerInvite(env, url, who, accept) {
+  const id = url.pathname.replace(/\/+$/, "").split("/")[3];
+  if (!/^i_[0-9a-f]{12}$/.test(String(id || ""))) return json({ ok: false, error: "no such invitation" }, 400);
+  const inv = await env.DB.prepare("SELECT id, space_id, created_by, expires_at, uses, max_uses, wrapped FROM space_invites WHERE id = ?1 AND for_user = ?2")
+    .bind(id, who.user)
+    .first();
+  if (!inv) return json({ ok: false, error: "no such invitation" }, 404);
+  if (!accept) {
+    await env.DB.prepare("UPDATE space_invites SET expires_at = 0 WHERE id = ?1").bind(id).run();
+    return json({ ok: true, declined: id });
+  }
+  if (inv.expires_at <= Math.floor(Date.now() / 1000)) return json({ ok: false, error: "that invitation expired" }, 410);
+  if (inv.uses >= inv.max_uses) return json({ ok: false, error: "that invitation has no uses left" }, 409);
+  const space = await spaceOf(env, inv.space_id);
+  if (!space) return json({ ok: false, error: "no such space" }, 404);
+  const existing = await memberOf(env, space.id, who.user);
+  if (!existing) {
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM space_members WHERE space_id = ?1").bind(space.id).first();
+    if ((n?.n || 0) >= SPACE_MAX_MEMBERS) return json({ ok: false, error: "this space is full" }, 409);
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT OR IGNORE INTO space_members (space_id, user_id, role, joined_at) VALUES (?1, ?2, 'member', ?3)",
+      ).bind(space.id, who.user, now()),
+      env.DB.prepare("UPDATE space_invites SET uses = uses + 1, used_by = ?1, used_at = ?2 WHERE id = ?3").bind(
+        who.user,
+        now(),
+        id,
+      ),
+    ]);
+  }
+  // The invitee needs the inviter's public key to derive the same shared secret.
+  const fromKey = await env.DB.prepare(
+    "SELECT ecdh_pub FROM devices WHERE user_id = ?1 AND ecdh_pub IS NOT NULL ORDER BY last_seen DESC LIMIT 1",
+  )
+    .bind(inv.created_by)
+    .first();
+  return json({
+    ok: true,
+    space: { id: space.id, name: space.name, role: "member" },
+    from: inv.created_by,
+    from_pub: fromKey ? fromKey.ecdh_pub : null,
+    wrapped: inv.wrapped,
+  });
 }
 
 // ---- diagnostics ----------------------------------------------------------
@@ -1047,6 +1249,7 @@ export default {
           pair: "/api/devices",
           spaces: "1.18",
           invites: "multi-use",
+          discovery: "1",
           accounts: "email",
           email_configured: !!env.RESEND_API_KEY,
           free_per_month: FREE_PER_MONTH,
@@ -1063,6 +1266,31 @@ export default {
         if (path === "/api/account/likes" && req.method === "GET") return await accountLikes(env, url, who);
         if (path === "/api/account/key") return await accountKey(env, req, who);
         return json({ ok: false, error: "not found" }, 404);
+      }
+      if (path === "/api/keys" && req.method === "POST") {
+        const who = await tenant(env, req.headers.get("authorization"));
+        return who ? await putDeviceKey(env, req, who) : json({ ok: false, error: "unauthorized" }, 401);
+      }
+      if (path === "/api/discovery") {
+        const who = await tenant(env, req.headers.get("authorization"));
+        if (!who) return json({ ok: false, error: "unauthorized" }, 401);
+        if (req.method === "POST") return await publishDiscovery(env, req, who);
+        return await discoveryState(env, who);
+      }
+      if (path === "/api/discovery/matches") {
+        const who = await tenant(env, req.headers.get("authorization"));
+        return who ? await discoveryMatches(env, who) : json({ ok: false, error: "unauthorized" }, 401);
+      }
+      if (path === "/api/invites") {
+        const who = await tenant(env, req.headers.get("authorization"));
+        return who ? await myInvites(env, who) : json({ ok: false, error: "unauthorized" }, 401);
+      }
+      if (path.startsWith("/api/invites/")) {
+        const who = await tenant(env, req.headers.get("authorization"));
+        if (!who) return json({ ok: false, error: "unauthorized" }, 401);
+        const accept = path.endsWith("/accept");
+        if (!accept && !path.endsWith("/decline")) return json({ ok: false, error: "not found" }, 404);
+        return await answerInvite(env, url, who, accept);
       }
       if (path === "/api/spaces") {
         const who = await tenant(env, req.headers.get("authorization"));
@@ -1082,6 +1310,7 @@ export default {
         // Everything else needs membership, and says so plainly.
         if (!member) return json({ ok: false, error: "you are not in this space" }, 403);
         if (action === "invite" && req.method === "POST") return await inviteToSpace(env, req, space, who);
+        if (action === "invite-for" && req.method === "POST") return await inviteForUser(env, req, space, who);
         if (action === "invites" && req.method === "GET") return await listInvites(env, space);
         if (action === "invites" && req.method === "POST") return await revokeInvite(env, req, space, who);
         if (action === "leave" && req.method === "POST") return await leaveSpace(env, req, space, who);

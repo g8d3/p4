@@ -763,6 +763,187 @@ async function spaceLeave(id, user) {
   return { ok: true, removed: j.removed };
 }
 
+// ---- Discovery: finding people with the same interests ---------------------
+// Three pieces, all of them local except the opaque bits they publish:
+//   1. an ECDH P-256 key per device, so an invitation can be addressed to it;
+//   2. a blind index of what this browser saved (sha256 of kind|post id) — never text,
+//      never a handle, and switching it off deletes the rows on the server;
+//   3. invitations addressed to a user, with the space key wrapped to their public key.
+const INTEREST_SALT = "echolike-interest-v1|";
+const DISCOVERY_KEEP = { discovery: false, ecdh: null };
+
+async function deviceKeys() {
+  const st = await chrome.storage.local.get(DISCOVERY_KEEP);
+  if (st.ecdh && st.ecdh.priv && st.ecdh.pub) return st.ecdh;
+  const kp = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+  const pub = b64(new Uint8Array(await crypto.subtle.exportKey("raw", kp.publicKey)));
+  const jwk = await crypto.subtle.exportKey("jwk", kp.privateKey);
+  const keys = { pub, priv: jwk };
+  await chrome.storage.local.set({ ecdh: keys });
+  return keys;
+}
+
+// The same P-256 public key, registered so a stranger can address an invitation to it.
+async function publishDeviceKey() {
+  const keys = await deviceKeys();
+  const s = await state();
+  if (!s.url || !s.token) return { ok: false, error: "connect an inbox first" };
+  const r = await callAt(s.url, "/api/keys", s.token, { method: "POST", body: JSON.stringify({ pub: keys.pub }) });
+  return r.ok ? { ok: true, pub: keys.pub } : { ok: false, error: r.error || "could not publish the key" };
+}
+
+// sha256(kind|post id): opaque to the server, and stable across users.
+async function interestHashes(items) {
+  const out = [];
+  const seen = new Set();
+  for (const it of items) {
+    if (!it || !it.id) continue;
+    const raw = INTEREST_SALT + String(it.kind || "") + "|" + String(it.id);
+    const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+    const h = Array.from(new Uint8Array(d), (b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+    if (!seen.has(h)) {
+      seen.add(h);
+      out.push(h);
+    }
+  }
+  return out;
+}
+
+async function discoveryState() {
+  const s = await state();
+  const local = (await chrome.storage.local.get(DISCOVERY_KEEP)).discovery;
+  if (!s.url || !s.token) return { ok: true, enabled: false, hashes: 0, local };
+  const r = await callAt(s.url, "/api/discovery", s.token);
+  return r.ok ? Object.assign({}, r, { local }) : { ok: false, error: r.error || "could not read it" };
+}
+
+// Opt in or out. Publishing replaces the whole index, so a capture deleted here stops
+// counting there; opting out deletes it.
+async function discoverySet(on) {
+  const s = await state();
+  if (!s.url || !s.token) return { ok: false, error: "connect an inbox first" };
+  const enabled = !!on;
+  if (enabled) {
+    const pub = await publishDeviceKey();
+    if (!pub.ok) return pub;
+  }
+  const hashes = enabled ? await interestHashes(s.items) : [];
+  let sent = 0;
+  for (let i = 0; i < Math.max(1, Math.ceil(hashes.length / 500)); i++) {
+    const part = hashes.slice(i * 500, i * 500 + 500);
+    const r = await callAt(s.url, "/api/discovery", s.token, {
+      method: "POST",
+      body: JSON.stringify({ enabled, hashes: part }),
+    });
+    if (!r.ok) return { ok: false, error: r.error || "could not publish interests" };
+    sent += r.hashes || 0;
+  }
+  await chrome.storage.local.set({ discovery: enabled });
+  await tel("discovery", { ok: true, host: s.url, detail: (enabled ? "on" : "off") + " hashes=" + sent });
+  return { ok: true, enabled, hashes: sent };
+}
+
+async function discoveryMatches() {
+  const s = await state();
+  if (!s.url || !s.token) return { ok: false, error: "connect an inbox first" };
+  return await callAt(s.url, "/api/discovery/matches", s.token);
+}
+
+// Wrap the space key to somebody's device key: ECDH -> HKDF -> AES-GCM.
+async function wrapFor(pubB64, plaintext) {
+  const mine = await deviceKeys();
+  const priv = await crypto.subtle.importKey("jwk", mine.priv, { name: "ECDH", namedCurve: "P-256" }, false, ["deriveBits"]);
+  const theirs = await crypto.subtle.importKey("raw", unb64(pubB64), { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: theirs }, priv, 256);
+  const hk = await crypto.subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
+  const aes = await crypto.subtle.deriveKey(
+    { name: "HKDF", hash: "SHA-256", salt: new Uint8Array(0), info: new TextEncoder().encode("echolike-space-v1") },
+    hk,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt"],
+  );
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aes, new TextEncoder().encode(plaintext));
+  return b64(iv) + "." + b64(new Uint8Array(ct));
+}
+
+async function unwrapFrom(pubB64, blob) {
+  const mine = await deviceKeys();
+  const [ivB64, ctB64] = String(blob).split(".");
+  if (!ivB64 || !ctB64) throw new Error("bad box");
+  const priv = await crypto.subtle.importKey("jwk", mine.priv, { name: "ECDH", namedCurve: "P-256" }, false, ["deriveBits"]);
+  const theirs = await crypto.subtle.importKey("raw", unb64(pubB64), { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const bits = await crypto.subtle.deriveBits({ name: "ECDH", public: theirs }, priv, 256);
+  const hk = await crypto.subtle.importKey("raw", bits, "HKDF", false, ["deriveKey"]);
+  const aes = await crypto.subtle.deriveKey(
+    { name: "HKDF", hash: "SHA-256", salt: new Uint8Array(0), info: new TextEncoder().encode("echolike-space-v1") },
+    hk,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["decrypt"],
+  );
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(ivB64) }, aes, unb64(ctB64));
+  return new TextDecoder().decode(plain);
+}
+
+// Invite a stranger: no code travels, the key travels wrapped to their device.
+async function spaceInviteUser(spaceId, user) {
+  const sp = (await localSpaces()).find((x) => x.id === spaceId);
+  if (!sp) return { ok: false, error: "unknown space" };
+  const s = await state();
+  const m = await callAt(s.url, "/api/discovery/matches", s.token);
+  if (!m.ok) return { ok: false, error: m.error || "could not read the matches" };
+  const match = (m.matches || []).find((x) => x.user === user);
+  if (!match) return { ok: false, error: "that person is not in your matches any more" };
+  if (!match.pub) return { ok: false, error: "they have not opened the app with discovery on yet" };
+  const wrapped = await wrapFor(match.pub, sp.key);
+  const r = await callAt(sp.url, "/api/spaces/" + encodeURIComponent(spaceId) + "/invite-for", s.token, {
+    method: "POST",
+    body: JSON.stringify({ user, wrapped, hours: 72 }),
+  });
+  if (!r.ok) return { ok: false, error: r.error || "could not invite them" };
+  await tel("discovery.invite", { ok: true, host: sp.url, detail: "space=" + spaceId });
+  return { ok: true, space: r.space, expires_at: r.expires_at };
+}
+
+async function invitesPending() {
+  const s = await state();
+  if (!s.url || !s.token) return { ok: true, invites: [] };
+  const r = await callAt(s.url, "/api/invites", s.token);
+  return r.ok ? r : { ok: false, error: r.error || "could not read invitations" };
+}
+
+async function inviteAccept(id) {
+  const s = await state();
+  if (!s.url || !s.token) return { ok: false, error: "connect an inbox first" };
+  const r = await callAt(s.url, "/api/invites/" + encodeURIComponent(id) + "/accept", s.token, { method: "POST", body: "{}" });
+  if (!r.ok) return { ok: false, error: r.error || "could not accept it" };
+  let key = "";
+  try {
+    key = await unwrapFrom(r.from_pub || "", r.wrapped);
+  } catch (e) {
+    return { ok: false, error: "that invitation cannot be opened by this device's key (it was addressed to another one)" };
+  }
+  const sp = {
+    id: r.space.id,
+    name: r.space.name,
+    url: s.url.replace(/\/$/, ""),
+    key,
+    role: "member",
+    joined_at: new Date().toISOString(),
+  };
+  await saveSpaces((await localSpaces()).filter((x) => x.id !== sp.id).concat([sp]));
+  await tel("discovery.accept", { ok: true, host: sp.url, detail: "space=" + sp.id });
+  return { ok: true, space: sp };
+}
+
+async function inviteDecline(id) {
+  const s = await state();
+  const r = await callAt(s.url, "/api/invites/" + encodeURIComponent(id) + "/decline", s.token, { method: "POST", body: "{}" });
+  return r.ok ? { ok: true } : { ok: false, error: r.error || "could not decline it" };
+}
+
 // ---- Two phones, one list ---------------------------------------------------
 // A pairing code is {url, token, key} in base64url: the list's address, its device
 // token and the key that decrypts it. Pasting it makes this phone read and write the
@@ -1016,6 +1197,20 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             ? chrome.tabs
                 .create({ url: chrome.runtime.getURL("app.html#" + (m.page === "settings" ? "settings" : "inbox")) })
                 .then(() => ({ ok: true }))
+            : m && m.type === "discovery-set"
+              ? discoverySet(m.on)
+            : m && m.type === "discovery-state"
+              ? discoveryState()
+            : m && m.type === "discovery-matches"
+              ? discoveryMatches()
+            : m && m.type === "space-invite-user"
+              ? spaceInviteUser(m.id, m.user)
+            : m && m.type === "invites-pending"
+              ? invitesPending()
+            : m && m.type === "invite-accept"
+              ? inviteAccept(m.id)
+            : m && m.type === "invite-decline"
+              ? inviteDecline(m.id)
             : m && m.type === "space-create"
               ? spaceCreate(m.name)
             : m && m.type === "space-invite"

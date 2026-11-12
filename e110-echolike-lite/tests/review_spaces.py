@@ -95,7 +95,7 @@ with sync_playwright() as p:
     page.reload()
     page.wait_for_timeout(1500)
     check("the spaces tab is there", page.get_attribute("#tab-spaces", "aria-selected"), "true")
-    check("every box of the spaces panel is numbered, explanation included", page.eval_on_selector_all("#panel-spaces [data-section]", "els => els.map(e => e.dataset.section)"), ["P12", "P13", "P14", "P15", "P16"])
+    check("every box of the spaces panel is numbered, explanation included", page.eval_on_selector_all("#panel-spaces [data-section]", "els => els.map(e => e.dataset.section)"), ["P12", "P13", "P14", "P15", "P17", "P18", "P16"])
 
     # 1. Create a space from the UI.
     page.fill("#spacename", "trip to the moon")

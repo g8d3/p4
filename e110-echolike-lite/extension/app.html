@@ -19,6 +19,9 @@ section,.sec{border:1px solid var(--line);border-radius:12px;padding:18px 16px 1
 .inviteform label{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#555;margin:0}
 .inviteform select{font:inherit;font-size:12px;padding:5px 7px;border:1px solid #ccc;border-radius:7px}
 .inviteform button{font-size:12px;padding:6px 11px;margin:0}
+.matchrow{border-top:1px solid #eee;padding:9px 0;font-size:13px}
+.matchrow:first-child{border-top:none}
+.matchrow select{font:inherit;font-size:12px;padding:4px 6px;border:1px solid #ccc;border-radius:7px}
 h2{font-size:15px;margin:0 0 4px}
 p.help{color:var(--mut);font-size:13px;margin:0 0 10px}
 label{display:block;font-size:13px;color:var(--mut);margin:10px 0 2px}
@@ -140,6 +143,28 @@ button:disabled{opacity:.45;cursor:default}
   <div class="sec" data-section="P15">
     <span class="secid">P15 · my spaces</span>
     <div id="spacelist"><p class="mut">No spaces yet. Create one, or join with an invite.</p></div>
+  </div>
+
+  <div class="sec" data-section="P17">
+    <span class="secid">P17 · people like me</span>
+    <p class="help" style="margin:0 0 8px">Let the network pair you with people who saved the same posts — by interest, not by
+    profile. What travels is a blind index (a hash per post), never the text and never your handle. Switching it off
+    deletes it.</p>
+    <p style="margin:0">
+      <label style="display:inline-flex;align-items:center;gap:7px;font-size:13px">
+        <input id="discovery-on" type="checkbox" style="width:auto"> Let people find me by what I save
+      </label>
+      <button id="discovery-find" class="act" type="button">Show people like me</button>
+    </p>
+    <div id="discovery-state" class="msg mut"></div>
+    <div id="matchlist"></div>
+  </div>
+
+  <div class="sec" data-section="P18">
+    <span class="secid">P18 · invitations for you</span>
+    <p class="help" style="margin:0 0 8px">When somebody with shared interests invites you to a space, it arrives here — no
+    code to paste: the key comes sealed to this device.</p>
+    <div id="invitelist"><p class="mut">Nothing waiting.</p></div>
   </div>
 
   <div class="sec" data-section="P16" hidden>
