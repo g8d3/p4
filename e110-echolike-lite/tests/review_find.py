@@ -64,7 +64,7 @@ try:
             status0 = page.inner_text("#status")
             check("nothing configured yet", "Connected" in status0, False)
             check("offers the zero-config path", "Nothing to set up" in status0, True)
-            check("no address field shown", page.is_visible("#url"), False)
+            check("no address field in the popup", page.query_selector("#url") is None, True)
             check("one button to press", page.inner_text("#find"), "Find my inbox")
 
             page.click("#find")
@@ -72,7 +72,7 @@ try:
             status = page.inner_text("#status")
             check("one click connects", "Connected" in status, True)
             check("picked the local inbox", "127.0.0.1:8931" in status, True)
-            check("no token typed", page.input_value("#token"), "")
+            check("no token typed", page.query_selector("#token") is None, True)
             check(
                 "device token stored by the extension",
                 len(page.evaluate("chrome.storage.local.get({token:''}).then(s=>s.token)")),

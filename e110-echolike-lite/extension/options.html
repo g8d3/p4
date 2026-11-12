@@ -1,0 +1,68 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EchoLike Lite — settings</title>
+<style>
+:root{--line:#e6e6e6;--mut:#666;--ok:#00875a;--err:#d0021b}
+body{font:15px system-ui;max-width:640px;margin:32px auto;padding:0 18px;color:#111}
+h1{font-size:20px;margin:0 0 2px}
+p.lead{color:var(--mut);margin:0 0 22px}
+section{border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px;margin:0 0 16px}
+h2{font-size:15px;margin:0 0 4px}
+p.help{color:var(--mut);font-size:13px;margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 2px}
+input{font:inherit;width:100%;box-sizing:border-box;padding:9px;border:1px solid #ccc;border-radius:8px}
+input[readonly]{background:#fafafa;font-family:ui-monospace,monospace;font-size:12px}
+button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;margin:10px 6px 0 0}
+button.primary{background:#111;color:#fff;border-color:#111}
+button:disabled{opacity:.45;cursor:default}
+.msg{font-size:13px;margin-top:10px;min-height:18px}
+.ok{color:var(--ok)}.err{color:var(--err)}.mut{color:var(--mut)}
+.row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.row > div{flex:1 1 220px}
+</style>
+<h1>EchoLike Lite</h1>
+<p class="lead">Nothing here is required. Capturing likes works with no settings at all.</p>
+
+<section>
+  <h2>1 · Inbox</h2>
+  <p class="help">Where your catches go. By default: the inbox on this computer if there is one, otherwise the hosted one. It is found and connected by itself — the fields below are for an inbox on another machine.</p>
+  <div id="inboxstatus" class="msg mut">…</div>
+  <label for="url">Address</label>
+  <input id="url" type="url" autocomplete="off" spellcheck="false" placeholder="http://192.168.0.5:8931">
+  <label for="token">Token — only if a server handed you one; otherwise leave it empty and the inbox issues its own</label>
+  <input id="token" type="password" autocomplete="off" placeholder="(usually empty)">
+  <button id="save" class="primary" type="button">Save &amp; connect</button>
+  <button id="find" type="button">Find my inbox</button>
+  <button id="forget" type="button">Disconnect</button>
+</section>
+
+<section>
+  <h2>2 · Recovery code</h2>
+  <p class="help">The key to everything in your inbox, and the only copy. It is what decrypts your captures — we cannot regenerate it, read it, or recover it for you. Save it where you keep passwords.</p>
+  <label for="key">Your recovery code</label>
+  <input id="key" type="password" readonly onclick="this.select()">
+  <button id="revealkey" type="button">Reveal</button>
+  <button id="copykey" type="button">Copy</button>
+  <button id="openinbox" type="button">Open my inbox</button>
+  <div id="keymsg" class="msg mut"></div>
+</section>
+
+<section>
+  <h2>3 · Account &amp; key backup <span class="mut">(optional)</span></h2>
+  <p class="help">An account is only for getting your inbox back on a new phone. Sign in with your email — no password — then back up your key wrapped with a passphrase you choose. The backup travels encrypted: our inbox stores it and cannot open it.</p>
+  <div id="acctstatus" class="msg mut">Not signed in.</div>
+  <label for="email">Email</label>
+  <input id="email" type="email" autocomplete="off" placeholder="you@example.com">
+  <button id="sendcode" type="button">Email me a code</button>
+  <label for="code">The 6 digits from the email</label>
+  <input id="code" inputmode="numeric" autocomplete="off" placeholder="123456">
+  <button id="verify" class="primary" type="button">Sign in</button>
+  <label for="phrase">Key passphrase — to back up or restore your key</label>
+  <input id="phrase" type="password" autocomplete="off" placeholder="at least 8 characters">
+  <button id="backup" type="button">Back up key</button>
+  <button id="restore" type="button">Restore key</button>
+  <div id="acctmsg" class="msg mut"></div>
+</section>
+
+<script src="options.js"></script>

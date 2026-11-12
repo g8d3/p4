@@ -1,6 +1,6 @@
-// EchoLike Lite — popup. Zero fields on first run: one button finds a local
-// inbox and it issues a device token. Address + token stay under Advanced for
-// an inbox on another machine, and are never needed for the common case.
+// EchoLike Lite — popup. Three things only: what is happening, one button, and
+// the list. Addresses, tokens, the recovery code and the account live in
+// options.html: a 320px popup is not a settings screen.
 const $ = (id) => document.getElementById(id);
 
 async function send(type, extra) {
@@ -31,18 +31,12 @@ function renderList(items) {
 async function refresh() {
   const s = await send("state");
   const connected = !!(s.url && s.hasToken);
-  if (s.url) $("url").value = s.url;
   const ads = await chrome.storage.local.get({ hide_ads: true });
   $("ads").checked = !!ads.hide_ads;
   $("find").textContent = connected ? "Reconnect" : "Find my inbox";
   renderList(s.items || []);
   // The full list lives in the extension's own page: it decrypts with the key in
   // this browser, so no secret ever travels in a URL.
-  $("key").value = s.keyCode || "";
-  $("acctstatus").innerHTML = s.accountEmail
-    ? (s.accountToken ? '<span class="ok">Account:</span> ' + esc(s.accountEmail) : "Code sent to " + esc(s.accountEmail) + " — enter it below.") +
-      (s.keyBackedAt ? ' <small>· key backed up ' + esc(String(s.keyBackedAt).slice(0, 10)) + "</small>" : ' <small class="err">· key not backed up</small>')
-    : "Account: not linked. Optional — it is how you get your inbox back on a new phone.";
   $("open").style.display = connected ? "inline" : "none";
   const st = $("status");
   const at = s.url ? " <small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" : "";
@@ -70,85 +64,13 @@ async function find() {
   $("find").disabled = false;
   await refresh();
   if (r && r.ok === false) {
-    $("status").innerHTML = '<span class="err">' + esc(r.error) + "</span>";
-    if (!r.url) $("adv").open = true;
+    $("status").innerHTML = '<span class="err">' + esc(r.error) + "</span> Open <b>Settings</b> to point it at your own server.";
   }
 }
 
 $("find").addEventListener("click", find);
 
-$("save").addEventListener("click", async () => {
-  const url = $("url").value.trim().replace(/\/$/, "");
-  let token = $("token").value.trim();
-  if (!url) {
-    $("status").innerHTML = '<span class="err">An address is needed.</span>';
-    $("adv").open = true;
-    return;
-  }
-  // No token typed: ask the server for one (works when it is on your own network).
-  if (!token) {
-    const claim = await send("claim", { url });
-    await refresh();
-    if (!claim || claim.ok === false) {
-      $("status").innerHTML = '<span class="err">' + esc((claim && claim.error) || "no inbox there") + "</span>";
-      $("adv").open = true;
-    }
-    return;
-  }
-  const r = await send("save", { url, token });
-  $("token").value = "";
-  await refresh();
-  if (r && r.ok === false && r.error) $("status").innerHTML = '<span class="err">' + esc(r.error) + "</span>";
-});
-
-$("forget").addEventListener("click", async () => {
-  await send("forget");
-  $("url").value = "";
-  $("token").value = "";
-  await refresh();
-});
-
-async function acct(fn, extra) {
-  const b = $("acctstatus");
-  b.textContent = "…";
-  const r = await send(fn, extra);
-  await refresh();
-  if (!r || r.ok === false) $("acctstatus").innerHTML = '<span class="err">' + esc((r && r.error) || "failed") + "</span>";
-  return r;
-}
-
-$("sendcode").addEventListener("click", async () => {
-  const email = $("email").value.trim();
-  if (!email) return ($("acctstatus").innerHTML = '<span class="err">An email address is needed.</span>');
-  const r = await acct("acct-start", { email });
-  if (r && r.ok) $("acctstatus").innerHTML = "Code sent to " + esc(email) + " — it works for 10 minutes.";
-});
-
-$("verify").addEventListener("click", async () => {
-  const r = await acct("acct-verify", { email: $("email").value.trim(), code: $("code").value.trim() });
-  if (r && r.ok) {
-    $("code").value = "";
-    $("acctstatus").innerHTML = '<span class="ok">Signed in as ' + esc(r.account.email) + "</span>";
-  }
-});
-
-$("backup").addEventListener("click", async () => {
-  const r = await acct("key-save", { passphrase: $("phrase").value });
-  if (r && r.ok) $("acctstatus").innerHTML = '<span class="ok">Key backed up.</span> Restore it with this passphrase on any device.';
-});
-
-$("restore").addEventListener("click", async () => {
-  if (!confirm("This replaces the key in this browser with the one from your backup. Captures already here stay readable; anything still waiting to be sent must go first.")) return;
-  const r = await acct("key-restore", { passphrase: $("phrase").value });
-  if (r && r.ok) $("acctstatus").innerHTML = '<span class="ok">Key restored.</span> Reload the inbox page to see everything.';
-});
-
-$("copykey").addEventListener("click", async () => {
-  await navigator.clipboard.writeText($("key").value);
-  const b = $("copykey");
-  b.textContent = "Copied";
-  setTimeout(() => (b.textContent = "Copy"), 1200);
-});
+$("settings").addEventListener("click", () => chrome.runtime.openOptionsPage());
 
 $("retry").addEventListener("click", async () => {
   await send("retry");

@@ -176,7 +176,7 @@ async function claimAt(url) {
     return {
       ok: false,
       url: base,
-      error: "that inbox is older than the extension (no /api/claim) — paste its token under Advanced",
+      error: "that inbox is older than the extension (no /api/claim) — paste its token in Settings",
     };
   }
   if (!cres.ok || !j || !j.token) {

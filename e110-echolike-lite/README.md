@@ -16,18 +16,18 @@ stays in your browser. The inbox server stores blobs it cannot open — ours inc
 Open the popup to see the last 30 captures, and **Open my inbox** for the full list
 (decrypted in your browser, with a JSON export). Free hosted quota: 3000 captures/month per install.
 
-**Your key**: shown in the popup under *Advanced* as a recovery code (43 characters). It never leaves
+**Your key**: shown in the extension's **Settings** page as a recovery code (43 characters, masked until you press Reveal). It never leaves
 your browser. Save it — it is the only way to read your inbox on another device, and nobody, us
 included, can regenerate it.
 
-**Getting your inbox back** (optional): in the popup *Advanced* → enter your email → *Email me a code* → type the
+**Getting your inbox back** (optional): open **Settings** (the button in the popup, or the extension's Options) → enter your email → *Email me a code* → type the
 6 digits. That links this install to an account. Then choose a passphrase and *Back up key*: your key is uploaded
 wrapped with that passphrase, so a new phone can restore it and nothing on the server can open it. Without a
 backup, nobody — including us — can recover a lost recovery code.
 
 **Prefer your own server?** Run `python3 server.py` (stdlib only, prints its
 address) and press **Find my inbox** — it takes the inbox on your own machine
-before the hosted one. Address + token also live under **Advanced**. The popup
+before the hosted one. Address + token live in **Settings → 1 · Inbox**. The popup
 says ✓ Connected either way.
 
 No network at all? Captures are saved in the browser and sent when it can be.

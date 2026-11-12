@@ -68,23 +68,31 @@ with sync_playwright() as p:
         page.check("#ads")
         page.wait_for_timeout(200)
 
-        # First run: nothing to type. One button, Advanced folded away.
+        # The popup is status + one button + the list. No settings fields at all.
         print("find button:", page.inner_text("#find"), "| visible:", page.is_visible("#find"))
-        print("advanced folded by default:", not page.is_visible("#url"))
+        print("no url field in the popup:", page.query_selector("#url") is None)
+        print("no token field in the popup:", page.query_selector("#token") is None)
+        print("no recovery code in the popup:", page.query_selector("#key") is None)
+        print("settings button:", page.inner_text("#settings"))
         page.click("#find")
         page.press("#find", "Enter")  # Enter on a focused button must not double-fire
         page.wait_for_timeout(3000)
         print("after Find my inbox:", page.inner_text("#status").replace("\n", " "))
 
-        # Connect flow against no server: must report a clean error, not hang.
-        page.click("#adv summary")
-        page.wait_for_timeout(150)
-        page.fill("#url", "http://127.0.0.1:59999")
-        page.fill("#token", "deadbeef")
-        page.click("#save")
-        page.wait_for_timeout(2500)
-        print("after bad connect:", page.inner_text("#status").replace("\n", " "))
-        print("token field cleared:", page.input_value("#token") == "")
-        print("items kept:", page.evaluate("chrome.storage.local.get({items:[]}).then(s=>s.items.length)"))
+        # The settings page: three cards, one message line each, connect against no server.
+        opts = ctx.new_page()
+        opts.goto(f"chrome-extension://{ext_id}/options.html")
+        opts.wait_for_timeout(600)
+        print("settings inbox line:", opts.inner_text("#inboxstatus").replace("\n", " "))
+        print("settings cards:", [opts.inner_text(f"section:nth-of-type({i}) h2") for i in (1, 2, 3)])
+        print("passphrase field is a password:", opts.get_attribute("#phrase", "type"))
+        print("recovery code hidden by default:", opts.get_attribute("#key", "type"))
+        opts.fill("#url", "http://127.0.0.1:59999")
+        opts.fill("#token", "deadbeef")
+        opts.click("#save")
+        opts.wait_for_timeout(2500)
+        print("after bad connect:", opts.inner_text("#inboxstatus").replace("\n", " "))
+        print("token field cleared:", opts.input_value("#token") == "")
+        print("items kept:", opts.evaluate("chrome.storage.local.get({items:[]}).then(s=>s.items.length)"))
     finally:
         ctx.close()

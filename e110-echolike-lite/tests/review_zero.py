@@ -47,7 +47,7 @@ with sync_playwright() as p:
 
         check("nothing configured", page.evaluate("chrome.storage.local.get({url:''}).then(s=>s.url)"), "")
         check("popup says there is nothing to set up", "Nothing to set up" in page.inner_text("#status"), True)
-        check("no address field in sight", page.is_visible("#url"), False)
+        check("no settings fields in the popup", page.query_selector("#url") is None, True)
 
         reply = page.evaluate(
             """async (text) => await chrome.runtime.sendMessage({type:'capture', item:{
@@ -99,7 +99,14 @@ with sync_playwright() as p:
         page.wait_for_timeout(700)
         check("popup now says connected", "Connected" in page.inner_text("#status"), True)
         check("open-inbox link is the extension page", page.get_attribute("#open", "href"), "inbox.html")
-        check("recovery code shown", len(page.input_value("#key")), 43)
+        opts = ctx.new_page()
+        opts.goto(f"chrome-extension://{extension_id()}/options.html")
+        opts.wait_for_timeout(700)
+        check("recovery code shown in settings", len(opts.input_value("#key")), 43)
+        check("recovery code is masked until revealed", opts.get_attribute("#key", "type"), "password")
+        opts.click("#revealkey")
+        check("reveal works", opts.get_attribute("#key", "type"), "text")
+        opts.close()
         check("row rendered locally too", len(page.query_selector_all("#list div")), 1)
     finally:
         ctx.close()

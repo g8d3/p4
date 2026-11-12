@@ -54,13 +54,16 @@ with sync_playwright() as p:
         page.goto(f"chrome-extension://{extension_id()}/popup.html")
         page.wait_for_timeout(500)
 
-        # Connect to the local worker with one tap (address only, the server mints the token).
-        page.evaluate("document.getElementById('adv').open = true")
-        page.wait_for_selector("#url", state="visible")
+        # Settings page: connect to the local worker with an address only (it mints the token).
+        page = ctx.new_page()
+        page.on("dialog", lambda d: d.accept())
+        page.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
+        page.goto(f"chrome-extension://{extension_id()}/options.html")
+        page.wait_for_timeout(600)
         page.fill("#url", BASE)
         page.click("#save")
         page.wait_for_timeout(2000)
-        check("connected to the local inbox", "Connected" in page.inner_text("#status"), True)
+        check("connected to the local inbox", "Connected" in page.inner_text("#inboxstatus"), True)
 
         # Ask for a code (the dev worker hands it back), then type it in the UI.
         start = page.evaluate(
@@ -74,7 +77,7 @@ with sync_playwright() as p:
         page.fill("#code", code)
         page.click("#verify")
         page.wait_for_timeout(2000)
-        status = page.inner_text("#acctstatus")
+        status = page.evaluate("document.getElementById('acctstatus').textContent")
         check("signed in", "Signed in as" in status, True)
         check("email shown", EMAIL in page.evaluate("document.getElementById('acctstatus').textContent"), True)
         check("account token stored", page.evaluate("chrome.storage.local.get({accountToken:''}).then(s=>s.accountToken.length)"), 32)
@@ -86,7 +89,7 @@ with sync_playwright() as p:
         page.fill("#phrase", PHRASE)
         page.click("#backup")
         page.wait_for_timeout(4000)
-        check("backup reported", "backed up" in page.inner_text("#acctstatus").lower(), True)
+        check("backup reported", "backed up" in page.inner_text("#acctmsg").lower(), True)
 
         atoken = page.evaluate("chrome.storage.local.get({accountToken:''}).then(s=>s.accountToken)")
         req = urllib.request.Request(
@@ -103,7 +106,7 @@ with sync_playwright() as p:
         page.fill("#phrase", "wrong passphrase")
         page.click("#restore")
         page.wait_for_timeout(4000)
-        check("a wrong passphrase is refused", "wrong passphrase" in page.inner_text("#acctstatus").lower(), True)
+        check("a wrong passphrase is refused", "wrong passphrase" in page.inner_text("#acctmsg").lower(), True)
         check("and the key is untouched", page.evaluate("chrome.storage.local.get({key:''}).then(s=>s.key)") != key_before, True)
 
         page.fill("#phrase", PHRASE)

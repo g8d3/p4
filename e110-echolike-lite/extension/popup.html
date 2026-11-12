@@ -8,37 +8,19 @@ body{font:14px system-ui;width:320px;margin:12px;color:#111}
 #list b{font-weight:600}
 #list a{color:#1d9bf0;text-decoration:none}
 #list span{color:#555}
-input{font:inherit;width:100%;box-sizing:border-box;padding:8px;margin:4px 0;border:1px solid #ccc;border-radius:8px}
-button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;margin:4px 4px 4px 0}
+button{font:inherit;padding:9px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;margin:4px 4px 4px 0}
 button.primary{background:#111;color:#fff;border-color:#111}
-button:disabled{opacity:.5;cursor:default}
+button:disabled{opacity:.45;cursor:default}
 #status{margin:8px 0;padding:8px;border-radius:8px;background:#f2f2f2}
 .ok{color:#00875a}.err{color:#d0021b}.mut{color:#666;font-size:12px}
-details{margin:6px 0}summary{cursor:pointer;color:#666;font-size:12px}
+#settings{display:block;margin-top:8px;font-size:12px;color:#666;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
 </style>
 <h3 style="margin:0 0 4px">EchoLike Lite</h3>
 <div id="status">…</div>
 <button id="find" class="primary" type="button">Find my inbox</button><button id="retry" type="button">Retry</button>
 <a id="open" class="mut" style="display:none;margin-left:4px" href="inbox.html" target="_blank" rel="noreferrer">Open my inbox →</a>
 <label class="mut" style="display:block;margin:6px 0"><input id="ads" type="checkbox" style="width:auto;margin-right:6px">Hide ads on X (promoted posts and trends)</label>
-<p class="mut">Like or bookmark any post on X — it is saved in this browser and sent to your inbox: the one on this computer if there is one, otherwise the hosted one, claimed automatically on your first like. Works offline too.</p>
-<details id="adv">
-  <summary>Advanced: inbox on another machine or hosted</summary>
-  <input id="url" type="url" autocomplete="off" spellcheck="false" placeholder="Inbox address, e.g. http://192.168.0.5:8931">
-  <input id="token" type="password" autocomplete="off" placeholder="Token (only if the server handed you one)">
-  <button id="save" type="button">Save &amp; send</button><button id="forget" type="button">Disconnect</button>
-  <label class="mut" style="display:block;margin:8px 0 2px">Recovery code — the only key to your inbox. Save it: nobody can regenerate it.</label>
-  <input id="key" type="text" readonly onclick="this.select()" style="font-family:ui-monospace,monospace;font-size:11px">
-  <button id="copykey" type="button">Copy</button>
-  <div id="acct" style="border-top:1px solid #eee;margin-top:10px;padding-top:8px">
-    <div id="acctstatus" class="mut">Account: not linked. Optional — it is how you get your inbox back on a new phone.</div>
-    <input id="email" type="email" autocomplete="off" placeholder="you@example.com">
-    <button id="sendcode" type="button">Email me a code</button>
-    <input id="code" inputmode="numeric" autocomplete="off" placeholder="6-digit code from the email">
-    <button id="verify" type="button">Verify</button>
-    <input id="phrase" type="password" autocomplete="off" placeholder="key passphrase (to back up the key)">
-    <button id="backup" type="button">Back up key</button><button id="restore" type="button">Restore key</button>
-  </div>
-</details>
+<p class="mut">Like or bookmark any post on X — it is saved in this browser and sent encrypted to your inbox: the one on this computer if there is one, otherwise the hosted one. No setup.</p>
+<button id="settings" type="button">Settings: recovery code, account, own server</button>
 <div id="list"></div>
 <script src="popup.js"></script>

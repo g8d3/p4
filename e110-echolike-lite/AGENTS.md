@@ -19,7 +19,7 @@ cost: one click listener, no observers, no timers, no background traffic.
 That is the whole setup; everything below is optional paths, not steps. The
 popup's **Find my inbox** prefers an inbox on your own machine (loopback
 `127.0.0.1`/`localhost`, 8931 then 8911) and falls back to the hosted one;
-**Advanced** holds address + token for anything else.
+The popup's **Settings** button opens `options.html` for anything else (address, token, recovery code, account).
 
 Why there is no secret to paste: a pasted token was the number-one setup failure —
 a truncated paste looks exactly like a network problem and nothing in the UI can
@@ -91,7 +91,7 @@ Where it is read: in the user's browser, never on a server.
 | self-hosted `server.py` | it cannot read anything: its page says so and points at the extension |
 
 * **Recovery code**: the base64url (unpadded, 43 chars) form of the key, shown in
-  the popup under Advanced with a Copy button. It is the only way to open the
+  `options.html` (popup → Settings) masked behind Reveal, with a Copy button. It is the only way to open the
   inbox on another device. There is no reset and no escrow — losing it loses the
   old captures, and the worker cannot help. base64url matters: `+` in a fragment
   comes back as a space through `URLSearchParams` and silently corrupts the key.
@@ -150,9 +150,12 @@ extension/manifest.json   3 permissions lines, X hosts only
 extension/content.js      one click listener: like/unlike/bookmark/unbookmark
 extension/background.js   local save + POST outbox to /api/likes, retry on event,
                           loopback discovery + claim, DEFAULT_INBOX (hosted)
-extension/popup.html/js   status + Find my inbox + Retry + Open my inbox; Advanced
-                          (address, token, recovery code, account: email code +
-                          passphrase key backup)
+extension/popup.html/js   status + one button + Retry + the list. Nothing else.
+extension/options.html/js settings page (manifest `options_ui`, opened by the
+                          popup's Settings button): 1 · Inbox (address, token,
+                          find, disconnect), 2 · recovery code (masked, reveal/
+                          copy, open inbox), 3 · account (email code + passphrase
+                          key backup). One message line per card.
 extension/inbox.html/js   the full inbox page: fetches the blobs, decrypts here, exports
 server.py                 self-hosted inbox, stdlib only: /api/health, /api/claim,
                           POST /api/likes, GET /
@@ -216,6 +219,11 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.4.0 — settings left the popup. A 320px popup was holding eleven controls (address, token, save, disconnect,
+  recovery code, copy, email, code, verify, passphrase, backup, restore) and read as a mess because it was one.
+  Now: popup = status + one button + list; `options.html` = three cards, each with its own message line, its own
+  primary action, labels above fields, recovery code masked behind Reveal, passphrase fields are real password
+  inputs. Reachable from the popup's Settings button and from the extensions page (options_ui).
 - 1.3.1 — accounts live: Resend key installed as a worker secret, real code delivered and verified; health reports
   `email_configured: true`.
 - 1.3.0 — optional account by email: 6-digit code login (Resend), tenant linking for recovery, and a key
