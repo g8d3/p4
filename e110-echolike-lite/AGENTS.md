@@ -261,6 +261,14 @@ Deliberate design decisions, so they are not "improved" later:
   background refuses an older api, reloads the tab and starts from `pendingImport`
   when the page says `hello` again. Bump `CONTENT_API` in **both** files whenever the
   walk changes.
+* **A helper on the wrong side of a template blanks the screen.** `countsLine()`
+  was written next to `page()` — worker-side — while the reader script that calls it
+  runs *in the browser*. `render()` threw on the first row, the status line had
+  already been painted ("113 capture(s)"), and the list came back empty with no
+  error shown. Two rules from it: any helper the page uses lives inside the `PAGE`
+  string, and the row loop is wrapped per row so one malformed record cannot empty
+  the list. `tests/review_inbox_page.py` caught it after deployment — run the full
+  suite when a shared viewer changes, not just the viewer you touched.
 * **Counters, not prose**: the end row always carries `rows` (what the DOM had),
   `seenRows`, `noId` (rows we could not resolve) and the scroller's tag + overflow,
   so "the tab shows more than 6" is answerable without another round trip.
@@ -380,6 +388,9 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.16.1 — the hosted reader showed "113 capture(s)" and an empty list: `render()` called a helper that only existed
+  in the extension (`countsLine`), threw on the first row, and the counts had already been painted. The helper now
+  lives inside the page, rows render in a try/catch, and `review_inbox_page.py` proves N items produce N rows.
 - 1.16.0 — captures carry what the post is worth: replies/reposts/likes/bookmarks/views (locale-aware parser,
   `tests/review_counts.py`), `published_at`, `lang`, `author_name`, `quotes`, `is_repost`, media flags, `source`
   and `page`, all sealed in the same blob. Readers show the counts and the published date; the export keeps them.

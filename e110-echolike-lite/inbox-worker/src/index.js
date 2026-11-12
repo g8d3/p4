@@ -453,17 +453,34 @@ async function decrypt(blob) {
   const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv: b64d(blob.iv)}, aes, b64d(blob.ct));
   return JSON.parse(new TextDecoder().decode(plain));
 }
+const fmtN = (n) => (n == null ? '–' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'K' : String(n));
+// Counts and dates of one capture, for the reader.
+function countsLine(it) {
+  const c = it.counts || {};
+  const bits = [['replies', c.replies], ['reposts', c.reposts], ['likes', c.likes], ['bookmarks', c.bookmarks], ['views', c.views]]
+    .filter(([, v]) => v != null)
+    .map(([k, v]) => fmtN(v) + ' ' + k);
+  if (it.published_at) bits.push('published ' + new Date(it.published_at).toLocaleString());
+  if (it.media) bits.push(it.media + ' media');
+  return bits.length ? '<br><small>' + esc(bits.join(' · ')) + '</small>' : '';
+}
+
 function render(rows) {
   const box = $('list');
   box.textContent = '';
   if (!rows.length) { box.innerHTML = '<p class=mut>Nothing yet. Like a post on X.</p>'; return; }
   for (const it of rows) {
     const d = document.createElement('div');
-    d.innerHTML = '<b>' + esc(it.kind) + '</b> <a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' +
-      (it.ad ? ' <small>ad</small>' : '') +
-      countsLine(it) +
-      (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '') +
-      '<br><small>' + esc(new Date(it.clicked_at || it.received_at || 0).toLocaleString()) + '</small>';
+    try {
+      d.innerHTML = '<b>' + esc(it.kind) + '</b> <a target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' +
+        (it.ad ? ' <small>ad</small>' : '') +
+        countsLine(it) +
+        (it.text ? '<br><span>' + esc(String(it.text).slice(0, 400)) + '</span>' : '') +
+        '<br><small>' + esc(new Date(it.clicked_at || it.received_at || 0).toLocaleString()) + '</small>';
+    } catch (e) {
+      // one malformed record must never empty the list
+      d.textContent = (it && it.kind) || 'capture';
+    }
     box.appendChild(d);
   }
 }
