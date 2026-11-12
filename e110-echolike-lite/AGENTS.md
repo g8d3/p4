@@ -211,6 +211,51 @@ Each can return as its own experiment if someone pays for it.
   `echolike-lite-inbox`, database `echolike-inbox`). Redeploy: `cd inbox-worker && wrangler deploy`.
 - Self-hosted inbox (dev): `python3 server.py --port 8911` → http://127.0.0.1:8911 (see `GET /api/health`). Log file: `likes.jsonl`. Restart: kill PID, run again.
 
+## Import (1.11.0): history is a button, on purpose
+
+EchoLike captures from now on; the Import tab walks the list you already have.
+Deliberate design decisions, so they are not "improved" later:
+
+* **A button, not a schedule.** Scroll-walking someone's history on a timer looks
+  exactly like a scraper and burns X rate limits. It runs only when pressed, on an
+  X tab the user already has open.
+* **The content script does the walking** (`import-start` / `import-cancel`), the
+  background only receives batches (`capture-batch`) — the scraping code never runs
+  in the service worker, and the worker never touches the DOM.
+* **Growth is an event**: a MutationObserver on `document.body`, plus a 2.5 s "no
+  new nodes" guard. Bounded: stops at the requested count, when the list ends, or
+  after ten minutes. `xScroller()` finds the scrollable *ancestor of a tweet*, not a
+  testid — X moves that container between layouts.
+* **Dedupe by post**: `captureBatch()` drops anything whose `(kind, id)` the browser
+  already has, so importing twice — or importing what was captured live — adds
+  nothing. The quota still bounds a huge import honestly.
+* Progress is written to `chrome.storage.local.import_progress` by the content
+  script; the tab renders it from `storage.onChanged`. No polling anywhere.
+* `tests/review_import.py` builds a list that only grows when scrolled and asserts
+  all of it: nothing runs by itself, 30 of 120, no duplicates, scroll happened,
+  progress reports the end, cancel works.
+
+## Automation (1.10.0): events, never a schedule
+
+Nothing in the product is on a timer. Every send is caused by an event that already
+exists, and the events that mean "work is worth doing now" are:
+
+| Event | What happens |
+|---|---|
+| a capture (like/bookmark) | the queue is sent; if nothing is configured, it *connects itself* first (local candidates, then the hosted inbox) — no button |
+| an X tab finishing loading (`hello` from the content script) | pending queue is sent, diagnostics backlog flushed |
+| the browser's own `online` event (content script on x.com, or the extension page) | `syncAll()`: send what waited **and** repair anything the mirror holds that the inbox never received |
+| opening the extension page | `syncAll()` once per load |
+| `chrome.runtime.onStartup` / `onInstalled` | `syncAll()` — an update that fixes a queue repairs it by itself |
+| any diagnostics event | the batch is uploaded immediately, if the user left diagnostics on |
+
+There is **no `alarms` permission** and no retry timer: `tests/review_online.py`
+asserts `typeof chrome.alarms === "undefined"`. The consequence is deliberate and
+worth saying out loud: an install that is offline and never used again sends its
+queue when it *is* used again (a like, an X tab, opening the page, a browser
+start, or the network coming back). If the browser is closed at that exact moment,
+the next start covers it.
+
 ## Rules
 
 - The extension never invents data: unlike/unbookmark are sent as such.
@@ -238,6 +283,7 @@ xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round tri
 bash bin/live-test-reset.sh                  # clears the hosted claim window (the live tests claim a lot)
 python3 tests/review_telemetry.py               # diagnostics contract + no capture content in the log
 xvfb-run -a python3 tests/review_two_browsers.py # two browsers, one account, one list (local worker)
+python3 tests/review_import.py                  # the old-likes walk: stops at the count, dedupes, never starts itself
 python3 tests/review_drain.py                  # a plaintext backlog drains itself and arrives sealed
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
@@ -264,6 +310,14 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.11.0 — Import tab: bring in old likes or bookmarks (100/300/1k/5k, or stop at the end), one deliberate button,
+  MutationObserver-driven scrolling, dedupe by post, bounded at ten minutes, cancellable. Options on that tab say
+  why it is not automatic.
+- 1.10.0 — nothing needs a click any more: the first capture connects itself (local inbox if there is one, hosted
+  otherwise), the queue is sent by the next event (capture, X tab load, browser `online`, page open, startup,
+  update), and the page repairs diverged mirrors on open. The retry alarm and the `alarms` permission are gone —
+  the owner asked for events, not a schedule — and diagnostics upload themselves when enabled.
+  `tests/review_online.py` proves the offline → online path with Playwright's own offline switch.
 - 1.9.0 — **the account is the unit of reading**. The reported symptom: the same X account in two browsers, and
   switching browsers hides likes. Cause: every install claimed its own tenant with its own key, and both readers
   fetched one tenant. Now `GET /api/account/likes` (account token) returns every device the account has linked,

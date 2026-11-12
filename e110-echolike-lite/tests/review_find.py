@@ -65,12 +65,18 @@ try:
             check("nothing configured yet", "Connected" in status0, False)
             check("offers the zero-config path", "Find my inbox" in status0, True)
             check("address fields stay in the settings tab", page.is_visible("#url"), False)
-            check("one button to press", page.inner_text("#find"), "Find my inbox")
+            check("a button exists for the impatient", page.inner_text("#find"), "Find my inbox")
 
-            page.click("#find")
-            page.wait_for_timeout(2500)
+            # NOTHING is pressed: a capture must connect and send by itself.
+            auto = page.evaluate(
+                """async () => await chrome.runtime.sendMessage({type:'capture', item:{
+                     kind:'like', id:'902', handle:'nasa', url:'https://x.com/nasa/status/902',
+                     text:'automatic, no clicks', clicked_at:new Date().toISOString()}})"""
+            )
+            check("the capture reports sent without a click", auto.get("sent"), True)
+            page.wait_for_timeout(1500)
             status = page.inner_text("#status")
-            check("one click connects", "in the inbox" in status, True)
+            check("it connected on its own", "in the inbox" in status, True)
             check("picked the local inbox", "127.0.0.1:8931" in status, True)
             check("no token typed", page.input_value("#token"), "")
             check(
@@ -83,7 +89,7 @@ try:
             page.click("#find")
             page.wait_for_timeout(1500)
             devices = json.loads((pathlib.Path(server_dir) / ".devices.json").read_text())
-            check("reconnect does not mint a second device", len(devices), 1)
+            check("reconnecting does not mint a second device", len(devices), 1)
 
             reply = page.evaluate(
                 """async () => await chrome.runtime.sendMessage({type:'capture', item:{

@@ -23,6 +23,15 @@ browser holds, and exports JSON. Free hosted quota: 3000 captures/month per inst
 your browser. Save it — it is the only way to read your inbox on another device, and nobody, us
 included, can regenerate it.
 
+**Bring in your history** (optional): the **Import** tab walks your existing likes or bookmarks on X — pick how
+many, press start, keep that tab open. It stops at your count, when the list ends, or after ten minutes, dedupes by
+post, and encrypts everything on the way out. It is a button on purpose: scroll-walking history on a timer is what a
+scraper looks like.
+
+**Nothing to press.** The first like connects an inbox by itself, and a queue that could not go out is sent by the
+next event: another like, an X tab loading, the browser coming back online, or opening this page. No timers, no
+"retry" to remember.
+
 **Two browsers, one account** (optional): install in both, sign in with the same email in each, and back up the
 key with a passphrase in the first one. In the second, sign in and press **Restore key** with that passphrase —
 its own catches are then re-encrypted with the account key and sent, and both browsers show one merged list with

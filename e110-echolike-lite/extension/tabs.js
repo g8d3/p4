@@ -1,6 +1,6 @@
 // One extension page, two tabs. The hash picks the tab, so a link can open
 // settings straight away and the browser's back button behaves.
-const PANELS = { inbox: "Inbox", settings: "Settings" };
+const PANELS = { inbox: "Inbox", import: "Import", settings: "Settings" };
 
 function showPanel(name) {
   const want = PANELS[name] ? name : "inbox";

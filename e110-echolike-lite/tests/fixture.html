@@ -69,9 +69,17 @@
   window.__changeListeners = [];
   let store = { hide_ads: window.__HIDE_ADS !== undefined ? window.__HIDE_ADS : true };
   window.chrome = {
-    runtime: { sendMessage: (m, cb) => { window.__sent.push(m); cb && cb({ sent: true }); } },
+    runtime: {
+      sendMessage: (m, cb) => {
+        if (m.type === "hello" || m.type === "net-online") return Promise.resolve({ ok: true });
+        window.__sent.push(m);
+        cb && cb({ sent: true });
+        return Promise.resolve({ sent: true });
+      },
+    },
     storage: {
       local: {
+        set: (obj) => { Object.assign(window._store || {}, obj); return Promise.resolve(); },
         get: (defaults, cb) => {
           const out = Object.assign({}, defaults);
           for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];

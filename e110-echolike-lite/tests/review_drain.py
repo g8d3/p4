@@ -116,13 +116,11 @@ with sync_playwright() as p:
              "url": "https://x.com/esa/status/602", "text": TEXT + " orphan 2", "clicked_at": "2026-11-12T00:03:00Z"},
         ]
         page.evaluate("items => chrome.storage.local.get({items:[], outbox:[]}).then(s => chrome.storage.local.set({items: s.items.concat(items), outbox: s.outbox}))", orphans)
+        # Opening the page is enough: it repairs on its own, no click.
         page.reload()
-        page.wait_for_timeout(2500)
-        check("the mirror notices what the inbox lacks", "not in the inbox" in page.inner_text("#status"), True)
-        page.click("#retry")
-        page.wait_for_timeout(4000)
+        page.wait_for_timeout(6000)
         stored = (pathlib.Path(server_dir) / "likes.jsonl").read_text()
-        check("the missing ones were re-sent", stored.count('"ct"') >= 4, True)
+        check("the missing ones were re-sent by themselves", stored.count('"ct"') >= 4, True)
         check("and none of their words leaked", "orphan" in stored, False)
         check("nothing is missing any more", "not in the inbox" in page.inner_text("#status"), False)
     finally:

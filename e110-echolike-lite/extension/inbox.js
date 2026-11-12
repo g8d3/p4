@@ -67,11 +67,15 @@ let drained = false;
 
 async function load() {
   const s = await chrome.runtime.sendMessage({ type: "state" });
-  if (!drained && s.url && s.hasToken && s.pending) {
+  if (!drained && s.url && s.hasToken) {
+    // Opening the page repairs: anything this browser holds that the inbox lacks is
+    // re-sealed and sent. Opening it is a user action, so this is not polling.
     drained = true;
-    $("status").innerHTML = "Sending " + s.pending + " waiting…";
-    await chrome.runtime.sendMessage({ type: "retry" });
-    return load();
+    const local = (await chrome.storage.local.get({ items: [] })).items;
+    if (s.pending || local.length) {
+      await chrome.runtime.sendMessage({ type: "sync" });
+      return load();
+    }
   }
   if (!s.url || !s.hasToken) {
     // No inbox yet: show what is in this browser, and say so honestly.
@@ -183,6 +187,21 @@ $("export").addEventListener("click", () => {
   a.href = URL.createObjectURL(blob);
   a.download = "echolike-inbox.json";
   a.click();
+});
+
+// A capture, a send or a connection changes storage: the page shows it without a
+// reload. Debounced (a burst of likes is one refresh), never a timer loop.
+let refreshSoon = null;
+chrome.storage.onChanged.addListener((changes) => {
+  if (!["url", "token", "outbox", "last", "items", "accountToken", "key"].some((k) => k in changes)) return;
+  clearTimeout(refreshSoon);
+  refreshSoon = setTimeout(() => load(), 500);
+});
+
+window.addEventListener("online", async () => {
+  $("status").textContent = "Back online: sending what is waiting…";
+  await chrome.runtime.sendMessage({ type: "net-online" }).catch(() => {});
+  load();
 });
 
 window.addEventListener("echolike:tab", (e) => {

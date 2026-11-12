@@ -121,11 +121,24 @@ async function tel(action, info) {
       telq: s.telq.concat([e]).slice(-TEL_KEEP),
     });
   } catch (err) {
-    /* diagnostics must never break the thing they observe */
+    return; /* diagnostics must never break the thing they observe */
   }
+  // Enabled means sent: no button, no timer. If it fails, the queue keeps them and
+  // the next event (capture, X tab, online, page open, startup) tries again.
+  telFlush();
 }
 
+let telSending = null;
+
 async function telFlush() {
+  if (telSending) return telSending;
+  telSending = telFlushOnce().finally(() => {
+    telSending = null;
+  });
+  return telSending;
+}
+
+async function telFlushOnce() {
   const s = await chrome.storage.local.get({ telq: [], tel_on: true, url: "", token: "" });
   if (!s.tel_on || !s.telq.length) return;
   const base = (s.url || DEFAULT_INBOX).replace(/\/$/, "");
@@ -154,15 +167,21 @@ async function flush(verify) {
 
 async function flushOnce(verify) {
   let s = await state();
-  // First capture of a fresh install: claim a tenant on the hosted inbox, silently.
-  if (
-    !s.url &&
-    DEFAULT_INBOX &&
-    s.outbox.length &&
-    (!s.defaultTriedAt || Date.now() - s.defaultTriedAt > DEFAULT_RETRY_MS)
-  ) {
+  // First capture of a fresh install connects itself: the inbox on this computer
+  // if there is one, the hosted one otherwise. No button, no address, no token.
+  if (!s.url && s.outbox.length && (!s.defaultTriedAt || Date.now() - s.defaultTriedAt > DEFAULT_RETRY_MS)) {
     await chrome.storage.local.set({ defaultTriedAt: Date.now() });
-    if ((await claimAt(DEFAULT_INBOX)).ok) s = await state();
+    for (const url of CANDIDATES.concat(DEFAULT_INBOX ? [DEFAULT_INBOX] : [])) {
+      let h;
+      try {
+        h = await timed(url + "/api/health", {}, 2500);
+      } catch (e) {
+        continue;
+      }
+      if (!h.ok) continue;
+      if ((await claimAt(url, true)).ok) break;
+    }
+    s = await state();
   }
   if (!s.url || !s.token) return { ok: true, pending: s.outbox.length };
   // Nothing queued and no verification asked: stay quiet (no background traffic).
@@ -191,6 +210,9 @@ async function flushOnce(verify) {
       body: JSON.stringify({ items: queue }),
     });
   } catch (e) {
+    // No timer, no retry loop: the next event that exists (a new capture, an X tab
+    // loading, the browser saying it is online again, the page opening, startup)
+    // sends this queue.
     await tel("send.unreachable", { ok: false, host: s.url, ms: Date.now() - started, error: String(e.message || e) });
     s.last = { ok: false, error: "unreachable: " + String(e.message || e).slice(0, 100), at: new Date().toISOString() };
     await chrome.storage.local.set({ last: s.last });
@@ -244,7 +266,7 @@ async function flushOnce(verify) {
 
 // Zero-typing setup: the server mints the device token, the extension keeps it.
 // One button; no address, no token to copy, nothing to truncate.
-async function claimAt(url) {
+async function claimAt(url, quiet) {
   const base = String(url || "").replace(/\/$/, "");
   let cres;
   const started = Date.now();
@@ -272,7 +294,8 @@ async function claimAt(url) {
   if (!cres.ok || !j || !j.token) {
     return { ok: false, url: base, error: (j && j.error) || "inbox refused the claim (HTTP " + cres.status + ")" };
   }
-  await chrome.storage.local.set({ url: base, token: j.token });
+  await chrome.storage.local.set({ url: base, token: j.token, retryN: 0 });
+  if (quiet) return { ok: true, url: base, error: null, pending: 0 };
   const out = await flush(true);
   return { ok: out.ok, url: base, error: out.error || null, pending: out.pending };
 }
@@ -445,6 +468,61 @@ async function keyRestore(passphrase) {
   }
 }
 
+// The importer hands over what it scraped: dozens or hundreds of old likes in one
+// go. Anything this browser already has (by kind + post id) is dropped, so running
+// an import twice, or importing the likes you already captured live, adds nothing.
+async function captureBatch(items, source) {
+  const s = await state();
+  const known = new Set(s.items.map((i) => i.kind + "|" + i.id));
+  const fresh = [];
+  for (const it of items || []) {
+    const key = String(it.kind) + "|" + String(it.id);
+    if (!it.id || known.has(key)) continue;
+    known.add(key);
+    it.uid = globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+    it.source = source || "import";
+    fresh.push(it);
+  }
+  if (!fresh.length) return { ok: true, added: 0, sent: 0 };
+  const sealed = [];
+  for (const it of fresh) sealed.push(await seal(it));
+  await chrome.storage.local.set({
+    items: s.items.concat(fresh).slice(-MAX_ITEMS),
+    outbox: s.outbox.concat(sealed).slice(-MAX_ITEMS),
+  });
+  await tel("import.batch", { ok: true, code: null, host: null, error: null });
+  const r = await flush();
+  return { ok: true, added: fresh.length, sent: r.ok && !r.pending ? fresh.length : 0, error: r.error || null };
+}
+
+// The importer needs a logged-in X tab: send the command to the one that is open.
+async function importStart(mode, limit) {
+  const tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
+  if (!tabs.length) {
+    await chrome.tabs.create({ url: mode === "bookmarks" ? "https://x.com/i/bookmarks" : "https://x.com/likes" });
+    return { ok: false, needTab: true, error: "opening your list in a tab: press Start again when it has loaded" };
+  }
+  const tab = tabs.find((t) => t.active) || tabs[0];
+  try {
+    const r = await chrome.tabs.sendMessage(tab.id, { type: "import-start", mode, limit });
+    return r || { ok: false, error: "that tab did not answer: reload it" };
+  } catch (e) {
+    return { ok: false, error: "that tab has no EchoLike content script: reload it" };
+  }
+}
+
+async function importCancel() {
+  const tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
+  for (const t of tabs) {
+    try {
+      await chrome.tabs.sendMessage(t.id, { type: "import-cancel" });
+    } catch (e) {
+      /* a tab without the script is fine */
+    }
+  }
+  return { ok: true };
+}
+
 async function capture(item) {
   item.uid = globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
   const s = await state();
@@ -478,7 +556,23 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                   ? keyRestore(m.passphrase)
                   : m && m.type === "forget"
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
-            : m && m.type === "account-info"
+            : m && m.type === "capture-batch"
+              ? captureBatch(m.items, m.source)
+              : m && m.type === "import-start"
+                ? importStart(m.mode, m.limit)
+                : m && m.type === "import-cancel"
+                  ? importCancel()
+                  : m && m.type === "net-online"
+              ? // The browser said the network is back: send what waited, repair what
+                // the inbox never received, and flush the diagnostics backlog.
+                syncAll()
+                  .then((r) => telFlush().then(() => ({ ok: r.ok, error: r.error || null, added: r.added || 0 })))
+              : m && m.type === "hello"
+                ? // An X tab finished loading: the cheapest honest moment to retry.
+                  flush(true).then((r) =>
+                    telFlush().then(() => ({ ok: r.ok, pending: r.pending, error: r.error || null })),
+                  )
+                : m && m.type === "account-info"
               ? acctCall("/api/account")
               : m && m.type === "sync"
               ? syncAll()
@@ -521,8 +615,17 @@ function stampVersion() {
   const { version } = chrome.runtime.getManifest();
   chrome.action.setTitle({ title: "EchoLike Lite v" + version + " — open your inbox" });
 }
-chrome.runtime.onInstalled.addListener(stampVersion);
-chrome.runtime.onStartup.addListener(stampVersion);
+chrome.runtime.onInstalled.addListener((d) => {
+  stampVersion();
+  telFlush();
+  // An update may carry a fix for a queue that diverged: repair it once, silently.
+  if (d.reason === "update" || d.reason === "install") syncAll().catch(() => {});
+});
+chrome.runtime.onStartup.addListener(() => {
+  stampVersion();
+  telFlush();
+  syncAll().catch(() => {});
+});
 stampVersion();
 
 chrome.action.onClicked.addListener(() => chrome.tabs.create({ url: chrome.runtime.getURL("app.html#inbox") }));

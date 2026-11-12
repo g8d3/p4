@@ -32,6 +32,7 @@ button:disabled{opacity:.45;cursor:default}
   <span id="version" class="mut" style="margin-left:auto;font-size:12px"></span>
   <nav role="tablist">
     <button id="tab-inbox" role="tab" aria-selected="true" aria-controls="panel-inbox">Inbox</button>
+    <button id="tab-import" role="tab" aria-selected="false" aria-controls="panel-import">Import</button>
     <button id="tab-settings" role="tab" aria-selected="false" aria-controls="panel-settings">Settings</button>
   </nav>
 </header>
@@ -46,6 +47,36 @@ button:disabled{opacity:.45;cursor:default}
     <a id="webinbox" class="mut" style="display:none;margin-left:6px" target="_blank" rel="noreferrer">Open on echolike.app →</a>
   </p>
   <div id="list"></div>
+</div>
+
+<div id="panel-import" class="panel" role="tabpanel">
+  <section>
+    <h2>Bring in your old likes and bookmarks</h2>
+    <p class="help">EchoLike only captures from now on. This walks the list you already have on X — likes or bookmarks — and sends it to your inbox, encrypted like everything else. It needs an X tab open and logged in; it scrolls that tab while it works, and stops on its own.</p>
+    <label for="imode">What to import</label>
+    <select id="imode" style="font:inherit;padding:9px;border:1px solid #ccc;border-radius:8px;width:100%">
+      <option value="likes">Likes</option>
+      <option value="bookmarks">Bookmarks</option>
+    </select>
+    <label for="ilimit">How many</label>
+    <select id="ilimit" style="font:inherit;padding:9px;border:1px solid #ccc;border-radius:8px;width:100%">
+      <option value="100">100 (a minute)</option>
+      <option value="300" selected>300 (a few minutes)</option>
+      <option value="1000">1,000</option>
+      <option value="5000">5,000 (slow, X throttles)</option>
+    </select>
+    <p>
+      <button id="istart" class="act primary" type="button">Start import</button>
+      <button id="icancel" class="act" type="button">Cancel</button>
+      <a id="ilist" class="mut" style="margin-left:6px" target="_blank" rel="noreferrer" href="https://x.com/likes">Open my likes on X →</a>
+    </p>
+    <div id="istatus" class="msg mut">Nothing imported yet.</div>
+  </section>
+  <section>
+    <h2>Why it is not automatic</h2>
+    <p class="help">Scroll-walking someone's history on a timer would look exactly like a scraper and cost you X rate limits. A button you press, on a tab you are already looking at, keeps it a deliberate act — and the extension stops after your count, or when the list stops growing, or after ten minutes.</p>
+    <p class="help">Imports are deduped by post: importing twice, or importing posts you already captured live, adds nothing. The quota (3,000 a month) still applies, so a very large import may stop at the limit with an honest message.</p>
+  </section>
 </div>
 
 <div id="panel-settings" class="panel" role="tabpanel">
@@ -107,4 +138,5 @@ button:disabled{opacity:.45;cursor:default}
 
 <script src="inbox.js"></script>
 <script src="options.js"></script>
+<script src="import.js"></script>
 <script src="tabs.js"></script>

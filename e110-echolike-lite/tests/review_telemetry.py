@@ -58,11 +58,16 @@ code, r = post([{"action": "x"}] * 40)
 check("a batch is capped", r.get("stored", 0) <= 20, True)
 
 # Read the rows back from D1: the columns are the whitelist, nothing else.
+env = dict(
+    __import__("os").environ,
+    CLOUDFLARE_API_TOKEN=__import__("os").environ.get("CLOUDFLARE_API_TOKEN")
+    or __import__("os").environ.get("CLOUDFLARE_FOCALIS_API_KEY", ""),
+)
 out = subprocess.run(
     ["wrangler", "d1", "execute", "echolike-inbox", "--remote", "--json", "--command",
      "SELECT * FROM telemetry WHERE action LIKE 'test.%' ORDER BY id DESC LIMIT 5"],
     cwd=str(__import__("pathlib").Path(__file__).resolve().parent.parent / "inbox-worker"),
-    capture_output=True, text=True, timeout=180,
+    capture_output=True, text=True, timeout=180, env=env,
 )
 if out.returncode != 0:
     print("  note: could not query D1 —", (out.stderr or out.stdout)[-200:])
