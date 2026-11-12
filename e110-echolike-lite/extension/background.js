@@ -79,6 +79,24 @@ async function seal(item) {
   return { uid: item.uid, iv: b64(iv), ct: b64(new Uint8Array(ct)) };
 }
 
+// Who this device is, as the inbox sees it: one row, no plaintext, no decryption.
+// Needed because "which list am I looking at" cannot be answered from local storage.
+async function inboxIdentity(s) {
+  if (!s.url || !s.token) return { listId: "", phones: 0 };
+  try {
+    const r = await timed(
+      s.url.replace(/\/$/, "") + "/api/likes?limit=1",
+      { headers: { authorization: "Bearer " + s.token } },
+      6000,
+    );
+    if (!r.ok) return { listId: "", phones: 0 };
+    const j = await r.json().catch(() => null);
+    return { listId: (j && j.user) || "", phones: (j && j.phones) || 1 };
+  } catch (e) {
+    return { listId: "", phones: 0 };
+  }
+}
+
 async function state() {
   const s = await chrome.storage.local.get({
     url: "",
@@ -509,6 +527,76 @@ async function keyRestore(passphrase) {
   }
 }
 
+// ---- Two phones, one list ---------------------------------------------------
+// A pairing code is {url, token, key} in base64url: the list's address, its device
+// token and the key that decrypts it. Pasting it makes this phone read and write the
+// SAME tenant as the other one, instead of a brand-new tenant nobody else can see —
+// which is what "two phones, same account" looked like before, and why the new phone
+// showed nothing.
+const pairCode = (url, token, key) =>
+  b64(new TextEncoder().encode(JSON.stringify({ v: 1, u: url, t: token, k: key })));
+
+function readPairCode(code) {
+  let o;
+  try {
+    o = JSON.parse(new TextDecoder().decode(unb64(String(code).trim().replace(/\s+/g, ""))));
+  } catch (e) {
+    return null;
+  }
+  if (!o || !o.u || !o.t || !o.k) return null;
+  if (!/^[0-9a-f]{32}$/.test(String(o.t)) || String(o.k).length !== 43) return null;
+  return { url: String(o.u).replace(/\/$/, ""), token: String(o.t), key: String(o.k) };
+}
+
+async function pair(code) {
+  const p = readPairCode(code);
+  if (!p) return { ok: false, error: "that is not a pairing code (it is long, one line, and starts with letters)" };
+  const s = await state();
+  // Talk to that list before adopting it: a code from a dead server must fail here,
+  // with the old configuration still in place.
+  let h;
+  try {
+    h = await timed(p.url + "/api/health", {}, 6000);
+  } catch (e) {
+    return { ok: false, error: "no answer from " + p.url + " — is that inbox reachable from this phone?" };
+  }
+  if (!h.ok) return { ok: false, error: "that inbox answered HTTP " + h.status };
+  // The key has to open what the list already holds, or pairing produces a list of
+  // unreadable rows: probe one blob before trusting it.
+  let probe = null;
+  try {
+    const r = await timed(p.url + "/api/likes?limit=1", { headers: { authorization: "Bearer " + p.token } }, 8000);
+    if (r.status === 401) return { ok: false, error: "that code's token is not valid any more (401)" };
+    if (r.ok) probe = ((await r.json().catch(() => null)) || {}).items?.[0] || null;
+  } catch (e) {
+    return { ok: false, error: "the other list did not answer" };
+  }
+  if (probe && probe.ct && probe.iv) {
+    try {
+      const k = await crypto.subtle.importKey("raw", unb64(p.key), "AES-GCM", false, ["decrypt"]);
+      await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(probe.iv) }, k, unb64(probe.ct));
+    } catch (e) {
+      return { ok: false, error: "that code's key does not open the other phone's captures: they are from another key, not from this list" };
+    }
+  }
+  // Its own device token on that list: one phone can be revoked without touching the
+  // other, and the list can honestly say how many phones write to it.
+  let token = p.token;
+  try {
+    const d = await timed(p.url + "/api/devices", { method: "POST", headers: { authorization: "Bearer " + p.token } }, 8000);
+    const dj = await d.json().catch(() => null);
+    if (d.ok && dj && dj.token) token = dj.token;
+  } catch (e) {
+    /* an older inbox has no /api/devices: sharing the token still works */
+  }
+  await chrome.storage.local.set({ url: p.url, token, key: p.key, retryN: 0 });
+  await tel("pair", { ok: true, host: p.url });
+  // Whatever this phone captured under its own key is now re-sealed with the shared
+  // key and pushed, so the two phones show one list and nothing is left behind.
+  const synced = await syncAll().catch(() => ({ ok: false, error: "the list did not answer yet" }));
+  return { ok: true, url: p.url, added: synced.added || 0, error: synced.error || null };
+}
+
 // The importer hands over what it scraped: dozens or hundreds of old likes in one
 // go. Anything this browser already has (by kind + post id) is dropped, so running
 // an import twice, or importing the likes you already captured live, adds nothing.
@@ -692,7 +780,9 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             ? chrome.tabs
                 .create({ url: chrome.runtime.getURL("app.html#" + (m.page === "settings" ? "settings" : "inbox")) })
                 .then(() => ({ ok: true }))
-            : m && m.type === "send-uids"
+            : m && m.type === "pair"
+                ? pair(m.code)
+              : m && m.type === "send-uids"
               ? sendUids(m.uids)
             : m && m.type === "export"
               ? exportItems(m.pick)
@@ -739,9 +829,11 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                 url: s.url,
                 hasToken: !!s.token,
                 token: s.token,
+                ...(await inboxIdentity(s)),
                 keyCode: await keyCode(),
                 accountEmail: s.accountEmail || "",
                 accountToken: !!s.accountToken,
+                pairCode: s.url && s.token ? pairCode(s.url, s.token, await keyCode()) : "",
                 keyBackedAt: s.keyBackedAt || null,
                 telemetry: s.telemetry.slice(-40).reverse(),
                 telOn: s.tel_on !== false,

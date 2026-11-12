@@ -25,6 +25,7 @@ const esc = (s) =>
 async function decryptAll(key, blobs) {
   const aes = await crypto.subtle.importKey("raw", unb64(key), "AES-GCM", false, ["decrypt"]);
   const out = [];
+  out.foreign = 0; // sealed with another phone's key, so this one cannot read it
   for (const b of blobs) {
     // A v2 inbox (or a self-hosted one from before encryption) still hands back
     // readable items: show those as they are.
@@ -36,7 +37,7 @@ async function decryptAll(key, blobs) {
       const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(b.iv) }, aes, unb64(b.ct));
       out.push(Object.assign(JSON.parse(new TextDecoder().decode(plain)), { received_at: b.received_at }));
     } catch (e) {
-      out.push({ kind: "unreadable", handle: "", text: "This capture was sealed with another key.", url: "" });
+      out.foreign += 1;
     }
   }
   return out;
@@ -262,7 +263,12 @@ async function readAll(base, headers, max) {
     const batch = body.items || [];
     out.push(...batch);
     if (body.total != null) total = body.total;
-    if (body.used != null) extra = { used: body.used, quota: body.quota };
+    if (body.used != null) extra = Object.assign({}, extra, { used: body.used, quota: body.quota });
+    if (body.user) extra.user = body.user;
+    if (body.phones != null) extra.phones = body.phones;
+    if (body.account) extra.account = body.account;
+    if (body.email) extra.email = body.email;
+    if (body.tenants) extra.tenants = body.tenants;
     if (!batch.length || out.length >= total) break;
     offset += batch.length;
   }
@@ -301,6 +307,7 @@ async function load() {
     $("find").style.display = "inline-block";
     $("find").classList.add("primary");
     $("retry").style.display = "none";
+    $("identity").innerHTML = "<b>no inbox yet</b> · this device only";
     showSec("P2", !!local.length);
     repaint();
     return;
@@ -327,6 +334,7 @@ async function load() {
     return;
   }
   const decrypted = await decryptAll(s.keyCode, got.items);
+  got.foreign = decrypted.foreign || 0;
   // Two browsers, one X account: the same like shows up once, not twice. Also a
   // capture stored twice by an older release: keep the first (newest) copy.
   const seen = new Set();
@@ -363,6 +371,20 @@ async function load() {
     .concat(dups.map((i) => Object.assign({}, i, { dup: true })));
   const used = got.extra.used != null ? got.extra.used : null;
   const quota = used != null && got.extra.quota ? " · " + used + "/" + got.extra.quota + " this month" : "";
+  // Never leave "which account am I looking at" to guesswork: the list's own id, and
+  // how many phones write to it. Two phones on one list is the normal case, not an
+  // edge case, and it is the whole difference between "my likes are missing" and
+  // "my other phone has its own list".
+  const short = (id) => String(id || "");
+  const listId = got.extra.account || got.extra.user || "";
+  const phones = got.extra.phones || got.extra.tenants?.length || 1;
+  const who = acct
+    ? "account <b>" + esc(got.extra.email || s.accountEmail || "signed in") + "</b> · " + phones + " phone" + (phones === 1 ? "" : "s")
+    : "<b>list " + esc(short(listId)) + "</b>" + (phones > 1 ? " · " + phones + " phones" : " · this phone only");
+  $("identity").innerHTML =
+    who +
+    (acct ? "" : ' · <a href="#settings" id="goaccount">see both phones →</a>') +
+    (got.foreign ? ' · <span class="err">' + got.foreign + " sealed with another key — restore or share the key in P8</span>" : "");
   $("status").innerHTML =
     '<span class="ok">' + fromInbox.length + "</span> " + (acct ? "in my account " : "in the inbox ") +
     "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
@@ -484,6 +506,11 @@ $("filter").addEventListener("change", () => {
 // The status line and the empty state can change the filter: one delegated
 // listener, because those buttons are re-created on every render.
 document.addEventListener("click", (e) => {
+  if (e.target instanceof Element && e.target.id === "goaccount") {
+    e.preventDefault();
+    document.getElementById("tab-settings").click();
+    return;
+  }
   const t = e.target instanceof Element ? e.target.closest("#onlywaiting,#clearfilter") : null;
   if (!t) return;
   filterKey = t.id === "onlywaiting" ? "waiting" : "all";

@@ -59,6 +59,7 @@ button:disabled{opacity:.45;cursor:default}
   code (P1, P2…) — say the code and the box that fails.</p>
   <div class="sec" data-section="P1">
     <span class="secid">P1 · status</span>
+    <div id="identity" class="msg mut" style="margin:0 0 6px">…</div>
     <div id="status">…</div>
   </div>
   <div class="sec" data-section="P2" hidden>
@@ -133,6 +134,7 @@ button:disabled{opacity:.45;cursor:default}
     <h2>1 · Inbox</h2>
     <p class="help">Where your captures go. By default: the inbox on this computer if there is one, otherwise the hosted one — found and connected by itself. These fields are for an inbox on another machine.</p>
     <div id="inboxstatus" class="msg mut">…</div>
+    <div id="deviceid" class="help" style="margin:0 0 8px"></div>
     <label for="url">Address</label>
     <input id="url" type="url" autocomplete="off" spellcheck="false" placeholder="http://192.168.0.5:8931">
     <label for="token">Token — only if a server handed you one; otherwise leave it empty and the inbox issues its own</label>
@@ -142,7 +144,7 @@ button:disabled{opacity:.45;cursor:default}
   </section>
 
   <section class="sec" data-section="P8">
-    <span class="secid">P8 · recovery code</span>
+    <span class="secid">P8 · recovery code and pairing</span>
     <h2>2 · Recovery code</h2>
     <p class="help">The key to everything in your inbox, and the only copy. It decrypts your captures — nobody can regenerate it, read it or recover it for you. Save it where you keep passwords.</p>
     <label for="key">Your recovery code</label>
@@ -150,6 +152,18 @@ button:disabled{opacity:.45;cursor:default}
     <button id="revealkey" class="act" type="button">Reveal</button>
     <button id="copykey" class="act" type="button">Copy</button>
     <div id="keymsg" class="msg mut"></div>
+    <h2 style="margin-top:18px">Pair another phone</h2>
+    <p class="help">Two phones, one list: the code below carries this list's address, its token and the key, so a
+    second phone reads and writes the <b>same</b> list. Treat it like a password — anyone holding it can read your
+    inbox. On the other phone: Settings → paste it in <b>Use a code from another phone</b>.</p>
+    <label for="paircode">This phone's pairing code</label>
+    <input id="paircode" type="password" readonly onclick="this.select()">
+    <button id="pairreveal" class="act" type="button">Reveal</button>
+    <button id="paircopy" class="act" type="button">Copy</button>
+    <label for="pairin">Use a code from another phone</label>
+    <input id="pairin" type="text" autocomplete="off" spellcheck="false" placeholder="paste the code here">
+    <button id="pairuse" class="act primary" type="button">Join that list</button>
+    <div id="pairmsg" class="msg mut"></div>
   </section>
 
   <section class="sec" data-section="P9">

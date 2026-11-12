@@ -348,6 +348,39 @@ Three server-side rules keep that list honest:
   only to skip the wait until the next event. Live proof: `tests/review_sort.py`
   seeds an unsent capture, opens the page and expects it in the inbox.
 
+## Two phones, one list (1.17.4)
+
+Reported as: two phones on the same X account, likes made on the old one do not appear
+on the new one. It was structural: **each install claims its own tenant and seals with
+its own key**, so "the same account" was two private lists, and nothing in the UI said
+so. The account (email + wrapped key) was the only bridge, and it was invisible.
+
+What exists now:
+
+* **The identity is on screen** — `P1` and `I1` say which list you are looking at
+  (`list u_8c60…`, or `account me@x · 2 phones`), how many phones write to it, and when
+  some captures are sealed with another key. "Which account is active" is no longer a
+  question the user has to answer by guessing.
+* **Pairing code** (`P8`): base64url of `{v:1, u:url, t:token, k:key}` — the list's
+  address, its token and its key. Pasting it on the second phone makes both read and
+  write the **same tenant with the same key**: one list, both directions, no account,
+  no passphrase, no server change beyond the two endpoints below.
+* **A paired phone gets its own device token** (`POST /api/devices`, max 8 per list),
+  so one phone can be revoked without touching the other and "2 phones share it" is a
+  fact from the server, not a claim from the UI.
+* **Adopting a code is validated before it is adopted**: the inbox answers, the key
+  actually decrypts an existing blob, and only then does the configuration change. A
+  code from a different key is refused with the reason — adopting it would otherwise
+  produce a list of unreadable rows. `tests/review_pair.py` checks both refusals and
+  the happy path (old phone's 2 + new phone's 1 = 3, and nothing lost).
+* **One unreadable blob never reads as "wrong recovery code"** any more: the reader
+  decrypts row by row, counts what came from another key, and says so. Before, a
+  single blob sealed elsewhere blanked the whole page with "wrong key".
+
+Known limit, said out loud: a phone that pairs a list keeps its own local mirror and
+its old tenant is simply abandoned (nothing is deleted), and a list accepts up to 8
+phones. Device revocation has a server endpoint but no button yet.
+
 ## Where the boxes are (1.17.3): every control block has a code
 
 The owner reports a failure by code, not by prose ("P2 fails"). Every box of
@@ -545,6 +578,7 @@ xvfb-run -a python3 tests/review_zero.py
 xvfb-run -a python3 tests/review_app.py       # the one page: tabs, find, ads switch, list, bad connect
 python3 tests/review_sort.py                  # LIVE: one capture one row, offset pages, sort/filter both readers, self-repair
 xvfb-run -a python3 tests/review_fab.py       # the circle on x.com: version, drag, exports, hide, capture still works
+xvfb-run -a python3 tests/review_pair.py      # two phones, one list: identity, pairing code, refusals, nothing lost
 # the real user seat: no configuration at all, one button, inside a throw-away netns
 # so the live inbox on 8931 is untouched
 unshare -rn sh -c 'ip link set lo up; xvfb-run -a python3 tests/review_find.py'
@@ -555,6 +589,14 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.17.4 — two phones, one list. `P1`/`I1` state which list is open (`list u_…` or `account email · N
+phones`), how many phones share it and whether any capture is sealed with another key; `P8` gains a **pairing
+code** (address + token + key) with Copy/Reveal and a paste box — pairing validates the inbox and the key against
+an existing blob before adopting anything, then gives the new phone its own device token (`POST /api/devices`, 8
+max) and re-seals its own captures into the shared list. The reader decrypts row by row: one blob from another key
+is counted and named instead of blanking the page with "wrong recovery code". `/api/account` reports per-phone
+counts. New test: `tests/review_pair.py`.
 
 - 1.17.3 — every box of controls carries a code (`P1..P11` extension page, `I1..I4` hosted reader, `X1` the circle)
   so a failure can be reported as a code; `review_sort.py` fails if a code is missing, repeated or unbordered.

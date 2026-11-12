@@ -45,6 +45,9 @@ const MAX_ITEMS = 500;
 // re-upload old captures as new ones. Same ceiling as one upload, with `offset`
 // to walk past it.
 const MAX_READ = 500;
+// Pairing a phone gives it its OWN device token on the same list (revocable one by
+// one, and it is what makes "2 phones share this list" a fact instead of a claim).
+const MAX_PHONES = 8;
 const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, content-type",
@@ -112,6 +115,24 @@ async function claim(env, req) {
     env.DB.prepare("INSERT INTO claims (ip, at) VALUES (?1, ?2)").bind(ip, Math.floor(Date.now() / 1000)),
   ]);
   return json({ ok: true, token, user, server: "echolike-inbox", api: API });
+}
+
+// POST /api/devices -> another token for the same tenant (a paired phone).
+async function addDevice(env, req, who) {
+  const ip = req.headers.get("cf-connecting-ip") || "unknown";
+  const ua = clamp(req.headers.get("user-agent"), 160);
+  const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM devices WHERE user_id = ?1").bind(who.user).first();
+  if ((n?.n || 0) >= MAX_PHONES) {
+    return json({ ok: false, error: "this list already has " + MAX_PHONES + " phones", phones: n?.n || 0 }, 409);
+  }
+  const token = hex(16);
+  const at = now();
+  await env.DB.prepare(
+    "INSERT INTO devices (id, user_id, token_sha256, created_at, last_seen, ip, ua) VALUES (?1, ?2, ?3, ?4, ?4, ?5, ?6)",
+  )
+    .bind("d_" + hex(6), who.user, await sha256(token), at, ip, ua)
+    .run();
+  return json({ ok: true, token, user: who.user, phones: (n?.n || 0) + 1 });
 }
 
 async function postLikes(env, req, who) {
@@ -388,10 +409,21 @@ async function accountLikes(env, url, who) {
     .bind(who.id)
     .first();
   const tenants = await env.DB.prepare("SELECT user_id FROM account_tenants WHERE account_id = ?1").bind(who.id).all();
+  // Per-phone counts: the answer to "are the likes from my other phone in here?"
+  // without needing to decrypt a single blob.
+  const perPhone = [];
+  for (const id of (tenants.results || []).map((r) => r.user_id)) {
+    const n = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(id).first();
+    const last = await env.DB.prepare("SELECT MAX(received_at) AS at FROM likes WHERE user_id = ?1").bind(id).first();
+    const phones = await env.DB.prepare("SELECT COUNT(*) AS n FROM devices WHERE user_id = ?1").bind(id).first();
+    perPhone.push({ user: id, captures: n?.n || 0, last_at: last?.at || null, phones: phones?.n || 1 });
+  }
   return json({
     ok: true,
     account: who.id,
+    email: who.email,
     tenants: (tenants.results || []).map((r) => r.user_id),
+    per_phone: perPhone,
     items: rows.results || [],
     total: total?.n || 0,
     quota: FREE_PER_MONTH,
@@ -458,6 +490,7 @@ select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;backgrou
 </style>
 <h1>My EchoLike inbox</h1>
 <div class="sec" data-section="I1"><span class=secid>I1 · status</span>
+  <div id=identity class=mut style="margin-bottom:6px">…</div>
   <div id=status class=mut>…</div>
 </div>
 <div class="sec" data-section="I2" hidden><span class=secid>I2 · sort</span>
@@ -625,7 +658,17 @@ async function readAll(url, headers) {
     const batch = body.items || [];
     out.push(...batch);
     if (body.total != null) total = body.total;
-    if (body.used != null) extra = {used: body.used, quota: body.quota};
+    // Identity and per-phone facts travel with every page: the reader says which
+    // list it is showing and how many phones write to it.
+    extra = Object.assign({}, extra, {
+      used: body.used != null ? body.used : extra.used,
+      quota: body.quota != null ? body.quota : extra.quota,
+      user: body.user || extra.user,
+      phones: body.phones != null ? body.phones : extra.phones,
+      account: body.account || extra.account,
+      email: body.email || extra.email,
+      tenants: body.tenants || extra.tenants,
+    });
     if (!batch.length || out.length >= total) break;
     offset += batch.length;
   }
@@ -643,16 +686,40 @@ async function load() {
   const rows = got.items;
   if (!key) { $('status').textContent = rows.length + ' encrypted capture(s) waiting.'; $('ask').style.display='block'; return; }
   try { aes = await importKey(key); } catch (e) { $('status').innerHTML = '<span class=err>That recovery code is not valid.</span>'; $('ask').style.display='block'; return; }
-  try {
-    const all = await Promise.all(rows.map(decrypt));
+  // Per row, not all-or-nothing: a list shared by two phones can hold blobs sealed
+  // with another key, and one of those must never read as "your code is wrong".
+  let foreign = 0, failed = 0;
+  const all = [];
+  for (const b of rows) {
+    try {
+      all.push(Object.assign(await decrypt(b), {received_at: b.received_at}));
+    } catch (e) {
+      if (b.iv && b.ct) foreign += 1;
+      else failed += 1;
+    }
+  }
+  if (foreign + failed === rows.length && rows.length) {
+    $('status').innerHTML = '<span class=err>This recovery code does not open anything here (' + rows.length + ' capture(s) tried).</span>';
+    $('ask').style.display = 'block';
+    return;
+  }
+  {
     // Same X account in two browsers: one like, one row. A capture stored twice by
     // an older release also collapses here (keep the first, newest, copy).
     const seen = new Set();
     items = all.filter((it) => { const k = (it.kind||'')+'|'+(it.id||it.uid||''); if (seen.has(k)) return false; seen.add(k); return true; });
   }
-  catch (e) { $('status').innerHTML = '<span class=err>Wrong recovery code: these captures do not decrypt.</span>'; $('ask').style.display='block'; return; }
+  // Which list, and how many phones write to it: the reader must not leave the user
+  // wondering which "account" they are looking at either.
+  const listId = String(got.extra.account || got.extra.user || '').replace(/^u_/, '');
+  const phones = got.extra.phones || (got.extra.tenants || []).length || 1;
+  $('identity').innerHTML =
+    (atoken ? 'account <b>' + esc(got.extra.email || 'signed in') + '</b>' : 'list <b>' + esc(listId) + '</b>') +
+    ' · ' + phones + ' phone' + (phones === 1 ? '' : 's') +
+    (foreign ? ' · <span class=err>' + foreign + ' sealed with another key</span>' : '');
   $('status').innerHTML = '<span class=ok>' + (got.total || items.length) + '</span> capture(s) in this inbox' +
-    (got.extra.used!=null && got.extra.quota ? ' · ' + got.extra.used + '/' + got.extra.quota + ' this month' : '');
+    (got.extra.used!=null && got.extra.quota ? ' · ' + got.extra.used + '/' + got.extra.quota + ' this month' : '') +
+    (foreign ? ' · showing ' + items.length : '');
   $('export').style.display = 'inline-block';
   const box = document.querySelector('[data-section="I2"]');
   if (box) box.hidden = !items.length;
@@ -688,6 +755,7 @@ export default {
           claim: "open",
           encryption: "aes-256-gcm",
           min_client_api: 4,
+          pair: "/api/devices",
           accounts: "email",
           email_configured: !!env.RESEND_API_KEY,
           free_per_month: FREE_PER_MONTH,
@@ -705,6 +773,10 @@ export default {
         if (path === "/api/account/key") return await accountKey(env, req, who);
         return json({ ok: false, error: "not found" }, 404);
       }
+      if (path === "/api/devices" && req.method === "POST") {
+        const who = await tenant(env, req.headers.get("authorization"));
+        return who ? await addDevice(env, req, who) : json({ ok: false, error: "unauthorized" }, 401);
+      }
       if (path === "/api/likes" && req.method === "POST") {
         const who = await tenant(env, req.headers.get("authorization"));
         return who ? await postLikes(env, req, who) : json({ ok: false, error: "unauthorized" }, 401);
@@ -721,9 +793,14 @@ export default {
           .bind(who.user, limit, offset)
           .all();
         const total = await env.DB.prepare("SELECT COUNT(*) AS n FROM likes WHERE user_id = ?1").bind(who.user).first();
+        // Who is reading, and how many phones write to the same list: two phones on
+        // one tenant are one list, and the client says so instead of leaving the
+        // user guessing which "account" they are looking at.
+        const phones = await env.DB.prepare("SELECT COUNT(*) AS n FROM devices WHERE user_id = ?1").bind(who.user).first();
         return json({
           ok: true,
           user: who.user,
+          phones: phones?.n || 1,
           items: rows.results || [],
           total: total?.n || 0,
           used: await usage(env, who.user),

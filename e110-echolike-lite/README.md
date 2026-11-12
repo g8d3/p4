@@ -45,6 +45,12 @@ next event: another like, an X tab loading, the browser coming back online, open
 start. No timers, no "retry" to remember, and the page repairs itself on load: what this browser holds and the
 inbox lacks goes out without a click. A re-sent capture never duplicates (the server keeps one row per capture).
 
+**Two phones, one list.** Settings → **Pair another phone**: copy the code on the phone that already has your
+captures, paste it on the other one, press **Join that list**. Both then read and write the same list with the same
+key — nothing to configure, no account needed. The code carries the list's address, token and key, so treat it like a
+password. The Inbox tab always says which list you are looking at (`list u_…`), how many phones share it, and whether
+any capture came from another key.
+
 **Two browsers, one account** (optional): install in both, sign in with the same email in each, and back up the
 key with a passphrase in the first one. In the second, sign in and press **Restore key** with that passphrase —
 its own catches are then re-encrypted with the account key and sent, and both browsers show one merged list with

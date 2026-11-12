@@ -90,7 +90,8 @@ with sync_playwright() as p:
     page2 = browser.new_page()
     page2.goto(BASE + "/?b=2#t=" + token + "&k=" + b64(os.urandom(32)))
     page2.wait_for_timeout(3000)
-    check("wrong key reported", "do not decrypt" in page2.inner_text("#status") or "Wrong" in page2.inner_text("#status"), True)
+    # Per-row decryption now: a key that opens nothing says so with the count tried.
+    check("wrong key reported", "does not open anything" in page2.inner_text("#status"), True)
     check("wrong key shows nothing", TEXT in page2.inner_text("#list"), False)
 
     browser.close()
