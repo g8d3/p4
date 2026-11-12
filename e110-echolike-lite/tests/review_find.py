@@ -93,7 +93,9 @@ try:
             check("capture goes out with no setup", reply.get("sent"), True)
             page.wait_for_timeout(400)
             log = pathlib.Path(server_dir) / "likes.jsonl"
-            check("server has it", log.exists() and "found you with one click" in log.read_text(), True)
+            stored = log.read_text() if log.exists() else ""
+            check("the inbox stored the capture", '"ct"' in stored, True)
+            check("and cannot read it", "found you with one click" in stored, False)
         finally:
             ctx.close()
 finally:

@@ -36,14 +36,10 @@ async function refresh() {
   $("ads").checked = !!ads.hide_ads;
   $("find").textContent = connected ? "Reconnect" : "Find my inbox";
   renderList(s.items || []);
-  // The inbox page is the read surface; the key rides in the query, it is the user's own secret.
-  const open = $("open");
-  if (connected) {
-    open.href = s.url + "/?t=" + encodeURIComponent(s.token || "");
-    open.style.display = "inline";
-  } else {
-    open.style.display = "none";
-  }
+  // The full list lives in the extension's own page: it decrypts with the key in
+  // this browser, so no secret ever travels in a URL.
+  $("key").value = s.keyCode || "";
+  $("open").style.display = connected ? "inline" : "none";
   const st = $("status");
   const at = s.url ? " <small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" : "";
   const quota =
@@ -106,6 +102,13 @@ $("forget").addEventListener("click", async () => {
   $("url").value = "";
   $("token").value = "";
   await refresh();
+});
+
+$("copykey").addEventListener("click", async () => {
+  await navigator.clipboard.writeText($("key").value);
+  const b = $("copykey");
+  b.textContent = "Copied";
+  setTimeout(() => (b.textContent = "Copy"), 1200);
 });
 
 $("retry").addEventListener("click", async () => {

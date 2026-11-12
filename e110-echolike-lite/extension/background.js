@@ -31,6 +31,51 @@ async function timed(url, opts, ms) {
   }
 }
 
+// ---- Encryption: the inbox only ever sees ciphertext ------------------------
+// AES-256-GCM with a key generated here, on first run, and never sent anywhere.
+// The server stores {iv, ct} blobs; a stolen token is worth nothing without the
+// key. The key is shown once as a recovery code: it is the only way to read the
+// hosted inbox on another device, and nobody can regenerate it.
+// base64url, unpadded: the recovery code travels in URLs and copy-paste, and "+"
+// in a fragment comes back as a space, which would silently corrupt the key.
+const b64 = (u8) =>
+  btoa(String.fromCharCode.apply(null, Array.from(u8)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+const unb64 = (s) => {
+  let t = String(s).replace(/-/g, "+").replace(/_/g, "/");
+  while (t.length % 4) t += "=";
+  const b = atob(t);
+  const u = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+  return u;
+};
+
+async function keyCode() {
+  const s = await chrome.storage.local.get({ key: "" });
+  if (s.key) return s.key;
+  const raw = crypto.getRandomValues(new Uint8Array(32));
+  const k = b64(raw);
+  await chrome.storage.local.set({ key: k });
+  return k;
+}
+
+async function aesKey() {
+  return crypto.subtle.importKey("raw", unb64(await keyCode()), "AES-GCM", false, ["encrypt"]);
+}
+
+// One blob per capture: {uid, iv, ct}. The uid stays readable so retries are idempotent by eye.
+async function seal(item) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    await aesKey(),
+    new TextEncoder().encode(JSON.stringify(item)),
+  );
+  return { uid: item.uid, iv: b64(iv), ct: b64(new Uint8Array(ct)) };
+}
+
 async function state() {
   const s = await chrome.storage.local.get({
     url: "",
@@ -148,10 +193,10 @@ async function discover() {
 }
 
 async function capture(item) {
-  item.uid = (globalThis.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+  item.uid = globalThis.crypto && crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
   const s = await state();
-  s.items.push(item);
-  s.outbox.push(item);
+  s.items.push(item); // the local copy stays readable: it is the user's own browser
+  s.outbox.push(await seal(item)); // what leaves this machine is ciphertext
   await chrome.storage.local.set({
     items: s.items.slice(-MAX_ITEMS),
     outbox: s.outbox.slice(-MAX_ITEMS),
@@ -175,10 +220,11 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
             : m && m.type === "save"
           ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush(true))
           : m && m.type === "state"
-            ? state().then((s) => ({
+            ? state().then(async (s) => ({
                 url: s.url,
                 hasToken: !!s.token,
                 token: s.token,
+                keyCode: await keyCode(),
                 defaultInbox: DEFAULT_INBOX,
                 pending: s.outbox.length,
                 total: s.items.length,

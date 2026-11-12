@@ -9,6 +9,7 @@ pressed first.
 
 Exit code 1 on any failure.
 """
+import json
 import pathlib
 import sys
 import tempfile
@@ -54,6 +55,10 @@ with sync_playwright() as p:
                  text, clicked_at:new Date().toISOString()}})""",
             TEXT,
         )
+        if not page.evaluate("chrome.storage.local.get({url:''}).then(s=>s.url)"):
+            print("  note: no inbox was claimed (rate-limited or offline) — claim is capped per IP per hour")
+            print("FAILURES:", failures + ["claim"])
+            sys.exit(1)
         check("the like is acknowledged as sent", reply.get("sent"), True)
         check("it claimed the hosted inbox", page.evaluate("chrome.storage.local.get({url:''}).then(s=>s.url)"), HOST)
         check(
@@ -62,23 +67,39 @@ with sync_playwright() as p:
             32,
         )
 
-        # Ask the hosted inbox, with the token the extension minted, whether it arrived.
+        check("a key was generated here", len(page.evaluate("chrome.storage.local.get({key:''}).then(s=>s.key)")), 43)
+
+        # Ask the hosted inbox what it holds. It must hold a blob, not the words.
         seen = page.evaluate(
             """async () => {
                  const s = await chrome.storage.local.get({url:'', token:''});
                  const r = await fetch(s.url + '/api/likes?limit=20', {headers:{authorization:'Bearer ' + s.token}});
-                 return {status: r.status, body: await r.json()};
+                 return {status: r.status, raw: await r.text()};
                }"""
         )
         check("hosted inbox answers with the extension token", seen["status"], 200)
-        texts = [i.get("text") or "" for i in (seen["body"].get("items") or [])]
-        check("the capture is stored there", TEXT in texts, True)
-        check("tenant id reported", str(seen["body"].get("user", "")).startswith("u_"), True)
+        check("the server never sees the words", TEXT in seen["raw"] or "nasa" in seen["raw"], False)
+        check("it stores ciphertext", '"ct"' in seen["raw"], True)
+        body = json.loads(seen["raw"])
+        check("tenant id reported", str(body.get("user", "")).startswith("u_"), True)
+
+        # The extension's own inbox page decrypts that blob with the local key.
+        inbox = ctx.new_page()
+        inbox.on("pageerror", lambda e: print("PAGEERROR", str(e)[:200]))
+        inbox.goto(f"chrome-extension://{extension_id()}/inbox.html")
+        inbox.wait_for_timeout(2500)
+        text = inbox.inner_text("#list")
+        check("the inbox page decrypts it", TEXT in text, True)
+        check("and shows the post author", "@nasa" in text, True)
+        check("quota line rendered", "this month" in inbox.inner_text("#status"), True)
+        check("export offered", inbox.is_visible("#export"), True)
+        inbox.close()
 
         page.reload()
         page.wait_for_timeout(700)
         check("popup now says connected", "Connected" in page.inner_text("#status"), True)
-        check("open-inbox link points at the tenant", page.get_attribute("#open", "href").startswith(HOST + "/?t="), True)
+        check("open-inbox link is the extension page", page.get_attribute("#open", "href"), "inbox.html")
+        check("recovery code shown", len(page.input_value("#key")), 43)
         check("row rendered locally too", len(page.query_selector_all("#list div")), 1)
     finally:
         ctx.close()

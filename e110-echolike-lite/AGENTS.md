@@ -26,7 +26,7 @@ a truncated paste looks exactly like a network problem and nothing in the UI can
 tell them apart. Now the server mints the token (`POST /api/claim`) and the
 extension keeps it. A private network (loopback, RFC1918, link-local, Tailscale
 100.64/10) is itself the credential; the hosted inbox accepts open claims but
-caps them per IP (`CLAIM_PER_IP_HOUR` 5, `DEVICES_PER_IP` 20) and per tenant per
+caps them per IP (`CLAIM_PER_IP_HOUR` 20, `DEVICES_PER_IP` 20) and per tenant per
 month (`FREE_PER_MONTH` 3000).
 
 The popup says ✓ Connected when the inbox answers. Failed sends wait in
@@ -44,13 +44,14 @@ scoped by `user_id`, so no tenant can read another's captures (proven by
 | Endpoint | Auth | What it does |
 |---|---|---|
 | `GET /api/health` | none | api version, `claim: open`, free quota |
-| `POST /api/claim` | none (rate-limited) | new tenant + device token |
-| `POST /api/likes` | Bearer | stores up to 500 captures, 402 when the month is spent |
-| `GET /api/likes?limit=n` | Bearer | the caller's own captures, JSON |
-| `GET /?t=<token>` | token in query | the caller's own captures, readable page |
+| `POST /api/claim` | none (rate-limited) | new tenant + device token (`CLAIM_PER_IP_HOUR` 20) |
+| `POST /api/likes` | Bearer | stores up to 500 **encrypted blobs**, 402 when the month is spent |
+| `GET /api/likes?limit=n` | Bearer | the caller's own blobs, JSON (ciphertext only) |
+| `GET /` | none | the reader page; token + key arrive in the fragment |
 
-`GET /` is the read surface the popup links to as **Open my inbox** — the only
-place the token appears in a URL, and it is the user's own secret.
+Two read surfaces, both decrypting in the browser: the extension page
+`inbox.html` (the popup's **Open my inbox**) and the hosted `/#t=…&k=…` for a
+device without the extension. Neither sends a key to a server.
 
 ```sh
 export CLOUDFLARE_API_TOKEN=...            # never committed
@@ -70,6 +71,36 @@ encryption is the answer); a tenant is a device, not a person — no account, no
 recovery, a reinstall is a new tenant; the free quota is enforced but nothing is
 sold yet (payment + credits are the next product step).
 
+## Encryption (1.2.0, non-negotiable: nothing ships without it)
+
+Captures are sealed in the browser before they leave it. AES-256-GCM, a 32-byte
+key generated on first run, one random IV per capture. What the inbox receives is
+`{uid, iv, ct}` and nothing else — no handle, no text, no url. The worker stores
+the blob verbatim (`likes.iv`, `likes.ct`, `likes.bytes`); `POST /api/likes`
+refuses any item without `iv`+`ct` (400), so a plaintext client cannot slip in.
+`GET /api/likes` returns blobs. A stolen tenant token is therefore worth nothing:
+it buys ciphertext.
+
+Where it is read: in the user's browser, never on a server.
+
+| Reader | Key comes from |
+|---|---|
+| extension popup (last 30) | the local plaintext mirror kept in `chrome.storage.local` — same browser, no network |
+| extension page `inbox.html` (**Open my inbox**) | the key in `chrome.storage.local`; it fetches `/api/likes` and decrypts |
+| hosted `/#t=<token>&k=<key>` | the URL fragment — never sent to the server, never in a log |
+| self-hosted `server.py` | it cannot read anything: its page says so and points at the extension |
+
+* **Recovery code**: the base64url (unpadded, 43 chars) form of the key, shown in
+  the popup under Advanced with a Copy button. It is the only way to open the
+  inbox on another device. There is no reset and no escrow — losing it loses the
+  old captures, and the worker cannot help. base64url matters: `+` in a fragment
+  comes back as a space through `URLSearchParams` and silently corrupts the key.
+* The local mirror (`items` in `chrome.storage.local`) stays readable on purpose:
+  the popup must work offline, and it is the user's own profile. `outbox` holds
+  blobs, so a restart never re-sends plaintext.
+* A v2 client or a pre-encryption blob still renders (`inbox.html` and the reader
+  page show readable items as they are), so nothing breaks mid-upgrade.
+
 ## Structure
 
 ```
@@ -78,6 +109,8 @@ extension/content.js      one click listener: like/unlike/bookmark/unbookmark
 extension/background.js   local save + POST outbox to /api/likes, retry on event,
                           loopback discovery + claim, DEFAULT_INBOX (hosted)
 extension/popup.html/js   status + Find my inbox + Retry + Open my inbox; Advanced
+                          (address, token, recovery code)
+extension/inbox.html/js   the full inbox page: fetches the blobs, decrypts here, exports
 server.py                 self-hosted inbox, stdlib only: /api/health, /api/claim,
                           POST /api/likes, GET /
 inbox-worker/             hosted inbox: Cloudflare Worker + D1 (src/index.js,
@@ -121,6 +154,7 @@ xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round tri
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
 python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
+python3 tests/review_inbox_page.py            # the LIVE reader page: fragment key, decrypts, wrong key refused
 # the promise in one test: fresh browser, no configuration, one like -> hosted inbox
 # (real network, real tenant: it leaves one tenant behind per run)
 xvfb-run -a python3 tests/review_zero.py
@@ -137,6 +171,10 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.2.0 — end-to-end encryption: AES-256-GCM in the browser, the inbox stores `{uid,iv,ct}` and cannot read
+  a word, plaintext uploads refused; extension page `inbox.html` (full list, decrypts locally, JSON export),
+  hosted reader `/#t=&k=` with both secrets in the fragment, base64url recovery code in the popup; worker
+  api 3, `CLAIM_PER_IP_HOUR` 20.
 - 1.1.1 — hosted multi-tenant inbox (`inbox-worker/`, Cloudflare Worker + D1, `inbox-lite.echolike.app`),
   `DEFAULT_INBOX` claims a tenant on the first capture (truly install-and-done), popup link **Open my
   inbox**, quota shown in the popup, 402 surfaced as "free quota spent"; ads no longer hide Grok

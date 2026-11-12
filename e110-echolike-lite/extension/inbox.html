@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My EchoLike inbox</title>
+<style>
+body{font:15px system-ui;max-width:720px;margin:24px auto;padding:0 14px;color:#111}
+h1{font-size:20px;margin:0 0 4px}small{color:#666}a{color:#1d9bf0}
+#list div{border-top:1px solid #eee;padding:8px 0}
+#list span{color:#333}
+button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}
+.ok{color:#00875a}.err{color:#d0021b}.mut{color:#666;font-size:13px}
+</style>
+<h1>My EchoLike inbox</h1>
+<div id="status" class="mut">…</div>
+<p class="mut">These captures are decrypted here, in your browser, with the key that never leaves it. The inbox server only holds encrypted blobs.</p>
+<p><button id="export" style="display:none">Download as JSON</button> <button id="retry" style="display:none">Send what is waiting</button></p>
+<div id="list"></div>
+<script src="inbox.js"></script>

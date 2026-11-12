@@ -98,11 +98,15 @@ try:
         check("row text", "e2e capture" in (rows[0].inner_text() if rows else ""), True)
         check("nothing left pending", page.evaluate("chrome.storage.local.get({outbox:[]}).then(s=>s.outbox.length)"), 0)
 
-        # The server must have it, on disk and in its HTML list.
+        # The server must hold the capture — and must not be able to read one word of it.
         log = pathlib.Path(server_dir) / "likes.jsonl"
-        check("server wrote the item", log.exists() and '"id": "777"' in log.read_text(), True)
+        stored = log.read_text() if log.exists() else ""
+        check("server stored a blob", '"ct"' in stored, True)
+        check("the words never left the browser", "e2e capture" in stored, False)
+        check("nor the handle", "nasa" in stored, False)
         html = urllib.request.urlopen(url + "/", timeout=5).read().decode()
-        check("server page lists it", "e2e capture" in html, True)
+        check("server page says it cannot read them", "cannot read" in html, True)
+        check("server page counts it", "1 capture" in html, True)
 
         # Token wrong -> the popup must say so and keep the item for retry.
         # (Paste path: a hosted inbox or another machine still hands out its own token.)

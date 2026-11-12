@@ -1,6 +1,9 @@
 # EchoLike Lite
 
-Your X likes and bookmarks, saved in your browser, sent to your inbox. ~350 lines, no build step.
+Your X likes and bookmarks, saved in your browser, sent to your inbox **encrypted**. ~350 lines, no build step.
+
+Nothing you like leaves the browser in readable form: each capture is sealed with AES-256-GCM and the key
+stays in your browser. The inbox server stores blobs it cannot open — ours included.
 
 ## Install (one step, then just use X)
 
@@ -11,7 +14,11 @@ Your X likes and bookmarks, saved in your browser, sent to your inbox. ~350 line
    no account, nothing to configure.
 
 Open the popup to see the last 30 captures, and **Open my inbox** for the full list
-on the web. Free hosted quota: 3000 captures/month per install.
+(decrypted in your browser, with a JSON export). Free hosted quota: 3000 captures/month per install.
+
+**Your key**: shown in the popup under *Advanced* as a recovery code (43 characters). It never leaves
+your browser. Save it — it is the only way to read your inbox on another device, and nobody, us
+included, can regenerate it.
 
 **Prefer your own server?** Run `python3 server.py` (stdlib only, prints its
 address) and press **Find my inbox** — it takes the inbox on your own machine
