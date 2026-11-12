@@ -73,9 +73,26 @@
   let store = { hide_ads: window.__HIDE_ADS !== undefined ? window.__HIDE_ADS : true };
   window.chrome = {
     runtime: {
-      onMessage: { addListener: () => {} },
+      // The page reads its version from the manifest, and the icon from the package:
+      // both stubbed so the launcher can be tested without installing anything.
+      getManifest: () => ({ version: window.__VERSION || "9.9.9" }),
+      getURL: (p) => "chrome-extension://stub/" + p,
+      onMessage: { addListener: (fn) => (window.__msgListeners = window.__msgListeners || []).push(fn) },
       sendMessage: (m, cb) => {
         if (m.type === "hello" || m.type === "net-online") return Promise.resolve({ ok: true });
+        if (m.type === "export") {
+          const pick = m.pick || "all";
+          const items = (window.__mirror || []).filter((it) =>
+            pick === "likes" ? it.kind === "like" || it.kind === "unlike"
+            : pick === "bookmarks" ? it.kind === "bookmark" || it.kind === "unbookmark" : true);
+          cb && cb({ ok: true, items, pick });
+          return Promise.resolve({ ok: true, items, pick });
+        }
+        if (m.type === "open") {
+          (window.__opened = window.__opened || []).push(m.page);
+          cb && cb({ ok: true });
+          return Promise.resolve({ ok: true });
+        }
         window.__sent.push(m);
         cb && cb({ sent: true });
         return Promise.resolve({ sent: true });
@@ -83,7 +100,7 @@
     },
     storage: {
       local: {
-        set: (obj) => { Object.assign(window._store || {}, obj); return Promise.resolve(); },
+        set: (obj) => { window.__writes = window.__writes || []; window.__writes.push(obj); Object.assign(store, obj); return Promise.resolve(); },
         get: (defaults, cb) => {
           const out = Object.assign({}, defaults);
           for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];
@@ -94,6 +111,8 @@
       onChanged: { addListener: (fn) => window.__changeListeners.push(fn) },
     },
   };
+  window.__setStore = (v) => { Object.assign(store, v); };
+  window.__emitChange = (changes) => window.__changeListeners.forEach((fn) => fn(changes));
   window.__setHideAds = (v) => {
     store.hide_ads = v;
     window.__changeListeners.forEach((fn) => fn({ hide_ads: { newValue: v } }));

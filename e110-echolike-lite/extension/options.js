@@ -50,8 +50,9 @@ async function refresh() {
         ' · <span class="err">no key backup yet: another browser will not be able to decrypt this account</span>';
     }
   }
-  const ads = await chrome.storage.local.get({ hide_ads: true });
+  const ads = await chrome.storage.local.get({ hide_ads: true, fab_on: true });
   $("ads").checked = !!ads.hide_ads;
+  $("fab").checked = ads.fab_on !== false;
   $("telon").checked = state.telOn !== false;
   $("telcount").textContent = state.telQueued ? state.telQueued + " waiting to be sent" : "";
   $("tellog").textContent = (state.telemetry || [])
@@ -83,6 +84,19 @@ $("forget").addEventListener("click", async () => {
 // the ads switch is a storage flag the content script watches
 $("ads").addEventListener("change", async () => {
   await chrome.storage.local.set({ hide_ads: $("ads").checked });
+});
+
+// the circle on x.com: same idea, one flag plus its position
+$("fab").addEventListener("change", async () => {
+  await chrome.storage.local.set({ fab_on: $("fab").checked });
+});
+$("fabreset").addEventListener("click", async () => {
+  await chrome.storage.local.set({ fab_x: null, fab_y: null });
+  if (!$("fab").checked) {
+    $("fab").checked = true;
+    await chrome.storage.local.set({ fab_on: true });
+  }
+  say("keymsg", "The button goes back to the bottom right corner on the next X tab you open.", "ok");
 });
 
 $("telon").addEventListener("change", async () => {

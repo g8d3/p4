@@ -33,6 +33,10 @@ many, press start, keep that tab open. It stops at your count, when the list end
 post, and encrypts everything on the way out. It is a button on purpose: scroll-walking history on a timer is what a
 scraper looks like.
 
+**On X there is a button now.** A small draggable circle in the corner — with the version on it — opens
+*My inbox*, *Settings* and *Export likes / bookmarks* without leaving the page. A red number on it means that
+many captures have not reached the inbox yet. It is in a shadow root, so X's own styling never touches it, Switch it off (or put it back in the corner) in Settings → **On X**.
+
 **Nothing to press.** The first like connects an inbox by itself, and a queue that could not go out is sent by the
 next event: another like, an X tab loading, the browser coming back online, opening this page, or a browser
 start. No timers, no "retry" to remember, and the page repairs itself on load: what this browser holds and the

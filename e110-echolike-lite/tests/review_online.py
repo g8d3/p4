@@ -85,9 +85,14 @@ with sync_playwright() as p:
         page.wait_for_timeout(2500)
         check("connected", "Connected" in page.inner_text("#inboxstatus"), True)
 
-        # Diagnostics left the machine on their own, with no button pressed.
-        page.wait_for_timeout(1500)
-        log = reqlog.read_text() if reqlog.exists() else ""
+        # Diagnostics left the machine on their own, with no button pressed. Bounded
+        # wait: the flush races the assertion when the loopback server is slow.
+        log = ""
+        for _ in range(20):
+            log = reqlog.read_text() if reqlog.exists() else ""
+            if "POST /api/telemetry" in log:
+                break
+            page.wait_for_timeout(300)
         check("diagnostics were uploaded unprompted", "POST /api/telemetry" in log, True)
 
         # Offline: the capture is kept, nothing is lost, nothing is a timer.

@@ -7,7 +7,7 @@
 const MAX_ITEMS = 500;
 // Must match `CONTENT_API` in content.js: an import refuses to run on a tab whose
 // script speaks an older walk, and reloads it instead.
-const CONTENT_API = 7;
+const CONTENT_API = 8;
 
 // The hosted inbox: an install that has never been configured claims a tenant
 // there by itself on the first capture — no address, no token, no click. Point
@@ -636,6 +636,21 @@ async function capture(item) {
   return r.ok && !r.pending ? { sent: true, uid: item.uid } : { saved: true, uid: item.uid, error: r.error || null };
 }
 
+// The actions a page can ask for: the circle on x.com opens a tab, and exports the
+// user's own mirror. Both are local — no inbox, no network, nothing to configure.
+async function exportItems(pick) {
+  const s = await state();
+  const want = String(pick || "all");
+  const items = s.items.filter((it) =>
+    want === "likes"
+      ? it.kind === "like" || it.kind === "unlike"
+      : want === "bookmarks"
+        ? it.kind === "bookmark" || it.kind === "unbookmark"
+        : true,
+  );
+  return { ok: true, pick: want, items };
+}
+
 chrome.runtime.onMessage.addListener((m, _sender, reply) => {
   const p =
     m && m.type === "capture"
@@ -654,7 +669,13 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                 ? keySave(m.passphrase)
                 : m && m.type === "key-restore"
                   ? keyRestore(m.passphrase)
-                  : m && m.type === "forget"
+                : m && m.type === "open"
+            ? chrome.tabs
+                .create({ url: chrome.runtime.getURL("app.html#" + (m.page === "settings" ? "settings" : "inbox")) })
+                .then(() => ({ ok: true }))
+            : m && m.type === "export"
+              ? exportItems(m.pick)
+              : m && m.type === "forget"
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
             : m && m.type === "capture-batch"
               ? captureBatch(m.items, m.source)

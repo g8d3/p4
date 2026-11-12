@@ -55,7 +55,7 @@
   // Bump when the walk changes. The background refuses to start an import on a tab
   // whose script speaks an older api, and reloads it instead — a stale tab is the
   // difference between 7 rows and a thousand, and it is invisible otherwise.
-  const CONTENT_API = 7;
+  const CONTENT_API = 8;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 
@@ -481,6 +481,341 @@
     t.style.opacity = "1";
     clearTimeout(t._h);
     t._h = setTimeout(() => (t.style.opacity = "0"), 2500);
+  }
+
+  // ---- The circle on x.com: the extension in one press --------------------
+  // A small draggable button that carries the version and, on press, the things a
+  // user actually wants from a page they are already on: open the inbox, open the
+  // settings, export likes or bookmarks. It lives in a shadow root, so X's CSS can
+  // never restyle it and ours can never leak into X. Position and on/off switch come
+  // from storage; no timers, no observers, nothing running while nobody presses it.
+  const VER = (() => {
+    try {
+      return chrome.runtime.getManifest().version;
+    } catch (e) {
+      return "?";
+    }
+  })();
+
+  const FAB_CSS = `
+    :host{all:initial}
+    *{box-sizing:border-box;font:13px/1.4 system-ui,-apple-system,sans-serif;color:#111}
+    .dot{position:fixed;width:42px;height:42px;border-radius:50%;background:#fff;
+      border:1px solid #d8d8d8;box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:grab;
+      display:flex;align-items:center;justify-content:center;touch-action:none;
+      -webkit-user-select:none;user-select:none;z-index:1}
+    .dot:hover{border-color:#111}
+    .dot:active{cursor:grabbing}
+    .dot img{width:24px;height:24px;pointer-events:none;display:block}
+    .dot b{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:9px;
+      background:#d0021b;color:#fff;font-size:10px;font-weight:700;line-height:17px;
+      text-align:center;padding:0 4px;display:none}
+    .dot[data-pending] b{display:block}
+    .panel{position:fixed;width:290px;background:#fff;border:1px solid #e2e2e2;border-radius:12px;
+      box-shadow:0 8px 30px rgba(0,0,0,.18);padding:12px;display:none;z-index:2}
+    .panel.on{display:block}
+    .head{display:flex;align-items:baseline;gap:6px;margin:0 0 10px}
+    .head b{font-size:14px;font-weight:650}
+    .head small{color:#888;font-size:11px;font-variant-numeric:tabular-nums}
+    .row{display:flex;gap:8px;margin:0 0 8px}
+    button{font:inherit;flex:1;padding:8px 10px;border:1px solid #ddd;border-radius:9px;background:#fff;
+      cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    button:hover{border-color:#111}
+    button.primary{background:#111;color:#fff;border-color:#111}
+    .note{color:#777;font-size:11px;line-height:1.45;margin:10px 0 0}
+    .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0 0;
+      border-top:1px solid #eee;padding-top:8px}
+    .link{background:none;border:none;padding:0;color:#888;font-size:11px;cursor:pointer;flex:0;
+      white-space:nowrap}
+    .link:hover{color:#111;text-decoration:underline}
+    .status{font-size:11px;color:#00875a;min-height:14px}
+  `;
+
+  const FAB_ON = { fab_on: true };
+  let fab = null;
+
+  function mountFab() {
+    if (fab || window.top !== window) return; // one circle, and not inside an embed
+    const host = document.createElement("div");
+    host.id = "echolike-lite-fab";
+    host.style.cssText = "position:fixed;inset:0;width:0;height:0;z-index:2147483000";
+    const root = host.attachShadow({ mode: "open" });
+    const icon = (() => {
+      try {
+        return chrome.runtime.getURL("icons/icon48.png");
+      } catch (e) {
+        return "";
+      }
+    })();
+    root.innerHTML =
+      "<style>" + FAB_CSS + "</style>" +
+      '<div class="dot" part="dot" role="button" tabindex="0" title="EchoLike Lite v' + VER + ' — press for actions">' +
+      (icon ? '<img src="' + icon + '" alt="EchoLike">' : "<b style=\"position:static\">E</b>") +
+      "<b>0</b></div>" +
+      '<div class="panel" role="dialog" aria-label="EchoLike Lite">' +
+      '<div class="head"><b>EchoLike Lite</b><small>v' + VER + "</small></div>" +
+      '<div class="row"><button data-act="open" data-page="inbox" class="primary">My inbox</button>' +
+      '<button data-act="open" data-page="settings">Settings</button></div>' +
+      '<div class="row"><button data-act="export" data-pick="likes">Export likes</button></div>' +
+      '<div class="row"><button data-act="export" data-pick="bookmarks">Export bookmarks</button></div>' +
+      '<div class="row"><button data-act="export" data-pick="all">Export everything</button></div>' +
+      '<div class="status"></div>' +
+      '<p class="note">Next on this button: AI on the post you are reading, profile edits, writing posts with images and video, and comments.</p>' +
+      '<div class="foot"><span class="link" data-act="hide">Hide this button</span>' +
+      '<span class="link">v' + VER + "</span></div></div>";
+    // documentElement, not body: X re-renders the app root, and this must outlive it.
+    // The icon comes from the package; if the browser cannot load it, the letter
+    // stands in. (An inline onerror attribute would be blocked by X's CSP.)
+    const img = root.querySelector(".dot img");
+    if (img) {
+      img.addEventListener("error", () => {
+        const mark = document.createElement("span");
+        mark.textContent = "E";
+        mark.style.cssText = "font:700 15px system-ui;letter-spacing:.5px;pointer-events:none";
+        img.replaceWith(mark);
+      });
+    }
+    document.documentElement.appendChild(host);
+
+    const dot = root.querySelector(".dot");
+    const panel = root.querySelector(".panel");
+    const badge = dot.querySelector("b");
+    fab = { host, root, dot, panel, x: 0, y: 0, open: false };
+
+    const place = (x, y) => {
+      fab.x = Math.max(4, Math.min(window.innerWidth - 50, x));
+      fab.y = Math.max(4, Math.min(window.innerHeight - 50, y));
+      dot.style.left = fab.x + "px";
+      dot.style.top = fab.y + "px";
+      if (fab.open) placePanel();
+    };
+    const placePanel = () => {
+      const w = panel.offsetWidth || 280;
+      const h = panel.offsetHeight || 260;
+      const left = Math.max(8, Math.min(window.innerWidth - w - 8, fab.x + 21 - w / 2));
+      // Above the circle when there is room, below it otherwise — measured from the
+      // circle's own edges, so the panel never lands on top of the button.
+      const above = fab.y - h - 10;
+      const top = above > 8 ? above : Math.min(window.innerHeight - h - 8, fab.y + 52);
+      panel.style.left = left + "px";
+      panel.style.top = Math.max(8, top) + "px";
+    };
+
+    // Pending captures get a count on the circle: the one number a user wants to see
+    // without opening anything.
+    const paintPending = (n) => {
+      if (n > 0) {
+        badge.textContent = n > 9 ? "9+" : String(n);
+        dot.setAttribute("data-pending", "1");
+        dot.title = "EchoLike Lite v" + VER + " — " + n + " waiting to send";
+      } else {
+        dot.removeAttribute("data-pending");
+        dot.title = "EchoLike Lite v" + VER + " — press for actions";
+      }
+    };
+    const readPending = () => {
+      try {
+        chrome.storage.local.get({ outbox: [] }, (s) => paintPending((s.outbox || []).length));
+      } catch (e) {
+        /* no storage, no badge: the circle still works */
+      }
+    };
+
+    const say = (msg) => {
+      const st = root.querySelector(".status");
+      st.textContent = msg;
+      clearTimeout(say._h);
+      say._h = setTimeout(() => (st.textContent = ""), 3000);
+    };
+
+    // Export is local and immediate: the mirror in this browser is the user's own
+    // data, so a press gives a file without asking a server for anything.
+    function download(items, pick) {
+      const blob = new Blob([JSON.stringify(items, null, 1)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "echolike-" + pick + "-" + new Date().toISOString().slice(0, 10) + ".json";
+      a.style.display = "none";
+      document.documentElement.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 4000);
+      return items.length;
+    }
+
+    const counts = () => {
+      try {
+        chrome.storage.local.get({ items: [] }, (s) => {
+          const items = s.items || [];
+          const likes = items.filter((i) => i.kind === "like" || i.kind === "unlike").length;
+          const bookmarks = items.filter((i) => i.kind === "bookmark" || i.kind === "unbookmark").length;
+          const label = (pick, n) => {
+            const b = root.querySelector('button[data-act="export"][data-pick="' + pick + '"]');
+            if (b) b.textContent = (pick === "likes" ? "Export likes" : pick === "bookmarks" ? "Export bookmarks" : "Export everything") + (n ? " (" + n + ")" : "");
+          };
+          label("likes", likes);
+          label("bookmarks", bookmarks);
+          label("all", items.length);
+        });
+      } catch (e) {
+        /* counts are decoration; the buttons work without them */
+      }
+    };
+
+    const close = () => {
+      fab.open = false;
+      panel.classList.remove("on");
+    };
+    const open = () => {
+      fab.open = true;
+      panel.classList.add("on");
+      counts();
+      placePanel();
+    };
+
+    // Drag or press: 5 px of travel means the user is moving the button, not opening it.
+    let drag = null;
+    dot.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      drag = { dx: e.clientX - fab.x, dy: e.clientY - fab.y, moved: false };
+      dot.setPointerCapture(e.pointerId);
+    });
+    dot.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      e.stopPropagation();
+      const x = e.clientX - drag.dx;
+      const y = e.clientY - drag.dy;
+      if (Math.abs(x - fab.x) + Math.abs(y - fab.y) > 5) drag.moved = true;
+      place(x, y);
+    });
+    dot.addEventListener("pointerup", (e) => {
+      e.stopPropagation();
+      const d = drag;
+      drag = null;
+      if (!d) return;
+      if (d.moved) {
+        try {
+          chrome.storage.local.set({ fab_x: fab.x, fab_y: fab.y });
+        } catch (err) {
+          /* a page that cannot save still keeps it for this session */
+        }
+        return;
+      }
+      if (fab.open) close();
+      else open();
+    });
+    dot.addEventListener("pointercancel", () => (drag = null));
+    // The same button for a keyboard: Enter or Space, no mouse needed.
+    dot.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (fab.open) close();
+      else open();
+    });
+
+    root.addEventListener("click", (e) => {
+      const t = e.target instanceof Element ? e.target.closest("[data-act]") : null;
+      if (!t) return;
+      e.stopPropagation();
+      const act = t.getAttribute("data-act");
+      if (act === "hide") {
+        try {
+          chrome.storage.local.set({ fab_on: false });
+        } catch (err) {
+          /* ignore */
+        }
+        unmountFab();
+        return;
+      }
+      if (act === "open") {
+        try {
+          chrome.runtime.sendMessage({ type: "open", page: t.getAttribute("data-page") }, () => {
+            if (chrome.runtime.lastError) say("the extension page is not reachable");
+            else say("opening…");
+          });
+        } catch (err) {
+          say("the extension page is not reachable");
+        }
+        return;
+      }
+      if (act === "export") {
+        const pick = t.getAttribute("data-pick") || "all";
+        try {
+          chrome.runtime.sendMessage({ type: "export", pick }, (r) => {
+            const items = (r && r.items) || [];
+            const n = download(items, pick);
+            say(n ? "downloaded " + n + " " + (pick === "all" ? "captures" : pick) : "nothing to export yet");
+          });
+        } catch (err) {
+          say("the extension is not reachable");
+        }
+      }
+    });
+
+    // Press anywhere else, or Escape: the panel closes. No polling, no focus trap.
+    window.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (!fab || !fab.open) return;
+        if (e.composedPath().indexOf(host) >= 0) return;
+        close();
+      },
+      true
+    );
+    window.addEventListener("keydown", (e) => {
+      if (fab && fab.open && e.key === "Escape") close();
+    });
+    window.addEventListener("resize", () => place(fab.x, fab.y));
+
+    try {
+      chrome.storage.local.get({ fab_x: window.innerWidth - 58, fab_y: window.innerHeight - 118 }, (s) =>
+        place(Number(s.fab_x), Number(s.fab_y)),
+      );
+    } catch (e) {
+      place(window.innerWidth - 58, window.innerHeight - 118);
+    }
+    readPending();
+  }
+
+  function unmountFab() {
+    if (!fab) return;
+    fab.host.remove();
+    fab = null;
+  }
+
+  function applyFab(on) {
+    if (on) mountFab();
+    else unmountFab();
+  }
+
+  chrome.storage.local.get(FAB_ON, (s) => applyFab(s.fab_on !== false));
+  chrome.storage.onChanged.addListener((ch) => {
+    if (ch.fab_on) applyFab(ch.fab_on.newValue !== false);
+    if (fab && (ch.outbox || ch.items)) {
+      if (ch.outbox && fab.dot) {
+        const n = (ch.outbox.newValue || []).length;
+        const badge = fab.dot.querySelector("b");
+        if (n > 0) {
+          badge.textContent = n > 9 ? "9+" : String(n);
+          fab.dot.setAttribute("data-pending", "1");
+        } else fab.dot.removeAttribute("data-pending");
+      }
+    }
+    if (ch.fab_x || ch.fab_y) {
+      // "Put it back" in Settings: the position was cleared.
+      if (fab && ch.fab_x && ch.fab_x.newValue == null) placeDefault();
+    }
+  });
+  function placeDefault() {
+    if (!fab) return;
+    fab.x = window.innerWidth - 58;
+    fab.y = window.innerHeight - 118;
+    fab.dot.style.left = fab.x + "px";
+    fab.dot.style.top = fab.y + "px";
   }
 
   // Capture phase: read the button's testid BEFORE X flips it.

@@ -348,6 +348,51 @@ Three server-side rules keep that list honest:
   only to skip the wait until the next event. Live proof: `tests/review_sort.py`
   seeds an unsent capture, opens the page and expects it in the inbox.
 
+## The circle on x.com (1.17.2)
+
+The version belongs where the user already is. A small draggable circle sits on
+x.com (bottom right by default), carries the version, and opens the actions that
+make sense from a page you are reading:
+
+| Action | What it does |
+|---|---|
+| My inbox / Settings | opens `app.html#inbox` / `#settings` in a tab |
+| Export likes / bookmarks / everything | writes a JSON file from the local mirror, labelled with how many |
+| Hide this button | sets `fab_on: false`; the **On X** card in Settings turns it back on |
+
+The shell is a **shadow root** in one host element appended to
+`document.documentElement` (not `body`: X re-renders the app root and this must
+outlive it). No X CSS can restyle it and none of ours can leak into X.
+
+Rules it follows, because a floating thing on a live page is where products become
+rude:
+
+* **No timers, no observers.** Mounted once, positioned from storage, free until
+  pressed. Position (`fab_x`/`fab_y`) is written on `pointerup` after a real drag;
+  5 px of travel means drag, not press.
+* **It cannot steal an interaction.** Every handler stops propagation and the capture
+  listener only reacts to `data-testid` action buttons, so liking under the circle
+  still works (`review_fab.py` proves it).
+* **It stays on screen.** Stored coordinates and every move are clamped to the
+  viewport; a resize re-clamps instead of pushing it off the edge.
+* **A broken icon is not a state.** The icon comes from the package; if it fails to
+  load, a lettermark replaces it (an inline `onerror` would be blocked by X's CSP).
+* **The panel never covers its own button**: above the circle when there is room,
+  below otherwise, measured from the circle's edges. It closes on Escape, on a press
+  anywhere else, or on a second press, and the circle is a real `role=button` with
+  Enter/Space.
+* **Export needs no inbox, no server, no account.** The mirror is in this browser, so
+  the file is built from it and a user with no connection still gets their data out.
+
+The red badge is the outbox count: the one number a user wants without opening
+anything ("did my like make it?"). Bump `CONTENT_API` (now 8) whenever the page script
+changes — the background refuses to start an import on a tab running an older script
+and reloads it instead.
+
+The roadmap he asked for is one honest line in the panel — *next on this button: AI
+on the post, profile edits, writing posts with images and video, comments* — because
+a disabled button pretending to be a feature is worse than a sentence.
+
 ## The row is a card (1.17.1)
 
 The sort and filter block also carries a **filter**: all captures,
@@ -441,6 +486,7 @@ xvfb-run -a python3 tests/review_zero.py
 # systemctl --user stop echolike-lite-inbox && xvfb-run -a python3 tests/review_find_fallback.py
 xvfb-run -a python3 tests/review_app.py       # the one page: tabs, find, ads switch, list, bad connect
 python3 tests/review_sort.py                  # LIVE: one capture one row, offset pages, sort/filter both readers, self-repair
+xvfb-run -a python3 tests/review_fab.py       # the circle on x.com: version, drag, exports, hide, capture still works
 # the real user seat: no configuration at all, one button, inside a throw-away netns
 # so the live inbox on 8931 is untouched
 unshare -rn sh -c 'ip link set lo up; xvfb-run -a python3 tests/review_find.py'
@@ -451,6 +497,14 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.17.2 — the extension shows up on x.com: a draggable circle in a shadow root, with the version on it (hover
+title, panel header, footer), a red badge with the captures that have not reached the inbox yet, and a panel with
+**My inbox**, **Settings**, **Export likes / bookmarks / everything** (JSON, built from the local mirror, so no
+inbox and no network are needed) and **Hide this button** — restorable from the new switch in Settings. Position
+persists and is clamped to the screen; drag vs press is 5 px of travel; Escape or a press elsewhere closes it; it
+is `role=button` with Enter/Space; the icon falls back to a lettermark instead of a broken image; the panel is
+placed above or below the circle so it never covers it. `CONTENT_API` 8. New test: `tests/review_fab.py`.
 
 - 1.17.1 — the row is a card: kind + handle + tags, then **five aligned count cells** (value over label,
   tabular numbers, `–` when unknown), then the four dates in their own grid (4 columns, 2 on a phone), then
