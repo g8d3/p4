@@ -93,10 +93,10 @@ async function load() {
   }
   $("status").textContent = "Loading from " + s.url.replace(/^https?:\/\//, "") + "…";
   let r;
+  const acct = s.accountToken ? (await chrome.storage.local.get({ accountToken: "" })).accountToken : "";
+  const readUrl = acct ? s.url.replace(/\/$/, "") + "/api/account/likes?limit=200" : s.url.replace(/\/$/, "") + "/api/likes?limit=200";
   try {
-    r = await fetch(s.url.replace(/\/$/, "") + "/api/likes?limit=200", {
-      headers: { authorization: "Bearer " + s.token },
-    });
+    r = await fetch(readUrl, { headers: { authorization: "Bearer " + (acct || s.token) } });
   } catch (e) {
     tel("read.unreachable", { ok: false, host: s.url, error: String(e.message || e) });
     $("status").innerHTML = '<span class="err">Inbox unreachable.</span> ' + (s.pending ? s.pending + " waiting locally." : "");
@@ -113,7 +113,15 @@ async function load() {
     return;
   }
   const body = await r.json();
-  const fromInbox = await decryptAll(s.keyCode, body.items || []);
+  const decrypted = await decryptAll(s.keyCode, body.items || []);
+  // Two browsers, one X account: the same like shows up once, not twice.
+  const seen = new Set();
+  const fromInbox = decrypted.filter((it) => {
+    const k = (it.kind || "") + "|" + (it.id || it.uid || "");
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
   // What is in this browser but not in the inbox yet: the honest answer to
   // "did my likes arrive?", which the popup alone cannot give.
   const local = (await chrome.storage.local.get({ items: [], outbox: [] })).items;
@@ -122,7 +130,7 @@ async function load() {
   shown = fromInbox.concat(waiting.map((i) => Object.assign({}, i, { waiting: true })));
   const quota = body.used != null && body.quota ? " · " + body.used + "/" + body.quota + " this month" : "";
   $("status").innerHTML =
-    '<span class="ok">' + fromInbox.length + "</span> in the inbox " +
+    '<span class="ok">' + fromInbox.length + "</span> " + (acct ? "in my account " : "in the inbox ") +
     "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
     ' · ' + local.length + " in this browser" +
     (waiting.length ? ' · <span class="err">' + waiting.length + " not in the inbox yet</span>" : "") +
@@ -138,7 +146,10 @@ async function load() {
   })();
   const web = $("webinbox");
   if (hosted) {
-    web.href = s.url + "/#t=" + encodeURIComponent(s.token || "") + "&k=" + encodeURIComponent(s.keyCode || "");
+    const deep = s.accountToken
+      ? "/#a=" + encodeURIComponent(s.accountToken) + "&k=" + encodeURIComponent(s.keyCode || "")
+      : "/#t=" + encodeURIComponent(s.token || "") + "&k=" + encodeURIComponent(s.keyCode || "");
+    web.href = s.url + deep;
     web.style.display = "inline";
   } else {
     web.style.display = "none";

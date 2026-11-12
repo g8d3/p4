@@ -23,6 +23,11 @@ browser holds, and exports JSON. Free hosted quota: 3000 captures/month per inst
 your browser. Save it — it is the only way to read your inbox on another device, and nobody, us
 included, can regenerate it.
 
+**Two browsers, one account** (optional): install in both, sign in with the same email in each, and back up the
+key with a passphrase in the first one. In the second, sign in and press **Restore key** with that passphrase —
+its own catches are then re-encrypted with the account key and sent, and both browsers show one merged list with
+duplicates removed.
+
 **Getting your inbox back** (optional): open the extension page and its **Settings** tab (the popup's Settings button) → enter your email → *Email me a code* → type the
 6 digits. That links this install to an account. Then choose a passphrase and *Back up key*: your key is uploaded
 wrapped with that passphrase, so a new phone can restore it and nothing on the server can open it. Without a

@@ -344,6 +344,34 @@ async function accountSummary(env, who) {
   });
 }
 
+// The account is the unit of reading: every device it owns, newest first. Each
+// blob is still sealed per device key, so the reader dedupes by (kind, id) after
+// decrypting — the same like captured in two browsers is one like.
+async function accountLikes(env, url, who) {
+  const limit = Math.min(500, Math.max(1, Number(url.searchParams.get("limit") || 200)));
+  const rows = await env.DB.prepare(
+    "SELECT l.uid, l.iv, l.ct, l.text, l.handle, l.url, l.kind, l.clicked_at, l.ad, l.legacy, l.received_at" +
+      " FROM likes l JOIN account_tenants t ON t.user_id = l.user_id" +
+      " WHERE t.account_id = ?1 ORDER BY l.id DESC LIMIT ?2",
+  )
+    .bind(who.id, limit)
+    .all();
+  const total = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM likes l JOIN account_tenants t ON t.user_id = l.user_id WHERE t.account_id = ?1",
+  )
+    .bind(who.id)
+    .first();
+  const tenants = await env.DB.prepare("SELECT user_id FROM account_tenants WHERE account_id = ?1").bind(who.id).all();
+  return json({
+    ok: true,
+    account: who.id,
+    tenants: (tenants.results || []).map((r) => r.user_id),
+    items: rows.results || [],
+    total: total?.n || 0,
+    quota: FREE_PER_MONTH,
+  });
+}
+
 async function accountKey(env, req, who) {
   if (req.method === "GET") {
     const row = await env.DB.prepare("SELECT salt, iterations, iv, ct, updated_at FROM key_backups WHERE account_id = ?1")
@@ -399,18 +427,21 @@ const esc = (s) => String(s==null?"":s).replace(/[&<>"']/g, (c)=>({"&":"&amp;","
 // Secrets ride in the fragment: never sent to the server, never in a log.
 let token = localStorage.getItem('el_token') || '';
 let key = localStorage.getItem('el_key') || '';
+let atoken = localStorage.getItem('el_atoken') || '';
 function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   const t = h.get('t');
   const k = h.get('k');
+  const a = h.get('a');
   if (t) { token = t; localStorage.setItem('el_token', t); }
   if (k) { key = k; localStorage.setItem('el_key', k); }
+  if (a) { atoken = a; localStorage.setItem('el_atoken', a); }
   if (location.hash) history.replaceState(null, '', location.pathname);
-  return { t, k };
+  return { t, k, a };
 }
 readHash();
 // An already-open tab that receives a new key must pick it up, not ignore it.
-window.addEventListener('hashchange', () => { if (readHash().t || readHash().k) { $('ask').style.display = 'none'; load(); } });
+window.addEventListener('hashchange', () => { const h = readHash(); if (h.t || h.k || h.a) { $('ask').style.display = 'none'; load(); } });
 let items = [];
 let aes = null;
 
@@ -435,17 +466,23 @@ function render(rows) {
   }
 }
 async function load() {
-  if (!token) { $('status').innerHTML = '<span class=err>No key for this inbox.</span> Open it from the extension popup: <b>Open my inbox</b>.'; return; }
+  if (!token && !atoken) { $('status').innerHTML = '<span class=err>No key for this inbox.</span> Open it from the extension: <b>Open on echolike.app</b>.'; return; }
   $('status').textContent = 'Loading…';
   let r;
-  try { r = await fetch('/api/likes?limit=200', {headers:{authorization:'Bearer ' + token}}); }
+  const url = atoken ? '/api/account/likes?limit=200' : '/api/likes?limit=200';
+  try { r = await fetch(url, {headers:{authorization:'Bearer ' + (atoken || token)}}); }
   catch (e) { $('status').innerHTML = '<span class=err>Network error.</span>'; return; }
   if (r.status === 401) { $('status').innerHTML = '<span class=err>This inbox key is not valid any more.</span>'; return; }
   const body = await r.json();
   const rows = body.items || [];
   if (!key) { $('status').textContent = rows.length + ' encrypted capture(s) waiting.'; $('ask').style.display='block'; return; }
   try { aes = await importKey(key); } catch (e) { $('status').innerHTML = '<span class=err>That recovery code is not valid.</span>'; $('ask').style.display='block'; return; }
-  try { items = await Promise.all(rows.map(decrypt)); }
+  try {
+    const all = await Promise.all(rows.map(decrypt));
+    // Same X account in two browsers: one like, one row.
+    const seen = new Set();
+    items = all.filter((it) => { const k = (it.kind||'')+'|'+(it.id||it.uid||''); if (seen.has(k)) return false; seen.add(k); return true; });
+  }
   catch (e) { $('status').innerHTML = '<span class=err>Wrong recovery code: these captures do not decrypt.</span>'; $('ask').style.display='block'; return; }
   $('status').innerHTML = '<span class=ok>' + (body.total!=null ? body.total : items.length) + '</span> capture(s) in this inbox' +
     (body.used!=null && body.quota ? ' · ' + body.used + '/' + body.quota + ' this month' : '') +
@@ -495,6 +532,7 @@ export default {
         if (path === "/api/account/verify" && req.method === "POST") return await accountVerify(env, req);
         if (!who) return json({ ok: false, error: "unauthorized" }, 401);
         if (path === "/api/account" && req.method === "GET") return await accountSummary(env, who);
+        if (path === "/api/account/likes" && req.method === "GET") return await accountLikes(env, url, who);
         if (path === "/api/account/key") return await accountKey(env, req, who);
         return json({ ok: false, error: "not found" }, 404);
       }

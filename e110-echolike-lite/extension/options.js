@@ -41,6 +41,15 @@ async function refresh() {
         : ' · <span class="err">key not backed up</span>')
     : "Not signed in.";
   if (!$("email").value) $("email").value = state.accountEmail || "";
+  // A signed-in account without a key backup cannot be read on a second device:
+  // say it here, before it becomes a surprise ("some likes are not visible").
+  if (state.accountToken) {
+    const info = await send("account-info");
+    if (info && info.ok && info.has_key === false) {
+      $("acctstatus").innerHTML +=
+        ' · <span class="err">no key backup yet: another browser will not be able to decrypt this account</span>';
+    }
+  }
   const ads = await chrome.storage.local.get({ hide_ads: true });
   $("ads").checked = !!ads.hide_ads;
   $("telon").checked = state.telOn !== false;

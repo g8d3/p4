@@ -237,6 +237,7 @@ xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe
 xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
 bash bin/live-test-reset.sh                  # clears the hosted claim window (the live tests claim a lot)
 python3 tests/review_telemetry.py               # diagnostics contract + no capture content in the log
+xvfb-run -a python3 tests/review_two_browsers.py # two browsers, one account, one list (local worker)
 python3 tests/review_drain.py                  # a plaintext backlog drains itself and arrives sealed
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
@@ -263,6 +264,15 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 - 1.0.1 — popup lists the last 30 captures with links (works with no inbox); `host_permissions` declared
   instead of `chrome.permissions.request` (the runtime prompt blocked the popup); server writes its data
   in the directory it is launched from; Save verifies the connection even with an empty queue.
+- 1.9.0 — **the account is the unit of reading**. The reported symptom: the same X account in two browsers, and
+  switching browsers hides likes. Cause: every install claimed its own tenant with its own key, and both readers
+  fetched one tenant. Now `GET /api/account/likes` (account token) returns every device the account has linked,
+  `GET /api/account` lists them, the extension's inbox tab and the hosted reader use it when signed in, and both
+  dedupe by `(kind, id)` *after decrypting* — the server cannot dedupe sealed blobs, and the same like captured in
+  two browsers has two different uids. Restoring the account key on a device re-seals that device's local mirror
+  with the account key and pushes it (`keyRestore` → `syncAll`), so the two browsers converge on one list. The
+  settings card warns when an account has no key backup, because without it a second device can never decrypt.
+  `tests/review_two_browsers.py` builds exactly that: two tenants, one account, one shared like, 3 rows not 4.
 - 1.8.0 — **the lost-captures bug**. `flush()` cleared the whole outbox on success, so a capture taken while the
   POST was in flight disappeared from the queue and stayed in the local mirror for ever: the owner's screen said
   `1 in the inbox · 18 in this browser` and 28 tenants held one or two captures each, every request answering 200.

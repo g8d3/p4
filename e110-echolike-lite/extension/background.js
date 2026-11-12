@@ -286,8 +286,11 @@ async function syncAll() {
   if (!s.url || !s.token) return { ok: false, error: "not connected: press Find my inbox first" };
   const base = s.url.replace(/\/$/, "");
   let have = new Set();
+  // Signed in? Then the whole account counts, not just this device: two browsers,
+  // one inbox.
+  const readUrl = s.accountToken ? base + "/api/account/likes?limit=500" : base + "/api/likes?limit=500";
   try {
-    const r = await timed(base + "/api/likes?limit=500", { headers: { authorization: "Bearer " + s.token } }, 15000);
+    const r = await timed(readUrl, { headers: { authorization: "Bearer " + (s.accountToken || s.token) } }, 15000);
     if (r.ok) {
       const j = await r.json().catch(() => null);
       have = new Set(((j && j.items) || []).map((i) => i.uid).filter(Boolean));
@@ -432,7 +435,10 @@ async function keyRestore(passphrase) {
     if (code.length !== 43) return { ok: false, error: "that backup is not a key" };
     await chrome.storage.local.set({ key: code, keyBackedAt: b.updated_at || new Date().toISOString() });
     await tel("key.restore", { ok: true });
-    return { ok: true, restored: true };
+    // Whatever this browser captured under its own key is now re-sealed with the
+    // account key and pushed, so the two browsers show one list.
+    const synced = await syncAll();
+    return { ok: true, restored: true, added: synced.added || 0, error: synced.error || null };
   } catch (e) {
     await tel("key.restore", { ok: false, error: "wrong passphrase" });
     return { ok: false, error: "wrong passphrase" };
@@ -472,7 +478,9 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
                   ? keyRestore(m.passphrase)
                   : m && m.type === "forget"
             ? chrome.storage.local.remove(["url", "token"]).then(() => ({ ok: true }))
-            : m && m.type === "sync"
+            : m && m.type === "account-info"
+              ? acctCall("/api/account")
+              : m && m.type === "sync"
               ? syncAll()
               : m && m.type === "tel"
               ? tel(m.action, m.info || {}).then(() => ({ ok: true }))
