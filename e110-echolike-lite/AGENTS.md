@@ -615,6 +615,11 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.17.5 (release gate) — `bin/publish.sh` now downloads the published `echolike-lite.crx` and verifies it
+(CRX3, signature, appid, version) after the json check. Before, the json was verified and the artifact was only
+verified locally, which cannot catch a stale or half-uploaded file — the exact shape of a browser stuck on
+*Updating…*. Documented the browser-side cause (the updater runs at startup) above.
+
 - 1.17.5 — one code, one list. `P8` collapses to a single code (the pairing code, which already carries the
 key) with Reveal/Copy and one paragraph: the recovery-code field and the pair-another-phone block are gone. The
 join action moves to where the doubt is: `P1` shows `list u_… · this phone only` with a real **＋ Add my other
@@ -790,6 +795,28 @@ placed above or below the circle so it never covers it. `CONTENT_API` 8. New tes
   finds the loopback inbox and claims by itself (one button), address/token moved under Advanced, the server
   accepts the printed token or any claimed device token, device cap + per-IP claim limit, `.devices.json`
   stores sha256 only (bit-for-bit the same product, minus the thing people failed at).
+
+## Update channel: a stuck "Updating…" is usually the browser, not the release
+
+Seen in the wild (2026-11-12, a phone): the extensions menu said *Updating…* and stayed
+there. Checked from the outside, the release was perfect — `echolike-lite.crx` served as
+`application/x-chrome-extension`, no redirect, valid CRX3, signature matching the appid in
+`extension_update_lite.json`, manifest inside 1.17.5, same as advertised. A browser
+restart fixed it: Chromium runs its extension updater **at startup** and then roughly
+every five hours, so a manual click right after a publish can sit in that state.
+
+`bin/publish.sh` now proves both halves before calling a release live: the json advertises
+`$VER`, **and the artifact downloaded from echolike.app** passes `bin/check_crx.py
+--appid … --version $VER`. A json advertising a version the served crx does not carry is
+exactly how a browser loops on *Updating…*, and no local check can see it.
+
+When it happens again, in this order:
+
+1. `curl -sI https://echolike.app/echolike-lite.crx` → 200, `application/x-chrome-extension`, no redirect.
+2. `curl -s https://echolike.app/extension_update_lite.json` → the version you published.
+3. `bin/check_crx.py <downloaded crx> --appid … --version …`.
+4. If all three are right: restart the browser (or wait for its next check). The FAB on
+   x.com shows the running version, which is the fastest way to confirm the update landed.
 
 ## Update channel (why the Update button works — or does not)
 

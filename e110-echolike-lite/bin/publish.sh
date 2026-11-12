@@ -86,10 +86,28 @@ git add -A && git commit -q -m "lite $VER" && git push -q origin HEAD
 CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN:-${CLOUDFLARE_PAGES_API_KEY:-${CLOUDFLARE_FOCALIS_API_KEY:-}}}" \
   wrangler pages deploy "$W/site" --project-name echolike --branch main --commit-dirty=true 2>&1 | tail -n 2
 
-# 6) verify what the browser will actually see
+# 6) verify what the browser will actually see: the manifest AND the artifact it
+#    will download. A json that advertises 1.17.5 next to a stale crx makes the
+#    browser loop on "Updating…" for ever, and the local checks cannot see it.
+GOT=""
 for i in $(seq 1 12); do
-  live=$(curl -s -m 10 "https://echolike.app/$UPDATE_JSON?b=$RANDOM" | grep -o "version=\"$VER\"" || true)
-  [ -n "$live" ] && { echo "== LIVE: echolike.app serves $CRX $VER (${i}0 s)"; exit 0; }
+  got=$(curl -s -m 10 "https://echolike.app/$UPDATE_JSON?b=$RANDOM" | grep -o "version=\"$VER\"" || true)
+  if [ -n "$got" ]; then GOT=$got; break; fi
   sleep 10
 done
-echo "== pushed, but echolike.app still does not report $VER"; exit 2
+if [ -z "$GOT" ]; then echo "== pushed, but echolike.app still does not report $VER"; exit 2; fi
+echo "   update json live: $GOT"
+
+# The artifact itself, as a browser would download it: same signature, same version.
+DL=$(mktemp)
+curl -s -m 60 -o "$DL" "https://echolike.app/$CRX?b=$RANDOM"
+if python3 bin/check_crx.py "$DL" --appid "$APPID" --version "$VER" >/tmp/crx-live.txt 2>&1; then
+  echo "== LIVE: echolike.app serves $CRX $VER (manifest + artifact verified)"
+  rm -f "$DL"
+  exit 0
+fi
+echo "== the update json says $VER but the served $CRX does not:"
+tail -5 /tmp/crx-live.txt
+echo "   the browser will stay on 'Updating…' until the artifact matches"
+rm -f "$DL"
+exit 3
