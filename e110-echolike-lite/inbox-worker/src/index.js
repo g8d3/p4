@@ -1055,6 +1055,8 @@ const DATES = [['liked','clicked_at'], ['saved','captured_at'], ['arrived','rece
 function datesGrid(it) {
   const cells = DATES.map(([label, field]) => {
     const v = it[field] || (field === 'published_at' ? it.tweet_time : '');
+    // x-web (X's 2026 rewrite) ships no <time>: the post's own date string travels instead.
+    if (!v && field === 'published_at' && it.published_text) return '<span><i>' + label + '</i> <b>' + esc(it.published_text) + '</b></span>';
     if (!v) return '';
     return '<span title="' + esc(localTime(v)) + '"><i>' + label + '</i> <b>' + esc(shortTime(v)) + '</b></span>';
   }).filter(Boolean);
@@ -1062,7 +1064,7 @@ function datesGrid(it) {
 }
 function rowHtml(it) {
   const name = it.author_name || it.handle || 'post';
-  const when = it.published_at || it.clicked_at;
+  const when = it.published_at || it.published_text || it.clicked_at;
   return '<div class="head">' + avatar(it) +
     '<div class="ident"><b>' + esc(name) + '</b>' +
     (it.url ? ' <a class="at" target=_blank rel=noreferrer href="' + esc(it.url) + '">@' + esc(it.handle) + '</a>' : ' <span class="at">@' + esc(it.handle) + '</span>') +
