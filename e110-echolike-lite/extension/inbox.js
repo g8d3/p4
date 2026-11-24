@@ -372,7 +372,9 @@ async function load() {
   }
   tel("read", { ok: got.ok, code: got.code || 200, host: s.url });
   if (!got.ok && got.code === 401) {
-    $("status").innerHTML = '<span class="err">This inbox says the key is not valid (401). Reconnect from the popup.</span>';
+    $("status").innerHTML =
+      '<span class="err">This list\'s token was refused (401) — the inbox was reset or this phone was removed.</span> ' +
+      "Open Settings → 1 · Inbox and press <b>Find my inbox</b>; captures in this browser are kept.";
     return;
   }
   if (!got.ok) {

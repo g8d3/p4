@@ -1,5 +1,5 @@
 <!doctype html>
-<html><body>
+<html lang="en"><body>
 <!-- The 2026 x-web rewrite, as served on x.com: no data-testid anywhere. Engagement
      controls are native toggles: the icon inside names the action, aria-pressed the
      state. A quote is a nested <article>, not a div[role=link]. -->
@@ -46,6 +46,30 @@
   <div dir="auto" lang="en">A card the extension cannot resolve.</div>
   <button aria-label="7 Likes. Like" aria-pressed="false" type="button"><svg><use href="#icon-heart"></use></svg><span>7</span></button>
 </article>
+<!-- A promoted post as x-web labels it: the disclosure is a short span in the
+     header, before the post's own text, with no attribute to match in CSS. -->
+<ul id="feed">
+  <li id="promotedcell"><div role="link">
+    <article id="promoted">
+      <div class="flex items-center gap-1">
+        <a href="/acme"><div class="max-w-full text-body font-bold text-primary" dir="auto">Acme</div></a>
+        <span class="text-body text-secondary">Promoted by Acme</span>
+        <a href="/acme/status/777">Nov 24</a>
+      </div>
+      <div class="text-body text-primary" dir="auto" lang="en">Buy this thing you do not need.</div>
+      <button aria-label="1 Likes. Like" aria-pressed="false" type="button"><svg><use href="#icon-heart"></use></svg><span>1</span></button>
+    </article>
+  </div></li>
+  <!-- A real post whose entire text is "Promoted": the label check must not eat it. -->
+  <li id="wordcell"><div role="link">
+    <article id="wordpost">
+      <a href="/someone"><div class="max-w-full text-body font-bold text-primary" dir="auto">Someone</div></a>
+      <a href="/someone/status/888">Nov 24</a>
+      <div dir="auto" lang="en"><span>Promoted</span></div>
+    </article>
+  </div></li>
+</ul>
+
 <script>
   // Stubs of the extension APIs the content script touches: message channel + storage.
   // One injected flag lets a test flip the ads switch the way the popup does.

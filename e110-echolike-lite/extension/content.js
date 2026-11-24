@@ -1,37 +1,111 @@
 // EchoLike Lite — content script. One capture-phase click listener, nothing else.
-// No observers, no timers, no DOM polling: zero cost until you click like/bookmark.
+// No timers, no DOM polling: zero cost until you click like/bookmark. The only
+// observer is the one that marks promoted posts while the ads switch is on.
 (function () {
   if (window.__echolikeLite) return;
   window.__echolikeLite = true;
 
-  // ---- Ads: one stylesheet, no observers, no timers. ----
-  // A promoted post is a real tweet inside [data-testid="placementTracking"] (the
-  // marker Control Panel for Twitter uses too); promoted trends carry that arrow
-  // icon. Hiding the whole cell removes the empty gap the ad would leave behind.
-  // X puts OTHER inserted modules in the same wrapper — Grok answers, above all —
-  // so a placement only counts as an ad when it holds a tweet and shows no Grok
-  // marker: Grok testids, a /grok author link, or an aria-label naming Grok.
+  // Bump when the walk changes. The background refuses to start an import on a tab
+  // whose script speaks an older api, and reloads it instead — a stale tab is the
+  // difference between 7 rows and a thousand, and it is invisible otherwise.
+  // (Declared first: ping("hello") below reads it, and a later const is in its dead
+  // zone at that moment — the throw was swallowed and hello never reached the
+  // background, so an X tab loading did not retry the queue, silently.)
+  const CONTENT_API = 9;
+
+  // ---- Ads ----
+  // Old app (rweb): a promoted post is a real tweet inside
+  // [data-testid="placementTracking"] (the marker Control Panel for Twitter uses
+  // too); promoted trends carry that arrow icon. Hiding the whole cell removes the
+  // empty gap the ad would leave behind. X puts OTHER inserted modules in the same
+  // wrapper — Grok answers, above all — so a placement only counts as an ad when it
+  // holds a tweet and shows no Grok marker: Grok testids, a /grok author link, or an
+  // aria-label naming Grok.
   const NOT_GROK =
     ':not(:has([data-testid*="Grok"],[data-testid*="grok"],a[href*="/grok"],' +
     '[aria-label*="Grok"],[aria-label*="grok"]))';
+  // x-web (2026) prints the disclosure as text and keeps no marker, so CSS alone
+  // cannot see it. The label is the marker: a short span that reads as a disclosure
+  // and sits before the post's own text; the JS below sets data-echolike-ad on the
+  // cell, and the last rule here hides it.
   const ADS_CSS =
     '[data-testid="placementTracking"]:has([data-testid="tweet"])' + NOT_GROK + '{display:none !important}' +
     '[data-testid="cellInnerDiv"]:has([data-testid="placementTracking"] [data-testid="tweet"])' +
     NOT_GROK +
     '{display:none !important}' +
-    '[data-testid="trend"]:has(path[d^="M19.498 3h-15"]){display:none !important}';
+    '[data-testid="trend"]:has(path[d^="M19.498 3h-15"]){display:none !important}' +
+    '[data-echolike-ad]{display:none !important}';
+  const AD_LABEL =
+    /^(Promoted|Promocionado|Patrocinado|Publicidad|Anzeige|Gesponsert|Sponsorisé|Sponsorisée|Promu|Sponsorizzato|Promosso)(\s+(by|por|von|par|da)\s+.+)?$/i;
+
+  // The promoted label, not the post: a short span outside the post's text (which
+  // carries lang) and outside profile links, ordered before the text. A real post
+  // that says "Promoted" lives inside [lang] and is never touched.
+  function looksPromoted(art) {
+    // <html lang> would make closest("[lang]") true for everything, so the post's
+    // text is matched by its own container: dir=auto + lang, which only the post
+    // body (and a quoted body, inside its own article) carries.
+    const firstText = art.querySelector('[dir="auto"][lang]');
+    for (const s of art.querySelectorAll("span")) {
+      if (s.closest('[dir="auto"][lang]') || s.closest('a[href^="/"]')) continue;
+      if (s.closest("article") !== art) continue; // a quoted post's header
+      const t = (s.textContent || "").trim();
+      if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
+      if (firstText && !(s.compareDocumentPosition(firstText) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
+      return true;
+    }
+    return false;
+  }
+
+  function markAds(node) {
+    if (!node || node.nodeType !== 1) return;
+    const arts = [];
+    if (node.matches && node.matches("article")) arts.push(node);
+    if (node.querySelectorAll) for (const a of node.querySelectorAll("article")) arts.push(a);
+    for (const art of arts) {
+      // The cell, not the article: hiding the article leaves its padding behind.
+      const cell = art.closest("li") || art.closest('[role="link"]') || art;
+      if (looksPromoted(art)) cell.setAttribute("data-echolike-ad", "1");
+      else cell.removeAttribute("data-echolike-ad");
+    }
+  }
+
+  let adObserver = null;
+
+  function watchAds(on) {
+    if (adObserver) {
+      adObserver.disconnect();
+      adObserver = null;
+    }
+    if (!on) {
+      for (const el of document.querySelectorAll("[data-echolike-ad]")) el.removeAttribute("data-echolike-ad");
+      return;
+    }
+    markAds(document.body);
+    // Ads arrive as the timeline grows: one observer marks them on insertion (and
+    // clears a cell that a virtualized list reused for a real post). It watches the
+    // body, not `main`: x-web's feed is not always inside <main>, and an observer on
+    // a container the app replaces dies with it.
+    adObserver = new MutationObserver((muts) => {
+      for (const m of muts) for (const n of m.addedNodes) markAds(n);
+    });
+    adObserver.observe(document.body, { childList: true, subtree: true });
+  }
 
   function applyAds(hide) {
     const cur = document.getElementById("echolike-lite-ads");
     if (!hide) {
       if (cur) cur.remove();
+      watchAds(false);
       return;
     }
-    if (cur) return;
-    const style = document.createElement("style");
-    style.id = "echolike-lite-ads";
-    style.textContent = ADS_CSS;
-    (document.head || document.documentElement).appendChild(style);
+    if (!cur) {
+      const style = document.createElement("style");
+      style.id = "echolike-lite-ads";
+      style.textContent = ADS_CSS;
+      (document.head || document.documentElement).appendChild(style);
+    }
+    watchAds(true);
   }
 
   // Two events, no timers: an X tab finishing loading is the cheapest honest moment
@@ -51,11 +125,6 @@
   chrome.storage.onChanged.addListener((ch) => {
     if (ch.hide_ads) applyAds(ch.hide_ads.newValue);
   });
-
-  // Bump when the walk changes. The background refuses to start an import on a tab
-  // whose script speaks an older api, and reloads it instead — a stale tab is the
-  // difference between 7 rows and a thousand, and it is invisible otherwise.
-  const CONTENT_API = 9;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 

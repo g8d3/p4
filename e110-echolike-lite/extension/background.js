@@ -5,6 +5,23 @@
 // (discover/claim), a send when something is queued, and the health check that
 // comes with it.
 const MAX_ITEMS = 500;
+// One request is bounded by both numbers: an item can be a few KB of ciphertext,
+// so the queue is cut by bytes as well as count (the inbox refuses >4 MB, and a
+// backlog used to be sent as one request).
+const SEND_MAX = 200;
+const SEND_BUDGET = 256 * 1024;
+
+function takeBatch(items, budget) {
+  const out = [];
+  let bytes = 24; // {"items":[]}
+  for (const it of items) {
+    const size = JSON.stringify(it).length + 1;
+    if (out.length && (out.length >= SEND_MAX || bytes + size > budget)) break;
+    out.push(it);
+    bytes += size;
+  }
+  return out;
+}
 // Must match `CONTENT_API` in content.js: an import refuses to run on a tab whose
 // script speaks an older walk, and reloads it instead.
 const CONTENT_API = 9;
@@ -245,71 +262,99 @@ async function flushOnce(verify) {
     queue = sealed;
     s = Object.assign({}, s, { outbox: sealed });
   }
-  let res;
-  const started = Date.now();
-  try {
-    res = await fetch(s.url.replace(/\/$/, "") + "/api/likes", {
-      method: "POST",
-      headers: {
-        authorization: "Bearer " + s.token,
-        "content-type": "application/json",
-        "x-echolike-api": "4", // this client only ever sends sealed blobs
-      },
-      body: JSON.stringify({ items: queue }),
-    });
-  } catch (e) {
-    // No timer, no retry loop: the next event that exists (a new capture, an X tab
-    // loading, the browser saying it is online again, the page opening, startup)
-    // sends this queue.
-    await tel("send.unreachable", { ok: false, host: s.url, ms: Date.now() - started, error: String(e.message || e) });
-    s.last = { ok: false, error: "unreachable: " + String(e.message || e).slice(0, 100), at: new Date().toISOString() };
-    await chrome.storage.local.set({ last: s.last });
-    return { ok: false, error: s.last.error, pending: s.outbox.length };
-  }
-  await tel("send", { ok: res.ok, code: res.status, host: s.url, ms: Date.now() - started, error: res.ok ? null : "HTTP " + res.status });
-  if (res.status === 401) {
-    s.last = { ok: false, error: "bad token (401)", at: new Date().toISOString() };
-    await chrome.storage.local.set({ last: s.last });
-    return { ok: false, error: s.last.error, pending: s.outbox.length };
-  }
-  if (res.status === 402) {
+  // The queue can be a whole backlog, not one like: a phone that had been offline
+  // through the x-web outage came back with 499 captures, the inbox refused the
+  // 600 KB request with 413, and nothing after it could ever send. Batches now go
+  // out one after another (bounded by items AND bytes) and only what a request
+  // stored leaves the queue. A 413 still halves the batch once, so a server with a
+  // smaller ceiling than this client expects degrades instead of wedging.
+  let budget = SEND_BUDGET;
+  let sentTotal = 0;
+  let last = null;
+  let remaining = queue;
+  let first = true;
+  while (remaining.length || (first && verify)) {
+    const batch = remaining.length ? takeBatch(remaining, budget) : [];
+    first = false;
+    const started = Date.now();
+    let res;
+    try {
+      res = await fetch(s.url.replace(/\/$/, "") + "/api/likes", {
+        method: "POST",
+        headers: {
+          authorization: "Bearer " + s.token,
+          "content-type": "application/json",
+          "x-echolike-api": "4", // this client only ever sends sealed blobs
+        },
+        body: JSON.stringify({ items: batch }),
+      });
+    } catch (e) {
+      // No timer, no retry loop: the next event that exists (a new capture, an X tab
+      // loading, the browser saying it is online again, the page opening, startup)
+      // sends this queue.
+      await tel("send.unreachable", { ok: false, host: s.url, ms: Date.now() - started, error: String(e.message || e) });
+      const now = (await chrome.storage.local.get({ outbox: [] })).outbox.length;
+      s.last = { ok: false, error: "unreachable: " + String(e.message || e).slice(0, 100), at: new Date().toISOString() };
+      await chrome.storage.local.set({ last: s.last });
+      return { ok: false, error: s.last.error, pending: now };
+    }
+    await tel("send", { ok: res.ok, code: res.status, host: s.url, ms: Date.now() - started, error: res.ok ? null : "HTTP " + res.status });
+    if (res.status === 401) {
+      s.last = { ok: false, error: "bad token (401)", at: new Date().toISOString() };
+      await chrome.storage.local.set({ last: s.last });
+      return { ok: false, error: s.last.error, pending: (await chrome.storage.local.get({ outbox: [] })).outbox.length };
+    }
+    if (res.status === 402) {
+      const j = await res.json().catch(() => null);
+      s.last = {
+        ok: false,
+        error: "free quota spent this month" + (j && j.quota ? " (" + j.used + "/" + j.quota + ")" : ""),
+        at: new Date().toISOString(),
+      };
+      await chrome.storage.local.set({ last: s.last });
+      return { ok: false, error: s.last.error, pending: (await chrome.storage.local.get({ outbox: [] })).outbox.length };
+    }
+    if (!res.ok) {
+      const j = await res.json().catch(() => null);
+      if (res.status === 413 && batch.length > 1 && budget > 16 * 1024) {
+        budget = Math.floor(budget / 2);
+        continue; // same remaining, smaller request
+      }
+      const why = j && j.error ? String(j.error).slice(0, 120) : "inbox HTTP " + res.status;
+      s.last = {
+        ok: false,
+        error: res.status === 400 && j && j.error && /iv \+ ct/.test(j.error) ? "the inbox needs a newer version of this extension" : why,
+        at: new Date().toISOString(),
+      };
+      await chrome.storage.local.set({ last: s.last });
+      return { ok: false, error: s.last.error, pending: (await chrome.storage.local.get({ outbox: [] })).outbox.length };
+    }
     const j = await res.json().catch(() => null);
-    s.last = {
-      ok: false,
-      error: "free quota spent this month" + (j && j.quota ? " (" + j.used + "/" + j.quota + ")" : ""),
+    last = {
+      ok: true,
+      error: null,
       at: new Date().toISOString(),
+      used: j && typeof j.used === "number" ? j.used : null,
+      quota: j && typeof j.quota === "number" ? j.quota : null,
     };
-    await chrome.storage.local.set({ last: s.last });
-    return { ok: false, error: s.last.error, pending: s.outbox.length };
+    // Only the items actually sent leave the queue: clearing all of it loses any
+    // capture that was taken while this request was in flight.
+    const sent = new Set(batch.map((i) => i.uid));
+    const after = await chrome.storage.local.get({ outbox: [] });
+    const left = after.outbox.filter((i) => !sent.has(i.uid));
+    await chrome.storage.local.set({ outbox: left, last });
+    sentTotal += batch.length;
+    remaining = remaining.slice(batch.length);
   }
-  if (!res.ok) {
-    const j = await res.json().catch(() => null);
-    const why = j && j.error ? String(j.error).slice(0, 120) : "inbox HTTP " + res.status;
-    s.last = {
-      ok: false,
-      error: res.status === 400 && j && j.error && /iv \+ ct/.test(j.error) ? "the inbox needs a newer version of this extension" : why,
-      at: new Date().toISOString(),
-    };
-    await chrome.storage.local.set({ last: s.last });
-    return { ok: false, error: s.last.error, pending: s.outbox.length };
-  }
-  const j = await res.json().catch(() => null);
-  const n = s.outbox.length;
-  s.last = {
-    ok: true,
-    error: null,
-    at: new Date().toISOString(),
-    used: j && typeof j.used === "number" ? j.used : null,
-    quota: j && typeof j.quota === "number" ? j.quota : null,
-  };
-  // Only the items actually sent leave the queue: clearing all of it loses any
-  // capture that was taken while this request was in flight.
-  const sent = new Set(queue.map((i) => i.uid));
-  const after = await chrome.storage.local.get({ outbox: [] });
-  const left = after.outbox.filter((i) => !sent.has(i.uid));
-  await chrome.storage.local.set({ outbox: left, last: s.last });
   telFlush();
-  return { ok: true, sent: n, pending: left.length, used: s.last.used, quota: s.last.quota };
+  const after = await chrome.storage.local.get({ outbox: [] });
+  return {
+    ok: true,
+    sent: sentTotal,
+    pending: after.outbox.length,
+    used: last && last.used,
+    quota: last && last.quota,
+  };
 }
 
 // Zero-typing setup: the server mints the device token, the extension keeps it.

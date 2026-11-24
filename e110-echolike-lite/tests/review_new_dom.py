@@ -102,7 +102,31 @@ with sync_playwright() as p:
     noitem = [m for m in tel if m.get("action") == "capture.noitem"]
     check("capture.noitem reported", len(noitem), 1)
 
-    # 6. the import walk never turns a quoted post into a capture of its own.
+    # 6. ads: the text-only disclosure x-web prints is enough to hide the cell,
+    #    while a real post whose text is "Promoted" stays.
+    check("promoted cell hidden", page.is_visible('#promotedcell'), False)
+    check("a post that says Promoted stays", page.is_visible('#wordpost'), True)
+    check("a normal post stays", page.is_visible('#main'), True)
+    page.evaluate("""() => {
+      const li = document.createElement('li');
+      li.id = 'latecell';
+      li.innerHTML = '<div role="link"><article id="latepromoted">' +
+        '<div class="flex"><a href="/late"><div class="font-bold" dir="auto">Late</div></a>' +
+        '<span>Promocionado por Late</span></div>' +
+        '<div dir="auto" lang="en">Another ad, appended later.</div></article></div>';
+      document.body.appendChild(li);
+    }""")
+    page.wait_for_timeout(200)
+    check("an ad appended later is hidden by the observer", page.is_visible('#latecell'), False)
+    page.evaluate("window.__setHideAds(false)")
+    page.wait_for_timeout(100)
+    check("switch off brings them back", page.is_visible('#promotedcell'), True)
+    check("and the late one too", page.is_visible('#latecell'), True)
+    page.evaluate("window.__setHideAds(true)")
+    page.wait_for_timeout(100)
+    check("switch on hides again", page.is_visible('#promotedcell'), False)
+
+    # 7. the import walk never turns a quoted post into a capture of its own.
     page.evaluate("""() => {
       window.__sent.length = 0;
       window.__msgListeners[0]({ type: 'import-start', mode: 'likes', limit: 2 }, null, () => {});

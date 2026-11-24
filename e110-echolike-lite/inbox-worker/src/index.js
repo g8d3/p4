@@ -37,7 +37,13 @@ const API = 4;
 const FREE_PER_MONTH = 3000;
 const CLAIM_PER_IP_HOUR = 20; // a household or a test suite never needs more; a bot still caps at DEVICES_PER_IP
 const DEVICES_PER_IP = 50; // one household, office or CGNAT can share an address; the monthly quota still bounds it
-const MAX_BODY = 512 * 1024;
+// A backlog is one device catching up, not an attack: 500 sealed captures (the
+// ceiling the client keeps) are ~600 KB, and the first phone to come back from the
+// x-web outage had 499 of them, so 512 KB refused the whole repair with "payload
+// too large" and no capture could get past it. The client still batches (1.20.1);
+// this is the headroom that lets an already-installed 1.20.0 drain without waiting
+// for an update. Items are still capped one by one and 500 per request.
+const MAX_BODY = 4 * 1024 * 1024;
 const MAX_ITEM = 24 * 1024;
 const MAX_ITEMS = 500;
 // A read must be able to hand back everything a tenant has, or the client cannot

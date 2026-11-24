@@ -85,7 +85,7 @@ No network at all? Captures are saved in the browser and sent when it can be.
 
 ## Ads
 
-Promoted posts and trends are hidden on X (CSS only — no observer, no timer). The popup switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
+Promoted posts and trends are hidden on X — by CSS on the old app, and by the promoted label's own text on the 2026 rewrite (one observer, only while the switch is on). The popup switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
 
 ## No inbox yet?
 
@@ -93,4 +93,4 @@ Captures are still saved in the browser: the popup lists the last 30 with a link
 
 ## Cost in the browser
 
-One click listener. No observers, no timers, no polling, zero background traffic. The service worker sleeps until you click.
+One click listener. One observer, only while `Hide ads on X` is on; no timers, no polling, zero background traffic. The service worker sleeps until you click.

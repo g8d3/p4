@@ -7,7 +7,8 @@ capture X likes/bookmarks, send them to your inbox. Nothing else.
 
 A browser extension + one-file inbox server in ~350 lines total (the old
 pair is ~6000). Install-and-done: two steps and one button, near-zero browser
-cost: one click listener, no observers, no timers, no background traffic.
+cost: one click listener, no timers, no background traffic (one observer while the
+ads switch is on).
 
 ## Use (install-and-done)
 
@@ -705,6 +706,7 @@ are left untouched (existing installs keep their update channel).
 xvfb-run -a python3 tests/review_capture.py   # content script vs X-shaped DOM (quoted tweet, kinds, double-inject)
 xvfb-run -a python3 tests/review_new_dom.py   # x-web (2026): no testids, icons + aria-pressed, nested quotes
 xvfb-run -a python3 tests/review_live_x.py    # LIVE x.com + the real extension: one like, the layout line, the capture line
+xvfb-run -a python3 tests/review_backlog.py   # 499 queued captures leave in bounded batches, outbox ends empty
 xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, Find my inbox, bad connect reported
 xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
 bash bin/live-test-reset.sh                  # clears the hosted claim window (the live tests claim a lot)
@@ -738,6 +740,36 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.20.1 — **ads on x-web, and a backlog that can finally leave.** x-web prints the
+  promotion as text ("Promoted", "Promoted by X") and keeps no attribute CSS can
+  match, so the switch did nothing on the new app. The label *is* the marker: a
+  short span that is not inside the post's own text (`[dir=auto][lang]` — a plain
+  `[lang]` is true for everything because `<html lang>`), not inside a profile link,
+  and ordered before the text; `data-echolike-ad` goes on the cell (`li`) and one CSS
+  rule hides it. One MutationObserver on the body marks ads as the timeline grows
+  and clears a cell a virtualized list reused for a real post; it exists only while
+  the switch is on. A real post whose text is exactly "Promoted" is inside `[lang]`
+  and stays. Second fix: a device that came back from the outage with 499 queued
+  captures posted them as one 600 KB request, got 413 "payload too large", and every
+  later capture queued behind a backlog that could never move — `flushOnce` now
+  sends bounded batches (200 items / 256 KB, halving once on a 413) until the queue
+  is empty, and the worker's ceiling is 4 MB so an already-installed 1.20.0 drains
+  too. Third fix: `CONTENT_API` was read by `ping("hello")` before its `const`, so
+  the throw was swallowed and a loading X tab never retried the queue — declared
+  first now. New test: `tests/review_backlog.py` (499 staged captures, a local sink
+  records several bounded POSTs, outbox ends empty); `tests/review_new_dom.py`
+  covers promoted-at-load, promoted-appended, a post that says "Promoted", and the
+  switch both ways.
+  **Incident (same day):** `bin/live-test-reset.sh` contained
+  `DELETE FROM devices WHERE user_id IN (SELECT id FROM users WHERE created_at <
+  datetime('now','-2 hours'))` — it revoked every real install's token whenever the
+  helper ran. Recovered the deleted rows with D1 Time Travel (restore to 16:00Z,
+  export `devices`, restore forward) and merged the orphaned 805-capture list into
+  the phone's new tenant (same key, different uids no-op). The script now deletes
+  only devices with no captures, no account and created in the last day, and says
+  never to delete by age. A token exists only as sha256 server-side; deleting the row
+  is unrevivable.
 
 - 1.20.0 — **x-web, X's 2026 rewrite, captures again.** X is moving signed-in people to a rewritten web app
   (`x-web`) country by country, and that app has **no `data-testid` anywhere** — every selector the content
@@ -1049,7 +1081,9 @@ hanging-up clients, garbage requests, truncated bodies and parallel posts.
 One switch in the popup (`hide_ads`, default on) hides promoted posts and
 promoted trends on X. Implementation is a single injected `<style>` tag, removed
 when off: no observer, no timer, no per-node work — the cost when off is zero and
-when on is the browser's own style matching.
+when on is the browser's own style matching. On x-web the CSS has nothing to match
+(no testid, no wrapper), so the promoted label's text is the marker and one
+MutationObserver marks arriving cells (1.20.1); it is disconnected with the switch.
 
 Markers (verified 2026-11-11 against the maintained extension
 `insin/control-panel-for-twitter`, which uses the same container):
