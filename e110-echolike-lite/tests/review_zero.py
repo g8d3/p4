@@ -100,7 +100,9 @@ with sync_playwright() as p:
         page.reload()
         page.wait_for_timeout(700)
         check("inbox tab shows the inbox it chose", "inbox-lite.echolike.app" in page.inner_text("#status"), True)
-        href = page.evaluate("document.getElementById('open').href")
+        # The link is `#webinbox` (the page stopped having a separate "open" button
+        # when the popup and the inbox page became one).
+        href = page.evaluate("document.getElementById('webinbox').href")
         check("open on echolike.app", href.startswith(HOST + "/#t="), True)
         check("the key rides in the fragment, not the query", "&k=" in href and href.split("#")[0].count("k=") == 0, True)
         check("the link names the site", "echolike.app" in page.inner_text("#webinbox"), True)

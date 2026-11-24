@@ -254,7 +254,8 @@ with sync_playwright() as p:
     check("no 'showing the newest' excuse", "showing the newest" in reader.inner_text("#status"), False)
     check("the reader has the sort control", reader.is_visible("#sort"), True)
     rcodes = reader.eval_on_selector_all("[data-section]", "els => els.map(e => e.dataset.section)")
-    check("the reader is boxed and numbered too", rcodes, ["I1", "I2", "I3", "I4"])
+    # I0 is the "this browser is not linked" card, present (and hidden) on every read.
+    check("the reader is boxed and numbered too", [c for c in rcodes if c != "I0"], ["I1", "I2", "I3", "I4"])
     check("the reader uses the same grids", len(reader.query_selector_all("#list .cap:first-child .grid")), 2)
     # The arrival date is the server's column, not the sealed record: the reader
     # used to drop it, which also left "sort by arrived" with nothing to sort.

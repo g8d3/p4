@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en"><body>
+<!-- x-web (X's 2026 rewrite): no data-testid anywhere, and the disclosure is text.
+     These are the shapes the ads switch has to survive on a phone, which is where
+     the product actually runs (crx installed in a mobile browser). -->
+<div id="feed">
+
+  <!-- 1. The phone's own wording: a bare "Ad" in a div, article inside a cellInnerDiv. -->
+  <div data-testid="cellInnerDiv" id="adcell">
+    <article id="adarticle">
+      <div><a href="/shop"><img src="data:," alt=""></a></div>
+      <div><span>Some Shop</span><span>@shop</span><div>Ad</div></div>
+      <div dir="auto" lang="en">Buy this thing you do not need.</div>
+      <div role="group"><button>reply</button><button>like</button></div>
+    </article>
+  </div>
+
+  <!-- 2. "Promoted by <advertiser>", the label inside the advertiser's own link. -->
+  <div id="promotedby">
+    <article id="promotedbyarticle">
+      <div><a href="/acme">Acme</a><span>@acme</span><span><a href="/acme">Promoted by Acme</a></span></div>
+      <div dir="auto" lang="en">Acme makes things.</div>
+    </article>
+  </div>
+
+  <!-- 3. A real post that is nothing but the word "Ad": a person saying it, not an ad.
+     Its own text is the post body, so it must stay. -->
+  <li id="realadcell">
+    <article id="realadarticle">
+      <div><span>Someone</span><span>@someone</span></div>
+      <div dir="auto" lang="en">Ad</div>
+    </article>
+  </li>
+
+  <!-- 4. A real post quoting the disclosure as its own text. Never hidden. -->
+  <article id="talker">
+    <div><span>Marketer</span><span>@marketer</span></div>
+    <div dir="auto" lang="en">Promoted by my friend, apparently</div>
+  </article>
+
+  <!-- 5. A real post with a quoted post inside it whose text is "Ad": the quote is
+     another article, so the outer post keeps its place. -->
+  <article id="quoter">
+    <div><span>Quoter</span><span>@quoter</span></div>
+    <div dir="auto" lang="en">look at this</div>
+    <article id="quoted">
+      <div><span>Quoted</span><span>@quoted</span></div>
+      <div dir="auto" lang="en">Ad</div>
+    </article>
+  </article>
+
+  <!-- 5b. A person whose display name is "Ad": bold, a name, not a disclosure. -->
+  <article id="personadarticle">
+    <div><a href="/ad"><div dir="auto" style="font-weight:700">Ad</div></a><span>@ad</span></div>
+    <div dir="auto" lang="en">hello, my name is Ad</div>
+  </article>
+
+  <!-- 6. Grok: it shares the wrapper X uses for ads on the old app, and must stay. -->
+  <div data-testid="cellInnerDiv" id="grokcell">
+    <div data-testid="GrokAnswerText">Grok's answer stays visible.</div>
+  </div>
+</div>
+
+<script>
+  // The extension APIs the content script touches: message channel + storage.
+  window.__sent = [];
+  window.__changeListeners = [];
+  let store = { hide_ads: window.__HIDE_ADS !== undefined ? window.__HIDE_ADS : true };
+  window.chrome = {
+    runtime: {
+      getManifest: () => ({ version: "9.9.9" }),
+      getURL: (p) => "chrome-extension://stub/" + p,
+      onMessage: { addListener: (fn) => (window.__msgListeners = window.__msgListeners || []).push(fn) },
+      sendMessage: (m) => {
+        window.__sent.push(m);
+        return Promise.resolve({ ok: true });
+      },
+    },
+    storage: {
+      local: {
+        set: (obj) => { Object.assign(store, obj); return Promise.resolve(); },
+        get: (defaults, cb) => {
+          const out = Object.assign({}, defaults);
+          for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];
+          cb && cb(out);
+          return Promise.resolve(out);
+        },
+      },
+      onChanged: { addListener: (fn) => window.__changeListeners.push(fn) },
+    },
+  };
+  window.__setHideAds = (v) => {
+    store.hide_ads = v;
+    window.__changeListeners.forEach((fn) => fn({ hide_ads: { newValue: v } }));
+  };
+  // The next ad shape: the post lands first, the disclosure arrives a moment later
+  // (X paints its header in a second pass). This is the case 1.20.1 could not mark,
+  // because the mutation it saw was the label, not the article.
+  window.__lateAd = () => {
+    const cell = document.createElement("div");
+    cell.id = "latecell";
+    cell.innerHTML =
+      '<article id="latearticle"><div><span>Late</span><span>@late</span>' +
+      '<span id="lateslot"></span></div>' +
+      '<div dir="auto" lang="en">This ad painted its label late.</div></article>';
+    document.getElementById("feed").appendChild(cell);
+    setTimeout(() => {
+      document.getElementById("lateslot").textContent = "Promoted";
+    }, 60);
+  };
+</script>
+</body></html>

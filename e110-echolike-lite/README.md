@@ -87,7 +87,9 @@ No network at all? Captures are saved in the browser and sent when it can be.
 
 ## Ads
 
-Promoted posts and trends are hidden on X — by CSS on the old app, and by the promoted label's own text on the 2026 rewrite (one observer, only while the switch is on). The popup switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
+Promoted posts and trends are hidden on X — by CSS on the old app, and by the disclosure's own text on the 2026 rewrite (one observer, only while the switch is on). The label is whatever your X says: the desktop app prints *Promoted*, a phone prints *Ad*, and both count (as do "Promoted by …" and the same word in the languages this ships in). A real post whose own text is one of those words is never hidden, and neither is a Grok answer. The switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
+
+After an update, reload the X tab: a page keeps the script it loaded with. Still seeing one? Settings → **3 · On X** → *Ads still showing? Send what X shows*: it reads the shape of your open X tab — tags and attributes, never the text or the handle — and sends it with the diagnostics, so the next DOM change is fixed from what your phone actually renders instead of from a guess.
 
 ## No inbox yet?
 
@@ -96,3 +98,7 @@ Captures are still saved in the browser: the popup lists the last 30 with a link
 ## Cost in the browser
 
 One click listener. One observer, only while `Hide ads on X` is on; no timers, no polling, zero background traffic. The service worker sleeps until you click.
+
+## On a phone (where most installs are)
+
+The page fits a 360 px screen: title on one row, the four tabs on the next, nothing scrolling sideways. Opening the list reads the inbox once and decrypts it once; pressing a tab after that paints from memory, so a tab press is a tab press even with 800 captures. The list is drawn 80 cards at a time and grows as you scroll — that is what keeps a phone's browser from doing a second of layout work per tap.

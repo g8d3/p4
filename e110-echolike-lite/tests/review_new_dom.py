@@ -150,7 +150,10 @@ with sync_playwright() as p:
     # 9. the import walk never turns a quoted post into a capture of its own.
     page.evaluate("""() => {
       window.__sent.length = 0;
-      window.__msgListeners[0]({ type: 'import-start', mode: 'likes', limit: 2 }, null, () => {});
+      // Every listener, not listener [0]: a content script may register more than
+      // one (the ads report is one), and the browser delivers to all of them.
+      for (const fn of (window.__msgListeners || []))
+        fn({ type: 'import-start', mode: 'likes', limit: 2 }, null, () => {});
     }""")
     page.wait_for_timeout(400)
     batch = [m for m in page.evaluate("window.__sent") if m["type"] == "capture-batch"]

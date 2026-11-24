@@ -11,7 +11,7 @@
   // (Declared first: ping("hello") below reads it, and a later const is in its dead
   // zone at that moment — the throw was swallowed and hello never reached the
   // background, so an X tab loading did not retry the queue, silently.)
-  const CONTENT_API = 9;
+  const CONTENT_API = 10;
 
   // The post container, and the only structural assumption capture makes. Both of
   // X's apps wrap a post in <article>; role=article and the old data-testid row are
@@ -41,40 +41,120 @@
     '{display:none !important}' +
     '[data-testid="trend"]:has(path[d^="M19.498 3h-15"]){display:none !important}' +
     '[data-echolike-ad]{display:none !important}';
+  // The disclosure X prints above a promoted post. Desktop rweb says "Promoted";
+  // the phone says "Ad", which is why 1.20.1's list (Promoted, Promocionado, …)
+  // missed every ad on a phone. The rest are the same word in the languages this
+  // product has actually been installed in, plus the "Promoted by <advertiser>"
+  // form. The whole element's text has to be exactly one of them.
   const AD_LABEL =
-    /^(Promoted|Promocionado|Patrocinado|Publicidad|Anzeige|Gesponsert|Sponsorisé|Sponsorisée|Promu|Sponsorizzato|Promosso)(\s+(by|por|von|par|da)\s+.+)?$/i;
+    /^(Ad|Anuncio|Anzeige|Advert|Werbung|Promoted|Promocionado|Patrocinado|Publicidad|Sponsored|Publicité|Sponsorisé|Sponsorisée|Promu|Sponsorizzato|Promosso|Promowane|Sponsorlu|Реклама|Reklama|推广|广告|プロモーション|広告|홍보)(\s+(by|por|von|par|da|di|door|tarafından)\s+.{1,60})?$/i;
 
-  // The promoted label, not the post: a short span outside the post's text (which
-  // carries lang) and outside profile links, ordered before the text. A real post
-  // that says "Promoted" lives inside [lang] and is never touched.
-  function looksPromoted(art) {
-    // <html lang> would make closest("[lang]") true for everything, so the post's
-    // text is matched by its own container: dir=auto + lang, which only the post
-    // body (and a quoted body, inside its own article) carries.
-    const firstText = art.querySelector('[dir="auto"][lang]');
-    for (const s of art.querySelectorAll("span")) {
-      if (s.closest('[dir="auto"][lang]') || s.closest('a[href^="/"]')) continue;
-      if (s.closest(POST_IN) !== art) continue; // a quoted post's header
+  // The post's own words: the longest [dir=auto][lang] container in the article
+  // (its body, media alt text aside). Hiding a label must never hide this, and a
+  // real post whose whole text is "Ad" or "Promoted" is exactly this container.
+  function bodyOf(art) {
+    let best = null;
+    for (const t of art.querySelectorAll('[dir="auto"][lang]')) {
+      if (t.closest(POST_IN) !== art) continue; // a quoted post's body is not ours
+      if (!best || (t.textContent || "").length > (best.textContent || "").length) best = t;
+    }
+    return best;
+  }
+
+  // The label, not the post. Any element whose whole text is a disclosure word,
+  // that is not the post's body and holds no block of its own — outside links are
+  // allowed (the advertiser's placement links its own name), order is not checked
+  // (X renders the header and the text in either order), and the element may be a
+  // div as easily as a span. 1.20.1 required all three of those and hid nothing on
+  // the phone.
+  function looksPromoted(art, body) {
+    const own = body === undefined ? bodyOf(art) : body;
+    for (const s of art.querySelectorAll("span,div")) {
+      if (s.closest(POST_IN) !== art) continue; // a quoted post's header or label
+      if (own && (s === own || own.contains(s) || s.contains(own))) continue; // the post itself
+      if (s.querySelector("span,div,img,svg,button")) continue; // a wrapper, not a label
       const t = (s.textContent || "").trim();
       if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
-      if (firstText && !(s.compareDocumentPosition(firstText) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
+      // X paints the disclosure in its regular weight and an author name in bold: a
+      // person called "Ad" (or a brand called "Publicidad") is a name, not an ad, and
+      // hiding their posts would be a worse bug than the one this fixes.
+      if (Number(getComputedStyle(s).fontWeight) >= 600) continue;
       return true;
     }
     return false;
   }
 
+  // The cell, not the article: hiding the article leaves its padding behind. In
+  // priority order, and never by one `closest()` over a selector list — that returns
+  // the NEAREST match, so a `div[role=link]` inside the list cell would be hidden
+  // instead of the cell, and the empty cell still takes its box in the timeline.
+  const cellOf = (art) =>
+    art.closest('[data-testid="cellInnerDiv"]') || art.closest("li") || art.closest('[role="link"]') || art;
+
   function markAds(node) {
+    // A label painted as text (X swaps a header's textContent, so the mutation is a
+    // Text node, not an element) still has to mark its post.
+    if (node && node.nodeType === 3) node = node.parentElement;
     if (!node || node.nodeType !== 1) return;
-    const arts = [];
-    if (node.matches && node.matches(POST_IN)) arts.push(node);
-    if (node.querySelectorAll) for (const a of node.querySelectorAll(POST_IN)) arts.push(a);
+    const arts = new Set();
+    if (node.matches && node.matches(POST_IN)) arts.add(node);
+    if (node.querySelectorAll) for (const a of node.querySelectorAll(POST_IN)) arts.add(a);
+    // A label that arrives after its post (X paints the disclosure in a second
+    // pass) is inserted INSIDE the article, so the added node is the label and no
+    // article is found by the two rules above: walk up, or every such ad is missed.
+    // Only for a short insertion — a label is a leaf — so a busy timeline does not
+    // re-scan a whole post on every node React swaps in.
+    const up = node.closest && node.closest(POST_IN);
+    if (up && (node.textContent || "").length <= 96) arts.add(up);
     for (const art of arts) {
-      // The cell, not the article: hiding the article leaves its padding behind.
-      const cell = art.closest("li") || art.closest('[role="link"]') || art;
+      const cell = cellOf(art);
       if (looksPromoted(art)) cell.setAttribute("data-echolike-ad", "1");
       else cell.removeAttribute("data-echolike-ad");
     }
   }
+
+  // Why an ad is still showing. Structure only — no post text, no handle, no link,
+  // not even the label's word — because the phone this runs on has no devtools and
+  // the next DOM change has to be read, not guessed. One tap in Settings sends it.
+  function adsReport() {
+    const arts = [...document.querySelectorAll(POST_IN)];
+    const labels = [];
+    for (const art of arts) {
+      const body = bodyOf(art);
+      const cell = cellOf(art);
+      for (const s of art.querySelectorAll("span,div")) {
+        if (s.closest(POST_IN) !== art) continue;
+        const t = (s.textContent || "").trim();
+        if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
+        labels.push(
+          [
+            s.tagName,
+            "n=" + t.split(/\s+/).length,
+            "k=" + s.children.length,
+            "wt=" + getComputedStyle(s).fontWeight,
+            "b=" + (body && (s === body || body.contains(s) || s.contains(body)) ? 1 : 0),
+            "a=" + (s.closest("a") ? 1 : 0),
+            "tid=" + (s.getAttribute("data-testid") || "-"),
+            "dir=" + (s.getAttribute("dir") || "-"),
+            "cell=" + cell.tagName + ":" + (cell.getAttribute("data-testid") || "-"),
+            "m=" + (cell.getAttribute("data-echolike-ad") === "1" ? 1 : 0),
+          ].join(","),
+        );
+        if (labels.length >= 4) break;
+      }
+      if (labels.length >= 4) break;
+    }
+    return {
+      layout: document.querySelector("[data-testid]") ? "rweb" : "x-web",
+      articles: arts.length,
+      marked: document.querySelectorAll("[data-echolike-ad]").length,
+      labels,
+    };
+  }
+
+  chrome.runtime.onMessage.addListener((m, _s, reply) => {
+    if (m && m.type === "ads-report") reply(adsReport());
+  });
 
   let adObserver = null;
 

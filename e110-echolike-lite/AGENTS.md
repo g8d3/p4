@@ -795,6 +795,9 @@ python3 tests/review_drain.py                  # a plaintext backlog drains itse
 python3 tests/review_claim.py                 # /api/claim over HTTP: private gate, cap, sha256-only storage
 python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenants, isolation both ways
 python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
+python3 tests/review_ads_xweb.py              # x-web: the phone's "Ad", late labels, links, real posts that say it
+xvfb-run -a python3 tests/review_mobile.py    # the page fits 320/360/390/412 px; all four tabs on screen and working
+xvfb-run -a python3 tests/review_speed.py     # 800 captures on a throttled phone: one read, tab press paints from memory
 python3 tests/review_inbox_page.py            # the LIVE reader page: fragment key, decrypts, wrong key refused
 python3 tests/review_account.py               # accounts over HTTP (LOCAL wrangler dev): code, link, wrapped key
 xvfb-run -a python3 tests/review_account_ui.py # the same from the popup, backup and restore included
@@ -818,6 +821,35 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.21.0 — **the three things a phone reported.** (1) *Ads still shown with the switch
+  on*: the disclosure on a phone reads **"Ad"**, which 1.20.1's word list did not
+  contain, and a label painted after its post was missed entirely (see the ads
+  section). `AD_LABEL` widened, any element/position/link allowed, the post's own body
+  excluded by longest `[dir=auto][lang]`, late labels and Text nodes handled, cell
+  chosen by priority, and a **Send what X shows** button that reports the timeline's
+  shape (structure only) so the next change is read from a phone instead of guessed.
+  (2) *The window does not fit a phone*: the header was one 445 px row, so on a 360 px
+  screen **Settings sat outside the viewport** and the page scrolled sideways.
+  `@media (max-width:560px)` puts the title on one row and four equal tabs under it;
+  `tests/review_mobile.py` measures 320/360/390/412 px (no element outside, every tab
+  on screen and >= 30 px tall, each one opens its panel). (3) *Switching tabs takes
+  seconds*: every press of Inbox re-fetched all blobs, decrypted them one by one
+  (`await` inside a `for`), and painted every card; and the `state` reply asked the
+  inbox for its identity on the way. Now the last read is cached in memory (60 s,
+  invalidated by `url`/`token`/`key`/`accountToken`, cleared by any connection change)
+  and a tab press paints from it with **zero** network reads; the panel's DOM survives
+  the switch, so a repeat press does not repaint at all; decryption runs in parallel
+  batches of 32; the list is drawn 80 cards at a time and grows as you scroll; local
+  captures repaint from the cached blobs (`refreshLocal`) instead of re-reading the
+  inbox; `inboxIdentity` is cached for 5 minutes; the Spaces tab is three network
+  reads that now happen at most once a minute. `tests/review_speed.py` drives 800
+  sealed captures through a 4x-CPU/1.6 Mbps/150 ms throttle and asserts one read to
+  first paint, 80 cards + **Show more**, **zero** reads coming back to the inbox, and
+  under 800 ms for the switch. Also: `detail` in telemetry is 400 chars (was 200 — a
+  DOM report did not fit), and two stale tests were repaired (`review_zero` looked for
+  a `#open` button that stopped existing, `review_sort` expected the reader to have
+  exactly I1–I4 after I0 was added).
 
 - 1.20.2 — **the UI-change budget, written down and widened.** Capture now accepts
   three independent ways to recognise the like/bookmark control (`data-testid`, the
@@ -1191,9 +1223,39 @@ Grok marker (`[data-testid*=Grok]`, `[data-testid*=grok]`, `a[href*="/grok"]`,
 post and promoted trend hidden, Grok answer (plain module and Grok-post form) and
 real posts visible, and the switch reversible.
 
-x-web (1.20.0) has none of these markers, so the ads switch is a no-op on X's new
-app until its promoted-post marker is identified from a signed-in ad; capture is
-unaffected (liking an ad still captures it). Old rweb keeps working as documented.
+x-web (1.20.0) has none of these markers, so on X's new app the disclosure's own
+text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
+
+* **The word the user's app prints.** Desktop says *Promoted*; a phone says *Ad*, and
+  1.20.1's list had no *Ad* — which is why the owner, whose install is a phone, still
+  saw ads with the switch on. `AD_LABEL` now covers *Ad*, *Advert*, *Sponsored*,
+  *Anuncio*, *Werbung*, *Publicité*, *Реклама*, *广告*, *プロモーション*, *홍보* and the
+  `Promoted by <advertiser>` form.
+* **Any element, not just a span, in any position, inside links too.** The label is
+  recognised by its own text (`span,div` whose whole text is a disclosure word, with
+  no block inside), so it does not matter whether X paints it before the post text,
+  inside the advertiser's link, or as the phone's `div`.
+* **A label that arrives after the post.** X paints the header in a second pass, so
+  the mutation the observer sees is a short node *inside* an existing article (or a
+  Text node) — 1.20.1 marked nothing there. `markAds` now walks up to the article
+  for any short insertion.
+* **The post's own text is never the label.** `bodyOf(art)` is the article's longest
+  `[dir=auto][lang]` container; a real post whose text is exactly "Ad" or "Promoted
+  by …" is that container and stays. A quoted post's text is a different article and
+  is ignored on both sides.
+* **The cell is chosen in priority order** (`cellInnerDiv` → `li` → `role=link`), not
+  with one `closest()` over a selector list: `closest` returns the *nearest*, so a
+  `div[role=link]` inside the list cell got hidden instead of the cell, and the empty
+  cell still took its box in the timeline.
+* **One tap reports what the phone sees.** A phone has no devtools, so Settings →
+  *3 · On X* → **Ads still showing? Send what X shows** asks the open X tab for its
+  posts' shape (`tag`, word/child counts, `inBody`, `inLink`, `data-testid`, `dir`,
+  cell kind, whether it is marked) and sends that as `ads.report` telemetry. No text,
+  no handle, no link, no label word. `tests/review_ads_xweb.py` pins the properties
+  above, including the late label and the "real post that says Ad" direction.
+
+Capture is unaffected by any of this (liking an ad still captures it, flagged
+`ad: true`). Old rweb keeps working as documented.
 
 To re-check after X changes its DOM: like a promoted post, inspect it in devtools,
 and look for the `placementTracking` wrapper. If it is gone, the fix is one

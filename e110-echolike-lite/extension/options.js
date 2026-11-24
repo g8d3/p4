@@ -95,6 +95,50 @@ $("ads").addEventListener("change", async () => {
   await chrome.storage.local.set({ hide_ads: $("ads").checked });
 });
 
+// A phone has no devtools, so the page asks the open X tab what its timeline looks
+// like (tags and attributes only) and sends that with the diagnostics: the next DOM
+// change gets read instead of guessed. `chrome.tabs` works here because the extension
+// already holds host permissions for x.com.
+async function adsReport() {
+  let tabs = [];
+  try {
+    tabs = await chrome.tabs.query({ url: ["https://x.com/*", "https://twitter.com/*"] });
+  } catch (e) {
+    return null;
+  }
+  for (const t of tabs) {
+    try {
+      const r = await chrome.tabs.sendMessage(t.id, { type: "ads-report" });
+      if (r) return r;
+    } catch (e) {
+      /* no content script in that tab yet: try the next one */
+    }
+  }
+  return null;
+}
+
+$("adscheck").addEventListener("click", async () => {
+  say("adsmsg", "Reading the X tab…");
+  const r = await adsReport();
+  if (!r) {
+    return say("adsmsg", "No X tab answered. Open x.com in this browser, scroll until an ad shows, and press again.", "err");
+  }
+  const detail = (
+    "articles=" + r.articles + " marked=" + r.marked + " layout=" + r.layout +
+    (r.labels.length ? " | " + r.labels.slice(0, 2).join(" ; ") : " | no disclosure label found")
+  ).slice(0, 380);
+  await send("tel", { action: "ads.report", info: { ok: r.marked > 0, host: "x.com", detail } });
+  say(
+    "adsmsg",
+    r.marked
+      ? '<span class="ok">Sent.</span> ' + r.marked + " post(s) are already hidden on that tab."
+      : '<span class="ok">Sent.</span> That tab shows ' + r.articles +
+          " posts and none is recognised as an ad. This is what fixes it — no text or handle was sent.",
+    "ok",
+  );
+  refresh();
+});
+
 // the circle on x.com: same idea, one flag plus its position
 $("fab").addEventListener("change", async () => {
   await chrome.storage.local.set({ fab_on: $("fab").checked });

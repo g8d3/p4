@@ -99,8 +99,14 @@ async function seal(item) {
 
 // Who this device is, as the inbox sees it: one row, no plaintext, no decryption.
 // Needed because "which list am I looking at" cannot be answered from local storage.
+// Cached for five minutes: every page paint asks `state`, and answering it with a
+// request to the inbox made opening the list wait on the network an extra time.
 async function inboxIdentity(s) {
   if (!s.url || !s.token) return { listId: "", phones: 0 };
+  const key = s.url + "|" + String(s.token).slice(-8);
+  const kept = (await chrome.storage.local.get({ identity: null })).identity;
+  const fresh = kept && kept.key === key && Date.now() - kept.at < 300000;
+  if (fresh) return { listId: kept.listId, phones: kept.phones };
   try {
     const r = await timed(
       s.url.replace(/\/$/, "") + "/api/likes?limit=1",
@@ -109,7 +115,9 @@ async function inboxIdentity(s) {
     );
     if (!r.ok) return { listId: "", phones: 0 };
     const j = await r.json().catch(() => null);
-    return { listId: (j && j.user) || "", phones: (j && j.phones) || 1 };
+    const out = { listId: (j && j.user) || "", phones: (j && j.phones) || 1 };
+    await chrome.storage.local.set({ identity: { key, at: Date.now(), ...out } });
+    return out;
   } catch (e) {
     return { listId: "", phones: 0 };
   }
@@ -155,7 +163,7 @@ function tel(action, info) {
     ms: info && Number.isFinite(info.ms) ? info.ms : null,
     host: info && info.host ? String(info.host) : null,
     error: info && info.error ? String(info.error).slice(0, 160) : null,
-    detail: info && info.detail ? String(info.detail).slice(0, 200) : null,
+    detail: info && info.detail ? String(info.detail).slice(0, 400) : null,
     at: new Date().toISOString(),
     version: chrome.runtime.getManifest().version,
   };

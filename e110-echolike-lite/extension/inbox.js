@@ -26,18 +26,25 @@ async function decryptAll(key, blobs) {
   const aes = await crypto.subtle.importKey("raw", unb64(key), "AES-GCM", false, ["decrypt"]);
   const out = [];
   out.foreign = 0; // sealed with another phone's key, so this one cannot read it
-  for (const b of blobs) {
-    // A v2 inbox (or a self-hosted one from before encryption) still hands back
-    // readable items: show those as they are.
-    if (!b.ct) {
-      out.push(b);
-      continue;
-    }
+  // A v2 inbox (or a self-hosted one from before encryption) still hands back
+  // readable items: show those as they are.
+  const one = async (b) => {
+    if (!b.ct) return { item: b };
     try {
       const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(b.iv) }, aes, unb64(b.ct));
-      out.push(Object.assign(JSON.parse(new TextDecoder().decode(plain)), { received_at: b.received_at }));
+      return { item: Object.assign(JSON.parse(new TextDecoder().decode(plain)), { received_at: b.received_at }) };
     } catch (e) {
-      out.foreign += 1;
+      return { foreign: 1 };
+    }
+  };
+  // In parallel batches: 800 sequential awaits of crypto.subtle was most of the
+  // seconds a tab switch took on a phone. 32 at a time keeps the order and the
+  // browser's crypto queue busy without flooding it.
+  for (let i = 0; i < blobs.length; i += 32) {
+    const res = await Promise.all(blobs.slice(i, i + 32).map(one));
+    for (const r of res) {
+      if (r.foreign) out.foreign += 1;
+      else out.push(r.item);
     }
   }
   return out;
@@ -275,21 +282,75 @@ function showWaiting(n) {
     n + " not in the inbox yet</button>";
 }
 
+function rowNode(it) {
+  const row = document.createElement("div");
+  row.className = "cap";
+  row.innerHTML = rowHtml(it);
+  return row;
+}
+
+// A phone with 800 captures cannot paint 800 cards in a tap: the list is drawn a
+// page at a time, and the next page is appended when the end of the list comes
+// into view (never re-rendering what is already on screen, so the scroll position
+// stays where the thumb left it).
+const PAGE_ROWS = 80;
+let view = [];
+let drawn = 0;
+let moreWatch = null;
+
+function renderMore() {
+  const box = $("list");
+  const old = document.getElementById("more");
+  if (old) {
+    if (moreWatch) moreWatch.unobserve(old); // a re-render must not leave the old row watched
+    old.remove();
+  }
+  const left = view.length - drawn;
+  if (left <= 0) return;
+  const b = document.createElement("button");
+  b.id = "more";
+  b.className = "act";
+  b.type = "button";
+  b.style.display = "block";
+  b.style.margin = "12px auto";
+  b.textContent = "Show " + Math.min(PAGE_ROWS, left) + " more · " + left + " left";
+  b.addEventListener("click", () => drawMore());
+  box.appendChild(b);
+  if (!moreWatch && window.IntersectionObserver) {
+    moreWatch = new IntersectionObserver((rows) => {
+      if (rows.some((r) => r.isIntersecting)) drawMore();
+    }, { rootMargin: "500px 0px" });
+  }
+  if (moreWatch) moreWatch.observe(b);
+}
+
+function drawMore() {
+  const box = $("list");
+  const old = document.getElementById("more");
+  if (old) {
+    if (moreWatch) moreWatch.unobserve(old);
+    old.remove();
+  }
+  const end = Math.min(view.length, drawn + PAGE_ROWS);
+  const frag = document.createDocumentFragment();
+  for (let i = drawn; i < end; i++) frag.appendChild(rowNode(view[i]));
+  box.appendChild(frag);
+  drawn = end;
+  renderMore();
+}
+
 function render(items) {
   const box = $("list");
   box.textContent = "";
+  view = items;
+  drawn = 0;
   if (!items.length) {
     box.innerHTML = shown.length
       ? '<p class="mut">Nothing matches this filter. <button id="clearfilter" class="act" type="button">Show all</button></p>'
       : '<p class="mut">Nothing yet. Like a post on X.</p>';
     return;
   }
-  for (const it of items) {
-    const row = document.createElement("div");
-    row.className = "cap";
-    row.innerHTML = rowHtml(it);
-    box.appendChild(row);
-  }
+  drawMore();
 }
 
 let shown = [];
@@ -336,55 +397,19 @@ const tel = (action, info) => chrome.runtime.sendMessage({ type: "tel", action, 
 // inbox does not is re-sealed and sent by itself, once per load.
 let repaired = false;
 
-async function load() {
-  const s = await chrome.runtime.sendMessage({ type: "state" });
-  if (!s.url || !s.hasToken) {
-    // No inbox yet: show what is in this browser, and say so honestly.
-    // Read storage directly: the state message already trims and reverses.
-    const local = (await chrome.storage.local.get({ items: [] })).items.slice();
-    shown = local;
-    $("status").innerHTML =
-      '<span class="err">Not connected.</span> ' +
-      (local.length ? local.length + " capture(s) are safe in this browser, waiting to be sent. " : "") +
-      "Press <b>Find my inbox</b>: it uses the inbox on this computer if there is one, otherwise the hosted one. " +
-      "No account, no address, nothing to type.";
-    $("export").style.display = local.length ? "inline-block" : "none";
-    $("find").textContent = local.length ? "Connect and send " + local.length : "Find my inbox";
-    $("find").style.display = "inline-block";
-    $("find").classList.add("primary");
-    $("retry").style.display = "none";
-    $("identity").innerHTML = "<b>no inbox yet</b> · this device only";
-    showSec("P2", !!local.length);
-    repaint();
-    return;
-  }
-  $("status").textContent = "Loading from " + s.url.replace(/^https?:\/\//, "") + "…";
-  const acct = s.accountToken ? (await chrome.storage.local.get({ accountToken: "" })).accountToken : "";
-  const readUrl = acct ? s.url.replace(/\/$/, "") + "/api/account/likes" : s.url.replace(/\/$/, "") + "/api/likes";
-  let got;
-  try {
-    got = await readAll(readUrl, { authorization: "Bearer " + (acct || s.token) });
-  } catch (e) {
-    tel("read.unreachable", { ok: false, host: s.url, error: String(e.message || e) });
-    $("status").innerHTML = '<span class="err">Inbox unreachable.</span> ' + (s.pending ? s.pending + " waiting locally." : "");
-    $("retry").style.display = s.pending ? "inline-block" : "none";
-    return;
-  }
-  tel("read", { ok: got.ok, code: got.code || 200, host: s.url });
-  if (!got.ok && got.code === 401) {
-    $("status").innerHTML =
-      '<span class="err">This list\'s token was refused (401) — the inbox was reset or this phone was removed.</span> ' +
-      "Open Settings → 1 · Inbox and press <b>Find my inbox</b>; captures in this browser are kept.";
-    return;
-  }
-  if (!got.ok) {
-    $("status").innerHTML = '<span class="err">Inbox answered HTTP ' + got.code + ".</span>";
-    return;
-  }
-  const decrypted = await decryptAll(s.keyCode, got.items);
-  got.foreign = decrypted.foreign || 0;
-  // Two browsers, one X account: the same like shows up once, not twice. Also a
-  // capture stored twice by an older release: keep the first (newest) copy.
+// What the last read produced, kept in memory. A phone with 800 captures spent
+// seconds re-fetching and re-decrypting them every time a tab was pressed — the
+// list did not change between two taps, so neither does the work. The cache dies
+// with the page, and any connection change (`url`, `token`, `key`) marks it dirty,
+// so nothing here can show a list that is no longer true for long.
+let cache = null; // { sig, at, snip }
+let dirty = false;
+const CACHE_MS = 60000;
+const sigOf = (s) => [s.url, s.token ? 1 : 0, s.keyCode, s.accountToken ? 1 : 0].join("|");
+
+// Everything the list needs, computed once per read: what the inbox has, what this
+// browser has, and the three honest verdicts about each capture.
+function snapshot(s, items, extra, decrypted) {
   const seen = new Set();
   const postKey = (it) => (it.kind || "") + "|" + (it.id || it.uid || "");
   const fromInbox = decrypted.filter((it) => {
@@ -402,10 +427,36 @@ async function load() {
   // uid is still a row the inbox HAS. Building "sent" from the deduped list was a
   // permanent false alarm: the page said "not sent", the send found nothing to do
   // (it compares uids server-side), and the warning never cleared.
-  const sentUids = new Set(got.items.map((b) => b.uid).filter(Boolean));
+  const sentUids = new Set(items.map((b) => b.uid).filter(Boolean));
   const sentPosts = new Set(decrypted.map(postKey));
   for (const it of fromInbox) if (it.uid) sentUids.add(it.uid);
-  const local = (await chrome.storage.local.get({ items: [], outbox: [] })).items;
+  return { items, extra, decrypted, fromInbox, sentUids, sentPosts, postKey, local: null, waiting: [], dups: [] };
+}
+
+// The local mirror changes without the inbox changing (a like, a send): re-read it
+// and repaint from the same cached blobs. No network, no decrypt.
+async function refreshLocal() {
+  if (!cache) return load();
+  const s = lastState;
+  const l = await chrome.storage.local.get({ items: [] });
+  cache.snip.local = l.items;
+  finish(cache.snip, s);
+  cache.painted = true;
+}
+
+let lastState = null;
+
+function repaintAll() {
+  paintSort();
+  paintFilter();
+  repaint();
+}
+
+// Paint a snapshot: the status line, the identity line, the list. Split out of the
+// read so a tab switch can repaint the last read instantly.
+function finish(snap, s) {
+  const { items, extra: got, decrypted, fromInbox, sentUids, sentPosts, postKey } = snap;
+  const local = snap.local || [];
   // A local capture counts as arrived when its uid is there, or when the same post
   // is: the user cares that the like made it, not which of their two copies did.
   const waiting = local.filter((i) => !sentUids.has(i.uid) && !sentPosts.has(postKey(i)));
@@ -414,32 +465,34 @@ async function load() {
   // twice in this browser (a re-like, or a live capture plus an import). It is not
   // unsent — the inbox has that post — so it is counted and named, never sent again.
   const dups = local.filter((i) => !waitingUids.has(i.uid) && !sentUids.has(i.uid) && sentPosts.has(postKey(i)));
+  snap.waiting = waiting;
+  snap.dups = dups;
   shown = fromInbox
     .concat(waiting.map((i) => Object.assign({}, i, { waiting: true })))
     .concat(dups.map((i) => Object.assign({}, i, { dup: true })));
-  const used = got.extra.used != null ? got.extra.used : null;
-  const quota = used != null && got.extra.quota ? " · " + used + "/" + got.extra.quota + " this month" : "";
+  const used = got.used != null ? got.used : null;
+  const quota = used != null && got.quota ? " · " + used + "/" + got.quota + " this month" : "";
   // Never leave "which account am I looking at" to guesswork: the list's own id, and
   // how many phones write to it. Two phones on one list is the normal case, not an
   // edge case, and it is the whole difference between "my likes are missing" and
   // "my other phone has its own list".
   const short = (id) => String(id || "");
-  const listId = got.extra.account || got.extra.user || "";
-  const phones = got.extra.phones || got.extra.tenants?.length || 1;
-  const who = acct
-    ? "account <b>" + esc(got.extra.email || s.accountEmail || "signed in") + "</b> · " + phones + " phone" + (phones === 1 ? "" : "s")
+  const listId = got.account || got.user || "";
+  const phones = got.phones || got.tenants?.length || 1;
+  const who = s.accountToken
+    ? "account <b>" + esc(got.email || s.accountEmail || "signed in") + "</b> · " + phones + " phone" + (phones === 1 ? "" : "s")
     : "<b>list " + esc(short(listId)) + "</b>" + (phones > 1 ? " · " + phones + " phones" : " · this phone only");
   $("identity").innerHTML =
     who +
     (phones > 1
       ? ""
       : ' · <button id="addphone" class="act" type="button" style="padding:1px 8px;margin:0">＋ Add my other phone</button>') +
-    (got.foreign
-      ? ' · <span class="err">' + got.foreign + " from another code: paste your other phone's code to read " +
-        (got.foreign === 1 ? "it" : "them") + "</span>"
+    (decrypted.foreign
+      ? ' · <span class="err">' + decrypted.foreign + " from another code: paste your other phone's code to read " +
+        (decrypted.foreign === 1 ? "it" : "them") + "</span>"
       : "");
   $("status").innerHTML =
-    '<span class="ok">' + fromInbox.length + "</span> " + (acct ? "in my account " : "in the inbox ") +
+    '<span class="ok">' + fromInbox.length + "</span> " + (s.accountToken ? "in my account " : "in the inbox ") +
     "<small>" + esc(s.url.replace(/^https?:\/\//, "")) + "</small>" +
     ' · ' + local.length + " in this browser" +
     (waiting.length ? ' · <span class="err">' + showWaiting(waiting.length) + "</span>" : "") +
@@ -473,18 +526,98 @@ async function load() {
   if (s.last && s.last.ok === false && s.last.error) {
     $("status").innerHTML += ' · <span class="err">' + esc(s.last.error) + "</span>";
   }
-  paintSort();
-  paintFilter();
-  repaint();
+  repaintAll();
+}
+
+async function load(force) {
+  // A fresh cache is the whole answer for a tab press: no message to the worker, no
+  // request to the inbox. (The worker's `state` reply asks the inbox for its identity
+  // on the way, so even "just read the page" used to cost a network round trip.)
+  if (cache && !dirty && !force && Date.now() - cache.at < CACHE_MS) {
+    // The panel's DOM survives a tab switch (`display:none`), so there is nothing to
+    // draw again: the press only has to bring the list back into view.
+    if (!cache.painted) {
+      finish(cache.snip, lastState);
+      cache.painted = true;
+    }
+    return;
+  }
+  const s = await chrome.runtime.sendMessage({ type: "state" });
+  lastState = s;
+  if (!s.url || !s.hasToken) {
+    // No inbox yet: show what is in this browser, and say so honestly.
+    const local = (await chrome.storage.local.get({ items: [] })).items.slice();
+    shown = local;
+    cache = null;
+    $("status").innerHTML =
+      '<span class="err">Not connected.</span> ' +
+      (local.length ? local.length + " capture(s) are safe in this browser, waiting to be sent. " : "") +
+      "Press <b>Find my inbox</b>: it uses the inbox on this computer if there is one, otherwise the hosted one. " +
+      "No account, no address, nothing to type.";
+    $("export").style.display = local.length ? "inline-block" : "none";
+    $("find").textContent = local.length ? "Connect and send " + local.length : "Find my inbox";
+    $("find").style.display = "inline-block";
+    $("find").classList.add("primary");
+    $("retry").style.display = "none";
+    $("identity").innerHTML = "<b>no inbox yet</b> · this device only";
+    showSec("P2", !!local.length);
+    repaintAll();
+    return;
+  }
+  const sig = sigOf(s);
+  if (cache && cache.sig === sig) {
+    // Same list, older read: show it now (a tab switch must never wait on a phone
+    // network), then revalidate underneath if it is past its minute.
+    if (!cache.painted) {
+      finish(cache.snip, s);
+      cache.painted = true;
+    }
+    // `force` (after a send, a connect, a return from offline) always re-reads: the
+    // cache is right about what it read, and wrong about what just changed.
+    if (!force && !dirty && Date.now() - cache.at < CACHE_MS) return;
+  } else {
+    $("status").textContent = "Loading from " + s.url.replace(/^https?:\/\//, "") + "…";
+  }
+  const acct = s.accountToken ? (await chrome.storage.local.get({ accountToken: "" })).accountToken : "";
+  const readUrl = acct ? s.url.replace(/\/$/, "") + "/api/account/likes" : s.url.replace(/\/$/, "") + "/api/likes";
+  let got;
+  try {
+    got = await readAll(readUrl, { authorization: "Bearer " + (acct || s.token) });
+  } catch (e) {
+    tel("read.unreachable", { ok: false, host: s.url, error: String(e.message || e) });
+    $("status").innerHTML = '<span class="err">Inbox unreachable.</span> ' + (s.pending ? s.pending + " waiting locally." : "");
+    $("retry").style.display = s.pending ? "inline-block" : "none";
+    return;
+  }
+  tel("read", { ok: got.ok, code: got.code || 200, host: s.url });
+  if (!got.ok && got.code === 401) {
+    $("status").innerHTML =
+      '<span class="err">This list\'s token was refused (401) — the inbox was reset or this phone was removed.</span> ' +
+      "Open Settings → 1 · Inbox and press <b>Find my inbox</b>; captures in this browser are kept.";
+    cache = null;
+    return;
+  }
+  if (!got.ok) {
+    $("status").innerHTML = '<span class="err">Inbox answered HTTP ' + got.code + ".</span>";
+    return;
+  }
+  const decrypted = await decryptAll(s.keyCode, got.items);
+  const local = (await chrome.storage.local.get({ items: [] })).items;
+  const snip = snapshot(s, got.items, got.extra, decrypted);
+  snip.local = local;
+  cache = { sig, at: Date.now(), snip, painted: false };
+  dirty = false;
+  finish(snip, s);
+  cache.painted = true;
   // Missing captures are sent by themselves, no button. The button stays as an
   // explicit "now" for the impatient, not as the way the product works.
-  if (waiting.length && !repaired) {
+  if (snip.waiting.length && !repaired) {
     repaired = true;
     $("status").innerHTML += ' · <span class="mut">sending them now…</span>';
     await chrome.runtime
-      .sendMessage({ type: "send-uids", uids: waiting.map((i) => i.uid).filter(Boolean) })
+      .sendMessage({ type: "send-uids", uids: snip.waiting.map((i) => i.uid).filter(Boolean) })
       .catch(() => {});
-    return load();
+    return load(true);
   }
 }
 
@@ -493,7 +626,7 @@ $("find").addEventListener("click", async () => {
   $("status").innerHTML = "Looking for an inbox: this computer first, then the hosted one…";
   const r = await chrome.runtime.sendMessage({ type: "discover" });
   $("find").disabled = false;
-  await load();
+  await load(true);
   if (r && r.ok === false) {
     $("status").innerHTML =
       '<span class="err">' + esc(r.error) + "</span> Nothing was lost. " +
@@ -512,16 +645,21 @@ $("export").addEventListener("click", () => {
 // A capture, a send or a connection changes storage: the page shows it without a
 // reload. Debounced (a burst of likes is one refresh), never a timer loop.
 let refreshSoon = null;
+const CONN_KEYS = ["url", "token", "accountToken", "key"];
 chrome.storage.onChanged.addListener((changes) => {
   if (!["url", "token", "outbox", "last", "items", "accountToken", "key"].some((k) => k in changes)) return;
+  // A new address, token or key makes the last read wrong (dirty); a new capture or
+  // a send only changes what this browser holds, so the inbox is not read again.
+  const conn = CONN_KEYS.some((k) => k in changes);
+  if (conn) dirty = true;
   clearTimeout(refreshSoon);
-  refreshSoon = setTimeout(() => load(), 500);
+  refreshSoon = setTimeout(() => (conn ? load(true) : refreshLocal()), 500);
 });
 
 window.addEventListener("online", async () => {
   $("status").textContent = "Back online: sending what is waiting…";
   await chrome.runtime.sendMessage({ type: "net-online" }).catch(() => {});
-  load();
+  load(true);
 });
 
 window.addEventListener("echolike:tab", (e) => {
@@ -536,7 +674,7 @@ $("retry").addEventListener("click", async () => {
     : "Nothing is waiting: the inbox already has all of them.";
   const r = uids.length ? await chrome.runtime.sendMessage({ type: "send-uids", uids }) : { ok: true, added: 0 };
   $("retry").disabled = false;
-  await load();
+  await load(true);
   if (r && r.ok === false) {
     $("status").innerHTML = '<span class="err">' + esc(r.error || "could not send") + "</span> Nothing was lost.";
   }
@@ -943,12 +1081,18 @@ document.addEventListener("click", (e) => {
   }
 });
 
+// Three network reads live behind the Spaces tab (spaces, discovery, invitations).
+// Pressing the tab twice inside a minute does not ask again — anything that changes
+// a space repaints its own box directly — because a tab press has to feel like a
+// tab press on a phone, not like a page load.
+let spacesPaintedAt = 0;
 window.addEventListener("echolike:tab", (e) => {
-  if (e.detail === "spaces") {
-    paintSpaces();
-    paintDiscovery();
-    paintIncoming();
-  }
+  if (e.detail !== "spaces") return;
+  if (Date.now() - spacesPaintedAt < 30000) return;
+  spacesPaintedAt = Date.now();
+  paintSpaces();
+  paintDiscovery();
+  paintIncoming();
 });
 
 $("sort").addEventListener("change", () => {
@@ -997,7 +1141,7 @@ document.addEventListener("click", async (e) => {
     $("joinin").value = "";
     $("joinbox").style.display = "none";
     $("joinmsg").textContent = "";
-    return load();
+    return load(true);
   }
   const chip = t.closest("#onlywaiting,#clearfilter");
   if (!chip) return;
@@ -1020,6 +1164,7 @@ load();
 // Opening the page straight on the Spaces tab must paint it: the tab event only fires
 // on a change, so a reload of #spaces used to show empty boxes.
 if (location.hash === "#spaces") {
+  spacesPaintedAt = Date.now();
   paintSpaces();
   paintDiscovery();
   paintIncoming();
