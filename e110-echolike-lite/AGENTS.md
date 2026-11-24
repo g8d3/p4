@@ -208,6 +208,35 @@ DOM, which is what `tests/review_new_dom.py` then freezes as a fixture. Do this
 whenever X reports a new `data-app-version` or a report says "the button does
 nothing"; the `dom` telemetry line answers the same question from the field.
 
+## The hosted reader never dead-ends (1.20.2/worker)
+
+`https://inbox-lite.echolike.app/` used to answer a bare URL — or a saved link whose
+token had been revoked — with one red line, "This inbox key is not valid any more",
+and no way forward. That is the page the owner landed on after the token incident.
+It now has one job: say what happened, and offer the only action that can work.
+
+- **No link in this browser**: the gate explains that the page is a reader, not a
+  login, with the two ways in — the extension's **Open on echolike.app**, or
+  pasting **Your inbox code** — and a field for the code. No red error.
+- **Dead token (401)**: the dead token is *removed from storage* so every reload no
+  longer repeats the failure; the page explains that a lost link does not delete
+  captures, only access, and that a fresh code must come from a phone that still
+  opens the list. The paste field is right there.
+- **Pasted code**: accepts the extension's pairing code (base64url `{u,t,k}`), a
+  whole `…/#t=&k=` link, or a bare 43-character key when the token still works.
+  A code is validated against `/api/likes?limit=1` **before** it replaces anything;
+  a 401 from the new code changes nothing. A code for another inbox is named and
+  never sent there. The working link is saved (token + key in `localStorage`, this
+  origin only) so the next visit to the bare URL just works, with a **Forget**
+  button next to the list identity.
+- **A key that opens nothing**: dropped from storage instead of failing forever,
+  with the ask box shown; the ask box also accepts the whole inbox code.
+- **Empty list**: says so, with the one action that fills it.
+
+`tests/review_inbox_page.py` drives all of it live: bare URL, real link, bare URL
+after a real visit (remembered), revoked token (explained + cleared + swapped by a
+pasted code), wrong key, and a code for another origin.
+
 ## How much of X's UI this depends on (and what a redesign can break)
 
 A UI change can never be made *free* for a page-reading extension: X owns the DOM.

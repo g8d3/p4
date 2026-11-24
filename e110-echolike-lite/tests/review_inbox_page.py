@@ -4,6 +4,10 @@ The promise this checks: the server cannot read a capture, yet a visitor opening
 `https://…/#t=<token>&k=<key>` sees the list — because decryption happens in that
 browser and both secrets ride in the fragment, which never reaches the server.
 
+It also checks that the page never dead-ends: a bare URL explains how to connect
+and offers a field, a dead link says so and asks for a fresh code, a pasted code
+opens the list, and the link is remembered for the next visit.
+
     python3 tests/review_inbox_page.py [base-url]
 
 Exit code 1 on any failure.
@@ -12,7 +16,6 @@ import base64
 import json
 import os
 import sys
-import urllib.error
 import urllib.request
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -66,33 +69,80 @@ token = claim["token"]
 code, r = call("/api/likes", token, {"items": [blob]})
 check("uploaded a blob", (code, r.get("received")), (200, 1))
 
+# "Your inbox code" exactly as the extension builds it: base64url of {u,t,k}.
+pair_code = b64(json.dumps({"u": BASE, "t": token, "k": keycode}).encode())
+
+
+def fresh(browser):
+    ctx = browser.new_context()
+    return ctx, ctx.new_page()
+
+
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
 
-    # 1. No key in the fragment: the page must ask for it, and show nothing.
-    page.goto(BASE + "/#t=" + token)
-    page.wait_for_timeout(2500)
-    check("asks for the recovery code", page.is_visible("#ask"), True)
-    check("shows no capture without it", TEXT in page.inner_text("#list"), False)
+    # 1. Bare URL, nothing stored: explain how to connect, never "not valid".
+    ctx, page = fresh(browser)
+    page.goto(BASE + "/?bare=1")
+    page.wait_for_timeout(1500)
+    body = page.inner_text("#status") + " " + page.inner_text("#gate")
+    check("bare URL shows the gate", page.is_visible("#gate"), True)
+    check("bare URL explains the page", "needs the link" in body or "not a login" in body, True)
+    check("bare URL is not an error", "not valid" in body, False)
+    ctx.close()
 
-    # 2. The real link the popup would build: token + key, both in the fragment.
-    page.goto(BASE + "/?b=1#t=" + token + "&k=" + keycode)  # a fresh load, like a real visit
-    page.wait_for_timeout(3000)
+    # 2. The real link the extension builds: token + key, both in the fragment.
+    ctx, page = fresh(browser)
+    page.goto(BASE + "/?b=1#t=" + token + "&k=" + keycode)
+    page.wait_for_timeout(4500)
     body = page.inner_text("#list")
     check("decrypts in the reader", TEXT in body, True)
     check("shows the author", "@nasa" in body, True)
     check("shows the kind", "like" in body, True)
     check("fragment is cleared from the address bar", page.evaluate("location.hash"), "")
     check("the server never saw the key", page.evaluate("document.documentElement.outerHTML").count(keycode), 0)
+    check("says the link is saved here", "saved on this browser" in page.inner_text("#linkstate"), True)
 
-    # 3. A wrong key must say so instead of pretending.
-    page2 = browser.new_page()
-    page2.goto(BASE + "/?b=2#t=" + token + "&k=" + b64(os.urandom(32)))
-    page2.wait_for_timeout(3000)
-    # Per-row decryption now: a key that opens nothing says so with the count tried.
-    check("wrong key reported", "does not open anything" in page2.inner_text("#status"), True)
-    check("wrong key shows nothing", TEXT in page2.inner_text("#list"), False)
+    # 3. Same browser, bare URL: the saved link is reused instead of asking again.
+    page.goto(BASE + "/?b=3")
+    page.wait_for_timeout(4500)
+    check("bare URL after a real visit still shows the list", TEXT in page.inner_text("#list"), True)
+    ctx.close()
+
+    # 4. A dead token (the incident): say it, stop replaying it, offer a fresh code.
+    ctx, page = fresh(browser)
+    page.goto(BASE + "/?b=4#t=" + "f" * 32 + "&k=" + keycode)
+    page.wait_for_timeout(4000)
+    body = page.inner_text("#status") + " " + page.inner_text("#gate")
+    check("dead token is explained", "no longer valid" in body, True)
+    check("dead token offers the code field", page.is_visible("#gatecode"), True)
+    check("dead token is cleared from storage", page.evaluate("localStorage.getItem('el_token')"), None)
+    # The one action that can work: paste the code from a phone that still opens it.
+    page.fill("#gatecode", pair_code)
+    page.click("#gateuse")
+    page.wait_for_timeout(4500)
+    check("pasted code opens the list", TEXT in page.inner_text("#list"), True)
+    check("pasted code is remembered", page.evaluate("localStorage.getItem('el_token')"), token)
+    ctx.close()
+
+    # 5. A wrong key must say so instead of pretending.
+    ctx, page = fresh(browser)
+    page.goto(BASE + "/?b=5#t=" + token + "&k=" + b64(os.urandom(32)))
+    page.wait_for_timeout(4500)
+    check("wrong key reported", "does not open anything" in page.inner_text("#status"), True)
+    check("wrong key shows nothing", TEXT in page.inner_text("#list"), False)
+    ctx.close()
+
+    # 6. A code for another inbox is named, never sent there.
+    ctx, page = fresh(browser)
+    page.goto(BASE + "/?b=6")
+    page.wait_for_timeout(1200)
+    other = b64(json.dumps({"u": "https://example.com", "t": token, "k": keycode}).encode())
+    page.fill("#gatecode", other)
+    page.click("#gateuse")
+    page.wait_for_timeout(800)
+    check("foreign code is named", "example.com" in page.inner_text("#gateerr"), True)
+    ctx.close()
 
     browser.close()
 

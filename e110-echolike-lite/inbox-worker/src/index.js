@@ -960,7 +960,8 @@ h1{font-size:20px;margin:0 0 4px}small{color:#666}a{color:#1d9bf0}
 .cards .grid b{font-variant-numeric:tabular-nums;font-weight:600;color:#111}
 .cards .grid i{font-style:normal;color:#888}
 .cards .body{margin:8px 0 0;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;padding-right:2px}
-input{font:inherit;width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:8px}
+input,textarea{font:inherit;width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccc;border-radius:8px}
+textarea{min-height:70px;resize:vertical}
 button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer}
 select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;background:#fff}
 .ok{color:#00875a}.err{color:#d0021b}.mut{color:#666;font-size:13px}
@@ -969,6 +970,7 @@ select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;backgrou
 <div class="sec" data-section="I1"><span class=secid>I1 · status</span>
   <div id=identity class=mut style="margin-bottom:6px">…</div>
   <div id=status class=mut>…</div>
+  <div id=linkstate class=mut style="margin-top:6px"></div>
 </div>
 <div class="sec" data-section="I2" hidden><span class=secid>I2 · sort</span>
   <p id=sorts style="margin:0">
@@ -978,9 +980,19 @@ select{font:inherit;padding:7px;border:1px solid #ccc;border-radius:8px;backgrou
   </p>
 </div>
 <div id=ask style="display:none">
-  <p>Paste your recovery code to decrypt this inbox in your browser:</p>
-  <input id=code placeholder="recovery code" autocomplete=off spellcheck=false>
+  <p>This list's link works; the key that opens it is not on this browser. Paste the key from the extension
+     (<b>Settings → Your key</b>, 43 characters), or the whole <b>Your inbox code</b> — it contains the key.</p>
+  <input id=code placeholder="recovery key, or your whole inbox code" autocomplete=off spellcheck=false>
   <p><button id=go>Decrypt</button></p>
+</div>
+<div id=gate class="sec" data-section="I0" style="display:none">
+  <span class=secid>I0 · this browser is not linked</span>
+  <div id=gatewhy></div>
+  <p class=mut style="margin:10px 0 4px">Paste <b>Your inbox code</b> from the extension: <b>Settings → Your inbox code → Copy</b> (on a phone: the extension page, then Settings). One long line; it carries the list's address, token and key. This browser keeps it, so the next visit to this page just works.</p>
+  <textarea id=gatecode placeholder="Paste your inbox code, or the whole echolike.app link" autocomplete=off spellcheck=false></textarea>
+  <p style="margin:8px 0 0"><button id=gateuse type=button>Open this list</button>
+     <button id=gateforget type=button>Forget the link saved here</button></p>
+  <div id=gateerr class=err style="margin-top:6px"></div>
 </div>
 <div class="sec" data-section="I3"><span class=secid>I3 · actions</span>
   <p class=mut style="margin:0 0 8px">Everything below is decrypted here, in your browser. The server only stores encrypted blobs and cannot read them.</p>
@@ -1173,14 +1185,50 @@ async function readAll(url, headers) {
   }
   return {ok:true, items:out, total: total || out.length, extra};
 }
+function showGate(whyHtml) {
+  $('gate').style.display = 'block';
+  $('gatewhy').innerHTML = whyHtml;
+  $('gateerr').textContent = '';
+  $('ask').style.display = 'none';
+  $('export').style.display = 'none';
+  $('identity').innerHTML = '';
+  $('linkstate').innerHTML = '';
+  $('list').innerHTML = '';
+  $('status').textContent = '';
+}
+function forget() {
+  token = ''; key = ''; atoken = ''; aes = null; items = [];
+  localStorage.removeItem('el_token'); localStorage.removeItem('el_key'); localStorage.removeItem('el_atoken');
+  showGate('This browser no longer keeps any link to a list.');
+}
 async function load() {
-  if (!token && !atoken) { $('status').innerHTML = '<span class=err>No key for this inbox.</span> Open it from the extension: <b>Open on echolike.app</b>.'; return; }
+  if (!token && !atoken) {
+    showGate('<div class=mut>This page is a reader, not a login — it needs the link to your list. Open the EchoLike Lite extension → <b>Inbox</b> → <b>Open on echolike.app</b>, or paste the code below.</div>');
+    return;
+  }
+  $('gate').style.display = 'none';
   $('status').textContent = 'Loading…';
   const url = atoken ? '/api/account/likes' : '/api/likes';
   let got;
   try { got = await readAll(url, {authorization:'Bearer ' + (atoken || token)}); }
   catch (e) { $('status').innerHTML = '<span class=err>Network error.</span>'; return; }
-  if (!got.ok && got.code === 401) { $('status').innerHTML = '<span class=err>This inbox key is not valid any more.</span>'; return; }
+  if (!got.ok && got.code === 401) {
+    // A signed-in session that expired falls back to this device's own link before
+    // declaring the list lost.
+    if (atoken) {
+      atoken = '';
+      localStorage.removeItem('el_atoken');
+      if (token) return load();
+    }
+    // The saved link is dead, not the words on this page: say what happened, stop
+    // replaying it on every visit, and offer the one action that can work — a fresh
+    // code from a device that still opens the list.
+    token = '';
+    localStorage.removeItem('el_token'); localStorage.removeItem('el_atoken');
+    showGate('<div class=err>The link this browser saved to the list is no longer valid.</div>' +
+      '<div class=mut style="margin-top:6px">A lost link cannot be repaired from here: the inbox was reset or this device was removed from the list. A lost link does not delete your captures — it only loses access. On a phone that still opens the list, copy the current code and paste it below.</div>');
+    return;
+  }
   if (!got.ok) { $('status').innerHTML = '<span class=err>Inbox answered HTTP ' + got.code + '.</span>'; return; }
   const rows = got.items;
   if (!key) { $('status').textContent = rows.length + ' encrypted capture(s) waiting.'; $('ask').style.display='block'; return; }
@@ -1198,6 +1246,9 @@ async function load() {
     }
   }
   if (foreign + failed === rows.length && rows.length) {
+    // A stored key that opens nothing is a dead end on every reload: drop it, so the
+    // next visit asks instead of repeating the same failure.
+    if (key) { localStorage.removeItem('el_key'); key = ''; }
     $('status').innerHTML = '<span class=err>This recovery code does not open anything here (' + rows.length + ' capture(s) tried).</span>';
     $('ask').style.display = 'block';
     return;
@@ -1218,20 +1269,86 @@ async function load() {
     (foreign ? ' · <span class=err>' + foreign + ' sealed with another key</span>' : '');
   $('status').innerHTML = '<span class=ok>' + (got.total || items.length) + '</span> capture(s) in this inbox' +
     (got.extra.used!=null && got.extra.quota ? ' · ' + got.extra.used + '/' + got.extra.quota + ' this month' : '') +
-    (foreign ? ' · showing ' + items.length : '');
+    (foreign ? ' · showing ' + items.length : '') +
+    (!got.total && !items.length ? ' · <span class=mut>Nothing here yet: like or bookmark a post on X and it appears in a second.</span>' : '');
   $('export').style.display = 'inline-block';
+  $('linkstate').innerHTML = 'saved on this browser · <button id=forgetlink type=button style="font-size:11px;padding:2px 8px">Forget</button>';
+  $('forgetlink').onclick = () => forget();
   const box = document.querySelector('[data-section="I2"]');
   if (box) box.hidden = !items.length;
   paintSort();
   repaint();
 }
-$('go').onclick = () => {
+$('go').onclick = async () => {
   const v = $('code').value.trim();
   if (!v) return;
+  // A whole inbox code carries the key too; a bare key is 43 characters.
+  if (v.length > 43) { useCode(v); return; }
+  // Validate before storing: a wrong recovery code must not poison every reload.
+  try { await importKey(v); } catch (e) { $('status').innerHTML = '<span class=err>That is not a valid recovery code (43 characters).</span>'; return; }
   key = v; localStorage.setItem('el_key', v);
   $('ask').style.display = 'none';
   load();
 };
+// "Your inbox code" from the extension is base64url of {u,t,k}. Also accepted: a
+// full echolike.app link, or a bare recovery code when the list's link still works.
+function parseCode(raw) {
+  const v = String(raw == null ? '' : raw).trim();
+  if (!v) return null;
+  try {
+    const u = new URL(v);
+    const h = new URLSearchParams(u.hash.slice(1));
+    if (h.get('t') && h.get('k')) return { token: h.get('t'), key: h.get('k'), origin: u.origin };
+    return null;
+  } catch (e) { /* not a URL */ }
+  const compact = v.replace(/[^A-Za-z0-9_-]/g, '');
+  if (compact.length >= 60) {
+    try {
+      const o = JSON.parse(new TextDecoder().decode(b64d(compact)));
+      if (o && o.t && o.k) return { token: String(o.t), key: String(o.k), origin: o.u ? String(o.u).replace(/[/]+$/, '') : '' };
+    } catch (e) { /* not a pairing code */ }
+  }
+  if (/^[A-Za-z0-9_-]{43}$/.test(v) && (token || atoken)) return { key: v };
+  return null;
+}
+async function useCode(raw) {
+  $('gateerr').textContent = '';
+  const p = parseCode(raw);
+  if (!p) {
+    $('gateerr').textContent = 'That is not an inbox code. Copy the whole line from the extension: Settings → Your inbox code.';
+    return;
+  }
+  if (!p.token) {
+    key = p.key;
+    try { await importKey(key); } catch (e) { $('gateerr').textContent = 'That is not a valid recovery code (43 characters).'; return; }
+    localStorage.setItem('el_key', key);
+    $('gate').style.display = 'none';
+    load();
+    return;
+  }
+  let other = '';
+  try { if (p.origin) other = new URL(p.origin).origin; } catch (e) { other = ''; }
+  if (other && other !== location.origin) {
+    $('gateerr').innerHTML = 'That code belongs to <b>' + esc(other) + '</b>. Open that address and paste it there.';
+    return;
+  }
+  let r;
+  try { r = await fetch('/api/likes?limit=1', {headers: {authorization: 'Bearer ' + p.token}}); }
+  catch (e) { $('gateerr').textContent = 'Network error — try again in a moment.'; return; }
+  if (r.status === 401) {
+    $('gateerr').textContent = 'That code was refused: its list was reset or that phone was removed. Ask the phone that still opens the list for a fresh code.';
+    return;
+  }
+  if (!r.ok) { $('gateerr').textContent = 'The inbox answered HTTP ' + r.status + '.'; return; }
+  token = p.token; atoken = ''; key = p.key;
+  localStorage.setItem('el_token', token);
+  localStorage.setItem('el_key', key);
+  localStorage.removeItem('el_atoken');
+  $('gate').style.display = 'none';
+  load();
+}
+$('gateuse').onclick = () => useCode($('gatecode').value);
+$('gateforget').onclick = () => forget();
 $('export').onclick = () => {
   const blob = new Blob([JSON.stringify(items, null, 1)], {type:'application/json'});
   const a = document.createElement('a');

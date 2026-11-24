@@ -24,7 +24,9 @@ including **not in the inbox yet**, which the count in the status line opens wit
 missing, so nothing shifts), the four dates in a grid of their own, and the post text with room to select it.
 **Open on echolike.app** opens the web reader for the full list, which: with the hosted inbox that
 opens a normal web page on echolike.app (any device, nothing to install); with your own server it opens the
-extension's inbox page. Either way it decrypts in your browser, tells you what is *in* the inbox versus what this
+extension's inbox page. That page remembers the link on the browser you use, and if a link ever stops working
+it says what happened and takes **Your inbox code** from a phone that still opens the list instead of leaving
+you at "invalid key". Either way it decrypts in your browser, tells you what is *in* the inbox versus what this
 browser holds, and exports JSON. Free hosted quota: 3000 captures/month per install.
 
 **Your key**: shown in the extension's **Settings** tab as a recovery code (43 characters, masked until you press Reveal). It never leaves
