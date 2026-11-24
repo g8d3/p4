@@ -208,6 +208,55 @@ DOM, which is what `tests/review_new_dom.py` then freezes as a fixture. Do this
 whenever X reports a new `data-app-version` or a report says "the button does
 nothing"; the `dom` telemetry line answers the same question from the field.
 
+## How much of X's UI this depends on (and what a redesign can break)
+
+A UI change can never be made *free* for a page-reading extension: X owns the DOM.
+What can be done is to depend on as few things as possible, to read each of them in
+more than one independent way, and to find out the day it changes. That is the rule
+now. The 2026 rewrite is the proof: it deleted every `data-testid` and all class
+names, and capture still works because none of those are load-bearing.
+
+**The three facts capture actually needs** (all survived both apps so far):
+
+| Fact | Old app | 2026 app | If it changes |
+|---|---|---|---|
+| a post container | `<article>` / `div[data-testid=tweet]` | `<article>` | code change (one selector: `POST_IN`) |
+| the post's permalink | `a[href*="/status/"]` | same | code change |
+| the like/bookmark control | `data-testid=like/bookmark` | icon + `aria-pressed` | code change, but three ways are tried |
+
+**Three independent paths to the control** (`actionButton`), tried in order:
+
+1. `data-testid` (old app);
+2. the icon inside the button (`#icon-heart` / `#icon-bookmark`) + `aria-pressed`;
+3. the accessible name ("12 Likes. Like", "Remove Bookmark", "Me gusta", "Guardar"…).
+
+Path 3 is the last resort for a rename of path 2, and is only accepted *inside a
+post container*, so a "Bookmarks" nav button is never mistaken for a capture.
+Everything else about a post is **decorative and degrades to null**: text, author
+name, five counts, published date, media flags, quote id, ad flag. A like is still
+captured without any of them, and the inbox shows a dash where the number is missing.
+
+**Deliberately not depended on**: class names (Tailwind churn), hashed element ids,
+GraphQL operation hashes, the quote's wrapper, the order of buttons, `<time>`
+(absent in x-web), `data-testid` (absent in x-web). The fixture for each app exists
+so both paths keep working: `tests/fixture.html` (rweb) and `fixture_new.html`
+(x-web + role=article + label-only controls).
+
+**How a change is found, not guessed**: `dom` telemetry once per page
+(`layout=rweb|x-web articles=N testids=N …`), `capture` on every success,
+`capture.noitem` (control read, post not), `capture.unmatched` (a like/bookmark
+control could not be named) and a visible toast instead of silence. On top of that,
+`tests/review_live_x.py` runs the real extension against x.com and would fail the
+day the DOM no longer yields a capture. When X ships a change, the fix should be a
+selector or one more path in `actionButton`, not a rewrite.
+
+If X ever makes this a weekly event, the next step is an independent capture source
+at the request layer (intercept the favorite/bookmark GraphQL mutation and read the
+tweet id), which does not care about markup at all; the cost is depending on X's
+private API shapes instead. Not done yet: the DOM paths have been stable through
+one full rewrite, and a second, different source is only worth its risk when the
+first one starts breaking repeatedly.
+
 ## Structure
 
 ```
@@ -740,6 +789,17 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.20.2 — **the UI-change budget, written down and widened.** Capture now accepts
+  three independent ways to recognise the like/bookmark control (`data-testid`, the
+  icon + `aria-pressed`, the accessible name in the languages we ship) and three post
+  containers (`article`, `role=article`, the old data-testid row); the label path is
+  only accepted inside a post, so a "Bookmarks" nav button is not a capture. Nothing
+  else about a post is required (text, counts, date, media, author all degrade to
+  null). New: `POST_IN`/`postOf`, `labeledKind`, tests for a renamed icon + a
+  `role=article` row, and the dependency table above. A page-reading extension can
+  never be redesign-proof; this is the smallest honest surface, and the `dom`/
+  `capture.unmatched` telemetry makes the next change visible from the field.
 
 - 1.20.1 — **ads on x-web, and a backlog that can finally leave.** x-web prints the
   promotion as text ("Promoted", "Promoted by X") and keeps no attribute CSS can

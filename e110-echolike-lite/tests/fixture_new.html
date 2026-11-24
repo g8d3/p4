@@ -48,6 +48,16 @@
 </article>
 <!-- A promoted post as x-web labels it: the disclosure is a short span in the
      header, before the post's own text, with no attribute to match in CSS. -->
+<!-- A post that is not an <article> and buttons whose icons are renamed: only the
+     accessible name is left, which is the third path in the capture code. -->
+<div role="article" id="rolepost">
+  <a href="/roleuser"><div class="max-w-full text-body font-bold text-primary" dir="auto">Role User</div></a>
+  <a href="/roleuser/status/555">Nov 24</a>
+  <div dir="auto" lang="en">A row that is not an article element.</div>
+  <button aria-label="8 Likes. Like" aria-pressed="false" type="button"><svg><use href="#icon-heart-v2"></use></svg><span>8</span></button>
+  <button aria-label="Remove Bookmark" aria-pressed="true" type="button"><svg><use href="#icon-star-v2"></use></svg></button>
+</div>
+
 <ul id="feed">
   <li id="promotedcell"><div role="link">
     <article id="promoted">
@@ -69,6 +79,9 @@
     </article>
   </div></li>
 </ul>
+<!-- A nav control that also says "Bookmark": outside a post it must never capture
+     and never raise the "could not read this post" path. -->
+<nav><button id="navbookmark" aria-label="Bookmarks" aria-pressed="false" type="button">Bookmarks</button></nav>
 
 <script>
   // Stubs of the extension APIs the content script touches: message channel + storage.

@@ -13,6 +13,12 @@
   // background, so an X tab loading did not retry the queue, silently.)
   const CONTENT_API = 9;
 
+  // The post container, and the only structural assumption capture makes. Both of
+  // X's apps wrap a post in <article>; role=article and the old data-testid row are
+  // kept as fallbacks so a tag rename alone does not stop a like from being read.
+  const POST_IN = 'article, [role="article"], [data-testid="tweet"]';
+  const postOf = (el) => (el && el.closest ? el.closest(POST_IN) : null);
+
   // ---- Ads ----
   // Old app (rweb): a promoted post is a real tweet inside
   // [data-testid="placementTracking"] (the marker Control Panel for Twitter uses
@@ -48,7 +54,7 @@
     const firstText = art.querySelector('[dir="auto"][lang]');
     for (const s of art.querySelectorAll("span")) {
       if (s.closest('[dir="auto"][lang]') || s.closest('a[href^="/"]')) continue;
-      if (s.closest("article") !== art) continue; // a quoted post's header
+      if (s.closest(POST_IN) !== art) continue; // a quoted post's header
       const t = (s.textContent || "").trim();
       if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
       if (firstText && !(s.compareDocumentPosition(firstText) & Node.DOCUMENT_POSITION_FOLLOWING)) continue;
@@ -60,8 +66,8 @@
   function markAds(node) {
     if (!node || node.nodeType !== 1) return;
     const arts = [];
-    if (node.matches && node.matches("article")) arts.push(node);
-    if (node.querySelectorAll) for (const a of node.querySelectorAll("article")) arts.push(a);
+    if (node.matches && node.matches(POST_IN)) arts.push(node);
+    if (node.querySelectorAll) for (const a of node.querySelectorAll(POST_IN)) arts.push(a);
     for (const art of arts) {
       // The cell, not the article: hiding the article leaves its padding behind.
       const cell = art.closest("li") || art.closest('[role="link"]') || art;
@@ -149,15 +155,34 @@
     return null;
   }
 
+  // The last resort: the accessible name. Icon names and testids have both been
+  // renamed under us, the words have not. Covers the languages this product is used
+  // in; a new locale still captures through the icon path above.
+  const LIKE_WORDS = /\b(likes?|unlike|me gusta|ya no me gusta)\b/i;
+  const MARK_WORDS = /\b(bookmarks?|unbookmark|remove bookmark|guardar|guardado|eliminar)\b/i;
+  const UNDO_WORDS = /\b(unlike|remove like|unbookmark|remove bookmark|ya no me gusta|quitar|remove)\b/i;
+
+  function labeledKind(el) {
+    if (!el || (el.tagName !== "BUTTON" && el.getAttribute("role") !== "button")) return null;
+    const label = (el.getAttribute("aria-label") || el.getAttribute("title") || "").trim();
+    if (!label) return null;
+    const pressed = el.getAttribute("aria-pressed") === "true";
+    if (MARK_WORDS.test(label)) return pressed || UNDO_WORDS.test(label) ? "unbookmark" : "bookmark";
+    if (LIKE_WORDS.test(label)) return pressed || UNDO_WORDS.test(label) ? "unlike" : "like";
+    return null;
+  }
+
   // Returns {el, kind}: the element is what a click travelled through, the kind is
   // read before X flips it (the listener runs in the capture phase).
   function actionButton(target) {
     let el = target && target.closest ? target.closest('[data-testid],button,[role="button"]') : null;
     while (el) {
       const t = el.getAttribute("data-testid");
-      if (t && KINDS[t]) return { el, kind: KINDS[t] };
-      const k = newKind(el);
-      if (k) return { el, kind: k };
+      // Only inside a post: a "Bookmarks" nav button is not a capture, and must not
+      // turn a normal page click into "could not read this post".
+      if (t && KINDS[t] && postOf(el)) return { el, kind: KINDS[t] };
+      const k = newKind(el) || labeledKind(el);
+      if (k && postOf(el)) return { el, kind: k };
       el = el.parentElement ? el.parentElement.closest('[data-testid],button,[role="button"]') : null;
     }
     return null;
@@ -197,7 +222,7 @@
   // normally <article>, but the old app also renders some as div[data-testid=tweet].
   function own(art, el) {
     if (!el || !art.contains(el)) return false;
-    if (el.closest('article, [data-testid="tweet"]') !== art) return false;
+    if (el.closest(POST_IN) !== art) return false;
     const q = el.closest('div[role="link"]');
     return !(q && q !== art && art.contains(q));
   }
@@ -263,8 +288,8 @@
   // The quoted post, if there is one: a nested <article> in x-web, a role=link div
   // in the old app. Its id is kept so the inbox can show the context.
   function quotedLink(art) {
-    const nested = [...art.querySelectorAll("article")].find(
-      (el) => el.parentElement && el.parentElement.closest("article") === art,
+    const nested = [...art.querySelectorAll(POST_IN)].find(
+      (el) => el.parentElement && el.parentElement.closest(POST_IN) === art,
     );
     return nested ? ownStatusLink(nested) : art.querySelector('div[role="link"] a[href*="/status/"]');
   }
@@ -475,7 +500,7 @@
             "collected=" + collected.size + " sent=" + sent + " skipped=" + Math.max(0, collected.size - sent) +
             " queued=" + queue.length + " rounds=" + rounds + " quiet=" + quietRounds +
             " atBottom=" + atBottom() + " stuck=" + stuckRounds + " hiddenMs=" + Math.round(pausedMs / 1000) +
-            " rowsWhileHidden=" + rowsWhileHidden + " reason=" + reason + " rows=" + document.querySelectorAll('article, [data-testid="tweet"]').length +
+            " rowsWhileHidden=" + rowsWhileHidden + " reason=" + reason + " rows=" + document.querySelectorAll(POST_IN).length +
             " seenRows=" + seenRows + " noId=" + noId +
             " scroller=" + (sc ? sc.tagName + ":" + (getComputedStyle(sc).overflowY || "?") : "none") +
             " scrollTop=" + (sc ? Math.round(sc.scrollTop) : -1) +
@@ -491,12 +516,12 @@
     let seenRows = 0;
     let noId = 0;
     const harvest = () => {
-      const rows = document.querySelectorAll('article, [data-testid="tweet"]');
+      const rows = document.querySelectorAll(POST_IN);
       seenRows = Math.max(seenRows, rows.length);
       for (const art of rows) {
         // A quoted post is an <article> inside another one in x-web: it belongs to
         // the post above, not to the list as a capture of its own.
-        if (art.parentElement && art.parentElement.closest("article")) continue;
+        if (art.parentElement && art.parentElement.closest(POST_IN)) continue;
         if (collected.size >= wanted) return; // the number asked for is the number sent
         const it = extract(art, kind);
         if (!it) {
@@ -520,7 +545,7 @@
       if (done) return;
       if (document.visibilityState === "hidden") {
         pausedAt = Date.now();
-        rowsAtHide = document.querySelectorAll('article, [data-testid="tweet"]').length;
+        rowsAtHide = document.querySelectorAll(POST_IN).length;
         clearTimeout(quiet);
         if (observer) observer.disconnect();
         tel("import.paused", {
@@ -530,7 +555,7 @@
       } else if (pausedAt) {
         pausedMs += Date.now() - pausedAt;
         rowsWhileHidden =
-          document.querySelectorAll('article, [data-testid="tweet"]').length - rowsAtHide;
+          document.querySelectorAll(POST_IN).length - rowsAtHide;
         tel("import.resumed", {
           ok: true,
           detail:
@@ -1010,7 +1035,7 @@
           return;
         }
         reportDom();
-        const item = extract(btn.el.closest("article"), btn.kind);
+        const item = extract(postOf(btn.el), btn.kind);
         if (!item) {
           tel("capture.noitem", { ok: false, error: "no post link on a " + btn.kind + " button", detail: domDetail() });
           return toast("EchoLike: could not read this post", false);

@@ -94,15 +94,36 @@ with sync_playwright() as p:
         check("quote handle", sent[3]["handle"], "someoneelse")
         check("quote text", sent[3]["text"], "Quoted tweet text that must be ignored.")
 
-    # 5. a heart with no post link fails loudly: no invented item, one diagnostic.
+    # 5. a renamed icon and a non-<article> row: the label and role=article carry it.
+    page.click('#rolepost button[aria-label^="8 Likes"]')
+    page.wait_for_timeout(150)
+    sent = captures(page)
+    if len(sent) == 5:
+        check("label-only like id", sent[4]["id"], "555")
+        check("label-only kind", sent[4]["kind"], "like")
+        check("role=article text", sent[4]["text"], "A row that is not an article element.")
+    page.click('#rolepost button[aria-label="Remove Bookmark"]')
+    page.wait_for_timeout(150)
+    sent = captures(page)
+    if len(sent) == 6:
+        check("label-only unbookmark", sent[5]["kind"], "unbookmark")
+
+    # 6. a heart with no post link fails loudly: no invented item, one diagnostic.
     page.click('#nopost button[aria-label^="7 Likes"]')
     page.wait_for_timeout(150)
-    check("no capture invented", len(captures(page)), 4)
+    check("no capture invented", len(captures(page)), 6)
     tel = page.evaluate("window.__tel || []")
     noitem = [m for m in tel if m.get("action") == "capture.noitem"]
     check("capture.noitem reported", len(noitem), 1)
 
-    # 6. ads: the text-only disclosure x-web prints is enough to hide the cell,
+    # 7. a "Bookmarks" control outside a post is not a capture and not an error.
+    page.click('#navbookmark')
+    page.wait_for_timeout(100)
+    check("nav click captures nothing", len(captures(page)), 6)
+    tel = page.evaluate("window.__tel || []")
+    check("nav click is not 'noitem'", len([m for m in tel if m.get("action") == "capture.noitem"]), 1)
+
+    # 8. ads: the text-only disclosure x-web prints is enough to hide the cell,
     #    while a real post whose text is "Promoted" stays.
     check("promoted cell hidden", page.is_visible('#promotedcell'), False)
     check("a post that says Promoted stays", page.is_visible('#wordpost'), True)
@@ -126,7 +147,7 @@ with sync_playwright() as p:
     page.wait_for_timeout(100)
     check("switch on hides again", page.is_visible('#promotedcell'), False)
 
-    # 7. the import walk never turns a quoted post into a capture of its own.
+    # 9. the import walk never turns a quoted post into a capture of its own.
     page.evaluate("""() => {
       window.__sent.length = 0;
       window.__msgListeners[0]({ type: 'import-start', mode: 'likes', limit: 2 }, null, () => {});
