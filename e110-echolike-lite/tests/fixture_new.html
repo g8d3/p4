@@ -1,0 +1,105 @@
+<!doctype html>
+<html><body>
+<!-- The 2026 x-web rewrite, as served on x.com: no data-testid anywhere. Engagement
+     controls are native toggles: the icon inside names the action, aria-pressed the
+     state. A quote is a nested <article>, not a div[role=link]. -->
+<article id="main">
+  <div class="flex flex-col gap-1 p-3">
+    <div class="flex min-w-0 items-center gap-1">
+      <a href="/nasa"><img class="x-avatar" alt="@nasa" src="https://pbs.twimg.com/profile_images/1/abc_normal.jpg"></a>
+      <a href="/nasa"><div class="max-w-full text-body font-bold text-primary block truncate min-w-0" dir="auto">NASA</div></a>
+      <a href="/nasa"><span class="text-body font-normal text-secondary">@nasa</span></a>
+      <a class="text-body text-secondary" href="/nasa/status/111">Nov 23</a>
+    </div>
+    <div class="max-w-full text-body font-normal text-primary whitespace-pre-wrap" dir="auto" lang="en">The real post text.</div>
+    <div class="media"><img src="https://pbs.twimg.com/media/HX0uyZuWoAAiyNR?format=webp&amp;name=large" alt=""></div>
+    <div class="flex">
+      <button aria-label="1.234 respuestas. Responder" type="button"><svg><use href="#icon-reply"></use></svg><span>1.2 mil</span></button>
+      <button aria-label="56 reposts. Repost" type="button"><svg><use href="#icon-repost"></use></svg><span>56</span></button>
+      <button aria-label="12 Likes. Like" aria-pressed="false" type="button" class="group x-engagement-button"><svg><use href="#icon-heart"></use></svg><span>12</span></button>
+      <button aria-label="3 Bookmarks. Bookmark" aria-pressed="false" type="button" class="group x-engagement-button"><svg><use href="#icon-bookmark"></use></svg><span>3</span></button>
+      <button aria-label="View count" type="button" class="group x-engagement-button"><svg><use href="#icon-bar-chart"></use></svg><span>98.7K</span></button>
+    </div>
+    <!-- Quoted post: a nested article. It must never become the capture, nor the quote's text/counts. -->
+    <article id="quote">
+      <a href="/someoneelse"><div class="max-w-full text-body font-bold text-primary block" dir="auto">Someone Else</div></a>
+      <a href="/someoneelse/status/999">Nov 22</a>
+      <div dir="auto" lang="es">Quoted tweet text that must be ignored.</div>
+      <img src="https://pbs.twimg.com/media/QUOTED?format=webp&amp;name=large" alt="">
+      <button aria-label="9 Likes. Like" aria-pressed="false" type="button"><svg><use href="#icon-heart"></use></svg><span>9</span></button>
+    </article>
+  </div>
+</article>
+
+<!-- Already liked and bookmarked: the next press removes, and must be read as such. -->
+<article id="liked">
+  <a href="/sama"><div class="max-w-full text-body font-bold text-primary block" dir="auto">Sam Altman</div></a>
+  <a href="/sama/status/222">2h</a>
+  <div dir="auto" lang="en">Already liked and saved.</div>
+  <button aria-label="5 Likes. Unlike" aria-pressed="true" type="button"><svg><use href="#icon-heart"></use></svg><span>5</span></button>
+  <button aria-label="1 Bookmark. Remove Bookmark" aria-pressed="true" type="button"><svg><use href="#icon-bookmark"></use></svg><span>1</span></button>
+</article>
+
+<!-- A heart with no post link around it: the read must fail loudly (telemetry + toast),
+     not invent an item and not capture a neighbour. -->
+<article id="nopost">
+  <div dir="auto" lang="en">A card the extension cannot resolve.</div>
+  <button aria-label="7 Likes. Like" aria-pressed="false" type="button"><svg><use href="#icon-heart"></use></svg><span>7</span></button>
+</article>
+<script>
+  // Stubs of the extension APIs the content script touches: message channel + storage.
+  // One injected flag lets a test flip the ads switch the way the popup does.
+  window.__sent = [];
+  window.__changeListeners = [];
+  let store = { hide_ads: window.__HIDE_ADS !== undefined ? window.__HIDE_ADS : true };
+  window.chrome = {
+    runtime: {
+      // The page reads its version from the manifest, and the icon from the package:
+      // both stubbed so the launcher can be tested without installing anything.
+      getManifest: () => ({ version: window.__VERSION || "9.9.9" }),
+      getURL: (p) => "chrome-extension://stub/" + p,
+      onMessage: { addListener: (fn) => (window.__msgListeners = window.__msgListeners || []).push(fn) },
+      sendMessage: (m, cb) => {
+        if (m.type === "hello" || m.type === "net-online") return Promise.resolve({ ok: true });
+        // Diagnostics are not captures: keep them out of the list the tests read.
+        if (m.type === "tel") { (window.__tel = window.__tel || []).push(m); return Promise.resolve({ ok: true }); }
+        if (m.type === "tel-flush") return Promise.resolve({ ok: true });
+        if (m.type === "export") {
+          const pick = m.pick || "all";
+          const items = (window.__mirror || []).filter((it) =>
+            pick === "likes" ? it.kind === "like" || it.kind === "unlike"
+            : pick === "bookmarks" ? it.kind === "bookmark" || it.kind === "unbookmark" : true);
+          cb && cb({ ok: true, items, pick });
+          return Promise.resolve({ ok: true, items, pick });
+        }
+        if (m.type === "open") {
+          (window.__opened = window.__opened || []).push(m.page);
+          cb && cb({ ok: true });
+          return Promise.resolve({ ok: true });
+        }
+        window.__sent.push(m);
+        cb && cb({ sent: true });
+        return Promise.resolve({ sent: true });
+      },
+    },
+    storage: {
+      local: {
+        set: (obj) => { window.__writes = window.__writes || []; window.__writes.push(obj); Object.assign(store, obj); return Promise.resolve(); },
+        get: (defaults, cb) => {
+          const out = Object.assign({}, defaults);
+          for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];
+          cb && cb(out);
+          return Promise.resolve(out);
+        },
+      },
+      onChanged: { addListener: (fn) => window.__changeListeners.push(fn) },
+    },
+  };
+  window.__setStore = (v) => { Object.assign(store, v); };
+  window.__emitChange = (changes) => window.__changeListeners.forEach((fn) => fn(changes));
+  window.__setHideAds = (v) => {
+    store.hide_ads = v;
+    window.__changeListeners.forEach((fn) => fn({ hide_ads: { newValue: v } }));
+  };
+</script>
+</body></html>

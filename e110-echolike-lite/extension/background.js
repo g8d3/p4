@@ -7,7 +7,7 @@
 const MAX_ITEMS = 500;
 // Must match `CONTENT_API` in content.js: an import refuses to run on a tab whose
 // script speaks an older walk, and reloads it instead.
-const CONTENT_API = 8;
+const CONTENT_API = 9;
 
 // The hosted inbox: an install that has never been configured claims a tenant
 // there by itself on the first capture — no address, no token, no click. Point
@@ -124,7 +124,13 @@ async function state() {
 // send, so there is no extra traffic of its own.
 const TEL_KEEP = 200;
 
-async function tel(action, info) {
+// Events are stored through one chain. Two diagnostics fired back to back (the
+// layout fingerprint and the capture that followed it) used to read the same
+// starting array and write each its own copy: the second overwrote the first, so
+// exactly the two events that explain a DOM change went missing together.
+let telWrites = Promise.resolve();
+
+function tel(action, info) {
   const e = {
     action: String(action),
     ok: info && typeof info.ok === "boolean" ? info.ok : null,
@@ -136,19 +142,22 @@ async function tel(action, info) {
     at: new Date().toISOString(),
     version: chrome.runtime.getManifest().version,
   };
-  try {
-    const s = await chrome.storage.local.get({ telemetry: [], telq: [], tel_on: true });
-    if (!s.tel_on) return;
-    await chrome.storage.local.set({
-      telemetry: s.telemetry.concat([e]).slice(-TEL_KEEP),
-      telq: s.telq.concat([e]).slice(-TEL_KEEP),
-    });
-  } catch (err) {
-    return; /* diagnostics must never break the thing they observe */
-  }
-  // Enabled means sent: no button, no timer. If it fails, the queue keeps them and
-  // the next event (capture, X tab, online, page open, startup) tries again.
-  telFlush();
+  telWrites = telWrites.then(async () => {
+    try {
+      const s = await chrome.storage.local.get({ telemetry: [], telq: [], tel_on: true });
+      if (!s.tel_on) return;
+      await chrome.storage.local.set({
+        telemetry: s.telemetry.concat([e]).slice(-TEL_KEEP),
+        telq: s.telq.concat([e]).slice(-TEL_KEEP),
+      });
+    } catch (err) {
+      return; /* diagnostics must never break the thing they observe */
+    }
+    // Enabled means sent: no button, no timer. If it fails, the queue keeps them and
+    // the next event (capture, X tab, online, page open, startup) tries again.
+    telFlush().catch(() => {});
+  });
+  return telWrites;
 }
 
 let telSending = null;
@@ -178,7 +187,14 @@ async function telFlushOnce() {
   if (s.token) headers.authorization = "Bearer " + s.token;
   try {
     const r = await timed(base + "/api/telemetry", { method: "POST", headers, body: JSON.stringify({ events: batch }) }, 8000);
-    if (r.ok) await chrome.storage.local.set({ telq: s.telq.slice(0, Math.max(0, s.telq.length - batch.length)) });
+    // Remove exactly what was sent, by value, from a fresh read: an event queued
+    // while this POST was in flight used to be dropped by a slice computed from
+    // the pre-POST array (the same lost-row shape as the send queue).
+    if (r.ok) {
+      const sent = new Set(batch.map((e) => JSON.stringify(e)));
+      const now = await chrome.storage.local.get({ telq: [] });
+      await chrome.storage.local.set({ telq: now.telq.filter((e) => !sent.has(JSON.stringify(e))) });
+    }
     const after = await chrome.storage.local.get({ telq: [] });
     return after.telq.length;
   } catch (e) {

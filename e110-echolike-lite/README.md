@@ -5,6 +5,9 @@ Your X likes and bookmarks, saved in your browser, sent to your inbox **encrypte
 Nothing you like leaves the browser in readable form: each capture is sealed with AES-256-GCM and the key
 stays in your browser. The inbox server stores blobs it cannot open — ours included.
 
+Works on both of X's web apps: the classic one and the 2026 rewrite (the one
+without `data-testid`), on whatever rollout your account happens to be in.
+
 ## Install (one step, then just use X)
 
 1. `chrome://extensions` → Developer mode → Load unpacked → pick `extension/`.

@@ -55,16 +55,43 @@
   // Bump when the walk changes. The background refuses to start an import on a tab
   // whose script speaks an older api, and reloads it instead — a stale tab is the
   // difference between 7 rows and a thousand, and it is invisible otherwise.
-  const CONTENT_API = 8;
+  const CONTENT_API = 9;
 
   const KINDS = { like: "like", unlike: "unlike", bookmark: "bookmark", removeBookmark: "unbookmark" };
 
+  // Two X web apps are in the wild at once (the 2026 rewrite rolls out country by
+  // country): the old rweb, where every control carries data-testid, and x-web,
+  // where data-testid is gone. x-web still marks an engagement button the way a
+  // native toggle would — the icon inside it (icon-heart / icon-bookmark) and
+  // aria-pressed for the state — so one script can read either app.
+  function iconName(el) {
+    const u = el.querySelector("use");
+    const href = u && (u.getAttribute("href") || u.getAttribute("xlink:href"));
+    const d = el.querySelector("[data-icon]");
+    return String(href || "") + " " + String(d ? d.getAttribute("data-icon") : "");
+  }
+
+  function newKind(el) {
+    if (!el || el.tagName !== "BUTTON") return null;
+    const icon = iconName(el);
+    const pressed = el.getAttribute("aria-pressed") === "true";
+    if (/icon-heart/.test(icon)) return pressed ? "unlike" : "like";
+    if (/icon-bookmark/.test(icon)) return pressed ? "unbookmark" : "bookmark";
+    return null;
+  }
+
+  // Returns {el, kind}: the element is what a click travelled through, the kind is
+  // read before X flips it (the listener runs in the capture phase).
   function actionButton(target) {
-    let el = target && target.closest ? target.closest("[data-testid]") : null;
-    while (el && !KINDS[el.getAttribute("data-testid")]) {
-      el = el.parentElement ? el.parentElement.closest("[data-testid]") : null;
+    let el = target && target.closest ? target.closest('[data-testid],button,[role="button"]') : null;
+    while (el) {
+      const t = el.getAttribute("data-testid");
+      if (t && KINDS[t]) return { el, kind: KINDS[t] };
+      const k = newKind(el);
+      if (k) return { el, kind: k };
+      el = el.parentElement ? el.parentElement.closest('[data-testid],button,[role="button"]') : null;
     }
-    return el;
+    return null;
   }
 
   // Counts arrive localized: "1.234 respuestas", "1,234 replies", "1,2 mil", "3.4K".
@@ -96,54 +123,103 @@
     return Math.round(v);
   }
 
+  // A post's own content only: never the quoted post, which sits inside it as a
+  // nested <article> in x-web (and inside a role=link div in the old app). Rows are
+  // normally <article>, but the old app also renders some as div[data-testid=tweet].
+  function own(art, el) {
+    if (!el || !art.contains(el)) return false;
+    if (el.closest('article, [data-testid="tweet"]') !== art) return false;
+    const q = el.closest('div[role="link"]');
+    return !(q && q !== art && art.contains(q));
+  }
+
+  function firstOwn(art, sel) {
+    for (const el of art.querySelectorAll(sel)) if (own(art, el)) return el;
+    return null;
+  }
+
   const countOf = (art, testid) => {
     const el = art.querySelector('[data-testid="' + testid + '"]');
-    if (!el) return null;
+    if (!el || !own(art, el)) return null;
     return num(el.getAttribute("aria-label")) ?? num(el.innerText || el.textContent);
+  };
+
+  // x-web has no testids, but the same number rides in the engagement button's
+  // aria-label ("12 Likes. Like") or its text ("5.4M" for views).
+  const countByIcon = (art, icon) => {
+    for (const el of art.querySelectorAll("button")) {
+      if (!own(art, el) || iconName(el).indexOf(icon) < 0) continue;
+      return num(el.getAttribute("aria-label")) ?? num(el.innerText || el.textContent);
+    }
+    return null;
   };
 
   const viewsOf = (art) => {
     const el = art.querySelector('a[href*="/analytics"]');
-    if (!el) return null;
-    return num(el.getAttribute("aria-label")) ?? num(el.innerText || el.textContent);
+    if (el && own(art, el)) return num(el.getAttribute("aria-label")) ?? num(el.innerText || el.textContent);
+    return countByIcon(art, "icon-bar-chart");
   };
 
   const mediaOf = (art) => {
-    const imgs = art.querySelectorAll('[data-testid="tweetPhoto"]').length;
-    const vids = art.querySelectorAll('[data-testid="videoPlayer"], [data-testid="videoComponent"]').length;
-    return { media: imgs + vids, photos: imgs, videos: vids, card: !!art.querySelector('[data-testid="card.wrapper"]') };
+    // One element per media item: a tweetPhoto holds an <img> too, and a
+    // videoPlayer holds a <video>, so the inner node must not count twice.
+    const photos = [...art.querySelectorAll('[data-testid="tweetPhoto"], img[src*="/media/"]')].filter(
+      (el) => own(art, el) && !(el.tagName === "IMG" && el.closest('[data-testid="tweetPhoto"]')),
+    ).length;
+    const videos = [...art.querySelectorAll('[data-testid="videoPlayer"], [data-testid="videoComponent"], video')]
+      .filter(
+        (el) =>
+          own(art, el) &&
+          !(el.tagName === "VIDEO" && el.closest('[data-testid="videoPlayer"], [data-testid="videoComponent"]')),
+      ).length;
+    return {
+      media: photos + videos,
+      photos,
+      videos,
+      card: !!firstOwn(art, '[data-testid="card.wrapper"], a[href^="https://t.co/"]'),
+    };
   };
 
   // The post's own link: any /status/ anchor that is NOT inside the quoted tweet,
   // the media container, or the tweet text. Taking the first anchor made a row with a
   // quote resolve to the *quoted* post, so many rows collapsed into one id.
   function ownStatusLink(art) {
-    const anchors = Array.from(art.querySelectorAll('a[href*="/status/"]'));
-    const isQuoted = (a) => {
-      const q = a.closest('div[role="link"]');
-      if (q && q !== art && art.contains(q)) return true;
-      const t = a.closest('[data-testid="tweetText"]');
-      return !!(t && t !== art);
-    };
-    const own = anchors.filter((a) => !isQuoted(a) && /\/status\/\d+/.test(a.getAttribute("href")));
+    const anchors = Array.from(art.querySelectorAll('a[href*="/status/"]')).filter(
+      (a) => own(art, a) && /\/status\/\d+/.test(a.getAttribute("href")),
+    );
     // the timestamp link is the canonical one when there are several
-    return own.find((a) => a.querySelector("time")) || own[0] || null;
+    return anchors.find((a) => a.querySelector("time")) || anchors[0] || null;
+  }
+
+  // The quoted post, if there is one: a nested <article> in x-web, a role=link div
+  // in the old app. Its id is kept so the inbox can show the context.
+  function quotedLink(art) {
+    const nested = [...art.querySelectorAll("article")].find(
+      (el) => el.parentElement && el.parentElement.closest("article") === art,
+    );
+    return nested ? ownStatusLink(nested) : art.querySelector('div[role="link"] a[href*="/status/"]');
   }
 
   // One extraction, shared by the click path and the import walk.
   function extract(art, kind) {
     if (!art) return null;
-    const ad = !!art.closest('[data-testid="placementTracking"]');
+    const head = (art.innerText || "").slice(0, 200);
+    const ad =
+      !!art.closest('[data-testid="placementTracking"]') ||
+      /(^|\n)\s*(Promoted|Ad|Anzeige|Promocionado|Publicidad|Sponsorisé)\s*($|\n)/i.test(head);
     const a = ownStatusLink(art);
     const m = a && a.getAttribute("href").match(/\/([A-Za-z0-9_]{1,15})\/status\/(\d+)/);
     if (!m) return null;
-    const txt = art.querySelector('[data-testid="tweetText"]');
+    const txt = firstOwn(art, '[data-testid="tweetText"], [lang][dir="auto"]');
     const time = a.querySelector("time");
-    const name = art.querySelector('[data-testid="User-Name"]');
-    const quoted = art.querySelector('div[role="link"] a[href*="/status/"]');
+    const name = firstOwn(art, '[data-testid="User-Name"], div.font-bold[dir="auto"], span.font-bold[dir="auto"]');
+    const quoted = quotedLink(art);
     const qm = quoted && quoted.getAttribute("href").match(/\/status\/(\d+)/);
-    const social = art.querySelector('[data-testid="socialContext"]');
     const media = mediaOf(art);
+    // x-web labels the date the way X shows it: an absolute one on the post page
+    // ("5:44 AM · Nov 24, 2026") and a relative one in the list ("5h"). Only the
+    // absolute form is worth keeping: "5h" is a fact about the click, not the post.
+    const stamp = time ? null : (a.innerText || a.textContent || "").trim().slice(0, 40) || null;
     return {
       kind,
       id: m[2],
@@ -155,17 +231,21 @@
         ? ((name.querySelector("span") || name).innerText || name.textContent || "").split("\n")[0].trim().slice(0, 80) ||
           null
         : null,
+      // x-web prints the date as X itself shows it ("Nov 23") and ships no <time>:
+      // an exact instant would be a guess, so published_at stays null and the
+      // display string travels separately.
       published_at: time ? time.getAttribute("datetime") : null,
       tweet_time: time ? time.getAttribute("datetime") : null, // kept for older inboxes
+      published_text: stamp && /[A-Za-z\u00c0-\u00fa]{3}|\d{4}/.test(stamp) ? stamp : null,
       counts: {
-        replies: countOf(art, "reply"),
-        reposts: countOf(art, "retweet"),
-        likes: countOf(art, "like"),
-        bookmarks: countOf(art, "bookmark"),
+        replies: countOf(art, "reply") ?? countByIcon(art, "icon-reply"),
+        reposts: countOf(art, "retweet") ?? countByIcon(art, "icon-repost"),
+        likes: countOf(art, "like") ?? countByIcon(art, "icon-heart"),
+        bookmarks: countOf(art, "bookmark") ?? countByIcon(art, "icon-bookmark"),
         views: viewsOf(art),
       },
       quotes: qm ? qm[1] : null,
-      is_repost: social ? /reposted|retweeted|repostó|retuiteó/i.test(social.innerText || "") : false,
+      is_repost: /reposted|retweeted|repostó|retuiteó/i.test(head),
       ad,
       ...media,
       // when, and from where: the two dates that cannot be recovered later
@@ -176,10 +256,6 @@
     };
   }
 
-  function capture(btn) {
-    return extract(btn.closest("article"), KINDS[btn.getAttribute("data-testid")]);
-  }
-
   const tel = (action, info) => {
     try {
       const p = chrome.runtime.sendMessage({ type: "tel", action, info: Object.assign({ host: location.host }, info || {}) });
@@ -188,6 +264,29 @@
       /* the walk must not die because a diagnostic could not be sent */
     }
   };
+
+  // Which X app this tab is running, in one line. X replaced its web app in 2026
+  // (data-testid gone), and the only visible symptom was "the button does nothing":
+  // these counts answer it from the field instead of from a guess. Sent with the
+  // first capture of the page and with any capture that fails.
+  function domDetail() {
+    const testids = document.querySelectorAll("[data-testid]").length;
+    return (
+      "layout=" + (testids ? "rweb" : "x-web") +
+      " articles=" + document.querySelectorAll("article").length +
+      " testids=" + testids +
+      " hearts=" + document.querySelectorAll('use[href="#icon-heart"], [data-icon*="heart"]').length +
+      " marks=" + document.querySelectorAll('use[href="#icon-bookmark"], [data-icon*="bookmark"]').length +
+      " pressed=" + document.querySelectorAll("[aria-pressed]").length
+    );
+  }
+
+  let domReported = false;
+  function reportDom() {
+    if (domReported) return;
+    domReported = true;
+    tel("dom", { ok: true, detail: domDetail() });
+  }
 
   // ---- Import: walk a list that X builds as you scroll ----------------------
   // Only runs when the user starts it from the Import tab. It stops by itself at the
@@ -326,6 +425,9 @@
       const rows = document.querySelectorAll('article, [data-testid="tweet"]');
       seenRows = Math.max(seenRows, rows.length);
       for (const art of rows) {
+        // A quoted post is an <article> inside another one in x-web: it belongs to
+        // the post above, not to the list as a capture of its own.
+        if (art.parentElement && art.parentElement.closest("article")) continue;
         if (collected.size >= wanted) return; // the number asked for is the number sent
         const it = extract(art, kind);
         if (!it) {
@@ -819,15 +921,32 @@
     fab.dot.style.top = fab.y + "px";
   }
 
-  // Capture phase: read the button's testid BEFORE X flips it.
+  // Capture phase: read the button's testid BEFORE X flips it. On x-web there is
+  // no testid; the icon and aria-pressed are read instead, in the same phase.
+  let unmatchedReported = false;
   document.addEventListener(
     "click",
     (e) => {
       try {
         const btn = actionButton(e.target);
-        if (!btn) return;
-        const item = capture(btn);
-        if (!item) return;
+        if (!btn) {
+          // A like/bookmark-shaped button we cannot name is the failure that looks
+          // like "EchoLike does nothing". Record the label, once per page.
+          const b = e.target instanceof Element ? e.target.closest('button,[role="button"]') : null;
+          const label = (b && b.getAttribute("aria-label")) || "";
+          if (b && !unmatchedReported && /like|heart|bookmark|guardar|me gusta/i.test(label)) {
+            unmatchedReported = true;
+            tel("capture.unmatched", { ok: false, error: label.slice(0, 60), detail: domDetail() });
+          }
+          return;
+        }
+        reportDom();
+        const item = extract(btn.el.closest("article"), btn.kind);
+        if (!item) {
+          tel("capture.noitem", { ok: false, error: "no post link on a " + btn.kind + " button", detail: domDetail() });
+          return toast("EchoLike: could not read this post", false);
+        }
+        tel("capture", { ok: true, detail: "kind=" + btn.kind + " " + domDetail() });
         chrome.runtime.sendMessage({ type: "capture", item }, (r) => {
           if (chrome.runtime.lastError || !r) return toast("EchoLike: saved here, inbox not reached", false);
           toast(r.sent ? "EchoLike ✓ sent" : r.saved ? "EchoLike ✓ saved (no inbox yet)" : "EchoLike ✗ " + (r.error || "error"), !!(r.sent || r.saved));

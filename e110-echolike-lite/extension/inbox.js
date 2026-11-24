@@ -110,6 +110,9 @@ const DATES = [
 function datesGrid(it) {
   const cells = DATES.map(([label, field]) => {
     const v = it[field] || (field === "published_at" ? it.tweet_time : "");
+    // x-web hands back X's own date string ("Nov 23") instead of an instant.
+    if (!v && field === "published_at" && it.published_text)
+      return '<span><i>' + label + "</i> <b>" + esc(it.published_text) + "</b></span>";
     if (!v) return "";
     // The exact second, without widening the column: it lives in the tooltip.
     return '<span title="' + esc(localTime(v)) + '"><i>' + label + "</i> <b>" + esc(shortTime(v)) + "</b></span>";
@@ -123,7 +126,7 @@ function datesGrid(it) {
 function rowHtml(it, opt) {
   const o = opt || {};
   const name = it.author_name || it.handle || "post";
-  const when = it.published_at || it.clicked_at;
+  const when = it.published_at || it.published_text || it.clicked_at;
   const savedBy = (o.savedBy || []).length;
   const tags =
     '<span class="tag kind">' + esc(it.kind) + "</span>" +

@@ -80,6 +80,8 @@
       onMessage: { addListener: (fn) => (window.__msgListeners = window.__msgListeners || []).push(fn) },
       sendMessage: (m, cb) => {
         if (m.type === "hello" || m.type === "net-online") return Promise.resolve({ ok: true });
+        // Diagnostics are not captures: keep them out of the list the tests read.
+        if (m.type === "tel" || m.type === "tel-flush") return Promise.resolve({ ok: true });
         if (m.type === "export") {
           const pick = m.pick || "all";
           const items = (window.__mirror || []).filter((it) =>

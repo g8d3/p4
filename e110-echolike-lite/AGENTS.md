@@ -158,6 +158,12 @@ error text (160 chars), client version. No post text, no handle, no url, no emai
   `read.unreachable`, `account.start`, `account.verify`, `key.backup`,
   `key.restore`. A Send diagnostics toggle (default on) and a Copy button exist in
   Settings → 5 · Diagnostics, so a user can hand over the log even offline.
+  1.20.0 adds the capture-side four: `dom` (once per page: `layout=rweb|x-web`, how
+  many `article`/`data-testid`/heart/bookmark/`aria-pressed` nodes the page has),
+  `capture` (every successful read: kind + the same fingerprint), `capture.noitem`
+  (the button was recognised but no post link was), `capture.unmatched` (a
+  like/bookmark-shaped button could not be named at all — the exact shape of the
+  1.20.0 bug, so a future rename reports itself instead of going silent).
 * Worker: whitelisted columns only (`telemetry`: at, ip_hash, user_id, version,
   action, ok, code, ms, host, error). Unknown actions are dropped, strings are
   truncated server-side, 20 events / 8 KB per request, IP stored as a salted hash.
@@ -178,6 +184,28 @@ with a 501 that looked like a server outage. The cached body also leaked across
 requests on one connection, so a POST after a bodyless request stored nothing
 (silent data loss). Both fixed in `server.py` (`_safe` resets `self._body` and
 drains it); `tests/review_drain.py` covers the whole path.
+
+## Checking the live X app (no account needed)
+
+X's logged-out pages are already the new x-web app, so the DOM half of a capture can
+be verified against the real site without touching anyone's account. With
+`agent-browser`:
+
+```sh
+# a public post page; the heart button and its own article are real
+agent-browser open "https://x.com/<handle>/status/<id>" --session x1
+# /tmp/inject.js = the chrome runtime/storage stubs from tests/fixture_new.html,
+# followed verbatim by extension/content.js. --stdin avoids shell quoting entirely:
+agent-browser eval --stdin --session x1 < /tmp/inject.js
+# then dispatch a click on the real button and read what it would have sent:
+agent-browser eval "window.__sent=[];document.querySelector('button:has(use[href="#icon-heart"])').dispatchEvent(new MouseEvent('click',{bubbles:true}))" --session x1
+agent-browser eval "JSON.stringify(window.__sent)" --session x1
+```
+
+The item's `id`, `text`, `counts`, `quotes` and `published_text` come from the live
+DOM, which is what `tests/review_new_dom.py` then freezes as a fixture. Do this
+whenever X reports a new `data-app-version` or a report says "the button does
+nothing"; the `dom` telemetry line answers the same question from the field.
 
 ## Structure
 
@@ -675,6 +703,8 @@ are left untouched (existing installs keep their update channel).
 
 ```sh
 xvfb-run -a python3 tests/review_capture.py   # content script vs X-shaped DOM (quoted tweet, kinds, double-inject)
+xvfb-run -a python3 tests/review_new_dom.py   # x-web (2026): no testids, icons + aria-pressed, nested quotes
+xvfb-run -a python3 tests/review_live_x.py    # LIVE x.com + the real extension: one like, the layout line, the capture line
 xvfb-run -a python3 tests/review_popup.py     # popup renders the list, XSS-safe, Find my inbox, bad connect reported
 xvfb-run -a python3 tests/review_e2e.py       # extension -> server.py round trip, claim with no token, 401 shown
 bash bin/live-test-reset.sh                  # clears the hosted claim window (the live tests claim a lot)
@@ -708,6 +738,24 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.20.0 — **x-web, X's 2026 rewrite, captures again.** X is moving signed-in people to a rewritten web app
+  (`x-web`) country by country, and that app has **no `data-testid` anywhere** — every selector the content
+  script used. The visible symptom was a like that produced nothing, with no error. The script now reads both
+  apps: the old one by `data-testid`, the new one by the icon inside the engagement button
+  (`use[href="#icon-heart"]`, `#icon-bookmark`) and its `aria-pressed` state, with counts from the button's
+  `aria-label` ("12 Likes. Like") or text ("98.7K" views). A quoted post is a nested `<article>` in x-web, so
+  posts are scoped with `closest('article')` (own text, own counts, own media, own status link) and the import
+  walk skips nested articles instead of capturing every quote as its own like. x-web ships no `<time>`: the post
+  page's absolute date string ("5:44 AM · Nov 24, 2026") travels as `published_text` and is displayed; the list's
+  relative label ("5h") is dropped. `published_at` stays null instead of guessing. Diagnostics for exactly this
+  class of break (recorded, never content): `dom` once per page with the layout and control counts
+  (`layout=x-web articles=5 testids=0 hearts=4 pressed=12`), `capture` with the kind and layout on every success,
+  `capture.noitem` when the button reads but the post does not, `capture.unmatched` when a like/bookmark-shaped
+  button cannot be named at all — plus a visible toast instead of silence. `CONTENT_API` 9. New test:
+  `tests/review_new_dom.py` (x-web-shaped fixture: own vs quoted id/text/counts/media, unlike/unbookmark via
+  `aria-pressed`, quoted post never imported, a heart with no post link fails loudly). Verified against the live
+  x-web DOM in a real browser on 2026-11-24 before shipping.
 
 - 1.19.0 — **discovery**: two users who saved the same posts find each other with no code between them.
 Per-device ECDH P-256 keys (`POST /api/keys`), an opt-in blind interest index (`POST /api/discovery`,
@@ -1019,6 +1067,10 @@ Grok marker (`[data-testid*=Grok]`, `[data-testid*=grok]`, `a[href*="/grok"]`,
 `[aria-label*=Grok]`). `tests/review_ads.py` pins both directions down: promoted
 post and promoted trend hidden, Grok answer (plain module and Grok-post form) and
 real posts visible, and the switch reversible.
+
+x-web (1.20.0) has none of these markers, so the ads switch is a no-op on X's new
+app until its promoted-post marker is identified from a signed-in ad; capture is
+unaffected (liking an ad still captures it). Old rweb keeps working as documented.
 
 To re-check after X changes its DOM: like a promoted post, inspect it in devtools,
 and look for the `placementTracking` wrapper. If it is gone, the fix is one
