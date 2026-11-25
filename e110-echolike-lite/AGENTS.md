@@ -824,6 +824,25 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.3 — **the hole, closed by measuring instead of fighting.** 1.23.2 left the slot a
+  virtualized row leaves, on the theory that only X can close it. It can, but it does not
+  in practice, so the owner kept seeing the blank space. The mechanism now:
+  * the shift goes in the **`translate` property**, which composes with X's `transform`
+    and which X never writes — so a re-render or a re-measure cannot fight it, and the
+    offsets X writes are never touched (nothing to make the page jump);
+  * the shift is **measured on screen**, not assumed: walk a list's rows in order and add
+    up `next.top - previous.bottom`. A hidden row renders 0 tall, so it contributes
+    exactly its own height; if X closes the hole itself the measured hole is 0 and the
+    shift disappears. It cannot subtract twice, and it self-corrects.
+  * recomputed once per animation frame on scroll (rows change height as media loads) and
+    on every observed DOM change — a passive listener, no timer, and nothing installed
+    while the ads switch is off;
+  * switching off clears every shift (`clearGaps`) and every mark.
+  `tests/review_gap.py` now measures the actual hole: rows at 0/200/400 with the ad at
+  200, the visible posts end/start with **0 px** between them, X's three offsets
+  unchanged, and when X re-measures the hole to 0 the shift vanishes instead of
+  double-applying.
+
 - 1.23.2 — **the jumps and the vanishing posts were mine; the blank slot is X's.** Three
   sentences from the owner: "jumps in the page, blank spaces for some ads, some posts
   seem to just disappear". Cause of the first two: 1.23.1 moved the rows after a hidden
