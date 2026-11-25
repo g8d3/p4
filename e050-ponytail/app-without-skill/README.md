@@ -11,14 +11,14 @@ This is what a capable agent builds naturally when it doesn't climb the ponytail
 - Google STT first, OpenAI second — but no `faster-whisper` local fallback
 - No `pyatspi` auto-show, no `ponytail:` ceiling comments, no upgrade path
 - Geometry persisted to `~/.config/dictation-popup/config.json` (YAGNI)
-- 263 lines vs 174 with-skill — naturally more verbose, not caricatured
+- 265 lines vs 207 with-skill — naturally more verbose, not caricatured
 
 ## Run
 
 ### One-liners (web)
 
 ```bash
-# install and run (without skill, 263 lines)
+# install and run (without skill, 265 lines)
 curl -fsSL https://tinyurl.com/22sd6lw5 | bash
 # run once installed (no curl)
 python3 /tmp/dictation.py
@@ -36,7 +36,7 @@ curl -fsSL https://raw.githubusercontent.com/g8d3/p4/master/e050-ponytail/app-wi
 ```bash
 pip install sounddevice SpeechRecognition pynput
 # system: sudo apt install xdotool portaudio19-dev  # + wtype on Wayland if needed
-python main.py  # Ctrl+Alt+V toggle, Esc hide, drag to move
+python main.py  # Ctrl+Alt+V toggle, Esc hide to taskbar (click to restore), drag to move
 ```
 
 Contrast with `../app-with-skill/` which follows `DietrichGebert/ponytail` `full` (YAGNI → stdlib → native → installed dep → `ponytail:` comments).
