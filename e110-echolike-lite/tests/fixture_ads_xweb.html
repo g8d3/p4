@@ -6,14 +6,16 @@
 <div id="feed">
 
   <!-- 1. The phone's own wording: a bare "Ad" in a div, article inside a cellInnerDiv. -->
-  <div data-testid="cellInnerDiv" id="adcell">
+  <!-- Wrapped in a padded row on purpose: hiding only the card left the row's padding
+       behind, which is the blank space the owner reported. -->
+  <div id="adrow" style="padding:20px 0"><div data-testid="cellInnerDiv" id="adcell">
     <article id="adarticle">
       <div><a href="/shop"><img src="data:," alt=""></a></div>
       <div><span>Some Shop</span><span>@shop</span><div>Ad</div></div>
       <div dir="auto" lang="en">Buy this thing you do not need.</div>
       <div role="group"><button>reply</button><button>like</button></div>
     </article>
-  </div>
+  </div></div>
 
   <!-- 1b. The shape the phone actually reported (2026-11-25): the word as the DIV's
      own text node plus icon wrappers — one word, two element children, weight 400,

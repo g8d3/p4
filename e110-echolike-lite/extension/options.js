@@ -64,6 +64,7 @@ async function refresh() {
   $("ads").checked = !!ads.hide_ads;
   $("fab").checked = ads.fab_on !== false;
   $("telon").checked = state.telOn !== false;
+  paintLevel();
   $("telcount").textContent = state.telQueued ? state.telQueued + " waiting to be sent" : "";
   $("tellog").textContent = (state.telemetry || [])
     .map((e) =>
@@ -121,19 +122,24 @@ async function adsReport() {
 // What the owner taught by marking ads on X: two marks of the same kind learn the
 // word, and from then on it hides by itself. Shown here so it can also be forgotten.
 async function paintLearned() {
-  const s = await chrome.storage.local.get({ ads_learned: [], ads_pending: [] });
+  const s = await chrome.storage.local.get({ ads_learned: [], ads_pending: [], ads_skel: [], ads_skel_pending: "" });
   const n = (s.ads_learned || []).length;
   const p = (s.ads_pending || []).length;
-  $("adslearned").innerHTML = n
-    ? "<b>" + n + "</b> word(s) learned from your marks: ads that use them are hidden by themselves."
-    : p
-      ? "One mark kept. Mark one more ad like it and the word is learned."
+  const k = (s.ads_skel || []).length;
+  const q = s.ads_skel_pending ? 1 : 0;
+  const parts = [];
+  if (n) parts.push("<b>" + n + "</b> word(s)");
+  if (k) parts.push("<b>" + k + "</b> shape(s)");
+  $("adslearned").innerHTML = parts.length
+    ? "Learned from your marks: " + parts.join(" and ") + " — ads like those are hidden by themselves."
+    : p || q
+      ? "One mark kept. Mark one more ad like it and it is learned."
       : "Nothing marked yet. On X, press the circle → <b>Mark an ad…</b>.";
-  $("adsclear").style.display = n || p ? "inline-block" : "none";
+  $("adsclear").style.display = n || p || k || q ? "inline-block" : "none";
 }
 
 $("adsclear").addEventListener("click", async () => {
-  await chrome.storage.local.set({ ads_learned: [], ads_pending: [] });
+  await chrome.storage.local.set({ ads_learned: [], ads_pending: [], ads_skel: [], ads_skel_pending: "" });
   await paintLearned();
   say("adsmsg", "Forgotten. Only the built-in words hide ads now.", "mut");
 });
@@ -147,14 +153,19 @@ $("adscheck").addEventListener("click", async () => {
   // Structure and short fingerprints only (see `adsReport` in content.js): the words
   // travel as 8-hex hashes, so a disclosure we do not know yet can be looked up in a
   // dictionary without the phone ever sending text.
-  const detail = (
-    "v=" + chrome.runtime.getManifest().version +
-    " articles=" + r.articles + " marked=" + r.marked + " layout=" + r.layout +
-    " learned=" + r.learned + " pending=" + r.pending +
-    " | " + (r.rows || []).join(" ") +
-    (r.mods && r.mods.length ? " | modules: " + r.mods.join(" ") : " | no modules")
-  ).slice(0, 1200);
+  // Two rows leave at every level: the compact line (always structure + fingerprints)
+  // in the diagnostics table, and the rich report, which carries what the owner's
+  // privacy level allows — the labels, or the markup itself.
+  const detail = (r.line || "").slice(0, 1200);
   await send("tel", { action: "ads.report", info: { ok: r.marked > 0, host: "x.com", detail } });
+  const sent = r.rich ? await send("adreport", { report: r.rich }) : null;
+  if (sent && sent.ok === false) {
+    return say(
+      "adsmsg",
+      "The report is queued and goes out with the next send (" + esc(sent.error || "inbox unreachable") + ").",
+      "err",
+    );
+  }
   say(
     "adsmsg",
     r.marked
@@ -177,6 +188,27 @@ $("fabreset").addEventListener("click", async () => {
     await chrome.storage.local.set({ fab_on: true });
   }
   say("keymsg", "The button goes back to the bottom right corner on the next X tab you open.", "ok");
+});
+
+// What a report is allowed to carry: its owner decides, not the code.
+async function paintLevel() {
+  const s = await chrome.storage.local.get({ report_level: "full" });
+  const v = String(s.report_level || "full");
+  $("reportlevel").value = v;
+  say(
+    "reportlevelmsg",
+    v === "shapes"
+      ? "Reports carry structure and fingerprints only."
+      : v === "labels"
+        ? "Reports carry structure and the short words as they are."
+        : "Reports carry structure, the short words, and the card's markup — enough to write the rule from here.",
+    "mut",
+  );
+}
+
+$("reportlevel").addEventListener("change", async () => {
+  await chrome.storage.local.set({ report_level: $("reportlevel").value });
+  await paintLevel();
 });
 
 $("telon").addEventListener("change", async () => {

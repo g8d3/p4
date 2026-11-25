@@ -76,6 +76,20 @@ with sync_playwright() as p:
     check("and says it is waiting for a second mark", "pending=" in detail, True)
     check("the post itself was not captured as a like",
           [m["type"] for m in page.evaluate("window.__sent") if m["type"] == "capture"], [])
+    reports = [m for m in page.evaluate("window.__sent") if m["type"] == "adreport"]
+    check("a rich report goes with the mark", len(reports), 1)
+    rich = (reports[0].get("report") or {}) if reports else {}
+    check("it says it is a mark", rich.get("kind"), "mark")
+    check("it carries the card's markup at the default level", len(rich.get("html", "")) > 50, True)
+    check("and the candidate words as they are", "Annonce" in rich.get("words", ""), True)
+    # The owner sets how much a report may carry; "shapes" sends no words and no markup.
+    page.evaluate("window.__setStore({report_level: 'shapes'})")
+    page.evaluate("window.__changeListeners.forEach(f => f({report_level: {newValue: 'shapes'}}))")
+    mark(page, "ad2")
+    reports = [m for m in page.evaluate("window.__sent") if m["type"] == "adreport"]
+    shapes = (reports[-1].get("report") or {}) if reports else {}
+    check("the 'shapes' level sends no words", shapes.get("words"), "")
+    check("and no markup", shapes.get("html"), "")
     page.close()
 
     # 3. Two marks of the same kind teach the word.
@@ -95,6 +109,29 @@ with sync_playwright() as p:
     check("a real post was never touched", page.evaluate(HIDDEN, "real1"), False)
     check("no page errors while marking", captured.get("errors", []), [])
     learned = store["ads_learned"]
+    page.close()
+
+    # 3b. An ad with no disclosure word at all (the first field mark): its SHAPE is
+    #     what gets learned, and two marks of the same shape teach it.
+    page, errors = open_page(browser)
+    check("a label-less ad is not hidden by words", page.evaluate(HIDDEN, "ad3"), False)
+    mark(page, "ad3")
+    mark(page, "ad4")
+    store = page.evaluate("window.__store()")
+    check("the shape is learned from two marks", len(store["ads_skel"]), 1)
+    check("and the shape candidate is cleared", store["ads_skel_pending"], "")
+    check("the ordinary post still has a different shape",
+          page.evaluate(HIDDEN, "real1"), False)
+    shape = store["ads_skel"]
+    check("no page errors while marking shapes", errors, [])
+    page.close()
+
+    # 3c. After a reload a learned shape hides the same kind of card, and only that.
+    page, errors = open_page(browser, seed={"ads_skel": shape})
+    check("the first label-less ad hides on load", page.evaluate(HIDDEN, "ad3"), True)
+    check("the second one too", page.evaluate(HIDDEN, "ad4"), True)
+    check("the ordinary post stays", page.evaluate(HIDDEN, "real1"), False)
+    check("a worded ad of another kind is untouched", page.evaluate(HIDDEN, "ad1"), False)
     page.close()
 
     # 4. After a reload the learned word hides the ads by itself — no marking needed.

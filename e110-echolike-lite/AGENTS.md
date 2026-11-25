@@ -823,6 +823,56 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.0 — **enough data to fix it, and the owner decides how much.** The order was
+  literal: *"send enough data, later you can fix privacy… even better, let the user set
+  different privacy levels."* So a report now has two halves:
+
+  * **The compact line** (always): structure + fingerprints, what `ads.report` already
+    sent, in the `telemetry` table.
+  * **The rich report** (new): `POST /api/adreport` → D1 table `ad_reports`
+    (`migration 0013`), body 160 KB, html 96 KB, detail 2 KB, words 1 KB, one row per
+    press, scoped to the tenant that sent it, never a capture. A mark sends
+    `{kind:"mark", post_url, words:[candidates], html:<card.outerHTML>}`; the
+    *Send what X shows* button sends `{kind:"report", words:[short texts in the column],
+    html:<the column's outerHTML>}`. A failed post waits in `adq` (5) and rides the next
+    send, and the same file is written locally by `server.py` (`adreports.jsonl`).
+  * **Three privacy levels**, in Settings → 5 · Diagnostics → *What an ad report
+    carries*: `shapes` (structure + fingerprints only), `labels` (+ the short words as
+    they are), `full` (+ the markup). Default `full` while the DOM is still being
+    learned; the setting is the honest way to walk it back, and the level that produced
+    a row is recorded in its `detail` (`level=`).
+  * Why it matters in one line: `articles=8 marked=0 | no disclosure label found` is a
+    fact; the same card's markup is a fix.
+  * Tests: `review_mark.py` asserts a mark carries `kind:"mark"`, the card markup and
+    the candidate words at the default level, and **nothing** at `shapes`;
+    `review_ads_xweb.py` asserts the summary keeps fingerprints while the rich half
+    carries labels + markup.
+
+- 1.22.1 — **the gap, and the ad with no label at all.** Two things came back from the
+  field together: *"ads were hidden, but blank space remained"*, and the first
+  `ads.mark` (`02:41:44Z`, v1.22.0) whose four word fingerprints match **no** disclosure
+  word in the dictionary — that ad has no label to learn.
+  * **The gap.** Hiding the card left the padded row around it. `rowOf(cell)` climbs up
+    to three ancestors while they are chrome only (same text, no other content-bearing
+    child) and `markCell` marks the row as well as the card, so the row's padding,
+    border and height go with it. `marked` in a report now counts hidden *ads*, not
+    marked elements.
+  * **Shapes, not only words.** `skeleton(card)` hashes the text-free structure (tag,
+    `data-testid`, `role`, `dir`, child counts, bounded to 48 nodes / 4 levels). Two
+    marks with the same shape teach it (`ads_skel`), and `looksPromoted`/`markModules`
+    accept a learned shape — that is the only thing an ad with no disclosure can teach.
+    A shape used by two or more other posts on the page is refused (it is the row, not
+    an ad) and reported as `skcommon=`. A mark reports `sk=`, `skreal=` (an ordinary
+    post's shape, for comparison), `skcommon=`, `sktaught=`, `skknown=`.
+  * Settings → 3 · On X now counts **words and shapes** learned, and *Forget what I
+    marked* clears both (plus the pending candidates).
+  * Tests: `tests/fixture_mark.html` gains `#ad3`/`#ad4` (identical shape, no label) and
+    `review_mark.py` proves two marks learn the shape, the reload hides those cards and
+    leaves the ordinary post and a *different* ad kind alone; `fixture_ads_xweb.html`
+    wraps one ad in a padded row and `review_ads_xweb.py` asserts the row is hidden too.
+  * Reminder of the honest limit, said out loud: learning needs **two marks of the same
+    kind**. One mark hides that card and nothing more.
+
 - 1.22.0 — **marking an ad, because the ad we cannot name has no label to learn.** The
   second report (`articles=8 marked=0 | no disclosure label found`) proved the limit of
   guessing words: an ad with no disclosure this product knows cannot be found by text,
@@ -1300,9 +1350,11 @@ text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
   posts' shape — `A[…]` per post (length, marked?, cell, and up to two short header
   texts as `h=<fnv1a>`,l,w,f,k,b,a,t) and `M[…]` per **non-post cell** (length, words,
   links, external links, buttons, its short texts) — and sends that as `ads.report`.
-  Short texts are **fingerprints, never words**: `bin/ads_hash.py <hash…>` looks them
+  Short texts are **fingerprints** in that line: `bin/ads_hash.py <hash…>` looks them
   up in the dictionary of disclosure words in 25 languages, and `--sql` takes the
-  whole detail string. Nothing else travels: no post text, no handle, no link.
+  whole detail string. The compact line never carries post text, a handle or a link.
+  The **rich half** of the same press (below) carries whatever the owner's privacy
+  level allows, up to the card's markup.
   `tests/review_ads_xweb.py` pins the properties above, including the late label, the
   "real post that says Ad" direction, and that the report holds no readable word.
 * **What a report looks like when it fails** (and why each line exists):
@@ -1310,6 +1362,15 @@ text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
   in it; `M[…]` = a cell with no post at all (the 1.21.2 case); `marked=N` counts what
   the switch did hide. A hash that `ads_hash.py` does not know is a new word — add it
   to `AD_LABEL` **and** to the dictionary, with a fixture of its shape.
+* **When no word can be found at all, mark it by hand.** Circle → **Mark an ad…** →
+  tap the card. It disappears immediately (card **and** the padded row around it,
+  `rowOf`), `ads.mark` reports its shape (`post=`, `cell=`, `a=/ext=/btn=`,
+  `words=[h=…]`, `sk=`, `skreal=`, `skcommon=`), and two things become candidates: the
+  header words unique to that card, and its text-free **skeleton**. A second mark of the
+  same kind teaches whichever of the two it shares, and from then on those ads hide by
+  themselves. That is the only handle on an ad that prints no disclosure at all (the
+  first field mark: four short texts, none of them a known word). Honest limit: one mark
+  hides that one card; learning needs two marks of the same kind.
 
 Capture is unaffected by any of this (liking an ad still captures it, flagged
 `ad: true`). Old rweb keeps working as documented.

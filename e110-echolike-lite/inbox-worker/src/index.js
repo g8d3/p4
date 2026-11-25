@@ -733,6 +733,37 @@ async function telemetry(env, req) {
   return json({ ok: true, stored: rows.length });
 }
 
+// The rich half of an ad diagnostic: the card (or the whole column) as the phone sees
+// it, shaped by the owner's privacy level. Body 160 KB, html 96 KB; one row per press;
+// scoped to the tenant that sent it. Nothing here ever becomes a capture.
+async function adReport(env, req) {
+  const len = Number(req.headers.get("content-length") || 0);
+  if (len > 160 * 1024) return json({ ok: false, error: "payload too large" }, 413);
+  let body;
+  try {
+    body = JSON.parse((await req.text()) || "{}");
+  } catch {
+    return json({ ok: false, error: "bad json" }, 400);
+  }
+  const who = await tenant(env, req.headers.get("authorization"));
+  await env.DB.prepare(
+    "INSERT INTO ad_reports (at, user_id, version, kind, post_url, detail, words, html)" +
+      " VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+  )
+    .bind(
+      now(),
+      who ? who.user : null,
+      clamp(String(body.version || "").slice(0, 20), 20),
+      clamp(String(body.kind || "").slice(0, 20), 20),
+      body.post_url ? clamp(String(body.post_url).slice(0, 300), 300) : null,
+      body.detail ? clamp(String(body.detail).slice(0, 2000), 2000) : null,
+      body.words ? clamp(String(body.words).slice(0, 1000), 1000) : null,
+      body.html ? clamp(String(body.html).slice(0, 96000), 96000) : null,
+    )
+    .run();
+  return json({ ok: true, stored: 1 });
+}
+
 // ---- accounts -------------------------------------------------------------
 async function accountOf(env, auth) {
   const tok = (auth || "").replace(/^Bearer\s+/i, "").trim();
@@ -1382,6 +1413,7 @@ export default {
       }
       if (path === "/api/claim" && req.method === "POST") return await claim(env, req);
       if (path === "/api/telemetry" && req.method === "POST") return await telemetry(env, req);
+      if (path === "/api/adreport" && req.method === "POST") return await adReport(env, req);
       if (path.startsWith("/api/account")) {
         const who = await accountOf(env, req.headers.get("authorization"));
         if (path === "/api/account/start" && req.method === "POST") return await accountStart(env, req);

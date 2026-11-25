@@ -49,6 +49,7 @@ with sync_playwright() as p:
 
     # The phone's own wording, a bare "Ad" in a div inside a cellInnerDiv.
     check("the phone's \"Ad\" hides the post's cell", hidden("adcell"), True)
+    check("and the padded row around it, so no gap is left", hidden("adrow"), True)
     check("and the post with it", hidden("adarticle"), True)
 
     # The phone's own shape, as the first `ads.report` documented it: the word plus icon
@@ -91,11 +92,16 @@ with sync_playwright() as p:
     check("the report counts what is marked", (report or {}).get("marked"), 6)
     check("the report describes the posts it saw", len((report or {}).get("rows", [])), 6)
     check("the report describes modules too", len((report or {}).get("mods", [])) > 0, True)
-    blob = str(report)
-    check("the report carries no post text", "Buy this" in blob or "hello, my name" in blob, False)
-    check("the report carries no handle", "@someone" in blob or "@decor" in blob, False)
-    check("short texts travel as fingerprints, not words", "Sponsored" in blob or "Promoted" in blob, False)
+    blob = str((report or {}).get("rows", [])) + str((report or {}).get("mods", [])) + str((report or {}).get("line", ""))
+    check("the compact line carries no post text", "Buy this" in blob or "hello, my name" in blob, False)
+    check("the compact line carries no handle", "@someone" in blob or "@decor" in blob, False)
+    check("short texts travel as fingerprints in it", "Sponsored" in blob or "Promoted" in blob, False)
     check("and those fingerprints are there", "h=" in blob, True)
+    # The rich half follows the owner's privacy level; the default is "full".
+    rich = (report or {}).get("rich", {})
+    check("the rich report is shaped like a report", rich.get("kind"), "report")
+    check("with the markup at the default level", len(rich.get("html", "")) > 100, True)
+    check("and the labels as they are", "Sponsored" in rich.get("words", "") or "Ad" in rich.get("words", ""), True)
 
     # Off: everything back, nothing marked.
     page.evaluate("window.__setHideAds(false)")

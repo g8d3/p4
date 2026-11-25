@@ -63,15 +63,38 @@
   // language can be learned from a tap and applied to every later post.
   let learned = new Set();
   let pendingWords = [];
+  // Some ads carry no disclosure word at all (the first field mark proved it: all four
+  // short texts of that card were words this product had never seen, and none was a
+  // disclosure). For those the learnable thing is the card's SHAPE.
+  let learnedSkel = new Set();
+  let pendingSkel = "";
+  // How much a report carries, chosen by its owner: shapes → labels → everything. The
+  // default is the richest, because a report exists to be enough to fix the thing, and
+  // a phone has no devtools; the setting is the honest way to walk that back.
+  let reportLevel = "full";
+  try {
+    chrome.storage.local.get({ report_level: "full" }, (s) => {
+      reportLevel = String(s.report_level || "full");
+    });
+    chrome.storage.onChanged.addListener((ch) => {
+      if (ch.report_level) reportLevel = String(ch.report_level.newValue || "full");
+    });
+  } catch (e) {
+    /* no storage, no setting: the default stands */
+  }
   const readSoon = (s) => {
     if (s.ads_learned) learned = new Set((s.ads_learned || []).filter((h) => typeof h === "string"));
     if (s.ads_pending) pendingWords = (s.ads_pending || []).filter((h) => typeof h === "string");
+    if (s.ads_skel) learnedSkel = new Set((s.ads_skel || []).filter((h) => typeof h === "string"));
+    if (s.ads_skel_pending !== undefined) pendingSkel = String(s.ads_skel_pending || "");
   };
   try {
-    chrome.storage.local.get({ ads_learned: [], ads_pending: [] }, readSoon);
+    chrome.storage.local.get({ ads_learned: [], ads_pending: [], ads_skel: [], ads_skel_pending: "" }, readSoon);
     chrome.storage.onChanged.addListener((ch) => {
       if (ch.ads_learned) readSoon({ ads_learned: ch.ads_learned.newValue || [] });
       if (ch.ads_pending) readSoon({ ads_pending: ch.ads_pending.newValue || [] });
+      if (ch.ads_skel) readSoon({ ads_skel: ch.ads_skel.newValue || [] });
+      if (ch.ads_skel_pending) readSoon({ ads_skel_pending: ch.ads_skel_pending.newValue || "" });
     });
   } catch (e) {
     /* a page without storage still captures likes */
@@ -120,6 +143,23 @@
   // hiding their posts would be a worse bug than the one this fixes.
   const bold = (s) => Number(getComputedStyle(s).fontWeight) >= 600;
 
+  // A card's shape with every word removed: tags, roles, testids, dir/lang and child
+  // counts, bounded. Two ads of the same kind share it; a real post usually does not.
+  // This is what gets learned when there is no disclosure word to learn.
+  function skeleton(root) {
+    const parts = [];
+    const walk = (el, d) => {
+      if (parts.length > 48 || d > 4) return;
+      parts.push(
+        el.tagName + "|" + (el.getAttribute("data-testid") || "") + "|" + (el.getAttribute("role") || "") +
+          "|" + (el.getAttribute("dir") || "") + "|" + el.children.length,
+      );
+      for (const c of el.children) walk(c, d + 1);
+    };
+    walk(root, 0);
+    return h8(parts.join(";"));
+  }
+
   // The label, not the post. Any element whose whole (normalized) text is a
   // disclosure word counts: `div` or `span`, inside the advertiser's link or not,
   // before or after the post's text, and with icon wrappers inside it (the phone
@@ -141,11 +181,36 @@
       return false;
     };
     if (scan(art, true)) return true;
+    // A shape the owner taught by marking two ads of the same kind: no word needed.
+    if (learnedSkel.size && learnedSkel.has(skeleton(art))) return true;
     // Sponsored modules put the disclosure BESIDE the post (or beside a card that is
     // not a post at all), still inside the same cell: look there too, skipping any
     // words that belong to another post.
     const cell = cellOf(art);
     return cell !== art && scan(cell, false);
+  }
+
+  // Hiding the card is not enough: X wraps it in padded rows and the gap stays — the
+  // owner reported exactly that ("ads were hidden, but blank space remained"). Climb
+  // while the ancestor is chrome only: same text, no other content-bearing child.
+  function rowOf(cell) {
+    let el = cell;
+    for (let i = 0; i < 3; i++) {
+      const p = el.parentElement;
+      if (!p || p === document.body || p === document.documentElement) break;
+      if ((p.textContent || "") !== (el.textContent || "")) break; // shows something of its own
+      const other = [...p.children].some((c) => c !== el && (c.textContent || "").trim());
+      if (other) break;
+      el = p;
+    }
+    return el;
+  }
+
+  function markCell(cell, on) {
+    for (const el of new Set([cell, rowOf(cell)])) {
+      if (on) el.setAttribute("data-echolike-ad", "1");
+      else el.removeAttribute("data-echolike-ad");
+    }
   }
 
   function markAds(node) {
@@ -163,11 +228,7 @@
     // re-scan a whole post on every node React swaps in.
     const up = node.closest && node.closest(POST_IN);
     if (up && (node.textContent || "").length <= 96) arts.add(up);
-    for (const art of arts) {
-      const cell = cellOf(art);
-      if (looksPromoted(art)) cell.setAttribute("data-echolike-ad", "1");
-      else cell.removeAttribute("data-echolike-ad");
-    }
+    for (const art of arts) markCell(cellOf(art), looksPromoted(art));
   }
 
   // A cell that is not a post at all — a sponsored module, a promoted trend, a card
@@ -179,15 +240,16 @@
     for (const cell of root.querySelectorAll('li,[data-testid="cellInnerDiv"]')) {
       if (cell.querySelector(POST_IN)) continue; // an ad post: the article path owns it
       if (cell.closest("nav,header,aside")) continue;
-      let hit = false;
-      for (const s of cell.querySelectorAll("span,div")) {
-        const t = (s.textContent || "").trim();
-        if (!t || t.length > 64 || !looksLabel(t) || bold(s)) continue;
-        hit = true;
-        break;
+      let hit = learnedSkel.size > 0 && learnedSkel.has(skeleton(cell));
+      if (!hit) {
+        for (const s of cell.querySelectorAll("span,div")) {
+          const t = (s.textContent || "").trim();
+          if (!t || t.length > 64 || !looksLabel(t) || bold(s)) continue;
+          hit = true;
+          break;
+        }
       }
-      if (hit) cell.setAttribute("data-echolike-ad", "1");
-      else cell.removeAttribute("data-echolike-ad");
+      markCell(cell, hit);
     }
   }
 
@@ -221,8 +283,8 @@
       if (!t || t.length > 24 || t.split(/\s+/).length > 3 || bold(s)) continue;
       if (!/^\D*$/.test(t) || !/\p{L}{2,}/u.test(t)) continue; // "·", "2h", "Nov 24" teach nothing
       const h = h8(adNorm(t));
-      if ((others.get(h) || 0) >= 2 || out.includes(h)) continue;
-      out.push(h);
+      if ((others.get(h) || 0) >= 2 || out.some((c) => c.h === h)) continue;
+      out.push({ h, t });
       if (out.length >= 4) break;
     }
     return out;
@@ -235,34 +297,77 @@
   function markAsAd(target, done) {
     const art = postOf(target);
     const card = (art && cellOf(art)) || target.closest('li,[data-testid="cellInnerDiv"]') || target;
-    card.setAttribute("data-echolike-ad", "1");
-    const words = headerWords(card, art);
+    markCell(card, true);
+    const cands = headerWords(card, art);
+    const words = cands.map((c) => c.h);
     const taught = words.filter((h) => pendingWords.includes(h));
     const next = [...new Set([...learned, ...taught])];
     const pending = taught.length ? [] : words;
     learned = new Set(next);
     pendingWords = pending;
+
+    // The shape: an ad with no disclosure word has nothing else to learn. Two marks of
+    // the same shape teach it, unless that shape is everywhere on the page already —
+    // then it is the timeline's own row, not an ad.
+    const skRoot = art || card;
+    const sk = skeleton(skRoot);
+    const skCommon = [...document.querySelectorAll(POST_IN)].filter(
+      (a) => a !== art && cellOf(a).getAttribute("data-echolike-ad") !== "1" && skeleton(a) === sk,
+    ).length;
+    const teachSkel = !!pendingSkel && pendingSkel === sk && skCommon < 2;
+    const nextSkel = teachSkel ? [...new Set([...learnedSkel, sk])] : [...learnedSkel];
+    const nextPendingSkel = teachSkel || skCommon >= 2 ? "" : sk;
+    learnedSkel = new Set(nextSkel);
+    pendingSkel = nextPendingSkel;
+    const skReal = (() => {
+      for (const a of document.querySelectorAll(POST_IN)) {
+        if (a !== art && cellOf(a).getAttribute("data-echolike-ad") !== "1") return skeleton(a);
+      }
+      return "-";
+    })();
     try {
-      chrome.storage.local.set({ ads_learned: next, ads_pending: pending });
+      chrome.storage.local.set({
+        ads_learned: next,
+        ads_pending: pending,
+        ads_skel: nextSkel,
+        ads_skel_pending: nextPendingSkel,
+      });
     } catch (e) {
       /* the mark still hides this card */
     }
     const links = [...card.querySelectorAll("a[href]")];
     const ext = links.filter((a) => /^https?:/.test(a.getAttribute("href")) && !/x\.com|twitter\.com/.test(a.getAttribute("href"))).length;
-    tel("ads.mark", {
-      ok: true,
-      host: location.host,
-      detail: (
-        "v=" + VER + " post=" + (art ? 1 : 0) +
-        " len=" + (card.textContent || "").length +
-        " cell=" + card.tagName + ":" + (card.getAttribute("data-testid") || "-") +
-        " a=" + links.length + " ext=" + ext + " btn=" + card.querySelectorAll("button,[role=button]").length +
-        " body=" + (art && bodyOf(art) ? bodyOf(art).textContent.length : 0) +
-        " words=[" + words.map((h) => "h=" + h).join(",") + "]" +
-        " taught=" + taught.length + " pending=" + pending.length + " known=" + learned.size
-      ).slice(0, 1200),
-    });
-    if (done) done(taught.length ? "taught" : words.length ? "pending" : "none");
+    const detail = (
+      "v=" + VER + " post=" + (art ? 1 : 0) +
+      " len=" + (card.textContent || "").length +
+      " cell=" + card.tagName + ":" + (card.getAttribute("data-testid") || "-") +
+      " a=" + links.length + " ext=" + ext + " btn=" + card.querySelectorAll("button,[role=button]").length +
+      " body=" + (art && bodyOf(art) ? bodyOf(art).textContent.length : 0) +
+      " words=[" + words.map((h) => "h=" + h).join(",") + "]" +
+      " taught=" + taught.length + " pending=" + pending.length + " known=" + learned.size +
+      " sk=" + sk + " skreal=" + skReal + " skcommon=" + skCommon +
+      " sktaught=" + (teachSkel ? 1 : 0) + " skknown=" + learnedSkel.size
+    );
+    tel("ads.mark", { ok: true, host: location.host, detail: detail.slice(0, 1200) });
+    // The rich report goes with the mark: at `labels` and above it carries the words as
+    // they are, at `full` it carries the card's own markup too. That is the difference
+    // between "a shape changed" and a selector that can be written tonight.
+    const post = [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || "")
+      .find((h) => /\/status\/\d+/.test(h)) || "";
+    const rich = {
+      kind: "mark",
+      version: VER,
+      post_url: post,
+      detail: (detail + " level=" + reportLevel).slice(0, 2000),
+      words: reportLevel === "shapes" ? "" : cands.map((c) => c.t).join(" | ").slice(0, 1000),
+      html: reportLevel === "full" ? (card.outerHTML || "").slice(0, 96000) : "",
+    };
+    try {
+      chrome.runtime.sendMessage({ type: "adreport", report: rich }, () => {});
+    } catch (e) {
+      /* the mark still hides this card */
+    }
+    if (done) done(teachSkel || taught.length ? "taught" : words.length || nextPendingSkel ? "pending" : "none");
   }
 
   // One tap to point at the ad, one to be done. Window capture runs before the like
@@ -296,9 +401,9 @@
       markAsAd(t, (state) => {
         toast(
           state === "taught"
-            ? "Marked. That word is learned: ads like it hide by themselves now"
+            ? "Marked. Learned: ads like this hide by themselves now"
             : state === "pending"
-              ? "Marked. Mark one more ad like it and the word is learned"
+              ? "Marked. Mark one more ad like it and it is learned"
               : "Marked as an ad. Its shape was sent",
           true,
         );
@@ -323,7 +428,11 @@
   //           length, words, links, external links, buttons, and its short texts.
   function adsReport() {
     const arts = [...document.querySelectorAll(POST_IN)];
-    const marked = document.querySelectorAll("[data-echolike-ad]").length;
+    // One per hidden ad, not per marked element: a card and the padded row around it
+    // both carry the mark.
+    const marked = [...document.querySelectorAll("[data-echolike-ad]")].filter(
+      (el) => !(el.parentElement && el.parentElement.closest("[data-echolike-ad]")),
+    ).length;
     const shorts = (root, art, body) => {
       const out = [];
       for (const s of root.querySelectorAll("span,div")) {
@@ -370,15 +479,39 @@
       );
       if (mods.length >= 3) break;
     }
-    return {
+    const out = {
       layout: document.querySelector("[data-testid]") ? "rweb" : "x-web",
       articles: arts.length,
       marked,
       learned: learned.size,
       pending: pendingWords.length,
+      learnedSkel: learnedSkel.size,
+      pendingSkel: pendingSkel ? 1 : 0,
       rows,
       mods,
     };
+    // The rich half, shaped by the owner's privacy level: `shapes` sends none of it,
+    // `labels` adds the short words as they are, `full` adds the column's markup. This
+    // is the payload that makes a DOM change fixable without a devtools on a phone.
+    const main = document.querySelector("main");
+    const col = main && main.querySelectorAll(POST_IN).length >= 3 ? main : document.body;
+    out.line = (
+      "v=" + VER + " articles=" + out.articles + " marked=" + marked + " layout=" + out.layout +
+      " learned=" + out.learned + " pending=" + out.pending +
+      " skel=" + out.learnedSkel + "/" + out.pendingSkel +
+      " | " + rows.join(" ") + (mods.length ? " | modules: " + mods.join(" ") : " | no modules")
+    ).slice(0, 2000);
+    out.rich = {
+      kind: "report",
+      version: VER,
+      post_url: "",
+      detail: out.line,
+      words: reportLevel === "shapes" ? "" : [...new Set([
+        ...[...col.querySelectorAll("span,div")].map((e) => (e.textContent || "").trim()),
+      ])].filter((t) => t && t.length <= 24 && t.split(/\s+/).length <= 3).slice(0, 60).join(" | ").slice(0, 1000),
+      html: reportLevel === "full" ? (col.outerHTML || "").slice(0, 96000) : "",
+    };
+    return out;
   }
 
   chrome.runtime.onMessage.addListener((m, _s, reply) => {

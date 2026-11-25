@@ -185,6 +185,46 @@ function tel(action, info) {
   return telWrites;
 }
 
+// ---- ad reports -------------------------------------------------------------
+// The rich half of a diagnostic: what the owner's privacy level allows (structure,
+// labels, or the card's own markup). It is the only thing that makes a DOM change
+// fixable from a phone, so a failed one waits in `adq` and rides the next send.
+async function postAdReport(rep, queue) {
+  if (!rep || typeof rep !== "object") return { ok: false, error: "empty report" };
+  const s = await state();
+  const base = (s.url || DEFAULT_INBOX).replace(/\/$/, "");
+  const headers = { "content-type": "application/json" };
+  if (s.token) headers.authorization = "Bearer " + s.token;
+  try {
+    const res = await timed(base + "/api/adreport", { method: "POST", headers, body: JSON.stringify(rep) }, 20000);
+    if (res.ok) return { ok: true };
+    if (res.status === 404) return { ok: false, error: "this inbox does not take ad reports yet" };
+    throw new Error("HTTP " + res.status);
+  } catch (e) {
+    if (queue !== false) {
+      try {
+        const q = (await chrome.storage.local.get({ adq: [] })).adq;
+        await chrome.storage.local.set({ adq: q.concat([rep]).slice(-5) });
+      } catch (err) {
+        /* nowhere to keep it: the page still says it failed */
+      }
+    }
+    return { ok: false, error: String((e && e.message) || e) };
+  }
+}
+
+async function flushAdq() {
+  const s = await chrome.storage.local.get({ adq: [] });
+  if (!s.adq.length) return 0;
+  const left = [];
+  for (const rep of s.adq) {
+    const r = await postAdReport(rep, false);
+    if (!r.ok) left.push(rep);
+  }
+  await chrome.storage.local.set({ adq: left });
+  return left.length;
+}
+
 let telSending = null;
 
 async function telFlush() {
@@ -194,7 +234,10 @@ async function telFlush() {
     // for the next user action, which is how a row "went missing" from a run.
     for (let i = 0; i < 3; i++) {
       const left = await telFlushOnce();
-      if (!left) break;
+      if (!left) {
+        await flushAdq().catch(() => {});
+        break;
+      }
     }
   })().finally(() => {
     telSending = null;
@@ -1340,6 +1383,8 @@ chrome.runtime.onMessage.addListener((m, _sender, reply) => {
               ? tel(m.action, m.info || {}).then(() => ({ ok: true }))
               : m && m.type === "tel-flush"
               ? telFlush().then(() => ({ ok: true }))
+              : m && m.type === "adreport"
+              ? postAdReport(m.report)
               : m && m.type === "save"
           ? chrome.storage.local.set({ url: String(m.url || ""), token: String(m.token || "") }).then(() => flush(true))
           : m && m.type === "state"
