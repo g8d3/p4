@@ -212,31 +212,126 @@
   // The row, not only the card: a card hidden inside a padded wrapper leaves the
   // wrapper's padding behind.
   //
-  // Hiding is ALL this does. No geometry, no scroll listener, no heights, no running
-  // total — because every one of those was tried and every one of them is why the page
-  // jumped:
-  //
-  //   * `transform: translateY(-h)` on the rows below a hidden one (1.23.1): X rewrites
-  //     that same property every time it re-measures, so the row moved twice, or not at
-  //     all, and posts landed on top of each other;
-  //   * the `translate` property instead (1.23.3/1.23.5): X never writes it, but X reads
-  //     the layout back — so a row we had moved was measured as moved, the list got
-  //     rebuilt with our numbers folded into X's, and the columns drifted and jumped;
-  //   * a `style` observer to keep that bookkeeping in sync: it fires on X's own writes
-  //     thousands of times while you scroll, and each pass wrote layout again — a feedback
-  //     loop with the page as the output.
-  //
-  // X's offsets are X's. A hidden row leaves its slot and X reclaims it on its next
-  // measure; our whole contribution is one attribute and one CSS rule.
+  // Hiding writes no layout. Closing the slot a hidden virtualized row leaves is the
+  // other half, and it is the half that kept failing (see `settle` below).
   function markCell(cell, on, key) {
+    let list = null;
     for (const el of new Set([cell, rowOf(cell)])) {
+      list = el.parentElement || list;
       if (on) {
+        // Its height as X laid it out, measured BEFORE the attribute hides it: that is
+        // the size of the hole this row is about to leave.
+        if (el.dataset.echH == null) {
+          const h = Math.round(el.getBoundingClientRect().height);
+          if (h > 0) el.dataset.echH = String(h);
+        }
         el.setAttribute("data-echolike-ad", "1");
         if (key) el.dataset.echKey = key; // which post this mark belongs to
       } else {
         el.removeAttribute("data-echolike-ad");
+        el.style.translate = "";
         delete el.dataset.echKey;
+        delete el.dataset.echH;
+        delete el.dataset.echShift;
       }
+    }
+    if (list) openLists.add(list);
+    settle(list);
+  }
+
+  // ---- Closing the hole a hidden row leaves, without owning X's layout ----
+  // The phone timeline positions its rows absolutely (`li[data-index]` + an inline
+  // `translateY`), so a hidden row leaves its slot: the rows below keep the offsets X
+  // gave them, which still count the row that is no longer there. X does not reclaim
+  // that slot on its own, so the hole is ours to close — and the three earlier attempts
+  // to close it are the three times the owner reported jumps:
+  //
+  //   1.23.1  `transform: translateY(-h)` on the rows below: X rewrites `transform`
+  //           whenever it re-measures, so it moved them twice or not at all, and posts
+  //           landed on top of each other.
+  //   1.23.3  the `translate` property instead, from a running total of measured gaps:
+  //           the total also swallowed X's own spacing, so rows crept up into each other.
+  //   1.23.5  `translate` again, from an exact sum of the hidden heights, plus a `style`
+  //           observer to keep it in sync: that observer fired on X's own writes on
+  //           almost every scroll frame, and each pass wrote layout again.
+  //
+  // What makes this one different, in four rules that are all checkable:
+  //
+  //   1. THE SHIFT CANNOT EXCEED THE HOLE THAT IS ON SCREEN. `hole` is read from X's own
+  //      numbers — `Y(this row) - Y(previous visible row) - height(previous visible row)`
+  //      — and the shift is `min(sum of hidden heights, hole)`. It can therefore never
+  //      push a row past the one above it, whatever X does to its offsets.
+  //   2. NOTHING IS DERIVED FROM OUR OWN OUTPUT. The formula reads X's `transform` and a
+  //      neighbour's height, never the `translate` we wrote, so recomputing is
+  //      idempotent: the same numbers give the same shift, and if X closes part of the
+  //      hole itself the hole is smaller and the shift shrinks with it. There is no
+  //      state to drift and no loop to run away.
+  //   3. NO OBSERVER ON X'S STYLE WRITES. Lists are re-settled when a batch of DOM
+  //      changes arrives (X appends rows constantly while you scroll) and when the ads
+  //      switch or a mark changes. X's own `style` writes are not watched, and no scroll
+  //      listener exists — the two triggers that turned 1.23.5 into a loop.
+  //   4. WRITTEN IN `translate`, which X never writes and which does not change the
+  //      height X measures (so X cannot fold it into its own offsets).
+  //
+  // It is only ever a position, never ``transform``, never `height`, never `top`.
+  const openLists = new Set();
+
+  const tfY = (el) => {
+    const m = /translateY\((-?[\d.]+)px\)/.exec((el.style && el.style.transform) || "");
+    return m ? parseFloat(m[1]) : null;
+  };
+
+  function settle(list) {
+    if (!list || !list.isConnected || !list.children || list.children.length < 2) return;
+    const rows = [...list.children].filter((r) => tfY(r) != null);
+    if (rows.length < 2) return;
+    const ys = rows.map(tfY);
+    let shift = 0; // how far the tail below the last hole must move up, in total
+    let acc = 0; // the hidden rows' heights since the last visible row: the hole X counts
+    let prev = -1; // the last row that is still visible
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (row.hasAttribute("data-echolike-ad")) {
+        acc += Number(row.dataset.echH) || 0;
+        continue;
+      }
+      if (acc > 0 && prev >= 0) {
+        // The hole as it is on screen, from X's own numbers: how much empty space sits
+        // between the last visible row and this one. Clamped by the hidden heights this
+        // hole is made of, so a post that grew above it cannot make the shift bigger, and
+        // X closing part of the hole makes it smaller.
+        const hole = ys[i] - ys[prev] - rows[prev].getBoundingClientRect().height;
+        const add = Math.min(acc, hole, 4000);
+        shift += add > 2 ? add : 0; // a pixel or two is X's own spacing, not a hole
+        acc = 0;
+      }
+      const v = shift > 2 ? "0px -" + Math.round(shift) + "px" : "";
+      if ((row.style.translate || "") !== v) row.style.translate = v;
+      if (shift > 2) row.dataset.echShift = "1";
+      else {
+        delete row.dataset.echShift;
+        row.style.translate = "";
+      }
+      prev = i;
+    }
+  }
+
+  // One call for every list that still holds a mark. Disconnected lists drop out here,
+  // so the set cannot grow with the app's re-renders.
+  function settleAll() {
+    for (const list of [...openLists]) {
+      if (!list.isConnected) openLists.delete(list);
+      else if (!list.querySelector("[data-echolike-ad]")) openLists.delete(list);
+      else settle(list);
+    }
+  }
+
+  function clearSettle() {
+    openLists.clear();
+    for (const el of document.querySelectorAll("[data-ech-shift], [data-echolike-ad]")) {
+      el.style.translate = "";
+      delete el.dataset.echShift;
+      delete el.dataset.echH;
     }
   }
 
@@ -597,21 +692,26 @@
       adObserver = null;
     }
     if (!on) {
+      clearSettle();
       for (const el of document.querySelectorAll("[data-echolike-ad]")) {
         el.removeAttribute("data-echolike-ad");
         delete el.dataset.echKey;
+        delete el.dataset.echH;
       }
       return;
     }
     markAds(document.body);
     markModules(document.body);
+    settleAll();
     // Ads arrive as the timeline grows: one observer marks them on insertion (and
     // clears a cell that a virtualized list reused for a real post). It watches the
     // body, not `main`: x-web's feed is not always inside <main>, and an observer on
     // a container the app replaces dies with it.
     // Nodes only. `attributes: [style]` was watched in 1.23.5 to keep a geometry
-    // bookkeeping in sync with X's own re-measures; with no geometry to sync there is
-    // nothing to watch, and X writes `style` on its rows on almost every scroll frame.
+    // bookkeeping in sync with X's own re-measures; that observer fired on X's writes on
+    // almost every scroll frame, which is what made the page jump. Lists are re-settled
+    // here instead, once per batch: X appends rows constantly while you scroll, so the
+    // batches come at the same rhythm without watching a single write of X's.
     adObserver = new MutationObserver((muts) => {
       for (const m of muts) {
         if (m.type === "characterData") {
@@ -625,6 +725,7 @@
         }
         recheck(m.target);
       }
+      settleAll();
     });
     adObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
   }

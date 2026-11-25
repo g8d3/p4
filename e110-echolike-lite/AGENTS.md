@@ -824,6 +824,29 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.7 — **the hole, closed by a shift that cannot run away.** 1.23.6 wrote no
+  geometry at all and the owner's next message was the same as the first: *"Blank space
+  is there again…"*. He is right — hiding a row in a list X positions absolutely leaves
+  its slot, and X does not reclaim it. So the shift is back, with the four rules that
+  make it safe this time, each one pinned in `tests/review_gap.py`:
+  * **The shift can never exceed the hole on screen.** `hole` is read from X's own
+    numbers — `Y(row) − Y(previous visible row) − height(previous visible row)` — and the
+    shift is `min(sum of hidden heights, hole)`. A row therefore cannot climb under the
+    one above it, whatever X does to its offsets, and a post that grows above the hole
+    shrinks the shift instead of stacking on top of itself.
+  * **Nothing is derived from our own output.** The formula reads X's `transform` and a
+    neighbour's height, never the `translate` we wrote, so re-settling is idempotent:
+    X appending a row (its own rhythm while scrolling) moves nothing, and X closing part
+    of the hole itself shrinks the shift to what is left — the doubling that produced
+    "posts on top of each other" cannot happen because there is no running total.
+  * **No observer on X's style writes, no scroll listener.** Lists are re-settled once
+    per DOM batch — the 1.23.5 loop was a `style` observer firing on X's own writes on
+    almost every scroll frame. Written in `translate`, which X never writes and which
+    does not change the height X measures.
+  * **Multiple ads accumulate per hole**, not globally: the tail below the second ad moves
+    by both holes, the post between them by one (`0px -400px` and `0px -200px` in the
+    fixture). X's own spacing between posts survives (30 px in, 30 px out).
+
 - 1.23.6 — **no geometry, and a mark that stays.** The owner, verbatim: "EchoLike Lite
   todavía tiene saltos en la pantalla, no sé si todavía hay código con scroll y no
   entiendo por qué usan eso, lo que yo quiero es que los anuncios no aparezcan". Two
@@ -1460,8 +1483,8 @@ text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
   `[dir=auto][lang]` container; a real post whose text is exactly "Ad" or "Promoted
   by …" is that container and stays. A quoted post's text is a different article and
   is ignored on both sides.
-* **A hidden row must give its slot back.** (1.21.x–1.23.5 only; removed in 1.23.6.) The
-  phone timeline positions rows absolutely
+* **A hidden row must give its slot back.** (1.21.x–1.23.6 only; back in 1.23.7 as a
+  self-clamping shift, see that entry.) The phone timeline positions rows absolutely
   (`li[data-index]` + inline `translateY`), so `display:none` leaves a hole in the middle
   of the list. `collapse()` records each hidden row's offset and height and pulls the
   later rows of that list up by exactly that much, on every observed mutation (idempotent

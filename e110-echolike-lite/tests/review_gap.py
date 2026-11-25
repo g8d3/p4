@@ -1,34 +1,27 @@
-"""Ads are hidden by one attribute and one CSS rule — and the page is never moved.
+"""The hole a hidden ad leaves is closed — and only the hole, and only once per layout.
 
-Five releases of "the page jumps", and what each one taught:
+The phone timeline positions rows absolutely (`li[data-index]` + an inline `translateY`),
+so `display:none` removes the ad's box and keeps its slot: the rows below still count it.
+X does not reclaim that slot on its own, so the hole is ours — and four releases of
+trying to close it are four times the owner reported jumps:
 
-  1. `display:none` alone leaves the slot of a virtualized row (rows are
-     `li[data-index]` with an inline `translateY`), so the owner saw blank space;
-  2. moving those rows by rewriting `transform` made the page jump, because X
-     rewrites the same property when it re-measures;
-  3. moving them in the `translate` property instead survived that fight, but X
-     **reads layout back** — the page started drifting and drawing posts twice;
-  4. 1.23.5 added a `style` observer to keep that bookkeeping in sync with X, which
-     turned into a loop: X writes `style` on its rows on almost every scroll frame,
-     we wrote layout back on every one of those, and the page jumped continuously;
-  5. and every mutation re-judged every post, so an X repaint that dropped the
-     disclosure for one frame **un-hid the ad**, the row grew back, and it was hidden
-     again — a jump several times a second.
+  1. `transform: translateY(-h)` on the rows below — X rewrites `transform`, so it moved
+     them twice or not at all and posts landed on top of each other (1.23.1);
+  2. `translate` from a running total of measured gaps — the total swallowed X's spacing
+     and the rows crept into each other (1.23.3);
+  3. `translate` from an exact sum, plus a `style` observer — the observer fired on X's
+     own writes on almost every scroll frame and each pass wrote layout again (1.23.5);
+  4. no geometry at all — the hole was back, as the owner said (1.23.6).
 
-So 1.23.6 writes no geometry at all and a mark, once recognised, is sticky: it is
-dropped only when the cell holds a DIFFERENT post.
+1.23.7 closes it with a shift that cannot run away, and this file pins each of the four
+rules that make that true:
 
-What this pins:
-
-  * the ad goes (its disclosure is "Ad from explee.com", a form the word list knows);
-  * **no inline `transform` is modified, no `translate` is written, and no box of
-    ours changes any row's size or position** — checked before/after, and again after
-    X-style mutations that used to trigger the bookkeeping;
-  * a repaint of the ad's own header does not bring it back (the anti-flicker rule);
-  * the hole stays where X leaves it — accepted out loud, because closing it is what
-    broke the page twice;
-  * a recycled row is visible again;
-  * switching the ads switch off leaves every offset exactly as X wrote it.
+  * the shift is `min(sum of hidden heights, the hole on screen)`, read from X's own
+    numbers — so it can never push a row past the row above it;
+  * nothing is derived from the `translate` we wrote, so recomputing is idempotent and X
+    closing part of the hole shrinks the shift instead of doubling it;
+  * X's own `transform` is never touched, and X's spacing between two posts survives;
+  * the ads switch off removes every shift and leaves X's offsets as written.
 
     xvfb-run -a python3 tests/review_gap.py
 """
@@ -51,23 +44,22 @@ def check(name, got, want):
 
 
 SETUP = """() => {
-  window.__ty = (i) => {
-    const el = document.querySelector('li[data-index="' + i + '"]');
-    return (el.style.transform || '').trim();
+  window.__ty = (i) => (document.querySelector('li[data-index="' + i + '"]').style.transform || '').trim();
+  window.__tr = (i) => (document.querySelector('li[data-index="' + i + '"]').style.translate || '').trim();
+  window.__gap = (a, b) => {
+    const A = document.querySelector('li[data-index="' + a + '"]').getBoundingClientRect();
+    const B = document.querySelector('li[data-index="' + b + '"]').getBoundingClientRect();
+    return Math.round(B.top - A.bottom);
   };
-  window.__tr = (i) => {
-    const el = document.querySelector('li[data-index="' + i + '"]');
-    return (el.style.translate || '').trim();
+  window.__nudge = () => {
+    // what X does while you scroll: it appends a row (a childList change) — that is the
+    // only trigger this code has, and re-settling must not move anything it already moved
+    const li = document.createElement('li');
+    li.setAttribute('data-index', '9');
+    li.style.position = 'absolute';
+    document.getElementById('list').appendChild(li);
+    setTimeout(() => li.remove(), 50);
   };
-  // Everything a "jump" can be made of, on every row we did not hide, and every style
-  // attribute in the document — our writes would have to show up in one of them.
-  window.__geom = () => [...document.querySelectorAll('li[data-index]')].map((el) => {
-    const r = el.getBoundingClientRect();
-    const cs = getComputedStyle(el);
-    return [el.dataset.index, Math.round(r.top), Math.round(r.height),
-            (el.getAttribute('style') || '').trim(),
-            cs.transform, cs.translate, cs.marginTop, cs.paddingTop].join('|');
-  }).join('\\n');
 }"""
 HIDDEN = "(i) => { const el = document.getElementById(i); return !el || el.getClientRects().length === 0 }"
 
@@ -88,69 +80,91 @@ with sync_playwright() as p:
 
     page, errors = open_page(browser)
 
-    # 1. The ad goes by itself: "Ad from explee.com" is a disclosure now.
+    # 1. The ad goes by itself: "Ad from explee.com" is a disclosure the word list knows.
     check("the ad is hidden", page.evaluate(HIDDEN, "ad1"), True)
     check("the ordinary posts stay", page.evaluate(HIDDEN, "post0"), False)
     check("and the one after it", page.evaluate(HIDDEN, "post2"), False)
 
-    # 2. Nothing of ours moves anything: X's three offsets are exactly as written, no
-    #    `translate` exists, and no row's box or style changed.
+    # 2. The hole is closed by exactly the ad's height, in `translate`; X's `transform`
+    #    is untouched on every row, and X's own 30px spacing before row 2 survives.
     check("row 0 transform untouched", page.evaluate("window.__ty(0)"), "translateY(0px)")
     check("row 1 transform untouched", page.evaluate("window.__ty(1)"), "translateY(200px)")
     check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(430px)")
-    check("nothing carries a translate of ours", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
-    geometric_before = page.evaluate("window.__geom()")
+    check("row 2 is pulled up by the ad's height", page.evaluate("window.__tr(2)"), "0px -200px")
+    check("row 3 too (the whole tail moves)", page.evaluate("window.__tr(3)"), "0px -200px")
+    check("row 4 too", page.evaluate("window.__tr(4)"), "0px -200px")
+    check("row 0 (above the ad) is not moved", page.evaluate("window.__tr(0)"), "")
+    check("the hole is closed and X's 30px gap survives", page.evaluate("window.__gap(0, 2)"), 30)
 
-    # 3. X does what it does while scrolling (rewrites the rows' own transforms, swaps
-    #    text inside posts). The list must come out the way X left it, every time.
-    page.evaluate("""() => {
-      const rows = document.querySelectorAll('li[data-index]');
-      for (const r of rows) r.style.transform = r.style.transform;  // X re-measures
-      const p = document.querySelector('#post0 [dir="auto"][lang]');
-      p.textContent = 'An ordinary post, edited.';
-    }""")
-    page.wait_for_timeout(200)
-    check("X's re-measure changes nothing of ours", page.evaluate("window.__geom()"), geometric_before)
+    # 2b. A second ad further down: the tail below it moves by both holes, not by the last
+    #     one — an accumulation, which is the shape the two broken versions got wrong.
+    check("the second ad is hidden", page.evaluate(HIDDEN, "ad5"), True)
+    check("row 6 carries both holes", page.evaluate("window.__tr(6)"), "0px -400px")
+    check("row 7 too", page.evaluate("window.__tr(7)"), "0px -400px")
+    check("the post between the ads carries one", page.evaluate("window.__tr(4)"), "0px -200px")
+    check("and the second hole is closed too", page.evaluate("window.__gap(4, 6)"), 30)
 
-    # 4. A repaint of the ad's own header (the label momentarily gone) must not bring the
-    #    ad back: that flicker was a jump, several times a second, while scrolling.
-    page.evaluate("""() => {
-      const label = document.querySelector('#ad1 span:last-child');
-      label.textContent = '';                       // the disclosure disappears for a frame
-    }""")
-    page.wait_for_timeout(200)
-    check("the ad stays hidden while X repaints it", page.evaluate(HIDDEN, "ad1"), True)
-    page.evaluate("""() => {
-      document.querySelector('#ad1 span:last-child').textContent = 'Ad from explee.com';
-    }""")
-    page.wait_for_timeout(200)
-    check("and after the label comes back", page.evaluate(HIDDEN, "ad1"), True)
-    check("no geometry written during the repaint", page.evaluate("window.__geom()"), geometric_before)
-
-    # 5. A scroll event changes nothing (there is no scroll listener at all).
+    # 3. Re-settling is idempotent: X appending a row (its own rhythm while you scroll)
+    #    must not move anything again, and a scroll event moves nothing either.
+    page.evaluate("window.__nudge()")
+    page.wait_for_timeout(300)
+    check("X appending a row moves nothing", page.evaluate("[window.__tr(2), window.__tr(3)]"), ["0px -200px", "0px -200px"])
     page.evaluate("window.dispatchEvent(new Event('scroll'))")
     page.wait_for_timeout(200)
-    check("a scroll event moves nothing", page.evaluate("window.__geom()"), geometric_before)
+    check("a scroll event moves nothing", page.evaluate("window.__tr(2)"), "0px -200px")
+    check("no row overlaps the one above it", page.evaluate("window.__gap(0, 2) >= 0"), True)
 
-    # 6. A recycled row (X hands the element to a real post) must come back: the mark
-    #    belongs to a post, and this is a different one.
+    # 4. A post above the ad grows (a video loading) and X has not re-measured yet: the
+    #    empty space is smaller now, so the shift shrinks with it. What must never happen
+    #    is a shift bigger than the hole — the row would climb under the one above it.
+    page.evaluate("""() => {
+      document.querySelector('li[data-index="0"]').style.height = '300px';
+      window.__nudge();
+    }""")
+    page.wait_for_timeout(300)
+    check("a taller post above cannot push a row under it", page.evaluate("window.__gap(0, 2) >= 0"), True)
+    check("and the tail still moves together", page.evaluate("window.__tr(2)") == page.evaluate("window.__tr(3)"), True)
+    page.evaluate("""() => {
+      document.querySelector('li[data-index="0"]').style.height = '200px';
+      window.__nudge();
+    }""")
+    page.wait_for_timeout(300)
+    check("and the shift comes back with the space", page.evaluate("window.__tr(2)"), "0px -200px")
+
+    # 5. X closes the hole itself (it re-measures and rewrites the offset). The shift is
+    #    derived from those numbers, so it shrinks to what is left — never doubles.
+    page.evaluate("document.querySelector('li[data-index=\"2\"]').style.transform = 'translateY(230px)'")
+    page.evaluate("window.__nudge()")
+    page.wait_for_timeout(300)
+    check("X's own offset is left as X wrote it", page.evaluate("window.__ty(2)"), "translateY(230px)")
+    shift = page.evaluate("window.__tr(2)")
+    check("the shift shrank with the hole", shift in ("", "0px -30px"), True)
+    check("and nothing overlaps", page.evaluate("window.__gap(0, 2) >= 0"), True)
+    page.evaluate("document.querySelector('li[data-index=\"2\"]').style.transform = 'translateY(430px)'")
+    page.evaluate("window.__nudge()")
+    page.wait_for_timeout(300)
+    check("and it comes back when the hole does", page.evaluate("window.__tr(2)"), "0px -200px")
+
+    # 6. A recycled row (X hands the ad's element to a real post) must be visible again,
+    #    and the tail must go back to where X put it.
     page.evaluate("""() => {
       const li = document.querySelector('li[data-index="1"]');
       const art = li.querySelector('article');
       art.querySelector('[dir="auto"][lang]').textContent = 'This is a real post now.';
       const label = art.querySelector('span:last-child');
       if (label && /explee/.test(label.textContent)) label.textContent = 'Somebody';
+      window.__nudge();
     }""")
-    page.wait_for_timeout(300)
+    page.wait_for_timeout(400)
     check("a recycled row is visible again", page.evaluate(HIDDEN, "ad1"), False)
+    check("and the tail sits where X put it", page.evaluate("[window.__tr(2), window.__tr(3)]"), ["", ""])
 
-    # 7. Off leaves everything as X wrote it, marks included.
+    # 7. Off: every shift goes, every offset stays exactly as X wrote it.
     page.evaluate("window.__setHideAds(false)")
     page.wait_for_timeout(200)
     check("nothing stays marked", page.evaluate("document.querySelectorAll('[data-echolike-ad]').length"), 0)
-    check("row 0 transform untouched", page.evaluate("window.__ty(0)"), "translateY(0px)")
+    check("nothing carries a translate of ours", page.evaluate("[window.__tr(0), window.__tr(2), window.__tr(3), window.__tr(4)]"), ["", "", "", ""])
     check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(430px)")
-    check("nothing is moved by us any more", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
     check("no page errors", errors, [])
 
     page.close()
