@@ -15,6 +15,18 @@
     </article>
   </div>
 
+  <!-- 1b. The shape the phone actually reported (2026-11-25): the word as the DIV's
+     own text node plus icon wrappers — one word, two element children, weight 400,
+     inside an LI cell. 1.21.0 skipped every element with children. -->
+  <li id="iconadcell"><div role="link">
+    <article id="iconadarticle">
+      <div><a href="/shop2"><div dir="auto" style="font-weight:700">Shop Two</div></a><span>@shop2</span>
+        <div id="iconadlabel">Ad<svg width="8" height="8"></svg><span aria-hidden="true"></span></div>
+      </div>
+      <div dir="auto" lang="en">Another promoted post.</div>
+    </article>
+  </div></li>
+
   <!-- 2. "Promoted by <advertiser>", the label inside the advertiser's own link. -->
   <div id="promotedby">
     <article id="promotedbyarticle">

@@ -822,6 +822,19 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.21.1 — **the report did its job on the first try.** The owner tapped *Send what X
+  shows* and the row came back `layout=x-web articles=10 marked=0` with two candidates
+  listed as `DIV,n=1,k=2,wt=400,b=0,a=0,tid=-,cell=LI` — the disclosure was found, one
+  word, weight 400, inside an `li` cell, and **not** marked. `k=2` was the whole story:
+  1.21.0 still had a leaf-only rule (`if (s.querySelector("span,div,img,svg,button"))
+  continue`), and the phone renders the word as the wrapper's own text node plus icon
+  wrappers, so the wrapper was skipped. The rule is gone: a container is judged by its
+  own text, and the two cases it was protecting against are already covered (a wrapper
+  around the post's text contains `bodyOf(art)`; a container of real UI text fails the
+  length/word test). Fixture: `#iconadlabel` in `tests/fixture_ads_xweb.html` is the
+  reported shape verbatim. This is the value of the diagnostics button: a guess would
+  have been a third release; the field report named the failing rule.
+
 - 1.21.0 — **the three things a phone reported.** (1) *Ads still shown with the switch
   on*: the disclosure on a phone reads **"Ad"**, which 1.20.1's word list did not
   contain, and a label painted after its post was missed entirely (see the ads

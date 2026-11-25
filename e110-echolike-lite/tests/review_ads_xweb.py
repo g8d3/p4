@@ -51,6 +51,11 @@ with sync_playwright() as p:
     check("the phone's \"Ad\" hides the post's cell", hidden("adcell"), True)
     check("and the post with it", hidden("adarticle"), True)
 
+    # The phone's own shape, as the first `ads.report` documented it: the word plus icon
+    # wrappers (one word, two children) — 1.21.0's leaf-only rule missed this.
+    check("a label carrying icon wrappers hides its cell", hidden("iconadcell"), True)
+    check("and the article inside it", hidden("iconadarticle"), True)
+
     # "Promoted by <advertiser>", label inside the advertiser's link, article with no cell.
     check("\"Promoted by X\" hides it, link and all", hidden("promotedbyarticle"), True)
 
@@ -78,7 +83,7 @@ with sync_playwright() as p:
       return out;
     }""")
     check("the report names the layout", report and report["layout"], "rweb")  # the Grok cell still carries data-testid
-    check("the report counts what is marked", (report or {}).get("marked"), 3)
+    check("the report counts what is marked", (report or {}).get("marked"), 4)
     check("the report carries no post text", any("Buy this" in x for x in (report or {}).get("labels", [])), False)
     check("the report describes at least one label", len((report or {}).get("labels", [])) > 0, True)
 

@@ -72,8 +72,13 @@
     for (const s of art.querySelectorAll("span,div")) {
       if (s.closest(POST_IN) !== art) continue; // a quoted post's header or label
       if (own && (s === own || own.contains(s) || s.contains(own))) continue; // the post itself
-      if (s.querySelector("span,div,img,svg,button")) continue; // a wrapper, not a label
       const t = (s.textContent || "").trim();
+      // No "leaf only" rule any more. The phone renders the disclosure as the word
+      // plus icon wrappers — `Ad<svg></svg><span></span>`, one word, two children — and
+      // 1.21.0 skipped exactly that wrapper, which is why the first report from the
+      // phone came back `articles=10 marked=0` with the label sitting right there. A
+      // container that wraps the post's own text is already excluded above (the body
+      // check), and a container of real UI text is too long or too many words here.
       if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
       // X paints the disclosure in its regular weight and an author name in bold: a
       // person called "Ad" (or a brand called "Publicidad") is a name, not an ad, and
