@@ -824,6 +824,30 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.6 — **no geometry, and a mark that stays.** The owner, verbatim: "EchoLike Lite
+  todavía tiene saltos en la pantalla, no sé si todavía hay código con scroll y no
+  entiendo por qué usan eso, lo que yo quiero es que los anuncios no aparezcan". Two
+  causes, both ours, both removed:
+  * **The slot-closing bookkeeping is gone** (`settle`, `clearSettle`, the recorded
+    `echY`/`echH`, the `translate` writes) and so is the `style` observer that fed it.
+    That observer fired on X's own writes on almost every scroll frame; every firing
+    wrote layout back into X's virtualized list, which X then read back — the loop was
+    the jump. It is now impossible by construction: this code writes no geometry, no
+    lengths, no offsets, and no listener of any kind. `tests/review_gap.py` snapshots
+    every row's style, box, `transform` and `translate` and asserts they are identical
+    before and after marking, after a simulated X re-measure, and after a scroll.
+  * **A mark is sticky.** Until now every mutation re-judged the post it happened in
+    (`recheck` → `markCell(cell, looksPromoted(art))`), so an X repaint that drops the
+    disclosure for one frame un-hid the ad: the row grew back, the timeline moved, and
+    the next frame hid it again — several jumps a second while scrolling. `recheck` now
+    compares the post's identity (`a[href*="/status/"]` → `handle/statusId`, else a
+    fingerprint of the post's own words) and only a **different** post clears a mark.
+    Asserted in `review_gap.py`: an ad whose label is temporarily blanked stays hidden
+    through the repaint, and a recycled row still comes back.
+  * The switch off path no longer needs cleanup either: it removes the attribute, and
+    there is nothing else to undo. Nothing in this product scrolls the page except the
+    import walk, which is a button the owner presses.
+
 - 1.23.5 — **the slot, closed by an exact sum.** 1.23.4 removed all geometry (it was
   making the page jump and draw posts twice) and left the blank space; the owner was
   right that it had to close. The mechanism, and why it cannot repeat either failure:
@@ -1436,7 +1460,8 @@ text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
   `[dir=auto][lang]` container; a real post whose text is exactly "Ad" or "Promoted
   by …" is that container and stays. A quoted post's text is a different article and
   is ignored on both sides.
-* **A hidden row must give its slot back.** The phone timeline positions rows absolutely
+* **A hidden row must give its slot back.** (1.21.x–1.23.5 only; removed in 1.23.6.) The
+  phone timeline positions rows absolutely
   (`li[data-index]` + inline `translateY`), so `display:none` leaves a hole in the middle
   of the list. `collapse()` records each hidden row's offset and height and pulls the
   later rows of that list up by exactly that much, on every observed mutation (idempotent

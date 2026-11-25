@@ -210,107 +210,72 @@
   }
 
   // The row, not only the card: a card hidden inside a padded wrapper leaves the
-  // wrapper's padding behind. Nothing else is touched — in particular the offsets of
-  // the other rows are NOT moved. X's phone timeline positions rows absolutely
-  // (`li[data-index]` + inline `translateY`), so pulling them up by hand fought X's own
-  // re-measuring: the page jumped and posts landed on top of each other. A hidden row
-  // simply leaves its slot until X rebuilds the list, which is X's business, not ours.
-  // Hide the row, write nothing else. Every attempt to close the slot a virtualized row
-  // leaves behind wrote layout into X's list (transform, then translate) and X reads that
-  // layout back: the page jumped, and rows were drawn twice. X's offsets are X's; this
-  // adds one attribute and one CSS rule and touches no geometry at all.
-  // Closing the slot a hidden row leaves, without the two things that broke it before:
-  // no scroll listener, and no running total. Writing `transform` (1.23.1) fought X's own
-  // rewrites and the page jumped; `translate` (1.23.3) survived the fight but its running
-  // total also subtracted X's own spacing, the rows ended up on top of each other, and
-  // that reads as duplicated posts. So the shift here is an exact sum:
+  // wrapper's padding behind.
   //
-  //   shift(row) = sum of the ORIGINAL heights of the hidden rows above it
+  // Hiding is ALL this does. No geometry, no scroll listener, no heights, no running
+  // total — because every one of those was tried and every one of them is why the page
+  // jumped:
   //
-  // and a hidden row counts only when X has not already reclaimed its slot (the next row
-  // still starts below it). Nothing accumulates, X's own gaps are untouched, and it is
-  // written in `translate`, a property X never writes — so nothing can fight it.
-  const tfY = (el) => {
-    const m = /translateY\((-?[\d.]+)px\)/.exec((el.style && el.style.transform) || "");
-    return m ? parseFloat(m[1]) : null;
-  };
-
-  function settle(scope) {
-    const root = scope && scope.querySelectorAll ? scope : document;
-    const lists = new Set();
-    for (const row of root.querySelectorAll("[data-echolike-ad], [data-ech-row]")) {
-      if (row.parentElement) lists.add(row.parentElement);
-    }
-    for (const list of lists) {
-      const rows = [...list.children].filter((r) => tfY(r) != null);
-      if (!rows.length) continue;
-      const hidden = [];
-      for (const row of rows) {
-        if (!row.hasAttribute("data-echolike-ad")) continue;
-        const y = Number(row.dataset.echY);
-        const h = Number(row.dataset.echH);
-        if (Number.isFinite(y) && Number.isFinite(h) && h > 0) hidden.push({ row, y, h });
-      }
-      for (const hid of hidden) {
-        // Did X already put the next row where this one was? Then the slot is gone.
-        const next = rows.find((r) => r !== hid.row && !r.hasAttribute("data-echolike-ad") && tfY(r) > hid.y);
-        hid.reclaimed = !next || tfY(next) <= hid.y + 1;
-      }
-      for (const row of rows) {
-        if (row.hasAttribute("data-echolike-ad")) continue;
-        const y = tfY(row);
-        let shift = 0;
-        for (const hid of hidden) if (!hid.reclaimed && hid.y < y) shift += hid.h;
-        const want = Math.min(shift, 4000);
-        if (want > 1) {
-          if (row.style.translate !== "0 -" + want + "px") row.style.translate = "0 -" + want + "px";
-          row.dataset.echRow = "1";
-        } else if (row.dataset.echRow) {
-          row.style.translate = "";
-          delete row.dataset.echRow;
-        }
-      }
-    }
-  }
-
-  function clearSettle() {
-    for (const row of document.querySelectorAll("[data-ech-row]")) {
-      row.style.translate = "";
-      delete row.dataset.echRow;
-    }
-  }
-
-  function markCell(cell, on) {
+  //   * `transform: translateY(-h)` on the rows below a hidden one (1.23.1): X rewrites
+  //     that same property every time it re-measures, so the row moved twice, or not at
+  //     all, and posts landed on top of each other;
+  //   * the `translate` property instead (1.23.3/1.23.5): X never writes it, but X reads
+  //     the layout back — so a row we had moved was measured as moved, the list got
+  //     rebuilt with our numbers folded into X's, and the columns drifted and jumped;
+  //   * a `style` observer to keep that bookkeeping in sync: it fires on X's own writes
+  //     thousands of times while you scroll, and each pass wrote layout again — a feedback
+  //     loop with the page as the output.
+  //
+  // X's offsets are X's. A hidden row leaves its slot and X reclaims it on its next
+  // measure; our whole contribution is one attribute and one CSS rule.
+  function markCell(cell, on, key) {
     for (const el of new Set([cell, rowOf(cell)])) {
       if (on) {
-        // Measure BEFORE hiding: the row's own height is the slot to give back.
-        if (el.dataset.echY == null) {
-          const y = tfY(el);
-          const h = el.getBoundingClientRect().height;
-          if (y != null && h > 0) {
-            el.dataset.echY = String(y);
-            el.dataset.echH = String(h);
-          }
-        }
         el.setAttribute("data-echolike-ad", "1");
+        if (key) el.dataset.echKey = key; // which post this mark belongs to
       } else {
         el.removeAttribute("data-echolike-ad");
-        delete el.dataset.echY;
-        delete el.dataset.echH;
+        delete el.dataset.echKey;
       }
     }
-    settle(cell.parentElement || cell);
+  }
+
+  // Which post a cell holds right now. The status link is the identity X itself uses;
+  // a post without one (an ad module, a card) falls back to its own words, which is
+  // still enough to tell "the ad is gone, this is another post" from "the same ad".
+  function postKey(art) {
+    const a = art.querySelector && art.querySelector('a[href*="/status/"]');
+    const m = a && /\/([^/?#]+)\/status\/(\d+)/.exec(a.getAttribute("href") || "");
+    if (m) return m[1] + "/" + m[2];
+    const body = bodyOf(art);
+    return "t:" + h8(((body && body.textContent) || art.textContent || "").trim().slice(0, 120));
   }
 
   // A virtualized row is recycled for a different post, sometimes without an insertion
-  // the observer can see: a mark that outlives its ad hides a real post ("some posts
-  // just disappear"). So every mutation re-checks the post or the module it happened in.
+  // the observer can see: a mark that outlives its ad hides a real post ("some posts just
+  // disappear"). So a mark remembers WHICH post it was for, and is dropped only when the
+  // cell holds a different one.
+  //
+  // Not re-judged on every mutation (1.23.0–1.23.5 did that): X repaints a post's header
+  // in place, so for one frame the disclosure is not there, the mark came off, the ad
+  // reappeared, the row grew back — and the page jumped, several times a second while
+  // scrolling. An ad that has been recognised stays hidden; a real post never inherits
+  // the mark, because a different post is a different identity.
   function recheck(node) {
     const el = node instanceof Element ? node : node && node.parentElement;
     if (!el || !el.closest) return;
     const art = el.closest(POST_IN);
     if (art) {
-      markCell(cellOf(art), looksPromoted(art));
+      const cell = cellOf(art);
+      const key = postKey(art);
+      const stale = (e) => e.hasAttribute("data-echolike-ad") && e.dataset.echKey !== key;
+      if (stale(cell) || stale(rowOf(cell))) {
+        markCell(cell, false);
+        markCell(cell, looksPromoted(art), key);
+        return;
+      }
+      if (cell.hasAttribute("data-echolike-ad") || rowOf(cell).hasAttribute("data-echolike-ad")) return;
+      markCell(cell, looksPromoted(art), key);
       return;
     }
     const cell = el.closest('li,[data-testid="cellInnerDiv"]');
@@ -332,7 +297,7 @@
     // re-scan a whole post on every node React swaps in.
     const up = node.closest && node.closest(POST_IN);
     if (up && (node.textContent || "").length <= 96) arts.add(up);
-    for (const art of arts) markCell(cellOf(art), looksPromoted(art));
+    for (const art of arts) markCell(cellOf(art), looksPromoted(art), postKey(art));
   }
 
   // A cell that is not a post at all — a sponsored module, a promoted trend, a card
@@ -353,7 +318,9 @@
           break;
         }
       }
-      markCell(cell, hit);
+      // A module has no status link: its identity is its own words, which is also what
+      // changes when X rotates one ad out for another.
+      markCell(cell, hit, hit ? "m:" + h8((cell.textContent || "").trim().slice(0, 120)) : "");
     }
   }
 
@@ -401,7 +368,7 @@
   function markAsAd(target, done) {
     const art = postOf(target);
     const card = (art && cellOf(art)) || target.closest('li,[data-testid="cellInnerDiv"]') || target;
-    markCell(card, true);
+    markCell(card, true, art ? postKey(art) : "m:" + h8((card.textContent || "").trim().slice(0, 120)));
     const cands = headerWords(card, art);
     const words = cands.map((c) => c.h);
     const taught = words.filter((h) => pendingWords.includes(h));
@@ -632,10 +599,8 @@
     if (!on) {
       for (const el of document.querySelectorAll("[data-echolike-ad]")) {
         el.removeAttribute("data-echolike-ad");
-        delete el.dataset.echY;
-        delete el.dataset.echH;
+        delete el.dataset.echKey;
       }
-      clearSettle();
       return;
     }
     markAds(document.body);
@@ -644,26 +609,24 @@
     // clears a cell that a virtualized list reused for a real post). It watches the
     // body, not `main`: x-web's feed is not always inside <main>, and an observer on
     // a container the app replaces dies with it.
+    // Nodes only. `attributes: [style]` was watched in 1.23.5 to keep a geometry
+    // bookkeeping in sync with X's own re-measures; with no geometry to sync there is
+    // nothing to watch, and X writes `style` on its rows on almost every scroll frame.
     adObserver = new MutationObserver((muts) => {
       for (const m of muts) {
-        if (m.type === "attributes") {
-          // X rewrote a row's `transform` because it re-measured. If it closed the slot,
-          // the measured shift must go, or the row would be pulled up twice (that is what
-          // put posts on top of each other). No scroll listener is involved.
-          if (m.target.matches && m.target.matches("li[data-index]") && document.querySelector("[data-echolike-ad]")) {
-            settle(m.target.parentElement);
-          }
+        if (m.type === "characterData") {
+          recheck(m.target);
           continue;
         }
         for (const n of m.addedNodes) {
           markAds(n);
           markModules(n);
+          recheck(n);
         }
         recheck(m.target);
-        settle(m.target && m.target.parentElement);
       }
     });
-    adObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style"] });
+    adObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
   }
 
   function applyAds(hide) {

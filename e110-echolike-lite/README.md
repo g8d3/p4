@@ -87,7 +87,7 @@ No network at all? Captures are saved in the browser and sent when it can be.
 
 ## Ads
 
-Promoted posts and trends are hidden on X — and a hidden ad gives its slot back, so no blank space is left where it was — by CSS on the old app, and by the disclosure's own text on the 2026 rewrite (one observer, only while the switch is on). The label is whatever your X says: the desktop app prints *Promoted*, a phone prints *Ad*, and both count (as do "Promoted by …" and the same word in the languages this ships in). A real post whose own text is one of those words is never hidden, and neither is a Grok answer. The switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
+Promoted posts and trends are hidden on X — the extension only adds one attribute and one CSS rule, and **writes no layout at all**, so the page never moves because of it — by CSS on the old app, and by the disclosure's own text on the 2026 rewrite (one observer, only while the switch is on). The label is whatever your X says: the desktop app prints *Promoted*, a phone prints *Ad*, and both count (as do "Promoted by …" and the same word in the languages this ships in). A real post whose own text is one of those words is never hidden, and neither is a Grok answer. Once an ad is recognised it stays hidden through X's repaints; it is only un-hidden when the row is recycled for a different post. The switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
 
 After an update, reload the X tab: a page keeps the script it loaded with. The label is matched after decoration is stripped (the phone prints "Ad ·"), and a disclosure that sits beside the post — or in a card that is not a post at all, like a sponsored module — hides its cell too.
 
@@ -103,7 +103,9 @@ Captures are still saved in the browser: the popup lists the last 30 with a link
 
 ## Cost in the browser
 
-One click listener. One observer, only while `Hide ads on X` is on; no timers, no polling, zero background traffic. The service worker sleeps until you click.
+One click listener. One observer (nodes only — X's own `style` writes are not watched), only while `Hide ads on X` is on; no timers, no polling, zero background traffic. The service worker sleeps until you click.
+
+Nothing in this extension scrolls the page. The one thing that did was the **Import** walk (a button you press: it scrolls the X tab one viewport at a time to reach history the page has not built yet), and it scrolls only the tab you pressed it on, only while it runs.
 
 ## On a phone (where most installs are)
 
