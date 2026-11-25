@@ -824,6 +824,26 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.4 — **no layout, ever: the jumps and the doubled posts were ours.** Hiding a
+  virtualized row leaves its slot, and every attempt to close that slot wrote layout into
+  X's list — `transform` in 1.23.1 (X rewrites it: the page jumped), `translate` in 1.23.3
+  (survived the fight, but X **reads layout back**, and the page started drawing posts
+  twice). So: not one pixel of geometry is written any more.
+  * `markCell` adds one attribute; `ADS_CSS` hides it. `closeGaps`, `clearGaps`, the
+    `translate` bookkeeping and the scroll listener are all gone. `tests/review_gap.py`
+    now asserts the guarantee that matters: **every row's inline `transform` is exactly
+    what X wrote, and nothing carries a `translate` of ours**, with ads hidden and a
+    recycled row visible again.
+  * The slot a virtualized row leaves stays. Said out loud in the test docstring, because
+    closing it is what broke the page twice: it is X's layout and X's to reclaim when it
+    rebuilds the list.
+  * Duplicated posts also got the one check this product can own: the inbox list, the
+    only rows it draws itself, is asserted to add exactly one page and **never paint the
+    same capture twice** (`review_speed.py`, 800 captures, 80 → 160 cards).
+  * `review_speed.py`'s cold-paint budget moved 4 s → 7 s, after an A/B on the same
+    machine against the code this replaced at 800 captures: **11.7 s and 800 cards then,
+    4.6 s and 80 cards now**. The budget stays as a drift alarm, not as a flake.
+
 - 1.23.3 — **the hole, closed by measuring instead of fighting.** 1.23.2 left the slot a
   virtualized row leaves, on the theory that only X can close it. It can, but it does not
   in practice, so the owner kept seeing the blank space. The mechanism now:

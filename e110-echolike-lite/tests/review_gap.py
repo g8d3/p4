@@ -1,23 +1,24 @@
-"""The blank space after a hidden ad: measured, not fought.
+"""Ads are hidden by one attribute and one CSS rule — and no layout is written.
 
-Three rounds of this. The report that explained it: the phone's timeline is a
-virtualized list where each row is `li[data-index]` positioned with an inline
-`transform: translateY(<px>)`. Hiding a row leaves its hole, because the next row keeps
-the pixel offset X wrote for it. 1.23.1 closed the hole by rewriting those offsets by
-hand — X re-measures and rewrites them too, the two fought, and the page jumped with
-posts landing on top of each other.
+Four rounds of "blank space", and the lesson each one paid for:
 
-What 1.23.2 does, and what this pins:
+  1. `display:none` alone leaves the slot of a virtualized row (rows are
+     `li[data-index]` with an inline `translateY`), so the owner saw blank space;
+  2. moving those rows by rewriting `transform` made the page **jump**, because X
+     rewrites the same property when it re-measures;
+  3. moving them in the `translate` property instead survived the fight, but X **reads
+     layout back** — and the page started drawing posts twice;
+  4. so: no geometry at all. Hide the row, leave X's offsets untouched, re-check rows that
+     are recycled so a real post never inherits a mark.
 
-  * the shift goes in the **`translate` property**, which composes with X's `transform`
-    and which X never writes — so a re-render cannot fight it;
-  * the shift is **measured on screen** (next row's offset minus the previous row's
-    bottom): a hidden row contributes exactly its own height, and if X closes the hole
-    by itself the measured hole is 0 and the shift disappears — it can never subtract
-    twice;
-  * X's own offsets are never touched, so nothing jumps;
-  * a recycled row (X hands the element to a real post) is visible again;
-  * switching the ads switch off clears every shift and every mark.
+What this pins:
+
+  * the ad goes (its disclosure is "Ad from explee.com", a form the word list now knows);
+  * **no row's inline `transform` is modified** and no `translate` is written;
+  * the hole stays where X leaves it — accepted out loud, because closing it is what
+    broke the page twice;
+  * a recycled row is visible again;
+  * switching the ads switch off leaves every offset exactly as X wrote it.
 
     xvfb-run -a python3 tests/review_gap.py
 """
@@ -42,12 +43,11 @@ def check(name, got, want):
 SETUP = """() => {
   window.__ty = (i) => {
     const el = document.querySelector('li[data-index="' + i + '"]');
-    const m = /translateY\\((-?[\\d.]+)px\\)/.exec(el.style.transform || '');
-    return m ? parseFloat(m[1]) : null;
+    return (el.style.transform || '').trim();
   };
-  window.__shift = (i) => {
+  window.__tr = (i) => {
     const el = document.querySelector('li[data-index="' + i + '"]');
-    return el.style.translate || '';
+    return (el.style.translate || '').trim();
   };
 }"""
 HIDDEN = "(i) => { const el = document.getElementById(i); return !el || el.getClientRects().length === 0 }"
@@ -69,41 +69,24 @@ with sync_playwright() as p:
 
     page, errors = open_page(browser)
 
-    # 1. "Ad from explee.com" is a disclosure, so the ad goes by itself.
+    # 1. The ad goes by itself: "Ad from explee.com" is a disclosure now.
     check("the ad is hidden", page.evaluate(HIDDEN, "ad1"), True)
     check("the ordinary posts stay", page.evaluate(HIDDEN, "post0"), False)
     check("and the one after it", page.evaluate(HIDDEN, "post2"), False)
 
-    # 2. X's own offsets are untouched — that is what keeps the page still.
-    check("row 0 did not move", page.evaluate("window.__ty(0)"), 0.0)
-    check("row 1 (the ad) did not move", page.evaluate("window.__ty(1)"), 200.0)
-    check("row 2 did not move", page.evaluate("window.__ty(2)"), 400.0)
+    # 2. No layout is written: X's transforms are exactly as they were, and nothing
+    #    carries a `translate` of ours. This is what keeps the page still.
+    check("row 0 transform untouched", page.evaluate("window.__ty(0)"), "translateY(0px)")
+    check("row 1 transform untouched", page.evaluate("window.__ty(1)"), "translateY(200px)")
+    check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(400px)")
+    check("no row is moved by us", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
 
-    # 3. The hole is closed by the measured shift, in a property X does not write.
-    check("row 2 is pulled up by the hidden row's height", page.evaluate("window.__shift(2)"), "0px -200px")
-    check("the rows above it are not", page.evaluate("window.__shift(0)"), "")
-    box = page.evaluate("""() => {
-      const a = document.querySelector('li[data-index="0"]').getBoundingClientRect();
-      const c = document.querySelector('li[data-index="2"]').getBoundingClientRect();
-      return Math.round(c.top - a.bottom);   // hole the hidden row used to leave
-    }""")
-    check("no blank space is left between the rows", box, 0)
-
-    # 4. Off leaves everything where X had it, shift and marks included.
-    page.evaluate("window.__setHideAds(false)")
+    # 3. A scroll changes nothing (there is no scroll listener any more).
+    page.evaluate("window.dispatchEvent(new Event('scroll'))")
     page.wait_for_timeout(200)
-    check("the ad is back", page.evaluate(HIDDEN, "ad1"), False)
-    check("no shift survives the switch", page.evaluate("document.querySelectorAll('[data-ech-shift]').length"), 0)
-    check("row 2 is back at X's 400", page.evaluate("window.__ty(2)"), 400.0)
-    check("nothing stays marked", page.evaluate("document.querySelectorAll('[data-echolike-ad]').length"), 0)
+    check("a scroll event moves nothing", page.evaluate("window.__ty(2)"), "translateY(400px)")
 
-    # 5. On again, and the shift is recomputed, not doubled.
-    page.evaluate("window.__setHideAds(true)")
-    page.wait_for_timeout(250)
-    check("hidden again", page.evaluate(HIDDEN, "ad1"), True)
-    check("still one row-height up, not two", page.evaluate("window.__shift(2)"), "0px -200px")
-
-    # 6. A virtualized row is recycled for a real post: it must come back.
+    # 4. A recycled row (X hands the element to a real post) must come back.
     page.evaluate("""() => {
       const li = document.querySelector('li[data-index="1"]');
       const art = li.querySelector('article');
@@ -113,23 +96,17 @@ with sync_playwright() as p:
     }""")
     page.wait_for_timeout(300)
     check("a recycled row is visible again", page.evaluate(HIDDEN, "ad1"), False)
+
+    # 5. Off leaves everything as X wrote it, marks included.
+    page.evaluate("window.__setHideAds(false)")
+    page.wait_for_timeout(200)
+    check("nothing stays marked", page.evaluate("document.querySelectorAll('[data-echolike-ad]').length"), 0)
+    check("row 0 transform untouched", page.evaluate("window.__ty(0)"), "translateY(0px)")
+    check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(400px)")
+    check("nothing is moved by us", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
     check("no page errors", errors, [])
-    page.close()
 
-    # 7. If X closes the hole by itself, the measured shift must vanish — or the rows
-    #    would be pulled up twice. Here X rewrites row 2 to 200 (its own re-measure).
-    page, errors = open_page(browser)
-    page.evaluate("""() => {
-      const row = document.querySelector('li[data-index="2"]');
-      row.style.transform = 'translateY(200px)';   // X closed the slot by itself
-      window.dispatchEvent(new Event('scroll'));
-    }""")
-    page.wait_for_timeout(300)
-    check("no shift once X closed the hole itself", page.evaluate("window.__shift(2)"), "")
-    check("and its offset is still X's", page.evaluate("window.__ty(2)"), 200.0)
-    check("no page errors after X re-measures", errors, [])
     page.close()
-
     browser.close()
 
 print("FAILURES:", failures if failures else "none")

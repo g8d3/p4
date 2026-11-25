@@ -215,65 +215,15 @@
   // (`li[data-index]` + inline `translateY`), so pulling them up by hand fought X's own
   // re-measuring: the page jumped and posts landed on top of each other. A hidden row
   // simply leaves its slot until X rebuilds the list, which is X's business, not ours.
-  // A hidden virtualized row leaves a hole: the next row keeps the pixel offset X wrote
-  // for it. Writing `transform` to move those rows (1.23.1) fought X's own re-measuring,
-  // which is what made the page jump — so this uses the separate `translate` property,
-  // which composes with `transform` and which X never writes: a shift written there
-  // survives every X re-render and every offset X rewrites.
-  //
-  // The shift is measured, not assumed: walk the rows in order and add up the holes
-  // (next row's offset minus the previous row's bottom). A hidden row renders 0 tall, so
-  // it contributes exactly its own height as a hole; when X re-measures by itself the
-  // holes are 0 and nothing is shifted — it cannot double-subtract.
-  const tfY = (el) => {
-    const m = /translateY\((-?[\d.]+)px\)/.exec((el.style && el.style.transform) || "");
-    return m ? parseFloat(m[1]) : null;
-  };
-
-  function closeGaps(scope) {
-    const lists = new Set();
-    const root = scope && scope.querySelectorAll ? scope : document;
-    for (const row of root.querySelectorAll("li[data-index]")) if (row.parentElement) lists.add(row.parentElement);
-    for (const list of lists) {
-      let prevBottom = null;
-      let cum = 0;
-      for (const row of list.children) {
-        const y = tfY(row);
-        if (y == null) {
-          prevBottom = null;
-          cum = 0;
-          continue;
-        }
-        if (prevBottom != null) cum += Math.max(0, y - prevBottom);
-        prevBottom = y + row.getBoundingClientRect().height;
-        const want = Math.min(cum, 4000);
-        const have = row.dataset.echShift ? Number(row.dataset.echShift) : 0;
-        if (want > 1) {
-          if (Math.abs(have - want) > 0.5) {
-            row.style.translate = "0 -" + want + "px";
-            row.dataset.echShift = String(want);
-          }
-        } else if (row.dataset.echShift != null) {
-          row.style.translate = "";
-          delete row.dataset.echShift;
-        }
-      }
-    }
-  }
-
-  function clearGaps() {
-    for (const row of document.querySelectorAll("[data-ech-shift]")) {
-      row.style.translate = "";
-      delete row.dataset.echShift;
-    }
-  }
-
+  // Hide the row, write nothing else. Every attempt to close the slot a virtualized row
+  // leaves behind wrote layout into X's list (transform, then translate) and X reads that
+  // layout back: the page jumped, and rows were drawn twice. X's offsets are X's; this
+  // adds one attribute and one CSS rule and touches no geometry at all.
   function markCell(cell, on) {
     for (const el of new Set([cell, rowOf(cell)])) {
       if (on) el.setAttribute("data-echolike-ad", "1");
       else el.removeAttribute("data-echolike-ad");
     }
-    if (on) closeGaps(cell.parentElement || cell);
   }
 
   // A virtualized row is recycled for a different post, sometimes without an insertion
@@ -597,20 +547,14 @@
   });
 
   let adObserver = null;
-  let adScroll = null;
 
   function watchAds(on) {
     if (adObserver) {
       adObserver.disconnect();
       adObserver = null;
     }
-    if (adScroll) {
-      window.removeEventListener("scroll", adScroll, true);
-      adScroll = null;
-    }
     if (!on) {
       for (const el of document.querySelectorAll("[data-echolike-ad]")) el.removeAttribute("data-echolike-ad");
-      clearGaps();
       return;
     }
     markAds(document.body);
@@ -626,22 +570,9 @@
           markModules(n);
         }
         recheck(m.target);
-        closeGaps(m.target && m.target.parentElement);
       }
     });
     adObserver.observe(document.body, { childList: true, subtree: true });
-    // X re-measures while you scroll (and rows change height as media loads): recompute
-    // the measured shift then, once per frame. No timer, and nothing runs when the
-    // switch is off.
-    let raf = 0;
-    adScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        closeGaps(document);
-      });
-    };
-    window.addEventListener("scroll", adScroll, { capture: true, passive: true });
   }
 
   function applyAds(hide) {
