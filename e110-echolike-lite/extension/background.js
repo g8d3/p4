@@ -163,7 +163,7 @@ function tel(action, info) {
     ms: info && Number.isFinite(info.ms) ? info.ms : null,
     host: info && info.host ? String(info.host) : null,
     error: info && info.error ? String(info.error).slice(0, 160) : null,
-    detail: info && info.detail ? String(info.detail).slice(0, 400) : null,
+    detail: info && info.detail ? String(info.detail).slice(0, 1200) : null,
     at: new Date().toISOString(),
     version: chrome.runtime.getManifest().version,
   };

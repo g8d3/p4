@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><body>
+<!-- The field case that started this: an ad whose disclosure word this product has
+     never seen ("Annonce"), so nothing hides it. The owner marks it; two marks of the
+     same kind teach the word. -->
+<div id="feed">
+  <article id="ad1">
+    <div><span>Store One</span><span>@store1</span><div>Annonce</div></div>
+    <div dir="auto" lang="en">Half price on things you do not need.</div>
+    <button>Shop now</button>
+  </article>
+
+  <article id="real1">
+    <div><span>Someone</span><span>@someone</span></div>
+    <div dir="auto" lang="en">An ordinary post.</div>
+  </article>
+
+  <article id="ad2">
+    <div><span>Store Two</span><span>@store2</span><div>Annonce</div></div>
+    <div dir="auto" lang="en">Another thing on sale.</div>
+    <button>Shop now</button>
+  </article>
+</div>
+
+<script>
+  // The extension APIs the content script touches. Diagnostics go to `__tel`, the rest
+  // to `__sent`, so a test can read what a mark actually reported.
+  window.__sent = [];
+  window.__tel = [];
+  window.__changeListeners = [];
+  let store = { hide_ads: true, fab_on: true, ads_learned: [], ads_pending: [] };
+  if (window.__SEED) Object.assign(store, window.__SEED);
+  window.chrome = {
+    runtime: {
+      getManifest: () => ({ version: "9.9.9" }),
+      getURL: (p) => "chrome-extension://stub/" + p,
+      onMessage: { addListener: (fn) => (window.__msgListeners = window.__msgListeners || []).push(fn) },
+      sendMessage: (m, cb) => {
+        if (m.type === "tel") {
+          window.__tel.push(m);
+          cb && cb({ ok: true });
+          return Promise.resolve({ ok: true });
+        }
+        window.__sent.push(m);
+        cb && cb({ ok: true });
+        return Promise.resolve({ ok: true });
+      },
+    },
+    storage: {
+      local: {
+        set: (obj) => { Object.assign(store, obj); return Promise.resolve(); },
+        get: (defaults, cb) => {
+          const out = Object.assign({}, defaults);
+          for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];
+          cb && cb(out);
+          return Promise.resolve(out);
+        },
+      },
+      onChanged: { addListener: (fn) => window.__changeListeners.push(fn) },
+    },
+  };
+  window.__store = () => store;
+  window.__setStore = (v) => Object.assign(store, v);
+</script>
+</body></html>

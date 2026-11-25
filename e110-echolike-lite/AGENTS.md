@@ -797,6 +797,7 @@ python3 tests/review_inbox_worker.py          # the LIVE hosted inbox: two tenan
 python3 tests/review_ads.py                   # ads hidden; Grok answers and real posts never hidden
 python3 tests/review_ads_xweb.py              # x-web: the phone's "Ad", late labels, links, real posts that say it
 xvfb-run -a python3 tests/review_mobile.py    # the page fits 320/360/390/412 px; all four tabs on screen and working
+xvfb-run -a python3 tests/review_mark.py      # mark an ad on the page: hidden now, reported, and the word taught by a second mark
 xvfb-run -a python3 tests/review_speed.py     # 800 captures on a throttled phone: one read, tab press paints from memory
 python3 tests/review_inbox_page.py            # the LIVE reader page: fragment key, decrypts, wrong key refused
 python3 tests/review_account.py               # accounts over HTTP (LOCAL wrangler dev): code, link, wrapped key
@@ -821,6 +822,40 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.22.0 — **marking an ad, because the ad we cannot name has no label to learn.** The
+  second report (`articles=8 marked=0 | no disclosure label found`) proved the limit of
+  guessing words: an ad with no disclosure this product knows cannot be found by text,
+  and shipping a third guess would have cost another evening for nothing. So the
+  owner's eyes became the detector:
+
+  * On X, the circle (**X1**) gains **Mark an ad…**. Press it, then tap the ad: the card
+    is hidden on the spot (`data-echolike-ad`), its shape is reported as `ads.mark`, and
+    the short header words **unique to that card** are kept as candidates. The listener
+    is `window` capture, registered while picking, so a mark never turns into a like
+    capture; Escape cancels; one tap marks one card.
+  * **Two marks teach the word.** One mark cannot tell "Ad" from an advertiser's name,
+    so the intersection of two marks' candidates becomes a learned label; the second
+    mark's toast says so. Learned labels are stored as fingerprints
+    (`ads_learned`, hashes only) and `looksLabel` accepts them from then on, so ads
+    that use the word hide by themselves **after a reload** too
+    (`tests/review_mark.py` proves the whole loop: unknown word → nothing hidden →
+    mark → hidden now → second mark → learned → reload → both ads gone, real post
+    untouched).
+  * Candidates are filtered so a name or a date cannot be learned: a card's words are
+    dropped when **two or more other posts** use them (a UI word), when they contain a
+    digit (`Nov 24`, `@store1`, `2h`), when they are bold (an author name), or when they
+    are the post's own body. Cards already marked as ads do not count as "other posts",
+    or two ads sharing a word would hide that word from itself.
+  * Settings → **3 · On X** now says how many words were learned (or that one mark is
+    waiting for a second) and offers **Forget what I marked**, which clears
+    `ads_learned` + `ads_pending`. `ads.report` carries `learned=`/`pending=`.
+  * The report's short texts are hashed with `adNorm` first, the same normalization the
+    matcher uses, so `bin/ads_hash.py` can name them; telemetry `detail` is 1200 chars.
+  * Two side fixes found by the suite: the toast had no `pointer-events:none` and could
+    swallow a tap (it covered the card being marked on a short page), and
+    `review_fab` assumed the local date equals the UTC date, which is false in the
+    evening west of Greenwich.
 
 - 1.21.1 — **the report did its job on the first try.** The owner tapped *Send what X
   shows* and the row came back `layout=x-web articles=10 marked=0` with two candidates
@@ -1262,10 +1297,19 @@ text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
   cell still took its box in the timeline.
 * **One tap reports what the phone sees.** A phone has no devtools, so Settings →
   *3 · On X* → **Ads still showing? Send what X shows** asks the open X tab for its
-  posts' shape (`tag`, word/child counts, `inBody`, `inLink`, `data-testid`, `dir`,
-  cell kind, whether it is marked) and sends that as `ads.report` telemetry. No text,
-  no handle, no link, no label word. `tests/review_ads_xweb.py` pins the properties
-  above, including the late label and the "real post that says Ad" direction.
+  posts' shape — `A[…]` per post (length, marked?, cell, and up to two short header
+  texts as `h=<fnv1a>`,l,w,f,k,b,a,t) and `M[…]` per **non-post cell** (length, words,
+  links, external links, buttons, its short texts) — and sends that as `ads.report`.
+  Short texts are **fingerprints, never words**: `bin/ads_hash.py <hash…>` looks them
+  up in the dictionary of disclosure words in 25 languages, and `--sql` takes the
+  whole detail string. Nothing else travels: no post text, no handle, no link.
+  `tests/review_ads_xweb.py` pins the properties above, including the late label, the
+  "real post that says Ad" direction, and that the report holds no readable word.
+* **What a report looks like when it fails** (and why each line exists):
+  `A[…,m=0…|h=…]` = a post-shaped cell that is not marked, with the short texts found
+  in it; `M[…]` = a cell with no post at all (the 1.21.2 case); `marked=N` counts what
+  the switch did hide. A hash that `ads_hash.py` does not know is a new word — add it
+  to `AD_LABEL` **and** to the dictionary, with a fixture of its shape.
 
 Capture is unaffected by any of this (liking an ad still captures it, flagged
 `ad: true`). Old rweb keeps working as documented.

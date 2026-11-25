@@ -56,6 +56,11 @@ with sync_playwright() as p:
     check("a label carrying icon wrappers hides its cell", hidden("iconadcell"), True)
     check("and the article inside it", hidden("iconadarticle"), True)
 
+    # The word with decoration around it: "Ad ·" must count as the same word.
+    check("a decorated disclosure (\"Ad ·\") hides the post", hidden("decoratedarticle"), True)
+    # A sponsored module that is not a post at all: the cell is the unit.
+    check("a sponsored module with no post is hidden", hidden("modulecell"), True)
+
     # "Promoted by <advertiser>", label inside the advertiser's link, article with no cell.
     check("\"Promoted by X\" hides it, link and all", hidden("promotedbyarticle"), True)
 
@@ -83,9 +88,14 @@ with sync_playwright() as p:
       return out;
     }""")
     check("the report names the layout", report and report["layout"], "rweb")  # the Grok cell still carries data-testid
-    check("the report counts what is marked", (report or {}).get("marked"), 4)
-    check("the report carries no post text", any("Buy this" in x for x in (report or {}).get("labels", [])), False)
-    check("the report describes at least one label", len((report or {}).get("labels", [])) > 0, True)
+    check("the report counts what is marked", (report or {}).get("marked"), 6)
+    check("the report describes the posts it saw", len((report or {}).get("rows", [])), 6)
+    check("the report describes modules too", len((report or {}).get("mods", [])) > 0, True)
+    blob = str(report)
+    check("the report carries no post text", "Buy this" in blob or "hello, my name" in blob, False)
+    check("the report carries no handle", "@someone" in blob or "@decor" in blob, False)
+    check("short texts travel as fingerprints, not words", "Sponsored" in blob or "Promoted" in blob, False)
+    check("and those fingerprints are there", "h=" in blob, True)
 
     # Off: everything back, nothing marked.
     page.evaluate("window.__setHideAds(false)")

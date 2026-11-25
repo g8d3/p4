@@ -45,9 +45,56 @@
   // the phone says "Ad", which is why 1.20.1's list (Promoted, Promocionado, …)
   // missed every ad on a phone. The rest are the same word in the languages this
   // product has actually been installed in, plus the "Promoted by <advertiser>"
-  // form. The whole element's text has to be exactly one of them.
+  // form. The whole element's text has to be exactly one of them, after decoration
+  // is stripped (see `adNorm`).
   const AD_LABEL =
     /^(Ad|Anuncio|Anzeige|Advert|Werbung|Promoted|Promocionado|Patrocinado|Publicidad|Sponsored|Publicité|Sponsorisé|Sponsorisée|Promu|Sponsorizzato|Promosso|Promowane|Sponsorlu|Реклама|Reklama|推广|广告|プロモーション|広告|홍보)(\s+(by|por|von|par|da|di|door|tarafından)\s+.{1,60})?$/i;
+
+  // The phone decorates the word — "Ad ·", "Ad.", "Ad |" — and one stray character
+  // used to defeat the whole match. Decoration is stripped, letters never are, so a
+  // real word cannot be turned into a disclosure word by this.
+  const adNorm = (t) =>
+    String(t)
+      .replace(/[\u00b7\u2022\u2023\u2027\u25cf\u2026|•·:;\-–—.,!?()[\]{}"'«»]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  // Words the owner taught by marking an ad on the page. Stored as fingerprints of
+  // the short header texts, never as the words themselves, so a disclosure in any
+  // language can be learned from a tap and applied to every later post.
+  let learned = new Set();
+  let pendingWords = [];
+  const readSoon = (s) => {
+    if (s.ads_learned) learned = new Set((s.ads_learned || []).filter((h) => typeof h === "string"));
+    if (s.ads_pending) pendingWords = (s.ads_pending || []).filter((h) => typeof h === "string");
+  };
+  try {
+    chrome.storage.local.get({ ads_learned: [], ads_pending: [] }, readSoon);
+    chrome.storage.onChanged.addListener((ch) => {
+      if (ch.ads_learned) readSoon({ ads_learned: ch.ads_learned.newValue || [] });
+      if (ch.ads_pending) readSoon({ ads_pending: ch.ads_pending.newValue || [] });
+    });
+  } catch (e) {
+    /* a page without storage still captures likes */
+  }
+
+  const looksLabel = (t) => {
+    const n = adNorm(t);
+    if (!n || n.length > 64) return false;
+    return AD_LABEL.test(n) || learned.has(h8(n));
+  };
+
+  // A stable 8-hex fingerprint of a short UI string. It lets this page report "there
+  // is a word here I do not recognise" without sending the word itself: it can be
+  // looked up in a dictionary of disclosure words, and it is not a capture, a handle
+  // or a post. Diagnostics only — never used on the capture path.
+  const h8 = (str) => {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, "0");
+  };
 
   // The post's own words: the longest [dir=auto][lang] container in the article
   // (its body, media alt text aside). Hiding a label must never hide this, and a
@@ -61,40 +108,45 @@
     return best;
   }
 
-  // The label, not the post. Any element whose whole text is a disclosure word,
-  // that is not the post's body and holds no block of its own — outside links are
-  // allowed (the advertiser's placement links its own name), order is not checked
-  // (X renders the header and the text in either order), and the element may be a
-  // div as easily as a span. 1.20.1 required all three of those and hid nothing on
-  // the phone.
-  function looksPromoted(art, body) {
-    const own = body === undefined ? bodyOf(art) : body;
-    for (const s of art.querySelectorAll("span,div")) {
-      if (s.closest(POST_IN) !== art) continue; // a quoted post's header or label
-      if (own && (s === own || own.contains(s) || s.contains(own))) continue; // the post itself
-      const t = (s.textContent || "").trim();
-      // No "leaf only" rule any more. The phone renders the disclosure as the word
-      // plus icon wrappers — `Ad<svg></svg><span></span>`, one word, two children — and
-      // 1.21.0 skipped exactly that wrapper, which is why the first report from the
-      // phone came back `articles=10 marked=0` with the label sitting right there. A
-      // container that wraps the post's own text is already excluded above (the body
-      // check), and a container of real UI text is too long or too many words here.
-      if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
-      // X paints the disclosure in its regular weight and an author name in bold: a
-      // person called "Ad" (or a brand called "Publicidad") is a name, not an ad, and
-      // hiding their posts would be a worse bug than the one this fixes.
-      if (Number(getComputedStyle(s).fontWeight) >= 600) continue;
-      return true;
-    }
-    return false;
-  }
-
   // The cell, not the article: hiding the article leaves its padding behind. In
   // priority order, and never by one `closest()` over a selector list — that returns
   // the NEAREST match, so a `div[role=link]` inside the list cell would be hidden
   // instead of the cell, and the empty cell still takes its box in the timeline.
   const cellOf = (art) =>
     art.closest('[data-testid="cellInnerDiv"]') || art.closest("li") || art.closest('[role="link"]') || art;
+
+  // X paints the disclosure in its regular weight and an author name in bold: a
+  // person called "Ad" (or a brand called "Publicidad") is a name, not an ad, and
+  // hiding their posts would be a worse bug than the one this fixes.
+  const bold = (s) => Number(getComputedStyle(s).fontWeight) >= 600;
+
+  // The label, not the post. Any element whose whole (normalized) text is a
+  // disclosure word counts: `div` or `span`, inside the advertiser's link or not,
+  // before or after the post's text, and with icon wrappers inside it (the phone
+  // renders `Ad<svg></svg><span></span>` — one word, two children — which the
+  // leaf-only rule of 1.21.0 skipped every time). A container that wraps the post's
+  // own text is excluded (the body check); a container of real UI text is too long
+  // or has too many words.
+  function looksPromoted(art, body) {
+    const own = body === undefined ? bodyOf(art) : body;
+    const scan = (root, ours) => {
+      for (const s of root.querySelectorAll("span,div")) {
+        if (ours && s.closest(POST_IN) !== art) continue; // a quoted post's header
+        if (!ours && s.closest(POST_IN) && s.closest(POST_IN) !== art) continue; // another post
+        if (own && (s === own || own.contains(s) || s.contains(own))) continue; // the post itself
+        const t = (s.textContent || "").trim();
+        if (!t || t.length > 64 || !looksLabel(t) || bold(s)) continue;
+        return true;
+      }
+      return false;
+    };
+    if (scan(art, true)) return true;
+    // Sponsored modules put the disclosure BESIDE the post (or beside a card that is
+    // not a post at all), still inside the same cell: look there too, skipping any
+    // words that belong to another post.
+    const cell = cellOf(art);
+    return cell !== art && scan(cell, false);
+  }
 
   function markAds(node) {
     // A label painted as text (X swaps a header's textContent, so the mutation is a
@@ -118,42 +170,214 @@
     }
   }
 
-  // Why an ad is still showing. Structure only — no post text, no handle, no link,
-  // not even the label's word — because the phone this runs on has no devtools and
+  // A cell that is not a post at all — a sponsored module, a promoted trend, a card
+  // with "Sponsored" and a button — has no article to hang the label on, so the cell
+  // itself is the unit. Only the timeline (never a nav/header/aside), only while the
+  // ads switch is on, and only for a short element whose whole text is a disclosure.
+  function markModules(root) {
+    if (!root || root.nodeType !== 1) return;
+    for (const cell of root.querySelectorAll('li,[data-testid="cellInnerDiv"]')) {
+      if (cell.querySelector(POST_IN)) continue; // an ad post: the article path owns it
+      if (cell.closest("nav,header,aside")) continue;
+      let hit = false;
+      for (const s of cell.querySelectorAll("span,div")) {
+        const t = (s.textContent || "").trim();
+        if (!t || t.length > 64 || !looksLabel(t) || bold(s)) continue;
+        hit = true;
+        break;
+      }
+      if (hit) cell.setAttribute("data-echolike-ad", "1");
+      else cell.removeAttribute("data-echolike-ad");
+    }
+  }
+
+  // The words that are unique to this card's header: short, regular weight, and not
+  // found in any other post on screen. A disclosure appears only on its ad; an author
+  // name belongs to its own post and a date shows up everywhere, so neither survives
+  // that filter for long.
+  function headerWords(card, art) {
+    const body = art ? bodyOf(art) : null;
+    // How many OTHER posts carry each short text. Two is "everywhere" (a UI word like
+    // "Follow"); one is another ad with the same disclosure, which must not stop it
+    // from being learned. Cards already known to be ads are not evidence at all.
+    const others = new Map();
+    for (const a of document.querySelectorAll(POST_IN)) {
+      if (a === art || cellOf(a).getAttribute("data-echolike-ad") === "1") continue;
+      const seen = new Set();
+      for (const s of a.querySelectorAll("span,div")) {
+        const t = (s.textContent || "").trim();
+        if (!t || t.length > 24) continue;
+        const h = h8(adNorm(t));
+        if (seen.has(h)) continue;
+        seen.add(h);
+        others.set(h, (others.get(h) || 0) + 1);
+      }
+    }
+    const out = [];
+    for (const s of card.querySelectorAll("span,div")) {
+      if (art && s.closest(POST_IN) && s.closest(POST_IN) !== art) continue;
+      if (body && (s === body || body.contains(s) || s.contains(body))) continue;
+      const t = (s.textContent || "").trim();
+      if (!t || t.length > 24 || t.split(/\s+/).length > 3 || bold(s)) continue;
+      if (!/^\D*$/.test(t) || !/\p{L}{2,}/u.test(t)) continue; // "·", "2h", "Nov 24" teach nothing
+      const h = h8(adNorm(t));
+      if ((others.get(h) || 0) >= 2 || out.includes(h)) continue;
+      out.push(h);
+      if (out.length >= 4) break;
+    }
+    return out;
+  }
+
+  // "Mark this as an ad": the owner taps the card. It goes away on the spot, its shape
+  // is sent (so the rule is written from what their phone renders, not from a guess),
+  // and the words unique to it are kept as candidates. A SECOND mark of the same kind
+  // teaches the word — one mark cannot tell "Ad" from an advertiser's own name.
+  function markAsAd(target, done) {
+    const art = postOf(target);
+    const card = (art && cellOf(art)) || target.closest('li,[data-testid="cellInnerDiv"]') || target;
+    card.setAttribute("data-echolike-ad", "1");
+    const words = headerWords(card, art);
+    const taught = words.filter((h) => pendingWords.includes(h));
+    const next = [...new Set([...learned, ...taught])];
+    const pending = taught.length ? [] : words;
+    learned = new Set(next);
+    pendingWords = pending;
+    try {
+      chrome.storage.local.set({ ads_learned: next, ads_pending: pending });
+    } catch (e) {
+      /* the mark still hides this card */
+    }
+    const links = [...card.querySelectorAll("a[href]")];
+    const ext = links.filter((a) => /^https?:/.test(a.getAttribute("href")) && !/x\.com|twitter\.com/.test(a.getAttribute("href"))).length;
+    tel("ads.mark", {
+      ok: true,
+      host: location.host,
+      detail: (
+        "v=" + VER + " post=" + (art ? 1 : 0) +
+        " len=" + (card.textContent || "").length +
+        " cell=" + card.tagName + ":" + (card.getAttribute("data-testid") || "-") +
+        " a=" + links.length + " ext=" + ext + " btn=" + card.querySelectorAll("button,[role=button]").length +
+        " body=" + (art && bodyOf(art) ? bodyOf(art).textContent.length : 0) +
+        " words=[" + words.map((h) => "h=" + h).join(",") + "]" +
+        " taught=" + taught.length + " pending=" + pending.length + " known=" + learned.size
+      ).slice(0, 1200),
+    });
+    if (done) done(taught.length ? "taught" : words.length ? "pending" : "none");
+  }
+
+  // One tap to point at the ad, one to be done. Window capture runs before the like
+  // handler on document, so a mark never captures the post as a like.
+  let pickOff = null;
+  function startPick() {
+    if (pickOff) return pickOff();
+    const stop = () => {
+      window.removeEventListener("click", pick, true);
+      window.removeEventListener("keydown", onKey, true);
+      document.documentElement.style.cursor = "";
+      pickOff = null;
+    };
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        stop();
+        toast("cancelled", true);
+      }
+    };
+    const pick = (e) => {
+      const t = e.target instanceof Element ? e.target : null;
+      if (!t) return;
+      if (t.closest("#echolike-lite-fab")) return; // the circle is not a post
+      if (!postOf(t) && !t.closest('li,[data-testid="cellInnerDiv"]')) {
+        toast("Tap the post you want gone", false);
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      stop();
+      markAsAd(t, (state) => {
+        toast(
+          state === "taught"
+            ? "Marked. That word is learned: ads like it hide by themselves now"
+            : state === "pending"
+              ? "Marked. Mark one more ad like it and the word is learned"
+              : "Marked as an ad. Its shape was sent",
+          true,
+        );
+      });
+    };
+    pickOff = stop;
+    window.addEventListener("click", pick, true);
+    window.addEventListener("keydown", onKey, true);
+    document.documentElement.style.cursor = "crosshair";
+    toast("Tap the ad you want gone", true);
+    return stop;
+  }
+
+  // Why an ad is still showing. Structure and short fingerprints only — no post
+  // text, no handle, no link — because the phone this runs on has no devtools and
   // the next DOM change has to be read, not guessed. One tap in Settings sends it.
+  //
+  //   A[...]  a post-shaped cell: its length, whether it is marked, its cell, and up
+  //           to two short texts in it as `h=<fingerprint>,l=length,w=words,f=weight,
+  //           k=children,b=isBody,a=inLink,t=tag`
+  //   M[...]  a cell that is NOT a post (sponsored module, trend, "who to follow"):
+  //           length, words, links, external links, buttons, and its short texts.
   function adsReport() {
     const arts = [...document.querySelectorAll(POST_IN)];
-    const labels = [];
-    for (const art of arts) {
+    const marked = document.querySelectorAll("[data-echolike-ad]").length;
+    const shorts = (root, art, body) => {
+      const out = [];
+      for (const s of root.querySelectorAll("span,div")) {
+        if (art && s.closest(POST_IN) !== art) continue;
+        if (!art && s.closest(POST_IN)) continue;
+        const t = (s.textContent || "").trim();
+        if (!t || t.length > 40 || t.split(/\s+/).length > 3) continue;
+        out.push(
+          "h=" + h8(adNorm(t)) +
+            ",l=" + t.length +
+            ",w=" + t.split(/\s+/).length +
+            ",f=" + getComputedStyle(s).fontWeight +
+            ",k=" + s.children.length +
+            ",b=" + (body && (s === body || body.contains(s) || s.contains(body)) ? 1 : 0) +
+            ",a=" + (s.closest("a") ? 1 : 0) +
+            ",t=" + s.tagName.charAt(0),
+        );
+        if (out.length >= 2) break;
+      }
+      return out;
+    };
+    const rows = [];
+    for (const art of arts.slice(0, 6)) {
       const body = bodyOf(art);
       const cell = cellOf(art);
-      for (const s of art.querySelectorAll("span,div")) {
-        if (s.closest(POST_IN) !== art) continue;
-        const t = (s.textContent || "").trim();
-        if (!t || t.length > 64 || !AD_LABEL.test(t)) continue;
-        labels.push(
-          [
-            s.tagName,
-            "n=" + t.split(/\s+/).length,
-            "k=" + s.children.length,
-            "wt=" + getComputedStyle(s).fontWeight,
-            "b=" + (body && (s === body || body.contains(s) || s.contains(body)) ? 1 : 0),
-            "a=" + (s.closest("a") ? 1 : 0),
-            "tid=" + (s.getAttribute("data-testid") || "-"),
-            "dir=" + (s.getAttribute("dir") || "-"),
-            "cell=" + cell.tagName + ":" + (cell.getAttribute("data-testid") || "-"),
-            "m=" + (cell.getAttribute("data-echolike-ad") === "1" ? 1 : 0),
-          ].join(","),
-        );
-        if (labels.length >= 4) break;
-      }
-      if (labels.length >= 4) break;
+      rows.push(
+        "A[len=" + (art.textContent || "").length +
+          ",m=" + (cell.getAttribute("data-echolike-ad") === "1" ? 1 : 0) +
+          ",cell=" + cell.tagName + ":" + (cell.getAttribute("data-testid") || "-") +
+          "|" + (shorts(art, art, body).join("|") || "-") + "]",
+      );
+    }
+    const mods = [];
+    for (const cell of document.querySelectorAll('li,[data-testid="cellInnerDiv"]')) {
+      if (cell.querySelector(POST_IN)) continue;
+      const text = (cell.textContent || "").trim();
+      if (!text) continue;
+      const links = [...cell.querySelectorAll("a[href]")];
+      const ext = links.filter((a) => /^https?:/.test(a.getAttribute("href")) && !/x\.com|twitter\.com/.test(a.getAttribute("href"))).length;
+      mods.push(
+        "M[len=" + text.length + ",w=" + text.split(/\s+/).length + ",a=" + links.length +
+          ",ext=" + ext + ",btn=" + cell.querySelectorAll("button,[role=button]").length +
+          "|" + (shorts(cell, null, null).join("|") || "-") + "]",
+      );
+      if (mods.length >= 3) break;
     }
     return {
       layout: document.querySelector("[data-testid]") ? "rweb" : "x-web",
       articles: arts.length,
-      marked: document.querySelectorAll("[data-echolike-ad]").length,
-      labels,
+      marked,
+      learned: learned.size,
+      pending: pendingWords.length,
+      rows,
+      mods,
     };
   }
 
@@ -173,12 +397,16 @@
       return;
     }
     markAds(document.body);
+    markModules(document.body);
     // Ads arrive as the timeline grows: one observer marks them on insertion (and
     // clears a cell that a virtualized list reused for a real post). It watches the
     // body, not `main`: x-web's feed is not always inside <main>, and an observer on
     // a container the app replaces dies with it.
     adObserver = new MutationObserver((muts) => {
-      for (const m of muts) for (const n of m.addedNodes) markAds(n);
+      for (const m of muts) for (const n of m.addedNodes) {
+        markAds(n);
+        markModules(n);
+      }
     });
     adObserver.observe(document.body, { childList: true, subtree: true });
   }
@@ -754,7 +982,7 @@
     if (!t) {
       t = document.createElement("div");
       t.id = "echolike-lite-toast";
-      t.style.cssText = "position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:8px;font:13px system-ui;color:#fff;z-index:99999;transition:opacity .4s";
+      t.style.cssText = "position:fixed;bottom:16px;left:50%;transform:translateX(-50%);padding:8px 14px;border-radius:8px;font:13px system-ui;color:#fff;z-index:99999;transition:opacity .4s;pointer-events:none";
       document.body.appendChild(t);
     }
     t.style.background = ok ? "#00875a" : "#d0021b";
@@ -841,6 +1069,7 @@
       '<div class="row"><button data-act="export" data-pick="likes">Export likes</button></div>' +
       '<div class="row"><button data-act="export" data-pick="bookmarks">Export bookmarks</button></div>' +
       '<div class="row"><button data-act="export" data-pick="all">Export everything</button></div>' +
+      '<div class="row"><button data-act="markad">Mark an ad…</button></div>' +
       '<div class="status"></div>' +
       '<p class="note">Next on this button: AI on the post you are reading, profile edits, writing posts with images and video, and comments.</p>' +
       '<div class="foot"><span class="link" data-act="hide">Hide this button</span>' +
@@ -1022,6 +1251,12 @@
         } catch (err) {
           say("the extension page is not reachable");
         }
+        return;
+      }
+      if (act === "markad") {
+        close();
+        say("tap the ad you want gone");
+        startPick();
         return;
       }
       if (act === "export") {

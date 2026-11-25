@@ -59,6 +59,7 @@ async function refresh() {
         ' · <span class="err">no key backup yet: another browser will not be able to decrypt this account</span>';
     }
   }
+  paintLearned();
   const ads = await chrome.storage.local.get({ hide_ads: true, fab_on: true });
   $("ads").checked = !!ads.hide_ads;
   $("fab").checked = ads.fab_on !== false;
@@ -117,16 +118,42 @@ async function adsReport() {
   return null;
 }
 
+// What the owner taught by marking ads on X: two marks of the same kind learn the
+// word, and from then on it hides by itself. Shown here so it can also be forgotten.
+async function paintLearned() {
+  const s = await chrome.storage.local.get({ ads_learned: [], ads_pending: [] });
+  const n = (s.ads_learned || []).length;
+  const p = (s.ads_pending || []).length;
+  $("adslearned").innerHTML = n
+    ? "<b>" + n + "</b> word(s) learned from your marks: ads that use them are hidden by themselves."
+    : p
+      ? "One mark kept. Mark one more ad like it and the word is learned."
+      : "Nothing marked yet. On X, press the circle → <b>Mark an ad…</b>.";
+  $("adsclear").style.display = n || p ? "inline-block" : "none";
+}
+
+$("adsclear").addEventListener("click", async () => {
+  await chrome.storage.local.set({ ads_learned: [], ads_pending: [] });
+  await paintLearned();
+  say("adsmsg", "Forgotten. Only the built-in words hide ads now.", "mut");
+});
+
 $("adscheck").addEventListener("click", async () => {
   say("adsmsg", "Reading the X tab…");
   const r = await adsReport();
   if (!r) {
     return say("adsmsg", "No X tab answered. Open x.com in this browser, scroll until an ad shows, and press again.", "err");
   }
+  // Structure and short fingerprints only (see `adsReport` in content.js): the words
+  // travel as 8-hex hashes, so a disclosure we do not know yet can be looked up in a
+  // dictionary without the phone ever sending text.
   const detail = (
-    "articles=" + r.articles + " marked=" + r.marked + " layout=" + r.layout +
-    (r.labels.length ? " | " + r.labels.slice(0, 2).join(" ; ") : " | no disclosure label found")
-  ).slice(0, 380);
+    "v=" + chrome.runtime.getManifest().version +
+    " articles=" + r.articles + " marked=" + r.marked + " layout=" + r.layout +
+    " learned=" + r.learned + " pending=" + r.pending +
+    " | " + (r.rows || []).join(" ") +
+    (r.mods && r.mods.length ? " | modules: " + r.mods.join(" ") : " | no modules")
+  ).slice(0, 1200);
   await send("tel", { action: "ads.report", info: { ok: r.marked > 0, host: "x.com", detail } });
   say(
     "adsmsg",

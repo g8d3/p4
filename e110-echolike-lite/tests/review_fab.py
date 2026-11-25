@@ -99,7 +99,9 @@ with sync_playwright() as p:
     labels = fab(page, "[...document.querySelectorAll('.panel button')].map(b => b.textContent)")
     check("it offers the inbox", any("My inbox" in x for x in labels), True)
     check("it offers the settings", any("Settings" in x for x in labels), True)
-    check("it offers the three exports, with counts", labels[2:], ["Export likes (2)", "Export bookmarks (1)", "Export everything (3)"])
+    check("it offers the three exports, with counts",
+          [x for x in labels if x.startswith("Export")], ["Export likes (2)", "Export bookmarks (1)", "Export everything (3)"])
+    check("it offers marking an ad", any("Mark an ad" in x for x in labels), True)
 
     # 3. Open the inbox / settings: the page asks the extension for a tab.
     fab(page, "[...document.querySelectorAll('.panel button')].find(b => b.dataset.page === 'settings').click(), 1")
@@ -112,7 +114,10 @@ with sync_playwright() as p:
     d = dl.value
     path = d.path()
     data = json.loads(pathlib.Path(path).read_text())
-    check("the file is named for what it holds", d.suggested_filename, "echolike-likes-%s.json" % __import__("datetime").date.today().isoformat())
+    # The page names the file with toISOString(), which is UTC: in a timezone behind
+    # UTC that is tomorrow's date from here for a few hours each night.
+    stamp = __import__("datetime").datetime.now(__import__("datetime").timezone.utc).date().isoformat()
+    check("the file is named for what it holds", d.suggested_filename, "echolike-likes-%s.json" % stamp)
     check("it holds only the likes", [i["uid"] for i in data], ["m1", "m2"])
     check("the panel confirms it", fab(page, "document.querySelector('.status').textContent"), "downloaded 2 likes")
 
