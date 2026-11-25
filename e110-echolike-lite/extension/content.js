@@ -214,9 +214,24 @@
   //
   // Hiding writes no layout. Closing the slot a hidden virtualized row leaves is the
   // other half, and it is the half that kept failing (see `settle` below).
+  // The element X gives a slot to. `rowOf` climbs over chrome, but a real page can put
+  // the disclosure inside a wrapper that `rowOf` must stop at (it carries content of its
+  // own) while the SLOT is still the row above: the parent that holds the timeline's
+  // absolutely positioned rows (`li[data-index]` and friends, all carrying an inline
+  // translateY). Getting this wrong hides a box inside a row and leaves the row's slot
+  // open — which is exactly "the ads are hidden but the blank space stayed".
+  function slotOf(cell) {
+    const row = rowOf(cell);
+    for (let el = row; el && el.parentElement && el !== document.body; el = el.parentElement) {
+      const sibs = [...el.parentElement.children].filter((c) => tfY(c) != null);
+      if (sibs.length >= 2) return el; // `el` is a row of a list X positions itself
+    }
+    return row;
+  }
+
   function markCell(cell, on, key) {
     let list = null;
-    for (const el of new Set([cell, rowOf(cell)])) {
+    for (const el of new Set([cell, slotOf(cell)])) {
       list = el.parentElement || list;
       if (on) {
         // Its height as X laid it out, measured BEFORE the attribute hides it: that is
@@ -227,6 +242,12 @@
         }
         el.setAttribute("data-echolike-ad", "1");
         if (key) el.dataset.echKey = key; // which post this mark belongs to
+        // Recorded by X's index, so the record survives the row being unmounted and
+        // recycled — the two ways 1.23.7 lost it and jumped.
+        if (el.parentElement && el.dataset.index != null) {
+          closeSlot(el.parentElement, Number(el.dataset.index), Number(el.dataset.echH) || 0);
+          openLists.add(el.parentElement);
+        }
       } else {
         el.removeAttribute("data-echolike-ad");
         el.style.translate = "";
@@ -255,79 +276,113 @@
   //           observer to keep it in sync: that observer fired on X's own writes on
   //           almost every scroll frame, and each pass wrote layout again.
   //
-  // What makes this one different, in four rules that are all checkable:
+  // What makes this one different, in five rules that are all checkable:
   //
-  //   1. THE SHIFT CANNOT EXCEED THE HOLE THAT IS ON SCREEN. `hole` is read from X's own
-  //      numbers — `Y(this row) - Y(previous visible row) - height(previous visible row)`
-  //      — and the shift is `min(sum of hidden heights, hole)`. It can therefore never
-  //      push a row past the one above it, whatever X does to its offsets.
-  //   2. NOTHING IS DERIVED FROM OUR OWN OUTPUT. The formula reads X's `transform` and a
-  //      neighbour's height, never the `translate` we wrote, so recomputing is
-  //      idempotent: the same numbers give the same shift, and if X closes part of the
-  //      hole itself the hole is smaller and the shift shrinks with it. There is no
-  //      state to drift and no loop to run away.
-  //   3. NO OBSERVER ON X'S STYLE WRITES. Lists are re-settled when a batch of DOM
-  //      changes arrives (X appends rows constantly while you scroll) and when the ads
-  //      switch or a mark changes. X's own `style` writes are not watched, and no scroll
-  //      listener exists — the two triggers that turned 1.23.5 into a loop.
-  //   4. WRITTEN IN `translate`, which X never writes and which does not change the
-  //      height X measures (so X cannot fold it into its own offsets).
+  //   1. THE SHIFT NEVER GOES BACK ON ITS OWN. A decrease is a jump, and 1.23.7 decreased
+  //      for two reasons that are invisible from the numbers above:
+  //        * X unmounts rows that scroll offscreen. A hidden ad leaves the DOM, the sum of
+  //          hidden heights lost it, and every row below jumped DOWN by the ad's height —
+  //          then jumped back up when the row re-entered the list;
+  //        * X recycles a row for a different post, the mark is dropped (it must be, or a
+  //          real post inherits it), and with it went the height it contributed: another
+  //          down-jump.
+  //      So the record of what has been closed is kept PER LIST AND PER X INDEX, not per
+  //      mounted row, and only the switch going off clears it. Rows that are mounted
+  //      later get the compaction they are owed when they appear.
+  //   2. THE SHIFT CANNOT EXCEED THE HOLE THAT IS ON SCREEN. When the previous visible row
+  //      is in the DOM too, the shift is clamped to `previous shift + hole`, `hole` read
+  //      from X's own numbers. It therefore cannot push a row past the one above it — even
+  //      if X closes the slot itself, in which case the clamp removes what is ours.
+  //   3. NOTHING IS DERIVED FROM OUR OWN OUTPUT. The formula reads X's `transform` and a
+  //      neighbour's height, never the `translate` we wrote, so re-settling is idempotent
+  //      and cannot loop.
+  //   4. NO OBSERVER ON X'S STYLE WRITES, and no scroll listener. Lists are re-settled once
+  //      per batch of DOM changes — the rhythm X itself renders at.
+  //   5. WRITTEN IN `translate`, which X never writes and which does not change the height
+  //      X measures (so X cannot fold it into its own offsets).
   //
   // It is only ever a position, never ``transform``, never `height`, never `top`.
   const openLists = new Set();
+  let closed = new WeakMap(); // list -> [{ i: X index, h: height closed }], ascending
 
   const tfY = (el) => {
     const m = /translateY\((-?[\d.]+)px\)/.exec((el.style && el.style.transform) || "");
     return m ? parseFloat(m[1]) : null;
   };
 
+  const rowIndex = (row, fallback) => {
+    const n = Number(row.dataset.index);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
+  // Remember that the slot at `i` was closed, with the height it had. Idempotent: X
+  // re-marking the same row (it does, on every repaint) must not count twice.
+  function closeSlot(list, i, h) {
+    if (!list || !Number.isFinite(i) || !(h > 0)) return;
+    const book = closed.get(list) || [];
+    const at = book.find((e) => e.i === i);
+    if (at) {
+      if (at.h >= h) return; // the big one already counts: never grow the hole back
+      at.h = h;
+    } else {
+      book.push({ i, h });
+      book.sort((a, b) => a.i - b.i);
+    }
+    closed.set(list, book);
+  }
+
+  // How much of the list has been closed above X index `i`: a sum over records, not over
+  // the rows that happen to be mounted right now.
+  function closedAbove(list, i) {
+    let s = 0;
+    for (const e of closed.get(list) || []) if (e.i < i) s += e.h;
+    return s;
+  }
+
   function settle(list) {
     if (!list || !list.isConnected || !list.children || list.children.length < 2) return;
     const rows = [...list.children].filter((r) => tfY(r) != null);
     if (rows.length < 2) return;
-    const ys = rows.map(tfY);
-    let shift = 0; // how far the tail below the last hole must move up, in total
-    let acc = 0; // the hidden rows' heights since the last visible row: the hole X counts
-    let prev = -1; // the last row that is still visible
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      if (row.hasAttribute("data-echolike-ad")) {
-        acc += Number(row.dataset.echH) || 0;
-        continue;
+    let prev = -1;
+    let prevShift = 0;
+    for (let k = 0; k < rows.length; k++) {
+      const row = rows[k];
+      if (row.hasAttribute("data-echolike-ad")) continue;
+      const idx = rowIndex(row, k);
+      let want = Math.min(closedAbove(list, idx), 4000);
+      if (prev >= 0 && rows[prev].dataset.index != null && row.dataset.index != null) {
+        // What X leaves empty between the previous visible row and this one. Only the
+        // accidental part of that belongs to us: `want - prevShift` is what this stretch
+        // is supposed to close, and the clamp says it can never be more than is empty.
+        const hole = tfY(row) - tfY(rows[prev]) - rows[prev].getBoundingClientRect().height;
+        want = Math.min(want, prevShift + Math.max(0, hole));
       }
-      if (acc > 0 && prev >= 0) {
-        // The hole as it is on screen, from X's own numbers: how much empty space sits
-        // between the last visible row and this one. Clamped by the hidden heights this
-        // hole is made of, so a post that grew above it cannot make the shift bigger, and
-        // X closing part of the hole makes it smaller.
-        const hole = ys[i] - ys[prev] - rows[prev].getBoundingClientRect().height;
-        const add = Math.min(acc, hole, 4000);
-        shift += add > 2 ? add : 0; // a pixel or two is X's own spacing, not a hole
-        acc = 0;
-      }
-      const v = shift > 2 ? "0px -" + Math.round(shift) + "px" : "";
+      if (!(want > 2)) want = 0; // a pixel or two is X's own spacing, not a hole
+      const v = want ? "0px -" + Math.round(want) + "px" : "";
       if ((row.style.translate || "") !== v) row.style.translate = v;
-      if (shift > 2) row.dataset.echShift = "1";
+      if (want) row.dataset.echShift = "1";
       else {
         delete row.dataset.echShift;
         row.style.translate = "";
       }
-      prev = i;
+      prev = k;
+      prevShift = want;
     }
   }
 
-  // One call for every list that still holds a mark. Disconnected lists drop out here,
-  // so the set cannot grow with the app's re-renders.
+  // One call for every list that still holds a mark, or a record of one (a list whose ads
+  // all scrolled out still has to be compacted when they come back). Disconnected lists
+  // drop out here, so the set cannot grow with the app's re-renders.
   function settleAll() {
     for (const list of [...openLists]) {
       if (!list.isConnected) openLists.delete(list);
-      else if (!list.querySelector("[data-echolike-ad]")) openLists.delete(list);
       else settle(list);
     }
   }
 
   function clearSettle() {
     openLists.clear();
+    closed = new WeakMap(); // the switch going off is the only thing that forgets a closed slot
     for (const el of document.querySelectorAll("[data-ech-shift], [data-echolike-ad]")) {
       el.style.translate = "";
       delete el.dataset.echShift;
@@ -646,6 +701,7 @@
       if (mods.length >= 3) break;
     }
     const out = {
+      version: VER,
       layout: document.querySelector("[data-testid]") ? "rweb" : "x-web",
       articles: arts.length,
       marked,
@@ -655,6 +711,7 @@
       pendingSkel: pendingSkel ? 1 : 0,
       rows,
       mods,
+      geo: geometry(),
     };
     // The rich half, shaped by the owner's privacy level: `shapes` sends none of it,
     // `labels` adds the short words as they are, `full` adds the column's markup. This
@@ -665,18 +722,86 @@
       "v=" + VER + " articles=" + out.articles + " marked=" + marked + " layout=" + out.layout +
       " learned=" + out.learned + " pending=" + out.pending +
       " skel=" + out.learnedSkel + "/" + out.pendingSkel +
-      " | " + rows.join(" ") + (mods.length ? " | modules: " + mods.join(" ") : " | no modules")
+      " | " + rows.join(" ") + (mods.length ? " | modules: " + mods.join(" ") : " | no modules") +
+      (out.geo.length ? " | geo: " + out.geo.join(" ; ") : " | geo: none")
     ).slice(0, 2000);
+    // The markup travels with OUR edits stripped. The attributes and the `translate` this
+    // code writes are not X's page, and a replayed report must be X's page — otherwise the
+    // replay shows our shift even under code that never wrote one, which proves nothing.
+    const cleanCopy = () => {
+      const copy = col.cloneNode(true);
+      for (const el of [copy, ...copy.querySelectorAll("*")]) {
+        for (const a of [...el.attributes]) if (a.name.indexOf("data-ech") === 0) el.removeAttribute(a.name);
+        if (el.style && el.style.translate) el.style.removeProperty("translate");
+      }
+      return copy.outerHTML || "";
+    };
     out.rich = {
       kind: "report",
       version: VER,
       post_url: "",
       detail: out.line,
+      geometry: out.geo,
       words: reportLevel === "shapes" ? "" : [...new Set([
         ...[...col.querySelectorAll("span,div")].map((e) => (e.textContent || "").trim()),
       ])].filter((t) => t && t.length <= 24 && t.split(/\s+/).length <= 3).slice(0, 60).join(" | ").slice(0, 1000),
-      html: reportLevel === "full" ? (col.outerHTML || "").slice(0, 96000) : "",
+      html: reportLevel === "full" ? cleanCopy().slice(0, 96000) : "",
     };
+    return out;
+  }
+
+  // Why an ad is still showing, and why a hole is still open: the numbers, not a guess.
+  // Every list X positions itself (rows with an inline translateY), its rows, the empty
+  // space between the rows that are visible, and — for every element carrying our mark —
+  // whether that element is really a row of such a list or a box inside one. Read-only:
+  // nothing here writes layout. This is what a fix must be able to read after the fact.
+  function geometry() {
+    const out = [];
+    const lists = new Set();
+    for (const el of document.querySelectorAll("[data-echolike-ad]")) {
+      if (el.parentElement) lists.add(el.parentElement);
+    }
+    for (const el of document.querySelectorAll("[style*='translateY']")) {
+      if (el.parentElement) lists.add(el.parentElement);
+    }
+    for (const list of lists) {
+      const rows = [...list.children].filter((c) => tfY(c) != null);
+      if (rows.length < 2) continue;
+      const holes = [];
+      let prev = -1;
+      let hidden = 0;
+      let shifted = 0;
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        if (r.hasAttribute("data-echolike-ad")) {
+          hidden++;
+          continue;
+        }
+        if (prev >= 0) {
+          const hole = Math.round(tfY(r) - tfY(rows[prev]) - rows[prev].getBoundingClientRect().height);
+          holes.push((rows[prev].dataset.index || prev) + ">" + (r.dataset.index || i) + "=" + hole);
+        }
+        if (r.dataset.echShift) shifted++;
+        prev = i;
+      }
+      out.push(
+        list.tagName.charAt(0) + ":" + (list.getAttribute("data-testid") || "-") +
+          " n=" + rows.length + " hidden=" + hidden + " shifted=" + shifted +
+          " holes[" + holes.slice(0, 12).join(",") + "]",
+      );
+      if (out.length >= 4) break;
+    }
+    // A mark on a box that is not a list row: the slot stays open no matter what
+    // `settle` computes, and this is the field that says so.
+    for (const el of [...document.querySelectorAll("[data-echolike-ad]")].slice(0, 6)) {
+      const p = el.parentElement;
+      const inList = !!(p && [...p.children].filter((c) => tfY(c) != null).length >= 2);
+      out.push(
+        "mark " + el.tagName.charAt(0) + (el.dataset.index != null ? "#" + el.dataset.index : "") +
+          " slot=" + (inList ? 1 : 0) + " h=" + (el.dataset.echH || "?") +
+          " tr=" + ((el.style.translate || "").replace(/\s+/g, "") || "-"),
+      );
+    }
     return out;
   }
 

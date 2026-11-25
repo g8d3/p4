@@ -4,3 +4,4 @@ __pycache__/
 .secrets/
 .devices.json
 inbox/
+tests/live/*.json

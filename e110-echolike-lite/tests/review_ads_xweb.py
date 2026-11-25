@@ -90,6 +90,13 @@ with sync_playwright() as p:
     }""")
     check("the report names the layout", report and report["layout"], "rweb")  # the Grok cell still carries data-testid
     check("the report counts what is marked", (report or {}).get("marked"), 6)
+    # The numbers that decide whether a hidden ad left a hole. A real page that fails to
+    # hide, or hides a box that is not a list row, has to say so here — this is what a
+    # phone can hand over in one press (Settings → 3 · On X → **Copy what X shows**).
+    geo = (report or {}).get("geo") or []
+    check("the report measures the geometry", len(geo) > 0, True)
+    check("the geometry carries numbers, never post text", [g for g in geo if "Buy this" in g or "@" in g], [])
+    check("the report carries its version", (report or {}).get("version") is not None, True)
     check("the report describes the posts it saw", len((report or {}).get("rows", [])), 6)
     check("the report describes modules too", len((report or {}).get("mods", [])) > 0, True)
     blob = str((report or {}).get("rows", [])) + str((report or {}).get("mods", [])) + str((report or {}).get("line", ""))

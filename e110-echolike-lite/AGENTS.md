@@ -798,6 +798,7 @@ python3 tests/review_ads.py                   # ads hidden; Grok answers and rea
 python3 tests/review_ads_xweb.py              # x-web: the phone's "Ad", late labels, links, real posts that say it
 xvfb-run -a python3 tests/review_mobile.py    # the page fits 320/360/390/412 px; all four tabs on screen and working
 xvfb-run -a python3 tests/review_mark.py      # mark an ad on the page: hidden now, reported, and the word taught by a second mark
+xvfb-run -a python3 tests/replay_live.py        # a REAL page pasted out of the phone: replay + churn (unmount, recycle)
 xvfb-run -a python3 tests/review_gap.py       # a virtualized ad row gives its slot back: the next row moves up, switch off restores
 xvfb-run -a python3 tests/review_speed.py     # 800 captures on a throttled phone: one read, tab press paints from memory
 python3 tests/review_inbox_page.py            # the LIVE reader page: fragment key, decrypts, wrong key refused
@@ -823,6 +824,39 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.23.8 — **the jumps had a name: a decrease.** The owner's message after 1.23.7 was
+  four words, *"Los saltos volvieron"*, and he was right: the shift was stable on a page
+  where nothing moves, and 1.23.7 recomputed it from the rows that happened to be
+  mounted. Two things change that set while you scroll, and both made the shift *shrink*
+  — which is a row moving DOWN without the user scrolling:
+  * **X unmounts rows that scroll away.** The hidden ad leaves the DOM, the sum of hidden
+    heights loses it, and every row below jumps down by the ad's height — then jumps back
+    up when the row re-enters the list.
+  * **X recycles a row for a different post.** The mark must go (or a real post stays
+    hidden), and dropping it also dropped its height from the sum: another down-jump.
+  So the record of what has been closed is now kept **per list and per X index**
+  (`data-index`), not per mounted row, and it is monotone: nothing but the switch going
+  off clears it. Rows mounted later get the compaction they are owed when they appear.
+  The clamp against the hole on screen survives (a row can never land on the one above),
+  and when a recycled row *becomes* a real post it fills the slot, so giving the space
+  back is correct — and is asserted as "nothing on top of anything", not as "nothing
+  moves".
+  Also in this release, the two things that make the next round factual instead of
+  another guess:
+  * **`geometry()` in the report**: every list X positions itself, its rows, the holes
+    between visible rows, and — for every element carrying the mark — whether it really
+    is a row of such a list. Numbers, never post text.
+  * **`Copy what X shows`** (Settings → 3 · On X): the same report on the clipboard, so a
+    phone without a devtools can hand its own page over in one press.
+  * **`tests/replay_live.py`**: that pasted report is replayed under the real content
+    script, with the real markup and the real inline offsets, and then **churned** the way
+    X does (unmount a row, recycle a row). It is what proved the diagnosis: replayed
+    against 1.23.7 it fails with `['2', '3', '4', '6', '7']` moving down on unmount; against
+    1.23.8 it passes. `ECHO_CONTENT=old/content.js` replays any build.
+  * The report's `html` now travels with **our edits stripped** (`data-ech*` attributes and
+    our `translate`), because a replay of a page that already contains our shift proves
+    nothing — it showed the fix working under code that never wrote one.
 
 - 1.23.7 — **the hole, closed by a shift that cannot run away.** 1.23.6 wrote no
   geometry at all and the owner's next message was the same as the first: *"Blank space

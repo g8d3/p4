@@ -119,6 +119,37 @@ async function adsReport() {
   return null;
 }
 
+// The one press that gets a real page out of a phone: the same report the Send button
+// files, on the clipboard, as text — with the markup at the privacy level the owner
+// chose. Numbers first (`geo`), so the hole a hidden ad leaves can be read without the
+// markup at all.
+$("adscopy").addEventListener("click", async () => {
+  say("adsmsg", "Reading the X tab…");
+  const r = await adsReport();
+  if (!r) {
+    return say("adsmsg", "No X tab answered. Open x.com in this browser, scroll until an ad shows, and press again.", "err");
+  }
+  const blob = JSON.stringify({ version: r.version || null, line: r.line, geo: r.geo || [], rich: r.rich || null }, null, 1);
+  try {
+    await navigator.clipboard.writeText(blob);
+    say(
+      "adsmsg",
+      '<span class="ok">Copied.</span> ' + Math.round(blob.length / 1024) + " KB, " +
+        (r.geo || []).length + " list(s) measured, " + r.marked + " ad(s) hidden. Paste it where it is being fixed.",
+      "ok",
+    );
+  } catch (e) {
+    // A browser that refuses the clipboard still gets an honest answer: the text is in
+    // the box below, one long-press away from being copied by hand.
+    const box = document.createElement("textarea");
+    box.value = blob;
+    box.style.cssText = "width:100%;height:120px;font:11px monospace";
+    $("adsmsg").after(box);
+    box.select();
+    say("adsmsg", "This browser refused the clipboard — the text is below, select and copy it.", "err");
+  }
+});
+
 // What the owner taught by marking ads on X: two marks of the same kind learn the
 // word, and from then on it hides by itself. Shown here so it can also be forgotten.
 async function paintLearned() {

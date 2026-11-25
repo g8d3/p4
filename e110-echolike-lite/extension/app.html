@@ -263,8 +263,9 @@ button:disabled{opacity:.45;cursor:default}
     <h2>3 · On X</h2>
     <label style="margin-top:4px"><input id="ads" type="checkbox" style="width:auto;margin-right:8px">Hide ads on X (promoted posts and promoted trends)</label>
     <p class="help" style="margin:8px 0 0">Grok answers are never hidden. Liking an ad still captures it, marked as an ad.</p>
-    <p><button id="adscheck" class="act" type="button">Ads still showing? Send what X shows</button></p>
-    <p class="help" style="margin:0 0 6px">Reads the shape of the posts on your open X tab — tags and attributes, never the text or the handle — and sends it, so the hiding is fixed from facts instead of a guess. A phone has no devtools; this is its console.</p>
+    <p><button id="adscheck" class="act" type="button">Ads still showing? Send what X shows</button>
+      <button id="adscopy" class="act" type="button">Copy what X shows</button></p>
+    <p class="help" style="margin:0 0 6px">Reads the shape of the posts on your open X tab — tags, attributes and the numbers that decide whether a hidden ad left a hole — never the text or the handle. <b>Send</b> files it, <b>Copy</b> puts it on the clipboard so it can be pasted anywhere (that is how a phone without a devtools gets its page read by the person fixing it).</p>
     <div id="adsmsg" class="msg mut"></div>
     <p id="adslearnedrow" style="margin:10px 0 0"><span id="adslearned" class="mut"></span>
       <button id="adsclear" class="act" type="button" style="display:none">Forget what I marked</button></p>

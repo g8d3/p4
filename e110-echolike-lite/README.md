@@ -91,6 +91,8 @@ Promoted posts and trends are hidden on X — by CSS on the old app, and by the 
 
 After an update, reload the X tab: a page keeps the script it loaded with. The label is matched after decoration is stripped (the phone prints "Ad ·"), and a disclosure that sits beside the post — or in a card that is not a post at all, like a sponsored module — hides its cell too.
 
+If an ad still shows, or a gap is left where one was, **Settings → 3 · On X → Copy what X shows** reads the open X tab (tags, attributes and the numbers that decide where a hole is — never the text or the handle) and puts it on the clipboard, so the page itself can be read and replayed instead of guessed at.
+
 When an ad carries no word this product knows, mark it yourself: on X press the circle → **Mark an ad…**, then tap the card. It disappears at once (its whole row, so no blank space is left), its shape is reported, and the second mark of the same kind teaches what those two ads share — their disclosure word, or, when the ad prints none, the card's shape. From then on ads like those hide by themselves, reload included. Settings → **3 · On X** shows what was learned and can forget it.
 
 **How much a report carries is yours to set**: Settings → **5 · Diagnostics** → *What an ad report carries* — **shapes only** (structure and fingerprints), **shapes and labels** (plus the short words as they are), or **everything** (plus the card's markup, so the rule can be written from it; the default while the ads on X are still being learned). Reports go to your own inbox, in a table separate from your captures.

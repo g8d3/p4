@@ -145,8 +145,28 @@ with sync_playwright() as p:
     page.wait_for_timeout(300)
     check("and it comes back when the hole does", page.evaluate("window.__tr(2)"), "0px -200px")
 
-    # 6. A recycled row (X hands the ad's element to a real post) must be visible again,
-    #    and the tail must go back to where X put it.
+    # 6. X unmounts rows that scroll away — constantly. The record of what was closed is
+    #    kept per list and per X index, not per mounted row, so losing the node must NOT
+    #    move the rows below (that down-jump on unmount is what 1.23.7 did).
+    check("an unmounted ad does not move the rows below", page.evaluate("""() => {
+      const li = document.querySelector('li[data-index="1"]');
+      window.__ad = li;
+      const before = [window.__tr(2), window.__tr(3), window.__tr(6)];
+      li.remove();
+      window.__nudge();
+      return [before, [window.__tr(2), window.__tr(3), window.__tr(6)]];
+    }"""), [["0px -200px", "0px -200px", "0px -400px"], ["0px -200px", "0px -200px", "0px -400px"]])
+    page.wait_for_timeout(300)
+    page.evaluate("""() => { document.getElementById('list').appendChild(window.__ad); window.__nudge(); }""")
+    page.wait_for_timeout(300)
+    check("and it holds when the row comes back", page.evaluate("[window.__tr(2), window.__tr(6)]"), ["0px -200px", "0px -400px"])
+
+    page.close()
+
+    # 7. A row recycled into a real post: the post must be visible, and the rows below must
+    #    sit right after it — never on top of it. (A real post in the slot means the slot is
+    #    filled: the shift has to give way, and that is X's own re-layout, not a jump of ours.)
+    page, errors2 = open_page(browser)
     page.evaluate("""() => {
       const li = document.querySelector('li[data-index="1"]');
       const art = li.querySelector('article');
@@ -157,15 +177,16 @@ with sync_playwright() as p:
     }""")
     page.wait_for_timeout(400)
     check("a recycled row is visible again", page.evaluate(HIDDEN, "ad1"), False)
-    check("and the tail sits where X put it", page.evaluate("[window.__tr(2), window.__tr(3)]"), ["", ""])
+    check("the rows below sit after it, never on top of it", page.evaluate("window.__gap(1, 2) >= 0"), True)
+    check("and the gap is X's own spacing, not an ad's height", page.evaluate("window.__gap(1, 2) <= 40"), True)
 
-    # 7. Off: every shift goes, every offset stays exactly as X wrote it.
+    # 8. Off: every shift goes, every offset stays exactly as X wrote it.
     page.evaluate("window.__setHideAds(false)")
     page.wait_for_timeout(200)
     check("nothing stays marked", page.evaluate("document.querySelectorAll('[data-echolike-ad]').length"), 0)
     check("nothing carries a translate of ours", page.evaluate("[window.__tr(0), window.__tr(2), window.__tr(3), window.__tr(4)]"), ["", "", "", ""])
     check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(430px)")
-    check("no page errors", errors, [])
+    check("no page errors", errors + errors2, [])
 
     page.close()
     browser.close()
