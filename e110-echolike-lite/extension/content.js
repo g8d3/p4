@@ -209,81 +209,32 @@
     return el;
   }
 
-  // X's timeline is a virtualized list: a row is `li[data-index]` positioned absolutely
-  // with an inline `transform: translateY(<px>)`. Hiding such a row removes its box but
-  // not its slot — the rows after it keep their offsets, and that is the blank space the
-  // owner kept seeing. So the row's offset and height are recorded before hiding, and
-  // `collapse()` pulls every later row of the same list up by the heights of the hidden
-  // rows above it. It recomputes from the recorded bases, so it is safe to re-run and it
-  // undoes itself when a row stops being an ad.
-  const tfY = (el) => {
-    const m = /translateY\((-?[\d.]+)px\)/.exec((el.style && el.style.transform) || "");
-    return m ? parseFloat(m[1]) : null;
-  };
-
-  const collapsed = new Set(); // lists we have moved rows in, so unmarking can undo it
-
-  function collapse() {
-    const parents = new Set(collapsed);
-    for (const el of document.querySelectorAll("[data-echolike-ad]")) {
-      if (el.parentElement) parents.add(el.parentElement);
-    }
-    if (!parents.size) return;
-    for (const parent of parents) {
-      const hidden = [];
-      for (const el of parent.children) {
-        if (!el.hasAttribute("data-echolike-ad")) continue;
-        const base = Number(el.dataset.echBase);
-        const h = Number(el.dataset.echH);
-        if (Number.isFinite(base) && Number.isFinite(h)) hidden.push({ base, h });
-      }
-      let moved = 0;
-      for (const row of parent.children) {
-        if (row.hasAttribute("data-echolike-ad")) continue;
-        const cur = tfY(row);
-        if (cur == null) continue; // not a virtualized row: normal flow closes itself
-        let base = Number(row.dataset.echBase);
-        const applied = Number(row.dataset.echApplied);
-        // X rewrote the offset (it re-measures on scroll): that new value is the base.
-        if (!Number.isFinite(base) || (Number.isFinite(applied) && Math.abs(cur - applied) > 0.5)) base = cur;
-        let shift = 0;
-        for (const h of hidden) if (h.base < base) shift += h.h;
-        const target = Math.max(0, base - shift);
-        if (Math.abs(cur - target) > 0.5) row.style.transform = "translateY(" + target + "px)";
-        if (target !== base) {
-          row.dataset.echBase = String(base);
-          row.dataset.echApplied = String(target);
-          moved++;
-        } else {
-          delete row.dataset.echBase;
-          delete row.dataset.echApplied;
-        }
-      }
-      if (hidden.length || moved) collapsed.add(parent);
-      else collapsed.delete(parent);
+  // The row, not only the card: a card hidden inside a padded wrapper leaves the
+  // wrapper's padding behind. Nothing else is touched — in particular the offsets of
+  // the other rows are NOT moved. X's phone timeline positions rows absolutely
+  // (`li[data-index]` + inline `translateY`), so pulling them up by hand fought X's own
+  // re-measuring: the page jumped and posts landed on top of each other. A hidden row
+  // simply leaves its slot until X rebuilds the list, which is X's business, not ours.
+  function markCell(cell, on) {
+    for (const el of new Set([cell, rowOf(cell)])) {
+      if (on) el.setAttribute("data-echolike-ad", "1");
+      else el.removeAttribute("data-echolike-ad");
     }
   }
 
-  function markCell(cell, on) {
-    for (const el of new Set([cell, rowOf(cell)])) {
-      if (on) {
-        const h = el.getBoundingClientRect().height;
-        const t = tfY(el);
-        if (h > 0 && t != null && el.dataset.echBase == null) {
-          el.dataset.echBase = String(t);
-          el.dataset.echH = String(h);
-        }
-        el.setAttribute("data-echolike-ad", "1");
-      } else {
-        el.removeAttribute("data-echolike-ad");
-        const base = el.dataset.echBase;
-        if (base != null) el.style.transform = "translateY(" + base + "px)";
-        delete el.dataset.echBase;
-        delete el.dataset.echH;
-        delete el.dataset.echApplied;
-      }
+  // A virtualized row is recycled for a different post, sometimes without an insertion
+  // the observer can see: a mark that outlives its ad hides a real post ("some posts
+  // just disappear"). So every mutation re-checks the post or the module it happened in.
+  function recheck(node) {
+    const el = node instanceof Element ? node : node && node.parentElement;
+    if (!el || !el.closest) return;
+    const art = el.closest(POST_IN);
+    if (art) {
+      markCell(cellOf(art), looksPromoted(art));
+      return;
     }
-    collapse();
+    const cell = el.closest('li,[data-testid="cellInnerDiv"]');
+    if (cell && !cell.querySelector(POST_IN)) markModules(cell.parentElement || cell);
   }
 
   function markAds(node) {
@@ -599,16 +550,7 @@
       adObserver = null;
     }
     if (!on) {
-      // Off means back exactly as X had it: the hidden rows return to their own offsets
-      // and the rows we pulled up return to theirs.
-      for (const el of document.querySelectorAll("[data-echolike-ad]")) {
-        el.removeAttribute("data-echolike-ad");
-        if (el.dataset.echBase != null) el.style.transform = "translateY(" + el.dataset.echBase + "px)";
-        delete el.dataset.echBase;
-        delete el.dataset.echH;
-        delete el.dataset.echApplied;
-      }
-      collapse();
+      for (const el of document.querySelectorAll("[data-echolike-ad]")) el.removeAttribute("data-echolike-ad");
       return;
     }
     markAds(document.body);
@@ -618,11 +560,13 @@
     // body, not `main`: x-web's feed is not always inside <main>, and an observer on
     // a container the app replaces dies with it.
     adObserver = new MutationObserver((muts) => {
-      for (const m of muts) for (const n of m.addedNodes) {
-        markAds(n);
-        markModules(n);
+      for (const m of muts) {
+        for (const n of m.addedNodes) {
+          markAds(n);
+          markModules(n);
+        }
+        recheck(m.target);
       }
-      collapse(); // a re-render puts the rows back at X's offsets: pull them up again
     });
     adObserver.observe(document.body, { childList: true, subtree: true });
   }

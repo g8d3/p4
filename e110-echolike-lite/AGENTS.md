@@ -824,6 +824,26 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.2 — **the jumps and the vanishing posts were mine; the blank slot is X's.** Three
+  sentences from the owner: "jumps in the page, blank spaces for some ads, some posts
+  seem to just disappear". Cause of the first two: 1.23.1 moved the rows after a hidden
+  ad by hand (`translateY` arithmetic) to close the slot X's virtualized list leaves
+  behind, and X re-measures and rewrites those offsets — the two fought, the page
+  jumped, and posts ended up on top of each other. Cause of the third: a virtualized row
+  is recycled for a different post, sometimes without an insertion the observer can see,
+  so a mark outlived its ad and hid a real post.
+  * **All geometry code is gone** (`collapse`, recorded bases, the 1.23.1 nudge that
+    dispatched a synthetic `scroll`). The extension hides the row and touches nothing
+    else; the slot a virtualized row leaves is X's layout, and it closes when X rebuilds
+    the list. Removing the node instead of hiding it changes nothing for the same
+    reason — the next row's position is an explicit pixel offset written by X, not a
+    consequence of the removed element — and it is React's node, so it may come back.
+  * **`recheck()`** runs on every mutation: the post (or the non-post cell) the mutation
+    happened in is re-evaluated, so a recycled row is un-hidden immediately.
+    `tests/review_gap.py` now pins the guarantees that matter: ad hidden, **no other
+    row moved**, a recycled row visible again, switch off leaves every offset as X wrote
+    it.
+
 - 1.23.1 — **the report did it again: the word was "Ad from explee.com", and the gap was
   a virtualized slot.** One rich mark (`1.23.0`; words: `Vladimir Bayandín | @vovudebosh |
   Ad from explee.com`; 10.5 KB of markup) settled both open questions at once:

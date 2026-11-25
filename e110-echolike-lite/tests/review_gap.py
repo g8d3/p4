@@ -1,19 +1,21 @@
-"""The blank space: a virtualized row is hidden, its slot is closed too.
+"""What a hidden row may and may not do.
 
-The owner's report was two sentences apart: "ads were hidden, but blank space remained"
-and, later, "blank space is still there". The first rich ad report explained both — the
-phone's timeline is a virtualized list where every row is `li[data-index]` positioned
-absolutely with an inline `transform: translateY(<px>)`. `display:none` removes the box
-and leaves the slot, so the rows after the ad keep their offsets and a hole stays exactly
-where the ad was.
+The owner's report after 1.23.1 was blunt: "there are jumps in the page, blank spaces
+for some ads, and some posts seem to just disappear". The jumps were ours: X's phone
+timeline positions rows absolutely (`li[data-index]` + inline `translateY`), and pulling
+the later rows up by hand fought X's own re-measuring. The disappearing posts were a
+recycled row keeping its mark.
 
-This pins the fix on that exact markup, and the disclosure that started it all
-("Ad from explee.com", which the word list did not accept because it only knew "by"):
+So this pins the two guarantees that matter, and nothing clever:
 
-  * the ad row disappears;
-  * the row after it moves up by the ad's height, so no hole is left;
-  * the row before it does not move;
-  * switching the ads switch off puts every row back where X had it.
+  * the ad row is hidden, with its disclosure ("Ad from explee.com") and by itself;
+  * **no other row is moved** — the offsets X wrote stay exactly as X wrote them, which
+    is what keeps the page still;
+  * a row that stops being an ad (X recycles it for a real post) is **visible again**;
+  * switching the ads switch off leaves every row exactly where X put it.
+
+A hidden row leaves its slot until X rebuilds the list. That is X's layout, said out
+loud, instead of fighting it with geometry that made the page jump.
 
     xvfb-run -a python3 tests/review_gap.py
 """
@@ -47,29 +49,35 @@ with sync_playwright() as p:
     page.add_script_tag(content=CONTENT)
     page.wait_for_timeout(250)
 
-    # 1. "Ad from explee.com" is a disclosure now, so the ad goes by itself.
-    check("the ad row's content is hidden", page.evaluate(HIDDEN, "ad1"), True)
-    check("the ad row is marked", page.evaluate("document.querySelector('li[data-index=\"1\"]').getAttribute('data-echolike-ad')"), "1")
+    # 1. "Ad from explee.com" is a disclosure, so the ad goes by itself.
+    check("the ad is hidden", page.evaluate(HIDDEN, "ad1"), True)
     check("the ordinary posts stay", page.evaluate(HIDDEN, "post0"), False)
     check("and the one after it", page.evaluate(HIDDEN, "post2"), False)
 
-    # 2. The hole is closed: the row after the ad moved up by the ad's height (200px).
-    check("the row after the ad moved up by its height", page.evaluate(TY % 2), 200.0)
-    check("the row before it did not move", page.evaluate(TY % 0), 0.0)
+    # 2. The page does not move: every offset is still the one X wrote.
+    check("row 0 did not move", page.evaluate(TY % 0), 0.0)
+    check("row 1 (the ad) did not move", page.evaluate(TY % 1), 200.0)
+    check("row 2 did not move", page.evaluate(TY % 2), 400.0)
 
-    # 3. And it is reversible: switching the ads switch off restores X's own offsets.
+    # 3. X recycles the ad row for a real post: it must come back, not stay hidden.
+    page.evaluate("""() => {
+      const li = document.querySelector('li[data-index="1"]');
+      li.removeAttribute('data-echolike-ad');
+      const art = li.querySelector('article');
+      art.querySelector('[dir="auto"][lang]').textContent = 'This is a real post now.';
+      const label = art.querySelector('span:last-child');
+      if (label && /explee/.test(label.textContent)) label.textContent = 'Somebody';
+    }""")
+    page.wait_for_timeout(300)
+    check("a recycled row is visible again", page.evaluate(HIDDEN, "ad1"), False)
+
+    # 4. Off leaves everything where X had it.
     page.evaluate("window.__setHideAds(false)")
-    page.wait_for_timeout(250)
-    check("the ad is back", page.evaluate(HIDDEN, "ad1"), False)
-    check("its row is back at 200", page.evaluate(TY % 1), 200.0)
-    check("and the next row at 400", page.evaluate(TY % 2), 400.0)
+    page.wait_for_timeout(200)
+    check("row 0 at 0", page.evaluate(TY % 0), 0.0)
+    check("row 1 at 200", page.evaluate(TY % 1), 200.0)
+    check("row 2 at 400", page.evaluate(TY % 2), 400.0)
     check("nothing stays marked", page.evaluate("document.querySelectorAll('[data-echolike-ad]').length"), 0)
-
-    # 4. On again, and the collapse is recomputed, not doubled.
-    page.evaluate("window.__setHideAds(true)")
-    page.wait_for_timeout(250)
-    check("hidden again", page.evaluate(HIDDEN, "ad1"), True)
-    check("still one row-height up, not two", page.evaluate(TY % 2), 200.0)
     check("no page errors", errors, [])
 
     browser.close()
