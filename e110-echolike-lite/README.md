@@ -87,7 +87,7 @@ No network at all? Captures are saved in the browser and sent when it can be.
 
 ## Ads
 
-Promoted posts and trends are hidden on X — by CSS on the old app, and by the disclosure's own text on the 2026 rewrite (one observer, only while the switch is on). The label is whatever your X says: the desktop app prints *Promoted*, a phone prints *Ad*, and both count (as do "Promoted by …" and the same word in the languages this ships in). A real post whose own text is one of those words is never hidden, and neither is a Grok answer. The switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
+Promoted posts and trends are hidden on X — and a hidden ad gives its slot back, so no blank space is left where it was — by CSS on the old app, and by the disclosure's own text on the 2026 rewrite (one observer, only while the switch is on). The label is whatever your X says: the desktop app prints *Promoted*, a phone prints *Ad*, and both count (as do "Promoted by …" and the same word in the languages this ships in). A real post whose own text is one of those words is never hidden, and neither is a Grok answer. The switch `Hide ads on X` turns it off; liking an ad still captures it, flagged `"ad": true`.
 
 After an update, reload the X tab: a page keeps the script it loaded with. The label is matched after decoration is stripped (the phone prints "Ad ·"), and a disclosure that sits beside the post — or in a card that is not a post at all, like a sponsored module — hides its cell too.
 

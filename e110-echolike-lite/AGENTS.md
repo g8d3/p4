@@ -798,6 +798,7 @@ python3 tests/review_ads.py                   # ads hidden; Grok answers and rea
 python3 tests/review_ads_xweb.py              # x-web: the phone's "Ad", late labels, links, real posts that say it
 xvfb-run -a python3 tests/review_mobile.py    # the page fits 320/360/390/412 px; all four tabs on screen and working
 xvfb-run -a python3 tests/review_mark.py      # mark an ad on the page: hidden now, reported, and the word taught by a second mark
+xvfb-run -a python3 tests/review_gap.py       # a virtualized ad row gives its slot back: the next row moves up, switch off restores
 xvfb-run -a python3 tests/review_speed.py     # 800 captures on a throttled phone: one read, tab press paints from memory
 python3 tests/review_inbox_page.py            # the LIVE reader page: fragment key, decrypts, wrong key refused
 python3 tests/review_account.py               # accounts over HTTP (LOCAL wrangler dev): code, link, wrapped key
@@ -822,6 +823,24 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 `xvfb-run -a` as well.
 
 ## Version history
+
+- 1.23.1 — **the report did it again: the word was "Ad from explee.com", and the gap was
+  a virtualized slot.** One rich mark (`1.23.0`; words: `Vladimir Bayandín | @vovudebosh |
+  Ad from explee.com`; 10.5 KB of markup) settled both open questions at once:
+  * **The disclosure is "Ad from <domain>"** and `AD_LABEL` only knew `by` — the word was
+    printed on every ad and never matched. `from` (plus `aus/fra/van/de/del`) joins the
+    list, so that ad type is now hidden **without marking**.
+  * **The blank space is a virtualized slot.** The markup shows rows are `li[data-index]`
+    positioned absolutely with an inline `transform: translateY(<px>)`: `display:none`
+    removes the box and leaves the slot, so every row after the ad keeps its offset and a
+    hole stays where the ad was. Now the row's offset and height are recorded before
+    hiding, and `collapse()` pulls every later row of that list up by the heights of the
+    hidden rows above it — recomputed from the recorded bases (idempotent, survives X
+    re-measuring on scroll), re-run on every observed mutation, and undone exactly when
+    the switch goes off. `tests/review_gap.py` builds that list and pins all of it.
+  * One more fact from the same report: its skeleton equals an ordinary post's
+    (`sk=a3bd4902 skreal=a3bd4902 skcommon=4`), so shape learning correctly refused it.
+    The text was the answer, as it usually is.
 
 - 1.23.0 — **enough data to fix it, and the owner decides how much.** The order was
   literal: *"send enough data, later you can fix privacy… even better, let the user set
@@ -1341,6 +1360,14 @@ text is the marker (1.20.1+, and 1.21.0 made it actually work on a phone):
   `[dir=auto][lang]` container; a real post whose text is exactly "Ad" or "Promoted
   by …" is that container and stays. A quoted post's text is a different article and
   is ignored on both sides.
+* **A hidden row must give its slot back.** The phone timeline positions rows absolutely
+  (`li[data-index]` + inline `translateY`), so `display:none` leaves a hole in the middle
+  of the list. `collapse()` records each hidden row's offset and height and pulls the
+  later rows of that list up by exactly that much, on every observed mutation (idempotent
+  via the recorded bases); switching the switch off restores them. Any diagnosis of
+  "blank space" starts here, not at padding.
+* **`from` is a disclosure word too.** A phone prints "Ad from explee.com"; `by` alone
+  missed it on every ad.
 * **The cell is chosen in priority order** (`cellInnerDiv` → `li` → `role=link`), not
   with one `closest()` over a selector list: `closest` returns the *nearest*, so a
   `div[role=link]` inside the list cell got hidden instead of the cell, and the empty

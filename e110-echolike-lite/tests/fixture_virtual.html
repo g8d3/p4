@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><body>
+<!-- X's phone timeline, as the first rich ad report showed it: a virtualized list where
+     each row is `li[data-index]` positioned absolutely with an inline translateY. Hiding
+     such a row removes its box but not its slot — the rows after it keep their offsets,
+     and that is the blank space the owner kept seeing. -->
+<div id="list" style="position:relative;height:700px">
+  <div id="spacer" style="height:700px"></div>
+
+  <li data-index="0" style="position:absolute;left:0;top:0;width:100%;height:200px;transform:translateY(0px)">
+    <div role="link"><article id="post0">
+      <div><span>Someone</span><span>@someone</span></div>
+      <div dir="auto" lang="en">An ordinary post.</div>
+    </article></div>
+  </li>
+
+  <!-- The ad, exactly as the report had it: an LI row, the disclosure reading
+       "Ad from explee.com", two external links, no data-testid anywhere. -->
+  <li data-index="1" style="position:absolute;left:0;top:0;width:100%;height:200px;transform:translateY(200px)">
+    <div role="link"><article id="ad1">
+      <div><span>Vladimir Bayandín</span><span>@vovudebosh</span><span>Ad from explee.com</span></div>
+      <div dir="auto" lang="en">Promoted-looking copy.</div>
+      <a href="https://explee.com">explee.com</a>
+    </article></div>
+  </li>
+
+  <li data-index="2" style="position:absolute;left:0;top:0;width:100%;height:200px;transform:translateY(400px)">
+    <div role="link"><article id="post2">
+      <div><span>Another</span><span>@another</span></div>
+      <div dir="auto" lang="en">A third post.</div>
+    </article></div>
+  </li>
+</div>
+
+<script>
+  window.__sent = [];
+  window.__tel = [];
+  window.__changeListeners = [];
+  let store = { hide_ads: true, fab_on: false, ads_learned: [], ads_pending: [], ads_skel: [], ads_skel_pending: "" };
+  window.chrome = {
+    runtime: {
+      getManifest: () => ({ version: "9.9.9" }),
+      getURL: (p) => "chrome-extension://stub/" + p,
+      onMessage: { addListener: (fn) => (window.__msgListeners = window.__msgListeners || []).push(fn) },
+      sendMessage: (m, cb) => { window.__sent.push(m); cb && cb({ ok: true }); return Promise.resolve({ ok: true }); },
+    },
+    storage: {
+      local: {
+        set: (obj) => { Object.assign(store, obj); return Promise.resolve(); },
+        get: (defaults, cb) => {
+          const out = Object.assign({}, defaults);
+          for (const k of Object.keys(defaults)) if (k in store) out[k] = store[k];
+          cb && cb(out);
+          return Promise.resolve(out);
+        },
+      },
+      onChanged: { addListener: (fn) => window.__changeListeners.push(fn) },
+    },
+  };
+  window.__setHideAds = (v) => {
+    store.hide_ads = v;
+    window.__changeListeners.forEach((fn) => fn({ hide_ads: { newValue: v } }));
+  };
+  window.__store = () => store;
+</script>
+</body></html>
