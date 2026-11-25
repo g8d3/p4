@@ -825,6 +825,18 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.9 — **the blank at the END was the ad's height too.** After 1.23.8 the owner's
+  report was one line: *"Now there is a blank space at the end"* — and he is right, it is
+  the same design, one step further down. Closing the holes moves the rows up, but the
+  list's total height is a number X writes separately (the container plus the spacer whose
+  height is the sum of every row, ads included). The page therefore stayed exactly as long
+  as it was with the ads in it, and the last screen was empty by the sum of what was
+  hidden. `trimTail()` takes that sum off the height X wrote — and off the container when
+  X mirrors it there — remembering the original on the element (`data-ech-base`) and
+  restoring it when the switch goes off. Same monotone records, so it is idempotent and
+  cannot oscillate. `review_gap.py` now asserts the list ends 40 px after its last row
+  (X's own spacing) instead of 440, and that X's height is `1300` with `1700` remembered.
+
 - 1.23.8 — **the jumps had a name: a decrease.** The owner's message after 1.23.7 was
   four words, *"Los saltos volvieron"*, and he was right: the shift was stable on a page
   where nothing moves, and 1.23.7 recomputed it from the rows that happened to be

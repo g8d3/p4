@@ -96,6 +96,20 @@ with sync_playwright() as p:
     check("row 0 (above the ad) is not moved", page.evaluate("window.__tr(0)"), "")
     check("the hole is closed and X's 30px gap survives", page.evaluate("window.__gap(0, 2)"), 30)
 
+    # 2a. The blank space at the END: X's spacer still counts the ads we hid, so the page
+    #     stays as long as it was with them. The trim is the sum of what was closed.
+    check("the list is as long as what it shows, no trailing blank", page.evaluate("""() => {
+      const list = document.getElementById('list');
+      const rows = [...list.querySelectorAll('[data-index]')];
+      const last = rows[rows.length - 1].getBoundingClientRect();
+      const box = list.getBoundingClientRect();
+      return Math.round(box.bottom - last.bottom);
+    }"""), 40)  # X's own 30px spacing plus its row padding, and NOT 400px of hidden ads
+    check("the height X wrote is trimmed by what we hid, and remembered", page.evaluate("""() => {
+      const sp = document.getElementById('spacer');
+      return [sp.style.height, sp.dataset.echBase];
+    }"""), ["1300px", "1700"])
+
     # 2b. A second ad further down: the tail below it moves by both holes, not by the last
     #     one — an accumulation, which is the shape the two broken versions got wrong.
     check("the second ad is hidden", page.evaluate(HIDDEN, "ad5"), True)

@@ -345,6 +345,7 @@
     if (rows.length < 2) return;
     let prev = -1;
     let prevShift = 0;
+    let total = 0;
     for (let k = 0; k < rows.length; k++) {
       const row = rows[k];
       if (row.hasAttribute("data-echolike-ad")) continue;
@@ -367,7 +368,34 @@
       }
       prev = k;
       prevShift = want;
+      total = want;
     }
+    trimTail(list, total);
+  }
+
+  // The blank space at the END of the list. Moving the rows up closes the holes in the
+  // middle, but the list's total height is a separate number X writes — a container plus a
+  // spacer whose height is the sum of every row, ads included. So the page stays as long
+  // as it was with the ads in it, and the last screen is empty by exactly what we hid. The
+  // trim is that sum, taken off the height X wrote (and off the container when X mirrors
+  // it there): the original is remembered on the element, the value comes from the
+  // monotone records, so re-applying it is idempotent and cannot oscillate.
+  function trimTail(list, total) {
+    const v = total > 2 ? Math.round(Math.min(total, 6000)) : 0;
+    const trim = (el) => {
+      if (!el || !el.style) return;
+      if (el.dataset.echBase == null) {
+        const base = parseFloat(el.style.height);
+        if (!Number.isFinite(base)) return; // nothing X wrote here to trim
+        el.dataset.echBase = String(base);
+      }
+      const want = Math.max(0, Number(el.dataset.echBase) - v) + "px";
+      if (el.style.height !== want) el.style.height = want;
+      if (v > 0) el.dataset.echTrim = "1";
+      else delete el.dataset.echTrim;
+    };
+    for (const c of list.children) if (tfY(c) == null) trim(c);
+    trim(list); // X often mirrors the same height on the container
   }
 
   // One call for every list that still holds a mark, or a record of one (a list whose ads
@@ -387,6 +415,12 @@
       el.style.translate = "";
       delete el.dataset.echShift;
       delete el.dataset.echH;
+    }
+    // and every height the tail was trimmed by, back to what X wrote
+    for (const el of document.querySelectorAll("[data-ech-trim]")) {
+      if (el.dataset.echBase != null) el.style.height = el.dataset.echBase + "px";
+      delete el.dataset.echBase;
+      delete el.dataset.echTrim;
     }
   }
 
