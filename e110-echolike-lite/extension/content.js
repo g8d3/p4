@@ -219,11 +219,87 @@
   // leaves behind wrote layout into X's list (transform, then translate) and X reads that
   // layout back: the page jumped, and rows were drawn twice. X's offsets are X's; this
   // adds one attribute and one CSS rule and touches no geometry at all.
+  // Closing the slot a hidden row leaves, without the two things that broke it before:
+  // no scroll listener, and no running total. Writing `transform` (1.23.1) fought X's own
+  // rewrites and the page jumped; `translate` (1.23.3) survived the fight but its running
+  // total also subtracted X's own spacing, the rows ended up on top of each other, and
+  // that reads as duplicated posts. So the shift here is an exact sum:
+  //
+  //   shift(row) = sum of the ORIGINAL heights of the hidden rows above it
+  //
+  // and a hidden row counts only when X has not already reclaimed its slot (the next row
+  // still starts below it). Nothing accumulates, X's own gaps are untouched, and it is
+  // written in `translate`, a property X never writes — so nothing can fight it.
+  const tfY = (el) => {
+    const m = /translateY\((-?[\d.]+)px\)/.exec((el.style && el.style.transform) || "");
+    return m ? parseFloat(m[1]) : null;
+  };
+
+  function settle(scope) {
+    const root = scope && scope.querySelectorAll ? scope : document;
+    const lists = new Set();
+    for (const row of root.querySelectorAll("[data-echolike-ad], [data-ech-row]")) {
+      if (row.parentElement) lists.add(row.parentElement);
+    }
+    for (const list of lists) {
+      const rows = [...list.children].filter((r) => tfY(r) != null);
+      if (!rows.length) continue;
+      const hidden = [];
+      for (const row of rows) {
+        if (!row.hasAttribute("data-echolike-ad")) continue;
+        const y = Number(row.dataset.echY);
+        const h = Number(row.dataset.echH);
+        if (Number.isFinite(y) && Number.isFinite(h) && h > 0) hidden.push({ row, y, h });
+      }
+      for (const hid of hidden) {
+        // Did X already put the next row where this one was? Then the slot is gone.
+        const next = rows.find((r) => r !== hid.row && !r.hasAttribute("data-echolike-ad") && tfY(r) > hid.y);
+        hid.reclaimed = !next || tfY(next) <= hid.y + 1;
+      }
+      for (const row of rows) {
+        if (row.hasAttribute("data-echolike-ad")) continue;
+        const y = tfY(row);
+        let shift = 0;
+        for (const hid of hidden) if (!hid.reclaimed && hid.y < y) shift += hid.h;
+        const want = Math.min(shift, 4000);
+        if (want > 1) {
+          if (row.style.translate !== "0 -" + want + "px") row.style.translate = "0 -" + want + "px";
+          row.dataset.echRow = "1";
+        } else if (row.dataset.echRow) {
+          row.style.translate = "";
+          delete row.dataset.echRow;
+        }
+      }
+    }
+  }
+
+  function clearSettle() {
+    for (const row of document.querySelectorAll("[data-ech-row]")) {
+      row.style.translate = "";
+      delete row.dataset.echRow;
+    }
+  }
+
   function markCell(cell, on) {
     for (const el of new Set([cell, rowOf(cell)])) {
-      if (on) el.setAttribute("data-echolike-ad", "1");
-      else el.removeAttribute("data-echolike-ad");
+      if (on) {
+        // Measure BEFORE hiding: the row's own height is the slot to give back.
+        if (el.dataset.echY == null) {
+          const y = tfY(el);
+          const h = el.getBoundingClientRect().height;
+          if (y != null && h > 0) {
+            el.dataset.echY = String(y);
+            el.dataset.echH = String(h);
+          }
+        }
+        el.setAttribute("data-echolike-ad", "1");
+      } else {
+        el.removeAttribute("data-echolike-ad");
+        delete el.dataset.echY;
+        delete el.dataset.echH;
+      }
     }
+    settle(cell.parentElement || cell);
   }
 
   // A virtualized row is recycled for a different post, sometimes without an insertion
@@ -554,7 +630,12 @@
       adObserver = null;
     }
     if (!on) {
-      for (const el of document.querySelectorAll("[data-echolike-ad]")) el.removeAttribute("data-echolike-ad");
+      for (const el of document.querySelectorAll("[data-echolike-ad]")) {
+        el.removeAttribute("data-echolike-ad");
+        delete el.dataset.echY;
+        delete el.dataset.echH;
+      }
+      clearSettle();
       return;
     }
     markAds(document.body);
@@ -565,14 +646,24 @@
     // a container the app replaces dies with it.
     adObserver = new MutationObserver((muts) => {
       for (const m of muts) {
+        if (m.type === "attributes") {
+          // X rewrote a row's `transform` because it re-measured. If it closed the slot,
+          // the measured shift must go, or the row would be pulled up twice (that is what
+          // put posts on top of each other). No scroll listener is involved.
+          if (m.target.matches && m.target.matches("li[data-index]") && document.querySelector("[data-echolike-ad]")) {
+            settle(m.target.parentElement);
+          }
+          continue;
+        }
         for (const n of m.addedNodes) {
           markAds(n);
           markModules(n);
         }
         recheck(m.target);
+        settle(m.target && m.target.parentElement);
       }
     });
-    adObserver.observe(document.body, { childList: true, subtree: true });
+    adObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style"] });
   }
 
   function applyAds(hide) {

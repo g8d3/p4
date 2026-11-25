@@ -824,6 +824,23 @@ Headless must be `False` under xvfb: Chrome's old headless does not load extensi
 
 ## Version history
 
+- 1.23.5 — **the slot, closed by an exact sum.** 1.23.4 removed all geometry (it was
+  making the page jump and draw posts twice) and left the blank space; the owner was
+  right that it had to close. The mechanism, and why it cannot repeat either failure:
+  * **No scroll listener, no running total.** The shift is an exact sum:
+    `shift(row) = Σ original heights of the hidden rows above it`, and a hidden row only
+    counts while X has not reclaimed its slot (the next row still starts below it). The
+    1.23.3 running total was the bug: it also subtracted X's own spacing, so rows crept
+    on top of each other — which reads as duplicated posts. `review_gap.py` now includes
+    a row with X's own 30 px gap and asserts it survives untouched.
+  * **Written in `translate`**, a property X never writes, so X's own `transform`
+    rewrites cannot fight it (that fight was 1.23.1's jumps).
+  * **X re-measuring is noticed without a scroll listener**: the observer watches
+    `style` changes on `li[data-index]` rows. If X closes the hole itself, the shift
+    goes (no double pull); if the hole comes back, the shift comes back.
+  * Switch off → `clearSettle()` removes every shift. Recycled rows lose theirs on the
+    next settle, so a real post is never moved for an ad that is gone.
+
 - 1.23.4 — **no layout, ever: the jumps and the doubled posts were ours.** Hiding a
   virtualized row leaves its slot, and every attempt to close that slot wrote layout into
   X's list — `transform` in 1.23.1 (X rewrites it: the page jumped), `translate` in 1.23.3

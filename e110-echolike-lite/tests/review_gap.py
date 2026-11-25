@@ -74,17 +74,32 @@ with sync_playwright() as p:
     check("the ordinary posts stay", page.evaluate(HIDDEN, "post0"), False)
     check("and the one after it", page.evaluate(HIDDEN, "post2"), False)
 
-    # 2. No layout is written: X's transforms are exactly as they were, and nothing
-    #    carries a `translate` of ours. This is what keeps the page still.
+    # 2. Only `translate` is written — never X's `transform` — and by exactly the hidden
+    #    row's height. X's own 30px spacing before row 2 is not touched.
     check("row 0 transform untouched", page.evaluate("window.__ty(0)"), "translateY(0px)")
     check("row 1 transform untouched", page.evaluate("window.__ty(1)"), "translateY(200px)")
-    check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(400px)")
-    check("no row is moved by us", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
+    check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(430px)")
+    check("row 2 is pulled up by the ad's height, and by that alone", page.evaluate("window.__tr(2)"), "0px -200px")
+    check("row 0 is not moved", page.evaluate("window.__tr(0)"), "")
+    gapv = page.evaluate("""() => {
+      const a = document.querySelector('li[data-index="0"]').getBoundingClientRect();
+      const c = document.querySelector('li[data-index="2"]').getBoundingClientRect();
+      return Math.round(c.top - a.bottom);   // the ad's slot, and X's own gap
+    }""")
+    check("the hole is closed and X's 30px gap survives", gapv, 30)
 
     # 3. A scroll changes nothing (there is no scroll listener any more).
     page.evaluate("window.dispatchEvent(new Event('scroll'))")
     page.wait_for_timeout(200)
-    check("a scroll event moves nothing", page.evaluate("window.__ty(2)"), "translateY(400px)")
+    check("a scroll event moves nothing", page.evaluate("window.__tr(2)"), "0px -200px")
+
+    # 3b. X re-measures and closes the slot by itself: the shift must go, not double.
+    page.evaluate("document.querySelector('li[data-index=\"2\"]').style.transform = 'translateY(200px)'")
+    page.wait_for_timeout(300)
+    check("no double shift once X closed the hole", page.evaluate("window.__tr(2)"), "")
+    page.evaluate("document.querySelector('li[data-index=\"2\"]').style.transform = 'translateY(430px)'")
+    page.wait_for_timeout(300)
+    check("and the shift comes back when the hole does", page.evaluate("window.__tr(2)"), "0px -200px")
 
     # 4. A recycled row (X hands the element to a real post) must come back.
     page.evaluate("""() => {
@@ -102,8 +117,8 @@ with sync_playwright() as p:
     page.wait_for_timeout(200)
     check("nothing stays marked", page.evaluate("document.querySelectorAll('[data-echolike-ad]').length"), 0)
     check("row 0 transform untouched", page.evaluate("window.__ty(0)"), "translateY(0px)")
-    check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(400px)")
-    check("nothing is moved by us", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
+    check("row 2 transform untouched", page.evaluate("window.__ty(2)"), "translateY(430px)")
+    check("nothing is moved by us any more", page.evaluate("[window.__tr(0), window.__tr(1), window.__tr(2)]"), ["", "", ""])
     check("no page errors", errors, [])
 
     page.close()
